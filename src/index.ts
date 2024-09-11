@@ -828,6 +828,10 @@ export class NMPlayer extends Base {
 			});
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHED, (event, data) => {
 				console.log('Audio track switched', data);
+				this.emit('audioTrackChanged', {
+					id: data.id,
+					name: this.getAudioTracks()[data.id].name,
+				});
 			});
 
 			// this.hls.on(HLS.Events.BUFFER_APPENDING, (event, data) => {
@@ -868,6 +872,10 @@ export class NMPlayer extends Base {
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHED, (event, data) => {
 				console.log('Level switched', data);
+				this.emit('levelsChanged', {
+					id: data.level,
+					name: this.getQualityLevels()[data.level].name,
+				});
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHING, (event, data) => {
 				console.log('Level switching', data);
