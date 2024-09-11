@@ -5,8 +5,9 @@ import { MobileUIPlugin } from './src/plugins/mobileUIPlugin';
 import { TVUIPlugin } from './src/plugins/tvUIPlugin';
 import { KeyHandlerPlugin } from './src/plugins/keyHandlerPlugin';
 
-const gain = document.querySelector('#gain');
-const gainSlider = document.querySelector('#gainSlider');
+// const gain = document.querySelector('#gain');
+// const gainSlider = document.querySelector('#gainSlider');
+// const enableGain = document.querySelector('#enableGain');
 
 const audioTracks = document.querySelector('#audioTracks');
 const currentAudio = document.querySelector('#currentAudio');
@@ -15,9 +16,21 @@ const currentSubtitle = document.querySelector('#currentSubtitle');
 const qualities = document.querySelector('#qualities');
 const currentQuality = document.querySelector('#currentQuality');
 
-gainSlider.addEventListener('change', (e) => {
-	player.setGain(e.target.value);
-});
+// gainSlider.addEventListener('change', (e) => {
+// 	if (!player.gainNode) {
+// 		gainSlider.value = 1;
+// 		return;
+// 	}
+//	
+// 	player.setGain(e.target.value);
+// });
+
+// enableGain.addEventListener('click', (e) => {
+// 	player.addGainNode();
+// 	enableGain.style.display = 'none';
+// 	gainSlider.style.display = '';
+// });
+
 
 /**
  * @type {import("./src/index.d").SetupConfig}

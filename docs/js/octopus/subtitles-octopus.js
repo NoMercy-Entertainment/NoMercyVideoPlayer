@@ -57,7 +57,7 @@ const SubtitlesOctopus = function (options) {
             }
         }
         const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         window.ImageData = function () {
             let i = 0;
             if (arguments[0] instanceof Uint8ClampedArray) {
@@ -132,9 +132,9 @@ const SubtitlesOctopus = function (options) {
                 self.workerError('Don\'t know where to render: you should give video or canvas in options.');
             }
         }
-        self.ctx = self.canvas.getContext('2d');
+        self.ctx = self.canvas.getContext('2d', { willReadFrequently: true });
         self.bufferCanvas = document.createElement('canvas');
-        self.bufferCanvasCtx = self.bufferCanvas.getContext('2d');
+        self.bufferCanvasCtx = self.bufferCanvas.getContext('2d', { willReadFrequently: true });
         self.bufferCanvas.width = 1;
         self.bufferCanvas.height = 1;
         const testBuf = new Uint8ClampedArray([

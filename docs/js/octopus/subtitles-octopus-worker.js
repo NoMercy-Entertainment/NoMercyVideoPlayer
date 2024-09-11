@@ -1435,7 +1435,7 @@ var Browser = {
 				var canvas = document.createElement('canvas');
 				canvas.width = img.width;
 				canvas.height = img.height;
-				var ctx = canvas.getContext('2d');
+				var ctx = canvas.getContext('2d', { willReadFrequently: true });
 				ctx.drawImage(img, 0, 0);
 				Module['preloadedImages'][name] = canvas;
 				Browser.URLObject.revokeObjectURL(url);
@@ -1578,7 +1578,7 @@ var Browser = {
 				}
 			}
 		} else {
-			ctx = canvas.getContext('2d');
+			ctx = canvas.getContext('2d', { willReadFrequently: true });
 		}
 		if (!ctx) return null;
 		if (setInModule) {
