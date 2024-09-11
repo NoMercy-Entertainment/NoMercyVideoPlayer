@@ -193,16 +193,16 @@ export class DesktopUIPlugin extends Plugin {
 	}
 
 	eventHandlers() {
-		this.player.on('volume', (data) => {
-			this.player.displayMessage(`${this.player.localize('Volume')}: ${Math.floor(data.volume)}%`);
-		});
-		this.player.on('mute', (data) => {
-			if (data.mute) {
-				this.player.displayMessage(this.player.localize('Muted'));
-			} else {
-				this.player.displayMessage(`${this.player.localize('Volume')}: ${data.volume}%`);
-			}
-		});
+		// this.player.on('volume', (data) => {
+		// 	this.player.displayMessage(`${this.player.localize('Volume')}: ${Math.floor(data)}%`);
+		// });
+		// this.player.on('mute', (data) => {
+		// 	if (data.mute) {
+		// 		this.player.displayMessage(this.player.localize('Muted'));
+		// 	} else {
+		// 		this.player.displayMessage(`${this.player.localize('Volume')}: ${data.volume}%`);
+		// 	}
+		// });
 
 		this.player.on('controls', (showing) => {
 			if (this.player.getElement()) {
@@ -286,7 +286,7 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses(this.makeStyles('centerStyles'))
 			.appendTo(parent);
 
-		this.createOverlayCenterMessage(center);
+		// this.createOverlayCenterMessage(center);
 
 		this.createSpinnerContainer(center);
 
