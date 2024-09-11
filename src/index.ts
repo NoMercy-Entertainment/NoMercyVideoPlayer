@@ -26,6 +26,7 @@ export class NMPlayer extends Base {
 	// Options
 	options: Partial<SetupConfig> = {
 		muted: false,
+		autoPlay: false,
 		controls: false,
 		debug: false,
 		accessToken: '',
@@ -564,7 +565,9 @@ export class NMPlayer extends Base {
 			this.videoElement.src = url;
 		}
 
-		this.play().then();
+		if (this.options.autoPlay) {
+			this.play().then();
+		}
 	}
 
 	addGainNode(): void {
@@ -802,10 +805,11 @@ export class NMPlayer extends Base {
 		this.container.addEventListener('click', this.ui_resetInactivityTimer.bind(this));
 		this.container.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
 		
+		this.once('playing', () => {
+			this.addGainNode();
+		});
+		
 		this.once('hls', () => {
-			this.once('playing', () => {
-				this.addGainNode();
-			});
 
 			if (!this.hls) return;
 			
@@ -1520,6 +1524,7 @@ export class NMPlayer extends Base {
 	}
 
 	play(): Promise<void> {
+		this.options.autoPlay = true;
 		return this.videoElement.play();
 	}
 

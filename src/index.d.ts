@@ -390,6 +390,7 @@ export interface SetupConfig {
     debug?: boolean;
     muted?: boolean;
     controls?: boolean;
+    autoPlay?: boolean;
     preload?: 'auto' | 'metadata' | 'none';
     stretching?: StretchOptions;
 
