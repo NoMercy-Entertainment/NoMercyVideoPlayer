@@ -1735,7 +1735,7 @@ export class NMPlayer extends Base {
 	}
 
 	setCurrentAudioTrack(index: number): void {
-		if (!this.hls) return;
+		if ((!index && index != 0) || !this.hls) return;
 		this.hls.audioTrack = index;
 	}
 
@@ -1791,7 +1791,7 @@ export class NMPlayer extends Base {
 	}
 
 	setCurrentQuality(index: number) {
-		if (!this.hls) return;
+		if ((!index && index != 0) || !this.hls) return;
 		this.hls.nextLevel = index;
 	}
 
