@@ -805,7 +805,7 @@ export class NMPlayer extends Base {
 		this.container.addEventListener('click', this.ui_resetInactivityTimer.bind(this));
 		this.container.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
 		
-		this.once('playing', () => {
+		this.once('firstFrame', () => {
 			this.addGainNode();
 		});
 		

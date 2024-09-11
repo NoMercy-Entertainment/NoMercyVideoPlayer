@@ -218,7 +218,7 @@ const config = {
 			],
 		},
 	],
-	
+
 	controlsTimeout: 3000,
 	doubleClickDelay: 500,
 	playbackRates: [

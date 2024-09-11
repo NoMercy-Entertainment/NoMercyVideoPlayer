@@ -10,7 +10,13 @@ export default defineConfig({
 	build: {
 		sourcemap: false,
 		rollupOptions: {
-			input: ['./index.html']
+			input: ['./index.html'],
+			output: {
+				dir: 'docs',
+				entryFileNames: 'assets/[name].js',
+				chunkFileNames: 'assets/[name].js',
+				assetFileNames: 'assets/[name].[ext]',
+			}
 		},
 		// rollupOptions: {
 		// 	output: {
