@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon"
+              type="image/svg+xml"
+              href="/favicon.ico" />
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0" />
+        <title>NoMercyPlayer API</title>
+    </head>
+
+    <body class="nm-flex nm-flex-col nm-items-center nm-justify-center nm-w-screen nm-h-screen nm-gap-4 nm-text-white nm-bg-zinc-900">
+
+        <div id="container"
+             class="nm-flex nm-flex-col nm-justify-evenly nm-w-full nm-gap-4 nm-p-4 sm:nm-flex-row">
+
+            <div id="left"
+                 class="nm-flex nm-flex-col nm-gap-1  nm-w-px nm-flex-1 nm-max-w-xs nm-h-full">
+
+                <div class="nm-text-lg nm-font-semibold nm-ml-2 nm-flex nm-flex-nowrap">
+                    <span>Current Audio:</span>
+                    <div id="currentAudio"
+                         class="nm-ml-1"></div>
+                </div>
+                <div id="audioTracks"
+                     class="nm-flex nm-flex-col nm-gap-1 nm-overflow-clip nm-h-[30%] nm-mb-2"></div>
+
+                <div class="nm-text-lg nm-font-semibold nm-ml-2 nm-flex nm-flex-nowrap">
+                    <span>Current Subtitle:</span>
+                    <div id="currentSubtitle"
+                         class="nm-ml-1"></div>
+                </div>
+                <div id="subtitleTracks"
+                     class="nm-flex nm-flex-col nm-gap-1 nm-overflow-clip nm-h-[30%] nm-mb-2"></div>
+
+                <div class="nm-text-lg nm-font-semibold nm-ml-2 nm-flex nm-flex-nowrap">
+                    <span>Current Quality:</span>
+                    <div id="currentQuality"
+                         class="nm-ml-1"></div>
+                </div>
+                <div id="qualities"
+                     class="nm-flex nm-flex-col nm-gap-1 nm-overflow-clip nm-h-[30%] nm-mb-2"></div>
+
+            </div>
+
+            <div id="wrapper"
+                 class="nm-flex nm-flex-col nm-items-center  nm-w-px nm-flex-1 nm-max-w-7xl nm-gap-2 nm-text-center">
+
+                <div id="player"
+                     class="nm-group">
+                </div>
+
+                <div class="nm-flex nm-flex-wrap nm-items-center nm-justify-center nm-gap-4">
+                    <label class="nm-flex nm-items-center nm-gap-2">
+                        Gain: <span id="gain">0</span>
+                        <input type="range"
+                               min="1"
+                               max="10"
+                               step="1"
+                               value="0"
+                               name="gain"
+                               id="gainSlider"
+                               class=" appearance-none nm-h-1 nm-mr-2 nm-rounded-full nm-cursor-pointer nm-accent-purple-900">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <script type="module"
+                src='./src/index.ts'></script>
+
+        <script type="module"
+                src='./index.js'></script>
+
+    </body>
+
+</html>
