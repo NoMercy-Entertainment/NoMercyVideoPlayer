@@ -9,6 +9,9 @@ export default defineConfig({
 	plugins: [dts()],
 	build: {
 		sourcemap: false,
+		rollupOptions: {
+			input: ['./index.html']
+		},
 		// rollupOptions: {
 		// 	output: {
 		// 		entryFileNames: 'assets/[name].js',
