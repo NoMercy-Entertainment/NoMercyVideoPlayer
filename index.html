@@ -8,16 +8,25 @@
               href="/favicon.ico" />
         <meta name="viewport"
               content="width=device-width, initial-scale=1.0" />
-        <title>NoMercyPlayer API</title>
+        <title>NoMercy VideoPlayer</title>
+
+        <!-- Open Graph Metadata -->
+        <meta property="og:title" content="NoMercy VideoPlayer" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://player.nomercy.tv" />
+        <!-- <meta property="og:image" content="https://player.nomercy.tv/preview.jpg" /> -->
+        <meta property="og:description" content="Full event-driven video player without a UI." />
+        <meta property="og:site_name" content="NoMercy VideoPlayer" />
+        <meta property="og:locale" content="en_US" />
     </head>
 
     <body class="nm-flex nm-flex-col nm-items-center nm-justify-center nm-w-screen nm-h-screen nm-gap-4 nm-text-white nm-bg-zinc-900">
 
         <div id="container"
-             class="nm-flex nm-flex-col nm-justify-evenly nm-w-full nm-gap-4 nm-p-4 sm:nm-flex-row">
+             class="nm-flex nm-flex-col nm-justify-evenly nm-items-center nm-w-full nm-max-h-available nm-gap-4 nm-p-4 sm:nm-flex-row">
 
             <div id="left"
-                 class="nm-flex nm-flex-col nm-gap-1  nm-w-px nm-flex-1 nm-max-w-xs nm-h-full">
+                 class="nm-flex nm-flex-col nm-gap-1  nm-w-px nm-flex-1 nm-max-w-xs nm-h-5/6">
 
                 <div class="nm-text-lg nm-font-semibold nm-ml-2 nm-flex nm-flex-nowrap">
                     <span>Current Audio:</span>
@@ -46,7 +55,7 @@
             </div>
 
             <div id="wrapper"
-                 class="nm-flex nm-flex-col nm-items-center  nm-w-px nm-flex-1 nm-max-w-7xl nm-gap-2 nm-text-center">
+                 class="nm-flex nm-flex-col nm-items-center nm-w-px nm-flex-1 nm-max-w-7xl nm-gap-2 nm-text-center">
 
                 <div id="player"
                      class="nm-group">

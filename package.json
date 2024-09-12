@@ -4,15 +4,15 @@
   "description": "",
   "type": "module",
   "files": [
-    "dist"
+    "docs"
   ],
-  "main": "./dist/no-mercy-player.umd.cjs",
-  "module": "./dist/no-mercy-player.js",
-  "types": "./dist/index.d.ts",
+  "main": "./docs/no-mercy-player.umd.cjs",
+  "module": "./docs/no-mercy-player.js",
+  "types": "./docs/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/no-mercy-player.js",
-      "require": "./dist/no-mercy-player.umd.cjs"
+      "import": "./docs/no-mercy-player.js",
+      "require": "./docs/no-mercy-player.umd.cjs"
     }
   },
   "scripts": {

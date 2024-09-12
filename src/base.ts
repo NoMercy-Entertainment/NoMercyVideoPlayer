@@ -1,9 +1,42 @@
 
-import { TimeData } from './index.d';
+import type { SetupConfig, TimeData } from './index.d';
 
 export class Base {
 
 	eventElement: HTMLDivElement = <HTMLDivElement>{};
+	container: HTMLDivElement = <HTMLDivElement>{};
+	videoElement: HTMLVideoElement = <HTMLVideoElement>{};
+	overlay: HTMLDivElement = <HTMLDivElement>{};
+	subtitleOverlay: HTMLDivElement = <HTMLDivElement>{};
+	subtitleText: HTMLSpanElement = <HTMLSpanElement>{};
+
+	translations: { [key: string]: string } = {};
+
+	playerId = '';
+	setupTime = 0;
+
+	// State
+	message: NodeJS.Timeout = <NodeJS.Timeout>{};
+
+	// Options
+	options: Partial<SetupConfig> = {
+		muted: false,
+		autoPlay: false,
+		controls: false,
+		debug: false,
+		accessToken: '',
+		basePath: '',
+		playbackRates: [0.5, 1, 1.5, 2],
+		stretching: 'uniform',
+		controlsTimeout: 3000,
+		displayLanguage: 'en',
+		preload: 'auto',
+		playlist: [],
+		disableMediaControls: false,
+		disableControls: false,
+		disableTouchControls: false,
+		doubleClickDelay: 300,
+	};
 
 	hasPipEventHandler = false;
 	hasTheaterEventHandler = false;

@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"target": "ES2016",
+		"target": "ES2018",
 		"module": "es6",
-		"outDir": "./dist",
+		"outDir": "./docs",
 		// "outFile": "./build/build.js",
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,

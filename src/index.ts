@@ -16,43 +16,13 @@ export class NMPlayer extends Base {
 	gainNode: GainNode | undefined;
 	translations: { [key: string]: string } = {};
 
-	// Elements
-	container: HTMLDivElement = <HTMLDivElement>{};
-	videoElement: HTMLVideoElement = <HTMLVideoElement>{};
-	overlay: HTMLDivElement = <HTMLDivElement>{};
-	subtitleOverlay: HTMLDivElement = <HTMLDivElement>{};
-	subtitleText: HTMLSpanElement = <HTMLSpanElement>{};
-
-	// Options
-	options: Partial<SetupConfig> = {
-		muted: false,
-		autoPlay: false,
-		controls: false,
-		debug: false,
-		accessToken: '',
-		basePath: '',
-		playbackRates: [0.5, 1, 1.5, 2],
-		stretching: 'uniform',
-		controlsTimeout: 3000,
-		displayLanguage: 'en',
-		preload: 'auto',
-		playlist: [],
-		disableMediaControls: false,
-		disableControls: false,
-		disableTouchControls: false,
-		doubleClickDelay: 300,
-	};
-
-	playerId = '';
-	setupTime = 0;
-
 	// State
 	message: NodeJS.Timeout = <NodeJS.Timeout>{};
-	tapCount = 0;
 	leftTap: NodeJS.Timeout = <NodeJS.Timeout>{};
 	rightTap: NodeJS.Timeout = <NodeJS.Timeout>{};
 	leeway = 300;
 	seekInterval = 10;
+	tapCount = 0;
 
 	// Store
 	chapters: VTTData = <VTTData>{};
@@ -99,6 +69,7 @@ export class NMPlayer extends Base {
 	currentAspectRatio: typeof this.stretchOptions[number] = this.options.stretching ?? 'uniform';
 	allowFullscreen: boolean = true;
 	shouldFloat: boolean = false;
+	firstFrame: boolean = false;
 
 	constructor(id?: string | number) {
 		super();
@@ -281,7 +252,6 @@ export class NMPlayer extends Base {
 	}): Promise<void> => {
 		const headers: { [arg: string]: string; } = {
 			'Accept-Language': options.language || 'en',
-			'Content-Type': 'application/json',
 		};
 		if (this.options.accessToken && !options.anonymous) {
 			headers.Authorization = `Bearer ${this.options.accessToken}`;
@@ -400,7 +370,8 @@ export class NMPlayer extends Base {
 		this.container.style.position = 'relative';
 		this.container.style.display = 'flex';
 		this.container.style.width = '100%';
-		this.container.style.height = '100%';
+		this.container.style.height = 'auto';
+		this.container.style.aspectRatio = '16/9';
 		this.container.style.zIndex = '0';
 		this.container.style.alignItems = 'center';
 		this.container.style.justifyContent = 'center';
@@ -419,7 +390,12 @@ export class NMPlayer extends Base {
 		this.videoElement.style.display = 'block';
 		this.videoElement.style.position = 'absolute';
 
-		this.videoElement.muted = this.options.muted ?? false;
+		this.videoElement.muted = this.options.muted ?? localStorage.getItem('nmplayer-muted') === 'true';
+		this.videoElement.autoplay = this.options.autoPlay ?? false;
+		this.videoElement.controls = this.options.controls ?? false;
+		this.videoElement.preload = this.options.preload ?? 'auto';
+		this.videoElement.volume = localStorage.getItem('nmplayer-volume') ? parseFloat(localStorage.getItem('nmplayer-volume') as string) / 100 : 1;
+
 		this.emit('ready');
 	}
 
@@ -527,7 +503,7 @@ export class NMPlayer extends Base {
 
 	hdrSupported(): boolean {
 		// noinspection JSDeprecatedSymbols
-		if (navigator.vendor == 'Google Inc.') return true;
+		// if (navigator.vendor == 'Google Inc.') return true;
 		return screen.colorDepth > 24 && window.matchMedia('(color-gamut: p3)').matches;
 	}
 
@@ -539,15 +515,16 @@ export class NMPlayer extends Base {
 		if (!url.endsWith('.m3u8')) {
 			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
 		} else if (HLS.isSupported()) {
+
 			this.hls = new HLS({
 				debug: this.options.debug ?? false,
 				enableWorker: true,
-				lowLatencyMode: true,
-				backBufferLength: 0,
+				lowLatencyMode: false,
+				backBufferLength: 10,
 				maxBufferLength: 10,
 				testBandwidth: true,
 				videoPreference: {
-					allowedVideoRanges: ['PQ', 'SDR'],
+					preferHDR: this.hdrSupported(),
 				},
 
 				xhrSetup: (xhr) => {
@@ -556,7 +533,7 @@ export class NMPlayer extends Base {
 					}
 				},
 			});
-			
+
 			this.emit('hls');
 
 			this.hls?.loadSource(url);
@@ -625,20 +602,24 @@ export class NMPlayer extends Base {
 	videoPlayer_onPlayingEvent(e: Event): void {
 		this.videoElement.removeEventListener('playing', this.videoPlayer_onPlayingEvent);
 
-		this.emit('firstFrame');
+		if (!this.firstFrame) {
+			this.emit('firstFrame');
+			this.firstFrame = true;
+		}
 
 		this.setMediaAPI();
 
 		this.on('playlistItem', () => {
 			this.videoElement.addEventListener('playing', this.videoPlayer_onPlayingEvent);
+			this.firstFrame = false;
 		});
-		
+
 		setTimeout(() => {
-			if (localStorage.getItem('subtitle-language') && localStorage.getItem('subtitle-type') && localStorage.getItem('subtitle-ext')) {
+			if (localStorage.getItem('nmplayer-subtitle-language') && localStorage.getItem('nmplayer-subtitle-type') && localStorage.getItem('nmplayer-subtitle-ext')) {
 				this.setCurrentCaption(this.getTextTrackIndexBy(
-					localStorage.getItem('subtitle-language') as string,
-					localStorage.getItem('subtitle-type') as string,
-					localStorage.getItem('subtitle-ext') as string
+					localStorage.getItem('nmplayer-subtitle-language') as string,
+					localStorage.getItem('nmplayer-subtitle-type') as string,
+					localStorage.getItem('nmplayer-subtitle-ext') as string
 				));
 			} else {
 				this.setCurrentCaption(-1);
@@ -804,15 +785,15 @@ export class NMPlayer extends Base {
 		this.container.addEventListener('mousemove', this.ui_resetInactivityTimer.bind(this));
 		this.container.addEventListener('click', this.ui_resetInactivityTimer.bind(this));
 		this.container.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
-		
+
 		// this.once('firstFrame', () => {
 		// 	this.addGainNode();
 		// });
-		
+
 		this.once('hls', () => {
 
 			if (!this.hls) return;
-			
+
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADING, (event, data) => {
 				console.log('Audio track loading', data);
 			});
@@ -820,7 +801,7 @@ export class NMPlayer extends Base {
 				console.log('Audio tracks loaded', data);
 				this.emit('audioTrackChanged', {
 					id: data.id,
-					name: this.getAudioTracks()[data.id].name,
+					name: this.getAudioTracks()[data.id]?.name,
 				});
 			});
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHING, (event, data) => {
@@ -830,7 +811,7 @@ export class NMPlayer extends Base {
 				console.log('Audio track switched', data);
 				this.emit('audioTrackChanged', {
 					id: data.id,
-					name: this.getAudioTracks()[data.id].name,
+					name: this.getAudioTracks()[data.id]?.name,
 				});
 			});
 
@@ -864,10 +845,10 @@ export class NMPlayer extends Base {
 			});
 
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
-				console.log('Level loaded', data);
+				console.log('Level loaded',  data);
 				this.emit('levelsChanged', {
 					id: data.level,
-					name: this.getQualityLevels()[data.level].name,
+					name: this.getQualityLevels().find(l => l.url[0] === data.details.url).name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHED, (event, data) => {
@@ -916,6 +897,36 @@ export class NMPlayer extends Base {
 				console.log('Media detaching', event);
 			});
 		});
+
+		this.once('playlistItem', () => {
+			this.once('audio', () => {
+				if (localStorage.getItem('nmplayer-audio-language')) {
+					this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language') as string));
+				} else {
+					this.setCurrentAudioTrack(0);
+				}
+				this.once('play', () => {
+					if (localStorage.getItem('nmplayer-audio-language')) {
+						this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language') as string));
+					} else {
+						this.setCurrentAudioTrack(0);
+					}
+				});
+			});
+			this.once('captionsList', () => {
+				if (localStorage.getItem('nmplayer-subtitle-language') && localStorage.getItem('nmplayer-subtitle-type') && localStorage.getItem('nmplayer-subtitle-ext')) {
+					this.setCurrentCaption(this.getTextTrackIndexBy(
+						localStorage.getItem('nmplayer-subtitle-language') as string,
+						localStorage.getItem('nmplayer-subtitle-type') as string,
+						localStorage.getItem('nmplayer-subtitle-ext') as string
+					));
+				} else {
+					this.setCurrentCaption(-1);
+				}
+			});
+		});
+
+
 	}
 
 	_removeEvents(): void {
@@ -1025,7 +1036,7 @@ export class NMPlayer extends Base {
      * Returns an array of subtitle tracks for the current playlist item.
      * @returns {Array} An array of subtitle tracks for the current playlist item.
      */
-	public getSubtitles(): Track[] | undefined {
+	getSubtitles(): Track[] | undefined {
 		return this.playlistItem().tracks?.filter((t: { kind: string }) => t.kind === 'subtitles');
 	}
 
@@ -1314,9 +1325,6 @@ export class NMPlayer extends Base {
 			this.currentIndex = index;
 			this.videoElement.poster = this.currentPlaylistItem.image ?? '';
 			this.loadSource(this.currentPlaylistItem.file);
-			this.isPlaying = true;
-			this.emit('playing');
-
 		} else {
 			console.log('No more videos in the playlist.');
 		}
@@ -1330,7 +1338,7 @@ export class NMPlayer extends Base {
 	async fetchPlaylist(url: string) {
 
 		const headers: { [arg: string]: string; } = {
-			'Accept-Language': localStorage.getItem('NoMercy-displayLanguage') ?? navigator.language,
+			'Accept-Language': localStorage.getItem('nmplayer-NoMercy-displayLanguage') ?? navigator.language,
 			'Content-Type': 'application/json',
 		};
 
@@ -1620,7 +1628,9 @@ export class NMPlayer extends Base {
 	}
 
 	toggleMute(): void {
-		this.videoElement.muted = !this.videoElement.muted;
+		this.setMute(!this.videoElement.muted);
+
+		localStorage.setItem('nmplayer-muted', this.videoElement.muted.toString());
 
 		if (this.videoElement.muted) {
 			this.displayMessage(this.localize('Muted'));
@@ -1670,6 +1680,7 @@ export class NMPlayer extends Base {
 	setVolume(arg: number) {
 		this.videoElement.volume = arg / 100;
 		this.setMute(false);
+		localStorage.setItem('nmplayer-volume', arg.toString());
 	}
 
 	// Resize
@@ -1745,6 +1756,17 @@ export class NMPlayer extends Base {
 	setCurrentAudioTrack(index: number): void {
 		if ((!index && index != 0) || !this.hls) return;
 		this.hls.audioTrack = index;
+
+		localStorage.setItem('nmplayer-audio-language', this.getAudioTracks()[index]?.lang);
+	}
+
+	/**
+	 * Returns the index of the audio track with the specified language.
+	 * @param language The language of the audio track to search for.
+	 * @returns The index of the audio track with the specified language, or -1 if no such track exists.
+	 */
+	getAudioTrackIndexByLanguage(language: string) {
+		return this.getAudioTracks().findIndex((t: any) => t.language == language);
 	}
 
 	/**
@@ -1780,7 +1802,7 @@ export class NMPlayer extends Base {
 	// Quality
 	getQualityLevels(): any[] | Level[] {
 		if (!this.hls) return [];
-		return this.hls.levels.filter((level) => {
+		return this.hls.levels.map((level, index: number) => ({...level, id: index})).filter((level) => {
 			const range = level._attrs.at(0)?.['VIDEO-RANGE'];
 			const browserSupportsHDR = this.hdrSupported();
 			if (browserSupportsHDR) return true;
@@ -1865,9 +1887,9 @@ export class NMPlayer extends Base {
 		const tag = file.match(/\w+\.\w+\.\w+$/u)?.[0];
 		const [language, type, ext] = tag ? tag.split('.') : [];
 
-		localStorage.setItem('subtitle-language', language);
-		localStorage.setItem('subtitle-type', type);
-		localStorage.setItem('subtitle-ext', ext);
+		localStorage.setItem('nmplayer-subtitle-language', language);
+		localStorage.setItem('nmplayer-subtitle-type', type);
+		localStorage.setItem('nmplayer-subtitle-ext', ext);
 	}
 
 	/**

@@ -1,8 +1,9 @@
 import Plugin from '../Plugin';
 import type { Chapter, NMPlayer, PlaylistItem, Position, PreviewTime, QualityLevel, VolumeState } from '../index.d';
 import { buttons, Icon } from './UIPlugin/buttons';
-import { convertToSeconds, humanTime } from '../helpers';
+import { humanTime } from '../helpers';
 import * as styles from './UIPlugin/styles';
+import { WebVTTParser } from 'webvtt-parser';
 
 export class DesktopUIPlugin extends Plugin {
 	player: NMPlayer = <NMPlayer>{};
@@ -28,6 +29,11 @@ export class DesktopUIPlugin extends Plugin {
 	playlistMenuOpen = false;
 	theaterModeEnabled = false;
 	pipEnabled = false;
+
+	leftTap: NodeJS.Timeout = <NodeJS.Timeout>{};
+	rightTap: NodeJS.Timeout = <NodeJS.Timeout>{};
+	leeway = 300;
+	seekInterval = 10;
 
 	previewTime: PreviewTime[] = [];
 
@@ -2563,38 +2569,34 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses(this.makeStyles('chapterTextStyles'))
 			.appendTo(sliderPop);
 
-		if (this.player.options.chapters != false && !this.player.isTv() && this.player.getChapters()?.length > 0) {
+		if (this.player.options.chapters && !this.player.isTv() && this.player.getChapters()?.length > 0) {
 			this.sliderBar.style.background = 'transparent';
 		}
 
-		const join = this.player.getParameterByName('join');
+		['mousedown', 'touchstart'].forEach((event) => {
+			this.sliderBar.addEventListener(event, () => {
+				if (this.isMouseDown) return;
 
-		if (!join) {
-			['mousedown', 'touchstart'].forEach((event) => {
-				this.sliderBar.addEventListener(event, () => {
-					if (this.isMouseDown) return;
-
-					this.isMouseDown = true;
-					this.isScrubbing = true;
-				}, {
-					passive: true,
-				});
-			});
-
-			this.bottomBar.addEventListener('click', (e: any) => {
-				this.player.emit('hide-tooltip');
-				if (!this.isMouseDown) return;
-
-				this.isMouseDown = false;
-				this.isScrubbing = false;
-				sliderPop.style.setProperty('--visibility', '0');
-				const scrubTime = this.getScrubTime(e);
-				sliderNipple.style.left = `${scrubTime.scrubTime}%`;
-				this.player.seek(scrubTime.scrubTimePlayer);
+				this.isMouseDown = true;
+				this.isScrubbing = true;
 			}, {
 				passive: true,
 			});
-		}
+		});
+
+		this.bottomBar.addEventListener('click', (e: any) => {
+			this.player.emit('hide-tooltip');
+			if (!this.isMouseDown) return;
+
+			this.isMouseDown = false;
+			this.isScrubbing = false;
+			sliderPop.style.setProperty('--visibility', '0');
+			const scrubTime = this.getScrubTime(e);
+			sliderNipple.style.left = `${scrubTime.scrubTime}%`;
+			this.player.seek(scrubTime.scrubTimePlayer);
+		}, {
+			passive: true,
+		});
 
 		['mousemove', 'touchmove'].forEach((event) => {
 			this.sliderBar.addEventListener(event, (e: any) => {
@@ -2605,7 +2607,7 @@ export class DesktopUIPlugin extends Plugin {
 				const sliderPopOffsetX = this.getSliderPopOffsetX(sliderPop, scrubTime);
 				sliderPop.style.left = `${sliderPopOffsetX}%`;
 
-				if (this.player.options.chapters == false || this.player.getChapters()?.length == 0) {
+				if (!this.player.options.chapters || this.player.getChapters()?.length == 0) {
 					sliderHover.style.width = `${scrubTime.scrubTime}%`;
 				}
 
@@ -2851,7 +2853,6 @@ export class DesktopUIPlugin extends Plugin {
 		this.thumbnail = this.player.createElement('div', `thumbnail-${time.start}`)
 			.addClasses(this.makeStyles('thumbnailStyles'))
 			.get();
-		// .appendTo(parent);
 
 		this.thumbnail.style.backgroundImage = this.image;
 		this.thumbnail.style.backgroundPosition = `-${time.x}px -${time.y}px`;
@@ -2863,7 +2864,6 @@ export class DesktopUIPlugin extends Plugin {
 	}
 
 	getSliderPopImage(scrubTime: any) {
-
 		const img = this.loadSliderPopImage(scrubTime);
 
 		if (img) {
@@ -2871,6 +2871,17 @@ export class DesktopUIPlugin extends Plugin {
 			this.sliderPopImage.style.width = `${img.w}px`;
 			this.sliderPopImage.style.height = `${img.h}px`;
 		}
+	}
+
+	adjustScaling(imgDimension: number, thumbnailDimension: number) {
+		const scaling = imgDimension % thumbnailDimension;
+		if (scaling % 1 !== 0) {
+			imgDimension /= (scaling / Math.round(scaling));
+		}
+		if (scaling > 1) {
+			imgDimension *= scaling;
+		}
+		return imgDimension;
 	}
 
 	fetchPreviewTime() {
@@ -2934,54 +2945,38 @@ export class DesktopUIPlugin extends Plugin {
 							type: 'text',
 						},
 						callback: (data) => {
-							// eslint-disable-next-line max-len
-							const regex
-                                = /(\d{2}:\d{2}:\d{2})\.\d{3}\s-->\s(\d{2}:\d{2}:\d{2})\.\d{3}\n([\w\d\.]+)\.(webp|jpg|png)(xywh=\d+,\d+,\d+,\d+)/gmu;
+
+							const parser = new WebVTTParser();
+							const vtt = parser.parse(data, 'metadata');
+							const regex = /(?<x>\d*),(?<y>\d*),(?<w>\d*),(?<h>\d*)/u;
 
 							this.previewTime = [];
 
-							let m: any;
-							while ((m = regex.exec(data as string)) !== null) {
-								if (m.index === regex.lastIndex) {
-									regex.lastIndex += 1;
-								}
+							vtt.cues.forEach((cue) => {
+								const match = regex.exec(cue.text);
+								if (!match?.groups) return;
 
-								const data = m[5].split('=')[1].split(',');
+								const { x, y, w, h } = match.groups;
 
-								const scalingX = data[2] % this.thumbnailWidth;
-								if (scalingX % 1 !== 0) {
-									data[0] /= (scalingX / Math.round(scalingX));
-									data[2] /= (scalingX / Math.round(scalingX));
-								}
-								if (scalingX > 1) {
-									data[0] *= scalingX;
-								}
-
-								const scalingY = data[3] % this.thumbnailHeight;
-								if (scalingY % 1 !== 0) {
-									data[1] /= (scalingY / Math.round(scalingY));
-									data[3] /= (scalingY / Math.round(scalingY));
-								}
-								if (scalingY > 1) {
-									data[1] *= scalingY;
-								}
+								const [imgX, imgY, imgW, imgH] = [x, y, w, h]
+									.map(val => parseInt(val, 10));
 
 								this.previewTime.push({
-									start: convertToSeconds(m[1]) - 5,
-									end: convertToSeconds(m[2]) - 5,
-									x: data[0],
-									y: data[1],
-									w: data[2],
-									h: data[3],
+									start: cue.startTime,
+									end: cue.endTime,
+									x: imgX,
+									y: imgY,
+									w: imgW,
+									h: imgH,
 								});
-							}
+							});
 
 							setTimeout(() => {
 								this.player.emit('preview-time', this.previewTime);
 							}, 500);
 						},
 					}).then(() => {
-						// this.loadSliderPopImage(scrubTime);
+						this.loadSliderPopImage(0);
 					});
 				};
 			}
@@ -3008,6 +3003,7 @@ export class DesktopUIPlugin extends Plugin {
 		let offsetX = x - elementRect.left;
 		if (offsetX <= 0) offsetX = 0;
 		if (offsetX >= elementRect.width) offsetX = elementRect.width;
+
 		return {
 			scrubTime: (offsetX / parent.offsetWidth) * 100,
 			scrubTimePlayer: (offsetX / parent.offsetWidth) * this.player.getDuration(),
