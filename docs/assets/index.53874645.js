@@ -1227,7 +1227,7 @@ function Qs(a, e) {
           const I = w[0], k = V(w, 0) & 16777215, M = (k & 1) !== 0;
           let _ = 0;
           const P = (k & 4) !== 0, G = (k & 256) !== 0;
-          let N = 0;
+          let B = 0;
           const U = (k & 512) !== 0;
           let Z = 0;
           const Q = (k & 1024) !== 0, $ = (k & 2048) !== 0;
@@ -1237,7 +1237,7 @@ function Qs(a, e) {
           M && (_ = V(w, z), z += 4), P && (z += 4);
           let j = _ + c;
           for (let ie = 0; ie < q; ie++) {
-            if (G ? (N = V(w, z), z += 4) : N = E, U ? (Z = V(w, z), z += 4) : Z = x, Q && (z += 4), $ && (I === 0 ? F = V(w, z) : F = hn(w, z), z += 4), e.type === X.VIDEO) {
+            if (G ? (B = V(w, z), z += 4) : B = E, U ? (Z = V(w, z), z += 4) : Z = x, Q && (z += 4), $ && (I === 0 ? F = V(w, z) : F = hn(w, z), z += 4), e.type === X.VIDEO) {
               let ae = 0;
               for (; ae < Z; ) {
                 const he = V(s, j);
@@ -1248,7 +1248,7 @@ function Qs(a, e) {
                 j += he, ae += he + 4;
               }
             }
-            a += N / i;
+            a += B / i;
           }
         }));
       });
@@ -1899,8 +1899,8 @@ class Ae {
                 l.unshift(null);
               h += G;
             }
-            const N = P.enumeratedString("RECENTLY-REMOVED-DATERANGES");
-            N && (o.recentlyRemovedDateranges = N.split("	"));
+            const B = P.enumeratedString("RECENTLY-REMOVED-DATERANGES");
+            B && (o.recentlyRemovedDateranges = B.split("	"));
             break;
           }
           case "TARGETDURATION":
@@ -1967,8 +1967,8 @@ class Ae {
             } else {
               const G = p.byteRangeEndOffset;
               if (G) {
-                const N = p.byteRangeStartOffset;
-                x = `${G - N}@${N}`;
+                const B = p.byteRangeStartOffset;
+                x = `${G - B}@${B}`;
               } else
                 x = null;
               hi(p, P, s, C), c = p, T = !0;
@@ -1988,9 +1988,9 @@ class Ae {
           case "PART": {
             let P = o.partList;
             P || (P = o.partList = []);
-            const G = u > 0 ? P[P.length - 1] : void 0, N = u++, U = new se(M);
+            const G = u > 0 ? P[P.length - 1] : void 0, B = u++, U = new se(M);
             fe(o, U, ["BYTERANGE", "URI"]);
-            const Z = new Lr(U, p, t, N, G);
+            const Z = new Lr(U, p, t, B, G);
             P.push(Z), p.duration += Z.duration;
             break;
           }
@@ -4220,7 +4220,7 @@ class Ya {
     if (T) {
       if (this.firstSelection !== -1)
         return this.firstSelection;
-      const N = this.codecTiers || (this.codecTiers = Ka(m, k, t, s)), U = Ha(N, R, e, w, I), {
+      const B = this.codecTiers || (this.codecTiers = Ka(m, k, t, s)), U = Ha(B, R, e, w, I), {
         codecSet: Z,
         videoRanges: Q,
         minFramerate: $,
@@ -4231,9 +4231,9 @@ class Ya {
     } else
       x = C == null ? void 0 : C.codecSet, R = C == null ? void 0 : C.videoRange;
     const M = f ? f.duration : d ? d.duration : 0, _ = this.bwEstimator.getEstimateTTFB() / 1e3, P = [];
-    for (let N = s; N >= t; N--) {
+    for (let B = s; B >= t; B--) {
       var G;
-      const U = m[N], Z = N > u;
+      const U = m[B], Z = B > u;
       if (!U)
         continue;
       if (v.useMediaCapabilities && !U.supportedResult && !U.supportedPromise) {
@@ -4247,23 +4247,23 @@ class Ya {
         })) : U.supportedResult = bn;
       }
       if (x && U.codecSet !== x || R && U.videoRange !== R || Z && L > U.frameRate || !Z && L > 0 && L < U.frameRate || U.supportedResult && !((G = U.supportedResult.decodingInfoResults) != null && G[0].smooth)) {
-        P.push(N);
+        P.push(B);
         continue;
       }
       const Q = U.details, $ = (f ? Q == null ? void 0 : Q.partTarget : Q == null ? void 0 : Q.averagetargetduration) || M;
       let F;
       Z ? F = o * e : F = r * e;
-      const q = M && i >= M * 2 && n === 0 ? m[N].averageBitrate : m[N].maxBitrate, z = this.getTimeToLoadFrag(_, F, q * $, Q === void 0);
+      const q = M && i >= M * 2 && n === 0 ? m[B].averageBitrate : m[B].maxBitrate, z = this.getTimeToLoadFrag(_, F, q * $, Q === void 0);
       if (
         // if adjusted bw is greater than level bitrate AND
         F >= q && // no level change, or new level has no error history
-        (N === h || U.loadError === 0 && U.fragmentError === 0) && // fragment fetchDuration unknown OR live stream OR fragment fetchDuration less than max allowed fetch duration, then this level matches
+        (B === h || U.loadError === 0 && U.fragmentError === 0) && // fragment fetchDuration unknown OR live stream OR fragment fetchDuration less than max allowed fetch duration, then this level matches
         // we don't account for max Fetch Duration for live streams, this is to avoid switching down when near the edge of live sliding window ...
         // special case to support startLevel = -1 (bitrateTest) on live streams : in that case we should not exit loop so that findBestLevel will return -1
         (z <= _ || !O(z) || E && !this.bitrateTestDelay || z < c)
       ) {
         const ie = this.forcedAutoLevel;
-        return N !== g && (ie === -1 || ie !== g) && (P.length && S.trace(`[abr] Skipped level(s) ${P.join(",")} of ${s} max with CODECS and VIDEO-RANGE:"${m[P[0]].codecs}" ${m[P[0]].videoRange}; not compatible with "${C.codecs}" ${R}`), S.info(`[abr] switch candidate:${u}->${N} adjustedbw(${Math.round(F)})-bitrate=${Math.round(F - q)} ttfb:${_.toFixed(1)} avgDuration:${$.toFixed(1)} maxFetchDuration:${c.toFixed(1)} fetchDuration:${z.toFixed(1)} firstSelection:${T} codecSet:${x} videoRange:${R} hls.loadLevel:${g}`)), T && (this.firstSelection = N), N;
+        return B !== g && (ie === -1 || ie !== g) && (P.length && S.trace(`[abr] Skipped level(s) ${P.join(",")} of ${s} max with CODECS and VIDEO-RANGE:"${m[P[0]].codecs}" ${m[P[0]].videoRange}; not compatible with "${C.codecs}" ${R}`), S.info(`[abr] switch candidate:${u}->${B} adjustedbw(${Math.round(F)})-bitrate=${Math.round(F - q)} ttfb:${_.toFixed(1)} avgDuration:${$.toFixed(1)} maxFetchDuration:${c.toFixed(1)} fetchDuration:${z.toFixed(1)} firstSelection:${T} codecSet:${x} videoRange:${R} hls.loadLevel:${g}`)), T && (this.firstSelection = B), B;
       }
     }
     return -1;
@@ -5052,12 +5052,12 @@ class ro {
     const i = this.keySize + 6, n = this.invKeySchedule, r = this.invSBox, o = this.invSubMix, l = o[0], c = o[1], h = o[2], u = o[3], d = this.uint8ArrayToUint32Array_(s);
     let f = d[0], m = d[1], p = d[2], g = d[3];
     const v = new Int32Array(e), C = new Int32Array(v.length);
-    let E, T, x, R, L, w, I, k, M, _, P, G, N, U;
+    let E, T, x, R, L, w, I, k, M, _, P, G, B, U;
     const Z = this.networkToHostOrderSwap;
     for (; t < v.length; ) {
-      for (M = Z(v[t]), _ = Z(v[t + 1]), P = Z(v[t + 2]), G = Z(v[t + 3]), L = M ^ n[0], w = G ^ n[1], I = P ^ n[2], k = _ ^ n[3], N = 4, U = 1; U < i; U++)
-        E = l[L >>> 24] ^ c[w >> 16 & 255] ^ h[I >> 8 & 255] ^ u[k & 255] ^ n[N], T = l[w >>> 24] ^ c[I >> 16 & 255] ^ h[k >> 8 & 255] ^ u[L & 255] ^ n[N + 1], x = l[I >>> 24] ^ c[k >> 16 & 255] ^ h[L >> 8 & 255] ^ u[w & 255] ^ n[N + 2], R = l[k >>> 24] ^ c[L >> 16 & 255] ^ h[w >> 8 & 255] ^ u[I & 255] ^ n[N + 3], L = E, w = T, I = x, k = R, N = N + 4;
-      E = r[L >>> 24] << 24 ^ r[w >> 16 & 255] << 16 ^ r[I >> 8 & 255] << 8 ^ r[k & 255] ^ n[N], T = r[w >>> 24] << 24 ^ r[I >> 16 & 255] << 16 ^ r[k >> 8 & 255] << 8 ^ r[L & 255] ^ n[N + 1], x = r[I >>> 24] << 24 ^ r[k >> 16 & 255] << 16 ^ r[L >> 8 & 255] << 8 ^ r[w & 255] ^ n[N + 2], R = r[k >>> 24] << 24 ^ r[L >> 16 & 255] << 16 ^ r[w >> 8 & 255] << 8 ^ r[I & 255] ^ n[N + 3], C[t] = Z(E ^ f), C[t + 1] = Z(R ^ m), C[t + 2] = Z(x ^ p), C[t + 3] = Z(T ^ g), f = M, m = _, p = P, g = G, t = t + 4;
+      for (M = Z(v[t]), _ = Z(v[t + 1]), P = Z(v[t + 2]), G = Z(v[t + 3]), L = M ^ n[0], w = G ^ n[1], I = P ^ n[2], k = _ ^ n[3], B = 4, U = 1; U < i; U++)
+        E = l[L >>> 24] ^ c[w >> 16 & 255] ^ h[I >> 8 & 255] ^ u[k & 255] ^ n[B], T = l[w >>> 24] ^ c[I >> 16 & 255] ^ h[k >> 8 & 255] ^ u[L & 255] ^ n[B + 1], x = l[I >>> 24] ^ c[k >> 16 & 255] ^ h[L >> 8 & 255] ^ u[w & 255] ^ n[B + 2], R = l[k >>> 24] ^ c[L >> 16 & 255] ^ h[w >> 8 & 255] ^ u[I & 255] ^ n[B + 3], L = E, w = T, I = x, k = R, B = B + 4;
+      E = r[L >>> 24] << 24 ^ r[w >> 16 & 255] << 16 ^ r[I >> 8 & 255] << 8 ^ r[k & 255] ^ n[B], T = r[w >>> 24] << 24 ^ r[I >> 16 & 255] << 16 ^ r[k >> 8 & 255] << 8 ^ r[L & 255] ^ n[B + 1], x = r[I >>> 24] << 24 ^ r[k >> 16 & 255] << 16 ^ r[L >> 8 & 255] << 8 ^ r[w & 255] ^ n[B + 2], R = r[k >>> 24] << 24 ^ r[L >> 16 & 255] << 16 ^ r[w >> 8 & 255] << 8 ^ r[I & 255] ^ n[B + 3], C[t] = Z(E ^ f), C[t + 1] = Z(R ^ m), C[t + 2] = Z(x ^ p), C[t + 3] = Z(T ^ g), f = M, m = _, p = P, g = G, t = t + 4;
     }
     return C.buffer;
   }
@@ -8504,7 +8504,7 @@ class xt {
     }
     const k = new DataView(I.buffer);
     k.setUint32(0, w), I.set(b.types.mdat, 4);
-    let M = !1, _ = Number.POSITIVE_INFINITY, P = Number.POSITIVE_INFINITY, G = Number.NEGATIVE_INFINITY, N = Number.NEGATIVE_INFINITY;
+    let M = !1, _ = Number.POSITIVE_INFINITY, P = Number.POSITIVE_INFINITY, G = Number.NEGATIVE_INFINITY, B = Number.NEGATIVE_INFINITY;
     for (let $ = 0; $ < l; $++) {
       const F = r[$], q = F.units;
       let z = 0;
@@ -8524,7 +8524,7 @@ class xt {
           d = he;
       }
       const ie = Math.round(F.pts - F.dts);
-      _ = Math.min(_, d), G = Math.max(G, d), P = Math.min(P, j), N = Math.max(N, j), o.push(new Ii(F.key, d, z, ie));
+      _ = Math.min(_, d), G = Math.max(G, d), P = Math.min(P, j), B = Math.max(B, j), o.push(new Ii(F.key, d, z, ie));
     }
     if (o.length) {
       if (ze) {
@@ -8532,7 +8532,7 @@ class xt {
           const $ = o[0].flags;
           $.dependsOn = 2, $.isNonSync = 0;
         }
-      } else if (es && N - P < G - _ && T / G < 0.025 && o[0].cts === 0) {
+      } else if (es && B - P < G - _ && T / G < 0.025 && o[0].cts === 0) {
         S.warn("Found irregular gaps in sample duration. Using PTS instead of DTS to determine MP4 sample duration.");
         let $ = f;
         for (let F = 0, q = o.length; F < q; F++) {
@@ -8646,7 +8646,7 @@ class xt {
       samples: f
     }));
     e.samples = [];
-    const _ = T / r, P = v / r, N = {
+    const _ = T / r, P = v / r, B = {
       data1: M,
       data2: R,
       startPTS: _,
@@ -8658,7 +8658,7 @@ class xt {
       hasVideo: !1,
       nb: I
     };
-    return this.isAudioContiguous = !0, N;
+    return this.isAudioContiguous = !0, B;
   }
   remuxEmptyAudio(e, t, s, i) {
     const n = e.inputTimeScale, r = e.samplerate ? e.samplerate : n, o = n / r, l = this.nextAudioPts, c = this._initDTS, h = c.baseTime * 9e4 / c.timescale, u = (l !== null ? l : i.startDTS * n) + h, d = i.endDTS * n + h, f = o * Ri, m = Math.ceil((d - u) / f), p = wi.getSilentFrame(e.manifestCodec || e.codec, e.channelCount);
@@ -16951,8 +16951,8 @@ var Bt = {};
       }), this.entities = o, this.parse = function(l, c) {
         l = l.replace(/\0/g, "�");
         var h = /\r\n|\r|\n/, u = Date.now(), d = 0, f = l.split(h), m = !1, p = [], g = [], v = [];
-        function C(N, U) {
-          v.push({ message: N, line: d + 1, col: U });
+        function C(B, U) {
+          v.push({ message: B, line: d + 1, col: U });
         }
         var E = f[d], T = E.length, x = "WEBVTT", R = 0, L = x.length;
         for (E[0] === "\uFEFF" && (R = 1, L += 1), (T < L || E.indexOf(x) !== 0 + R || T > L && E[L] !== " " && E[L] !== "	") && C('No valid signature. (File needs to start with "WEBVTT".)'), d++; f[d] != "" && f[d] != null; ) {
@@ -17034,8 +17034,8 @@ var Bt = {};
           var G = new i(w.text, C, c, o);
           w.tree = G.parse(w.startTime, w.endTime), g.push(w);
         }
-        return g.sort(function(N, U) {
-          return N.startTime < U.startTime ? -1 : N.startTime > U.startTime ? 1 : N.endTime > U.endTime ? -1 : N.endTime < U.endTime ? 1 : 0;
+        return g.sort(function(B, U) {
+          return B.startTime < U.startTime ? -1 : B.startTime > U.startTime ? 1 : B.endTime > U.endTime ? -1 : B.endTime < U.endTime ? 1 : 0;
         }), { cues: g, errors: v, time: Date.now() - u, styles: p };
       };
     }, s = function(u, l) {
@@ -17191,15 +17191,15 @@ var Bt = {};
                 f("Size cannot be >100%.");
                 continue;
               }
-              var N = I.slice(0, I.length - 1);
-              if (N === void 0 || N === "" || isNaN(N)) {
-                f("Size needs to be a number"), N = 100;
+              var B = I.slice(0, I.length - 1);
+              if (B === void 0 || B === "" || isNaN(B)) {
+                f("Size needs to be a number"), B = 100;
                 continue;
-              } else if (N = parseFloat(N), N < 0 || N > 100) {
+              } else if (B = parseFloat(B), B < 0 || B > 100) {
                 f("Size needs to be between 0 and 100%.");
                 continue;
               }
-              E.size = N;
+              E.size = B;
             } else if (w == "align") {
               var U = ["start", "center", "end", "left", "right"];
               if (U.indexOf(I) == -1) {
@@ -17774,7 +17774,7 @@ class Gs extends dr {
         var s;
         console.log("Audio tracks loaded", t), this.emit("audioTrackChanged", {
           id: t.id,
-          name: (s = this.getAudioTracks()[t.id]) == null ? void 0 : s.name
+          name: (s = this.getAudioTracks().find((i) => i.id === t.id)) == null ? void 0 : s.name
         });
       }), this.hls.on(J.Events.AUDIO_TRACK_SWITCHING, (e, t) => {
         console.log("Audio track switching", t);
@@ -17782,22 +17782,22 @@ class Gs extends dr {
         var s;
         console.log("Audio track switched", t), this.emit("audioTrackChanged", {
           id: t.id,
-          name: (s = this.getAudioTracks()[t.id]) == null ? void 0 : s.name
+          name: (s = this.getAudioTracks().find((i) => i.id === t.id)) == null ? void 0 : s.name
         });
       }), this.hls.on(J.Events.ERROR, (e, t) => {
         console.error("HLS error", t);
       }), this.hls.on(J.Events.LEVEL_LOADED, (e, t) => {
-        console.log("Level loaded", t), this.emit("levelsChanged", {
-          id: t.level,
-          name: this.getQualityLevels().find((s) => s.url[0] === t.details.url).name
-        });
+        console.log("Level loaded", t);
       }), this.hls.on(J.Events.LEVEL_SWITCHED, (e, t) => {
         console.log("Level switched", t), this.emit("levelsChanged", {
           id: t.level,
-          name: this.getQualityLevels()[t.level].name
+          name: this.getQualityLevels().find((s) => s.id === t.level).name
         });
       }), this.hls.on(J.Events.LEVEL_SWITCHING, (e, t) => {
-        console.log("Level switching", t);
+        console.log("Level switching", t), this.emit("levelsChanging", {
+          id: t.level,
+          name: this.getQualityLevels().find((s) => s.id === t.level).name
+        });
       }), this.hls.on(J.Events.LEVEL_UPDATED, (e, t) => {
         console.log("Level updated", t);
       }), this.hls.on(J.Events.LEVELS_UPDATED, (e, t) => {
@@ -17890,7 +17890,7 @@ class Gs extends dr {
       */
   getSubtitles() {
     var e;
-    return (e = this.playlistItem().tracks) == null ? void 0 : e.filter((t) => t.kind === "subtitles");
+    return (e = this.playlistItem().tracks) == null ? void 0 : e.filter((t) => t.kind === "subtitles").map((t, s) => ({ ...t, id: s }));
   }
   /**
       * Returns an array of audio tracks for the current playlist item.
@@ -18379,7 +18379,7 @@ class Gs extends dr {
   }
   // Audio
   getAudioTracks() {
-    return this.hls ? this.hls.audioTracks : [];
+    return this.hls ? this.hls.audioTracks.map((e, t) => ({ ...e, id: t })) : [];
   }
   getCurrentAudioTrack() {
     return this.hls ? this.hls.audioTrack : -1;
@@ -22408,176 +22408,182 @@ www.sintel.org`,
 };
 Ks.subtitleRenderer = "octopus";
 Ks.sabreVersion = "0.5.1-pre.8bd763";
-const B = cr("player").setup(Ks), hd = new id();
-B.registerPlugin("desktopUI", hd);
-B.usePlugin("desktopUI");
+const N = cr("player").setup(Ks), hd = new id();
+N.registerPlugin("desktopUI", hd);
+N.usePlugin("desktopUI");
 const ud = new nd();
-B.registerPlugin("mobileUI", ud);
-B.usePlugin("mobileUI");
+N.registerPlugin("mobileUI", ud);
+N.usePlugin("mobileUI");
 const dd = new rd();
-B.registerPlugin("tvUI", dd);
-B.usePlugin("tvUI");
+N.registerPlugin("tvUI", dd);
+N.usePlugin("tvUI");
 const fd = new Oc();
-B.registerPlugin("octopus", fd);
-B.usePlugin("octopus");
+N.registerPlugin("octopus", fd);
+N.usePlugin("octopus");
 const md = new ad();
-B.registerPlugin("keyHandler", md);
-B.usePlugin("keyHandler");
-B.on("ready", (a) => {
+N.registerPlugin("keyHandler", md);
+N.usePlugin("keyHandler");
+N.on("ready", (a) => {
   console.log("ready", a);
 });
-B.on("setupError", (a) => {
+N.on("setupError", (a) => {
   console.log("setupError", a);
 });
-B.on("playlist", (a) => {
+N.on("playlist", (a) => {
   console.log("playlist", a);
 });
-B.on("playlistItem", (a) => {
+N.on("playlistItem", (a) => {
   console.log("playlistItem", a);
 });
-B.on("playlistComplete", (a) => {
+N.on("playlistComplete", (a) => {
   console.log("playlistComplete", a);
 });
-B.on("bufferChange", (a) => {
+N.on("bufferChange", (a) => {
   console.log("bufferChange", a);
 });
-B.on("firstFrame", () => {
+N.on("firstFrame", () => {
   console.log("firstFrame");
 });
-B.on("play", (a) => {
+N.on("play", (a) => {
   console.log("play", a);
 });
-B.on("pause", (a) => {
+N.on("pause", (a) => {
   console.log("pause", a);
 });
-B.on("buffer", (a) => {
+N.on("buffer", (a) => {
   console.log("buffer", a);
 });
-B.on("idle", (a) => {
+N.on("idle", (a) => {
   console.log("idle", a);
 });
-B.on("complete", (a) => {
+N.on("complete", (a) => {
   console.log("complete", a);
 });
-B.on("error", (a) => {
+N.on("error", (a) => {
   console.log("error", a);
 });
-B.on("seek", (a) => {
+N.on("seek", (a) => {
   console.log("seek", a);
 });
-B.on("seeked", (a) => {
+N.on("seeked", (a) => {
   console.log("seeked", a);
 });
-B.on("time", (a) => {
+N.on("time", (a) => {
 });
-B.on("mute", (a) => {
+N.on("mute", (a) => {
   console.log("mute", a);
 });
-B.on("volume", (a) => {
+N.on("volume", (a) => {
   console.log("volume", a);
 });
-B.on("gain", (a) => {
+N.on("gain", (a) => {
   console.log("gain", a), gain.innerHTML = a.value, gainSlider.value = a.value;
 });
-B.on("fullscreen", (a) => {
+N.on("fullscreen", (a) => {
   console.log("fullscreen", a);
 });
-B.on("resize", (a) => {
+N.on("resize", (a) => {
   console.log("resize", a);
 });
-B.on("levels", (a) => {
+N.on("levels", (a) => {
   console.log("levels", a), Qi.innerHTML = "";
-  const e = B.createElement("ul", "levelTrackList", !0).addClasses(["nm-overflow-auto"]).appendTo(Qi);
+  const e = N.createElement("ul", "levelTrackList", !0).addClasses(["nm-overflow-auto"]).appendTo(Qi);
   Object.values(a).forEach((t) => {
-    const s = B.createElement("li", `levelTrack-${t.name}`).addClasses([
+    const s = N.createElement("li", `levelTrack-${t.name}`).addClasses([
       "nm-p-2",
       "nm-cursor-pointer",
       "nm-border-b"
     ]).appendTo(e);
-    s.innerHTML = t.name, s.addEventListener("click", () => {
-      B.setCurrentQuality(t.id);
+    s.innerHTML = t.name, N.on("levelsChanging", (i) => {
+      s.innerHTML = t.name + (i.id === t.id ? " &#x2714;" : "");
+    }), s.addEventListener("click", () => {
+      N.setCurrentQuality(t.id);
     });
   });
 });
-B.on("levelsChanged", (a) => {
+N.on("levelsChanged", (a) => {
   console.log("levelsChanged", a), cd.innerHTML = a.name;
 });
-B.on("audioTracks", (a) => {
+N.on("audioTracks", (a) => {
   console.log("audioTracks", a), ji.innerHTML = "";
-  const e = B.createElement("ul", "audioTrackList", !0).addClasses(["nm-overflow-auto"]).appendTo(ji);
+  const e = N.createElement("ul", "audioTrackList", !0).addClasses(["nm-overflow-auto"]).appendTo(ji);
   Object.values(a).forEach((t) => {
-    const s = B.createElement("li", `audioTrack-${t.name}`).addClasses([
+    const s = N.createElement("li", `audioTrack-${t.name}`).addClasses([
       "nm-p-2",
       "nm-cursor-pointer",
       "nm-border-b"
     ]).appendTo(e);
-    s.innerHTML = t.name, s.addEventListener("click", () => {
-      B.setCurrentAudioTrack(t.id);
+    s.innerHTML = t.name + (a.id === t.id || t.id === 0 ? " &#x2714;" : ""), N.on("audioTrackChanged", (i) => {
+      s.innerHTML = t.name + (i.id === t.id ? " &#x2714;" : "");
+    }), s.addEventListener("click", () => {
+      N.setCurrentAudioTrack(t.id);
     });
   });
 });
-B.on("audioTrackChanged", (a) => {
+N.on("audioTrackChanged", (a) => {
   console.log("audioTrackChanged", a), od.innerHTML = a.name;
 });
-B.on("captionsList", (a) => {
+N.on("captionsList", (a) => {
   console.log("captionsList", a), Xi.innerHTML = "";
-  const e = B.createElement("ul", "captionTrackList", !0).addClasses(["nm-overflow-auto"]).appendTo(Xi);
+  const e = N.createElement("ul", "captionTrackList", !0).addClasses(["nm-overflow-auto"]).appendTo(Xi);
   Object.values(a).forEach((t, s) => {
-    const i = B.createElement("li", `captionTrack-${t.name}`).addClasses([
+    const i = N.createElement("li", `captionTrack-${t.name}`).addClasses([
       "nm-p-2",
       "nm-cursor-pointer",
       "nm-border-b"
     ]).appendTo(e);
-    i.innerHTML = t.label, i.addEventListener("click", () => {
-      B.setCurrentCaption(s);
+    i.innerHTML = t.label, N.on("captionsChange", (n) => {
+      i.innerHTML = t.label + (n.id === t.id ? " &#x2714;" : "");
+    }), i.addEventListener("click", () => {
+      N.setCurrentCaption(s);
     });
   });
 });
-B.on("captionsChange", (a) => {
-  console.log("captionsChange", a.label), ld.innerHTML = B.getCurrentCaptionsName();
+N.on("captionsChange", (a) => {
+  console.log("captionsChange", a.label), ld.innerHTML = N.getCurrentCaptionsName();
 });
-B.on("controls", (a) => {
+N.on("controls", (a) => {
   console.log("controls", a);
 });
-B.on("displayClick", (a) => {
+N.on("displayClick", (a) => {
   console.log("displayClick", a);
 });
-B.on("adClick", (a) => {
+N.on("adClick", (a) => {
   console.log("adClick", a);
 });
-B.on("adCompanions", (a) => {
+N.on("adCompanions", (a) => {
   console.log("adCompanions", a);
 });
-B.on("adComplete", (a) => {
+N.on("adComplete", (a) => {
   console.log("adComplete", a);
 });
-B.on("adError", (a) => {
+N.on("adError", (a) => {
   console.log("adError", a);
 });
-B.on("adImpression", (a) => {
+N.on("adImpression", (a) => {
   console.log("adImpression", a);
 });
-B.on("adTime", (a) => {
+N.on("adTime", (a) => {
   console.log("adTime", a);
 });
-B.on("adSkipped", (a) => {
+N.on("adSkipped", (a) => {
   console.log("adSkipped", a);
 });
-B.on("beforePlay", (a) => {
+N.on("beforePlay", (a) => {
   console.log("beforePlay", a);
 });
-B.on("beforeComplete", (a) => {
+N.on("beforeComplete", (a) => {
   console.log("beforeComplete", a);
 });
-B.on("meta", (a) => {
+N.on("meta", (a) => {
   console.log("meta", a);
 });
-B.on("lastTimeTrigger", (a) => {
+N.on("lastTimeTrigger", (a) => {
   console.log("lastTimeTrigger", a);
 });
-B.on("theaterMode", (a) => {
+N.on("theaterMode", (a) => {
   console.log("theaterMode", a);
 });
-B.on("pip", (a) => {
+N.on("pip", (a) => {
   console.log("pip", a);
 });

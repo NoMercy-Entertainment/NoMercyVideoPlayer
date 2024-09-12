@@ -52,6 +52,7 @@ export declare class Base {
     emit(event: 'resize', data?: any): void;
     emit(event: 'levels', data?: any): void;
     emit(event: 'levelsChanged', data?: any): void;
+    emit(event: 'levelsChanging', data?: any): void;
     emit(event: 'visualQuality', data?: any): void;
     emit(event: 'captionsList', data?: any): void;
     emit(event: 'captionsChange', data?: any): void;
@@ -110,6 +111,7 @@ export declare class Base {
     on(event: 'resize', callback: () => void): void;
     on(event: 'levels', callback: () => void): void;
     on(event: 'levelsChanged', callback: () => void): void;
+    on(event: 'levelsChanging', callback: () => void): void;
     on(event: 'visualQuality', callback: () => void): void;
     on(event: 'captionsList', callback: () => void): void;
     on(event: 'captionsChange', callback: () => void): void;
@@ -170,6 +172,7 @@ export declare class Base {
     off(event: 'resize', callback: () => void): void;
     off(event: 'levels', callback: () => void): void;
     off(event: 'levelsChanged', callback: () => void): void;
+    off(event: 'levelsChanging', callback: () => void): void;
     off(event: 'visualQuality', callback: () => void): void;
     off(event: 'captionsList', callback: () => void): void;
     off(event: 'captionsChange', callback: () => void): void;
@@ -231,6 +234,7 @@ export declare class Base {
     once(event: 'resize', callback: () => void): void;
     once(event: 'levels', callback: () => void): void;
     once(event: 'levelsChanged', callback: () => void): void;
+    once(event: 'levelsChanging', callback: () => void): void;
     once(event: 'visualQuality', callback: () => void): void;
     once(event: 'captionsList', callback: () => void): void;
     once(event: 'captionsChange', callback: () => void): void;

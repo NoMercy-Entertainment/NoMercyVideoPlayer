@@ -801,7 +801,7 @@ export class NMPlayer extends Base {
 				console.log('Audio tracks loaded', data);
 				this.emit('audioTrackChanged', {
 					id: data.id,
-					name: this.getAudioTracks()[data.id]?.name,
+					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHING, (event, data) => {
@@ -811,7 +811,7 @@ export class NMPlayer extends Base {
 				console.log('Audio track switched', data);
 				this.emit('audioTrackChanged', {
 					id: data.id,
-					name: this.getAudioTracks()[data.id]?.name,
+					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
 				});
 			});
 
@@ -846,20 +846,20 @@ export class NMPlayer extends Base {
 
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
 				console.log('Level loaded',  data);
-				this.emit('levelsChanged', {
-					id: data.level,
-					name: this.getQualityLevels().find(l => l.url[0] === data.details.url).name,
-				});
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHED, (event, data) => {
 				console.log('Level switched', data);
 				this.emit('levelsChanged', {
 					id: data.level,
-					name: this.getQualityLevels()[data.level].name,
+					name: this.getQualityLevels().find(l => l.id === data.level).name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHING, (event, data) => {
 				console.log('Level switching', data);
+				this.emit('levelsChanging', {
+					id: data.level,
+					name: this.getQualityLevels().find(l => l.id === data.level).name,
+				});
 			});
 			this.hls.on(HLS.Events.LEVEL_UPDATED, (event, data) => {
 				console.log('Level updated', data);
@@ -1037,7 +1037,7 @@ export class NMPlayer extends Base {
      * @returns {Array} An array of subtitle tracks for the current playlist item.
      */
 	getSubtitles(): Track[] | undefined {
-		return this.playlistItem().tracks?.filter((t: { kind: string }) => t.kind === 'subtitles');
+		return this.playlistItem().tracks?.filter((t: { kind: string }) => t.kind === 'subtitles').map((level, index: number) => ({...level, id: index}));
 	}
 
 	/**
@@ -1740,7 +1740,7 @@ export class NMPlayer extends Base {
 	// Audio
 	getAudioTracks(): any[] | Array<MediaPlaylist> {
 		if (!this.hls) return [];
-		return this.hls.audioTracks;
+		return this.hls.audioTracks.map((level, index: number) => ({...level, id: index}));
 	}
 
 	getCurrentAudioTrack(): number {

@@ -532,12 +532,16 @@ player.on('levels', (data) => {
 
 		levelTrack.innerHTML = track.name;
 
+		player.on('levelsChanging', (data) => {
+			levelTrack.innerHTML = track.name + (data.id === track.id ? ' &#x2714;' : '');
+		});
+
 		levelTrack.addEventListener('click', () => {
 			player.setCurrentQuality(track.id);
 		});
 	});
-
 });
+
 player.on('levelsChanged', (data) => {
 	console.log('levelsChanged', data);
 	currentQuality.innerHTML = data.name;
@@ -563,13 +567,18 @@ player.on('audioTracks', (data) => {
 			])
 			.appendTo(audioList);
 
-		audioTrack.innerHTML = track.name;
+		audioTrack.innerHTML = track.name + (data.id === track.id || track.id === 0 ? ' &#x2714;' : '');
+		
+		player.on('audioTrackChanged', (data) => {
+			audioTrack.innerHTML = track.name + (data.id === track.id ? ' &#x2714;' : '');
+		});
 
 		audioTrack.addEventListener('click', () => {
 			player.setCurrentAudioTrack(track.id);
 		});
 	});
 });
+
 player.on('audioTrackChanged', (data) => {
 	console.log('audioTrackChanged', data);
 	currentAudio.innerHTML = data.name;
@@ -596,6 +605,10 @@ player.on('captionsList', (data) => {
 			.appendTo(captionList);
 
 		captionTrack.innerHTML = track.label;
+		
+		player.on('captionsChange', (data) => {
+			captionTrack.innerHTML = track.label + (data.id === track.id ? ' &#x2714;' : '');
+		});
 
 		captionTrack.addEventListener('click', () => {
 			player.setCurrentCaption(index);

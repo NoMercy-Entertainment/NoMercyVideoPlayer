@@ -97,6 +97,7 @@ export class Base {
 	// Quality
 	emit(event: 'levels', data?: any): void;
 	emit(event: 'levelsChanged', data?: any): void;
+	emit(event: 'levelsChanging', data?: any): void;
 	emit(event: 'visualQuality', data?: any): void;
 
 	// Captions
@@ -203,6 +204,7 @@ export class Base {
 	// Quality
 	on(event: 'levels', callback: () => void): void;
 	on(event: 'levelsChanged', callback: () => void): void;
+	on(event: 'levelsChanging', callback: () => void): void;
 	on(event: 'visualQuality', callback: () => void): void;
 
 	// Captions
@@ -307,6 +309,7 @@ export class Base {
 	// Quality
 	off(event: 'levels', callback: () => void): void;
 	off(event: 'levelsChanged', callback: () => void): void;
+	off(event: 'levelsChanging', callback: () => void): void;
 	off(event: 'visualQuality', callback: () => void): void;
 
 	// Captions
@@ -413,6 +416,7 @@ export class Base {
 	// Quality
 	once(event: 'levels', callback: () => void): void;
 	once(event: 'levelsChanged', callback: () => void): void;
+	once(event: 'levelsChanging', callback: () => void): void;
 	once(event: 'visualQuality', callback: () => void): void;
 
 	// Captions
