@@ -1046,8 +1046,15 @@ export class NMPlayer extends Base {
      * Returns an array of subtitle tracks for the current playlist item.
      * @returns {Array} An array of subtitle tracks for the current playlist item.
      */
-	getSubtitles(): Track[] | undefined {
-		return this.playlistItem().tracks?.filter((t: { kind: string }) => t.kind === 'subtitles').map((level, index: number) => ({...level, id: index}));
+	getSubtitles(): Track[] | undefined{
+		return this.playlistItem().tracks
+			?.filter((t: { kind: string }) => t.kind === 'subtitles')
+			.map((level, index: number) => ({
+				...level, 
+				id: index,
+				ext: level.file.split('.').at(-1) ?? 'vtt',
+				type: level.label?.includes('Full') || level.label?.includes('full') ? 'full' : 'sign',
+			}));
 	}
 
 	/**
@@ -1309,7 +1316,7 @@ export class NMPlayer extends Base {
 				callback: (data) => {
 					const parser = new WebVTTParser();
 					this.subtitles = parser.parse(data, 'metadata');
-					NMPlayer.triggerStyledSubs(file);
+					this.triggerStyledSubs(file);
 
 					this.once('duration', () => {
 						this.emit('subtitles', this.getSubtitles());
@@ -1872,7 +1879,15 @@ export class NMPlayer extends Base {
      * @returns The index of the matching text track, or -1 if no match is found.
      */
 	getTextTrackIndexBy(language: string, type: string, ext: string): number | undefined {
-		return this.getCaptionsList()?.findIndex((t: any) => (t.file ?? t.id).endsWith(`${language}.${type}.${ext}`));
+		const index = this.getCaptionsList()
+			?.findIndex((t: any) => (t.file ?? t.id).endsWith(`${language}.${type}.${ext}`));
+		
+		if (index === -1) {
+			return this.getCaptionsList()?.findIndex((t: any) => 
+				t.language === language && t.type === type && t.ext === ext);
+		}
+		
+		return index;
 	}
 
 	setCurrentCaption(index?: number): void {
@@ -1893,9 +1908,10 @@ export class NMPlayer extends Base {
      * Triggers the styled subtitles based on the provided file.
      * @param file - The file to extract language, type, and extension from.
      */
-	static triggerStyledSubs(file: string) {
-		const tag = file.match(/\w+\.\w+\.\w+$/u)?.[0];
-		const [language, type, ext] = tag ? tag.split('.') : [];
+	triggerStyledSubs(file: string) {
+		if (!file) return;
+		
+		const {language, type, ext} = this.getCurrentCaptions()!;
 
 		localStorage.setItem('nmplayer-subtitle-language', language);
 		localStorage.setItem('nmplayer-subtitle-type', type);

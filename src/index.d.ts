@@ -164,8 +164,10 @@ export interface Track {
     default?: boolean;
     file: string;
     kind: 'captions' | 'chapters' | 'thumbnails';
-    label?: string;
-    language?: string;
+    label: string;
+    language: string;
+    type: string;
+    ext: string;
 }
 
 export interface CompleteParam {
