@@ -519,6 +519,8 @@ player.on('levels', (data) => {
 		.createElement('ul', 'levelTrackList', true)
 		.addClasses(['nm-overflow-auto'])
 		.appendTo(qualities);
+	
+	const baseLevel = player.hls.loadLevel;
 
 	Object.values(data).forEach((track) => {
 		const levelTrack = player
@@ -530,9 +532,10 @@ player.on('levels', (data) => {
 			])
 			.appendTo(levelsList);
 
-		levelTrack.innerHTML = track.name;
+		levelTrack.innerHTML = track.name + ((data.id) === track.id ? ' &#x2714;' : '');
 
 		player.on('levelsChanging', (data) => {
+			console.log('levelsChanging', data);
 			levelTrack.innerHTML = track.name + (data.id === track.id ? ' &#x2714;' : '');
 		});
 
@@ -604,7 +607,7 @@ player.on('captionsList', (data) => {
 			])
 			.appendTo(captionList);
 
-		captionTrack.innerHTML = track.label;
+		captionTrack.innerHTML = track.label + (data.id === track.id ? ' &#x2714;' : '');
 		
 		player.on('captionsChange', (data) => {
 			captionTrack.innerHTML = track.label + (data.id === track.id ? ' &#x2714;' : '');

@@ -668,6 +668,10 @@ export class NMPlayer extends Base {
 		this.emit('audioTracks', this.getAudioTracks());
 		this.emit('captionsList', this.getCaptionsList());
 		this.emit('levels', this.getQualityLevels());
+		this.emit('levelsChanging', {
+			id: this.hls?.loadLevel,
+			name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
+		});
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -846,6 +850,10 @@ export class NMPlayer extends Base {
 
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
 				console.log('Level loaded',  data);
+				this.emit('levelsChanged', {
+					id: data.level,
+					name: this.getQualityLevels().find(l => l.id === data.level).name,
+				});
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHED, (event, data) => {
 				console.log('Level switched', data);
@@ -863,6 +871,10 @@ export class NMPlayer extends Base {
 			});
 			this.hls.on(HLS.Events.LEVEL_UPDATED, (event, data) => {
 				console.log('Level updated', data);
+				this.emit('levelsChanged', {
+					id: data.level,
+					name: this.getQualityLevels().find(l => l.id === data.level).name,
+				});
 			});
 			this.hls.on(HLS.Events.LEVELS_UPDATED, (event, data) => {
 				console.log('Levels updated', data);
@@ -925,8 +937,6 @@ export class NMPlayer extends Base {
 				}
 			});
 		});
-
-
 	}
 
 	_removeEvents(): void {

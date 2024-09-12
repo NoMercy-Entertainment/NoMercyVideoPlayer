@@ -17712,7 +17712,14 @@ class Gs extends dr {
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_loadedmetadataEvent(e) {
-    this.emit("loadedmetadata", this.videoElement), this.emit("duration", this.videoElement.duration), this.emit("time", this.videoPlayer_getTimeData()), this.emit("audioTracks", this.getAudioTracks()), this.emit("captionsList", this.getCaptionsList()), this.emit("levels", this.getQualityLevels());
+    var t, s;
+    this.emit("loadedmetadata", this.videoElement), this.emit("duration", this.videoElement.duration), this.emit("time", this.videoPlayer_getTimeData()), this.emit("audioTracks", this.getAudioTracks()), this.emit("captionsList", this.getCaptionsList()), this.emit("levels", this.getQualityLevels()), this.emit("levelsChanging", {
+      id: (t = this.hls) == null ? void 0 : t.loadLevel,
+      name: (s = this.getQualityLevels().find((i) => {
+        var n;
+        return i.id === ((n = this.hls) == null ? void 0 : n.loadLevel);
+      })) == null ? void 0 : s.name
+    });
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_loadstartEvent(e) {
@@ -17787,7 +17794,10 @@ class Gs extends dr {
       }), this.hls.on(J.Events.ERROR, (e, t) => {
         console.error("HLS error", t);
       }), this.hls.on(J.Events.LEVEL_LOADED, (e, t) => {
-        console.log("Level loaded", t);
+        console.log("Level loaded", t), this.emit("levelsChanged", {
+          id: t.level,
+          name: this.getQualityLevels().find((s) => s.id === t.level).name
+        });
       }), this.hls.on(J.Events.LEVEL_SWITCHED, (e, t) => {
         console.log("Level switched", t), this.emit("levelsChanged", {
           id: t.level,
@@ -17799,7 +17809,10 @@ class Gs extends dr {
           name: this.getQualityLevels().find((s) => s.id === t.level).name
         });
       }), this.hls.on(J.Events.LEVEL_UPDATED, (e, t) => {
-        console.log("Level updated", t);
+        console.log("Level updated", t), this.emit("levelsChanged", {
+          id: t.level,
+          name: this.getQualityLevels().find((s) => s.id === t.level).name
+        });
       }), this.hls.on(J.Events.LEVELS_UPDATED, (e, t) => {
         console.log("Levels updated", t);
       }), this.hls.on(J.Events.MANIFEST_LOADED, (e, t) => {
@@ -18953,8 +18966,9 @@ class Oc extends ot {
   }
   async opus() {
     var i, n;
-    const e = this.player.getSubtitleFile() ?? null, t = (i = e.match(/\w+\.\w+\.\w+$/u)) == null ? void 0 : i[0], [, , s] = t ? t.split(".") : [];
-    if (!(s != "ass" && s != "ssa") && e) {
+    const e = this.player.getSubtitleFile() ?? null, t = (i = e == null ? void 0 : e.match(/\w+\.\w+\.\w+$/u)) == null ? void 0 : i[0];
+    let [, , s] = t ? t.split(".") : [];
+    if (s || (s = e.split(".").at(-1)), !(s != "ass" && s != "ssa") && e) {
       await this.player.fetchFontFile();
       const r = (n = this.player.fonts) == null ? void 0 : n.map((l) => `${this.player.options.basePath ?? ""}${l.file}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ""}`);
       this.player.getElement().querySelectorAll(".libassjs-canvas-parent").forEach((l) => l.remove());
@@ -22488,14 +22502,14 @@ N.on("resize", (a) => {
 N.on("levels", (a) => {
   console.log("levels", a), Qi.innerHTML = "";
   const e = N.createElement("ul", "levelTrackList", !0).addClasses(["nm-overflow-auto"]).appendTo(Qi);
-  Object.values(a).forEach((t) => {
+  N.hls.loadLevel, Object.values(a).forEach((t) => {
     const s = N.createElement("li", `levelTrack-${t.name}`).addClasses([
       "nm-p-2",
       "nm-cursor-pointer",
       "nm-border-b"
     ]).appendTo(e);
-    s.innerHTML = t.name, N.on("levelsChanging", (i) => {
-      s.innerHTML = t.name + (i.id === t.id ? " &#x2714;" : "");
+    s.innerHTML = t.name + (a.id === t.id ? " &#x2714;" : ""), N.on("levelsChanging", (i) => {
+      console.log("levelsChanging", i), s.innerHTML = t.name + (i.id === t.id ? " &#x2714;" : "");
     }), s.addEventListener("click", () => {
       N.setCurrentQuality(t.id);
     });
@@ -22532,7 +22546,7 @@ N.on("captionsList", (a) => {
       "nm-cursor-pointer",
       "nm-border-b"
     ]).appendTo(e);
-    i.innerHTML = t.label, N.on("captionsChange", (n) => {
+    i.innerHTML = t.label + (a.id === t.id ? " &#x2714;" : ""), N.on("captionsChange", (n) => {
       i.innerHTML = t.label + (n.id === t.id ? " &#x2714;" : "");
     }), i.addEventListener("click", () => {
       N.setCurrentCaption(s);
