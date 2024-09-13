@@ -22,6 +22,9 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	async opus() {
+		this.player.octopusInstance?.dispose();
+		this.player.octopusInstance = null;
+		
 		const subtitleURL = this.player.getSubtitleFile() ?? null;
 
 		const tag = subtitleURL?.match(/\w+\.\w+\.\w+$/u)?.[0];

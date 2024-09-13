@@ -17897,11 +17897,17 @@ class Dh extends or {
     }, 300);
   }
   setCaptionFromStorage() {
-    localStorage.getItem("nmplayer-subtitle-language") && localStorage.getItem("nmplayer-subtitle-type") && localStorage.getItem("nmplayer-subtitle-ext") ? this.setCurrentCaption(this.getTextTrackIndexBy(
-      localStorage.getItem("nmplayer-subtitle-language"),
-      localStorage.getItem("nmplayer-subtitle-type"),
-      localStorage.getItem("nmplayer-subtitle-ext")
-    )) : this.setCurrentCaption(-1);
+    if (localStorage.getItem("nmplayer-subtitle-language") && localStorage.getItem("nmplayer-subtitle-type") && localStorage.getItem("nmplayer-subtitle-ext")) {
+      const e = this.getTextTrackIndexBy(
+        localStorage.getItem("nmplayer-subtitle-language"),
+        localStorage.getItem("nmplayer-subtitle-type"),
+        localStorage.getItem("nmplayer-subtitle-ext")
+      );
+      if (!e)
+        return;
+      this.setCurrentCaption(e);
+    } else
+      this.setCurrentCaption(-1);
   }
   videoPlayer_pauseEvent(e) {
     this.container.classList.remove("playing"), this.container.classList.add("paused"), this.emit("pause", this.videoElement);
@@ -18320,7 +18326,7 @@ class Dh extends or {
       },
       callback: (t) => {
         const s = new Bt.WebVTTParser();
-        this.subtitles = s.parse(t, "metadata"), this.triggerStyledSubs(e), this.once("duration", () => {
+        this.subtitles = s.parse(t, "metadata"), this.storeSubtitleChoice(), this.once("duration", () => {
           this.emit("subtitles", this.getSubtitles());
         });
       }
@@ -18671,7 +18677,16 @@ class Dh extends or {
   }
   // Captions
   getCaptionsList() {
-    return this.getSubtitles();
+    const e = this.getSubtitles() ?? [];
+    return e.unshift({
+      id: -1,
+      label: "Off",
+      language: "",
+      type: "none",
+      ext: "none",
+      file: "",
+      kind: "captions"
+    }), e;
   }
   hasCaptions() {
     var e;
@@ -18679,7 +18694,16 @@ class Dh extends or {
   }
   getCurrentCaptions() {
     var e;
-    return (e = this.getSubtitles()) == null ? void 0 : e[this.currentSubtitleIndex];
+    return ((e = this.getSubtitles()) == null ? void 0 : e[this.currentSubtitleIndex]) ?? {
+      id: -1,
+      label: "Off",
+      language: "",
+      kind: "captions",
+      type: "none",
+      file: "",
+      ext: "none",
+      default: !0
+    };
   }
   getCurrentCaptionsName() {
     var e;
@@ -18697,11 +18721,17 @@ class Dh extends or {
       */
   getTextTrackIndexBy(e, t, s) {
     var n, r;
-    const i = (n = this.getCaptionsList()) == null ? void 0 : n.findIndex((o) => (o.file ?? o.id).endsWith(`${e}.${t}.${s}`));
-    return i === -1 ? (r = this.getCaptionsList()) == null ? void 0 : r.findIndex((o) => o.language === e && o.type === t && o.ext === s) : i;
+    if (((n = this.getCaptionsList()) == null ? void 0 : n.findIndex((o) => (o.file ?? o.id).endsWith(`${e}.${t}.${s}`))) === -1)
+      return (r = this.getCaptionsList()) == null ? void 0 : r.findIndex((o) => o.language === e && o.type === t && o.ext === s);
   }
   setCurrentCaption(e) {
-    !e && e != 0 || (this.currentSubtitleIndex = e, this.fetchSubtitleFile());
+    if (!(!e && e != 0)) {
+      if (this.currentSubtitleIndex = e, this.currentSubtitleFile = "", this.subtitles = {}, this.subtitleText.textContent = "", this.subtitleOverlay.style.display = "none", e == -1) {
+        this.emit("captionsChanged", this.getCurrentCaptions()), this.storeSubtitleChoice();
+        return;
+      }
+      this.fetchSubtitleFile();
+    }
   }
   getCaptionLanguage() {
     var e;
@@ -18713,13 +18743,10 @@ class Dh extends or {
   }
   /**
       * Triggers the styled subtitles based on the provided file.
-      * @param file - The file to extract language, type, and extension from.
       */
-  triggerStyledSubs(e) {
-    if (!e)
-      return;
-    const { language: t, type: s, ext: i } = this.getCurrentCaptions();
-    localStorage.setItem("nmplayer-subtitle-language", t), localStorage.setItem("nmplayer-subtitle-type", s), localStorage.setItem("nmplayer-subtitle-ext", i);
+  storeSubtitleChoice() {
+    const { language: e, type: t, ext: s } = this.getCurrentCaptions();
+    localStorage.setItem("nmplayer-subtitle-language", e), localStorage.setItem("nmplayer-subtitle-type", t), localStorage.setItem("nmplayer-subtitle-ext", s);
   }
   /**
       * Cycles through the available subtitle tracks and sets the active track to the next one.
@@ -19186,18 +19213,19 @@ class Ph extends ot {
     (e = this.player.octopusInstance) == null || e.dispose(), this.player.octopusInstance = null;
   }
   async opus() {
-    var i, n;
-    const e = this.player.getSubtitleFile() ?? null, t = (i = e == null ? void 0 : e.match(/\w+\.\w+\.\w+$/u)) == null ? void 0 : i[0];
+    var i, n, r;
+    (i = this.player.octopusInstance) == null || i.dispose(), this.player.octopusInstance = null;
+    const e = this.player.getSubtitleFile() ?? null, t = (n = e == null ? void 0 : e.match(/\w+\.\w+\.\w+$/u)) == null ? void 0 : n[0];
     let [, , s] = t ? t.split(".") : [];
     if (s || (s = e.split(".").at(-1)), !(s != "ass" && s != "ssa") && e) {
       await this.player.fetchFontFile();
-      const r = (n = this.player.fonts) == null ? void 0 : n.map((l) => `${this.player.options.basePath ?? ""}${l.file}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ""}`);
-      this.player.getElement().querySelectorAll(".libassjs-canvas-parent").forEach((l) => l.remove());
+      const o = (r = this.player.fonts) == null ? void 0 : r.map((h) => `${this.player.options.basePath ?? ""}${h.file}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ""}`);
+      this.player.getElement().querySelectorAll(".libassjs-canvas-parent").forEach((h) => h.remove());
       try {
         this.player.octopusInstance.dispose();
       } catch {
       }
-      const o = {
+      const l = {
         video: this.player.getVideoElement(),
         lossyRender: !0,
         subUrl: `${e}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ""}`,
@@ -19205,16 +19233,16 @@ class Ph extends ot {
         blendRender: !0,
         lazyFileLoading: !0,
         targetFps: 24,
-        fonts: r,
+        fonts: o,
         workerUrl: "/js/octopus/subtitles-octopus-worker.js",
         legacyWorkerUrl: "/js/octopus/subtitles-octopus-worker-legacy.js",
         onReady: async () => {
         },
-        onError: (l) => {
-          console.error("opus error", l);
+        onError: (h) => {
+          console.error("opus error", h);
         }
       };
-      e && e.includes(".ass") && (this.player.octopusInstance = new Mh(o));
+      e && e.includes(".ass") && (this.player.octopusInstance = new Mh(l));
     }
   }
 }
@@ -21420,13 +21448,16 @@ class ju extends ot {
     const s = this.player.createElement("div", "language-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(t);
     this.createMenuHeader(s, "Language");
     const i = this.player.createElement("div", "language-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(s);
-    return i.style.transform = "translateX(0)", this.player.on("audioTracks", (n) => {
+    return i.style.transform = "translateX(0)", this.player.on("item", () => {
+      i.innerHTML = "";
+    }), this.player.on("audioTracks", (n) => {
       i.innerHTML = "", Object.values(n).forEach((r) => {
         this.createLanguageMenuButton(i, {
           language: r.language,
           label: r.label,
           type: "audio",
-          id: r.id
+          id: r.id,
+          buttonType: "language"
         });
       });
     }), this.player.on("show-language-menu", (n) => {
@@ -21437,13 +21468,16 @@ class ju extends ot {
     const s = this.player.createElement("div", "subtitle-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(t);
     this.createMenuHeader(s, "subtitles");
     const i = this.player.createElement("div", "subtitle-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(s);
-    return i.style.transform = "translateX(0)", this.player.on("captionsList", (n) => {
+    return i.style.transform = "translateX(0)", this.player.on("item", () => {
+      i.innerHTML = "";
+    }), this.player.on("captionsList", (n) => {
       i.innerHTML = "", Object.values(n).forEach((r, o) => {
         this.createLanguageMenuButton(i, {
           language: r.language,
-          label: r.type,
-          type: "subtitle",
-          id: r.id
+          label: r.label,
+          type: r.type,
+          id: r.id,
+          buttonType: "subtitle"
         });
       });
     }), this.player.on("show-subtitles-menu", (n) => {
@@ -21478,7 +21512,9 @@ class ju extends ot {
     const s = this.player.createElement("div", "quality-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(t);
     this.createMenuHeader(s, "quality");
     const i = this.player.createElement("div", "quality-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(s);
-    return i.style.transform = "translateX(0)", this.player.on("levels", (n) => {
+    return i.style.transform = "translateX(0)", this.player.on("item", () => {
+      i.innerHTML = "";
+    }), this.player.on("levels", (n) => {
       i.innerHTML = "", Object.values(n).forEach((r) => {
         this.createQualityMenuButton(i, {
           id: r.id,
@@ -21504,21 +21540,20 @@ class ju extends ot {
     }), n;
   }
   createLanguageMenuButton(t, s, i = !1) {
-    var l;
     const n = this.player.createElement("button", `${s.type}-button-${s.language}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(t), r = this.player.createElement("span", "menu-button-text").addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(n);
-    s.type == "subtitle" ? s.label == "segment-metadata" ? r.textContent = `${this.player.localize("Off")}` : s.styled ? r.textContent = `${this.player.localize(s.language ?? "")} ${this.player.localize(s.label)} ${this.player.localize("styled")}` : r.textContent = `${s.language == "off" ? "" : this.player.localize(s.language ?? "")} (${this.player.localize(s.label)})` : s.type == "audio" && (r.textContent = `${this.player.localize((l = s.language ?? s.label) == null ? void 0 : l.replace("segment-metadata", "Off"))}`);
+    s.buttonType == "subtitle" && (s.styled ? r.textContent = `${this.player.localize(s.language ?? "")} ${this.player.localize(s.label)} ${this.player.localize("styled")}` : s.language != "" ? r.textContent = `${this.player.localize(s.language ?? "")} (${this.player.localize(s.type)})` : r.textContent = this.player.localize(s.label));
     const o = this.createSVGElement(n, "checkmark", this.buttons.checkmark, i);
-    return this.player.addClasses(o, ["nm-ml-auto"]), s.id > 0 && o.classList.add("nm-hidden"), s.type == "audio" ? (this.player.on("audioTrackChanged", (h) => {
-      s.id === h.id ? o.classList.remove("nm-hidden") : o.classList.add("nm-hidden");
-    }), n.addEventListener("click", (h) => {
-      h.stopPropagation(), this.player.setCurrentAudioTrack(s.id), this.player.emit("show-menu", !1);
-    })) : s.type == "subtitle" && (this.player.on("captionsChanged", (h) => {
-      s.id === h.id ? o.classList.remove("nm-hidden") : o.classList.add("nm-hidden");
-    }), n.addEventListener("click", (h) => {
-      h.stopPropagation(), this.player.setCurrentCaption(s.id), this.player.emit("show-menu", !1);
-    })), n.addEventListener("keyup", (h) => {
-      var c, u, d, f;
-      h.key == "ArrowLeft" ? (c = this.player.getClosestElement(n, '[id^="audio-button-"]')) == null || c.focus() : h.key == "ArrowRight" ? (u = this.player.getClosestElement(n, '[id^="subtitle-button-"]')) == null || u.focus() : h.key == "ArrowUp" && !this.player.options.disableTouchControls ? (d = n.previousElementSibling) == null || d.focus() : h.key == "ArrowDown" && !this.player.options.disableTouchControls && ((f = n.nextElementSibling) == null || f.focus());
+    return this.player.addClasses(o, ["nm-ml-auto"]), s.id > -1 && o.classList.add("nm-hidden"), s.buttonType == "audio" ? (this.player.on("audioTrackChanged", (l) => {
+      s.id === l.id ? o.classList.remove("nm-hidden") : o.classList.add("nm-hidden");
+    }), n.addEventListener("click", (l) => {
+      l.stopPropagation(), this.player.setCurrentAudioTrack(s.id), this.player.emit("show-menu", !1);
+    })) : s.buttonType == "subtitle" && (this.player.on("captionsChanged", (l) => {
+      s.id === l.id ? o.classList.remove("nm-hidden") : o.classList.add("nm-hidden");
+    }), n.addEventListener("click", (l) => {
+      l.stopPropagation(), this.player.setCurrentCaption(s.id), this.player.emit("show-menu", !1);
+    })), n.addEventListener("keyup", (l) => {
+      var h, c, u, d;
+      l.key == "ArrowLeft" ? (h = this.player.getClosestElement(n, '[id^="audio-button-"]')) == null || h.focus() : l.key == "ArrowRight" ? (c = this.player.getClosestElement(n, '[id^="subtitle-button-"]')) == null || c.focus() : l.key == "ArrowUp" && !this.player.options.disableTouchControls ? (u = n.previousElementSibling) == null || u.focus() : l.key == "ArrowDown" && !this.player.options.disableTouchControls && ((d = n.nextElementSibling) == null || d.focus());
     }), n;
   }
   createSeekRipple(t, s) {

@@ -2265,6 +2265,10 @@ export class DesktopUIPlugin extends Plugin {
 
 		scrollContainer.style.transform = 'translateX(0)';
 
+		this.player.on('item', () => {
+			scrollContainer.innerHTML = '';
+		});
+
 		this.player.on('audioTracks', (tracks) => {
 			scrollContainer.innerHTML = '';
 			
@@ -2274,6 +2278,7 @@ export class DesktopUIPlugin extends Plugin {
 					label: track.label,
 					type: 'audio',
 					id: track.id,
+					buttonType: 'language',
 				});
 			})
 		});
@@ -2302,15 +2307,20 @@ export class DesktopUIPlugin extends Plugin {
 
 		scrollContainer.style.transform = 'translateX(0)';
 
+		this.player.on('item', () => {
+			scrollContainer.innerHTML = '';
+		});
+
 		this.player.on('captionsList', (tracks) => {
 			scrollContainer.innerHTML = '';
 			
 			Object.values(tracks).forEach((track, index) => {
 				this.createLanguageMenuButton(scrollContainer, {
 					language: track.language,
-					label: track.type,
-					type: 'subtitle',
+					label: track.label,
+					type: track.type,
 					id: track.id,
+					buttonType: 'subtitle',
 				});
 			});
 		});
@@ -2401,6 +2411,10 @@ export class DesktopUIPlugin extends Plugin {
 
 		scrollContainer.style.transform = 'translateX(0)';
 
+		this.player.on('item', () => {
+			scrollContainer.innerHTML = '';
+		});
+		
 		this.player.on('levels', (levels) => {
 			scrollContainer.innerHTML = '';
 
@@ -2478,6 +2492,7 @@ export class DesktopUIPlugin extends Plugin {
 		type: string,
 		id: number,
 		styled?: boolean;
+		buttonType: string;
 	}, hovered = false
 	) {
 
@@ -2489,27 +2504,26 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses(this.makeStyles('menuButtonTextStyles'))
 			.appendTo(languageButton);
 
-		if (data.type == 'subtitle') {
-			if (data.label == 'segment-metadata') {
-				languageButtonText.textContent = `${this.player.localize('Off')}`;
-			} else if (data.styled) {
+		if (data.buttonType == 'subtitle') {
+			if (data.styled) {
 				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} ${this.player.localize(data.label)} ${this.player.localize('styled')}`;
-			} else {
-				languageButtonText.textContent = `${data.language == 'off' ? '' : this.player.localize(data.language ?? '')} (${this.player.localize(data.label)})`;
+			} 
+			else if (data.language != '') {
+				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
+			} 
+			else {
+				languageButtonText.textContent = this.player.localize(data.label);
 			}
-		} else if (data.type == 'audio') {
-			languageButtonText.textContent = `${this.player.localize((data.language ?? data.label)
-				?.replace('segment-metadata', 'Off'))}`;
 		}
 
 		const chevron = this.createSVGElement(languageButton, 'checkmark', this.buttons.checkmark, hovered);
 		this.player.addClasses(chevron, ['nm-ml-auto']);
 
-		if (data.id > 0) {
+		if (data.id > -1) {
 			chevron.classList.add('nm-hidden');
 		}
 
-		if (data.type == 'audio') {
+		if (data.buttonType == 'audio') {
 			this.player.on('audioTrackChanged', (audio) => {
 				if (data.id === audio.id) {
 					chevron.classList.remove('nm-hidden');
@@ -2524,7 +2538,8 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-menu', false);
 			});
 			
-		} else if (data.type == 'subtitle') {
+		} 
+		else if (data.buttonType == 'subtitle') {
 
 			this.player.on('captionsChanged', (track) => {
 				if (data.id === track.id) {

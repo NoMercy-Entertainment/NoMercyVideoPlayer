@@ -633,12 +633,17 @@ export class NMPlayer extends Base {
 	setCaptionFromStorage(): void {
 		if (localStorage.getItem('nmplayer-subtitle-language')
 			&& localStorage.getItem('nmplayer-subtitle-type')
-			&& localStorage.getItem('nmplayer-subtitle-ext')) {
-			this.setCurrentCaption(this.getTextTrackIndexBy(
+			&& localStorage.getItem('nmplayer-subtitle-ext')
+		) {
+			const track = this.getTextTrackIndexBy(
 				localStorage.getItem('nmplayer-subtitle-language') as string,
 				localStorage.getItem('nmplayer-subtitle-type') as string,
 				localStorage.getItem('nmplayer-subtitle-ext') as string
-			));
+			);
+			
+			if (!track) return;
+			
+			this.setCurrentCaption(track);
 		} else {
 			this.setCurrentCaption(-1);
 		}
@@ -1302,7 +1307,7 @@ export class NMPlayer extends Base {
 				callback: (data) => {
 					const parser = new WebVTTParser();
 					this.subtitles = parser.parse(data, 'metadata');
-					this.triggerStyledSubs(file);
+					this.storeSubtitleChoice();
 
 					this.once('duration', () => {
 						this.emit('subtitles', this.getSubtitles());
@@ -1852,8 +1857,19 @@ export class NMPlayer extends Base {
 	}
 
 	// Captions
-	getCaptionsList(): Track[] | undefined {
-		return this.getSubtitles();
+	getCaptionsList(): Track[] {
+		const subs =  this.getSubtitles() ?? [];
+		subs.unshift({
+			id: -1,
+			label: 'Off',
+			language: '',
+			type: 'none',
+			ext: 'none',
+			file: '', 
+			kind: 'captions',
+		} as Track);
+		
+		return subs;
 	}
 
 	hasCaptions(): boolean {
@@ -1861,7 +1877,16 @@ export class NMPlayer extends Base {
 	}
 
 	getCurrentCaptions(): Track | undefined {
-		return this.getSubtitles()?.[this.currentSubtitleIndex];
+		return this.getSubtitles()?.[this.currentSubtitleIndex] ?? {
+			id: -1,
+			label: 'Off',
+			language: '',
+			kind: 'captions',
+			type: 'none',
+			file: '',
+			ext: 'none',
+			default: true,
+		};
 	}
 
 	getCurrentCaptionsName(): any {
@@ -1888,12 +1913,25 @@ export class NMPlayer extends Base {
 				t.language === language && t.type === type && t.ext === ext);
 		}
 		
-		return index;
+		return;
 	}
 
 	setCurrentCaption(index?: number): void {
 		if (!index && index != 0) return;
+		
 		this.currentSubtitleIndex = index;
+		this.currentSubtitleFile = '';
+		this.subtitles = <VTTData>{};
+		this.subtitleText.textContent = '';
+		this.subtitleOverlay.style.display = 'none';
+
+		if (index == -1) {
+			this.emit('captionsChanged', this.getCurrentCaptions());
+			this.storeSubtitleChoice();
+			
+			return;
+		}
+
 		this.fetchSubtitleFile();
 	}
 
@@ -1907,11 +1945,8 @@ export class NMPlayer extends Base {
 
 	/**
      * Triggers the styled subtitles based on the provided file.
-     * @param file - The file to extract language, type, and extension from.
      */
-	triggerStyledSubs(file: string) {
-		if (!file) return;
-		
+	storeSubtitleChoice() {
 		const {language, type, ext} = this.getCurrentCaptions()!;
 
 		localStorage.setItem('nmplayer-subtitle-language', language);

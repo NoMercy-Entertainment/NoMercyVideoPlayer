@@ -140,6 +140,7 @@ export declare class DesktopUIPlugin extends Plugin {
         type: string;
         id: number;
         styled?: boolean;
+        buttonType: string;
     }, hovered?: boolean): HTMLButtonElement;
     createSeekRipple(parent: HTMLDivElement, side: string): HTMLDivElement;
     createProgressBar(parent: HTMLDivElement): HTMLDivElement;
