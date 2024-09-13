@@ -1531,7 +1531,10 @@ export class DesktopUIPlugin extends Plugin {
 				this.menuFrame.showModal();
 			}
 		});
-		
+
+		this.player.on('item', () => {
+			audioButton.style.display = 'none';
+		});
 		this.player.on('audioTracks', (tracks) => {
 			if (tracks.length > 1) {
 				audioButton.style.display = 'flex';
@@ -1589,6 +1592,9 @@ export class DesktopUIPlugin extends Plugin {
 			// this.player.toggleLanguage();
 		});
 
+		this.player.on('item', () => {
+			qualityButton.style.display = 'none';
+		});
 		this.player.on('levels', (levels) => {
 			if (this.player.hasQualities()) {
 				qualityButton.style.display = 'flex';
@@ -2218,6 +2224,9 @@ export class DesktopUIPlugin extends Plugin {
 		});
 
 		if (item === 'language') {
+			this.player.on('item', () => {
+				menuButton.style.display = 'none';
+			});
 			this.player.on('audioTracks', (tracks) => {
 				if (tracks.length > 1) {
 					menuButton.style.display = 'flex';
@@ -2226,6 +2235,9 @@ export class DesktopUIPlugin extends Plugin {
 				}
 			});
 		} else if (item === 'subtitles') {
+			this.player.on('item', () => {
+				menuButton.style.display = 'none';
+			});
 			this.player.on('captionsList', (captions) => {
 				if (captions.length > 0) {
 					menuButton.style.display = 'flex';
@@ -2234,6 +2246,9 @@ export class DesktopUIPlugin extends Plugin {
 				}
 			});
 		} else if (item === 'quality') {
+			this.player.on('item', () => {
+				menuButton.style.display = 'none';
+			});
 			this.player.on('levels', (levels) => {
 				if (levels.length > 1) {
 					menuButton.style.display = 'flex';

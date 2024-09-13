@@ -796,9 +796,25 @@ export class NMPlayer extends Base {
 		this.container.addEventListener('click', this.ui_resetInactivityTimer.bind(this));
 		this.container.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
 
-		// this.once('firstFrame', () => {
-		// 	this.addGainNode();
-		// });
+		this.on('item', () => {
+			setTimeout(() => {
+				this.emit('levels', this.getQualityLevels());
+				this.emit('levelsChanging', {
+					id: this.hls?.loadLevel,
+					name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
+				});
+				this.emit('audioTracks', this.getAudioTracks());
+			}, 250);
+		});
+		
+		this.on('firstFrame', () => {
+			this.emit('levels', this.getQualityLevels());
+			this.emit('levelsChanging', {
+				id: this.hls?.loadLevel,
+				name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
+			});
+			this.emit('audioTracks', this.getAudioTracks());
+		});
 
 		this.once('hls', () => {
 
@@ -1442,7 +1458,8 @@ export class NMPlayer extends Base {
      * @returns {boolean} True if the device is a mobile device, false otherwise.
      */
 	isMobile(): boolean {
-		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu.test(navigator.userAgent) && !this.options.disableTouchControls;
+		return matchMedia('(max-width: 520px) and (orientation: portrait), (max-height: 520px) and (orientation: landscape)').matches;
+		// return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu.test(navigator.userAgent) && !this.options.disableTouchControls;
 	}
 
 	/**
@@ -1450,8 +1467,9 @@ export class NMPlayer extends Base {
      * @returns {boolean} True if the current device is a TV, false otherwise.
      */
 	isTv(): boolean {
-		return /Playstation|webOS|AppleTV|AndroidTV|NetCast|NetTV|SmartTV|Tizen|TV/u.test(navigator.userAgent)
-            || window.innerHeight == 540 && window.innerWidth == 960 || this.options.forceTvMode == true;
+		return matchMedia('(width: 960px) and (height: 540px)').matches;
+		// return /Playstation|webOS|AppleTV|AndroidTV|NetCast|NetTV|SmartTV|Tizen|TV/u.test(navigator.userAgent)
+        //     || window.innerHeight == 540 && window.innerWidth == 960 || this.options.forceTvMode == true;
 	}
 
 	// Setup

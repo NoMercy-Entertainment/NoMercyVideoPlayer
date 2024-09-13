@@ -17976,7 +17976,27 @@ class Dh extends or {
     t && (t.tagName === "BUTTON" || t.tagName === "INPUT") && this.ui_addActiveClass();
   }
   _addEvents() {
-    this.videoElement.addEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.addEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.addEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.addEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.addEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.addEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.addEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.addEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.addEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.addEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.addEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.addEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.once("hls", () => {
+    this.videoElement.addEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.addEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.addEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.addEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.addEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.addEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.addEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.addEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.addEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.addEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.addEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.addEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.on("item", () => {
+      setTimeout(() => {
+        var e, t;
+        this.emit("levels", this.getQualityLevels()), this.emit("levelsChanging", {
+          id: (e = this.hls) == null ? void 0 : e.loadLevel,
+          name: (t = this.getQualityLevels().find((s) => {
+            var i;
+            return s.id === ((i = this.hls) == null ? void 0 : i.loadLevel);
+          })) == null ? void 0 : t.name
+        }), this.emit("audioTracks", this.getAudioTracks());
+      }, 250);
+    }), this.on("firstFrame", () => {
+      var e, t;
+      this.emit("levels", this.getQualityLevels()), this.emit("levelsChanging", {
+        id: (e = this.hls) == null ? void 0 : e.loadLevel,
+        name: (t = this.getQualityLevels().find((s) => {
+          var i;
+          return s.id === ((i = this.hls) == null ? void 0 : i.loadLevel);
+        })) == null ? void 0 : t.name
+      }), this.emit("audioTracks", this.getAudioTracks());
+    }), this.once("hls", () => {
       this.hls && (this.hls.on(J.Events.AUDIO_TRACK_LOADING, (e, t) => {
         console.log("Audio track loading", t);
       }), this.hls.on(J.Events.AUDIO_TRACK_LOADED, (e, t) => {
@@ -18417,14 +18437,14 @@ class Dh extends or {
       * @returns {boolean} True if the device is a mobile device, false otherwise.
       */
   isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu.test(navigator.userAgent) && !this.options.disableTouchControls;
+    return matchMedia("(max-width: 520px) and (orientation: portrait), (max-height: 520px) and (orientation: landscape)").matches;
   }
   /**
       * Determines if the current device is a TV based on the user agent string or the window dimensions.
       * @returns {boolean} True if the current device is a TV, false otherwise.
       */
   isTv() {
-    return /Playstation|webOS|AppleTV|AndroidTV|NetCast|NetTV|SmartTV|Tizen|TV/u.test(navigator.userAgent) || window.innerHeight == 540 && window.innerWidth == 960 || this.options.forceTvMode == !0;
+    return matchMedia("(width: 960px) and (height: 540px)").matches;
   }
   // Setup
   setup(e) {
@@ -21249,6 +21269,8 @@ class ju extends ot {
     );
     return i.style.display = "none", i.ariaLabel = (n = this.buttons.language) == null ? void 0 : n.title, this.createSVGElement(i, "audio", this.buttons.languageOff, s), i.addEventListener("click", (r) => {
       r.stopPropagation(), this.player.emit("hide-tooltip"), this.languageMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-language-menu", !0), this.menuFrame.showModal());
+    }), this.player.on("item", () => {
+      i.style.display = "none";
     }), this.player.on("audioTracks", (r) => {
       r.length > 1 ? i.style.display = "flex" : i.style.display = "none";
     }), this.player.on("pip-internal", (r) => {
@@ -21264,6 +21286,8 @@ class ju extends ot {
     const n = this.createSVGElement(i, "low", this.buttons.quality, s), r = this.createSVGElement(i, "high", this.buttons.quality, !0, s);
     return i.addEventListener("click", (o) => {
       o.stopPropagation(), this.player.emit("hide-tooltip"), this.qualityMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-quality-menu", !0), this.menuFrame.showModal()), this.player.highQuality ? (this.player.highQuality = !1, r.style.display = "none", n.style.display = "flex") : (this.player.highQuality = !0, n.style.display = "none", r.style.display = "flex");
+    }), this.player.on("item", () => {
+      i.style.display = "none";
     }), this.player.on("levels", (o) => {
       this.player.hasQualities() ? i.style.display = "flex" : i.style.display = "none";
     }), this.player.on("pip-internal", (o) => {
@@ -21434,13 +21458,19 @@ class ju extends ot {
     const o = this.createSVGElement(n, "menu", this.buttons.chevronR, i);
     this.player.addClasses(o, ["nm-ml-auto"]), n.addEventListener("click", (l) => {
       l.stopPropagation(), this.player.emit(`show-${s}-menu`, !0);
-    }), s === "language" ? this.player.on("audioTracks", (l) => {
+    }), s === "language" ? (this.player.on("item", () => {
+      n.style.display = "none";
+    }), this.player.on("audioTracks", (l) => {
       l.length > 1 ? n.style.display = "flex" : n.style.display = "none";
-    }) : s === "subtitles" ? this.player.on("captionsList", (l) => {
+    })) : s === "subtitles" ? (this.player.on("item", () => {
+      n.style.display = "none";
+    }), this.player.on("captionsList", (l) => {
       l.length > 0 ? n.style.display = "flex" : n.style.display = "none";
-    }) : s === "quality" ? this.player.on("levels", (l) => {
+    })) : s === "quality" ? (this.player.on("item", () => {
+      n.style.display = "none";
+    }), this.player.on("levels", (l) => {
       l.length > 1 ? n.style.display = "flex" : n.style.display = "none";
-    }) : s === "playlist" && this.player.on("playlist", (l) => {
+    })) : s === "playlist" && this.player.on("playlist", (l) => {
       l.length > 1 ? n.style.display = "flex" : n.style.display = "none";
     });
   }
