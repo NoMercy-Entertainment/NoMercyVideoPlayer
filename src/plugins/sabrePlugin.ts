@@ -18,7 +18,7 @@ export class SabrePlugin extends Plugin {
 	}
 
 	use() {
-		this.player.on('captionsChange', this.sabre.bind(this));
+		this.player.on('captionsChanged', this.sabre.bind(this));
 	}
 
 	async sabre() {

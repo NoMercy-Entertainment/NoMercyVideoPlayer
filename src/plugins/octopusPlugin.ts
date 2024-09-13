@@ -12,7 +12,13 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	use() {
-		this.player.on('captionsChange', this.opus.bind(this));
+		this.player.on('item', this.destroy.bind(this));
+		this.player.on('captionsChanged', this.opus.bind(this));
+	}
+	
+	destroy() {
+		this.player.octopusInstance?.dispose();
+		this.player.octopusInstance = null;
 	}
 
 	async opus() {

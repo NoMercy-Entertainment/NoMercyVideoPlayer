@@ -21,6 +21,8 @@ export class KeyHandlerPlugin extends Plugin {
      * @param {KeyboardEvent} event - The keyboard event to handle.
      */
 	keyHandler(event: KeyboardEvent) {
+		if (document.activeElement?.nodeName == 'INPUT' ) return;
+		
 		const keys = this.keyBindings();
 		let keyTimeout = false;
 
@@ -124,6 +126,12 @@ export class KeyHandlerPlugin extends Plugin {
 			{
 				name: 'Cycle subtitle tracks',
 				key: 'Subtitle',
+				control: false,
+				function: () => this.player.cycleSubtitles(),
+			},
+			{
+				name: 'Cycle subtitle tracks',
+				key: '5',
 				control: false,
 				function: () => this.player.cycleSubtitles(),
 			},

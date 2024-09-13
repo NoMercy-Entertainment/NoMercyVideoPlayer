@@ -1,5 +1,7 @@
 
-import type { SetupConfig, TimeData } from './index.d';
+import type { SetupConfig, TimeData, Track, CurrentTrack} from './index.d';
+import {Level} from "hls.js";
+import {NMPlayer} from "./index";
 
 export class Base {
 
@@ -61,7 +63,7 @@ export class Base {
 
 	// Playlist
 	emit(event: 'playlist', data?: any): void;
-	emit(event: 'playlistItem', data?: any): void;
+	emit(event: 'item', data?: any): void;
 	emit(event: 'playlistComplete', data?: any): void;
 	emit(event: 'nextClick', data?: any): void;
 
@@ -95,18 +97,18 @@ export class Base {
 	emit(event: 'resize', data?: any): void;
 
 	// Quality
-	emit(event: 'levels', data?: any): void;
-	emit(event: 'levelsChanged', data?: any): void;
-	emit(event: 'levelsChanging', data?: any): void;
+	emit(event: 'levels', data: ReturnType<NMPlayer["getQualityLevels"]>): void;
+	emit(event: 'levelsChanged', data: CurrentTrack): void;
+	emit(event: 'levelsChanging', data: CurrentTrack): void;
 	emit(event: 'visualQuality', data?: any): void;
 
 	// Captions
 	emit(event: 'captionsList', data?: any): void;
-	emit(event: 'captionsChange', data?: any): void;
+	emit(event: 'captionsChanged', data?: any): void;
 
 	// Audio
-	emit(event: 'audioTracks', data?: any): void;
-	emit(event: 'audioTrackChanged', data?: any): void;
+	emit(event: 'audioTracks', data?: Track[]): void;
+	emit(event: 'audioTrackChanged', data?: CurrentTrack): void;
 
 	// Controls
 	emit(event: 'controls', data?: any): void;
@@ -136,18 +138,11 @@ export class Base {
 	// Cast
 	emit(event: 'cast', data?: any): void;
 	emit(event: 'castIntercepted', data?: any): void;
-
-
+	
 	emit(eventType: 'display-message', value: string): void;
 
 	emit(event: string, data?: any): void;
 	emit(event: any, data?: any): void {
-		if (!data || typeof data === 'string') {
-			data = data ?? '';
-		} else if (typeof data === 'object') {
-			data = { ...(data ?? {}) };
-		}
-
 		this.eventElement?.dispatchEvent?.(new CustomEvent(event, {
 			detail: data,
 		}));
@@ -167,7 +162,7 @@ export class Base {
 
 	// Playlist
 	on(event: 'playlist', callback: () => void): void;
-	on(event: 'playlistItem', callback: () => void): void;
+	on(event: 'item', callback: () => void): void;
 	on(event: 'playlistComplete', callback: () => void): void;
 	on(event: 'nextClick', callback: () => void): void;
 
@@ -202,18 +197,18 @@ export class Base {
 	on(event: 'resize', callback: () => void): void;
 
 	// Quality
-	on(event: 'levels', callback: () => void): void;
-	on(event: 'levelsChanged', callback: () => void): void;
-	on(event: 'levelsChanging', callback: () => void): void;
+	on(event: 'levels', callback: (data: ReturnType<NMPlayer["getQualityLevels"]>) => void): void;
+	on(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
+	on(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
 	on(event: 'visualQuality', callback: () => void): void;
 
 	// Captions
 	on(event: 'captionsList', callback: () => void): void;
-	on(event: 'captionsChange', callback: () => void): void;
+	on(event: 'captionsChanged', callback: () => void): void;
 
 	// Audio
-	on(event: 'audioTracks', callback: () => void): void;
-	on(event: 'audioTrackChanged', callback: () => void): void;
+	on(event: 'audioTracks', callback: (data: Track[]) => void): void;
+	on(event: 'audioTrackChanged', callback: (data: CurrentTrack) => void): void;
 
 	// Controls
 	on(event: 'controls', callback: () => void): void;
@@ -272,7 +267,7 @@ export class Base {
 
 	// Playlist
 	off(event: 'playlist', callback: () => void): void;
-	off(event: 'playlistItem', callback: () => void): void;
+	off(event: 'item', callback: () => void): void;
 	off(event: 'playlistComplete', callback: () => void): void;
 	off(event: 'nextClick', callback: () => void): void;
 
@@ -314,7 +309,7 @@ export class Base {
 
 	// Captions
 	off(event: 'captionsList', callback: () => void): void;
-	off(event: 'captionsChange', callback: () => void): void;
+	off(event: 'captionsChanged', callback: () => void): void;
 
 	// Audio
 	off(event: 'audioTracks', callback: () => void): void;
@@ -379,7 +374,7 @@ export class Base {
 
 	// Playlist
 	once(event: 'playlist', callback: () => void): void;
-	once(event: 'playlistItem', callback: () => void): void;
+	once(event: 'item', callback: () => void): void;
 	once(event: 'playlistComplete', callback: () => void): void;
 	once(event: 'nextClick', callback: () => void): void;
 
@@ -414,18 +409,18 @@ export class Base {
 	once(event: 'resize', callback: () => void): void;
 
 	// Quality
-	once(event: 'levels', callback: () => void): void;
-	once(event: 'levelsChanged', callback: () => void): void;
-	once(event: 'levelsChanging', callback: () => void): void;
+	once(event: 'levels', callback: (data: ReturnType<NMPlayer["getQualityLevels"]>) => void): void;
+	once(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
+	once(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
 	once(event: 'visualQuality', callback: () => void): void;
 
 	// Captions
 	once(event: 'captionsList', callback: () => void): void;
-	once(event: 'captionsChange', callback: () => void): void;
+	once(event: 'captionsChanged', callback: () => void): void;
 
 	// Audio
-	once(event: 'audioTracks', callback: () => void): void;
-	once(event: 'audioTrackChanged', callback: () => void): void;
+	once(event: 'audioTracks', callback: (data: Track[]) => void): void;
+	once(event: 'audioTrackChanged', callback: (data: CurrentTrack) => void): void;
 
 	// Controls
 	once(event: 'controls', callback: () => void): void;

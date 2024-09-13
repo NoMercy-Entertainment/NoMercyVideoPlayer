@@ -13,6 +13,20 @@ module.exports = {
 	],
 	darkMode: 'media',
 	theme: {
+		screens: {
+			sm: '640px',
+			md: '768px',
+			lg: '1024px',
+			xl: '1280px',
+			'2xl': '1536px',
+			'3xl': '1800px',
+			'4xl': '1920px',
+			'5xl': '2200px',
+			tv: {
+				min: '960px',
+				max: '960px',
+			},
+		},
 		extend: {
 			width: {
 				available: [
@@ -46,7 +60,6 @@ module.exports = {
 					'stretch',
 				],
 			},
-
 		},
 	},
 	variants: {

@@ -2,8 +2,9 @@
 
 import './index.css';
 import { Base } from './base';
-import HLS, { Level, MediaPlaylist } from 'hls.js';
-import { VTTData, WebVTTParser } from 'webvtt-parser';
+import HLS, {type MediaPlaylist } from 'hls.js';
+import { type VTTData, WebVTTParser } from 'webvtt-parser';
+import translations from './translations';
 
 import type { PlaylistItem, SetupConfig, Stretching, Track, TimeData, TypeMappings } from './index.d';
 import { humanTime, pad } from './helpers';
@@ -15,6 +16,7 @@ export class NMPlayer extends Base {
 	hls: HLS | undefined;
 	gainNode: GainNode | undefined;
 	translations: { [key: string]: string } = {};
+	defaultTranslations: { [key: string]: string } = translations;
 
 	// State
 	message: NodeJS.Timeout = <NodeJS.Timeout>{};
@@ -310,7 +312,12 @@ export class NMPlayer extends Base {
 		addClasses: (names: string[]) => {
 			prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
 			get: () => HTMLElementTagNameMap[K];
-			appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K]
+			appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
+			addClasses: (names: string[]) => {
+				prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
+				get: () => HTMLElementTagNameMap[K];
+				appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K]
+			}
 		}
 	} {
 		let el: HTMLElementTagNameMap[K];
@@ -360,6 +367,7 @@ export class NMPlayer extends Base {
 				parent.prepend(el);
 				return el;
 			},
+			addClasses: (names: string[]) => this.addClasses(el, names),
 			get: () => el,
 		};
 	}
@@ -416,20 +424,22 @@ export class NMPlayer extends Base {
 
 	createOverlayCenterMessage(): HTMLButtonElement {
 		const playerMessage = this.createElement('button', 'player-message')
-			.addClasses(['player-message'])
+			.addClasses([
+				'player-message',
+				'nm-hidden',
+				'nm-absolute',
+				'nm-rounded-md',
+				'nm-bg-neutral-900/95',
+				'nm-left-1/2',
+				'nm-px-4',
+				'nm-py-2',
+				'nm-pointer-events-none',
+				'nm-text-center',
+				'nm-top-12',
+				'nm--translate-x-1/2',
+				'nm-z-50',
+			])
 			.appendTo(this.overlay);
-
-		playerMessage.style.display = 'none';
-		playerMessage.style.position = 'absolute';
-		playerMessage.style.zIndex = '100';
-		playerMessage.style.left = '50%';
-		playerMessage.style.top = '12%';
-		playerMessage.style.transform = 'translateX(-50%)';
-		playerMessage.style.padding = '0.5rem 1rem';
-		playerMessage.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
-		playerMessage.style.borderRadius = '0.375rem';
-		playerMessage.style.pointerEvents = 'none';
-		playerMessage.style.textAlign = 'center';
 
 		this.on('display-message', (val: string) => {
 			playerMessage.style.display = 'flex';
@@ -467,7 +477,7 @@ export class NMPlayer extends Base {
 			.addClasses(['nm-text-center', 'nm-whitespace-pre-line', 'nm-font-bolder', 'nm-font-[BBC]', 'nm-leading-normal'])
 			.appendTo(this.subtitleOverlay);
 
-		this.subtitleText.style.fontSize = 'clamp(20px, 150%, 36px)';
+		this.subtitleText.style.fontSize = 'clamp(20px, 2.5vw, 30px)';
 		this.subtitleText.style.textShadow = 'black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px';
 
 		this.videoElement.addEventListener('timeupdate', this.checkSubtitles.bind(this));
@@ -510,18 +520,21 @@ export class NMPlayer extends Base {
 	loadSource(url: string): void {
 		this.videoElement.pause();
 		this.videoElement.removeAttribute('src');
-		this.hls?.destroy();
 
-		if (!url.endsWith('.m3u8')) {
+		if (!url.endsWith('.m3u8')) {		
+			this.hls?.destroy();
+			this.hls = undefined;
+
 			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
 		} else if (HLS.isSupported()) {
 
-			this.hls = new HLS({
+			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
 				enableWorker: true,
-				lowLatencyMode: false,
+				lowLatencyMode: true,
 				backBufferLength: 10,
 				maxBufferLength: 10,
+				maxMaxBufferLength: 30,
 				testBandwidth: true,
 				videoPreference: {
 					preferHDR: this.hdrSupported(),
@@ -589,8 +602,7 @@ export class NMPlayer extends Base {
 		};
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_playEvent(e: Event): void {
+	videoPlayer_playEvent(_e: Event): void {
 		this.emit('beforePlay');
 
 		this.container.classList.remove('paused');
@@ -598,8 +610,7 @@ export class NMPlayer extends Base {
 		this.emit('play');
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_onPlayingEvent(e: Event): void {
+	videoPlayer_onPlayingEvent(_e: Event): void {
 		this.videoElement.removeEventListener('playing', this.videoPlayer_onPlayingEvent);
 
 		if (!this.firstFrame) {
@@ -609,33 +620,37 @@ export class NMPlayer extends Base {
 
 		this.setMediaAPI();
 
-		this.on('playlistItem', () => {
+		this.on('item', () => {
 			this.videoElement.addEventListener('playing', this.videoPlayer_onPlayingEvent);
 			this.firstFrame = false;
 		});
 
 		setTimeout(() => {
-			if (localStorage.getItem('nmplayer-subtitle-language') && localStorage.getItem('nmplayer-subtitle-type') && localStorage.getItem('nmplayer-subtitle-ext')) {
-				this.setCurrentCaption(this.getTextTrackIndexBy(
-					localStorage.getItem('nmplayer-subtitle-language') as string,
-					localStorage.getItem('nmplayer-subtitle-type') as string,
-					localStorage.getItem('nmplayer-subtitle-ext') as string
-				));
-			} else {
-				this.setCurrentCaption(-1);
-			}
+			this.setCaptionFromStorage();
 		}, 300);
 	}
+	
+	setCaptionFromStorage(): void {
+		if (localStorage.getItem('nmplayer-subtitle-language')
+			&& localStorage.getItem('nmplayer-subtitle-type')
+			&& localStorage.getItem('nmplayer-subtitle-ext')) {
+			this.setCurrentCaption(this.getTextTrackIndexBy(
+				localStorage.getItem('nmplayer-subtitle-language') as string,
+				localStorage.getItem('nmplayer-subtitle-type') as string,
+				localStorage.getItem('nmplayer-subtitle-ext') as string
+			));
+		} else {
+			this.setCurrentCaption(-1);
+		}
+	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_pauseEvent(e: Event): void {
+	videoPlayer_pauseEvent(_e: Event): void {
 		this.container.classList.remove('playing');
 		this.container.classList.add('paused');
 		this.emit('pause', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_endedEvent(e: Event): void {
+	videoPlayer_endedEvent(_e: Event): void {
 		if (this.currentIndex < this.playlist.length - 1) {
 			this.playVideo(this.currentIndex + 1);
 		} else {
@@ -645,52 +660,38 @@ export class NMPlayer extends Base {
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_errorEvent(e: Event): void {
+	videoPlayer_errorEvent(_e: Event): void {
 		this.emit('error', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_waitingEvent(e: Event): void {
+	videoPlayer_waitingEvent(_e: Event): void {
 		this.emit('waiting', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_canplayEvent(e: Event): void {
+	videoPlayer_canplayEvent(_e: Event): void {
 		this.emit('canplay', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_loadedmetadataEvent(e: Event): void {
+	videoPlayer_loadedmetadataEvent(_e: Event): void {
 		this.emit('loadedmetadata', this.videoElement);
 		this.emit('duration', this.videoElement.duration);
 		this.emit('time', this.videoPlayer_getTimeData());
-		this.emit('audioTracks', this.getAudioTracks());
 		this.emit('captionsList', this.getCaptionsList());
-		this.emit('levels', this.getQualityLevels());
-		this.emit('levelsChanging', {
-			id: this.hls?.loadLevel,
-			name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
-		});
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_loadstartEvent(e: Event): void {
+	videoPlayer_loadstartEvent(_e: Event): void {
 		this.emit('loadstart', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_timeupdateEvent(e: Event): void {
+	videoPlayer_timeupdateEvent(_e: Event): void {
 		this.emit('time', this.videoPlayer_getTimeData());
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_durationchangeEvent(e: Event): void {
+	videoPlayer_durationchangeEvent(_e: Event): void {
 		this.emit('duration', this.videoElement.duration);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_volumechangeEvent(e: Event): void {
+	videoPlayer_volumechangeEvent(_e: Event): void {
 		if (this.volume != Math.round(this.videoElement.volume * 100)) {
 			this.emit('volume', Math.round(this.videoElement.volume * 100));
 		}
@@ -802,17 +803,12 @@ export class NMPlayer extends Base {
 				console.log('Audio track loading', data);
 			});
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADED, (event, data) => {
-				console.log('Audio tracks loaded', data);
-				this.emit('audioTrackChanged', {
-					id: data.id,
-					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
-				});
+				this.emit('audioTracks', this.getAudioTracks());
 			});
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHING, (event, data) => {
 				console.log('Audio track switching', data);
 			});
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHED, (event, data) => {
-				console.log('Audio track switched', data);
 				this.emit('audioTrackChanged', {
 					id: data.id,
 					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
@@ -849,31 +845,28 @@ export class NMPlayer extends Base {
 			});
 
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
-				console.log('Level loaded',  data);
-				this.emit('levelsChanged', {
-					id: data.level,
-					name: this.getQualityLevels().find(l => l.id === data.level).name,
+				this.emit('levels', this.getQualityLevels());
+				this.emit('levelsChanging', {
+					id: this.hls?.loadLevel,
+					name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHED, (event, data) => {
-				console.log('Level switched', data);
 				this.emit('levelsChanged', {
 					id: data.level,
-					name: this.getQualityLevels().find(l => l.id === data.level).name,
+					name: this.getQualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHING, (event, data) => {
-				console.log('Level switching', data);
 				this.emit('levelsChanging', {
 					id: data.level,
-					name: this.getQualityLevels().find(l => l.id === data.level).name,
+					name: this.getQualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVEL_UPDATED, (event, data) => {
-				console.log('Level updated', data);
 				this.emit('levelsChanged', {
 					id: data.level,
-					name: this.getQualityLevels().find(l => l.id === data.level).name,
+					name: this.getQualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVELS_UPDATED, (event, data) => {
@@ -910,7 +903,8 @@ export class NMPlayer extends Base {
 			});
 		});
 
-		this.once('playlistItem', () => {
+		this.once('item', () => {
+			this.emit('speed', this.videoElement.playbackRate);
 			this.once('audio', () => {
 				if (localStorage.getItem('nmplayer-audio-language')) {
 					this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language') as string));
@@ -926,15 +920,7 @@ export class NMPlayer extends Base {
 				});
 			});
 			this.once('captionsList', () => {
-				if (localStorage.getItem('nmplayer-subtitle-language') && localStorage.getItem('nmplayer-subtitle-type') && localStorage.getItem('nmplayer-subtitle-ext')) {
-					this.setCurrentCaption(this.getTextTrackIndexBy(
-						localStorage.getItem('nmplayer-subtitle-language') as string,
-						localStorage.getItem('nmplayer-subtitle-type') as string,
-						localStorage.getItem('nmplayer-subtitle-ext') as string
-					));
-				} else {
-					this.setCurrentCaption(-1);
-				}
+				this.setCaptionFromStorage();
 			});
 		});
 	}
@@ -1027,8 +1013,8 @@ export class NMPlayer extends Base {
 			return this.translations[value as unknown as number];
 		}
 
-		if ((this.translations as any) && (this.translations as any)[value]) {
-			return (this.translations as any)[value];
+		if ((this.defaultTranslations as any) && (this.defaultTranslations as any)[value]) {
+			return (this.defaultTranslations as any)[value];
 		}
 
 		return value;
@@ -1307,7 +1293,7 @@ export class NMPlayer extends Base {
 		const file = this.getSubtitleFile();
 		if (file && this.currentSubtitleFile !== file) {
 			this.currentSubtitleFile = file;
-			this.emit('captionsChange', this.getCurrentCaptions());
+			this.emit('captionsChanged', this.getCurrentCaptions());
 			this.getFileContents<string>({
 				url: file,
 				options: {
@@ -1336,7 +1322,7 @@ export class NMPlayer extends Base {
 			this.subtitleOverlay.style.display = 'none';
 
 			setTimeout(() => {
-				this.emit('playlistItem', this.currentPlaylistItem);
+				this.emit('item', this.currentPlaylistItem);
 			}, 0);
 
 			this.currentIndex = index;
@@ -1725,6 +1711,10 @@ export class NMPlayer extends Base {
 		if (navigator.userActivation.isActive) {
 			this.container.requestFullscreen().then(() => {
 				this.emit('fullscreen', this.getFullscreen());
+			}).catch((err) => {
+				alert(
+					`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`,
+				);
 			});
 		}
 	}
@@ -1755,9 +1745,14 @@ export class NMPlayer extends Base {
 	}
 
 	// Audio
-	getAudioTracks(): any[] | Array<MediaPlaylist> {
+	getAudioTracks(): MediaPlaylist[] {
 		if (!this.hls) return [];
-		return this.hls.audioTracks.map((level, index: number) => ({...level, id: index}));
+		return this.hls.audioTracks
+				.map((playlist, index: number) => ({
+					...playlist, 
+					id: index,
+					label: playlist.name,
+				}));
 	}
 
 	getCurrentAudioTrack(): number {
@@ -1774,7 +1769,7 @@ export class NMPlayer extends Base {
 		if ((!index && index != 0) || !this.hls) return;
 		this.hls.audioTrack = index;
 
-		localStorage.setItem('nmplayer-audio-language', this.getAudioTracks()[index]?.lang);
+		localStorage.setItem('nmplayer-audio-language', this.getAudioTracks()[index]?.lang ?? '');
 	}
 
 	/**
@@ -1817,9 +1812,15 @@ export class NMPlayer extends Base {
 	};
 
 	// Quality
-	getQualityLevels(): any[] | Level[] {
+	getQualityLevels() {
 		if (!this.hls) return [];
-		return this.hls.levels.map((level, index: number) => ({...level, id: index})).filter((level) => {
+		return this.hls.levels
+			.map((level, index: number) => ({
+				...level, 
+				id: index,
+				label: level.name,
+			}))
+			.filter(level => {
 			const range = level._attrs.at(0)?.['VIDEO-RANGE'];
 			const browserSupportsHDR = this.hdrSupported();
 			if (browserSupportsHDR) return true;
@@ -1937,7 +1938,7 @@ export class NMPlayer extends Base {
 			this.setCurrentCaption(this.getCaptionIndex() + 1);
 		}
 
-		this.displayMessage(`${this.localize('Subtitle')}: ${(this.getCaptionLanguage() + this.getCaptionLabel()) || this.localize('Off')}`);
+		this.displayMessage(`${this.localize('Subtitle')}: ${this.getCaptionLabel() || this.localize('Off')}`);
 	};
 
 

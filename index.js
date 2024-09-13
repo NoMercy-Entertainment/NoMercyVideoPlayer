@@ -9,13 +9,6 @@ import { KeyHandlerPlugin } from './src/plugins/keyHandlerPlugin';
 // const gainSlider = document.querySelector('#gainSlider');
 // const enableGain = document.querySelector('#enableGain');
 
-const audioTracks = document.querySelector('#audioTracks');
-const currentAudio = document.querySelector('#currentAudio');
-const subtitleTracks = document.querySelector('#subtitleTracks');
-const currentSubtitle = document.querySelector('#currentSubtitle');
-const qualities = document.querySelector('#qualities');
-const currentQuality = document.querySelector('#currentQuality');
-
 // gainSlider.addEventListener('change', (e) => {
 // 	if (!player.gainNode) {
 // 		gainSlider.value = 1;
@@ -42,10 +35,11 @@ const config = {
 	debug: false,
 	playlist: [
 		{
-			title: 'Cosmos Laundromat',
+			title: 'Cosmos Laundromat (2015)',
 			description: 'On a desolate island, a suicidal sheep named Franck meets his fate…in the form of a quirky salesman named Victor, who offers him the gift of a lifetime. The gift is many lifetimes, actually, in many different worlds – each lasting just a few minutes. In the sequel to the pilot, Franck will find a new reason to live…in the form of a bewitching female adventurer named Tara, who awakens his long-lost lust for life. But can Franck keep up with her?',
 			image: 'https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
 			file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
+			duration: '12:04',
 			tracks: [
 				{
 					label: 'Dutch (Full)',
@@ -73,15 +67,15 @@ const config = {
 					kind: 'subtitles',
 				},
 				{
-					label: 'Portugese Brazilian (Full)',
+					label: 'Brazilian Portuguese (Full)',
 					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.pob.full.vtt',
-					language: 'nor',
+					language: 'pob',
 					kind: 'subtitles',
 				},
 				{
 					label: 'Spanish (Full)',
 					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.spa.full.vtt',
-					language: 'swe',
+					language: 'spa',
 					kind: 'subtitles',
 				},
 				{
@@ -99,10 +93,15 @@ const config = {
 			],
 		},
 		{
-			title: 'Sintel',
+			title: 'Sintel (2010)',
 			description: 'Sintel is an independently produced short film, initiated by the Blender Foundation as a means to further improve and validate the free/open source 3D creation suite Blender. With initial funding provided by 1000s of donations via the internet community, it has again proven to be a viable development model for both open 3D technology as for independent animation film.\nThis 15 minute film has been realized in the studio of the Amsterdam Blender Institute, by an international team of artists and developers. In addition to that, several crucial technical and creative targets have been realized online, by developers and artists and teams all over the world.\nwww.sintel.org',
 			'image': 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
 			'file': 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+			duration: '14:48',
+			progress: {
+				percentage: 10,
+				date: '2021-05-01T00:00:00Z',
+			},
 			tracks: [
 				{
 					label: 'Dutch (Full)',
@@ -181,51 +180,52 @@ const config = {
 			],
 		},
 		{
-			title: 'Tears of Steel',
+			title: 'Tears of Steel (2012)',
 			description: 'Tears of Steel was realized with crowd-funding by users of the open source 3D creation tool Blender. Target was to improve and test a complete open and free pipeline for visual effects in film - and to make a compelling sci-fi film in Amsterdam, the Netherlands.  The film itself, and all raw material used for making it, have been released under the Creatieve Commons 3.0 Attribution license. Visit the tearsofsteel.org website to find out more about this, or to purchase the 4-DVD box with a lot of extras.  (CC) Blender Foundation - https://www.tearsofsteel.org',
 			image: 'https://image.tmdb.org/t/p/w780/fOy6SL5Zs2PFcNXwqEPIDPrLB1q.jpg',
 			file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/Tears.of.Steel.(2012).NoMercy.m3u8',
+			duration: '12:13',
 			tracks: [
 				{
 					label: "Brazilian (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.bra.full.vtt",
-					language: "eng",
+					language: "bra",
 					kind: "subtitles"
 				},
 				{
 					label: "Chinese (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.chi.full.vtt",
-					language: "eng",
+					language: "chi",
 					kind: "subtitles"
 				},
 				{
 					label: "Croatian (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.cro.full.vtt",
-					language: "eng",
+					language: "cro",
 					kind: "subtitles"
 				},
 				{
 					label: "Chech (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.cze.full.vtt",
-					language: "eng",
+					language: "cze",
 					kind: "subtitles"
 				},
 				{
 					label: "Danish (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.dan.full.vtt",
-					language: "eng",
+					language: "dan",
 					kind: "subtitles"
 				},
 				{
 					label: "Dutch (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.dut.full.vtt",
-					language: "eng",
+					language: "dut",
 					kind: "subtitles"
 				},
 				{
@@ -239,91 +239,91 @@ const config = {
 					label: "French (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.fre.full.vtt",
-					language: "eng",
+					language: "fre",
 					kind: "subtitles"
 				},
 				{
 					label: "German (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.ger.full.vtt",
-					language: "eng",
+					language: "ger",
 					kind: "subtitles"
 				},
 				{
 					label: "Greek (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.gre.full.vtt",
-					language: "eng",
+					language: "gre",
 					kind: "subtitles"
 				},
 				{
 					label: "Hebrew (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.heb.full.vtt",
-					language: "eng",
+					language: "heb",
 					kind: "subtitles"
 				},
 				{
 					label: "Hungarian (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.hun.full.vtt",
-					language: "eng",
+					language: "hun",
 					kind: "subtitles"
 				},
 				{
 					label: "Indian (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.ind.full.vtt",
-					language: "eng",
+					language: "ind",
 					kind: "subtitles"
 				},
 				{
 					label: "Italian (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.ita.full.vtt",
-					language: "eng",
+					language: "ita",
 					kind: "subtitles"
 				},
 				{
 					label: "Japanese (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.jpn.full.vtt",
-					language: "eng",
+					language: "jpn",
 					kind: "subtitles"
 				},
 				{
 					label: "Norwegian (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.nor.full.vtt",
-					language: "eng",
+					language: "nor",
 					kind: "subtitles"
 				},
 				{
 					label: "Persian (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.per.full.vtt",
-					language: "eng",
+					language: "per",
 					kind: "subtitles"
 				},
 				{
 					label: "Portugese (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.por.full.vtt",
-					language: "eng",
+					language: "por",
 					kind: "subtitles"
 				},
 				{
 					label: "Russian (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.rus.full.vtt",
-					language: "eng",
+					language: "rus",
 					kind: "subtitles"
 				},
 				{
 					label: "Spanish (Full)",
 					type: "sdh",
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/subtitles/Tears.of.Steel.(2012).NoMercy.spa.full.vtt",
-					language: "eng",
+					language: "spa",
 					kind: "subtitles"
 				},
 				{
@@ -335,7 +335,7 @@ const config = {
 					kind: "chapters"
 				},
 				{
-					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/previews.webp",
+					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/sprite.webp",
 					kind: "sprite"
 				},
 			],
@@ -345,6 +345,7 @@ const config = {
 			description: 'Takayama enters the training program of JNR with the ambition of becoming one of the venerable train company\'s engineers. As a trainee he is teamed up with fight-ready Sakurai and stolid Iwaizumi and fellow Haruka Kōmi who has encyclopedic knowledge of trains. Together they learn how security officers for the train line work and get involved in more than one tricky situation.',
 			image: 'https://image.tmdb.org/t/p/original/vH8NqN2LMcmtBv037iHGwcPOgCZ.jpg',
 			file: 'https://backstore.fra1.digitaloceanspaces.com/demo/railwars/railwars.mp4',
+			duration: '1:30',
 			tracks: [
 				{
 					label: 'English (Full)',
@@ -363,6 +364,7 @@ const config = {
 			description: 'The sudden retirement of the famous idol Yuka Kusakabe from the entertainment business shocks the world and devastates her biggest fan, teenager Kosaku Hata. His classmates at the Tamo Agriculture School manages to get him out of his depression and bring him out of his room to attend his classes. But to everyone\'s surprise, Yuka Kusakabe - her stage name - comes into their class under the name Ringo Kinoshita as a transfer student. Kosaku realizes he has a once-in-a-lifetime opportunity to get to personally know his dream girl and, together with his group of friends, try to find out why she came to the agricultural school and become more than just classmates.',
 			image: 'https://image.tmdb.org/t/p/original/myHS6X2yonpoBQOptVuQ85PudtC.jpg',
 			file: 'https://backstore.fra1.digitaloceanspaces.com/demo/nourin/nourin.mp4',
+			duration: '23:39',
 			tracks: [
 				{
 					label: 'English (Full)',
@@ -402,9 +404,6 @@ const config = {
 	// accessToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJkNWE1YTAwNS05ZWE2LTRlODMtYmZmNy05ZTQ0MjY5OTg4OWMiLCJqdGkiOiJiNDAyZWU0YThjNGYxYzJjN2RhNmE0ODZjNjY2NDI4YWYyMzMwNGI2MzIyNzRmZjZjNThkODI2YTdjYTEzYTFhYmM2NTA2YjIyOWVmNWE3YiIsImlhdCI6MTY5MzI0NTIwNi42Mjk3NTUsIm5iZiI6MTY5MzI0NTIwNi42Mjk3NTYsImV4cCI6MTcyNDc4MTIwNi42MjM2NjcsInN1YiI6ImQ5OWE1NzQxLTM2ZTgtNGU1ZC1iYzUzLTg1MzAyNmIzZjRhYSIsInNjb3BlcyI6WyJvcGVuaWQiLCJwcm9maWxlIiwiZW1haWwiXSwibmFtZSI6IlRlc3QgVXNlciIsImVtYWlsIjoidGVzdEBub21lcmN5LnR2In0.GV7HlmRAVDL3Bb1MdWltS1AX8dR1LHRMF_vtvM01abLu2983djSKSUvtB26KV5MCpOSuOX-ZwlBlqbMJ5JUX55fSonUE0oiz0ujn8QIk0-G0ptB1-hqn6qIRtxncwZaT0TGNpF7TFejjMC_VcqwjtzmRA58JC940u7QL7k5304cbHJXv-_Op1FpAR3dRA0g3BVR8uJ5ckp1hO-KAj83NOetnviglQf6130WQKtx2AWC1qT55NW3Xx1YFAZZUptjgRZ5mhvDd0_OmTNnFvsQZYaHr5H2WFAzKfW7GEvlu7xFIiMxfhpfowyvV3u4VqoDU-wIfkod-U0lL9JlwnsufFAvE_dfXjMhDXZG80oFPifYLanj7DsL4lIfbaVJO92W1K4bYW0t8Jfi8U3ZdqXtvPSpjPmx5dyz9Z2Na16GtH0_sZu5oMPgbGRMk0pZLi0uGWb_Wxyg3MFMEE4f0zA3gRSc1yt3gCI-AIaiCeMKAbC_uPauV3QcNzbCV2JVxOzW-tKlexALBPYe53DKkODPVcQHhv_d1sqXZxqwS8OfkZzqNCg2MpN2DodgSAVM8b1xZMG_6Ym-hEtDYw0ZCghda7v0pZSAo67jFDv5kEk9MF4j7OGfvk3sFT-mi7gFogKLByrMfQMfs4-qnHrsoKOVZRU6S1JHkRJFSxkwcamv_AYI',
 };
 
-config.subtitleRenderer = 'octopus';
-config.sabreVersion = '0.5.1-pre.8bd763';
-
 const player = nmplayer('player')
 	.setup(config);
 
@@ -443,8 +442,8 @@ player.on('setupError', (data) => {
 player.on('playlist', (data) => {
 	console.log('playlist', data);
 });
-player.on('playlistItem', (data) => {
-	console.log('playlistItem', data);
+player.on('item', (data) => {
+	console.log('item', data);
 });
 player.on('playlistComplete', (data) => {
 	console.log('playlistComplete', data);
@@ -484,7 +483,7 @@ player.on('seek', (data) => {
 player.on('seeked', (data) => {
 	console.log('seeked', data);
 });
-player.on('time', (data) => {
+player.on('time', (_data) => {
 	// console.log('time', data);
 });
 
@@ -498,8 +497,8 @@ player.on('volume', (data) => {
 
 player.on('gain', (data) => {
 	console.log('gain', data);
-	gain.innerHTML = data.value;
-	gainSlider.value = data.value;
+	// gain.innerHTML = data.value;
+	// gainSlider.value = data.value;
 });
 
 // Resize
@@ -513,114 +512,27 @@ player.on('resize', (data) => {
 // Quality
 player.on('levels', (data) => {
 	console.log('levels', data);
-	qualities.innerHTML = '';
-
-	const levelsList = player
-		.createElement('ul', 'levelTrackList', true)
-		.addClasses(['nm-overflow-auto'])
-		.appendTo(qualities);
-	
-	const baseLevel = player.hls.loadLevel;
-
-	Object.values(data).forEach((track) => {
-		const levelTrack = player
-			.createElement('li', `levelTrack-${track.name}`)
-			.addClasses([
-				'nm-p-2',
-				'nm-cursor-pointer',
-				'nm-border-b',
-			])
-			.appendTo(levelsList);
-
-		levelTrack.innerHTML = track.name + ((data.id) === track.id ? ' &#x2714;' : '');
-
-		player.on('levelsChanging', (data) => {
-			console.log('levelsChanging', data);
-			levelTrack.innerHTML = track.name + (data.id === track.id ? ' &#x2714;' : '');
-		});
-
-		levelTrack.addEventListener('click', () => {
-			player.setCurrentQuality(track.id);
-		});
-	});
 });
 
 player.on('levelsChanged', (data) => {
 	console.log('levelsChanged', data);
-	currentQuality.innerHTML = data.name;
 });
 
 // Audio Tracks
 player.on('audioTracks', (data) => {
 	console.log('audioTracks', data);
-	audioTracks.innerHTML = '';
-
-	const audioList = player
-		.createElement('ul', 'audioTrackList', true)
-		.addClasses(['nm-overflow-auto'])
-		.appendTo(audioTracks);
-
-	Object.values(data).forEach((track) => {
-		const audioTrack = player
-			.createElement('li', `audioTrack-${track.name}`)
-			.addClasses([
-				'nm-p-2',
-				'nm-cursor-pointer',
-				'nm-border-b',
-			])
-			.appendTo(audioList);
-
-		audioTrack.innerHTML = track.name + (data.id === track.id || track.id === 0 ? ' &#x2714;' : '');
-		
-		player.on('audioTrackChanged', (data) => {
-			audioTrack.innerHTML = track.name + (data.id === track.id ? ' &#x2714;' : '');
-		});
-
-		audioTrack.addEventListener('click', () => {
-			player.setCurrentAudioTrack(track.id);
-		});
-	});
 });
 
 player.on('audioTrackChanged', (data) => {
 	console.log('audioTrackChanged', data);
-	currentAudio.innerHTML = data.name;
 });
 
 // Captions
 player.on('captionsList', (data) => {
 	console.log('captionsList', data);
-	subtitleTracks.innerHTML = '';
-
-	const captionList = player
-		.createElement('ul', 'captionTrackList', true)
-		.addClasses(['nm-overflow-auto'])
-		.appendTo(subtitleTracks);
-
-	Object.values(data).forEach((track, index) => {
-		const captionTrack = player
-			.createElement('li', `captionTrack-${track.name}`)
-			.addClasses([
-				'nm-p-2',
-				'nm-cursor-pointer',
-				'nm-border-b',
-			])
-			.appendTo(captionList);
-
-		captionTrack.innerHTML = track.label + (data.id === track.id ? ' &#x2714;' : '');
-		
-		player.on('captionsChange', (data) => {
-			captionTrack.innerHTML = track.label + (data.id === track.id ? ' &#x2714;' : '');
-		});
-
-		captionTrack.addEventListener('click', () => {
-			player.setCurrentCaption(index);
-		});
-	});
 });
-player.on('captionsChange', (data) => {
-	console.log('captionsChange', data.label);
-	currentSubtitle.innerHTML = player.getCurrentCaptionsName();
+player.on('captionsChanged', (data) => {
+	console.log('captionsChanged', data.label);
 });
 
 // Controls

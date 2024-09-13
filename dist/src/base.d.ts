@@ -1,4 +1,5 @@
-import { SetupConfig, TimeData } from './index.d';
+import { SetupConfig, TimeData, Track, CurrentTrack } from './index.d';
+import { NMPlayer } from './index';
 
 export declare class Base {
     eventElement: HTMLDivElement;
@@ -28,7 +29,7 @@ export declare class Base {
     emit(event: 'ready', data?: any): void;
     emit(event: 'setupError', data?: any): void;
     emit(event: 'playlist', data?: any): void;
-    emit(event: 'playlistItem', data?: any): void;
+    emit(event: 'item', data?: any): void;
     emit(event: 'playlistComplete', data?: any): void;
     emit(event: 'nextClick', data?: any): void;
     emit(event: 'bufferChange', data?: any): void;
@@ -50,14 +51,14 @@ export declare class Base {
     emit(event: 'volume', data?: any): void;
     emit(event: 'fullscreen', data?: any): void;
     emit(event: 'resize', data?: any): void;
-    emit(event: 'levels', data?: any): void;
-    emit(event: 'levelsChanged', data?: any): void;
-    emit(event: 'levelsChanging', data?: any): void;
+    emit(event: 'levels', data: ReturnType<NMPlayer["getQualityLevels"]>): void;
+    emit(event: 'levelsChanged', data: CurrentTrack): void;
+    emit(event: 'levelsChanging', data: CurrentTrack): void;
     emit(event: 'visualQuality', data?: any): void;
     emit(event: 'captionsList', data?: any): void;
-    emit(event: 'captionsChange', data?: any): void;
-    emit(event: 'audioTracks', data?: any): void;
-    emit(event: 'audioTrackChanged', data?: any): void;
+    emit(event: 'captionsChanged', data?: any): void;
+    emit(event: 'audioTracks', data?: Track[]): void;
+    emit(event: 'audioTrackChanged', data?: CurrentTrack): void;
     emit(event: 'controls', data?: any): void;
     emit(event: 'displayClick', data?: any): void;
     emit(event: 'float', data?: any): void;
@@ -86,7 +87,7 @@ export declare class Base {
     on(event: 'ready', callback: () => void): void;
     on(event: 'setupError', callback: () => void): void;
     on(event: 'playlist', callback: () => void): void;
-    on(event: 'playlistItem', callback: () => void): void;
+    on(event: 'item', callback: () => void): void;
     on(event: 'playlistComplete', callback: () => void): void;
     on(event: 'nextClick', callback: () => void): void;
     on(event: 'bufferChange', callback: () => void): void;
@@ -109,14 +110,14 @@ export declare class Base {
     on(event: 'volume', callback: () => void): void;
     on(event: 'fullscreen', callback: () => void): void;
     on(event: 'resize', callback: () => void): void;
-    on(event: 'levels', callback: () => void): void;
-    on(event: 'levelsChanged', callback: () => void): void;
-    on(event: 'levelsChanging', callback: () => void): void;
+    on(event: 'levels', callback: (data: ReturnType<NMPlayer["getQualityLevels"]>) => void): void;
+    on(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
+    on(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
     on(event: 'visualQuality', callback: () => void): void;
     on(event: 'captionsList', callback: () => void): void;
-    on(event: 'captionsChange', callback: () => void): void;
-    on(event: 'audioTracks', callback: () => void): void;
-    on(event: 'audioTrackChanged', callback: () => void): void;
+    on(event: 'captionsChanged', callback: () => void): void;
+    on(event: 'audioTracks', callback: (data: Track[]) => void): void;
+    on(event: 'audioTrackChanged', callback: (data: CurrentTrack) => void): void;
     on(event: 'controls', callback: () => void): void;
     on(event: 'displayClick', callback: () => void): void;
     on(event: 'float', callback: () => void): void;
@@ -147,7 +148,7 @@ export declare class Base {
     off(event: 'ready', callback: () => void): void;
     off(event: 'setupError', callback: () => void): void;
     off(event: 'playlist', callback: () => void): void;
-    off(event: 'playlistItem', callback: () => void): void;
+    off(event: 'item', callback: () => void): void;
     off(event: 'playlistComplete', callback: () => void): void;
     off(event: 'nextClick', callback: () => void): void;
     off(event: 'bufferChange', callback: () => void): void;
@@ -175,7 +176,7 @@ export declare class Base {
     off(event: 'levelsChanging', callback: () => void): void;
     off(event: 'visualQuality', callback: () => void): void;
     off(event: 'captionsList', callback: () => void): void;
-    off(event: 'captionsChange', callback: () => void): void;
+    off(event: 'captionsChanged', callback: () => void): void;
     off(event: 'audioTracks', callback: () => void): void;
     off(event: 'audioTrackChanged', callback: () => void): void;
     off(event: 'controls', callback: () => void): void;
@@ -209,7 +210,7 @@ export declare class Base {
     once(event: 'ready', callback: () => void): void;
     once(event: 'setupError', callback: () => void): void;
     once(event: 'playlist', callback: () => void): void;
-    once(event: 'playlistItem', callback: () => void): void;
+    once(event: 'item', callback: () => void): void;
     once(event: 'playlistComplete', callback: () => void): void;
     once(event: 'nextClick', callback: () => void): void;
     once(event: 'bufferChange', callback: () => void): void;
@@ -232,14 +233,14 @@ export declare class Base {
     once(event: 'volume', callback: () => void): void;
     once(event: 'fullscreen', callback: () => void): void;
     once(event: 'resize', callback: () => void): void;
-    once(event: 'levels', callback: () => void): void;
-    once(event: 'levelsChanged', callback: () => void): void;
-    once(event: 'levelsChanging', callback: () => void): void;
+    once(event: 'levels', callback: (data: ReturnType<NMPlayer["getQualityLevels"]>) => void): void;
+    once(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
+    once(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
     once(event: 'visualQuality', callback: () => void): void;
     once(event: 'captionsList', callback: () => void): void;
-    once(event: 'captionsChange', callback: () => void): void;
-    once(event: 'audioTracks', callback: () => void): void;
-    once(event: 'audioTrackChanged', callback: () => void): void;
+    once(event: 'captionsChanged', callback: () => void): void;
+    once(event: 'audioTracks', callback: (data: Track[]) => void): void;
+    once(event: 'audioTrackChanged', callback: (data: CurrentTrack) => void): void;
     once(event: 'controls', callback: () => void): void;
     once(event: 'displayClick', callback: () => void): void;
     once(event: 'float', callback: () => void): void;

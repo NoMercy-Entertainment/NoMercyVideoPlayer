@@ -190,8 +190,8 @@ player.on('captionsList', (data) => {
         });
     });
 });
-player.on('captionsChange', (data) => {
-    console.log('captionsChange', data.label);
+player.on('captionsChanged', (data) => {
+    console.log('captionsChanged', data.label);
     currentSubtitle.innerHTML = player.getCurrentCaptionsName();
 });
 ```

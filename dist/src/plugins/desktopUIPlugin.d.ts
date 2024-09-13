@@ -12,7 +12,6 @@ export declare class DesktopUIPlugin extends Plugin {
     chapters: any[];
     timer: NodeJS.Timeout;
     isMouseDown: boolean;
-    progressBar: HTMLDivElement;
     isScrubbing: boolean;
     menuOpen: boolean;
     mainMenuOpen: boolean;
@@ -23,10 +22,6 @@ export declare class DesktopUIPlugin extends Plugin {
     playlistMenuOpen: boolean;
     theaterModeEnabled: boolean;
     pipEnabled: boolean;
-    leftTap: NodeJS.Timeout;
-    rightTap: NodeJS.Timeout;
-    leeway: number;
-    seekInterval: number;
     previewTime: PreviewTime[];
     sliderPopImage: HTMLDivElement;
     chapterBar: HTMLDivElement;
@@ -37,16 +32,12 @@ export declare class DesktopUIPlugin extends Plugin {
         lastChild: HTMLButtonElement;
     };
     currentTimeFile: string;
-    fluentIcons: Icon;
     buttons: Icon;
     tooltip: HTMLDivElement;
-    hasNextTip: boolean;
     sliderBar: HTMLDivElement;
     currentScrubTime: number;
     imageBaseUrl: string;
     timeout: NodeJS.Timeout;
-    episodeScrollContainer: HTMLDivElement;
-    selectedSeason: number | undefined;
     currentMenu: 'language' | 'episode' | 'pause' | 'quality' | 'seek' | null;
     thumbs: {
         time: PreviewTime;
@@ -58,9 +49,9 @@ export declare class DesktopUIPlugin extends Plugin {
     seekContainer: HTMLDivElement;
     shouldSlide: boolean;
     thumbnail: HTMLDivElement;
-    thumbnailWidth: number;
-    thumbnailHeight: number;
     controlsVisible: boolean;
+    menuFrame: HTMLDialogElement;
+    mainMenu: HTMLDivElement;
     initialize(player: NMPlayer): void;
     use(): void;
     createBottomBar(parent: HTMLElement): HTMLDivElement;
@@ -104,7 +95,7 @@ export declare class DesktopUIPlugin extends Plugin {
     createPlaybackButton(parent: HTMLElement, hovered?: boolean): HTMLButtonElement;
     createSeekBackButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
     createSeekForwardButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
-    createTime(parent: HTMLDivElement, type: 'current' | 'remaining' | 'duration', classes: string[]): HTMLButtonElement;
+    createTime(parent: HTMLDivElement, type: 'current' | 'remaining' | 'duration', classes: string[]): HTMLDivElement;
     createVolumeButton(parent: HTMLDivElement, hovered?: boolean): HTMLDivElement | undefined;
     volumeHandle(data: VolumeState, mutedButton: SVGSVGElement, lowButton: SVGSVGElement, mediumButton: SVGSVGElement, highButton: SVGSVGElement): void;
     isLastSibbling(element: HTMLElement): boolean;
@@ -126,9 +117,10 @@ export declare class DesktopUIPlugin extends Plugin {
     createSpeedButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
     createPIPButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
     createMenuFrame(parent: HTMLDivElement): HTMLDivElement;
-    createCalcMenu(menuContent: HTMLElement): void;
+    sizeMenuFrame(): void;
     createMainMenu(parent: HTMLDivElement): HTMLDivElement;
     createSubMenu(parent: HTMLDivElement): HTMLDivElement;
+    createMainMenuHeader(parent: HTMLDivElement, title: string, hovered?: boolean): HTMLDivElement;
     createMenuHeader(parent: HTMLDivElement, title: string, hovered?: boolean): HTMLDivElement;
     createMenuButton(parent: HTMLDivElement, item: string, hovered?: boolean): void;
     createLanguageMenu(parent: HTMLDivElement): HTMLDivElement;
@@ -137,7 +129,7 @@ export declare class DesktopUIPlugin extends Plugin {
     createQualityMenu(parent: HTMLDivElement): HTMLDivElement;
     createQualityMenuButton(parent: HTMLDivElement, data: {
         width: number;
-        index: number;
+        id: number;
         bitrate: number;
         label: string;
         height: number;
@@ -146,7 +138,7 @@ export declare class DesktopUIPlugin extends Plugin {
         language: string;
         label: string;
         type: string;
-        index: number;
+        id: number;
         styled?: boolean;
     }, hovered?: boolean): HTMLButtonElement;
     createSeekRipple(parent: HTMLDivElement, side: string): HTMLDivElement;

@@ -27,6 +27,7 @@ declare const _default: {
     bih: string;
     bis: string;
     bos: string;
+    bra: string;
     bre: string;
     bul: string;
     bur: string;
@@ -37,6 +38,7 @@ declare const _default: {
     chu: string;
     chv: string;
     cor: string;
+    cro: string;
     cos: string;
     cre: string;
     cze: string;
@@ -135,6 +137,7 @@ declare const _default: {
     pan: string;
     per: string;
     pli: string;
+    pob: string;
     pol: string;
     por: string;
     pus: string;

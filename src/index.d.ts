@@ -91,29 +91,7 @@ export interface CaptionsConfig {
     windowOpacity?: number;
 }
 
-export interface Level {
-    height?: number;
-    index?: number;
-    label: string;
-    width?: number;
-    hlsjsIndex?: number;
-    level_id?: number | string;
-    bitrate?: number;
-}
-
-export interface QualityLevel {
-    bitrate?: number;
-    height?: number;
-    index?: number;
-    label: string;
-    width?: number;
-}
-
-export interface VisualQuality {
-    level: QualityLevel;
-    mode: 'auto' | 'manual';
-    reason: 'auto' | 'api' | 'initial choice';
-}
+export type  Level = ReturnType<NMPlayer["getQualityLevels"]>[number];
 
 export type Preload = 'metadata' | 'auto' | 'none';
 
@@ -168,6 +146,12 @@ export interface Track {
     language: string;
     type: string;
     ext: string;
+    id: number;
+}
+
+export interface CurrentTrack {
+    id: number;
+    kind: string;
 }
 
 export interface CompleteParam {
@@ -506,7 +490,7 @@ export interface NMPlayer {
 
     getProvider(): Provider;
 
-    getQualityLevels(): QualityLevel[];
+    getQualityLevels(): Level[];
 
     getRenderingMode(): string;
 
@@ -631,6 +615,7 @@ export interface NMPlayer {
 	lockActive: EventParams;
 	currentTimeFile: any;
 	uuid: any;
+    plugins: {[key: string]: any};
 
 	addClasses(currentItem: any, arg1: string[]): HTMLDivElement;
 	createChapterMarker(chapter: Chapter): HTMLDivElement;
@@ -639,6 +624,11 @@ export interface NMPlayer {
             appendTo: <T>(parent: T) => HTMLElementTagNameMap[K];
             prependTo: <T>(parent: T) => HTMLElementTagNameMap[K];
             get: () => HTMLElementTagNameMap[K];
+            addClasses: (names: string[]) => {
+                appendTo: <T>(parent: T) => HTMLElementTagNameMap[K];
+                prependTo: <T>(parent: T) => HTMLElementTagNameMap[K];
+                get: () => HTMLElementTagNameMap[K];
+            };
         };
         appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
         prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
@@ -667,7 +657,7 @@ export interface NMPlayer {
     }) => Promise<void>
 
 	getParameterByName(arg0: string): string|number|null;
-	getQualities(): QualityLevel[];
+	getQualities(): Level[];
 	getSpeeds(): number[];
 	getSpriteFile(): string;
 	getTextTracks(): string;
@@ -709,7 +699,7 @@ export interface NMPlayer {
 
 	// Playlist
 	emit(event: 'playlist', data?: any): void;
-	emit(event: 'playlistItem', data: PlaylistItem): void;
+	emit(event: 'item', data: PlaylistItem): void;
 	emit(event: 'playlistComplete', data?: any): void;
 	emit(event: 'nextClick', data?: any): void;
 
@@ -743,17 +733,19 @@ export interface NMPlayer {
 	emit(event: 'resize', data?: any): void;
 
 	// Quality
-	emit(event: 'levels', data?: any): void;
-	emit(event: 'levelsChanged', data?: any): void;
-	emit(event: 'visualQuality', data?: any): void;
+	emit(event: 'levels', data: Level[]): void;
+	emit(event: 'levelsChanged', data: CurrentTrack): void;
+	emit(event: 'levelsChanging', data: CurrentTrack): void;
 
 	// Captions
-	emit(event: 'captionsList', data?: any): void;
-	emit(event: 'captionsChange', data?: any): void;
+	emit(event: 'captionsList', data: Track[]): void;
+	emit(event: 'captionsChanged', data: CurrentTrack): void;
+	emit(event: 'captionsChanging', data: CurrentTrack): void;
 
 	// Audio
-	emit(event: 'audioTracks', data?: any): void;
-	emit(event: 'audioTrackChanged', data?: any): void;
+	emit(event: 'audioTracks', data: Track[]): void;
+	emit(event: 'audioTrackChanged', data: CurrentTrack): void;
+	emit(event: 'audioTrackChanging', data: CurrentTrack): void;
 
 	// Controls
 	emit(eventType: 'controls', showing: boolean): void;
@@ -786,14 +778,8 @@ export interface NMPlayer {
 
 
 	emit(eventType: `show-${string}-menu`, data: boolean): void;
-	emit(eventType: 'audio-change', data: AudioEvent): void;
-	emit(eventType: 'audio', data: AudioEvent): void;
-	emit(eventType: 'quality', data: QualityTrack[]): void;
-	emit(eventType: 'quality-change', data: number): void;
 	emit(eventType: 'back'): void;
 	emit(eventType: 'close'): void;
-	emit(eventType: 'caption-change', data: CaptionsEvent): void;
-	emit(eventType: 'captions', data: CaptionsEvent): void;
 	emit(eventType: 'fonts', data: Font[]): void;
 	emit(eventType: 'chapters', data: Chapter[]): void;
 	emit(eventType: 'skippers', data: Chapter[]): void;
@@ -852,8 +838,8 @@ export interface NMPlayer {
 	emit(eventType: 'back-button-hyjack'): void;
 	emit(eventType: 'translations', data: { [key: string]: string }): void;
 
-	emit(event: string, data?: any): void;
-	emit(event: any, data?: any): void;
+	// emit(event: string, data?: any): void;
+	// emit(event: any, data?: any): void;
 
 	// All
 	on(event: 'all', callback: () => void): void;
@@ -864,7 +850,7 @@ export interface NMPlayer {
 
 	// Playlist
 	on(event: 'playlist', callback: (data: PlaylistItem[]) => void): void;
-	on(event: 'playlistItem', callback: (data: PlaylistItem) => void): void;
+	on(event: 'item', callback: (data: PlaylistItem) => void): void;
 	on(event: 'playlistComplete', callback: () => void): void;
 	on(event: 'nextClick', callback: () => void): void;
 
@@ -899,17 +885,19 @@ export interface NMPlayer {
 	on(event: 'resize', callback: () => void): void;
 
 	// Quality
-	on(event: 'levels', callback: () => void): void;
-	on(event: 'levelsChanged', callback: () => void): void;
-	on(event: 'visualQuality', callback: () => void): void;
+	on(event: 'levels', callback: (data: Level[]) => void): void;
+	on(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
+	on(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Captions
-	on(event: 'captionsList', callback: () => void): void;
-	on(event: 'captionsChange', callback: () => void): void;
+	on(event: 'captionsList', callback: (data: Track[]) => void): void;
+	on(event: 'captionsChanged', callback: (data: CurrentTrack) => void): void;
+	on(event: 'captionsChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Audio
-	on(event: 'audioTracks', callback: () => void): void;
-	on(event: 'audioTrackChanged', callback: () => void): void;
+	on(event: 'audioTracks', callback: (data: Track[]) => void): void;
+	on(event: 'audioTrackChanged', callback: (data: CurrentTrack) => void): void;
+	on(event: 'audioTrackChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Controls
 	on(event: 'controls', callback: (showing: boolean) => void): void;
@@ -948,14 +936,8 @@ export interface NMPlayer {
 
 
 	on(event: `show-${string}-menu`, callback: (showing: boolean) => void): void;
-	on(event: 'audio-change', callback: (data: AudioEvent) => void): void;
-	on(event: 'audio', callback: (data: AudioEvent) => void): void;
-	on(event: 'quality', callback: (data: QualityTrack[]) => void): void;
-	on(event: 'quality-change', callback: (data: number) => void): void;
 	on(event: 'back', callback?: (callback: (arg?: any) => any) => void): void;
 	on(event: 'close', callback?: (callback: (arg?: any) => any) => void): void;
-	on(event: 'caption-change', callback: (data: CaptionsEvent) => void): void;
-	on(event: 'captions', callback: (data: CaptionsEvent) => void): void;
 	on(event: 'fonts', callback: (data: Font[]) => void): void;
 	on(event: 'chapters', callback: (data: Chapter[]) => void): void;
 	on(event: 'skippers', callback: (data: Chapter[]) => void): void;
@@ -972,7 +954,6 @@ export interface NMPlayer {
 	on(event: 'playing', callback: () => void): void;
 	on(event: 'playlist-menu-button-clicked', callback: () => void): void;
 	on(event: 'pop-image', callback: (url: string) => void): void;
-	on(event: 'quality-changed', callback: (index: number) => void): void;
 	on(event: 'remove-forward', callback: () => void): void;
 	on(event: 'remove-message', callback: (value: string) => void): void;
 	on(event: 'remove-rewind', callback: () => void): void;
@@ -1012,9 +993,8 @@ export interface NMPlayer {
 	on(event: 'hideQualityScreen', callback: () => void): void;
 	on(event: 'back-button-hyjack', callback: () => void): void;
 	on(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
-
-	on(event: string, callback: () => void): void;
-	on(event: any, callback: (arg0: any) => any): void;
+	// on(event: string, callback: () => void): void;
+	// on(event: string, callback: (arg0: any) => any): void;
 
 	// All
 	off(event: 'all', callback: () => void): void;
@@ -1025,7 +1005,7 @@ export interface NMPlayer {
 
 	// Playlist
 	off(event: 'playlist', callback: () => void): void;
-	off(event: 'playlistItem', callback: () => void): void;
+	off(event: 'item', callback: () => void): void;
 	off(event: 'playlistComplete', callback: () => void): void;
 	off(event: 'nextClick', callback: () => void): void;
 
@@ -1062,15 +1042,17 @@ export interface NMPlayer {
 	// Quality
 	off(event: 'levels', callback: () => void): void;
 	off(event: 'levelsChanged', callback: () => void): void;
-	off(event: 'visualQuality', callback: () => void): void;
+	off(event: 'levelsChanging', callback: () => void): void;
 
 	// Captions
 	off(event: 'captionsList', callback: () => void): void;
-	off(event: 'captionsChange', callback: () => void): void;
+	off(event: 'captionsChanged', callback: () => void): void;
+	off(event: 'captionsChaging', callback: () => void): void;
 
 	// Audio
 	off(event: 'audioTracks', callback: () => void): void;
 	off(event: 'audioTrackChanged', callback: () => void): void;
+	off(event: 'audioTrackChanging', callback: () => void): void;
 
 	// Controls
 	off(event: 'controls', callback: () => void): void;
@@ -1109,13 +1091,8 @@ export interface NMPlayer {
 
 
 	off(event: `show-${string}-menu`, callback: () => void): void;
-	off(event: 'audio-change', callback: () => void): void;
-	off(event: 'audio-quality', callback: () => void): void;
-	off(event: 'audio', callback: () => void): void;
 	off(event: 'back', callback?: (callback: (arg?: any) => any) => void): void;
 	off(event: 'close', callback?: (callback: (arg?: any) => any) => void): void;
-	off(event: 'caption-change', callback: () => void): void;
-	off(event: 'captions', callback: () => void): void;
 	off(event: 'fonts', callback: () => void): void;
 	off(event: 'chapters', callback: () => void): void;
 	off(event: 'skippers', callback: () => void): void;
@@ -1132,7 +1109,6 @@ export interface NMPlayer {
 	off(event: 'playing', callback: () => void): void;
 	off(event: 'playlist-menu-button-clicked', callback: () => void): void;
 	off(event: 'pop-image', callback: () => void): void;
-	off(event: 'quality', callback: () => void): void;
 	off(event: 'remove-forward', callback: () => void): void;
 	off(event: 'remove-message', callback: () => void): void;
 	off(event: 'remove-rewind', callback: () => void): void;
@@ -1173,8 +1149,8 @@ export interface NMPlayer {
 	off(event: 'back-button-hyjack', callback: () => void): void;
 	off(event: 'translations', callback: () => void): void;
 
-	off(event: string, callback: () => void): void;
-	off(event: any, callback: () => void): void;
+	// off(event: string, callback: () => void): void;
+	// off(event: any, callback: () => void): void;
 
 	// All
 	once(event: 'all', callback: () => void): void;
@@ -1185,7 +1161,7 @@ export interface NMPlayer {
 
 	// Playlist
 	once(event: 'playlist', callback: (data: PlaylistItem[]) => void): void;
-	once(event: 'playlistItem', callback: (data: PlaylistItem) => void): void;
+	once(event: 'item', callback: (data: PlaylistItem) => void): void;
 	once(event: 'playlistComplete', callback: () => void): void;
 	once(event: 'nextClick', callback: () => void): void;
 
@@ -1220,17 +1196,19 @@ export interface NMPlayer {
 	once(event: 'resize', callback: () => void): void;
 
 	// Quality
-	once(event: 'levels', callback: () => void): void;
-	once(event: 'levelsChanged', callback: () => void): void;
-	once(event: 'visualQuality', callback: () => void): void;
+	once(event: 'levels', callback: (data: Level[]) => void): void;
+	once(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
+	once(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Captions
-	once(event: 'captionsList', callback: () => void): void;
-	once(event: 'captionsChange', callback: () => void): void;
+	once(event: 'captionsList', callback: (data: Track[]) => void): void;
+	once(event: 'captionsChanged', callback: (data: CurrentTrack) => void): void;
+	once(event: 'captionsChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Audio
-	once(event: 'audioTracks', callback: () => void): void;
-	once(event: 'audioTrackChanged', callback: () => void): void;
+	once(event: 'audioTracks', callback: (data: Track[]) => void): void;
+	once(event: 'audioTrackChanged', callback: (data: CurrentTrack) => void): void;
+	once(event: 'audioTrackChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Controls
 	once(event: 'controls', callback: (showing: boolean) => void): void;
@@ -1269,14 +1247,8 @@ export interface NMPlayer {
 
 
 	once(event: `show-${string}-menu`, callback: (showing: boolean) => void): void;
-	once(event: 'audio-change', callback: (data: AudioEvent) => void): void;
-	once(event: 'audio', callback: (data: AudioEvent) => void): void;
-	once(event: 'quality', callback: (data: QualityTrack[]) => void): void;
-	once(event: 'quality-change', callback: (data: number) => void): void;
 	once(event: 'back', callback?: (callback: (arg?: any) => any) => void): void;
 	once(event: 'close', callback?: (callback: (arg?: any) => any) => void): void;
-	once(event: 'caption-change', callback: (data: CaptionsEvent) => void): void;
-	once(event: 'captions', callback: (data: CaptionsEvent) => void): void;
 	once(event: 'fonts', callback: (data: Font[]) => void): void;
 	once(event: 'chapters', callback: (data: Chapter[]) => void): void;
 	once(event: 'skippers', callback: (data: Chapter[]) => void): void;
@@ -1333,8 +1305,8 @@ export interface NMPlayer {
 	once(event: 'back-button-hyjack', callback: () => void): void;
 	once(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
 
-	once(event: string, callback: () => void): void;
-	once(event: any, callback: (arg0: any) => any): void;
+	// once(event: string, callback: () => void): void;
+	// once(event: any, callback: (arg0: any) => any): void;
 
 	eventHooks(event: any, enabled: boolean): void;
 

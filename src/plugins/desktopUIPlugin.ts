@@ -1,9 +1,10 @@
 import Plugin from '../Plugin';
-import type { Chapter, NMPlayer, PlaylistItem, Position, PreviewTime, QualityLevel, VolumeState } from '../index.d';
+import type { Chapter, NMPlayer, PlaylistItem, Position, PreviewTime, VolumeState } from '../index.d';
 import { buttons, Icon } from './UIPlugin/buttons';
 import { humanTime } from '../helpers';
 import * as styles from './UIPlugin/styles';
 import { WebVTTParser } from 'webvtt-parser';
+import {Level} from "hls.js";
 
 export class DesktopUIPlugin extends Plugin {
 	player: NMPlayer = <NMPlayer>{};
@@ -17,7 +18,7 @@ export class DesktopUIPlugin extends Plugin {
 
 	timer: NodeJS.Timeout = <NodeJS.Timeout>{};
 	isMouseDown = false;
-	progressBar: HTMLDivElement = <HTMLDivElement>{}; // sliderBar
+	// progressBar: HTMLDivElement = <HTMLDivElement>{}; // sliderBar
 
 	isScrubbing = false;
 	menuOpen = false;
@@ -30,10 +31,10 @@ export class DesktopUIPlugin extends Plugin {
 	theaterModeEnabled = false;
 	pipEnabled = false;
 
-	leftTap: NodeJS.Timeout = <NodeJS.Timeout>{};
-	rightTap: NodeJS.Timeout = <NodeJS.Timeout>{};
-	leeway = 300;
-	seekInterval = 10;
+	// leftTap: NodeJS.Timeout = <NodeJS.Timeout>{};
+	// rightTap: NodeJS.Timeout = <NodeJS.Timeout>{};
+	// leeway = 300;
+	// seekInterval = 10;
 
 	previewTime: PreviewTime[] = [];
 
@@ -50,10 +51,8 @@ export class DesktopUIPlugin extends Plugin {
     }>{};
 
 	currentTimeFile = '';
-	fluentIcons: Icon = <Icon>{};
 	buttons: Icon = <Icon>{};
 	tooltip: HTMLDivElement = <HTMLDivElement>{};
-	hasNextTip = false;
 	sliderBar: HTMLDivElement = <HTMLDivElement>{};
 
 	currentScrubTime = 0;
@@ -61,8 +60,8 @@ export class DesktopUIPlugin extends Plugin {
 	imageBaseUrl = '';
 
 	timeout: NodeJS.Timeout = <NodeJS.Timeout>{};
-	episodeScrollContainer: HTMLDivElement = <HTMLDivElement>{};
-	selectedSeason: number | undefined;
+	// episodeScrollContainer: HTMLDivElement = <HTMLDivElement>{};
+	// selectedSeason: number | undefined;
 
 	currentMenu: 'language'|'episode'|'pause'|'quality'|'seek'|null = null;
 	thumbs: {
@@ -76,9 +75,11 @@ export class DesktopUIPlugin extends Plugin {
 	seekContainer: HTMLDivElement = <HTMLDivElement>{};
 	shouldSlide = false;
 	thumbnail: HTMLDivElement = <HTMLDivElement>{};
-	thumbnailWidth = 256;
-	thumbnailHeight = 144;
+	// thumbnailWidth = 256;
+	// thumbnailHeight = 144;
 	controlsVisible: boolean = false;
+	menuFrame: HTMLDialogElement = <HTMLDialogElement>{};
+	mainMenu: HTMLDivElement = <HTMLDivElement>{};
 
 	initialize(player: NMPlayer) {
 		this.player = player;
@@ -171,6 +172,19 @@ export class DesktopUIPlugin extends Plugin {
 		this.modifySpinner(this.overlay);
 
 		this.eventHandlers();
+
+		this.player.plugins.desktopUIPlugin = {} as any;
+		let obj = this;
+		do {
+			Object.getOwnPropertyNames(obj).forEach((key) => {
+				const value = (this as any)[key];
+				if (typeof value === 'function') {
+					this.player.plugins.desktopUIPlugin[key] = value.bind(this);
+				} else {
+					this.player.plugins.desktopUIPlugin[key] = value;
+				}
+			});
+		} while (obj = Object.getPrototypeOf(obj));
 	}
 
 
@@ -213,10 +227,8 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('controls', (showing) => {
 			if (this.player.getElement()) {
 				if (showing) {
-					this.player.getElement().style.cursor = 'default';
 					this.player.getElement()?.setAttribute('active', 'true');
 				} else {
-					this.player.getElement().style.cursor = 'none';
 					this.player.getElement()?.setAttribute('active', 'false');
 				}
 			}
@@ -246,6 +258,10 @@ export class DesktopUIPlugin extends Plugin {
 				}
 				break;
 			}
+		});
+		
+		window.addEventListener('resize', () => {
+			this.sizeMenuFrame();
 		});
 
 		// let inactivityTimeout: NodeJS.Timeout = <NodeJS.Timeout>{};
@@ -545,6 +561,13 @@ export class DesktopUIPlugin extends Plugin {
 			.appendTo(parent);
 
 		button.ariaLabel = this.buttons[icon]?.title;
+		
+		button.addEventListener('keydown', (event) => {
+			console.log(event);
+			if (event.key === 'Backspace') {
+				button.blur();
+			}
+		});
 
 		return button;
 	}
@@ -621,7 +644,7 @@ export class DesktopUIPlugin extends Plugin {
 			'close'
 		);
 		parent.appendChild(closeButton);
-
+		
 		this.createSVGElement(closeButton, 'close', this.buttons.close, false, hovered);
 
 		closeButton.addEventListener('click', () => {
@@ -665,7 +688,7 @@ export class DesktopUIPlugin extends Plugin {
 			pausedButton.style.display = 'none';
 			playButton.style.display = 'flex';
 		});
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			playButton.focus();
 		});
 
@@ -725,7 +748,7 @@ export class DesktopUIPlugin extends Plugin {
 	}
 
 	createTime(parent: HTMLDivElement, type: 'current' | 'remaining' | 'duration', classes: string[]) {
-		const time = this.player.createElement('button', `${type}-time`)
+		const time = this.player.createElement('div', `${type}-time`)
 			.addClasses([
 				...classes,
 				...this.makeStyles('timeStyles'),
@@ -1134,7 +1157,7 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses(this.makeStyles('seekScrollContainerStyles'))
 			.appendTo(seekContainer);
 
-		this.player.once('playlistItem', () => {
+		this.player.once('item', () => {
 			this.player.on('preview-time', () => {
 				this.thumbs = [];
 				for (const time of this.previewTime) {
@@ -1261,7 +1284,7 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses(this.makeStyles('tvCurrentItemTitleStyles'))
 			.appendTo(currentItemTitleContainer);
 
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			const item = this.player.playlistItem();
 			currentItemShow.innerHTML = this.breakLogoTitle(item.show);
 			currentItemEpisode.innerHTML = '';
@@ -1295,7 +1318,7 @@ export class DesktopUIPlugin extends Plugin {
 			this.player.previous();
 			this.player.emit('hide-tooltip');
 		});
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			if (this.player.getPlaylistIndex() > 0) {
 				previousButton.style.display = 'flex';
 			} else {
@@ -1361,7 +1384,7 @@ export class DesktopUIPlugin extends Plugin {
 			this.player.emit('hide-tooltip');
 		});
 
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			if (this.player.isLastPlaylistItem()) {
 				nextButton.style.display = 'none';
 			} else {
@@ -1445,20 +1468,25 @@ export class DesktopUIPlugin extends Plugin {
 
 			if (this.subtitlesMenuOpen) {
 				this.player.emit('show-menu', false);
+
+				this.menuFrame.close();
 			} else {
 				this.player.emit('show-subtitles-menu', true);
+
+				this.menuFrame.showModal();
 			}
 		});
 
-		this.player.on('captions', () => {
+		this.player.on('captionsList', (tracks) => {
 			if (this.player.getCaptionsList().length > 0) {
 				captionButton.style.display = 'flex';
 			} else {
 				captionButton.style.display = 'none';
 			}
 		});
-		this.player.on('caption-change', (data) => {
-			if (data.track == -1) {
+		
+		this.player.on('captionsChanging', (data) => {
+			if (data.id == -1) {
 				onButton.style.display = 'none';
 				offButton.style.display = 'flex';
 			} else {
@@ -1495,12 +1523,17 @@ export class DesktopUIPlugin extends Plugin {
 
 			if (this.languageMenuOpen) {
 				this.player.emit('show-menu', false);
+
+				this.menuFrame.close();
 			} else {
 				this.player.emit('show-language-menu', true);
+
+				this.menuFrame.showModal();
 			}
 		});
-		this.player.on('audio', (data) => {
-			if (data.tracks.length > 1) {
+		
+		this.player.on('audioTracks', (tracks) => {
+			if (tracks.length > 1) {
 				audioButton.style.display = 'flex';
 			} else {
 				audioButton.style.display = 'none';
@@ -1535,8 +1568,12 @@ export class DesktopUIPlugin extends Plugin {
 
 			if (this.qualityMenuOpen) {
 				this.player.emit('show-menu', false);
+
+				this.menuFrame.close();
 			} else {
 				this.player.emit('show-quality-menu', true);
+
+				this.menuFrame.showModal();
 			}
 
 			if (this.player.highQuality) {
@@ -1552,7 +1589,7 @@ export class DesktopUIPlugin extends Plugin {
 			// this.player.toggleLanguage();
 		});
 
-		this.player.on('playing', () => {
+		this.player.on('levels', (levels) => {
 			if (this.player.hasQualities()) {
 				qualityButton.style.display = 'flex';
 			} else {
@@ -1676,9 +1713,13 @@ export class DesktopUIPlugin extends Plugin {
 
 			if (this.playlistMenuOpen) {
 				this.player.emit('show-menu', false);
+
+				this.menuFrame.close();
 			} else {
 				this.player.emit('show-playlist-menu', true);
 				this.player.emit('switch-season', this.player.playlistItem().season);
+				
+				this.menuFrame.showModal();
 
 				setTimeout(() => {
 					document.querySelector(`playlist-${this.player.playlistItem().id}`)
@@ -1687,7 +1728,7 @@ export class DesktopUIPlugin extends Plugin {
 			}
 		});
 
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			if (this.player.hasPlaylists()) {
 				playlistButton.style.display = 'flex';
 			} else {
@@ -1728,8 +1769,12 @@ export class DesktopUIPlugin extends Plugin {
 
 			if (this.speedMenuOpen) {
 				this.player.emit('show-menu', false);
+
+				this.menuFrame.close();
 			} else {
 				this.player.emit('show-speed-menu', true);
+
+				this.menuFrame.showModal();
 			}
 		});
 
@@ -1813,35 +1858,58 @@ export class DesktopUIPlugin extends Plugin {
 
 	createMenuFrame(parent: HTMLDivElement) {
 
+		this.menuFrame = this.player.createElement('dialog', 'menu-frame-dialog')
+			.appendTo(parent);
+		
+		this.menuFrame.setAttribute('popover', 'manual');
+		this.menuFrame.setAttribute('role', 'modal');
+		
 		const menuFrame = this.player.createElement('div', 'menu-frame')
 			.addClasses(this.makeStyles('menuFrameStyles'))
-			.appendTo(parent);
+			.appendTo(this.menuFrame);
+		
+		this.sizeMenuFrame();
 
 		const menuContent = this.player.createElement('div', 'menu-content')
 			.addClasses(this.makeStyles('menuContentStyles'))
 			.appendTo(menuFrame);
 
-		menuContent.style.maxHeight = `${this.player.getElement().getBoundingClientRect().height - 80}px`;
+		// menuContent.style.maxHeight = `${this.player.getElement().getBoundingClientRect().height - 80}px`;
 
 		this.player.on('resize', () => {
-			this.createCalcMenu(menuContent);
+			// this.createCalcMenu(menuContent);
+			this.sizeMenuFrame()
 		});
 		this.player.on('fullscreen', () => {
-			this.createCalcMenu(menuContent);
+			// this.createCalcMenu(menuContent);
+			this.sizeMenuFrame()
 		});
 
 		this.player.on('show-menu', (showing) => {
 			this.menuOpen = showing;
 			this.player.lockActive = showing;
 			if (showing) {
+
+				this.sizeMenuFrame();
+				
 				menuFrame.style.display = 'flex';
 				menuFrame.classList.add('open');
+
+				this.menuFrame.showModal();
 			} else {
 				menuFrame.style.display = 'none';
 				menuFrame.classList.remove('open');
+
+				this.menuFrame.close();
 			}
 			menuContent.classList.add('nm-translate-x-0');
 			menuContent.classList.remove('-nm-translate-x-[50%]');
+			menuContent.classList.remove('sub-menu-open');
+
+			setTimeout(() => {
+				([...this.mainMenu.children].find(el =>
+					(el as HTMLButtonElement).style.display != 'none' && el.id != 'menu-header') as HTMLButtonElement).focus();
+			}, 200);
 
 			this.player.emit('show-language-menu', false);
 			this.player.emit('show-subtitles-menu', false);
@@ -1861,7 +1929,13 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.add('nm-translate-x-0');
 				menuContent.classList.remove('-nm-translate-x-[50%]');
+				menuContent.classList.remove('sub-menu-open');
 				menuFrame.style.display = 'flex';
+				
+				setTimeout(() => {
+					([...this.mainMenu.children].find(el => 
+						(el as HTMLButtonElement).style.display != 'none' && el.id != 'menu-header') as HTMLButtonElement).focus();
+				}, 200);
 			}
 		});
 		this.player.on('show-language-menu', (showing) => {
@@ -1876,6 +1950,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.remove('nm-translate-x-0');
 				menuContent.classList.add('-nm-translate-x-[50%]');
+				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
 			}
 		});
@@ -1891,6 +1966,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.remove('nm-translate-x-0');
 				menuContent.classList.add('-nm-translate-x-[50%]');
+				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
 			}
 		});
@@ -1906,6 +1982,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.remove('nm-translate-x-0');
 				menuContent.classList.add('-nm-translate-x-[50%]');
+				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
 			}
 		});
@@ -1921,11 +1998,12 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.remove('nm-translate-x-0');
 				menuContent.classList.add('-nm-translate-x-[50%]');
+				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
 			}
 		});
 		this.player.on('show-playlist-menu', (showing) => {
-			this.createCalcMenu(menuContent);
+			// this.createCalcMenu(menuContent);
 			this.playlistMenuOpen = showing;
 			this.player.lockActive = showing;
 			if (showing) {
@@ -1937,8 +2015,9 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-speed-menu', false);
 				menuContent.classList.remove('nm-translate-x-0');
 				menuContent.classList.add('-nm-translate-x-[50%]');
+				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
-				menuFrame.style.width = '96%';
+				// menuFrame.style.width = '96%';
 			} else {
 				menuFrame.style.width = '';
 			}
@@ -1958,34 +2037,48 @@ export class DesktopUIPlugin extends Plugin {
 
 		return menuContent;
 	}
+	
+	sizeMenuFrame() {
+		const {
+			width,
+			height,
+			top,
+			bottom,
+			left
+		} = this.player.getElement().getBoundingClientRect();
 
-	createCalcMenu(menuContent: HTMLElement) {
-		if (!this.player.getElement()) return;
-		setTimeout(() => {
-			menuContent.style.maxHeight = `${this.player.getElement()?.getBoundingClientRect().height - 80}px`;
-			this.player.emit('hide-tooltip');
-		}, 0);
+		// (this.menuFrame.firstChild as HTMLDivElement).style.width = `calc(${width}px - 4rem)`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.width = `auto`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.height = `calc(${height}px - 4rem)`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.top = `${top}px`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.bottom = `${bottom}px`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.left = `calc(${left}px + 2rem)`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.margin = '2rem';
+		(this.menuFrame.firstChild as HTMLDivElement).style.marginLeft = 'auto';
 	}
 
 	createMainMenu(parent: HTMLDivElement) {
 
-		const main = this.player.createElement('div', 'main-menu')
+		this.mainMenu = this.player.createElement('div', 'main-menu')
 			.addClasses(this.makeStyles('mainMenuStyles'))
 			.appendTo(parent);
 
-		main.style.transform = 'translateX(0)';
+		this.mainMenu.style.transform = 'translateX(0)';
 
-		this.player.addClasses(main, this.makeStyles('mainMenuStyles'));
+		const mainHeader = this.createMainMenuHeader(this.mainMenu, '');
+		mainHeader.classList.add('!nm-min-h-[2rem]', '-nm-mr-1');
 
-		this.createMenuButton(main, 'language');
-		this.createMenuButton(main, 'subtitles');
-		this.createMenuButton(main, 'quality');
-		this.createMenuButton(main, 'speed');
-		this.createMenuButton(main, 'playlist');
+		this.player.addClasses(this.mainMenu, this.makeStyles('mainMenuStyles'));
+
+		this.createMenuButton(this.mainMenu, 'language');
+		this.createMenuButton(this.mainMenu, 'subtitles');
+		this.createMenuButton(this.mainMenu, 'quality');
+		this.createMenuButton(this.mainMenu, 'speed');
+		this.createMenuButton(this.mainMenu, 'playlist');
 
 		this.createSubMenu(parent);
 
-		return main;
+		return this.mainMenu;
 	}
 
 	createSubMenu(parent: HTMLDivElement) {
@@ -2008,9 +2101,37 @@ export class DesktopUIPlugin extends Plugin {
 		return submenu;
 	}
 
+	createMainMenuHeader(parent: HTMLDivElement, title: string, hovered = false) {
+		const menuHeader = this.player.createElement('div', 'menu-header')
+			.addClasses(this.makeStyles('menuHeaderStyles'))
+			.addClasses(['nm-border-b', 'nm-border-gray-300/20', '!nm-p-0'])
+			.appendTo(parent);
+		
+		const close = this.createUiButton(
+			menuHeader,
+			'close'
+		);
+
+		this.createSVGElement(close, 'menu', this.buttons.close, hovered);
+		this.player.addClasses(close, ['nm-ml-auto', 'nm-w-8']);
+		close.classList.remove('nm-w-5');
+
+		close.addEventListener('click', (event) => {
+			event.stopPropagation();
+			this.player.emit('show-menu', false);
+			this.player.lockActive = false;
+			this.player.emit('controls', false);
+
+			this.menuFrame.close();
+		});
+
+		return menuHeader;
+	}
+	
 	createMenuHeader(parent: HTMLDivElement, title: string, hovered = false) {
 		const menuHeader = this.player.createElement('div', 'menu-header')
 			.addClasses(this.makeStyles('menuHeaderStyles'))
+			.addClasses(['nm-border-b', 'nm-border-gray-300/20'])
 			.appendTo(parent);
 
 		if (title !== 'Episodes') {
@@ -2059,6 +2180,8 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-menu', false);
 				this.player.lockActive = false;
 				this.player.emit('controls', false);
+
+				this.menuFrame.close();
 			});
 		}
 
@@ -2067,7 +2190,7 @@ export class DesktopUIPlugin extends Plugin {
 
 	createMenuButton(parent: HTMLDivElement, item: string, hovered = false) {
 		const menuButton = this.player.createElement('button', `menu-button-${item}`)
-			.addClasses(this.makeStyles('menuButtonStyles'))
+			.addClasses(this.makeStyles('languageButtonStyles'))
 			.appendTo(parent);
 
 		if (item !== 'speed') {
@@ -2095,32 +2218,32 @@ export class DesktopUIPlugin extends Plugin {
 		});
 
 		if (item === 'language') {
-			this.player.on('audio', () => {
-				if (this.player.getAudioTracks().length > 1) {
+			this.player.on('audioTracks', (tracks) => {
+				if (tracks.length > 1) {
 					menuButton.style.display = 'flex';
 				} else {
 					menuButton.style.display = 'none';
 				}
 			});
 		} else if (item === 'subtitles') {
-			this.player.on('captions', () => {
-				if (this.player.getTextTracks().length > 0) {
+			this.player.on('captionsList', (captions) => {
+				if (captions.length > 0) {
 					menuButton.style.display = 'flex';
 				} else {
 					menuButton.style.display = 'none';
 				}
 			});
 		} else if (item === 'quality') {
-			this.player.on('quality', () => {
-				if (this.player.getQualities().length > 1) {
+			this.player.on('levels', (levels) => {
+				if (levels.length > 1) {
 					menuButton.style.display = 'flex';
 				} else {
 					menuButton.style.display = 'none';
 				}
 			});
 		} else if (item === 'playlist') {
-			this.player.once('playlistItem', () => {
-				if (this.player.getPlaylist().length > 1) {
+			this.player.on('playlist', (playlist) => {
+				if (playlist.length > 1) {
 					menuButton.style.display = 'flex';
 				} else {
 					menuButton.style.display = 'none';
@@ -2133,9 +2256,7 @@ export class DesktopUIPlugin extends Plugin {
 		const languageMenu = this.player.createElement('div', 'language-menu')
 			.addClasses(this.makeStyles('subMenuContentStyles'))
 			.appendTo(parent);
-
-		this.player.addClasses(languageMenu, ['nm-max-h-96']);
-
+		
 		this.createMenuHeader(languageMenu, 'Language');
 
 		const scrollContainer = this.player.createElement('div', 'language-scroll-container')
@@ -2144,16 +2265,17 @@ export class DesktopUIPlugin extends Plugin {
 
 		scrollContainer.style.transform = 'translateX(0)';
 
-		this.player.on('audio', (event) => {
+		this.player.on('audioTracks', (tracks) => {
 			scrollContainer.innerHTML = '';
-			for (const [index, track] of event.tracks?.entries() ?? []) {
-				this.player.createLanguageMenuButton(scrollContainer, {
+			
+			Object.values(tracks).forEach((track) => {
+				this.createLanguageMenuButton(scrollContainer, {
 					language: track.language,
-					label: track.name ?? track.label,
+					label: track.label,
 					type: 'audio',
-					index: track.hlsjsIndex ?? index,
+					id: track.id,
 				});
-			}
+			})
 		});
 
 		this.player.on('show-language-menu', (showing) => {
@@ -2171,7 +2293,6 @@ export class DesktopUIPlugin extends Plugin {
 		const subtitleMenu = this.player.createElement('div', 'subtitle-menu')
 			.addClasses(this.makeStyles('subMenuContentStyles'))
 			.appendTo(parent);
-		this.player.addClasses(subtitleMenu, ['nm-max-h-96']);
 
 		this.createMenuHeader(subtitleMenu, 'subtitles');
 
@@ -2181,18 +2302,17 @@ export class DesktopUIPlugin extends Plugin {
 
 		scrollContainer.style.transform = 'translateX(0)';
 
-		this.player.on('captions', (event) => {
+		this.player.on('captionsList', (tracks) => {
 			scrollContainer.innerHTML = '';
-
-			for (const [index, track] of event.tracks.entries() ?? []) {
-
-				this.player.createLanguageMenuButton(scrollContainer, {
+			
+			Object.values(tracks).forEach((track, index) => {
+				this.createLanguageMenuButton(scrollContainer, {
 					language: track.language,
-					label: track.label,
+					label: track.type,
 					type: 'subtitle',
-					index: index - 1,
+					id: track.id,
 				});
-			}
+			});
 		});
 
 		this.player.on('show-subtitles-menu', (showing) => {
@@ -2210,9 +2330,7 @@ export class DesktopUIPlugin extends Plugin {
 		const speedMenu = this.player.createElement('div', 'speed-menu')
 			.addClasses(this.makeStyles('subMenuContentStyles'))
 			.appendTo(parent);
-
-		this.player.addClasses(speedMenu, ['nm-max-h-96']);
-
+		
 		this.createMenuHeader(speedMenu, 'speed');
 
 		const scrollContainer = this.player.createElement('div', 'speed-scroll-container')
@@ -2222,20 +2340,18 @@ export class DesktopUIPlugin extends Plugin {
 		scrollContainer.style.transform = 'translateX(0)';
 
 		for (const speed of this.player.getSpeeds() ?? []) {
-			const speedButton = document.createElement('div');
-			speedButton.id = `speed-button-${speed}`;
+			const speedButton = this.player.createElement('button',`speed-button-${speed}`)
+				.addClasses(this.makeStyles('languageButtonStyles'))
+				.appendTo(scrollContainer);
 
-			this.player.addClasses(speedButton, this.makeStyles('menuButtonStyles'));
+			const speedButtonSpan = this.player.createElement('span', `menu-button-text-${speed}`)
+				.appendTo(speedButton);
 
-			const spanChild = document.createElement('div');
-			speedButton.append(spanChild);
-
-			const speedButtonText = document.createElement('span');
-			speedButtonText.classList.add('menu-button-text');
-			this.player.addClasses(speedButtonText, this.makeStyles('speedButtonTextStyles'));
-
+			const speedButtonText = this.player.createElement('span', `menu-button-text-${speed}`)
+				.addClasses(this.makeStyles('speedButtonTextStyles'))
+				.appendTo(speedButtonSpan);
+			
 			speedButtonText.textContent = speed == 1 ? this.player.localize('Normal') : speed.toString();
-			speedButton.append(speedButtonText);
 
 			const chevron = this.createSVGElement(speedButton, 'menu', this.buttons.checkmark, hovered);
 			this.player.addClasses(chevron, [
@@ -2255,13 +2371,15 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-menu', false);
 				this.player.setSpeed(speed);
 			});
-
-			scrollContainer.append(speedButton);
 		}
 
 		this.player.on('show-speed-menu', (showing) => {
 			if (showing) {
 				speedMenu.style.display = 'flex';
+				
+				setTimeout(() => {
+					(scrollContainer.firstChild as HTMLButtonElement).focus();
+				}, 200);
 			} else {
 				speedMenu.style.display = 'none';
 			}
@@ -2274,7 +2392,6 @@ export class DesktopUIPlugin extends Plugin {
 		const qualityMenu = this.player.createElement('div', 'quality-menu')
 			.addClasses(this.makeStyles('subMenuContentStyles'))
 			.appendTo(parent);
-		this.player.addClasses(qualityMenu, ['nm-max-h-96']);
 
 		this.createMenuHeader(qualityMenu, 'quality');
 
@@ -2284,19 +2401,18 @@ export class DesktopUIPlugin extends Plugin {
 
 		scrollContainer.style.transform = 'translateX(0)';
 
-		this.player.on('quality', (event) => {
-			if (!event) return;
+		this.player.on('levels', (levels) => {
 			scrollContainer.innerHTML = '';
 
-			for (const [i, track] of Object.entries<QualityLevel>(event) ?? []) {
-				this.player.createQualityMenuButton(scrollContainer, {
-					index: parseInt(i, 10),
-					width: track.width,
-					height: track.height,
-					label: track.label,
-					bitrate: track.bitrate,
+			Object.values(levels).forEach((level) => {
+				this.createQualityMenuButton(scrollContainer, {
+					id: level.id, 
+					width: level.width ?? 0,
+					height: level.height ?? 0,
+					label: level.label,
+					bitrate: level.bitrate ?? 0,
 				});
-			}
+			});
 		});
 
 		this.player.on('show-quality-menu', (showing) => {
@@ -2312,11 +2428,12 @@ export class DesktopUIPlugin extends Plugin {
 
 	createQualityMenuButton(parent: HTMLDivElement, data: {
         width: number;
-        index: number;
+        id: number;
         bitrate: number;
         label: string;
         height: number
-    }, hovered = false) {
+    }, hovered = false
+	) {
 
 		const qualityButton = this.player.createElement('button', `quality-button-${data.height}-${data.bitrate}`)
 			.addClasses(this.makeStyles('languageButtonStyles'))
@@ -2332,12 +2449,12 @@ export class DesktopUIPlugin extends Plugin {
 		const chevron = this.createSVGElement(qualityButton, 'checkmark', this.buttons.checkmark, hovered);
 		this.player.addClasses(chevron, ['nm-ml-auto']);
 
-		if (data.index > 0) {
+		if (data.id > 0) {
 			chevron.classList.add('nm-hidden');
 		}
 
-		this.player.on('quality-change', (index) => {
-			if (index == data.index) {
+		this.player.on('levelsChanging', (level) => {
+			if (level.id == data.id) {
 				chevron.classList.remove('nm-hidden');
 			} else {
 				chevron.classList.add('nm-hidden');
@@ -2347,22 +2464,10 @@ export class DesktopUIPlugin extends Plugin {
 		qualityButton.addEventListener('click', (event) => {
 			event.stopPropagation();
 
-			this.player.setQualityLevel(data.index);
+			this.player.setCurrentQuality(data.id);
 
 			this.player.emit('show-menu', false);
 		});
-
-		// qualityButton.addEventListener('keyup', (e) => {
-		// 	if (e.key == 'ArrowLeft') {
-		// 		this.getClosestElement(qualityButton, '[id^="audio-button-"]')?.focus();
-		// 	} else if (e.key == 'ArrowRight') {
-		// 		this.getClosestElement(qualityButton, '[id^="subtitle-button-"]')?.focus();
-		// 	} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
-		// 		(qualityButton.previousElementSibling as HTMLButtonElement)?.focus();
-		// 	} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
-		// 		(qualityButton.nextElementSibling as HTMLButtonElement)?.focus();
-		// 	}
-		// });
 
 		return qualityButton;
 	}
@@ -2371,9 +2476,10 @@ export class DesktopUIPlugin extends Plugin {
 		language: string,
 		label: string,
 		type: string,
-		index: number,
+		id: number,
 		styled?: boolean;
-	}, hovered = false) {
+	}, hovered = false
+	) {
 
 		const languageButton = this.player.createElement('button', `${data.type}-button-${data.language}`)
 			.addClasses(this.makeStyles('languageButtonStyles'))
@@ -2389,72 +2495,51 @@ export class DesktopUIPlugin extends Plugin {
 			} else if (data.styled) {
 				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} ${this.player.localize(data.label)} ${this.player.localize('styled')}`;
 			} else {
-				languageButtonText.textContent = `${data.language == 'off' ? '' : this.player.localize(data.language ?? '')} ${this.player.localize(data.label)}`;
+				languageButtonText.textContent = `${data.language == 'off' ? '' : this.player.localize(data.language ?? '')} (${this.player.localize(data.label)})`;
 			}
 		} else if (data.type == 'audio') {
 			languageButtonText.textContent = `${this.player.localize((data.language ?? data.label)
 				?.replace('segment-metadata', 'Off'))}`;
 		}
 
-		// if (data.styled) {
-		// 	const languageButtonIcon = this.player.createElement('span', 'menu-button-icon')
-		// 		.addClasses(this.makeStyles('menuButtonTextStyles'))
-		// 		.appendTo(languageButton);
-		// 	const svg = this.createSVGElement(languageButtonIcon, 'styled', this.buttons.styled, hovered);
-		// 	svg.setAttribute('tabindex', '-1');
-		// }
-
 		const chevron = this.createSVGElement(languageButton, 'checkmark', this.buttons.checkmark, hovered);
 		this.player.addClasses(chevron, ['nm-ml-auto']);
 
-		if (data.index > 0) {
+		if (data.id > 0) {
 			chevron.classList.add('nm-hidden');
 		}
 
 		if (data.type == 'audio') {
-			this.player.on('audio-change', (audio) => {
-				if (audio.currentTrack == data.index) {
+			this.player.on('audioTrackChanged', (audio) => {
+				if (data.id === audio.id) {
 					chevron.classList.remove('nm-hidden');
 				} else {
 					chevron.classList.add('nm-hidden');
-				}
+				}			
 			});
+
+			languageButton.addEventListener('click', (event) => {
+				event.stopPropagation();
+				this.player.setCurrentAudioTrack(data.id);
+				this.player.emit('show-menu', false);
+			});
+			
 		} else if (data.type == 'subtitle') {
 
-			this.player.on('caption-change', (track) => {
-
-				let index = data.index;
-				let currentTrack = track.track;
-
-				index += 1;
-				if (track.track == -1) {
-					currentTrack = 0;
-				}
-
-				if (currentTrack == index) {
+			this.player.on('captionsChanged', (track) => {
+				if (data.id === track.id) {
 					chevron.classList.remove('nm-hidden');
 				} else {
 					chevron.classList.add('nm-hidden');
 				}
 			});
+
+			languageButton.addEventListener('click', (event) => {
+				event.stopPropagation();
+				this.player.setCurrentCaption(data.id);
+				this.player.emit('show-menu', false);
+			});
 		}
-
-		languageButton.addEventListener('click', (event) => {
-			event.stopPropagation();
-
-			if (data.type == 'audio') {
-				this.player.setAudioTrack(data.index);
-			} else if (data.type == 'subtitle') {
-
-				if (this.player.getCurrentSrc()?.endsWith('.mp4')) {
-					this.player.setCurrentCaption(data.index - 1);
-				} else {
-					this.player.setCurrentCaption(data.index);
-				}
-			}
-
-			this.player.emit('show-menu', false);
-		});
 
 		languageButton.addEventListener('keyup', (e) => {
 			if (e.key == 'ArrowLeft') {
@@ -2570,7 +2655,7 @@ export class DesktopUIPlugin extends Plugin {
 			.appendTo(sliderPop);
 
 		if (this.player.options.chapters && !this.player.isTv() && this.player.getChapters()?.length > 0) {
-			this.sliderBar.style.background = 'transparent';
+			this.sliderBar.style.background = '';
 		}
 
 		['mousedown', 'touchstart'].forEach((event) => {
@@ -2647,7 +2732,7 @@ export class DesktopUIPlugin extends Plugin {
 			sliderPop.style.setProperty('--visibility', '0');
 		});
 
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			this.sliderBar.classList.add('nm-bg-white/20');
 			this.previewTime = [];
 			this.chapters = [];
@@ -2677,6 +2762,7 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('controls', (showing) => {
 			if (!showing) {
 				sliderPop.style.setProperty('--visibility', '0');
+				this.menuFrame.close();
 			}
 		});
 
@@ -2709,7 +2795,7 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses(this.makeStyles('chapterBarStyles'))
 			.appendTo(this.sliderBar);
 
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			this.sliderBar.classList.add('nm-bg-white/20');
 			this.previewTime = [];
 			this.chapters = [];
@@ -2819,9 +2905,9 @@ export class DesktopUIPlugin extends Plugin {
 	createChapterMarkers() {
 		if (this.player.isTv()) return;
 
-		this.chapterBar.style.background = 'transparent';
+		this.chapterBar.style.background = '';
 
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			this.chapterBar.style.background = '';
 		});
 
@@ -2889,7 +2975,7 @@ export class DesktopUIPlugin extends Plugin {
 			const imageFile = this.player.getSpriteFile();
 
 			const img = new Image();
-			this.player.once('playlistItem', () => {
+			this.player.once('item', () => {
 				img.remove();
 			});
 
@@ -2905,31 +2991,24 @@ export class DesktopUIPlugin extends Plugin {
 
 							img.src = dataURL;
 
-							if (this.player.isTv()) {
-								this.image = `url('${dataURL}')`;
-							} else {
-								this.sliderPopImage.style.backgroundImage = `url('${dataURL}')`;
-							}
+							this.sliderPopImage.style.backgroundImage = `url('${dataURL}')`;
+							
 							// release memory
-							this.player.once('playlistItem', () => {
+							this.player.once('item', () => {
 								URL.revokeObjectURL(dataURL);
 							});
 							setTimeout(() => {
 								this.player.emit('preview-time', this.previewTime);
-							}, 500);
+							}, 400);
 						},
 					}).then();
 				} else {
-					if (this.player.isTv()) {
-						this.image = `url('${imageFile}')`;
-					} else {
-						this.sliderPopImage.style.backgroundImage = `url('${imageFile}')`;
-					}
+					this.sliderPopImage.style.backgroundImage = `url('${imageFile}')`;
 
 					img.src = imageFile;
 					setTimeout(() => {
 						this.player.emit('preview-time', this.previewTime);
-					}, 500);
+					}, 400);
 				}
 			}
 
@@ -2973,7 +3052,7 @@ export class DesktopUIPlugin extends Plugin {
 
 							setTimeout(() => {
 								this.player.emit('preview-time', this.previewTime);
-							}, 500);
+							}, 400);
 						},
 					}).then(() => {
 						this.loadSliderPopImage(0);
@@ -3073,13 +3152,19 @@ export class DesktopUIPlugin extends Plugin {
 			])
 			.appendTo(playlistMenu);
 
-		this.createMenuHeader(episodeMenu, 'Episodes');
+		const episodeHeader = this.createMainMenuHeader(episodeMenu, '');
+		// episodeHeader.style.minHeight = '2.5rem !important';
 
 		const scrollContainer = this.player.createElement('div', 'playlist-scroll-container')
 			.addClasses(this.makeStyles('scrollContainerStyles'))
 			.appendTo(episodeMenu);
 
 		scrollContainer.innerHTML = '';
+		scrollContainer.tabIndex = 1;
+
+		scrollContainer.addEventListener('focus', () => {
+			(scrollContainer.firstChild as HTMLButtonElement)?.focus();
+		});
 
 		for (const [index, item] of this.player.getPlaylist().entries() ?? []) {
 			this.createEpisodeMenuButton(scrollContainer, item, index);
@@ -3088,6 +3173,9 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('show-playlist-menu', (showing) => {
 			if (showing) {
 				playlistMenu.style.display = 'flex';
+				setTimeout(() => {
+					(scrollContainer.firstChild as HTMLButtonElement).focus();
+				}, 200);
 			} else {
 				playlistMenu.style.display = 'none';
 			}
@@ -3099,7 +3187,7 @@ export class DesktopUIPlugin extends Plugin {
 	createSeasonMenuButton(parent: HTMLDivElement, item: PlaylistItem, hovered = false) {
 
 		const seasonButton = this.player.createElement('button', `season-${item.id}`)
-			.addClasses(this.makeStyles('menuButtonStyles'))
+			.addClasses(this.makeStyles('languageButtonStyles'))
 			.appendTo(parent);
 
 		if (this.player.playlistItem()?.season === item?.season) {
@@ -3110,7 +3198,7 @@ export class DesktopUIPlugin extends Plugin {
 			seasonButton.style.backgroundColor = '';
 		}
 
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			if (this.player.playlistItem()?.season === item?.season) {
 				seasonButton.classList.add('active');
 				seasonButton.style.backgroundColor = 'rgb(82 82 82 / 0.5)';
@@ -3197,7 +3285,6 @@ export class DesktopUIPlugin extends Plugin {
 		const sliderContainer = this.player.createElement('div', `episode-${item.id}-slider-container`)
 			.addClasses(this.makeStyles('sliderContainerStyles'))
 			.appendTo(progressContainer);
-		sliderContainer.style.display = item.progress?.percentage ? 'flex' : 'none';
 
 		const progressBar = this.player.createElement('div', `episode-${item.id}-progress-bar`)
 			.addClasses(this.makeStyles('progressBarStyles'))
@@ -3205,6 +3292,9 @@ export class DesktopUIPlugin extends Plugin {
 
 		if (item.progress?.percentage) {
 			progressBar.style.width = `${item.progress.percentage > 98 ? 100 : item.progress}%`;
+		}
+		if (item.progress?.percentage) {
+			// sliderContainer.style.display = 'flex';
 		}
 
 		const episodeMenuButtonRightSide = this.player.createElement('div', `episode-${item.id}-right-side`)
@@ -3225,7 +3315,7 @@ export class DesktopUIPlugin extends Plugin {
 			.appendTo(episodeMenuButtonRightSide);
 		episodeMenuButtonOverview.textContent = this.limitSentenceByCharacters(item.description, 600);
 
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			if (this.player.playlistItem().season == item.season) {
 				button.style.display = 'flex';
 			} else {
@@ -3235,7 +3325,7 @@ export class DesktopUIPlugin extends Plugin {
 			if (this.player.playlistItem().season == item.season && this.player.playlistItem().episode == item.episode) {
 				button.style.background = 'rgba(255,255,255,.1)';
 			} else {
-				button.style.background = 'transparent';
+				button.style.background = '';
 			}
 		});
 
@@ -3250,7 +3340,9 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('time', (data) => {
 			if (this.player.playlistItem()?.uuid == item.uuid) {
 				progressBar.style.width = `${data.percentage}%`;
-				sliderContainer.style.display = 'flex';
+				if (data.percentage > 0){
+					sliderContainer.style.display = 'flex';
+				} 
 			}
 		});
 
@@ -3365,7 +3457,7 @@ export class DesktopUIPlugin extends Plugin {
 		title.textContent = item.title.replace(item.show, '').replace('%S', this.player.localize('S'))
 			.replace('%E', this.player.localize('E'));
 
-		this.player.once('playlistItem', () => {
+		this.player.once('item', () => {
 			this.getTipData({ direction, header, title, image });
 		});
 	}
@@ -3423,7 +3515,7 @@ export class DesktopUIPlugin extends Plugin {
 		});
 
 		let enabled = false;
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			clearTimeout(this.timeout);
 			this.nextUp.style.display = 'none';
 			enabled = false;
@@ -3501,7 +3593,7 @@ export class DesktopUIPlugin extends Plugin {
 			status.innerText = `${this.player.localize('Buffering')}...`;
 		});
 
-		this.player.on('playlistItem', () => {
+		this.player.on('item', () => {
 			spinnerContainer.style.display = 'grid';
 		});
 
