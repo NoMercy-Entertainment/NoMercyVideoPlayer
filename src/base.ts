@@ -1,7 +1,6 @@
 
-import type { SetupConfig, TimeData, Track, CurrentTrack} from './index.d';
-import {Level} from "hls.js";
-import {NMPlayer} from "./index";
+import type { SetupConfig, TimeData, Track, CurrentTrack } from './index.d';
+import { NMPlayer } from './index';
 
 export class Base {
 
@@ -97,7 +96,7 @@ export class Base {
 	emit(event: 'resize', data?: any): void;
 
 	// Quality
-	emit(event: 'levels', data: ReturnType<NMPlayer["getQualityLevels"]>): void;
+	emit(event: 'levels', data: ReturnType<NMPlayer['getQualityLevels']>): void;
 	emit(event: 'levelsChanged', data: CurrentTrack): void;
 	emit(event: 'levelsChanging', data: CurrentTrack): void;
 	emit(event: 'visualQuality', data?: any): void;
@@ -138,7 +137,7 @@ export class Base {
 	// Cast
 	emit(event: 'cast', data?: any): void;
 	emit(event: 'castIntercepted', data?: any): void;
-	
+
 	emit(eventType: 'display-message', value: string): void;
 
 	emit(event: string, data?: any): void;
@@ -197,7 +196,7 @@ export class Base {
 	on(event: 'resize', callback: () => void): void;
 
 	// Quality
-	on(event: 'levels', callback: (data: ReturnType<NMPlayer["getQualityLevels"]>) => void): void;
+	on(event: 'levels', callback: (data: ReturnType<NMPlayer['getQualityLevels']>) => void): void;
 	on(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
 	on(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
 	on(event: 'visualQuality', callback: () => void): void;
@@ -409,7 +408,7 @@ export class Base {
 	once(event: 'resize', callback: () => void): void;
 
 	// Quality
-	once(event: 'levels', callback: (data: ReturnType<NMPlayer["getQualityLevels"]>) => void): void;
+	once(event: 'levels', callback: (data: ReturnType<NMPlayer['getQualityLevels']>) => void): void;
 	once(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
 	once(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
 	once(event: 'visualQuality', callback: () => void): void;

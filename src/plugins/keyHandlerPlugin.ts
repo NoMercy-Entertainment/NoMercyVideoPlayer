@@ -21,8 +21,8 @@ export class KeyHandlerPlugin extends Plugin {
      * @param {KeyboardEvent} event - The keyboard event to handle.
      */
 	keyHandler(event: KeyboardEvent) {
-		if (document.activeElement?.nodeName == 'INPUT' ) return;
-		
+		if (document.activeElement?.nodeName == 'INPUT') return;
+
 		const keys = this.keyBindings();
 		let keyTimeout = false;
 

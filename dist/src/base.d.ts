@@ -51,7 +51,7 @@ export declare class Base {
     emit(event: 'volume', data?: any): void;
     emit(event: 'fullscreen', data?: any): void;
     emit(event: 'resize', data?: any): void;
-    emit(event: 'levels', data: ReturnType<NMPlayer["getQualityLevels"]>): void;
+    emit(event: 'levels', data: ReturnType<NMPlayer['getQualityLevels']>): void;
     emit(event: 'levelsChanged', data: CurrentTrack): void;
     emit(event: 'levelsChanging', data: CurrentTrack): void;
     emit(event: 'visualQuality', data?: any): void;
@@ -110,7 +110,7 @@ export declare class Base {
     on(event: 'volume', callback: () => void): void;
     on(event: 'fullscreen', callback: () => void): void;
     on(event: 'resize', callback: () => void): void;
-    on(event: 'levels', callback: (data: ReturnType<NMPlayer["getQualityLevels"]>) => void): void;
+    on(event: 'levels', callback: (data: ReturnType<NMPlayer['getQualityLevels']>) => void): void;
     on(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
     on(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
     on(event: 'visualQuality', callback: () => void): void;
@@ -233,7 +233,7 @@ export declare class Base {
     once(event: 'volume', callback: () => void): void;
     once(event: 'fullscreen', callback: () => void): void;
     once(event: 'resize', callback: () => void): void;
-    once(event: 'levels', callback: (data: ReturnType<NMPlayer["getQualityLevels"]>) => void): void;
+    once(event: 'levels', callback: (data: ReturnType<NMPlayer['getQualityLevels']>) => void): void;
     once(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
     once(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
     once(event: 'visualQuality', callback: () => void): void;

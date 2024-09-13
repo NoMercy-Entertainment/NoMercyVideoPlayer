@@ -139,7 +139,7 @@ export default {
 	pan: 'Punjabi',
 	per: 'Persian',
 	pli: 'Pāli',
-	pob: "Brazilian Portuguese",
+	pob: 'Brazilian Portuguese',
 	pol: 'Polish',
 	por: 'Portuguese',
 	pus: 'Pashto',

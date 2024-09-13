@@ -91,7 +91,7 @@ export interface CaptionsConfig {
     windowOpacity?: number;
 }
 
-export type  Level = ReturnType<NMPlayer["getQualityLevels"]>[number];
+export type Level = ReturnType<NMPlayer['getQualityLevels']>[number];
 
 export type Preload = 'metadata' | 'auto' | 'none';
 
@@ -423,180 +423,94 @@ export interface SetupConfig {
 }
 
 export interface NMPlayer {
-    addCues(cues: SliderCue[]): NMPlayer;
-
-    addPlugin(name: string, pluginInstance: any): void;
-
-    castToggle(): NMPlayer;
-
-    getAdBlock(): boolean;
-
-    getAudioTracks(): AudioTrack[];
-
-    getAbsolutePosition(): string | null;
-
-    getBuffer(): number;
-
-    getCaptionsList(): Caption[];
-
-    getConfig(): PlayerConfig;
-
-    getContainer(): HTMLElement;
-
-    getContainerPercentViewable(): number;
-
-    getContainerViewable(): 0 | 1;
-
-    getControls(): boolean;
-
-    getCues(): SliderCue[];
-
-    getCurrentAudioTrack(): number;
-
-    getCurrentCaptions(): number;
-
-    getCurrentQuality(): number;
-
-    getCurrentTime(): number;
-
-    getDuration(): number;
-
-    getEnvironment(): Environment;
-
-    getFloating(): boolean;
-
-    getFullscreen(): boolean;
-
-    getHeight(): number;
-
-    getMute(): boolean;
-
-    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-    getPercentViewable(): number | void;
-
-    getPlaybackRate(): number;
-
-    getPlaylist(): PlaylistItem[];
-
-    getPlaylistIndex(): number;
-
-    getPlaylistItem(index?: number): PlaylistItem;
-
-    getPlaylistItemPromise(index: number): Promise<PlaylistItem>;
-
-    getPlugin(name: string): NMPlugin;
-
-    getPosition(): number;
-
-    getProvider(): Provider;
-
-    getQualityLevels(): Level[];
-
-    getRenderingMode(): string;
-
-    getSafeRegion(): Region;
-
-    getState(): PlayState;
-
-    getStretching(): Stretching;
-
-    getViewable(): 0 | 1;
-
-    getVisualQuality(): VisualQuality | undefined;
-
-    getVolume(): number;
-
-    getWidth(): number;
-
-    load(playlist: PlaylistItem[] | string): NMPlayer;
-
-    next(): NMPlayer;
-
-    // on<TEvent extends keyof EventParams>(event: TEvent, callback: EventCallback<EventParams[TEvent]>): NMPlayer;
-
-    // on(event: NoParamEvent, callback: () => void): NMPlayer;
-
-    // once<TEvent extends keyof EventParams>(event: TEvent, callback: EventCallback<EventParams[TEvent]>): NMPlayer;
-
-    // once(event: NoParamEvent, callback: () => void): NMPlayer;
-
-    // off(event: keyof EventParams | NoParamEvent): NMPlayer;
 
     // off(event: NoParamEvent, callback: () => void): NMPlayer;
-
+    // off(event: keyof EventParams | NoParamEvent): NMPlayer;
     // off<TEvent extends keyof EventParams>(event: TEvent, callback: EventCallback<EventParams[TEvent]>): NMPlayer;
-
-    // trigger<TEvent extends keyof EventParams>(event: TEvent, args: EventParams[TEvent]): NMPlayer;
-
+    // on(event: NoParamEvent, callback: () => void): NMPlayer;
+    // on<TEvent extends keyof EventParams>(event: TEvent, callback: EventCallback<EventParams[TEvent]>): NMPlayer;
+    // once(event: NoParamEvent, callback: () => void): NMPlayer;
+    // once<TEvent extends keyof EventParams>(event: TEvent, callback: EventCallback<EventParams[TEvent]>): NMPlayer;
     // trigger(event: NoParamEvent): NMPlayer;
-
-    pause(state?: boolean): NMPlayer;
-
-    pauseAd(toggle: boolean): void;
-
-    play(state?: boolean): NMPlayer;
-
-    playAd(tag: string | string[]): void;
-
+    // trigger<TEvent extends keyof EventParams>(event: TEvent, args: EventParams[TEvent]): NMPlayer;
 	playlistItem(): PlaylistItem;
 	playlistItem(index: number): void;
-
-    playlistNext(): NMPlayer;
-
-    playlistPrev(): NMPlayer;
-
+    addCues(cues: SliderCue[]): NMPlayer;
+    addPlugin(name: string, pluginInstance: any): void;
+    castToggle(): NMPlayer;
+    getAbsolutePosition(): string | null;
+    getAdBlock(): boolean;
+    getAudioTracks(): AudioTrack[];
+    getBuffer(): number;
+    getCaptionIndex(): number;
+    getCaptionsList(): Caption[];
+    getConfig(): PlayerConfig;
+    getContainer(): HTMLElement;
+    getContainerPercentViewable(): number;
+    getContainerViewable(): 0 | 1;
+    getControls(): boolean;
+    getCues(): SliderCue[];
+    getCurrentAudioTrack(): number;
+    getCurrentCaptions(): number;
+    getCurrentQuality(): number;
+    getCurrentTime(): number;
+    getDuration(): number;
+    getEnvironment(): Environment;
+    getFloating(): boolean;
+    getFullscreen(): boolean;
+    getHeight(): number;
+    getMute(): boolean;
+    getPercentViewable(): number | void;
+    getPlaybackRate(): number;
+    getPlaylist(): PlaylistItem[];
+    getPlaylistIndex(): number;
+    getPlaylistItem(index?: number): PlaylistItem;
+    getPlaylistItemPromise(index: number): Promise<PlaylistItem>;
+    getPlugin(name: string): NMPlugin;
+    getPosition(): number;
+    getProvider(): Provider;
+    getQualityLevels(): Level[];
+    getRenderingMode(): string;
+    getSafeRegion(): Region;
+    getState(): PlayState;
+    getStretching(): Stretching;
+    getViewable(): 0 | 1;
+    getVisualQuality(): VisualQuality | undefined;
+    getVolume(): number;
+    getWidth(): number;
+    load(playlist: PlaylistItem[] | string): NMPlayer;
+    next(): NMPlayer;
+    pause(state?: boolean): NMPlayer;
+    pauseAd(toggle: boolean): void;
+    play(state?: boolean): NMPlayer;
+    playAd(tag: string | string[]): void;
     playToggle(): NMPlayer;
-
+    playlistNext(): NMPlayer;
+    playlistPrev(): NMPlayer;
     registerPlugin(id: string, target: string, jsPlugin: () => void, swfURL?: string): void;
-
     remove(): NMPlayer;
-
     removeButton(id: string): NMPlayer;
-
     removePlaylistItemCallback(): void;
-
     resize(width: number | string, height: number): NMPlayer;
-
     seek(position: number): NMPlayer;
-
     setAllowFullscreen(allowFullscreen?: boolean): NMPlayer;
-
     setCaptions(styles: CaptionsConfig): NMPlayer;
-
     setConfig(config: SetupConfig): NMPlayer;
-
     setControls(state?: boolean): NMPlayer;
-
     setCues(cues: SliderCue[]): NMPlayer;
-
     setCurrentAudioTrack(index: number): void;
-
     setCurrentCaptions(index: number): void;
-
     setCurrentQuality(index: number): void;
-
     setFloating(shouldFloat?: boolean): void;
-
     setFullscreen(state: boolean): void;
-
     setMute(state?: boolean): NMPlayer;
-
     setPip(state?: boolean): NMPlayer;
-
     setPlaybackRate(rate?: number): NMPlayer;
-
-    setPlaylistItemCallback(
-        callback: null | ((item: PlaylistItem, index: number) => void | Promise<PlaylistItem>),
-    ): void;
-
-    setup(options: SetupConfig): NMPlayer;
-
+    setPlaylistItemCallback(callback: null | ((item: PlaylistItem, index: number) => void | Promise<PlaylistItem>)): void;
     setVolume(volume: number): NMPlayer;
-
+    setup(options: SetupConfig): NMPlayer;
     skipAd(): void;
-
     stop(): NMPlayer;
-
     stopCasting(): NMPlayer;
 
     overlay: HTMLDivElement;

@@ -17886,9 +17886,11 @@ class Dh extends or {
       defaultValue: this.gainNode.gain.defaultValue
     };
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_playEvent(e) {
     this.emit("beforePlay"), this.container.classList.remove("paused"), this.container.classList.add("playing"), this.emit("play");
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_onPlayingEvent(e) {
     this.videoElement.removeEventListener("playing", this.videoPlayer_onPlayingEvent), this.firstFrame || (this.emit("firstFrame"), this.firstFrame = !0), this.setMediaAPI(), this.on("item", () => {
       this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent), this.firstFrame = !1;
@@ -17903,39 +17905,49 @@ class Dh extends or {
         localStorage.getItem("nmplayer-subtitle-type"),
         localStorage.getItem("nmplayer-subtitle-ext")
       );
-      if (!e)
+      if (console.log("Setting caption from storage", e), e == null)
         return;
       this.setCurrentCaption(e);
     } else
       this.setCurrentCaption(-1);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_pauseEvent(e) {
     this.container.classList.remove("playing"), this.container.classList.add("paused"), this.emit("pause", this.videoElement);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_endedEvent(e) {
     this.currentIndex < this.playlist.length - 1 ? this.playVideo(this.currentIndex + 1) : (console.log("Playlist completed."), this.isPlaying = !1, this.emit("playlistComplete"));
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_errorEvent(e) {
     this.emit("error", this.videoElement);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_waitingEvent(e) {
     this.emit("waiting", this.videoElement);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_canplayEvent(e) {
     this.emit("canplay", this.videoElement);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_loadedmetadataEvent(e) {
     this.emit("loadedmetadata", this.videoElement), this.emit("duration", this.videoElement.duration), this.emit("time", this.videoPlayer_getTimeData()), this.emit("captionsList", this.getCaptionsList());
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_loadstartEvent(e) {
     this.emit("loadstart", this.videoElement);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_timeupdateEvent(e) {
     this.emit("time", this.videoPlayer_getTimeData());
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_durationchangeEvent(e) {
     this.emit("duration", this.videoElement.duration);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   videoPlayer_volumechangeEvent(e) {
     this.volume != Math.round(this.videoElement.volume * 100) && this.emit("volume", Math.round(this.videoElement.volume * 100)), this.muted != this.videoElement.muted && this.emit("mute", this.videoElement.muted), this.muted = this.videoElement.muted, this.volume = Math.round(this.videoElement.volume * 100);
   }
@@ -18679,7 +18691,7 @@ class Dh extends or {
     }) : [];
   }
   getCurrentQuality() {
-    return this.hls ? this.hls.currentLevel : [];
+    return this.hls ? this.hls.currentLevel : -1;
   }
   getCurrentQualityName() {
     var e;
@@ -18741,8 +18753,8 @@ class Dh extends or {
       */
   getTextTrackIndexBy(e, t, s) {
     var n, r;
-    if (((n = this.getCaptionsList()) == null ? void 0 : n.findIndex((o) => (o.file ?? o.id).endsWith(`${e}.${t}.${s}`))) === -1)
-      return (r = this.getCaptionsList()) == null ? void 0 : r.findIndex((o) => o.language === e && o.type === t && o.ext === s);
+    const i = (n = this.getCaptionsList()) == null ? void 0 : n.findIndex((o) => (o.file ?? o.id).endsWith(`${e}.${t}.${s}`));
+    return i === -1 ? (r = this.getCaptionsList()) == null ? void 0 : r.findIndex((o) => o.language === e && o.type === t && o.ext === s) : i - 1;
   }
   setCurrentCaption(e) {
     if (!(!e && e != 0)) {
@@ -20722,7 +20734,7 @@ class ju extends ot {
         const n = this[i];
         typeof n == "function" ? this.player.plugins.desktopUIPlugin[i] = n.bind(this) : this.player.plugins.desktopUIPlugin[i] = n;
       });
-    while (s = Object.getPrototypeOf(s));
+    while ((s = Object.getPrototypeOf(s)) !== null);
   }
   createBottomBar(t) {
     const s = this.player.createElement("div", "bottom-bar").addClasses(this.makeStyles("bottomBarStyles")).appendTo(t);
@@ -21254,7 +21266,7 @@ class ju extends ot {
     return i.addEventListener("click", (l) => {
       l.stopPropagation(), this.player.emit("hide-tooltip"), this.subtitlesMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-subtitles-menu", !0), this.menuFrame.showModal());
     }), this.player.on("captionsList", (l) => {
-      this.player.getCaptionsList().length > 0 ? i.style.display = "flex" : i.style.display = "none";
+      l.length > 0 ? i.style.display = "flex" : i.style.display = "none";
     }), this.player.on("captionsChanging", (l) => {
       l.id == -1 ? (r.style.display = "none", n.style.display = "flex") : (r.style.display = "flex", n.style.display = "none");
     }), this.player.on("pip-internal", (l) => {
@@ -21288,7 +21300,7 @@ class ju extends ot {
       o.stopPropagation(), this.player.emit("hide-tooltip"), this.qualityMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-quality-menu", !0), this.menuFrame.showModal()), this.player.highQuality ? (this.player.highQuality = !1, r.style.display = "none", n.style.display = "flex") : (this.player.highQuality = !0, n.style.display = "none", r.style.display = "flex");
     }), this.player.on("item", () => {
       i.style.display = "none";
-    }), this.player.on("levels", (o) => {
+    }), this.player.on("levels", () => {
       this.player.hasQualities() ? i.style.display = "flex" : i.style.display = "none";
     }), this.player.on("pip-internal", (o) => {
       o ? i.style.display = "none" : this.player.hasQualities() && (i.style.display = "flex");
@@ -21401,13 +21413,13 @@ class ju extends ot {
   }
   sizeMenuFrame() {
     const {
-      width: t,
-      height: s,
-      top: i,
-      bottom: n,
-      left: r
+      // width,
+      height: t,
+      top: s,
+      bottom: i,
+      left: n
     } = this.player.getElement().getBoundingClientRect();
-    this.menuFrame.firstChild.style.width = "auto", this.menuFrame.firstChild.style.height = `calc(${s}px - 4rem)`, this.menuFrame.firstChild.style.top = `${i}px`, this.menuFrame.firstChild.style.bottom = `${n}px`, this.menuFrame.firstChild.style.left = `calc(${r}px + 2rem)`, this.menuFrame.firstChild.style.margin = "2rem", this.menuFrame.firstChild.style.marginLeft = "auto";
+    this.menuFrame.firstChild.style.width = "auto", this.menuFrame.firstChild.style.height = `calc(${t}px - 4rem)`, this.menuFrame.firstChild.style.top = `${s}px`, this.menuFrame.firstChild.style.bottom = `${i}px`, this.menuFrame.firstChild.style.left = `calc(${n}px + 2rem)`, this.menuFrame.firstChild.style.margin = "2rem", this.menuFrame.firstChild.style.marginLeft = "auto";
   }
   createMainMenu(t) {
     return this.mainMenu = this.player.createElement("div", "main-menu").addClasses(this.makeStyles("mainMenuStyles")).appendTo(t), this.mainMenu.style.transform = "translateX(0)", this.createMainMenuHeader(this.mainMenu, "").classList.add("!nm-min-h-[2rem]", "-nm-mr-1"), this.player.addClasses(this.mainMenu, this.makeStyles("mainMenuStyles")), this.createMenuButton(this.mainMenu, "language"), this.createMenuButton(this.mainMenu, "subtitles"), this.createMenuButton(this.mainMenu, "quality"), this.createMenuButton(this.mainMenu, "speed"), this.createMenuButton(this.mainMenu, "playlist"), this.createSubMenu(t), this.mainMenu;
@@ -21501,7 +21513,7 @@ class ju extends ot {
     return i.style.transform = "translateX(0)", this.player.on("item", () => {
       i.innerHTML = "";
     }), this.player.on("captionsList", (n) => {
-      i.innerHTML = "", Object.values(n).forEach((r, o) => {
+      i.innerHTML = "", Object.values(n).forEach((r) => {
         this.createLanguageMenuButton(i, {
           language: r.language,
           label: r.label,
@@ -21571,13 +21583,13 @@ class ju extends ot {
   }
   createLanguageMenuButton(t, s, i = !1) {
     const n = this.player.createElement("button", `${s.type}-button-${s.language}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(t), r = this.player.createElement("span", "menu-button-text").addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(n);
-    s.buttonType == "subtitle" && (s.styled ? r.textContent = `${this.player.localize(s.language ?? "")} ${this.player.localize(s.label)} ${this.player.localize("styled")}` : s.language != "" ? r.textContent = `${this.player.localize(s.language ?? "")} (${this.player.localize(s.type)})` : r.textContent = this.player.localize(s.label));
+    s.buttonType == "subtitle" && (s.styled ? r.textContent = `${this.player.localize(s.language ?? "")} ${this.player.localize(s.label)} ${this.player.localize("styled")}` : s.language == "" ? r.textContent = this.player.localize(s.label) : r.textContent = `${this.player.localize(s.language ?? "")} (${this.player.localize(s.type)})`);
     const o = this.createSVGElement(n, "checkmark", this.buttons.checkmark, i);
     return this.player.addClasses(o, ["nm-ml-auto"]), s.id > -1 && o.classList.add("nm-hidden"), s.buttonType == "audio" ? (this.player.on("audioTrackChanged", (l) => {
       s.id === l.id ? o.classList.remove("nm-hidden") : o.classList.add("nm-hidden");
     }), n.addEventListener("click", (l) => {
       l.stopPropagation(), this.player.setCurrentAudioTrack(s.id), this.player.emit("show-menu", !1);
-    })) : s.buttonType == "subtitle" && (this.player.on("captionsChanged", (l) => {
+    })) : s.buttonType == "subtitle" && (s.id === this.player.getCaptionIndex() ? o.classList.remove("nm-hidden") : o.classList.add("nm-hidden"), this.player.on("captionsChanged", (l) => {
       s.id === l.id ? o.classList.remove("nm-hidden") : o.classList.add("nm-hidden");
     }), n.addEventListener("click", (l) => {
       l.stopPropagation(), this.player.setCurrentCaption(s.id), this.player.emit("show-menu", !1);

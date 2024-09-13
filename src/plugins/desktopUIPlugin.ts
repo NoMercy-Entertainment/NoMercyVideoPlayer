@@ -4,7 +4,6 @@ import { buttons, Icon } from './UIPlugin/buttons';
 import { humanTime } from '../helpers';
 import * as styles from './UIPlugin/styles';
 import { WebVTTParser } from 'webvtt-parser';
-import {Level} from "hls.js";
 
 export class DesktopUIPlugin extends Plugin {
 	player: NMPlayer = <NMPlayer>{};
@@ -184,7 +183,7 @@ export class DesktopUIPlugin extends Plugin {
 					this.player.plugins.desktopUIPlugin[key] = value;
 				}
 			});
-		} while (obj = Object.getPrototypeOf(obj));
+		} while ((obj = Object.getPrototypeOf(obj)) !== null);
 	}
 
 
@@ -259,7 +258,7 @@ export class DesktopUIPlugin extends Plugin {
 				break;
 			}
 		});
-		
+
 		window.addEventListener('resize', () => {
 			this.sizeMenuFrame();
 		});
@@ -561,7 +560,7 @@ export class DesktopUIPlugin extends Plugin {
 			.appendTo(parent);
 
 		button.ariaLabel = this.buttons[icon]?.title;
-		
+
 		button.addEventListener('keydown', (event) => {
 			console.log(event);
 			if (event.key === 'Backspace') {
@@ -644,7 +643,7 @@ export class DesktopUIPlugin extends Plugin {
 			'close'
 		);
 		parent.appendChild(closeButton);
-		
+
 		this.createSVGElement(closeButton, 'close', this.buttons.close, false, hovered);
 
 		closeButton.addEventListener('click', () => {
@@ -1478,13 +1477,13 @@ export class DesktopUIPlugin extends Plugin {
 		});
 
 		this.player.on('captionsList', (tracks) => {
-			if (this.player.getCaptionsList().length > 0) {
+			if (tracks.length > 0) {
 				captionButton.style.display = 'flex';
 			} else {
 				captionButton.style.display = 'none';
 			}
 		});
-		
+
 		this.player.on('captionsChanging', (data) => {
 			if (data.id == -1) {
 				onButton.style.display = 'none';
@@ -1595,7 +1594,7 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('item', () => {
 			qualityButton.style.display = 'none';
 		});
-		this.player.on('levels', (levels) => {
+		this.player.on('levels', () => {
 			if (this.player.hasQualities()) {
 				qualityButton.style.display = 'flex';
 			} else {
@@ -1724,7 +1723,7 @@ export class DesktopUIPlugin extends Plugin {
 			} else {
 				this.player.emit('show-playlist-menu', true);
 				this.player.emit('switch-season', this.player.playlistItem().season);
-				
+
 				this.menuFrame.showModal();
 
 				setTimeout(() => {
@@ -1866,14 +1865,14 @@ export class DesktopUIPlugin extends Plugin {
 
 		this.menuFrame = this.player.createElement('dialog', 'menu-frame-dialog')
 			.appendTo(parent);
-		
+
 		this.menuFrame.setAttribute('popover', 'manual');
 		this.menuFrame.setAttribute('role', 'modal');
-		
+
 		const menuFrame = this.player.createElement('div', 'menu-frame')
 			.addClasses(this.makeStyles('menuFrameStyles'))
 			.appendTo(this.menuFrame);
-		
+
 		this.sizeMenuFrame();
 
 		const menuContent = this.player.createElement('div', 'menu-content')
@@ -1884,11 +1883,11 @@ export class DesktopUIPlugin extends Plugin {
 
 		this.player.on('resize', () => {
 			// this.createCalcMenu(menuContent);
-			this.sizeMenuFrame()
+			this.sizeMenuFrame();
 		});
 		this.player.on('fullscreen', () => {
 			// this.createCalcMenu(menuContent);
-			this.sizeMenuFrame()
+			this.sizeMenuFrame();
 		});
 
 		this.player.on('show-menu', (showing) => {
@@ -1897,7 +1896,7 @@ export class DesktopUIPlugin extends Plugin {
 			if (showing) {
 
 				this.sizeMenuFrame();
-				
+
 				menuFrame.style.display = 'flex';
 				menuFrame.classList.add('open');
 
@@ -1937,9 +1936,9 @@ export class DesktopUIPlugin extends Plugin {
 				menuContent.classList.remove('-nm-translate-x-[50%]');
 				menuContent.classList.remove('sub-menu-open');
 				menuFrame.style.display = 'flex';
-				
+
 				setTimeout(() => {
-					([...this.mainMenu.children].find(el => 
+					([...this.mainMenu.children].find(el =>
 						(el as HTMLButtonElement).style.display != 'none' && el.id != 'menu-header') as HTMLButtonElement).focus();
 				}, 200);
 			}
@@ -2043,18 +2042,18 @@ export class DesktopUIPlugin extends Plugin {
 
 		return menuContent;
 	}
-	
+
 	sizeMenuFrame() {
 		const {
-			width,
+			// width,
 			height,
 			top,
 			bottom,
-			left
+			left,
 		} = this.player.getElement().getBoundingClientRect();
 
 		// (this.menuFrame.firstChild as HTMLDivElement).style.width = `calc(${width}px - 4rem)`;
-		(this.menuFrame.firstChild as HTMLDivElement).style.width = `auto`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.width = 'auto';
 		(this.menuFrame.firstChild as HTMLDivElement).style.height = `calc(${height}px - 4rem)`;
 		(this.menuFrame.firstChild as HTMLDivElement).style.top = `${top}px`;
 		(this.menuFrame.firstChild as HTMLDivElement).style.bottom = `${bottom}px`;
@@ -2112,7 +2111,7 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses(this.makeStyles('menuHeaderStyles'))
 			.addClasses(['nm-border-b', 'nm-border-gray-300/20', '!nm-p-0'])
 			.appendTo(parent);
-		
+
 		const close = this.createUiButton(
 			menuHeader,
 			'close'
@@ -2133,7 +2132,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		return menuHeader;
 	}
-	
+
 	createMenuHeader(parent: HTMLDivElement, title: string, hovered = false) {
 		const menuHeader = this.player.createElement('div', 'menu-header')
 			.addClasses(this.makeStyles('menuHeaderStyles'))
@@ -2271,7 +2270,7 @@ export class DesktopUIPlugin extends Plugin {
 		const languageMenu = this.player.createElement('div', 'language-menu')
 			.addClasses(this.makeStyles('subMenuContentStyles'))
 			.appendTo(parent);
-		
+
 		this.createMenuHeader(languageMenu, 'Language');
 
 		const scrollContainer = this.player.createElement('div', 'language-scroll-container')
@@ -2286,7 +2285,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		this.player.on('audioTracks', (tracks) => {
 			scrollContainer.innerHTML = '';
-			
+
 			Object.values(tracks).forEach((track) => {
 				this.createLanguageMenuButton(scrollContainer, {
 					language: track.language,
@@ -2295,7 +2294,7 @@ export class DesktopUIPlugin extends Plugin {
 					id: track.id,
 					buttonType: 'language',
 				});
-			})
+			});
 		});
 
 		this.player.on('show-language-menu', (showing) => {
@@ -2328,8 +2327,8 @@ export class DesktopUIPlugin extends Plugin {
 
 		this.player.on('captionsList', (tracks) => {
 			scrollContainer.innerHTML = '';
-			
-			Object.values(tracks).forEach((track, index) => {
+
+			Object.values(tracks).forEach((track) => {
 				this.createLanguageMenuButton(scrollContainer, {
 					language: track.language,
 					label: track.label,
@@ -2355,7 +2354,7 @@ export class DesktopUIPlugin extends Plugin {
 		const speedMenu = this.player.createElement('div', 'speed-menu')
 			.addClasses(this.makeStyles('subMenuContentStyles'))
 			.appendTo(parent);
-		
+
 		this.createMenuHeader(speedMenu, 'speed');
 
 		const scrollContainer = this.player.createElement('div', 'speed-scroll-container')
@@ -2365,7 +2364,7 @@ export class DesktopUIPlugin extends Plugin {
 		scrollContainer.style.transform = 'translateX(0)';
 
 		for (const speed of this.player.getSpeeds() ?? []) {
-			const speedButton = this.player.createElement('button',`speed-button-${speed}`)
+			const speedButton = this.player.createElement('button', `speed-button-${speed}`)
 				.addClasses(this.makeStyles('languageButtonStyles'))
 				.appendTo(scrollContainer);
 
@@ -2375,7 +2374,7 @@ export class DesktopUIPlugin extends Plugin {
 			const speedButtonText = this.player.createElement('span', `menu-button-text-${speed}`)
 				.addClasses(this.makeStyles('speedButtonTextStyles'))
 				.appendTo(speedButtonSpan);
-			
+
 			speedButtonText.textContent = speed == 1 ? this.player.localize('Normal') : speed.toString();
 
 			const chevron = this.createSVGElement(speedButton, 'menu', this.buttons.checkmark, hovered);
@@ -2401,7 +2400,7 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('show-speed-menu', (showing) => {
 			if (showing) {
 				speedMenu.style.display = 'flex';
-				
+
 				setTimeout(() => {
 					(scrollContainer.firstChild as HTMLButtonElement).focus();
 				}, 200);
@@ -2429,13 +2428,13 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('item', () => {
 			scrollContainer.innerHTML = '';
 		});
-		
+
 		this.player.on('levels', (levels) => {
 			scrollContainer.innerHTML = '';
 
 			Object.values(levels).forEach((level) => {
 				this.createQualityMenuButton(scrollContainer, {
-					id: level.id, 
+					id: level.id,
 					width: level.width ?? 0,
 					height: level.height ?? 0,
 					label: level.label,
@@ -2461,8 +2460,7 @@ export class DesktopUIPlugin extends Plugin {
         bitrate: number;
         label: string;
         height: number
-    }, hovered = false
-	) {
+    }, hovered = false) {
 
 		const qualityButton = this.player.createElement('button', `quality-button-${data.height}-${data.bitrate}`)
 			.addClasses(this.makeStyles('languageButtonStyles'))
@@ -2508,8 +2506,7 @@ export class DesktopUIPlugin extends Plugin {
 		id: number,
 		styled?: boolean;
 		buttonType: string;
-	}, hovered = false
-	) {
+	}, hovered = false) {
 
 		const languageButton = this.player.createElement('button', `${data.type}-button-${data.language}`)
 			.addClasses(this.makeStyles('languageButtonStyles'))
@@ -2522,12 +2519,10 @@ export class DesktopUIPlugin extends Plugin {
 		if (data.buttonType == 'subtitle') {
 			if (data.styled) {
 				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} ${this.player.localize(data.label)} ${this.player.localize('styled')}`;
-			} 
-			else if (data.language != '') {
-				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
-			} 
-			else {
+			} else if (data.language == '') {
 				languageButtonText.textContent = this.player.localize(data.label);
+			} else {
+				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
 			}
 		}
 
@@ -2544,7 +2539,7 @@ export class DesktopUIPlugin extends Plugin {
 					chevron.classList.remove('nm-hidden');
 				} else {
 					chevron.classList.add('nm-hidden');
-				}			
+				}
 			});
 
 			languageButton.addEventListener('click', (event) => {
@@ -2552,9 +2547,12 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.setCurrentAudioTrack(data.id);
 				this.player.emit('show-menu', false);
 			});
-			
-		} 
-		else if (data.buttonType == 'subtitle') {
+		} else if (data.buttonType == 'subtitle') {
+			if (data.id === this.player.getCaptionIndex()) {
+				chevron.classList.remove('nm-hidden');
+			} else {
+				chevron.classList.add('nm-hidden');
+			}
 
 			this.player.on('captionsChanged', (track) => {
 				if (data.id === track.id) {
@@ -3022,7 +3020,7 @@ export class DesktopUIPlugin extends Plugin {
 							img.src = dataURL;
 
 							this.sliderPopImage.style.backgroundImage = `url('${dataURL}')`;
-							
+
 							// release memory
 							this.player.once('item', () => {
 								URL.revokeObjectURL(dataURL);
@@ -3182,8 +3180,7 @@ export class DesktopUIPlugin extends Plugin {
 			])
 			.appendTo(playlistMenu);
 
-		const episodeHeader = this.createMainMenuHeader(episodeMenu, '');
-		// episodeHeader.style.minHeight = '2.5rem !important';
+		this.createMainMenuHeader(episodeMenu, '');
 
 		const scrollContainer = this.player.createElement('div', 'playlist-scroll-container')
 			.addClasses(this.makeStyles('scrollContainerStyles'))
@@ -3370,9 +3367,9 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('time', (data) => {
 			if (this.player.playlistItem()?.uuid == item.uuid) {
 				progressBar.style.width = `${data.percentage}%`;
-				if (data.percentage > 0){
+				if (data.percentage > 0) {
 					sliderContainer.style.display = 'flex';
-				} 
+				}
 			}
 		});
 
