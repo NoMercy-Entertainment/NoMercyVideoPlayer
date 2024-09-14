@@ -23022,7 +23022,7 @@ class zd extends gt {
       var r;
       const n = (r = this.player.getVideoElement()) == null ? void 0 : r.getBoundingClientRect();
       !n || i.x > n.left && i.x < n.right && i.y > n.top && i.y < n.bottom || this.player.emit("hide-tooltip");
-    }, this.topRow = this.createTopRow(this.bottomBar), this.player.addClasses(this.topRow, ["mt-4"]), this.bottomRow = this.createBottomRow(this.bottomBar), this.createProgressBar(this.topRow), this.createPlaybackButton(this.bottomRow), this.createPreviousButton(this.bottomRow), this.createSeekBackButton(this.bottomRow), this.createSeekForwardButton(this.bottomRow), this.createNextButton(this.bottomRow), this.createVolumeButton(this.bottomRow), this.createTime(this.bottomRow, "current", ["ml-2"]), this.createDivider(this.bottomRow), this.createTime(this.bottomRow, "remaining", ["mr-2"]), this.createTheaterButton(this.bottomRow), this.createPIPButton(this.bottomRow), this.createPlaylistsButton(this.bottomRow), this.createSpeedButton(this.bottomRow), this.createCaptionsButton(this.bottomRow), this.createAudioButton(this.bottomRow), this.createQualityButton(this.bottomRow), this.createSettingsButton(this.bottomRow), this.createFullscreenButton(this.bottomRow), this.frame = this.createMenuFrame(this.bottomRow), this.createMainMenu(this.frame), this.createToolTip(this.overlay), this.createEpisodeTip(this.overlay), this.createNextUp(this.overlay), this.modifySpinner(this.overlay), this.eventHandlers(), this.player.plugins.desktopUIPlugin = {};
+    }, this.topRow = this.createTopRow(this.bottomBar), this.player.addClasses(this.topRow, ["mt-4"]), this.bottomRow = this.createBottomRow(this.bottomBar), this.createProgressBar(this.topRow), this.createPlaybackButton(this.bottomRow, !0), this.createPreviousButton(this.bottomRow, !0), this.createSeekBackButton(this.bottomRow, !0), this.createSeekForwardButton(this.bottomRow, !0), this.createNextButton(this.bottomRow, !0), this.createVolumeButton(this.bottomRow, !0), this.createTime(this.bottomRow, "current", ["ml-2"]), this.createDivider(this.bottomRow), this.createTime(this.bottomRow, "remaining", ["mr-2"]), this.createTheaterButton(this.bottomRow, !0), this.createPIPButton(this.bottomRow, !0), this.createPlaylistsButton(this.bottomRow, !0), this.createSpeedButton(this.bottomRow, !0), this.createCaptionsButton(this.bottomRow, !0), this.createAudioButton(this.bottomRow, !0), this.createQualityButton(this.bottomRow, !0), this.createSettingsButton(this.bottomRow, !0), this.createFullscreenButton(this.bottomRow, !0), this.frame = this.createMenuFrame(this.bottomRow), this.createMainMenu(this.frame), this.createToolTip(this.overlay), this.createEpisodeTip(this.overlay), this.createNextUp(this.overlay), this.modifySpinner(this.overlay), this.eventHandlers(), this.player.plugins.desktopUIPlugin = {};
     let s = this;
     do
       Object.getOwnPropertyNames(s).forEach((i) => {
@@ -23128,7 +23128,7 @@ class zd extends gt {
         }
       ));
     });
-    const r = this.createSVGElement(n, "bigPlay", this.buttons.bigPlay, i);
+    const r = this.createSVGElement(n, "bigPlay", this.buttons.bigPlay, !1, i);
     return this.player.addClasses(r, this.makeStyles("touchPlaybackButtonStyles")), this.player.on("pause", () => {
       r.style.display = "flex";
     }), this.player.on("play", () => {
@@ -23182,7 +23182,7 @@ class zd extends gt {
       "hidden",
       "group-hover/button:flex",
       "group-hover/volume:flex"
-    ]), o.appendChild(c), t.classList.contains("menu-button") || (t.addEventListener("mouseenter", () => {
+    ]), o.appendChild(c), !t.classList.contains("menu-button") && r && (t.addEventListener("mouseenter", () => {
       if (i.title.length == 0 || ["Next", "Previous"].includes(i.title) && this.player.hasNextTip || i.title == "Fullscreen" && this.player.getFullscreen() || i.title == "Exit fullscreen" && !this.player.getFullscreen() || i.title == "Play" && this.player.isPlaying || i.title == "Pause" && !this.player.isPlaying || i.title == "Mute" && this.player.isMuted() || i.title == "Unmute" && !this.player.isMuted())
         return;
       const h = `${this.player.localize(i.title)} ${this.getButtonKeyCode(s)}`, u = this.player.getElement().getBoundingClientRect(), d = t.getBoundingClientRect();
@@ -23212,7 +23212,7 @@ class zd extends gt {
       t,
       "settings"
     );
-    return this.createSVGElement(i, "settings", this.buttons.settings, s), i.addEventListener("click", () => {
+    return this.createSVGElement(i, "settings", this.buttons.settings, !1, s), i.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !1) : !this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !0) : this.menuOpen && !this.mainMenuOpen ? (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0)) : (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0));
     }), this.player.on("pip-internal", (n) => {
       n ? i.style.display = "none" : i.style.display = "flex";
@@ -23269,7 +23269,7 @@ class zd extends gt {
       t,
       "seekBack"
     );
-    return this.createSVGElement(i, "seekBack", this.buttons.seekBack, s), i.addEventListener("click", () => {
+    return this.createSVGElement(i, "seekBack", this.buttons.seekBack, !1, s), i.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.rewindVideo();
     }), this.player.on("pip-internal", (n) => {
       n ? i.style.display = "none" : i.style.display = "flex";
@@ -23282,7 +23282,7 @@ class zd extends gt {
       t,
       "seekForward"
     );
-    return this.createSVGElement(i, "seekForward", this.buttons.seekForward, s), i.addEventListener("click", () => {
+    return this.createSVGElement(i, "seekForward", this.buttons.seekForward, !1, s), i.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.forwardVideo();
     }), this.player.on("pip-internal", (n) => {
       n ? i.style.display = "none" : i.style.display = "flex";
@@ -23330,7 +23330,7 @@ class zd extends gt {
     n.ariaLabel = (u = this.buttons.volumeHigh) == null ? void 0 : u.title;
     const r = this.player.createElement("input", "volume-slider").addClasses(this.makeStyles("volumeSliderStyles")).appendTo(i);
     r.type = "range", r.min = "0", r.max = "100", r.step = "1", r.value = this.player.getVolume().toString(), r.style.backgroundSize = `${this.player.getVolume()}% 100%`;
-    const o = this.createSVGElement(n, "volumeMuted", this.buttons.volumeMuted, !0, s), l = this.createSVGElement(n, "volumeLow", this.buttons.volumeLow, !0, s), c = this.createSVGElement(n, "volumeMedium", this.buttons.volumeMedium, !0, s), h = this.createSVGElement(n, "volumeHigh", this.buttons.volumeHigh, s);
+    const o = this.createSVGElement(n, "volumeMuted", this.buttons.volumeMuted, !0, s), l = this.createSVGElement(n, "volumeLow", this.buttons.volumeLow, !0, s), c = this.createSVGElement(n, "volumeMedium", this.buttons.volumeMedium, !0, s), h = this.createSVGElement(n, "volumeHigh", this.buttons.volumeHigh, !1, s);
     return n.addEventListener("click", (d) => {
       d.stopPropagation(), this.player.toggleMute(), this.player.emit("hide-tooltip");
     }), r.addEventListener("input", (d) => {
@@ -23494,7 +23494,7 @@ class zd extends gt {
       t,
       "previous"
     );
-    return i.style.display = "none", this.createSVGElement(i, "previous", this.buttons.previous, s), i.addEventListener("click", (n) => {
+    return i.style.display = "none", this.createSVGElement(i, "previous", this.buttons.previous, !1, s), i.addEventListener("click", (n) => {
       n.stopPropagation(), this.player.previous(), this.player.emit("hide-tooltip");
     }), this.player.on("item", () => {
       this.player.getPlaylistIndex() > 0 ? i.style.display = "flex" : i.style.display = "none";
@@ -23555,7 +23555,7 @@ class zd extends gt {
       "subtitles"
     );
     i.style.display = "none", i.ariaLabel = (o = this.buttons.subtitles) == null ? void 0 : o.title;
-    const n = this.createSVGElement(i, "subtitle", this.buttons.subtitlesOff, s), r = this.createSVGElement(i, "subtitled", this.buttons.subtitles, !0, s);
+    const n = this.createSVGElement(i, "subtitle", this.buttons.subtitlesOff, !1, s), r = this.createSVGElement(i, "subtitled", this.buttons.subtitles, !0, s);
     return i.addEventListener("click", (l) => {
       l.stopPropagation(), this.player.emit("hide-tooltip"), this.subtitlesMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-subtitles-menu", !0), this.menuFrame.showModal());
     }), this.player.on("captionsList", (l) => {
@@ -23572,7 +23572,7 @@ class zd extends gt {
       t,
       "audio"
     );
-    return i.style.display = "none", i.ariaLabel = (n = this.buttons.language) == null ? void 0 : n.title, this.createSVGElement(i, "audio", this.buttons.languageOff, s), i.addEventListener("click", (r) => {
+    return i.style.display = "none", i.ariaLabel = (n = this.buttons.language) == null ? void 0 : n.title, this.createSVGElement(i, "audio", this.buttons.languageOff, !1, s), i.addEventListener("click", (r) => {
       r.stopPropagation(), this.player.emit("hide-tooltip"), this.languageMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-language-menu", !0), this.menuFrame.showModal());
     }), this.player.on("item", () => {
       i.style.display = "none";
@@ -23588,7 +23588,7 @@ class zd extends gt {
       "quality"
     );
     i.style.display = "none";
-    const n = this.createSVGElement(i, "low", this.buttons.quality, s), r = this.createSVGElement(i, "high", this.buttons.quality, !0, s);
+    const n = this.createSVGElement(i, "low", this.buttons.quality, !1, s), r = this.createSVGElement(i, "high", this.buttons.quality, !0, s);
     return i.addEventListener("click", (o) => {
       o.stopPropagation(), this.player.emit("hide-tooltip"), this.qualityMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-quality-menu", !0), this.menuFrame.showModal()), this.player.highQuality ? (this.player.highQuality = !1, r.style.display = "none", n.style.display = "flex") : (this.player.highQuality = !0, n.style.display = "none", r.style.display = "flex");
     }), this.player.on("item", () => {
@@ -23619,7 +23619,7 @@ class zd extends gt {
       t,
       "fullscreen"
     );
-    return this.createSVGElement(i, "fullscreen-enabled", this.buttons.exitFullscreen, !0, s), this.createSVGElement(i, "fullscreen", this.buttons.fullscreen, s), i.addEventListener("click", (n) => {
+    return this.createSVGElement(i, "fullscreen", this.buttons.fullscreen, !1, s), this.createSVGElement(i, "fullscreen-enabled", this.buttons.exitFullscreen, !0, s), i.addEventListener("click", (n) => {
       n.stopPropagation(), this.player.toggleFullscreen(), this.player.emit("hide-tooltip");
     }), this.player.on("fullscreen", (n) => {
       n ? (i.querySelector(".fullscreen-icon").style.display = "none", i.querySelector(".fullscreen-enabled-icon").style.display = "flex") : (i.querySelector(".fullscreen-enabled-icon").style.display = "none", i.querySelector(".fullscreen-icon").style.display = "flex");
@@ -23632,7 +23632,7 @@ class zd extends gt {
       t,
       "playlist"
     );
-    return i.style.display = "none", this.createSVGElement(i, "playlist", this.buttons.playlist, s), i.addEventListener("click", (n) => {
+    return i.style.display = "none", this.createSVGElement(i, "playlist", this.buttons.playlist, !1, s), i.addEventListener("click", (n) => {
       n.stopPropagation(), this.player.emit("hide-tooltip"), this.playlistMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-playlist-menu", !0), this.player.emit("switch-season", this.player.playlistItem().season), this.menuFrame.showModal(), setTimeout(() => {
         var r;
         (r = document.querySelector(`playlist-${this.player.playlistItem().id}`)) == null || r.scrollIntoView({ block: "center" });
@@ -23650,7 +23650,7 @@ class zd extends gt {
       t,
       "speed"
     );
-    return this.player.hasSpeeds() ? i.style.display = "flex" : i.style.display = "none", this.createSVGElement(i, "speed", this.buttons.speed, s), i.addEventListener("click", (n) => {
+    return this.player.hasSpeeds() ? i.style.display = "flex" : i.style.display = "none", this.createSVGElement(i, "speed", this.buttons.speed, !1, s), i.addEventListener("click", (n) => {
       n.stopPropagation(), this.player.emit("hide-tooltip"), this.speedMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-speed-menu", !0), this.menuFrame.showModal());
     }), this.player.on("pip-internal", (n) => {
       n ? i.style.display = "none" : this.player.hasSpeeds() && (i.style.display = "flex");
@@ -23664,7 +23664,7 @@ class zd extends gt {
       t,
       "pip"
     );
-    return this.player.hasPIP() ? i.style.display = "flex" : i.style.display = "none", i.ariaLabel = (n = this.buttons.pipEnter) == null ? void 0 : n.title, this.createSVGElement(i, "pip-enter", this.buttons.pipEnter, s), this.createSVGElement(i, "pip-exit", this.buttons.pipExit, !0, s), document.addEventListener("visibilitychange", () => {
+    return this.player.hasPIP() ? i.style.display = "flex" : i.style.display = "none", i.ariaLabel = (n = this.buttons.pipEnter) == null ? void 0 : n.title, this.createSVGElement(i, "pip-enter", this.buttons.pipEnter, !1, s), this.createSVGElement(i, "pip-exit", this.buttons.pipExit, !0, s), document.addEventListener("visibilitychange", () => {
       this.pipEnabled && (document.hidden ? document.pictureInPictureEnabled && this.player.getVideoElement().requestPictureInPicture() : document.pictureInPictureElement && document.exitPictureInPicture());
     }), i.addEventListener("click", (r) => {
       var o, l;
@@ -23762,7 +23762,7 @@ class zd extends gt {
     s !== "speed" ? n.style.display = "none" : this.player.hasSpeeds() ? n.style.display = "flex" : n.style.display = "none", this.createSVGElement(n, "menu", this.buttons[s], i);
     const r = this.player.createElement("span", `menu-button-${s}`).addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(n);
     r.textContent = this.player.localize(s).toTitleCase();
-    const o = this.createSVGElement(n, "menu", this.buttons.chevronR, i);
+    const o = this.createSVGElement(n, "menu", this.buttons.chevronR, !1, i);
     this.player.addClasses(o, ["ml-auto"]), n.addEventListener("click", (l) => {
       l.stopPropagation(), this.player.emit(`show-${s}-menu`, !0);
     }), s === "language" ? (this.player.on("item", () => {
@@ -23833,7 +23833,7 @@ class zd extends gt {
     for (const r of this.player.getSpeeds() ?? []) {
       const o = this.player.createElement("button", `speed-button-${r}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(n), l = this.player.createElement("span", `menu-button-text-${r}`).appendTo(o), c = this.player.createElement("span", `menu-button-text-${r}`).addClasses(this.makeStyles("speedButtonTextStyles")).appendTo(l);
       c.textContent = r == 1 ? this.player.localize("Normal") : r.toString();
-      const h = this.createSVGElement(o, "menu", this.buttons.checkmark, s);
+      const h = this.createSVGElement(o, "menu", this.buttons.checkmark, !1, s);
       this.player.addClasses(h, [
         "ml-auto",
         "hidden"
@@ -23875,7 +23875,7 @@ class zd extends gt {
     var l;
     const n = this.player.createElement("button", `quality-button-${s.height}-${s.bitrate}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(t), r = this.player.createElement("span", "menu-button-text").addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(n);
     r.textContent = `${this.player.localize((l = s.label) == null ? void 0 : l.replace("segment-metadata", "Off"))}`;
-    const o = this.createSVGElement(n, "checkmark", this.buttons.checkmark, i);
+    const o = this.createSVGElement(n, "checkmark", this.buttons.checkmark, !1, i);
     return this.player.addClasses(o, ["ml-auto"]), s.id > 0 && o.classList.add("hidden"), this.player.on("levelsChanging", (c) => {
       c.id == s.id ? o.classList.remove("hidden") : o.classList.add("hidden");
     }), n.addEventListener("click", (c) => {
@@ -23885,7 +23885,7 @@ class zd extends gt {
   createLanguageMenuButton(t, s, i = !1) {
     const n = this.player.createElement("button", `${s.type}-button-${s.language}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(t), r = this.player.createElement("span", "menu-button-text").addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(n);
     s.buttonType == "subtitle" && (s.styled ? r.textContent = `${this.player.localize(s.language ?? "")} ${this.player.localize(s.label)} ${this.player.localize("styled")}` : s.language == "" ? r.textContent = this.player.localize(s.label) : r.textContent = `${this.player.localize(s.language ?? "")} (${this.player.localize(s.type)})`);
-    const o = this.createSVGElement(n, "checkmark", this.buttons.checkmark, i);
+    const o = this.createSVGElement(n, "checkmark", this.buttons.checkmark, !1, i);
     return this.player.addClasses(o, ["ml-auto"]), s.id > -1 && o.classList.add("hidden"), s.buttonType == "audio" ? (this.player.on("audioTrackChanged", (l) => {
       s.id === l.id ? o.classList.remove("hidden") : o.classList.add("hidden");
     }), n.addEventListener("click", (l) => {
@@ -24172,7 +24172,7 @@ class zd extends gt {
     });
     const r = this.player.createElement("span", `season-${s.id}-span`).addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(n);
     r.innerText = s != null && s.seasonName ? s == null ? void 0 : s.seasonName : `Season ${s == null ? void 0 : s.season}`;
-    const o = this.createSVGElement(n, "menu", this.buttons.chevronR, i);
+    const o = this.createSVGElement(n, "menu", this.buttons.chevronR, !1, i);
     return this.player.addClasses(o, ["ml-auto"]), n.addEventListener("click", () => {
       this.player.emit("switch-season", s == null ? void 0 : s.season);
     }), n;

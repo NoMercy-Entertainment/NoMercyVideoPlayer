@@ -130,34 +130,34 @@ export class DesktopUIPlugin extends Plugin {
 
 		this.createProgressBar(this.topRow);
 
-		this.createPlaybackButton(this.bottomRow);
+		this.createPlaybackButton(this.bottomRow, true);
 
-		this.createPreviousButton(this.bottomRow);
+		this.createPreviousButton(this.bottomRow, true);
 
-		this.createSeekBackButton(this.bottomRow);
+		this.createSeekBackButton(this.bottomRow, true);
 
-		this.createSeekForwardButton(this.bottomRow);
+		this.createSeekForwardButton(this.bottomRow, true);
 
-		this.createNextButton(this.bottomRow);
+		this.createNextButton(this.bottomRow, true);
 
-		this.createVolumeButton(this.bottomRow);
+		this.createVolumeButton(this.bottomRow, true);
 
 		this.createTime(this.bottomRow, 'current', ['ml-2']);
 		this.createDivider(this.bottomRow);
 		this.createTime(this.bottomRow, 'remaining', ['mr-2']);
 
-		this.createTheaterButton(this.bottomRow);
-		this.createPIPButton(this.bottomRow);
+		this.createTheaterButton(this.bottomRow, true);
+		this.createPIPButton(this.bottomRow, true);
 
-		this.createPlaylistsButton(this.bottomRow);
+		this.createPlaylistsButton(this.bottomRow, true);
 
-		this.createSpeedButton(this.bottomRow);
-		this.createCaptionsButton(this.bottomRow);
-		this.createAudioButton(this.bottomRow);
-		this.createQualityButton(this.bottomRow);
-		this.createSettingsButton(this.bottomRow);
+		this.createSpeedButton(this.bottomRow, true);
+		this.createCaptionsButton(this.bottomRow, true);
+		this.createAudioButton(this.bottomRow, true);
+		this.createQualityButton(this.bottomRow, true);
+		this.createSettingsButton(this.bottomRow, true);
 
-		this.createFullscreenButton(this.bottomRow);
+		this.createFullscreenButton(this.bottomRow, true);
 
 		this.frame = this.createMenuFrame(this.bottomRow);
 
@@ -402,7 +402,7 @@ export class DesktopUIPlugin extends Plugin {
 		});
 
 		// if (this.player.isMobile()) {
-		const playButton = this.createSVGElement(touchPlayback, 'bigPlay', this.buttons.bigPlay, hovered);
+		const playButton = this.createSVGElement(touchPlayback, 'bigPlay', this.buttons.bigPlay, false,  hovered);
 		this.player.addClasses(playButton, this.makeStyles('touchPlaybackButtonStyles'));
 
 		this.player.on('pause', () => {
@@ -501,7 +501,7 @@ export class DesktopUIPlugin extends Plugin {
 		]);
 		svg.appendChild(path2);
 
-		if (!parent.classList.contains('menu-button')) {
+		if (!parent.classList.contains('menu-button') && hovered) {
 			parent.addEventListener('mouseenter', () => {
 				if (icon.title.length == 0 || (['Next', 'Previous'].includes(icon.title) && this.player.hasNextTip)) return;
 
@@ -584,7 +584,7 @@ export class DesktopUIPlugin extends Plugin {
 			'settings'
 		);
 
-		this.createSVGElement(settingsButton, 'settings', this.buttons.settings, hovered);
+		this.createSVGElement(settingsButton, 'settings', this.buttons.settings, false,  hovered);
 
 		settingsButton.addEventListener('click', () => {
 			this.player.emit('hide-tooltip');
@@ -706,7 +706,7 @@ export class DesktopUIPlugin extends Plugin {
 			'seekBack'
 		);
 
-		this.createSVGElement(seekBack, 'seekBack', this.buttons.seekBack, hovered);
+		this.createSVGElement(seekBack, 'seekBack', this.buttons.seekBack, false, hovered);
 
 		seekBack.addEventListener('click', () => {
 			this.player.emit('hide-tooltip');
@@ -732,7 +732,7 @@ export class DesktopUIPlugin extends Plugin {
 			'seekForward'
 		);
 
-		this.createSVGElement(seekForward, 'seekForward', this.buttons.seekForward, hovered);
+		this.createSVGElement(seekForward, 'seekForward', this.buttons.seekForward, false, hovered);
 
 		seekForward.addEventListener('click', () => {
 			this.player.emit('hide-tooltip');
@@ -846,7 +846,7 @@ export class DesktopUIPlugin extends Plugin {
 		const mutedButton = this.createSVGElement(volumeButton, 'volumeMuted', this.buttons.volumeMuted, true, hovered);
 		const lowButton = this.createSVGElement(volumeButton, 'volumeLow', this.buttons.volumeLow, true, hovered);
 		const mediumButton = this.createSVGElement(volumeButton, 'volumeMedium', this.buttons.volumeMedium, true, hovered);
-		const highButton = this.createSVGElement(volumeButton, 'volumeHigh', this.buttons.volumeHigh, hovered);
+		const highButton = this.createSVGElement(volumeButton, 'volumeHigh', this.buttons.volumeHigh, false,  hovered,);
 
 		volumeButton.addEventListener('click', (event) => {
 			event.stopPropagation();
@@ -1318,7 +1318,7 @@ export class DesktopUIPlugin extends Plugin {
 		);
 		previousButton.style.display = 'none';
 
-		this.createSVGElement(previousButton, 'previous', this.buttons.previous, hovered);
+		this.createSVGElement(previousButton, 'previous', this.buttons.previous, false,  hovered);
 
 		previousButton.addEventListener('click', (event) => {
 			event.stopPropagation();
@@ -1466,7 +1466,7 @@ export class DesktopUIPlugin extends Plugin {
 		captionButton.style.display = 'none';
 		captionButton.ariaLabel = this.buttons.subtitles?.title;
 
-		const offButton = this.createSVGElement(captionButton, 'subtitle', this.buttons.subtitlesOff, hovered);
+		const offButton = this.createSVGElement(captionButton, 'subtitle', this.buttons.subtitlesOff, false, hovered,);
 		const onButton = this.createSVGElement(captionButton, 'subtitled', this.buttons.subtitles, true, hovered);
 
 		captionButton.addEventListener('click', (event) => {
@@ -1522,7 +1522,7 @@ export class DesktopUIPlugin extends Plugin {
 		audioButton.style.display = 'none';
 		audioButton.ariaLabel = this.buttons.language?.title;
 
-		this.createSVGElement(audioButton, 'audio', this.buttons.languageOff, hovered);
+		this.createSVGElement(audioButton, 'audio', this.buttons.languageOff, false,  hovered);
 
 		audioButton.addEventListener('click', (event) => {
 			event.stopPropagation();
@@ -1569,7 +1569,7 @@ export class DesktopUIPlugin extends Plugin {
 		);
 		qualityButton.style.display = 'none';
 
-		const offButton = this.createSVGElement(qualityButton, 'low', this.buttons.quality, hovered);
+		const offButton = this.createSVGElement(qualityButton, 'low', this.buttons.quality, false,  hovered);
 		const onButton = this.createSVGElement(qualityButton, 'high', this.buttons.quality, true, hovered);
 
 		qualityButton.addEventListener('click', (event) => {
@@ -1679,8 +1679,8 @@ export class DesktopUIPlugin extends Plugin {
 			'fullscreen'
 		);
 
+		this.createSVGElement(fullscreenButton, 'fullscreen', this.buttons.fullscreen, false,  hovered);
 		this.createSVGElement(fullscreenButton, 'fullscreen-enabled', this.buttons.exitFullscreen, true, hovered);
-		this.createSVGElement(fullscreenButton, 'fullscreen', this.buttons.fullscreen, hovered);
 
 		fullscreenButton.addEventListener('click', (event) => {
 			event.stopPropagation();
@@ -1718,7 +1718,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		playlistButton.style.display = 'none';
 
-		this.createSVGElement(playlistButton, 'playlist', this.buttons.playlist, hovered);
+		this.createSVGElement(playlistButton, 'playlist', this.buttons.playlist, false,  hovered);
 
 		playlistButton.addEventListener('click', (event) => {
 			event.stopPropagation();
@@ -1774,7 +1774,7 @@ export class DesktopUIPlugin extends Plugin {
 			speedButton.style.display = 'none';
 		}
 
-		this.createSVGElement(speedButton, 'speed', this.buttons.speed, hovered);
+		this.createSVGElement(speedButton, 'speed', this.buttons.speed, false, hovered);
 
 		speedButton.addEventListener('click', (event) => {
 			event.stopPropagation();
@@ -1818,7 +1818,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		pipButton.ariaLabel = this.buttons.pipEnter?.title;
 
-		this.createSVGElement(pipButton, 'pip-enter', this.buttons.pipEnter, hovered);
+		this.createSVGElement(pipButton, 'pip-enter', this.buttons.pipEnter, false, hovered);
 		this.createSVGElement(pipButton, 'pip-exit', this.buttons.pipExit, true, hovered);
 
 		document.addEventListener('visibilitychange', () => {
@@ -2225,7 +2225,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		menuButtonText.textContent = this.player.localize(item).toTitleCase();
 
-		const chevron = this.createSVGElement(menuButton, 'menu', this.buttons.chevronR, hovered);
+		const chevron = this.createSVGElement(menuButton, 'menu', this.buttons.chevronR, false, hovered);
 		this.player.addClasses(chevron, ['ml-auto']);
 
 		menuButton.addEventListener('click', (event) => {
@@ -2244,7 +2244,8 @@ export class DesktopUIPlugin extends Plugin {
 					menuButton.style.display = 'none';
 				}
 			});
-		} else if (item === 'subtitles') {
+		} 
+		else if (item === 'subtitles') {
 			this.player.on('item', () => {
 				menuButton.style.display = 'none';
 			});
@@ -2255,7 +2256,8 @@ export class DesktopUIPlugin extends Plugin {
 					menuButton.style.display = 'none';
 				}
 			});
-		} else if (item === 'quality') {
+		} 
+		else if (item === 'quality') {
 			this.player.on('item', () => {
 				menuButton.style.display = 'none';
 			});
@@ -2266,7 +2268,8 @@ export class DesktopUIPlugin extends Plugin {
 					menuButton.style.display = 'none';
 				}
 			});
-		} else if (item === 'playlist') {
+		} 
+		else if (item === 'playlist') {
 			this.player.on('playlist', (playlist) => {
 				if (playlist.length > 1) {
 					menuButton.style.display = 'flex';
@@ -2396,7 +2399,7 @@ export class DesktopUIPlugin extends Plugin {
 
 			speedButtonText.textContent = speed == 1 ? this.player.localize('Normal') : speed.toString();
 
-			const chevron = this.createSVGElement(speedButton, 'menu', this.buttons.checkmark, hovered);
+			const chevron = this.createSVGElement(speedButton, 'menu', this.buttons.checkmark, false, hovered);
 			this.player.addClasses(chevron, [
 				'ml-auto',
 				'hidden',
@@ -2496,7 +2499,7 @@ export class DesktopUIPlugin extends Plugin {
 		qualityButtonText.textContent = `${this.player.localize((data.label)
 			?.replace('segment-metadata', 'Off'))}`;
 
-		const chevron = this.createSVGElement(qualityButton, 'checkmark', this.buttons.checkmark, hovered);
+		const chevron = this.createSVGElement(qualityButton, 'checkmark', this.buttons.checkmark, false, hovered);
 		this.player.addClasses(chevron, ['ml-auto']);
 
 		if (data.id > 0) {
@@ -2549,7 +2552,7 @@ export class DesktopUIPlugin extends Plugin {
 			}
 		}
 
-		const chevron = this.createSVGElement(languageButton, 'checkmark', this.buttons.checkmark, hovered);
+		const chevron = this.createSVGElement(languageButton, 'checkmark', this.buttons.checkmark, false,  hovered);
 		this.player.addClasses(chevron, ['ml-auto']);
 
 		if (data.id > -1) {
@@ -3275,7 +3278,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		buttonSpan.innerText = item?.seasonName ? item?.seasonName : `Season ${item?.season}`;
 
-		const chevron = this.createSVGElement(seasonButton, 'menu', this.buttons.chevronR, hovered);
+		const chevron = this.createSVGElement(seasonButton, 'menu', this.buttons.chevronR, false, hovered);
 		this.player.addClasses(chevron, ['ml-auto']);
 
 		seasonButton.addEventListener('click', () => {
