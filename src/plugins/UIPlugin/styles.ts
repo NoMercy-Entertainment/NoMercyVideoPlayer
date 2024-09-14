@@ -15,6 +15,8 @@ export const bottomBarStyles = [
 	'group-[&.nomercyplayer.active]:translate-y-0',
 	'group-[&.nomercyplayer.paused]:translate-y-0',
 	'group-[&.nomercyplayer:has(.open)]:translate-y-0',
+	'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
+	'group-[&.nomercyplayer:has(:focus)]:duration-0',
 	'transition-all',
 	'duration-300',
 ];
@@ -90,11 +92,11 @@ export const centerStyles = [
 	'group-[&.nomercyplayer.error]:bg-gradient-circle-c',
 	'group-[&.nomercyplayer.paused]:bg-gradient-circle-c',
 	'from-black/50',
-	'from-30%',
+	'from-15%',
 	'via-60%',
-	'via-black/20',
-	'to-80%',
-	'via-black/20',
+	'via-black/30',
+	'to-100%',
+	'to-black/0',
 ];
 
 export const chapterBarStyles = [
@@ -202,9 +204,11 @@ export const mainMenuStyles = [
 	'p-2',
 	'pt-0',
 	'rounded-lg',
-	'w-1/2',
+	// 'w-1/2',
 	'max-h-full',
-	'group-[&.nomercyplayer:has(.sub-menu-open)]:pointer-events-none',
+	'min-w-64',
+	// 'group-[&.nomercyplayer:has(.sub-menu-open)]:!pointer-events-none',
+	'group-[&.nomercyplayer:has(.sub-menu-open)]:!hidden',
 ];
 
 export const menuButtonTextStyles = [
@@ -396,7 +400,6 @@ export const subMenuStyles = [
 	'sub-menu',
 	'bg-neutral-900/95',
 	'duration-300',
-	'flex',
 	'flex-col',
 	'gap-1',
 	'h-auto',
@@ -405,7 +408,9 @@ export const subMenuStyles = [
 	'rounded-lg',
 	'w-1/2',
 	'max-h-full',
-	'min-w-28',
+	'min-w-64',
+	'hidden',
+	'group-[&.nomercyplayer:has(.sub-menu-open)]:flex',
 ];
 
 export const svgSizeStyles = [
@@ -442,7 +447,8 @@ export const topBarStyles = [
 	'group-[&.nomercyplayer.active]:translate-y-0',
 	'group-[&.nomercyplayer.paused]:translate-y-0',
 	'group-[&.nomercyplayer:has(.open)]:translate-y-0',
-	// 'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
+	'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
+	'group-[&.nomercyplayer:has(:focus)]:duration-0',
 	'transition-all',
 	'duration-300',
 ];

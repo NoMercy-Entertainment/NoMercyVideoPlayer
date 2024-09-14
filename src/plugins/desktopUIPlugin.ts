@@ -563,9 +563,13 @@ export class DesktopUIPlugin extends Plugin {
 		button.ariaLabel = this.buttons[icon]?.title;
 
 		button.addEventListener('keydown', (event) => {
-			console.log(event);
 			if (event.key === 'Backspace') {
 				button.blur();
+				this.player.emit('show-menu', false);
+			}
+			if (event.key === 'Escape') {
+				button.blur();
+				this.player.emit('show-menu', false);
 			}
 		});
 
@@ -1868,6 +1872,9 @@ export class DesktopUIPlugin extends Plugin {
 	createMenuFrame(parent: HTMLDivElement) {
 
 		this.menuFrame = this.player.createElement('dialog', 'menu-frame-dialog')
+			.addClasses([
+				'group-[&.nomercyplayer:has(.open)]:backdrop:bg-black/70',
+			])
 			.appendTo(parent);
 
 		this.menuFrame.setAttribute('popover', 'manual');
@@ -1912,7 +1919,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.menuFrame.close();
 			}
 			menuContent.classList.add('translate-x-0');
-			menuContent.classList.remove('-translate-x-[50%]');
+			// menuContent.classList.remove('-translate-x-[50%]');
 			menuContent.classList.remove('sub-menu-open');
 
 			setTimeout(() => {
@@ -1937,7 +1944,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-speed-menu', false);
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.add('translate-x-0');
-				menuContent.classList.remove('-translate-x-[50%]');
+				// menuContent.classList.remove('-translate-x-[50%]');
 				menuContent.classList.remove('sub-menu-open');
 				menuFrame.style.display = 'flex';
 
@@ -1958,7 +1965,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-speed-menu', false);
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.remove('translate-x-0');
-				menuContent.classList.add('-translate-x-[50%]');
+				// menuContent.classList.add('-translate-x-[50%]');
 				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
 			}
@@ -1974,7 +1981,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-speed-menu', false);
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.remove('translate-x-0');
-				menuContent.classList.add('-translate-x-[50%]');
+				// menuContent.classList.add('-translate-x-[50%]');
 				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
 			}
@@ -1990,7 +1997,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-speed-menu', false);
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.remove('translate-x-0');
-				menuContent.classList.add('-translate-x-[50%]');
+				// menuContent.classList.add('-translate-x-[50%]');
 				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
 			}
@@ -2006,7 +2013,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-quality-menu', false);
 				this.player.emit('show-playlist-menu', false);
 				menuContent.classList.remove('translate-x-0');
-				menuContent.classList.add('-translate-x-[50%]');
+				// menuContent.classList.add('-translate-x-[50%]');
 				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
 			}
@@ -2023,7 +2030,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.emit('show-quality-menu', false);
 				this.player.emit('show-speed-menu', false);
 				menuContent.classList.remove('translate-x-0');
-				menuContent.classList.add('-translate-x-[50%]');
+				// menuContent.classList.add('-translate-x-[50%]');
 				menuContent.classList.add('sub-menu-open');
 				menuFrame.style.display = 'flex';
 				// menuFrame.style.width = '96%';
@@ -2304,6 +2311,10 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('show-language-menu', (showing) => {
 			if (showing) {
 				languageMenu.style.display = 'flex';
+				
+				setTimeout(() => {
+					(scrollContainer.firstChild as HTMLButtonElement).focus();
+				}, 200);
 			} else {
 				languageMenu.style.display = 'none';
 			}
@@ -2346,6 +2357,10 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('show-subtitles-menu', (showing) => {
 			if (showing) {
 				subtitleMenu.style.display = 'flex';
+
+				setTimeout(() => {
+					(scrollContainer.firstChild as HTMLButtonElement).focus();
+				}, 200);
 			} else {
 				subtitleMenu.style.display = 'none';
 			}
@@ -2450,6 +2465,10 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('show-quality-menu', (showing) => {
 			if (showing) {
 				qualityMenu.style.display = 'flex';
+
+				setTimeout(() => {
+					(scrollContainer.firstChild as HTMLButtonElement).focus();
+				}, 200);
 			} else {
 				qualityMenu.style.display = 'none';
 			}
