@@ -19714,21 +19714,18 @@ const an = {
 ], gh = [
   "main-menu",
   "bg-neutral-900/95",
-  "duration-300",
   "flex",
   "flex-col",
   "gap-1",
+  "group-[&.nomercyplayer:has(.sub-menu-open)]:!hidden",
   "h-auto",
+  "max-h-full",
+  "min-w-64",
   "mt-auto",
   "overflow-clip",
   "p-2",
   "pt-0",
-  "rounded-lg",
-  // 'w-1/2',
-  "max-h-full",
-  "min-w-64",
-  // 'group-[&.nomercyplayer:has(.sub-menu-open)]:!pointer-events-none',
-  "group-[&.nomercyplayer:has(.sub-menu-open)]:!hidden"
+  "rounded-lg"
 ], yh = [
   "menu-button-text",
   "cursor-pointer",
@@ -19739,7 +19736,6 @@ const an = {
   "leading-[normal]"
 ], vh = [
   "menu-content",
-  "duration-300",
   "flex",
   "justify-end",
   "flex-row",
@@ -19749,13 +19745,12 @@ const an = {
   "mt-auto"
 ], Ch = [
   "menu-frame",
-  "fixed",
-  "overflow-clip",
   "bottom-10",
-  "duration-300",
+  "fixed",
   "flex",
   "flex-col",
   "hidden",
+  "overflow-clip",
   "right-[2%]",
   "w-fit",
   "z-50"
@@ -19885,14 +19880,12 @@ const an = {
 ], Ph = [
   "sub-menu",
   "bg-neutral-900/95",
-  "duration-300",
   "flex-col",
   "gap-1",
   "h-auto",
   "mt-auto",
   "overflow-clip",
   "rounded-lg",
-  // 'w-1/2',
   "max-h-full",
   "min-w-64",
   "hidden",
@@ -19984,12 +19977,8 @@ const an = {
   "range-track:border-none",
   "range-track:bg-transparent",
   "range-track:shadow-none",
-  "range-track:transition-all",
-  "range-track:duration-300",
   "range-thumb:h-3",
   "range-thumb:w-3",
-  "range-thumb:transition-all",
-  "range-thumb:duration-300",
   "range-thumb:appearance-none",
   "range-thumb:rounded-full",
   "range-thumb:bg-white",
@@ -20558,8 +20547,7 @@ const an = {
   "pointer-events-none",
   "bg-opacity-80",
   "opacity-0",
-  "z-20",
-  "duration-300"
+  "z-20"
 ], Xu = [
   "relative",
   "flex",
@@ -20614,10 +20602,7 @@ const an = {
   "h-auto",
   "object-cover",
   "aspect-video",
-  "snap-center",
-  "duration-300",
-  "",
-  ""
+  "snap-center"
 ], ud = [
   "[--gap:1.5rem]",
   "absolute",
