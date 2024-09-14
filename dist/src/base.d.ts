@@ -1,4 +1,4 @@
-import { SetupConfig, TimeData, Track, CurrentTrack } from './index.d';
+import { SetupConfig, TimeData, Track, CurrentTrack, VolumeState } from './index.d';
 import { NMPlayer } from './index';
 
 export declare class Base {
@@ -47,8 +47,8 @@ export declare class Base {
     emit(event: 'seek', data?: any): void;
     emit(event: 'seeked', data?: any): void;
     emit(event: 'time', data: TimeData): void;
-    emit(event: 'mute', data?: any): void;
-    emit(event: 'volume', data?: any): void;
+    emit(event: 'mute', data: VolumeState): void;
+    emit(event: 'volume', data: VolumeState): void;
     emit(event: 'fullscreen', data?: any): void;
     emit(event: 'resize', data?: any): void;
     emit(event: 'levels', data: ReturnType<NMPlayer['getQualityLevels']>): void;
@@ -106,8 +106,8 @@ export declare class Base {
     on(event: 'seeked', callback: () => void): void;
     on(event: 'time', callback: () => void): void;
     on(event: 'absolutePositionReady', callback: () => void): void;
-    on(event: 'mute', callback: () => void): void;
-    on(event: 'volume', callback: () => void): void;
+    on(event: 'mute', callback: (data: VolumeState) => void): void;
+    on(event: 'volume', callback: (data: VolumeState) => void): void;
     on(event: 'fullscreen', callback: () => void): void;
     on(event: 'resize', callback: () => void): void;
     on(event: 'levels', callback: (data: ReturnType<NMPlayer['getQualityLevels']>) => void): void;
@@ -229,8 +229,8 @@ export declare class Base {
     once(event: 'seeked', callback: () => void): void;
     once(event: 'time', callback: () => void): void;
     once(event: 'absolutePositionReady', callback: () => void): void;
-    once(event: 'mute', callback: () => void): void;
-    once(event: 'volume', callback: () => void): void;
+    once(event: 'mute', callback: (data: VolumeState) => void): void;
+    once(event: 'volume', callback: (data: VolumeState) => void): void;
     once(event: 'fullscreen', callback: () => void): void;
     once(event: 'resize', callback: () => void): void;
     once(event: 'levels', callback: (data: ReturnType<NMPlayer['getQualityLevels']>) => void): void;

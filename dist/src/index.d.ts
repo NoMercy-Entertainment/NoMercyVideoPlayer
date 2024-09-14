@@ -344,7 +344,7 @@ export interface PreviewTime {
 }
 
 export interface VolumeState {
-    mute: boolean;
+    muted: boolean;
     volume: number;
 }
 

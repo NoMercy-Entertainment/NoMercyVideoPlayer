@@ -105,16 +105,16 @@ player.on('levels', (data) => {
 
     const levelsList = player
         .createElement('ul', 'levelTrackList', true)
-        .addClasses(['nm-overflow-auto'])
+        .addClasses(['overflow-auto'])
         .appendTo(qualities);
 
     Object.values(data).forEach((track, index) => {
         const levelTrack = player
             .createElement('li', `levelTrack - ${track.name} `)
             .addClasses([
-                'nm-p-2',
-                'nm-cursor-pointer',
-                'nm-border-b',
+                'p-2',
+                'cursor-pointer',
+                'border-b',
             ])
             .appendTo(levelsList);
 
@@ -138,16 +138,16 @@ player.on('audioTracks', (data) => {
 
     const audioList = player
         .createElement('ul', 'audioTrackList', true)
-        .addClasses(['nm-overflow-auto'])
+        .addClasses(['overflow-auto'])
         .appendTo(audioTracks);
 
     Object.values(data).forEach((track, index) => {
         const audioTrack = player
             .createElement('li', `audioTrack - ${track.name} `)
             .addClasses([
-                'nm-p-2',
-                'nm-cursor-pointer',
-                'nm-border-b',
+                'p-2',
+                'cursor-pointer',
+                'border-b',
             ])
             .appendTo(audioList);
 
@@ -170,16 +170,16 @@ player.on('captionsList', (data) => {
 
     const captionList = player
         .createElement('ul', 'captionTrackList', true)
-        .addClasses(['nm-overflow-auto'])
+        .addClasses(['overflow-auto'])
         .appendTo(subtitleTracks);
 
     Object.values(data).forEach((track, index) => {
         const captionTrack = player
             .createElement('li', `captionTrack - ${track.name} `)
             .addClasses([
-                'nm-p-2',
-                'nm-cursor-pointer',
-                'nm-border-b',
+                'p-2',
+                'cursor-pointer',
+                'border-b',
             ])
             .appendTo(captionList);
 

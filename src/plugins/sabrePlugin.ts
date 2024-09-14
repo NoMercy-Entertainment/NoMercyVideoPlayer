@@ -43,12 +43,12 @@ export class SabrePlugin extends Plugin {
 
 		const sabreContainer = this.player.createElement('div', 'sabre-canvas-container', true)
 			.addClasses([
-				'nm-absolute',
-				'nm-inset-0',
-				'nm-pointer-events-none',
-				'nm-w-full',
-				'nm-h-full',
-				'nm-z-10',
+				'absolute',
+				'inset-0',
+				'pointer-events-none',
+				'w-full',
+				'h-full',
+				'z-10',
 			])
 			.appendTo(this.player.getVideoElement().parentElement as HTMLElement);
 
@@ -56,8 +56,8 @@ export class SabrePlugin extends Plugin {
 
 		const sabreCanvas = this.player.createElement('canvas', 'sabre-canvas', true)
 			.addClasses([
-				'nm-w-full',
-				'nm-h-full',
+				'w-full',
+				'h-full',
 			])
 			.get();
 

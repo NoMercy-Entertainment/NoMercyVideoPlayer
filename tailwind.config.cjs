@@ -1,11 +1,9 @@
-/* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-var-requires */
 const plugin = require('tailwindcss/plugin');
+const radialGradientPlugin = require("./radialGradientPlugin");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
 	mode: 'jit',
-	prefix: 'nm-',
 	content: [
 		'./src/**/*.{js,ts}',
 		'./index.html',
@@ -83,6 +81,7 @@ module.exports = {
 	plugins: [
 		// require('@tailwindcss/forms'),
 		require('tailwindcss-children'),
+		radialGradientPlugin,
 		plugin(({ addVariant }) => {
 			addVariant('range-track', [
 				'&::-webkit-slider-runnable-track',

@@ -398,11 +398,14 @@ export class NMPlayer extends Base {
 		this.videoElement.style.display = 'block';
 		this.videoElement.style.position = 'absolute';
 
-		this.videoElement.muted = this.options.muted ?? localStorage.getItem('nmplayer-muted') === 'true';
 		this.videoElement.autoplay = this.options.autoPlay ?? false;
 		this.videoElement.controls = this.options.controls ?? false;
 		this.videoElement.preload = this.options.preload ?? 'auto';
-		this.videoElement.volume = localStorage.getItem('nmplayer-volume') ? parseFloat(localStorage.getItem('nmplayer-volume') as string) / 100 : 1;
+
+		this.videoElement.muted = this.options.muted ?? localStorage.getItem('nmplayer-muted') === 'true';
+		this.videoElement.volume = localStorage.getItem('nmplayer-volume') ? parseFloat(localStorage.getItem('nmplayer-volume') as string) / 100 : 0.4;
+
+		this.ui_setPauseClass();
 
 		this.emit('ready');
 	}
@@ -426,18 +429,18 @@ export class NMPlayer extends Base {
 		const playerMessage = this.createElement('button', 'player-message')
 			.addClasses([
 				'player-message',
-				'nm-hidden',
-				'nm-absolute',
-				'nm-rounded-md',
-				'nm-bg-neutral-900/95',
-				'nm-left-1/2',
-				'nm-px-4',
-				'nm-py-2',
-				'nm-pointer-events-none',
-				'nm-text-center',
-				'nm-top-12',
-				'nm--translate-x-1/2',
-				'nm-z-50',
+				'hidden',
+				'absolute',
+				'rounded-md',
+				'bg-neutral-900/95',
+				'left-1/2',
+				'px-4',
+				'py-2',
+				'pointer-events-none',
+				'text-center',
+				'top-12',
+				'-translate-x-1/2',
+				'z-50',
 			])
 			.appendTo(this.overlay);
 
@@ -458,15 +461,15 @@ export class NMPlayer extends Base {
 
 		this.subtitleOverlay = this.createElement('div',  'subtitle-overlay', true)
 			.addClasses([
-				'nm-absolute',
-				'nm-w-full',
-				'nm-text-center',
-				'nm-text-white',
-				'nm-text-xl',
-				'nm-p-2',
-				'nm-z-0',
-				'nm-transition-all',
-				'nm-duration-300',
+				'absolute',
+				'w-full',
+				'text-center',
+				'text-white',
+				'text-xl',
+				'p-2',
+				'z-0',
+				'transition-all',
+				'duration-300',
 			])
 			.appendTo(this.container);
 		this.subtitleOverlay.style.bottom = '5%';
@@ -474,7 +477,7 @@ export class NMPlayer extends Base {
 		this.container.appendChild(this.subtitleOverlay);
 
 		this.subtitleText = this.createElement('span', 'subtitle-text', true)
-			.addClasses(['nm-text-center', 'nm-whitespace-pre-line', 'nm-font-bolder', 'nm-font-[BBC]', 'nm-leading-normal'])
+			.addClasses(['text-center', 'whitespace-pre-line', 'font-bolder', 'font-[BBC]', 'leading-normal'])
 			.appendTo(this.subtitleOverlay);
 
 		this.subtitleText.style.fontSize = 'clamp(20px, 2.5vw, 30px)';
@@ -705,17 +708,23 @@ export class NMPlayer extends Base {
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	videoPlayer_durationchangeEvent(_e: Event): void {
-		this.emit('duration', this.videoElement.duration);
+		this.emit('duration', this.videoPlayer_getTimeData());
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	videoPlayer_volumechangeEvent(_e: Event): void {
 		if (this.volume != Math.round(this.videoElement.volume * 100)) {
-			this.emit('volume', Math.round(this.videoElement.volume * 100));
+			this.emit('volume', {
+				volume: Math.round(this.videoElement.volume * 100),
+				muted: this.videoElement.muted,
+			});
 		}
 
 		if (this.muted != this.videoElement.muted) {
-			this.emit('mute', this.videoElement.muted);
+			this.emit('mute', {
+				volume: Math.round(this.videoElement.volume * 100),
+				muted: this.videoElement.muted,
+			});
 		}
 
 		this.muted = this.videoElement.muted;
@@ -751,6 +760,20 @@ export class NMPlayer extends Base {
 		this.subtitleOverlay.style.bottom = '2rem';
 
 		this.emit('active', false);
+	}
+
+	ui_setPlayClass(): void {
+		this.container.classList.remove('paused');
+		this.container.classList.add('playing');
+
+		this.emit('playing', true);
+	}
+
+	ui_setPauseClass(): void {
+		this.container.classList.remove('playing');
+		this.container.classList.add('paused');
+
+		this.emit('playing', false);
 	}
 
 	ui_resetInactivityTimer(event: MouseEvent) {
@@ -808,6 +831,9 @@ export class NMPlayer extends Base {
 		this.container.addEventListener('mousemove', this.ui_resetInactivityTimer.bind(this));
 		this.container.addEventListener('click', this.ui_resetInactivityTimer.bind(this));
 		this.container.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
+
+		this.on('play', this.ui_setPlayClass.bind(this));
+		this.on('pause', this.ui_setPauseClass.bind(this));
 
 		this.on('item', () => {
 			setTimeout(() => {
@@ -961,6 +987,43 @@ export class NMPlayer extends Base {
 				this.setCaptionFromStorage();
 			});
 		});
+
+
+		this.on('playing', () => {
+			this.container.classList.remove('buffering');
+			this.container.classList.remove('error');
+		});
+
+		this.on('waiting', () => {
+			this.container.classList.add('buffering');
+		});
+
+		this.on('error', () => {
+			this.container.classList.add('error');
+		});
+
+		this.on('ended', () => {
+			this.container.classList.remove('buffering');
+			this.container.classList.remove('error');
+		});
+
+		this.on('time', () => {
+			this.container.classList.remove('buffering');
+			this.container.classList.remove('error');
+		});
+
+		this.on('bufferedEnd', () => {
+			this.container.classList.remove('buffering');
+		});
+
+		this.on('stalled', () => {
+			this.container.classList.add('buffering');
+		});
+
+		this.on('item', () => {
+			this.container.classList.remove('buffering');
+			this.container.classList.remove('error');
+		});
 	}
 
 	_removeEvents(): void {
@@ -981,6 +1044,10 @@ export class NMPlayer extends Base {
 		this.container.removeEventListener('mousemove', this.ui_resetInactivityTimer.bind(this));
 		this.container.removeEventListener('click', this.ui_resetInactivityTimer.bind(this));
 		this.container.removeEventListener('mouseleave', this.handleMouseLeave.bind(this));
+
+		this.off('play', this.ui_setPlayClass.bind(this));
+		this.off('pause', this.ui_setPauseClass.bind(this));
+
 	}
 
 	getParameterByName(name: string, url = window.location.href): string | null {
@@ -1663,7 +1730,7 @@ export class NMPlayer extends Base {
 	}
 
 	getVolume(): number {
-		return this.videoElement.volume * 100;
+		return Math.floor(this.videoElement.volume * 100);
 	}
 
 	setMute(muted: boolean): void {
@@ -1721,9 +1788,13 @@ export class NMPlayer extends Base {
 	}
 
 	setVolume(arg: number) {
-		this.videoElement.volume = arg / 100;
+		let vol = arg / 100;
+		if (vol > 1) vol = 1;
+		if (vol < 0) vol = 0;
+
+		this.videoElement.volume = vol;
 		this.setMute(false);
-		localStorage.setItem('nmplayer-volume', arg.toString());
+		localStorage.setItem('nmplayer-volume', `${this.videoElement.volume * 100}`);
 	}
 
 	// Resize

@@ -46,10 +46,10 @@
     "postcss": "^8.4.27",
     "postcss-loader": "^7.3.3",
     "postcss-preset-env": "^9.2.0",
+    "prettier": "^3.3.3",
     "sass": "^1.65.1",
     "sass-loader": "^13.3.2",
     "style-loader": "^3.3.3",
-    "prettier": "^3.3.3",
     "tailwindcss": "^3.2.7",
     "tailwindcss-children": "^2.1.0",
     "ts-loader": "^9.4.4",
@@ -66,6 +66,7 @@
     "@types/webvtt-parser": "^2.2.0",
     "hls.js": "^1.5.13",
     "libass-wasm": "^4.1.0",
+    "tailwind-merge": "^2.5.2",
     "webvtt-parser": "^2.2.0"
   }
 }

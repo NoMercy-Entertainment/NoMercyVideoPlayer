@@ -1,5 +1,5 @@
 
-import type { SetupConfig, TimeData, Track, CurrentTrack } from './index.d';
+import type { SetupConfig, TimeData, Track, CurrentTrack, VolumeState } from './index.d';
 import { NMPlayer } from './index';
 
 export class Base {
@@ -88,8 +88,8 @@ export class Base {
 	emit(event: 'time', data: TimeData): void;
 
 	// Volume
-	emit(event: 'mute', data?: any): void;
-	emit(event: 'volume', data?: any): void;
+	emit(event: 'mute', data: VolumeState): void;
+	emit(event: 'volume', data: VolumeState): void;
 
 	// Resize
 	emit(event: 'fullscreen', data?: any): void;
@@ -188,8 +188,8 @@ export class Base {
 	on(event: 'absolutePositionReady', callback: () => void): void;
 
 	// Volume
-	on(event: 'mute', callback: () => void): void;
-	on(event: 'volume', callback: () => void): void;
+	on(event: 'mute', callback: (data: VolumeState) => void): void;
+	on(event: 'volume', callback: (data:VolumeState) => void): void;
 
 	// Resize
 	on(event: 'fullscreen', callback: () => void): void;
@@ -400,8 +400,8 @@ export class Base {
 	once(event: 'absolutePositionReady', callback: () => void): void;
 
 	// Volume
-	once(event: 'mute', callback: () => void): void;
-	once(event: 'volume', callback: () => void): void;
+	once(event: 'mute', callback: (data: VolumeState) => void): void;
+	once(event: 'volume', callback: (data: VolumeState) => void): void;
 
 	// Resize
 	once(event: 'fullscreen', callback: () => void): void;

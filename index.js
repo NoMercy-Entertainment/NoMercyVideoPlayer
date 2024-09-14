@@ -35,64 +35,6 @@ const config = {
 	debug: false,
 	playlist: [
 		{
-			title: 'Cosmos Laundromat (2015)',
-			description: 'On a desolate island, a suicidal sheep named Franck meets his fate…in the form of a quirky salesman named Victor, who offers him the gift of a lifetime. The gift is many lifetimes, actually, in many different worlds – each lasting just a few minutes. In the sequel to the pilot, Franck will find a new reason to live…in the form of a bewitching female adventurer named Tara, who awakens his long-lost lust for life. But can Franck keep up with her?',
-			image: 'https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
-			file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
-			duration: '12:04',
-			tracks: [
-				{
-					label: 'Dutch (Full)',
-					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.dut.full.vtt',
-					language: 'dut',
-					kind: 'subtitles',
-				},
-				{
-					label: 'English (Full)',
-					type: 'sdh',
-					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.eng.full.vtt',
-					language: 'eng',
-					kind: 'subtitles',
-				},
-				{
-					label: 'French (Full)',
-					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.fre.full.vtt',
-					language: 'fre',
-					kind: 'subtitles',
-				},
-				{
-					label: 'Italian (Full)',
-					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.ita.full.vtt',
-					language: 'ita',
-					kind: 'subtitles',
-				},
-				{
-					label: 'Brazilian Portuguese (Full)',
-					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.pob.full.vtt',
-					language: 'pob',
-					kind: 'subtitles',
-				},
-				{
-					label: 'Spanish (Full)',
-					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.spa.full.vtt',
-					language: 'spa',
-					kind: 'subtitles',
-				},
-				{
-					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/thumbs_256x144.vtt",
-					kind: "thumbnails"
-				},
-				{
-					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/chapters.vtt",
-					kind: "chapters"
-				},
-				{
-					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/thumbs_256x144.webp",
-					kind: "sprite"
-				},
-			],
-		},
-		{
 			title: 'Sintel (2010)',
 			description: 'Sintel is an independently produced short film, initiated by the Blender Foundation as a means to further improve and validate the free/open source 3D creation suite Blender. With initial funding provided by 1000s of donations via the internet community, it has again proven to be a viable development model for both open 3D technology as for independent animation film.\nThis 15 minute film has been realized in the studio of the Amsterdam Blender Institute, by an international team of artists and developers. In addition to that, several crucial technical and creative targets have been realized online, by developers and artists and teams all over the world.\nwww.sintel.org',
 			'image': 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
@@ -175,6 +117,64 @@ const config = {
 				},
 				{
 					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Sintel.(2010)/thumbs_256x109.webp",
+					kind: "sprite"
+				},
+			],
+		},
+		{
+			title: 'Cosmos Laundromat (2015)',
+			description: 'On a desolate island, a suicidal sheep named Franck meets his fate…in the form of a quirky salesman named Victor, who offers him the gift of a lifetime. The gift is many lifetimes, actually, in many different worlds – each lasting just a few minutes. In the sequel to the pilot, Franck will find a new reason to live…in the form of a bewitching female adventurer named Tara, who awakens his long-lost lust for life. But can Franck keep up with her?',
+			image: 'https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
+			file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
+			duration: '12:04',
+			tracks: [
+				{
+					label: 'Dutch (Full)',
+					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.dut.full.vtt',
+					language: 'dut',
+					kind: 'subtitles',
+				},
+				{
+					label: 'English (Full)',
+					type: 'sdh',
+					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.eng.full.vtt',
+					language: 'eng',
+					kind: 'subtitles',
+				},
+				{
+					label: 'French (Full)',
+					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.fre.full.vtt',
+					language: 'fre',
+					kind: 'subtitles',
+				},
+				{
+					label: 'Italian (Full)',
+					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.ita.full.vtt',
+					language: 'ita',
+					kind: 'subtitles',
+				},
+				{
+					label: 'Brazilian Portuguese (Full)',
+					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.pob.full.vtt',
+					language: 'pob',
+					kind: 'subtitles',
+				},
+				{
+					label: 'Spanish (Full)',
+					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.spa.full.vtt',
+					language: 'spa',
+					kind: 'subtitles',
+				},
+				{
+					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/thumbs_256x144.vtt",
+					kind: "thumbnails"
+				},
+				{
+					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/chapters.vtt",
+					kind: "chapters"
+				},
+				{
+					file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/thumbs_256x144.webp",
 					kind: "sprite"
 				},
 			],
