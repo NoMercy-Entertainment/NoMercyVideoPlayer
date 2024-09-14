@@ -19699,7 +19699,8 @@ const Yi = {
   "nm-flex-row",
   "nm-overflow-clip",
   "nm-w-[200%]",
-  "nm-h-available"
+  "nm-h-available",
+  "nm-mt-auto"
 ], ec = [
   "menu-frame",
   "nm-fixed",
@@ -20825,22 +20826,20 @@ class ju extends ot {
   }
   createTouchPlayback(t, s, i = !1) {
     const n = this.createTouchBox(t, "touchPlayback", s);
-    if (this.player.addClasses(n, this.makeStyles("touchPlaybackStyles")), ["click"].forEach((r) => {
-      n.addEventListener(r, this.doubleTap(
+    this.player.addClasses(n, this.makeStyles("touchPlaybackStyles")), ["click"].forEach((o) => {
+      n.addEventListener(o, this.doubleTap(
         () => this.player.getFullscreen(),
         () => {
           (this.controlsVisible || !this.player.options.disableTouchControls) && this.player.togglePlayback();
         }
       ));
-    }), this.player.isMobile()) {
-      const r = this.createSVGElement(n, "bigPlay", this.buttons.bigPlay, i);
-      this.player.addClasses(r, this.makeStyles("touchPlaybackButtonStyles")), this.player.on("pause", () => {
-        r.style.display = "flex";
-      }), this.player.on("play", () => {
-        r.style.display = "none";
-      });
-    }
-    return n;
+    });
+    const r = this.createSVGElement(n, "bigPlay", this.buttons.bigPlay, i);
+    return this.player.addClasses(r, this.makeStyles("touchPlaybackButtonStyles")), this.player.on("pause", () => {
+      r.style.display = "flex";
+    }), this.player.on("play", () => {
+      r.style.display = "none";
+    }), n;
   }
   createTouchVolUp(t, s) {
     if (!this.player.isMobile())

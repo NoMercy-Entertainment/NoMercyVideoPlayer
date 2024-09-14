@@ -400,7 +400,7 @@ export class DesktopUIPlugin extends Plugin {
 			));
 		});
 
-		if (this.player.isMobile()) {
+		// if (this.player.isMobile()) {
 			const playButton = this.createSVGElement(touchPlayback, 'bigPlay', this.buttons.bigPlay, hovered);
 			this.player.addClasses(playButton, this.makeStyles('touchPlaybackButtonStyles'));
 
@@ -410,7 +410,7 @@ export class DesktopUIPlugin extends Plugin {
 			this.player.on('play', () => {
 				playButton.style.display = 'none';
 			});
-		}
+		// }
 
 		return touchPlayback;
 	}

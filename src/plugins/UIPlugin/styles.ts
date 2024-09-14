@@ -211,6 +211,7 @@ export const menuContentStyles = [
 	'nm-overflow-clip',
 	'nm-w-[200%]',
 	'nm-h-available',
+	'nm-mt-auto',
 ];
 
 export const menuFrameStyles = [

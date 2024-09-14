@@ -32,8 +32,21 @@ module.exports = {
 				available: [
 					'100%',
 					'-webkit-fill-available',
-					'-moz-available',
-					'stretch',
+					// 'stretch',
+				],
+			},
+			minWidth: {
+				available: [
+					'100%',
+					'-webkit-fill-available',
+					// 'stretch',
+				],
+			},
+			maxWidth: {
+				available: [
+					'100%',
+					'-webkit-fill-available',
+					// 'stretch',
 				],
 			},
 			height: {
