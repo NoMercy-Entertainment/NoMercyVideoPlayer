@@ -12,4 +12,8 @@ export class TVUIPlugin extends Plugin {
 	use() {
 		//
 	}
+	
+	dispose() {
+		//
+	}
 }

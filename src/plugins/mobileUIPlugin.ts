@@ -12,4 +12,8 @@ export class MobileUIPlugin extends Plugin {
 	use() {
 		//
 	}
+
+	dispose() {
+		//
+	}
 }

@@ -19,6 +19,10 @@ export declare class Base {
     hasTheaterEventHandler: boolean;
     hasBackEventHandler: boolean;
     hasCloseEventHandler: boolean;
+    events: {
+        type: string;
+        fn: (arg?: any) => void;
+    }[];
     constructor();
     /**
      * Trigger an event on the player.
@@ -144,7 +148,7 @@ export declare class Base {
      * @param event - The event to remove.
      * @param callback - The function to remove.
      */
-    off(event: 'all', callback: () => void): void;
+    off(event: 'all', callback?: () => void): void;
     off(event: 'ready', callback: () => void): void;
     off(event: 'setupError', callback: () => void): void;
     off(event: 'playlist', callback: () => void): void;

@@ -43,6 +43,11 @@ export class Base {
 	hasTheaterEventHandler = false;
 	hasBackEventHandler = false;
 	hasCloseEventHandler = false;
+	
+	events: {
+		type: string;
+		fn: (arg?: any) => void;
+	}[] = [];
 
 	constructor() {
 		this.eventElement = document.createElement('div');
@@ -249,7 +254,11 @@ export class Base {
 	on(event: string, callback: () => void): void;
 	on(event: any, callback: (arg0: any) => any) {
 		this.eventHooks(event, true);
-		this.eventElement?.addEventListener(event, (e: { detail: any; }) => callback(e.detail));
+		this.eventElement?.addEventListener(event, (e: { 
+			detail: any; 
+		}) => callback(e.detail));
+		
+		this.events.push({ type: event, fn: callback });
 	}
 
 	/**
@@ -258,7 +267,7 @@ export class Base {
      * @param callback - The function to remove.
      */
 	// All
-	off(event: 'all', callback: () => void): void;
+	off(event: 'all', callback?: () => void): void;
 
 	// Setup
 	off(event: 'ready', callback: () => void): void;
@@ -353,9 +362,21 @@ export class Base {
 	off(event: 'display-message', callback: () => void): void;
 
 	off(event: string, callback: () => void): void;
-	off(event: any, callback: () => void) {
+	off(event: any, callback?: () => void) {
 		this.eventHooks(event, false);
-		this.eventElement?.removeEventListener(event, () => callback());
+
+		callback && this.eventElement.removeEventListener(event, () => callback());
+		
+		if (event === 'all') {
+			this.events.forEach(e => {
+				this.eventElement.removeEventListener(e.type, e.fn);
+			});
+			return;
+		}
+
+		this.events.filter(e => e.type === event).forEach(e => {
+			this.eventElement.removeEventListener(e.type, e.fn);
+		});
 	}
 
 	/**

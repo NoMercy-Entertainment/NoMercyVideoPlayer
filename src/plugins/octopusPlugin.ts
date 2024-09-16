@@ -16,6 +16,13 @@ export class OctopusPlugin extends Plugin {
 		this.player.on('captionsChanged', this.opus.bind(this));
 	}
 
+	dispose() {
+		this.player.off('item', this.destroy.bind(this));
+		this.player.off('captionsChanged', this.opus.bind(this));
+		
+		this.destroy();
+	}
+
 	destroy() {
 		this.player.octopusInstance?.dispose();
 		this.player.octopusInstance = null;
@@ -25,13 +32,14 @@ export class OctopusPlugin extends Plugin {
 		this.player.octopusInstance?.dispose();
 		this.player.octopusInstance = null;
 
-		const subtitleURL = this.player.getSubtitleFile() ?? null;
+		const subtitleURL = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ''}${this.player.getSubtitleFile()}` : null;
+		if (!subtitleURL) return;
 
 		const tag = subtitleURL?.match(/\w+\.\w+\.\w+$/u)?.[0];
 		let [,, ext] = tag ? tag.split('.') : [];
 		if (!ext) {
 			const parts = subtitleURL.split('.');
-			ext = parts.at(-1);
+			ext = parts.at(-1) || "";
 		}
 		if (ext != 'ass' && ext != 'ssa') return;
 

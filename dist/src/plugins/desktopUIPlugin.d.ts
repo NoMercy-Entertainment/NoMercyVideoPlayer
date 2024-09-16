@@ -54,6 +54,7 @@ export declare class DesktopUIPlugin extends Plugin {
     mainMenu: HTMLDivElement;
     initialize(player: NMPlayer): void;
     use(): void;
+    dispose(): void;
     createBottomBar(parent: HTMLElement): HTMLDivElement;
     createTopRow(parent: HTMLDivElement): HTMLDivElement;
     createBottomRow(parent: HTMLDivElement): HTMLDivElement;
@@ -159,7 +160,7 @@ export declare class DesktopUIPlugin extends Plugin {
         scrubTimePlayer: number;
     };
     createOverlayCenterMessage(parent: HTMLDivElement): HTMLButtonElement;
-    createEpisodeMenu(parent: HTMLDivElement): HTMLDivElement;
+    createEpisodeMenu(parent: HTMLDivElement): HTMLDivElement | undefined;
     createSeasonMenuButton(parent: HTMLDivElement, item: PlaylistItem, hovered?: boolean): HTMLButtonElement;
     createEpisodeMenuButton(parent: HTMLDivElement, item: PlaylistItem, index: number): HTMLButtonElement;
     createToolTip(parent: HTMLDivElement): HTMLDivElement;

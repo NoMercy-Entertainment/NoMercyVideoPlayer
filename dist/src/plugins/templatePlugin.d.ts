@@ -5,4 +5,5 @@ export declare class TemplatePlugin extends Plugin {
     player: NMPlayer | null;
     initialize(player: NMPlayer): void;
     use(): void;
+    dispose(): void;
 }

@@ -18,8 +18,27 @@ export class SabrePlugin extends Plugin {
 	}
 
 	use() {
+		this.player.on('item', this.sabre.bind(this));
 		this.player.on('captionsChanged', this.sabre.bind(this));
 	}
+
+	dispose() {
+		this.player.off('item', this.sabre.bind(this));
+		this.player.off('captionsChanged', this.sabre.bind(this));
+
+		this.destroy();
+	}
+	
+	destroy() {
+		if (this.frameCallbackHandle) {
+			this.player.getVideoElement().cancelVideoFrameCallback(this.frameCallbackHandle);
+			this.frameCallbackHandle = null;
+		}
+		const sabreContainer = this.player.getElement().querySelector('.sabre-canvas-container');
+		if (sabreContainer) {
+			sabreContainer.remove();
+		}
+	}	
 
 	async sabre() {
 		if (this.frameCallbackHandle) {
@@ -50,7 +69,7 @@ export class SabrePlugin extends Plugin {
 				'h-full',
 				'z-10',
 			])
-			.appendTo(this.player.getVideoElement().parentElement as HTMLElement);
+			.prependTo(this.player.getVideoElement().parentElement as HTMLElement);
 
 		const video = this.player.getVideoElement();
 
@@ -143,7 +162,7 @@ export class SabrePlugin extends Plugin {
 					};
 					sabreRenderer = new sabre.SABRERenderer(options);
 					updateCanvas(true);
-					sabreRenderer.setColorSpace(sabre.VideoColorSpace.AUTOMATIC, video.videoWidth, video.videoHeight);
+					sabreRenderer.setColorSpace(sabre.VideoColorSpaces.AUTOMATIC, video.videoWidth, video.videoHeight);
 					this.frameCallbackHandle = video.requestVideoFrameCallback(renderFrame.bind(this.player));
 				},
 			});

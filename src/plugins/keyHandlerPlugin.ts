@@ -16,6 +16,10 @@ export class KeyHandlerPlugin extends Plugin {
 		document.addEventListener('keyup', this.keyHandler.bind(this), false);
 	}
 
+	dispose() {
+		document.removeEventListener('keyup', this.keyHandler.bind(this), false);
+	}
+
 	/**
      * Handles keyboard events and executes the corresponding function based on the key binding.
      * @param {KeyboardEvent} event - The keyboard event to handle.

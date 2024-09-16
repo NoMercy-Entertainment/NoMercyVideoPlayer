@@ -100,10 +100,9 @@ export interface PlaylistItem {
 	uuid: any;
     seasonName: any;
     progress: any;
-    duration?: string;
+    duration: string;
     file: string;
-    image?: string;
-    sources?: Source[];
+    image: string;
     starttime?: number;
     title: string;
     tracks?: Track[];
@@ -366,6 +365,7 @@ export interface TimeData {
     currentTimeHuman: number;
     durationHuman: number;
     remainingHuman: number;
+    playbackRate: number;
 }
 
 export interface SetupConfig {
@@ -487,7 +487,8 @@ export interface NMPlayer {
     playToggle(): NMPlayer;
     playlistNext(): NMPlayer;
     playlistPrev(): NMPlayer;
-    registerPlugin(id: string, target: string, jsPlugin: () => void, swfURL?: string): void;
+    registerPlugin(id: string, jsPlugin: () => void): void;
+    usePlugin(id: string): void;
     remove(): NMPlayer;
     removeButton(id: string): NMPlayer;
     removePlaylistItemCallback(): void;

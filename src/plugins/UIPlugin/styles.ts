@@ -15,7 +15,7 @@ export const bottomBarStyles = [
 	'group-[&.nomercyplayer.active]:translate-y-0',
 	'group-[&.nomercyplayer.paused]:translate-y-0',
 	'group-[&.nomercyplayer:has(.open)]:translate-y-0',
-	'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
+	// 'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
 	'group-[&.nomercyplayer:has(:focus)]:duration-0',
 	'transition-all',
 	'duration-300',
@@ -240,6 +240,7 @@ export const menuFrameStyles = [
 	'right-[2%]',
 	'w-fit',
 	'z-50',
+	'max-w-[70rem]',
 ];
 
 export const menuHeaderButtonTextStyles = [
@@ -398,6 +399,7 @@ export const subMenuStyles = [
 	'flex-col',
 	'gap-1',
 	'h-auto',
+	'w-full',
 	'mt-auto',
 	'overflow-clip',
 	'rounded-lg',
@@ -441,7 +443,7 @@ export const topBarStyles = [
 	'group-[&.nomercyplayer.active]:translate-y-0',
 	'group-[&.nomercyplayer.paused]:translate-y-0',
 	'group-[&.nomercyplayer:has(.open)]:translate-y-0',
-	'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
+	// 'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
 	'group-[&.nomercyplayer:has(:focus)]:duration-0',
 	'transition-all',
 	'duration-300',

@@ -12,4 +12,8 @@ export class TemplatePlugin extends Plugin {
 	use() {
 		//
 	}
+
+	dispose() {
+		//
+	}
 }

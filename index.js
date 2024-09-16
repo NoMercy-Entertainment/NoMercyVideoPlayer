@@ -4,6 +4,7 @@ import { DesktopUIPlugin } from './src/plugins/desktopUIPlugin';
 import { MobileUIPlugin } from './src/plugins/mobileUIPlugin';
 import { TVUIPlugin } from './src/plugins/tvUIPlugin';
 import { KeyHandlerPlugin } from './src/plugins/keyHandlerPlugin';
+import {SabrePlugin} from "./src/plugins/sabrePlugin";
 
 // const gain = document.querySelector('#gain');
 // const gainSlider = document.querySelector('#gainSlider');
@@ -37,8 +38,8 @@ const config = {
 		{
 			title: 'Sintel (2010)',
 			description: 'Sintel is an independently produced short film, initiated by the Blender Foundation as a means to further improve and validate the free/open source 3D creation suite Blender. With initial funding provided by 1000s of donations via the internet community, it has again proven to be a viable development model for both open 3D technology as for independent animation film.\nThis 15 minute film has been realized in the studio of the Amsterdam Blender Institute, by an international team of artists and developers. In addition to that, several crucial technical and creative targets have been realized online, by developers and artists and teams all over the world.\nwww.sintel.org',
-			'image': 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
-			'file': 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+			image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+			file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
 			duration: '14:48',
 			progress: {
 				percentage: 10,
@@ -407,9 +408,9 @@ const config = {
 const player = nmplayer('player')
 	.setup(config);
 
-// const sabrePlugin = new SabrePlugin();
-// player.registerPlugin('sabre', sabrePlugin);
-// player.usePlugin('sabre');
+const sabrePlugin = new SabrePlugin();
+player.registerPlugin('sabre', sabrePlugin);
+player.usePlugin('sabre');
 
 const desktopUIPlugin = new DesktopUIPlugin();
 player.registerPlugin('desktopUI', desktopUIPlugin);

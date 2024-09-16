@@ -187,6 +187,90 @@ export class DesktopUIPlugin extends Plugin {
 		} while ((obj = Object.getPrototypeOf(obj)) !== null);
 	}
 
+	dispose() {
+		// Remove event listeners
+		// this.player.off('hide-tooltip');
+		// this.player.off('show-tooltip');
+		// this.player.off('show-episode-tip');
+		// this.player.off('hide-episode-tip');
+		// this.player.off('show-next-up');
+		// this.player.off('playing');
+		// this.player.off('waiting');
+		// this.player.off('error');
+		// this.player.off('ended');
+		// this.player.off('time');
+		// this.player.off('bufferedEnd');
+		// this.player.off('stalled');
+		// this.player.off('item');
+		// this.player.off('controls');
+		// this.player.off('pip-internal');
+		// this.player.off('levelsChanging');
+		// this.player.off('seeked');
+		// this.player.off('chapters');
+		// this.player.off('currentScrubTime');
+		// this.player.off('display-message');
+		// this.player.off('remove-message');
+		// this.player.off('resize');
+		// this.player.off('switch-season');
+		// this.player.off('show-playlist-menu');
+		// this.player.off('playlist');
+		// this.player.off('resize');
+
+		// Clear timeouts
+		clearTimeout(this.timer);
+		clearTimeout(this.timeout);
+
+		// Remove DOM elements
+		if (this.overlay && this.overlay.parentNode) {
+			this.overlay.parentNode.removeChild(this.overlay);
+		}
+		if (this.bottomBar && this.bottomBar.parentNode) {
+			this.bottomBar.parentNode.removeChild(this.bottomBar);
+		}
+		if (this.topBar && this.topBar.parentNode) {
+			this.topBar.parentNode.removeChild(this.topBar);
+		}
+		if (this.frame && this.frame.parentNode) {
+			this.frame.parentNode.removeChild(this.frame);
+		}
+		if (this.tooltip && this.tooltip.parentNode) {
+			this.tooltip.parentNode.removeChild(this.tooltip);
+		}
+		if (this.nextUp && this.nextUp.parentNode) {
+			this.nextUp.parentNode.removeChild(this.nextUp);
+		}
+		if (this.sliderBar && this.sliderBar.parentNode) {
+			this.sliderBar.parentNode.removeChild(this.sliderBar);
+		}
+		if (this.chapterBar && this.chapterBar.parentNode) {
+			this.chapterBar.parentNode.removeChild(this.chapterBar);
+		}
+		if (this.thumbnail && this.thumbnail.parentNode) {
+			this.thumbnail.parentNode.removeChild(this.thumbnail);
+		}
+
+		// Clear references
+		this.player.plugins.desktopUIPlugin = undefined;
+		// this.overlay = undefined;
+		// this.topBar = undefined;
+		// this.bottomRow = undefined;
+		// this.frame = undefined;
+		this.chapters = [];
+		// this.timer = undefined;
+		this.previewTime = [];
+		// this.sliderPopImage = undefined;
+		// this.chapterBar = undefined;
+		// this.bottomBar = undefined;
+		// this.topRow = undefined;
+		// this.nextUp = undefined;
+		// this.buttons = undefined;
+		// this.tooltip = undefined;
+		// this.sliderBar = undefined;
+		// this.thumbnail = undefined;
+
+		// this.overlay.remove();
+	}
+
 
 	createBottomBar(parent: HTMLElement) {
 		const bottomBar = this.player.createElement('div', 'bottom-bar')
@@ -485,7 +569,7 @@ export class DesktopUIPlugin extends Plugin {
 		]).split(' '));
 
 		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-		path.setAttribute('d', hovered ? icon.hover : icon.normal);
+		path.setAttribute('d', !hovered ? icon.hover : icon.normal);
 		this.player.addClasses(path, [
 			'group-hover/button:hidden',
 			'group-hover/volume:hidden',
@@ -493,7 +577,7 @@ export class DesktopUIPlugin extends Plugin {
 		svg.appendChild(path);
 
 		const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-		path2.setAttribute('d', hovered ? icon.normal : icon.hover);
+		path2.setAttribute('d', !hovered ? icon.normal : icon.hover);
 		this.player.addClasses(path2, [
 			'hidden',
 			'group-hover/button:flex',
@@ -1301,7 +1385,7 @@ export class DesktopUIPlugin extends Plugin {
 			if (item.season && item.episode) {
 				currentItemEpisode.innerHTML += `: ${this.player.localize('E')}${item.episode}`;
 			}
-			currentItemTitle.innerHTML = item.title.replace(item.show, '').length > 0 ? `"${item.title.replace(item.show, '').replace('%S', this.player.localize('S'))
+			currentItemTitle.innerHTML = item.title?.replace(item.show, '').length > 0 ? `"${item.title?.replace(item.show, '').replace('%S', this.player.localize('S'))
 				.replace('%E', this.player.localize('E'))}"` : '';
 		});
 
@@ -1874,6 +1958,7 @@ export class DesktopUIPlugin extends Plugin {
 		this.menuFrame = this.player.createElement('dialog', 'menu-frame-dialog')
 			.addClasses([
 				'group-[&.nomercyplayer:has(.open)]:backdrop:bg-black/70',
+				'group-[&.nomercyplayer:has(.open)]:backdrop:pointer-events-none',
 			])
 			.appendTo(parent);
 
@@ -2306,7 +2391,7 @@ export class DesktopUIPlugin extends Plugin {
 					label: track.label,
 					type: 'audio',
 					id: track.id,
-					buttonType: 'language',
+					buttonType: 'audio',
 				});
 			});
 		});
@@ -2550,17 +2635,20 @@ export class DesktopUIPlugin extends Plugin {
 			} else {
 				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
 			}
+		} 
+		else {
+			languageButtonText.textContent = this.player.localize(data.language);
 		}
 
 		const chevron = this.createSVGElement(languageButton, 'checkmark', this.buttons.checkmark, false,  hovered);
 		this.player.addClasses(chevron, ['ml-auto']);
 
-		if (data.id > -1) {
+		if (data.id > 0) {
 			chevron.classList.add('hidden');
 		}
-
+		
 		if (data.buttonType == 'audio') {
-			this.player.on('audioTrackChanged', (audio) => {
+			this.player.on('audioTrackChanging', (audio) => {
 				if (data.id === audio.id) {
 					chevron.classList.remove('hidden');
 				} else {
@@ -2573,7 +2661,8 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.setCurrentAudioTrack(data.id);
 				this.player.emit('show-menu', false);
 			});
-		} else if (data.buttonType == 'subtitle') {
+		} 
+		else if (data.buttonType == 'subtitle') {
 			if (data.id === this.player.getCaptionIndex()) {
 				chevron.classList.remove('hidden');
 			} else {
@@ -3161,6 +3250,7 @@ export class DesktopUIPlugin extends Plugin {
 	};
 
 	createEpisodeMenu(parent: HTMLDivElement) {
+		if (!this.player.getVideoElement())	return;
 
 		const playlistMenu = this.player.createElement('div', 'playlist-menu')
 			.addClasses([
@@ -3172,7 +3262,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		playlistMenu.style.minHeight = `${parseInt(getComputedStyle(this.player.getVideoElement()).height.split('px')[0], 10) * 0.8}px`;
 
-		this.player.getVideoElement().addEventListener('resize', () => {
+		this.player.on('resize', () => {
 			playlistMenu.style.minHeight = `${parseInt(getComputedStyle(this.player.getVideoElement()).height.split('px')[0], 10) * 0.8}px`;
 		});
 
@@ -3202,7 +3292,7 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses([
 				...this.makeStyles('subMenuContentStyles'),
 				'!flex',
-				'!w/2/3',
+				'!w-[63rem]',
 			])
 			.appendTo(playlistMenu);
 
@@ -3359,7 +3449,7 @@ export class DesktopUIPlugin extends Plugin {
 			.appendTo(episodeMenuButtonRightSide);
 
 		// if (item.episode) {
-		episodeMenuButtonTitle.textContent = this.lineBreakShowTitle(item.title.replace(item.show, '').replace('%S', this.player.localize('S'))
+		episodeMenuButtonTitle.textContent = this.lineBreakShowTitle(item.title?.replace(item.show, '').replace('%S', this.player.localize('S'))
 			.replace('%E', this.player.localize('E')));
 		// }
 
@@ -3507,7 +3597,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		image.src = item.image && item.image != '' ? `${this.imageBaseUrl}${item.image}` : '';
 		header.textContent = `${this.player.localize(`${direction.toTitleCase()} Episode`)} ${this.getButtonKeyCode(direction)}`;
-		title.textContent = item.title.replace(item.show, '').replace('%S', this.player.localize('S'))
+		title.textContent = item.title?.replace(item.show, '').replace('%S', this.player.localize('S'))
 			.replace('%E', this.player.localize('E'));
 
 		this.player.once('item', () => {

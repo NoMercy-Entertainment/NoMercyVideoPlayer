@@ -5,6 +5,7 @@ export declare class KeyHandlerPlugin extends Plugin {
     player: any;
     initialize(player: NMPlayer): void;
     use(): void;
+    dispose(): void;
     /**
      * Handles keyboard events and executes the corresponding function based on the key binding.
      * @param {KeyboardEvent} event - The keyboard event to handle.

@@ -7,7 +7,7 @@ import { type VTTData, WebVTTParser } from 'webvtt-parser';
 import translations from './translations';
 
 import type { PlaylistItem, SetupConfig, Stretching, Track, TimeData, TypeMappings } from './index.d';
-import { humanTime, pad } from './helpers';
+import {convertToSeconds, humanTime, pad} from './helpers';
 
 const instances = new Map<string, NMPlayer>();
 
@@ -605,8 +605,9 @@ export class NMPlayer extends Base {
 		};
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_playEvent(_e: Event): void {
+	videoPlayer_playEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('beforePlay');
 
 		this.container.classList.remove('paused');
@@ -614,8 +615,9 @@ export class NMPlayer extends Base {
 		this.emit('play');
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_onPlayingEvent(_e: Event): void {
+	videoPlayer_onPlayingEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		this.videoElement.removeEventListener('playing', this.videoPlayer_onPlayingEvent);
 
 		if (!this.firstFrame) {
@@ -655,15 +657,17 @@ export class NMPlayer extends Base {
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_pauseEvent(_e: Event): void {
+	videoPlayer_pauseEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		this.container.classList.remove('playing');
 		this.container.classList.add('paused');
 		this.emit('pause', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_endedEvent(_e: Event): void {
+	videoPlayer_endedEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		if (this.currentIndex < this.playlist.length - 1) {
 			this.playVideo(this.currentIndex + 1);
 		} else {
@@ -673,46 +677,55 @@ export class NMPlayer extends Base {
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_errorEvent(_e: Event): void {
+	videoPlayer_errorEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('error', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_waitingEvent(_e: Event): void {
+	videoPlayer_waitingEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('waiting', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_canplayEvent(_e: Event): void {
+	videoPlayer_canplayEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('canplay', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_loadedmetadataEvent(_e: Event): void {
+	videoPlayer_loadedmetadataEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('loadedmetadata', this.videoElement);
 		this.emit('duration', this.videoElement.duration);
-		this.emit('time', this.videoPlayer_getTimeData());
 		this.emit('captionsList', this.getCaptionsList());
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_loadstartEvent(_e: Event): void {
+	videoPlayer_loadstartEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('loadstart', this.videoElement);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_timeupdateEvent(_e: Event): void {
-		this.emit('time', this.videoPlayer_getTimeData());
+	videoPlayer_timeupdateEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
+		if (Number.isNaN(_e.target.duration) || Number.isNaN(_e.target.currentTime)) return;
+
+		this.emit('time', this.videoPlayer_getTimeData.bind(this)(_e));
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_durationchangeEvent(_e: Event): void {
-		this.emit('duration', this.videoPlayer_getTimeData());
+	videoPlayer_durationchangeEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
+		this.emit('duration', this.videoPlayer_getTimeData.bind(this)(_e));
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	videoPlayer_volumechangeEvent(_e: Event): void {
+	videoPlayer_volumechangeEvent(e: Event): void {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const _e = e as Event & {target: HTMLVideoElement};
 		if (this.volume != Math.round(this.videoElement.volume * 100)) {
 			this.emit('volume', {
 				volume: Math.round(this.videoElement.volume * 100),
@@ -731,15 +744,16 @@ export class NMPlayer extends Base {
 		this.volume = Math.round(this.videoElement.volume * 100);
 	}
 
-	videoPlayer_getTimeData(): TimeData {
+	videoPlayer_getTimeData(_e: {target: HTMLVideoElement}): TimeData {		
 		return {
-			currentTime: this.videoElement.currentTime,
-			duration: this.videoElement.duration,
-			percentage: (this.videoElement.currentTime / this.videoElement.duration) * 100,
-			remaining: this.videoElement.duration - this.videoElement.currentTime,
-			currentTimeHuman: humanTime(this.videoElement.currentTime),
-			durationHuman: humanTime(this.videoElement.duration),
-			remainingHuman: humanTime(this.videoElement.duration - this.videoElement.currentTime),
+			currentTime: _e.target.currentTime,
+			duration: _e.target.duration,
+			percentage: (_e.target.currentTime / _e.target.duration) * 100,
+			remaining: _e.target.duration - _e.target.currentTime,
+			currentTimeHuman: humanTime(_e.target.currentTime),
+			durationHuman: humanTime(_e.target.duration),
+			remainingHuman: humanTime(_e.target.duration - _e.target.currentTime),
+			playbackRate: _e.target.playbackRate,
 		};
 	}
 
@@ -859,56 +873,46 @@ export class NMPlayer extends Base {
 
 			if (!this.hls) return;
 
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADING, (event, data) => {
 				console.log('Audio track loading', data);
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADED, (event, data) => {
+				console.log('Audio track loaded', data);
 				this.emit('audioTracks', this.getAudioTracks());
+				this.emit('audioTrackChanging', {
+					id: data.id,
+					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
+				});
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHING, (event, data) => {
 				console.log('Audio track switching', data);
+				this.emit('audioTrackChanging', {
+					id: data.id,
+					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
+				});
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHED, (event, data) => {
+				console.log('Audio track switched', data);
 				this.emit('audioTrackChanged', {
 					id: data.id,
 					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
 				});
 			});
 
-			// this.hls.on(HLS.Events.BUFFER_APPENDING, (event, data) => {
-			// 	console.log('Buffer appending', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_APPENDED, (event, data) => {
-			// 	console.log('Buffer appended', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_FLUSHING, (event, data) => {
-			// 	console.log('Buffer flushing', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_FLUSHED, (event, data) => {
-			// 	console.log('Buffer flushed', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_CODECS, (event, data) => {
-			// 	console.log('Buffer codecs', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_CREATED, (event, data) => {
-			// 	console.log('Buffer created', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_EOS, (event, data) => {
-			// 	console.log('Buffer EOS', data);
-			// });
-			// this.hls.on(HLS.Events.FRAG_BUFFERED, (event, data) => {
-			// 	console.log('Fragment buffered', data);
-			// });
-
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.ERROR, (event, data) => {
 				console.error('HLS error', data);
 			});
 
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
+				console.log('Level loaded', data);
+			});
+			this.hls.on(HLS.Events.LEVEL_LOADING, (event, data) => {
 				this.emit('levels', this.getQualityLevels());
 				this.emit('levelsChanging', {
 					id: this.hls?.loadLevel,
@@ -940,31 +944,64 @@ export class NMPlayer extends Base {
 			// 	console.log('Level PTS updated', data);
 			// });
 
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MANIFEST_LOADED, (event, data) => {
 				console.log('Manifest loaded', data);
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MANIFEST_PARSED, (event, data) => {
 				console.log('Manifest parsed', data);
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MANIFEST_LOADING, (event, data) => {
 				console.log('Manifest loading', data);
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.STEERING_MANIFEST_LOADED, (event, data) => {
 				console.log('Steering manifest loaded', data);
 			});
 
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_ATTACHED, (event, data) => {
 				console.log('Media attached', data);
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_ATTACHING, (event, data) => {
 				console.log('Media attaching', data);
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_DETACHED, (event) => {
 				console.log('Media detached', event);
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_DETACHING, (event) => {
 				console.log('Media detaching', event);
 			});
+
+			// this.hls.on(HLS.Events.BUFFER_APPENDING, (event, data) => {
+			// 	console.log('Buffer appending', data);
+			// });
+			// this.hls.on(HLS.Events.BUFFER_APPENDED, (event, data) => {
+			// 	console.log('Buffer appended', data);
+			// });
+			// this.hls.on(HLS.Events.BUFFER_FLUSHING, (event, data) => {
+			// 	console.log('Buffer flushing', data);
+			// });
+			// this.hls.on(HLS.Events.BUFFER_FLUSHED, (event, data) => {
+			// 	console.log('Buffer flushed', data);
+			// });
+			// this.hls.on(HLS.Events.BUFFER_CODECS, (event, data) => {
+			// 	console.log('Buffer codecs', data);
+			// });
+			// this.hls.on(HLS.Events.BUFFER_CREATED, (event, data) => {
+			// 	console.log('Buffer created', data);
+			// });
+			// this.hls.on(HLS.Events.BUFFER_EOS, (event, data) => {
+			// 	console.log('Buffer EOS', data);
+			// });
+			// this.hls.on(HLS.Events.FRAG_BUFFERED, (event, data) => {
+			// 	console.log('Fragment buffered', data);
+			// });
 		});
 
 		this.once('item', () => {
@@ -987,7 +1024,66 @@ export class NMPlayer extends Base {
 				this.setCaptionFromStorage();
 			});
 		});
+		this.once('item', () => {
 
+			if (!this.options.disableControls) {
+				this.getVideoElement().focus();
+			}
+
+			const item = this.getParameterByName('item');
+			const itemNumber = item ? parseInt(item, 10) : null;
+			const season = this.getParameterByName('season');
+			const seasonNumber = season ? parseInt(season, 10) : null;
+			const episode = this.getParameterByName('episode');
+			const episodeNumber = episode ? parseInt(episode, 10) : null;
+			
+			if (itemNumber) {
+				setTimeout(() => {
+					this.setEpisode(0, itemNumber);
+				}, 0);
+			} else if (seasonNumber && episodeNumber) {
+				setTimeout(() => {
+					this.setEpisode(seasonNumber, episodeNumber);
+				}, 0);
+			} else {
+				// Get item with the latest progress timer
+
+				const progressItem = this.getPlaylist()
+					.filter(i => i.progress);
+
+				if (progressItem.length == 0 && this.options.autoPlay) {
+					this.play().then();
+					return;
+				}
+
+				const playlistItem = progressItem
+					.sort((a, b) => b.progress!.date?.localeCompare(a.progress!.date)).at(0);
+
+				if (!playlistItem?.progress) {
+					if (this.options.autoPlay) {
+						this.play().then();
+					}
+					return;
+				}
+
+				setTimeout(() => {
+					if (playlistItem.progress && playlistItem.progress.percentage > 95) {
+						this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
+					} else {
+						this.playlistItem(this.getPlaylist().indexOf(playlistItem));
+					}
+				}, 0);
+
+				this.once('play', () => {
+					if (!playlistItem.progress) return;
+
+					setTimeout(() => {
+						if (!playlistItem.progress) return;
+						this.seek(convertToSeconds(playlistItem.duration!) / 100 * playlistItem.progress.percentage);
+					}, 350);
+				});
+			}
+		});
 
 		this.on('playing', () => {
 			this.container.classList.remove('buffering');
@@ -1307,13 +1403,18 @@ export class NMPlayer extends Base {
 				url: file,
 				options: {},
 				callback: (data) => {
-					this.fonts = JSON.parse(data as string).map((f: { file: string; mimeType: string }) => {
-						const baseFolder = file.replace(/\/[^/]*$/u, '');
-						return {
-							...f,
-							file: `${baseFolder}/fonts/${f.file}`,
-						};
-					});
+					try {
+						this.fonts = JSON.parse(data as string).map((f: { file: string; mimeType: string }) => {
+							const baseFolder = file.replace(/\/[^/]*$/u, '');
+							return {
+								...f,
+								file: `${baseFolder}/fonts/${f.file}`,
+							};
+						});
+					}
+					catch (e) {
+						this.fonts = [];
+					}
 
 					this.emit('fonts', this.fonts);
 				},
@@ -1432,7 +1533,7 @@ export class NMPlayer extends Base {
 
 			this.currentIndex = index;
 			this.videoElement.poster = this.currentPlaylistItem.image ?? '';
-			this.loadSource(this.currentPlaylistItem.file);
+			this.loadSource((this.options.basePath ?? '') + this.currentPlaylistItem.file);
 		} else {
 			console.log('No more videos in the playlist.');
 		}
@@ -1469,6 +1570,7 @@ export class NMPlayer extends Base {
 		if (typeof this.options.playlist === 'string') {
 			this.fetchPlaylist(this.options.playlist)
 				.then((json) => {
+					console.log('Playlist fetched', json);
 
 					this.playlist = json.map((item: PlaylistItem, index: number) => ({
 						...item,
@@ -1479,6 +1581,8 @@ export class NMPlayer extends Base {
 					setTimeout(() => {
 						this.emit('playlist', this.playlist);
 					}, 0);
+
+					this.playVideo(0);
 				});
 		} else if (Array.isArray(this.options.playlist)) {
 			this.playlist = this.options.playlist.map((item: PlaylistItem, index: number) => ({
@@ -1489,9 +1593,10 @@ export class NMPlayer extends Base {
 			setTimeout(() => {
 				this.emit('playlist', this.playlist);
 			}, 0);
+			
+			this.playVideo(0);
 		}
 
-		this.playVideo(0);
 	}
 
 	setPlaylist(playlist: string | PlaylistItem[]) {
@@ -1626,6 +1731,23 @@ export class NMPlayer extends Base {
 
 		this.playVideo(index);
 	}
+
+	/**
+	 * Sets the current episode to play based on the given season and episode numbers.
+	 * If the episode is not found in the playlist, the first item in the playlist is played.
+	 * @param season - The season number of the episode to play.
+	 * @param episode - The episode number to play.
+	 */
+	setEpisode(season: number, episode: number) {
+		const item = this.getPlaylist().findIndex((l: any) => l.season == season && l.episode == episode);
+		if (item == -1) {
+			this.playlistItem(0);
+		} else {
+			this.playlistItem(item);
+		}
+		this.play().then();
+	};
+
 
 	next(): void {
 		if (this.getPlaylistIndex() < this.playlist.length - 1) {
@@ -1863,6 +1985,7 @@ export class NMPlayer extends Base {
 			.map((playlist, index: number) => ({
 				...playlist,
 				id: index,
+				language: playlist.lang,
 				label: playlist.name,
 			}));
 	}
@@ -2182,7 +2305,53 @@ export class NMPlayer extends Base {
 	stopCasting(): void {
 		//
 	}
+	
+	dispose(): void {		
+		// Clear timeouts
+		clearTimeout(this.message);
+		clearTimeout(this.leftTap);
+		clearTimeout(this.rightTap);
+		if (this.inactivityTimeout) {
+			clearTimeout(this.inactivityTimeout);
+		}
 
+		// Remove event listeners
+		this._removeEvents();
+
+		// Dispose plugins
+		for (const plugin of Object.values(this.plugins)) {
+			if (typeof plugin.destroy === 'function') {
+				plugin.destroy();
+			}
+		}
+		
+		this.plugins = {};
+
+		// Dispose HLS instance if exists
+		if (this.hls) {
+			this.hls.destroy();
+			this.hls = undefined;
+		}
+
+		// Dispose gain node if exists
+		if (this.gainNode) {
+			this.removeGainNode();
+			this.gainNode = undefined;
+		}
+
+		// Clear DOM elements
+		if (this.container) {
+			this.container.innerHTML = '';
+		}
+
+		// Remove instance from the map
+		instances.delete(this.playerId);
+
+		// Emit dispose event
+		this.emit('dispose');
+		
+		this.off('all');
+	}
 }
 
 String.prototype.toTitleCase = function (): string {

@@ -6,5 +6,7 @@ export declare class SabrePlugin extends Plugin {
     frameCallbackHandle: number | null;
     initialize(player: NMPlayer): void;
     use(): void;
+    dispose(): void;
+    destroy(): void;
     sabre(): Promise<void>;
 }
