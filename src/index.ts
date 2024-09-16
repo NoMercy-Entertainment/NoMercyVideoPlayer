@@ -49,6 +49,7 @@ export class NMPlayer extends Base {
 	isPlaying = false;
 	muted: boolean = false;
 	volume: number = 100;
+	lastTime = 0;
 
 	lockActive: boolean = false;
 
@@ -850,6 +851,7 @@ export class NMPlayer extends Base {
 		this.on('pause', this.ui_setPauseClass.bind(this));
 
 		this.on('item', () => {
+			this.lastTime = 0;
 			setTimeout(() => {
 				this.emit('levels', this.getQualityLevels());
 				this.emit('levelsChanging', {
@@ -1103,9 +1105,14 @@ export class NMPlayer extends Base {
 			this.container.classList.remove('error');
 		});
 
-		this.on('time', () => {
+		this.on('time', (data) => {
 			this.container.classList.remove('buffering');
 			this.container.classList.remove('error');
+
+			if (data.currentTime > this.lastTime + 5) {
+				this.emit('lastTimeTrigger', data);
+				this.lastTime = data.currentTime;
+			}
 		});
 
 		this.on('bufferedEnd', () => {
@@ -1712,10 +1719,6 @@ export class NMPlayer extends Base {
 
 	getPlaylistIndex() {
 		return this.playlist.indexOf(this.currentPlaylistItem);
-	}
-
-	getPlaylistItem(index: number) {
-		return this.playlist[index];
 	}
 
 	load(playlist: PlaylistItem[]) {

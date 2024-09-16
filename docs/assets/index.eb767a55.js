@@ -17643,7 +17643,7 @@ const Zc = {
 }, Be = /* @__PURE__ */ new Map();
 class Xc extends wr {
   constructor(e) {
-    if (super(), this.translations = {}, this.defaultTranslations = Zc, this.message = {}, this.leftTap = {}, this.rightTap = {}, this.leeway = 300, this.seekInterval = 10, this.tapCount = 0, this.chapters = {}, this.currentChapterFile = "", this.fonts = [], this.currentFontFile = "", this.currentSkipFile = "", this.currentSubtitleIndex = 0, this.subtitles = {}, this.currentSubtitleFile = "", this.currentSpriteFile = "", this.playlist = [], this.currentPlaylistItem = {}, this.currentIndex = 0, this.isPlaying = !1, this.muted = !1, this.volume = 100, this.lockActive = !1, this.plugins = {}, this.stretchOptions = [
+    if (super(), this.translations = {}, this.defaultTranslations = Zc, this.message = {}, this.leftTap = {}, this.rightTap = {}, this.leeway = 300, this.seekInterval = 10, this.tapCount = 0, this.chapters = {}, this.currentChapterFile = "", this.fonts = [], this.currentFontFile = "", this.currentSkipFile = "", this.currentSubtitleIndex = 0, this.subtitles = {}, this.currentSubtitleFile = "", this.currentSpriteFile = "", this.playlist = [], this.currentPlaylistItem = {}, this.currentIndex = 0, this.isPlaying = !1, this.muted = !1, this.volume = 100, this.lastTime = 0, this.lockActive = !1, this.plugins = {}, this.stretchOptions = [
       "uniform",
       "fill",
       "exactfit",
@@ -18004,7 +18004,7 @@ class Xc extends wr {
   }
   _addEvents() {
     this.videoElement.addEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.addEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.addEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.addEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.addEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.addEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.addEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.addEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.addEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.addEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.addEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.addEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.on("play", this.ui_setPlayClass.bind(this)), this.on("pause", this.ui_setPauseClass.bind(this)), this.on("item", () => {
-      setTimeout(() => {
+      this.lastTime = 0, setTimeout(() => {
         var e, t;
         this.emit("levels", this.getQualityLevels()), this.emit("levelsChanging", {
           id: (e = this.hls) == null ? void 0 : e.loadLevel,
@@ -18143,8 +18143,8 @@ class Xc extends wr {
       this.container.classList.add("error");
     }), this.on("ended", () => {
       this.container.classList.remove("buffering"), this.container.classList.remove("error");
-    }), this.on("time", () => {
-      this.container.classList.remove("buffering"), this.container.classList.remove("error");
+    }), this.on("time", (e) => {
+      this.container.classList.remove("buffering"), this.container.classList.remove("error"), e.currentTime > this.lastTime + 5 && (this.emit("lastTimeTrigger", e), this.lastTime = e.currentTime);
     }), this.on("bufferedEnd", () => {
       this.container.classList.remove("buffering");
     }), this.on("stalled", () => {
@@ -18566,9 +18566,6 @@ class Xc extends wr {
   }
   getPlaylistIndex() {
     return this.playlist.indexOf(this.currentPlaylistItem);
-  }
-  getPlaylistItem(e) {
-    return this.playlist[e];
   }
   load(e) {
     this.playlist = e;
@@ -20489,6 +20486,7 @@ const an = {
 ], Ou = [
   "absolute",
   "inset-0",
+  "hidden",
   "w-available",
   "h-available",
   "z-50",
@@ -20496,7 +20494,7 @@ const an = {
   "pointer-events-none",
   "place-content-center"
 ], Nu = [
-  "flex",
+  "hidden",
   "flex-col",
   "items-center",
   "gap-4",

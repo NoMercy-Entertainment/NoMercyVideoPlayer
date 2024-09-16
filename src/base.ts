@@ -187,9 +187,9 @@ export class Base {
 	on(event: 'playbackRateChanged', callback: () => void): void;
 
 	// Seek
-	on(event: 'seek', callback: () => void): void;
-	on(event: 'seeked', callback: () => void): void;
-	on(event: 'time', callback: () => void): void;
+	on(event: 'seek', callback: (data: TimeData) => void): void;
+	on(event: 'seeked', callback: (data: TimeData) => void): void;
+	on(event: 'time', callback: (data: TimeData) => void): void;
 	on(event: 'absolutePositionReady', callback: () => void): void;
 
 	// Volume
@@ -197,7 +197,7 @@ export class Base {
 	on(event: 'volume', callback: (data:VolumeState) => void): void;
 
 	// Resize
-	on(event: 'fullscreen', callback: () => void): void;
+	on(event: 'fullscreen', callback: (isFullscreen: boolean) => void): void;
 	on(event: 'resize', callback: () => void): void;
 
 	// Quality

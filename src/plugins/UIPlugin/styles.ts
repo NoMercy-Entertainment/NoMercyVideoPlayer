@@ -1043,6 +1043,7 @@ export const episodeScrollContainerStyles = [
 export const spinnerContainerStyles = [
 	'absolute',
 	'inset-0',
+	'hidden',
 	'w-available',
 	'h-available',
 	'z-50',
@@ -1052,7 +1053,7 @@ export const spinnerContainerStyles = [
 ];
 
 export const roleStyles = [
-	'flex',
+	'hidden',
 	'flex-col',
 	'items-center',
 	'gap-4',

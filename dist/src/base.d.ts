@@ -106,13 +106,13 @@ export declare class Base {
     on(event: 'firstFrame', callback: () => void): void;
     on(event: 'playAttemptFailed', callback: () => void): void;
     on(event: 'playbackRateChanged', callback: () => void): void;
-    on(event: 'seek', callback: () => void): void;
-    on(event: 'seeked', callback: () => void): void;
-    on(event: 'time', callback: () => void): void;
+    on(event: 'seek', callback: (data: TimeData) => void): void;
+    on(event: 'seeked', callback: (data: TimeData) => void): void;
+    on(event: 'time', callback: (data: TimeData) => void): void;
     on(event: 'absolutePositionReady', callback: () => void): void;
     on(event: 'mute', callback: (data: VolumeState) => void): void;
     on(event: 'volume', callback: (data: VolumeState) => void): void;
-    on(event: 'fullscreen', callback: () => void): void;
+    on(event: 'fullscreen', callback: (isFullscreen: boolean) => void): void;
     on(event: 'resize', callback: () => void): void;
     on(event: 'levels', callback: (data: ReturnType<NMPlayer['getQualityLevels']>) => void): void;
     on(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;

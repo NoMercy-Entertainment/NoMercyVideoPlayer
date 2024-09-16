@@ -487,7 +487,7 @@ export interface NMPlayer {
     playToggle(): NMPlayer;
     playlistNext(): NMPlayer;
     playlistPrev(): NMPlayer;
-    registerPlugin(id: string, jsPlugin: () => void): void;
+    registerPlugin(id: string, plugin: ReturnType<Plugin>): void;
     usePlugin(id: string): void;
     remove(): NMPlayer;
     removeButton(id: string): NMPlayer;
@@ -604,6 +604,7 @@ export interface NMPlayer {
 	volumeDown(): void;
 	volumeUp(): void;
     addButton(icon: string, label: string, handler: () => void, id: string, className?: string): NMPlayer;
+    dispose(): void;
 
 
 	emit(event: 'all', data?: any): void;
