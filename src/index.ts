@@ -478,7 +478,7 @@ export class NMPlayer extends Base {
 		this.container.appendChild(this.subtitleOverlay);
 
 		this.subtitleText = this.createElement('span', 'subtitle-text', true)
-			.addClasses(['text-center', 'whitespace-pre-line', 'font-bolder', 'font-[BBC]', 'leading-normal'])
+			.addClasses(['subtitle-text', 'text-center', 'whitespace-pre-line', 'font-bolder', 'leading-normal'])
 			.appendTo(this.subtitleOverlay);
 
 		this.subtitleText.style.fontSize = 'clamp(20px, 2.5vw, 30px)';
@@ -497,22 +497,51 @@ export class NMPlayer extends Base {
 		}
 
 		const currentTime = this.videoElement.currentTime;
-
-		let isSubtitleDisplayed = false;
+		let newSubtitleText = '';
 
 		// Loop through the subtitles to check which one should be displayed
 		this.subtitles.cues.forEach((subtitle) => {
 			if (currentTime >= subtitle.startTime && currentTime <= subtitle.endTime) {
-				this.subtitleOverlay.style.display = 'block';
-				this.subtitleText.textContent = subtitle.text;
-				isSubtitleDisplayed = true;
+				if (subtitle.text === newSubtitleText) {
+					return;
+				}
+				newSubtitleText = subtitle.text;
 			}
 		});
 
-		// If no subtitle matches the current time, hide the subtitle overlay
-		if (!isSubtitleDisplayed) {
-			this.subtitleOverlay.style.display = 'none';
-		}
+		// Display the new subtitle
+		this.subtitleOverlay.style.display = 'block';
+		this.subtitleText.innerHTML = ''; // Clear previous content
+
+		const fragment = document.createDocumentFragment();
+		const parts = newSubtitleText.split(/(<\/?i>|<\/?b>)/g);
+		
+		if (parts.length == 1 && parts[0] == '') return;
+		console.log(parts);
+		
+		let currentElement: HTMLElement | null = null;
+
+		parts.forEach(part => {
+			if (part === '<i>') {
+				currentElement = document.createElement('i');
+			} else if (part === '<b>') {
+				currentElement = document.createElement('b');
+			} else if (part === '</i>' || part === '</b>') {
+				if (currentElement) {
+					fragment.appendChild(currentElement);
+					currentElement = null;
+				}
+			} else {
+				if (currentElement) {
+					currentElement.appendChild(document.createTextNode(part));
+				} else {
+					fragment.appendChild(document.createTextNode(part));
+				}
+			}
+		});
+
+		this.subtitleText.appendChild(fragment);
+		this.subtitleText.setAttribute('data-language', this.getCaptionLanguage());
 	}
 
 	hdrSupported(): boolean {
@@ -632,10 +661,6 @@ export class NMPlayer extends Base {
 			this.videoElement.addEventListener('playing', this.videoPlayer_onPlayingEvent);
 			this.firstFrame = false;
 		});
-
-		setTimeout(() => {
-			this.setCaptionFromStorage();
-		}, 300);
 	}
 
 	setCaptionFromStorage(): void {
@@ -1022,11 +1047,6 @@ export class NMPlayer extends Base {
 					}
 				});
 			});
-			this.once('captionsList', () => {
-				this.setCaptionFromStorage();
-			});
-		});
-		this.once('item', () => {
 
 			if (!this.options.disableControls) {
 				this.getVideoElement().focus();
@@ -1068,15 +1088,16 @@ export class NMPlayer extends Base {
 					return;
 				}
 
-				setTimeout(() => {
+				// setTimeout(() => {
 					if (playlistItem.progress && playlistItem.progress.percentage > 95) {
 						this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
-					} else {
+					} 
+					else {
 						this.playlistItem(this.getPlaylist().indexOf(playlistItem));
 					}
-				}, 0);
+				// }, 0);
 
-				this.once('play', () => {
+				this.once('playing', () => {
 					if (!playlistItem.progress) return;
 
 					setTimeout(() => {
@@ -1126,6 +1147,7 @@ export class NMPlayer extends Base {
 		this.on('item', () => {
 			this.container.classList.remove('buffering');
 			this.container.classList.remove('error');
+			this.setCaptionFromStorage();
 		});
 	}
 
@@ -1522,6 +1544,8 @@ export class NMPlayer extends Base {
 					});
 				},
 			}).then();
+		} else {
+			this.emit('captionsChanged', this.getCurrentCaptions());
 		}
 	}
 
@@ -2152,8 +2176,8 @@ export class NMPlayer extends Base {
 	setCurrentCaption(index?: number): void {
 		if (!index && index != 0) return;
 
-		this.currentSubtitleIndex = index;
 		this.currentSubtitleFile = '';
+		this.currentSubtitleIndex = index;
 		this.subtitles = <VTTData>{};
 		this.subtitleText.textContent = '';
 		this.subtitleOverlay.style.display = 'none';

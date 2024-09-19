@@ -219,4 +219,8 @@ export declare class DesktopUIPlugin extends Plugin {
      * @returns The broken logo title string.
      */
     breakLogoTitle(str: string, characters?: string[]): string;
+    scrollCenter(el: HTMLElement, container: HTMLElement, options?: {
+        duration?: number;
+        margin?: number;
+    }): void;
 }

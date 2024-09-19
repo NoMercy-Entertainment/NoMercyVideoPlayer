@@ -17,6 +17,7 @@ export declare const languageButtonSpanStyles: string[];
 export declare const mainMenuStyles: string[];
 export declare const menuButtonTextStyles: string[];
 export declare const menuContentStyles: string[];
+export declare const menuWrapperStyles: string[];
 export declare const menuFrameStyles: string[];
 export declare const menuHeaderButtonTextStyles: string[];
 export declare const menuHeaderStyles: string[];

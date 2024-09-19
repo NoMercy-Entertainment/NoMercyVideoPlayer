@@ -37,6 +37,7 @@ const config = {
 	playlist: [
 		{
 			title: 'Sintel (2010)',
+			id: 'sintel',
 			description: 'Sintel is an independently produced short film, initiated by the Blender Foundation as a means to further improve and validate the free/open source 3D creation suite Blender. With initial funding provided by 1000s of donations via the internet community, it has again proven to be a viable development model for both open 3D technology as for independent animation film.\nThis 15 minute film has been realized in the studio of the Amsterdam Blender Institute, by an international team of artists and developers. In addition to that, several crucial technical and creative targets have been realized online, by developers and artists and teams all over the world.\nwww.sintel.org',
 			image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
 			file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
@@ -124,6 +125,7 @@ const config = {
 		},
 		{
 			title: 'Cosmos Laundromat (2015)',
+			id: 'cosmos-laundromat',
 			description: 'On a desolate island, a suicidal sheep named Franck meets his fate…in the form of a quirky salesman named Victor, who offers him the gift of a lifetime. The gift is many lifetimes, actually, in many different worlds – each lasting just a few minutes. In the sequel to the pilot, Franck will find a new reason to live…in the form of a bewitching female adventurer named Tara, who awakens his long-lost lust for life. But can Franck keep up with her?',
 			image: 'https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
 			file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
@@ -182,6 +184,7 @@ const config = {
 		},
 		{
 			title: 'Tears of Steel (2012)',
+			id: 'tears-of-steel',
 			description: 'Tears of Steel was realized with crowd-funding by users of the open source 3D creation tool Blender. Target was to improve and test a complete open and free pipeline for visual effects in film - and to make a compelling sci-fi film in Amsterdam, the Netherlands.  The film itself, and all raw material used for making it, have been released under the Creatieve Commons 3.0 Attribution license. Visit the tearsofsteel.org website to find out more about this, or to purchase the 4-DVD box with a lot of extras.  (CC) Blender Foundation - https://www.tearsofsteel.org',
 			image: 'https://image.tmdb.org/t/p/w780/fOy6SL5Zs2PFcNXwqEPIDPrLB1q.jpg',
 			file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/Tears.of.Steel.(2012).NoMercy.m3u8',
@@ -343,6 +346,7 @@ const config = {
 		},
 		{
 			title: 'Rail Wars',
+			id: 'rail-wars',
 			description: 'Takayama enters the training program of JNR with the ambition of becoming one of the venerable train company\'s engineers. As a trainee he is teamed up with fight-ready Sakurai and stolid Iwaizumi and fellow Haruka Kōmi who has encyclopedic knowledge of trains. Together they learn how security officers for the train line work and get involved in more than one tricky situation.',
 			image: 'https://image.tmdb.org/t/p/original/vH8NqN2LMcmtBv037iHGwcPOgCZ.jpg',
 			file: 'https://backstore.fra1.digitaloceanspaces.com/demo/railwars/railwars.mp4',
@@ -362,6 +366,7 @@ const config = {
 		},
 		{
 			title: 'No-Rin',
+			id: 'no-rin',
 			description: 'The sudden retirement of the famous idol Yuka Kusakabe from the entertainment business shocks the world and devastates her biggest fan, teenager Kosaku Hata. His classmates at the Tamo Agriculture School manages to get him out of his depression and bring him out of his room to attend his classes. But to everyone\'s surprise, Yuka Kusakabe - her stage name - comes into their class under the name Ringo Kinoshita as a transfer student. Kosaku realizes he has a once-in-a-lifetime opportunity to get to personally know his dream girl and, together with his group of friends, try to find out why she came to the agricultural school and become more than just classmates.',
 			image: 'https://image.tmdb.org/t/p/original/myHS6X2yonpoBQOptVuQ85PudtC.jpg',
 			file: 'https://backstore.fra1.digitaloceanspaces.com/demo/nourin/nourin.mp4',

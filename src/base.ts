@@ -3,7 +3,6 @@ import type { SetupConfig, TimeData, Track, CurrentTrack, VolumeState } from './
 import { NMPlayer } from './index';
 
 export class Base {
-
 	eventElement: HTMLDivElement = <HTMLDivElement>{};
 	container: HTMLDivElement = <HTMLDivElement>{};
 	videoElement: HTMLVideoElement = <HTMLVideoElement>{};

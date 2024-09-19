@@ -14,16 +14,14 @@
     --nomercyplayer-primary: rgb(147, 51, 234);
 }
 
-* {
-    font-family: 'Inter', 'Helvetica Nueue', 'Helvetica', 'Arial', 'sans-serif';
-    font-feature-settings: 'tnum' on, 'lnum' on;
-}
-
 .font-mono {
     font-family: 'Source Code Pro', monospace;
 }
 
 .nomercyplayer {
+    font-family: 'Inter', 'Helvetica Nueue', 'Helvetica', 'Arial', 'sans-serif';
+    font-feature-settings: 'tnum' on, 'lnum' on;
+    
     display: flex;
     position: relative;
     width: 100%;
@@ -198,4 +196,13 @@
 }
 *:focus-visible {
     /*outline: none;*/
+}
+
+.nomercyplayer .subtitle-text,
+.nomercyplayer .subtitle-text[data-language="eng"] {
+    font-family: 'BBC', sans-serif;
+}
+
+.nomercyplayer .subtitle-text[data-language="jpn"] {
+    font-family: 'Noto Sans JP', sans-serif;
 }

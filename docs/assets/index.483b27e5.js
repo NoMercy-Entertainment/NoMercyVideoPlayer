@@ -17837,7 +17837,7 @@ class Xc extends wr {
       "z-0",
       "transition-all",
       "duration-300"
-    ]).appendTo(this.container), this.subtitleOverlay.style.bottom = "5%", this.subtitleOverlay.style.display = "none", this.container.appendChild(this.subtitleOverlay), this.subtitleText = this.createElement("span", "subtitle-text", !0).addClasses(["text-center", "whitespace-pre-line", "font-bolder", "font-[BBC]", "leading-normal"]).appendTo(this.subtitleOverlay), this.subtitleText.style.fontSize = "clamp(20px, 2.5vw, 30px)", this.subtitleText.style.textShadow = "black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px", this.videoElement.addEventListener("timeupdate", this.checkSubtitles.bind(this));
+    ]).appendTo(this.container), this.subtitleOverlay.style.bottom = "5%", this.subtitleOverlay.style.display = "none", this.container.appendChild(this.subtitleOverlay), this.subtitleText = this.createElement("span", "subtitle-text", !0).addClasses(["subtitle-text", "text-center", "whitespace-pre-line", "font-bolder", "leading-normal"]).appendTo(this.subtitleOverlay), this.subtitleText.style.fontSize = "clamp(20px, 2.5vw, 30px)", this.subtitleText.style.textShadow = "black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px", this.videoElement.addEventListener("timeupdate", this.checkSubtitles.bind(this));
   }
   checkSubtitles() {
     if (!this.subtitles || !this.subtitles.cues || this.subtitles.cues.length === 0)
@@ -17847,10 +17847,22 @@ class Xc extends wr {
       return;
     }
     const e = this.videoElement.currentTime;
-    let t = !1;
-    this.subtitles.cues.forEach((s) => {
-      e >= s.startTime && e <= s.endTime && (this.subtitleOverlay.style.display = "block", this.subtitleText.textContent = s.text, t = !0);
-    }), t || (this.subtitleOverlay.style.display = "none");
+    let t = "";
+    this.subtitles.cues.forEach((r) => {
+      if (e >= r.startTime && e <= r.endTime) {
+        if (r.text === t)
+          return;
+        t = r.text;
+      }
+    }), this.subtitleOverlay.style.display = "block", this.subtitleText.innerHTML = "";
+    const s = document.createDocumentFragment(), i = t.split(/(<\/?i>|<\/?b>)/g);
+    if (i.length == 1 && i[0] == "")
+      return;
+    console.log(i);
+    let n = null;
+    i.forEach((r) => {
+      r === "<i>" ? n = document.createElement("i") : r === "<b>" ? n = document.createElement("b") : r === "</i>" || r === "</b>" ? n && (s.appendChild(n), n = null) : n ? n.appendChild(document.createTextNode(r)) : s.appendChild(document.createTextNode(r));
+    }), this.subtitleText.appendChild(s), this.subtitleText.setAttribute("data-language", this.getCaptionLanguage());
   }
   hdrSupported() {
     return screen.colorDepth > 24 && window.matchMedia("(color-gamut: p3)").matches;
@@ -17904,9 +17916,7 @@ class Xc extends wr {
   videoPlayer_onPlayingEvent(e) {
     this.videoElement.removeEventListener("playing", this.videoPlayer_onPlayingEvent), this.firstFrame || (this.emit("firstFrame"), this.firstFrame = !0), this.setMediaAPI(), this.on("item", () => {
       this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent), this.firstFrame = !1;
-    }), setTimeout(() => {
-      this.setCaptionFromStorage();
-    }, 300);
+    });
   }
   setCaptionFromStorage() {
     if (localStorage.getItem("nmplayer-subtitle-language") && localStorage.getItem("nmplayer-subtitle-type") && localStorage.getItem("nmplayer-subtitle-ext")) {
@@ -18099,11 +18109,7 @@ class Xc extends wr {
         localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0), this.once("play", () => {
           localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0);
         });
-      }), this.once("captionsList", () => {
-        this.setCaptionFromStorage();
-      });
-    }), this.once("item", () => {
-      this.options.disableControls || this.getVideoElement().focus();
+      }), this.options.disableControls || this.getVideoElement().focus();
       const e = this.getParameterByName("item"), t = e ? parseInt(e, 10) : null, s = this.getParameterByName("season"), i = s ? parseInt(s, 10) : null, n = this.getParameterByName("episode"), r = n ? parseInt(n, 10) : null;
       if (t)
         setTimeout(() => {
@@ -18127,9 +18133,7 @@ class Xc extends wr {
           this.options.autoPlay && this.play().then();
           return;
         }
-        setTimeout(() => {
-          l.progress && l.progress.percentage > 95 ? this.playlistItem(this.getPlaylist().indexOf(l) + 1) : this.playlistItem(this.getPlaylist().indexOf(l));
-        }, 0), this.once("play", () => {
+        l.progress && l.progress.percentage > 95 ? this.playlistItem(this.getPlaylist().indexOf(l) + 1) : this.playlistItem(this.getPlaylist().indexOf(l)), this.once("playing", () => {
           l.progress && setTimeout(() => {
             l.progress && this.seek(qc(l.duration) / 100 * l.progress.percentage);
           }, 350);
@@ -18150,7 +18154,7 @@ class Xc extends wr {
     }), this.on("stalled", () => {
       this.container.classList.add("buffering");
     }), this.on("item", () => {
-      this.container.classList.remove("buffering"), this.container.classList.remove("error");
+      this.container.classList.remove("buffering"), this.container.classList.remove("error"), this.setCaptionFromStorage();
     });
   }
   _removeEvents() {
@@ -18430,7 +18434,7 @@ class Xc extends wr {
   }
   fetchSubtitleFile() {
     const e = this.getSubtitleFile();
-    e && this.currentSubtitleFile !== e && (this.currentSubtitleFile = e, this.emit("captionsChanged", this.getCurrentCaptions()), this.getFileContents({
+    e && this.currentSubtitleFile !== e ? (this.currentSubtitleFile = e, this.emit("captionsChanged", this.getCurrentCaptions()), this.getFileContents({
       url: e,
       options: {
         anonymous: !1
@@ -18441,7 +18445,7 @@ class Xc extends wr {
           this.emit("subtitles", this.getSubtitles());
         });
       }
-    }).then());
+    }).then()) : this.emit("captionsChanged", this.getCurrentCaptions());
   }
   // Method to load and play a video from the playlist
   playVideo(e) {
@@ -18846,7 +18850,7 @@ class Xc extends wr {
   }
   setCurrentCaption(e) {
     if (!(!e && e != 0)) {
-      if (this.currentSubtitleIndex = e, this.currentSubtitleFile = "", this.subtitles = {}, this.subtitleText.textContent = "", this.subtitleOverlay.style.display = "none", e == -1) {
+      if (this.currentSubtitleFile = "", this.currentSubtitleIndex = e, this.subtitles = {}, this.subtitleText.textContent = "", this.subtitleOverlay.style.display = "none", e == -1) {
         this.emit("captionsChanged", this.getCurrentCaptions()), this.storeSubtitleChoice();
         return;
       }
@@ -19651,7 +19655,7 @@ const an = {
   "bg-gradient-to-t",
   "via-black/20",
   "from-black/90",
-  "pt-[20%]",
+  "pt-[10%]",
   "w-available"
 ], ih = [
   "bottom-row",
@@ -19815,23 +19819,27 @@ const an = {
   "h-available",
   "mt-auto"
 ], Th = [
+  "menu-wrapper"
+], xh = [
   "menu-frame",
-  "bottom-10",
-  "fixed",
-  "flex",
   "flex-col",
   "hidden",
-  "overflow-clip",
-  "right-[2%]",
+  "absolute",
+  "inset-4",
   "w-fit",
+  "h-available",
   "z-50",
-  "max-w-[70rem]"
-], xh = [
+  "max-h-[calc(100%-2rem)]",
+  "max-w-[min(70rem,calc(100%-2rem))]",
+  "overflow-clip",
+  "justify-self-end",
+  "rounded-lg"
+], bh = [
   "menu-header-button-text",
   "font-semibold",
   "leading-[normal]",
   "pl-2"
-], bh = [
+], Eh = [
   "menu-header",
   "flex",
   "h-9",
@@ -19840,7 +19848,7 @@ const an = {
   "py-2",
   "text-white",
   "w-available"
-], Eh = [
+], Sh = [
   "scroll-container",
   "flex",
   "flex-col",
@@ -19849,14 +19857,13 @@ const an = {
   "overflow-x-hidden",
   "overflow-y-auto",
   "p-2",
+  "transition-all",
+  "duration-300",
   "w-available",
-  // 	scroll-padding-block: 1rem;
-  // scroll-snap-align: center;
-  // scroll-behavior: smooth;
   "scroll-p-4",
   "scroll-snap-align-center",
-  "scroll-behavior-smooth"
-], Sh = [
+  "scroll-smooth"
+], Lh = [
   "slider-bar",
   "group/slider",
   "flex",
@@ -19866,7 +19873,7 @@ const an = {
   "mx-4",
   "relative",
   "w-available"
-], Lh = [
+], wh = [
   "slider-buffer",
   "absolute",
   "flex",
@@ -19877,7 +19884,7 @@ const an = {
   "z-0",
   "overflow-hidden",
   "overflow-clip"
-], wh = [
+], Ah = [
   "slider-hover",
   "absolute",
   "opacity-1",
@@ -19889,7 +19896,7 @@ const an = {
   "z-0",
   "overflow-hidden",
   "overflow-clip"
-], Ah = [
+], kh = [
   "slider-progress",
   "absolute",
   "flex",
@@ -19900,7 +19907,7 @@ const an = {
   "z-10",
   "overflow-hidden",
   "overflow-clip"
-], kh = [
+], Rh = [
   "slider-nipple",
   "-translate-x-1/2",
   "-translate-y-[25%]",
@@ -19914,7 +19921,7 @@ const an = {
   "top-0",
   "w-4",
   "z-20"
-], Rh = ["slider-pop-image"], Ih = [
+], Ih = ["slider-pop-image"], Dh = [
   "slider-pop",
   "-translate-x-1/2",
   "absolute",
@@ -19931,16 +19938,16 @@ const an = {
   "rounded-md",
   "text-center",
   "z-20"
-], Dh = [
+], Mh = [
   "slider-pop-text",
   "font-mono"
-], Mh = [
+], Ph = [
   "speed-button-text",
   "cursor-pointer",
   "font-semibold",
   "pl-2",
   "leading-[normal]"
-], Ph = [
+], Fh = [
   "sub-menu-content",
   "flex",
   "flex-col",
@@ -19948,8 +19955,9 @@ const an = {
   "hidden",
   "max-h-available",
   "w-available",
-  "overflow-auto"
-], Fh = [
+  "overflow-auto",
+  "min-w-52"
+], _h = [
   "sub-menu",
   "bg-neutral-900/95",
   "flex-col",
@@ -19963,14 +19971,14 @@ const an = {
   "min-w-64",
   "hidden",
   "group-[&.nomercyplayer:has(.sub-menu-open)]:flex"
-], _h = [
+], Oh = [
   "svg-size",
   "h-5",
   "w-5",
   "pointer-events-none",
   "group-hover/button:scale-110",
   "duration-700"
-], Oh = [
+], Nh = [
   "time",
   "flex",
   "font-mono",
@@ -19978,7 +19986,7 @@ const an = {
   "pointer-events-none",
   "select-none",
   "text-sm"
-], Nh = [
+], Bh = [
   "top-bar",
   "z-10",
   "flex",
@@ -19988,6 +19996,7 @@ const an = {
   "gap-2",
   "px-6",
   "py-4",
+  "pb-[10%]",
   "mb-auto",
   "-translate-y-full",
   "group-[&.nomercyplayer.active]:translate-y-0",
@@ -19996,8 +20005,11 @@ const an = {
   // 'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
   "group-[&.nomercyplayer:has(:focus)]:duration-0",
   "transition-all",
-  "duration-300"
-], Bh = [
+  "duration-300",
+  "bg-gradient-to-b",
+  "from-black/90",
+  "via-black/50"
+], Uh = [
   "top-row",
   "flex",
   "gap-1",
@@ -20007,22 +20019,22 @@ const an = {
   "pr-2",
   "relative",
   "w-available"
-], Uh = [
+], $h = [
   "touch-playback-button",
   "pointer-events-none",
   "fill-white"
-], $h = [
+], Vh = [
   "touch-playback",
   "flex",
   "-ml-2",
   "items-center",
   "justify-center"
-], Vh = [
+], Hh = [
   "volume-container",
   "group/volume",
   "flex",
   "overflow-clip"
-], Hh = [
+], Gh = [
   "volume-slider",
   "w-0",
   "rounded-full",
@@ -20057,7 +20069,7 @@ const an = {
   "range-thumb:bg-white",
   "range-thumb:shadow-sm",
   "range-thumb:border-none"
-], Gh = [
+], Kh = [
   "player-message",
   "hidden",
   "absolute",
@@ -20071,7 +20083,7 @@ const an = {
   "top-12",
   "-translate-x-1/2",
   "z-50"
-], Kh = [
+], Wh = [
   "playlist-menu-button",
   "relative",
   "flex",
@@ -20090,16 +20102,17 @@ const an = {
   "transition-all",
   "duration-300",
   "hover:bg-neutral-600/20"
-], Wh = [
-  "playlist-card-left",
+], zh = [
+  "episode-menu-button-left",
   "relative",
   "rounded-md",
   "w-[30%]",
+  "h-available",
   "overflow-clip",
   "self-center",
   "pointer-events-none"
-], zh = [
-  "episode-card-shadow",
+], jh = [
+  "episode-menu-button-shadow",
   "bg-[linear-gradient(0deg,rgba(0,0,0,0.87)_0%,rgba(0,0,0,0.7)_25%,rgba(0,0,0,0)_50%,rgba(0,0,0,0)_100%)]",
   "shadow-[inset_0px_1px_0px_rgba(255,255,255,0.24),inset_0px_-1px_0px_rgba(0,0,0,0.24),inset_0px_-2px_0px_rgba(0,0,0,0.24)]",
   "bottom-0",
@@ -20107,37 +20120,37 @@ const an = {
   "absolute",
   "!h-available",
   "w-available"
-], jh = [
-  "playlist-card-image",
+], Yh = [
+  "episode-menu-button-image",
   "w-available",
   "h-auto",
   "aspect-video",
   "object-cover",
   ""
-], Yh = [
-  "progress-container",
+], Zh = [
+  "episode-menu-progress-container",
   "absolute",
   "bottom-0",
   "w-available",
   "flex",
   "flex-col",
   "px-3"
-], Zh = [
-  "progress-box",
+], qh = [
+  "episode-menu-progress-box",
   "flex",
   "justify-between",
   "h-available",
   "sm:mx-2",
   "mb-1",
   "px-1"
-], qh = [
-  "progress-item",
+], Xh = [
+  "progress-item-text",
   "text-[0.7rem]",
   ""
-], Xh = [
+], Qh = [
   "progress-duration",
   "text-[0.7rem]"
-], Qh = [
+], Jh = [
   "slider-container",
   "hidden",
   "rounded-md",
@@ -20147,10 +20160,10 @@ const an = {
   "mb-2",
   "mx-1",
   "sm:mx-2"
-], Jh = [
+], eu = [
   "progress-bar",
   "bg-white"
-], eu = [
+], tu = [
   "playlist-card-right",
   "w-3/4",
   "flex",
@@ -20158,13 +20171,13 @@ const an = {
   "text-left",
   "gap-1",
   "pointer-events-none"
-], tu = [
+], su = [
   "playlist-menu-button-title",
   "font-bold",
   "line-clamp-1",
   "text-white",
   ""
-], su = [
+], iu = [
   "playlist-menu-button-overview",
   "text-[0.7rem]",
   "leading-[1rem]",
@@ -20172,7 +20185,7 @@ const an = {
   "overflow-hidden",
   "text-white",
   ""
-], iu = [
+], nu = [
   "tooltip",
   "hidden",
   "absolute",
@@ -20187,7 +20200,7 @@ const an = {
   "font-medium",
   "bg-neutral-900/95",
   "pointer-events-none"
-], nu = [
+], ru = [
   "pause-screen",
   "absolute",
   "bg-black/80",
@@ -20199,7 +20212,7 @@ const an = {
   "h-available",
   "z-0",
   "hidden"
-], ru = [
+], au = [
   "episode-screen",
   "absolute",
   "bg-black/80",
@@ -20212,7 +20225,7 @@ const an = {
   "h-available",
   "z-0",
   "hidden"
-], au = [
+], ou = [
   "language-screen",
   "absolute",
   "bg-black/80",
@@ -20224,7 +20237,7 @@ const an = {
   "h-available",
   "z-0",
   "hidden"
-], ou = [
+], lu = [
   "language-button",
   "w-available",
   "mr-auto",
@@ -20246,7 +20259,7 @@ const an = {
   "focus-visible:outline-2",
   "focus-visible:outline-white",
   "active:outline-white"
-], lu = [
+], cu = [
   "w-7/12",
   "mr-auto",
   "h-8",
@@ -20263,14 +20276,14 @@ const an = {
   "focus-visible:outline-2",
   "focus-visible:outline-white",
   "active:outline-white"
-], cu = [
+], hu = [
   "text-white",
   "text-sm",
   "font-bold",
   "mx-2",
   "flex",
   "justify-between"
-], hu = [
+], uu = [
   "w-available",
   "mr-auto",
   "h-8",
@@ -20288,7 +20301,7 @@ const an = {
   "focus-visible:outline-2",
   "focus-visible:outline-white",
   "active:outline-white"
-], uu = [
+], du = [
   "w-available",
   "text-white",
   "text-sm",
@@ -20297,14 +20310,14 @@ const an = {
   "flex",
   "justify-between",
   "flex-nowrap"
-], du = [
-  "playlist-card-left",
+], fu = [
+  "episode-menu-button-left",
   "relative",
   "rounded-md",
   "w-[50%]",
   "overflow-clip",
   "self-center"
-], fu = [
+], pu = [
   "playlist-card-right",
   "w-3/4",
   "flex",
@@ -20319,14 +20332,14 @@ const an = {
   "focus-visible:outline-2",
   "focus-visible:outline-white",
   "active:outline-white"
-], pu = [
+], mu = [
   "playlist-menu-button-title",
   "font-bold",
   "text-lg",
   "line-clamp-1",
   "text-white",
   ""
-], mu = [
+], gu = [
   "playlist-menu-button-overview",
   "font-bold",
   "text-[0.7rem]",
@@ -20334,14 +20347,14 @@ const an = {
   "line-clamp-4",
   "overflow-hidden",
   "text-white"
-], gu = [
+], yu = [
   "flex",
   "flex-col",
   "justify-between",
   "items-center",
   "w-2/3",
   "h-available"
-], yu = [
+], vu = [
   "flex",
   "flex-col",
   "justify-center",
@@ -20349,7 +20362,7 @@ const an = {
   "w-available",
   "gap-2",
   "h-auto"
-], vu = [
+], Cu = [
   "flex",
   "flex-col",
   "justify-center",
@@ -20357,7 +20370,7 @@ const an = {
   "w-available",
   "h-[85px]",
   "min-h-[85px]"
-], Cu = [
+], Tu = [
   "w-auto",
   "px-2",
   "py-2",
@@ -20367,7 +20380,7 @@ const an = {
   "max-w-[23rem]",
   "max-h-available",
   ""
-], Tu = [
+], xu = [
   "w-auto",
   "h-available",
   "items-center",
@@ -20377,46 +20390,46 @@ const an = {
   "leading-[1.2]",
   "font-bold",
   "object-fit"
-], xu = [
+], bu = [
   "flex",
   "flex-col",
   "w-available",
   "h-[40px]"
-], bu = [
+], Eu = [
   "flex",
   "text-white",
   "text-sm",
   "font-bold",
   "mx-2"
-], Eu = [
+], Su = [
   "flex",
   "gap-2",
   "items-center",
   "w-available",
   "text-white"
-], Su = [
+], Lu = [
   "w-8",
   "h-available",
   "object-fit",
   "invert"
-], Lu = [
+], wu = [
   "flex",
   "text-white",
   "text-sm",
   "font-bold",
   "mx-2"
-], wu = [
+], Au = [
   "flex",
   "flex-col",
   "w-available",
   "h-available"
-], Au = [
+], ku = [
   "flex",
   "text-white",
   "text-lg",
   "font-bold",
   "mx-2"
-], ku = [
+], Ru = [
   "text-white",
   "text-sm",
   "line-clamp-4",
@@ -20424,7 +20437,7 @@ const an = {
   "leading-5",
   "overflow-hidden",
   "mx-2"
-], Ru = [
+], Iu = [
   "flex",
   "flex-col",
   "gap-3",
@@ -20436,7 +20449,7 @@ const an = {
   "px-2",
   "py-0.5",
   "[*::-webkit-scrollbar]:hidden"
-], Iu = [
+], Du = [
   "flex",
   "flex-col",
   "gap-3",
@@ -20448,33 +20461,33 @@ const an = {
   "px-2",
   "py-0.5",
   "[*::-webkit-scrollbar]:hidden"
-], Du = [
+], Mu = [
   "flex",
   "flex-col",
   "justify-center",
   "w-1/3",
   "h-available"
-], Mu = [
+], Pu = [
   "flex",
   "flex-col",
   "justify-start",
   "mt-28",
   "w-1/3",
   "h-available"
-], Pu = [
+], Fu = [
   "flex",
   "flex-col",
   "justify-between",
   "items-center",
   "w-2/5",
   "h-available"
-], Fu = [
+], _u = [
   "flex",
   "flex-col",
   "justify-center",
   "w-3/5",
   "h-available"
-], _u = [
+], Ou = [
   "flex",
   "flex-col",
   "overflow-auto",
@@ -20483,7 +20496,7 @@ const an = {
   "gap-2",
   "p-1",
   "min-h-[50%]"
-], Ou = [
+], Nu = [
   "absolute",
   "inset-0",
   "hidden",
@@ -20493,13 +20506,13 @@ const an = {
   "grid",
   "pointer-events-none",
   "place-content-center"
-], Nu = [
+], Bu = [
   "hidden",
   "flex-col",
   "items-center",
   "gap-4",
   "mt-11"
-], Bu = [
+], Uu = [
   "inline",
   "w-12",
   "h-12",
@@ -20507,11 +20520,11 @@ const an = {
   "animate-spin",
   "text-white/20",
   "fill-white"
-], Uu = [
+], $u = [
   "text-white",
   "text-lg",
   "font-bold"
-], $u = [
+], Vu = [
   "episode-tip",
   "hidden",
   "absolute",
@@ -20528,15 +20541,15 @@ const an = {
   "rounded-lg",
   "font-medium",
   "bg-neutral-900/95"
-], Vu = [
-  "playlist-card-left",
+], Hu = [
+  "next-tip-text",
   "relative",
   "rounded-sm",
   "w-[40%]",
   "overflow-clip",
   "self-center",
   ""
-], Hu = [
+], Gu = [
   "playlist-card-image",
   "w-available",
   "h-auto",
@@ -20544,31 +20557,31 @@ const an = {
   "object-cover",
   "rounded-md",
   ""
-], Gu = [
-  "playlist-card-left",
+], Ku = [
+  "next-tip-left",
   "relative",
   "rounded-sm",
   "w-[40%]",
   "overflow-clip",
   "self-center",
   ""
-], Ku = [
-  "playlist-card-right",
+], Wu = [
+  "next-tip-right",
   "w-[60%]",
   "flex",
   "flex-col",
   "text-left",
   "gap-1"
-], Wu = [
-  "playlist-card-header",
+], zu = [
+  "next-tip-header",
   "font-bold",
   ""
-], zu = [
-  "tooltip-title",
+], ju = [
+  "next-tip-title",
   "font-bold",
   "text-white"
-], ju = [
-  "episode-tip",
+], Yu = [
+  "next-up",
   "flex",
   "gap-2",
   "absolute",
@@ -20579,8 +20592,8 @@ const an = {
   "px-2",
   "py-2",
   "z-50"
-], Yu = [
-  "nextup-button",
+], Zu = [
+  "next-up-credits-button",
   "bg-neutral-900/95",
   "block",
   "!text-[0.9rem]",
@@ -20594,8 +20607,8 @@ const an = {
   "focus-visible:outline-white",
   "active:outline-white",
   ""
-], Zu = [
-  "nextup-button",
+], qu = [
+  "next-up-next-button",
   "animated",
   "bg-neutral-100",
   "w-[55%]",
@@ -20605,7 +20618,7 @@ const an = {
   "focus-visible:outline-white",
   "active:outline-white",
   ""
-], qu = [
+], Xu = [
   "absolute",
   "flex",
   "flex-col",
@@ -20614,7 +20627,8 @@ const an = {
   "w-available",
   "h-available",
   "z-0"
-], Xu = [
+], Qu = [
+  "background",
   "absolute",
   "inset-0",
   "bg-black",
@@ -20622,7 +20636,8 @@ const an = {
   "bg-opacity-80",
   "opacity-0",
   "z-20"
-], Qu = [
+], Ju = [
+  "tv-bottom-row",
   "relative",
   "flex",
   "flex-row",
@@ -20633,22 +20648,22 @@ const an = {
   "px-20",
   "pb-10",
   "z-0"
-], Ju = [], ed = [], td = [], sd = [], id = [
+], ed = [], td = [], sd = [], id = [], nd = [
   "flex",
   "flex-col",
   "justify-end",
   "items-end",
   "gap-2"
-], nd = [
+], rd = [
   "text-white",
   "text-sm",
   "whitespace-pre",
   "font-bold"
-], rd = [
+], ad = [
   "flex",
   "flex-row",
   "gap-2"
-], ad = [], od = [], ld = [
+], od = [], ld = [], cd = [
   "relative",
   "h-auto",
   "mb-28",
@@ -20656,7 +20671,7 @@ const an = {
   "translate-y-[80vh]",
   "z-40",
   "w-available"
-], cd = [
+], hd = [
   "relative",
   "flex",
   "h-available",
@@ -20665,19 +20680,19 @@ const an = {
   "px-[calc(100%/2.14)]",
   "gap-1.5",
   "scrollbar-none"
-], hd = [
+], ud = [
   "w-available",
   "flex",
   "gap-1.5",
   "scroll-smooth",
   "snap-x"
-], ud = [
+], dd = [
   "w-1/5",
   "h-auto",
   "object-cover",
   "aspect-video",
   "snap-center"
-], dd = [
+], fd = [
   "[--gap:1.5rem]",
   "absolute",
   "flex",
@@ -20686,7 +20701,7 @@ const an = {
   "gap-[var(--gap)]",
   "z-10",
   "pointer-events-none"
-], fd = [
+], pd = [
   "w-[calc(26%+(var(--gap)/2))]",
   "h-auto",
   "object-cover",
@@ -20694,14 +20709,14 @@ const an = {
   "border-4",
   "mx-auto",
   ""
-], pd = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+], md = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  backgroundStyles: Xu,
+  backgroundStyles: Qu,
   bottomBarShadowStyles: sh,
   bottomBarStyles: th,
   bottomRowStyles: ih,
   buttonBaseStyles: nh,
-  buttonContainerStyles: Ru,
+  buttonContainerStyles: Iu,
   buttonStyles: rh,
   centerStyles: ah,
   chapterBarStyles: oh,
@@ -20711,121 +20726,122 @@ const an = {
   chapterMarkerProgressStyles: dh,
   chapterMarkersStyles: lh,
   chapterTextStyles: fh,
-  descriptionStyles: ku,
+  descriptionStyles: Ru,
   dividerStyles: ph,
-  episodeLeftSideStyles: Pu,
-  episodeMenuButtonImageStyles: jh,
-  episodeMenuButtonLeftStyles: Wh,
-  episodeMenuButtonOverviewStyles: su,
-  episodeMenuButtonRightSideStyles: eu,
-  episodeMenuButtonShadowStyles: zh,
-  episodeMenuButtonTitleStyles: tu,
-  episodeMenuProgressBoxStyles: Zh,
-  episodeMenuProgressContainerStyles: Yh,
-  episodeRightSideStyles: Fu,
-  episodeScreenStyles: ru,
-  episodeScrollContainerStyles: _u,
-  episodesCountStyles: Lu,
-  fallbackTextStyles: Tu,
+  episodeLeftSideStyles: Fu,
+  episodeMenuButtonImageStyles: Yh,
+  episodeMenuButtonLeftStyles: zh,
+  episodeMenuButtonOverviewStyles: iu,
+  episodeMenuButtonRightSideStyles: tu,
+  episodeMenuButtonShadowStyles: jh,
+  episodeMenuButtonTitleStyles: su,
+  episodeMenuProgressBoxStyles: qh,
+  episodeMenuProgressContainerStyles: Zh,
+  episodeRightSideStyles: _u,
+  episodeScreenStyles: au,
+  episodeScrollContainerStyles: Ou,
+  episodesCountStyles: wu,
+  fallbackTextStyles: xu,
   iconStyles: mh,
   languageButtonSpanStyles: gh,
-  languageButtonStyles: ou,
-  languageRightSideStyles: Mu,
-  languageScreenStyles: au,
-  leftSideStyles: gu,
-  leftSideTopStyles: yu,
-  logoContainerStyles: vu,
-  logoFooterStyles: xu,
-  logoStyles: Cu,
+  languageButtonStyles: lu,
+  languageRightSideStyles: Pu,
+  languageScreenStyles: ou,
+  leftSideStyles: yu,
+  leftSideTopStyles: vu,
+  logoContainerStyles: Cu,
+  logoFooterStyles: bu,
+  logoStyles: Tu,
   mainMenuStyles: yh,
   menuButtonTextStyles: vh,
   menuContentStyles: Ch,
-  menuFrameStyles: Th,
-  menuHeaderButtonTextStyles: xh,
-  menuHeaderStyles: bh,
-  nextTipHeaderStyles: Wu,
-  nextTipImageStyles: Hu,
-  nextTipLeftSideStyles: Gu,
-  nextTipRightSideStyles: Ku,
-  nextTipStyles: $u,
-  nextTipTextStyles: Vu,
-  nextTipTitleStyles: zu,
-  nextUpCreditsButtonStyles: Yu,
-  nextUpNextButtonStyles: Zu,
-  nextUpStyles: ju,
-  overviewContainerStyles: wu,
-  pauseScreenStyles: nu,
-  playerMessageStyles: Gh,
-  playlistMenuButtonStyles: Kh,
-  progressBarStyles: Jh,
-  progressContainerDurationTextStyles: Xh,
-  progressContainerItemTextStyles: qh,
-  ratingContainerStyles: Eu,
-  ratingImageStyles: Su,
-  rightSideStyles: Du,
-  roleStyles: Nu,
-  scrollContainerStyles: Eh,
-  seekContainerChildStyles: hd,
-  seekContainerStyles: ld,
-  seekScrollCloneStyles: dd,
-  seekScrollContainerStyles: cd,
-  sliderBarStyles: Sh,
-  sliderBufferStyles: Lh,
-  sliderContainerStyles: Qh,
-  sliderHoverStyles: wh,
-  sliderNippleStyles: kh,
-  sliderPopImageStyles: Rh,
-  sliderPopStyles: Ih,
-  sliderProgressStyles: Ah,
-  sliderTextStyles: Dh,
-  speedButtonTextStyles: Mh,
-  spinnerContainerStyles: Ou,
-  spinnerStyles: Bu,
-  statusTextStyles: Uu,
-  subMenuContentStyles: Ph,
-  subMenuStyles: Fh,
-  subtitleButtonContainerStyles: Iu,
-  svgSizeStyles: _h,
-  thumbnailCloneStyles: fd,
-  thumbnailStyles: ud,
-  timeStyles: Oh,
-  titleStyles: Au,
-  tooltipStyles: iu,
-  topBarStyles: Nh,
-  topRowStyles: Bh,
-  touchPlaybackButtonStyles: Uh,
-  touchPlaybackStyles: $h,
-  tvBottomRowStyles: Qu,
-  tvButtonStyles: lu,
-  tvButtonTextStyles: cu,
-  tvCurrentItemContainerStyles: id,
-  tvCurrentItemEpisodeStyles: ad,
-  tvCurrentItemShowStyles: nd,
-  tvCurrentItemTitleContainerStyles: rd,
-  tvCurrentItemTitleStyles: od,
-  tvEpisodeMenuButtonLeftStyles: du,
-  tvEpisodeMenuButtonOverviewStyles: mu,
-  tvEpisodeMenuButtonRightSideStyles: fu,
-  tvEpisodeMenuButtonTitleStyles: pu,
-  tvOverlayStyles: qu,
-  tvSeasonButtonStyles: hu,
-  tvSeasonButtonTextStyles: uu,
-  tvSeekBarInnerBufferStyles: sd,
-  tvSeekBarInnerProgressStyles: td,
-  tvSeekBarInnerStyles: ed,
-  tvSeekBarStyles: Ju,
-  volumeContainerStyles: Vh,
-  volumeSliderStyles: Hh,
-  yearStyles: bu
-}, Symbol.toStringTag, { value: "Module" })), ei = "-", md = (a) => {
-  const e = yd(a), {
+  menuFrameStyles: xh,
+  menuHeaderButtonTextStyles: bh,
+  menuHeaderStyles: Eh,
+  menuWrapperStyles: Th,
+  nextTipHeaderStyles: zu,
+  nextTipImageStyles: Gu,
+  nextTipLeftSideStyles: Ku,
+  nextTipRightSideStyles: Wu,
+  nextTipStyles: Vu,
+  nextTipTextStyles: Hu,
+  nextTipTitleStyles: ju,
+  nextUpCreditsButtonStyles: Zu,
+  nextUpNextButtonStyles: qu,
+  nextUpStyles: Yu,
+  overviewContainerStyles: Au,
+  pauseScreenStyles: ru,
+  playerMessageStyles: Kh,
+  playlistMenuButtonStyles: Wh,
+  progressBarStyles: eu,
+  progressContainerDurationTextStyles: Qh,
+  progressContainerItemTextStyles: Xh,
+  ratingContainerStyles: Su,
+  ratingImageStyles: Lu,
+  rightSideStyles: Mu,
+  roleStyles: Bu,
+  scrollContainerStyles: Sh,
+  seekContainerChildStyles: ud,
+  seekContainerStyles: cd,
+  seekScrollCloneStyles: fd,
+  seekScrollContainerStyles: hd,
+  sliderBarStyles: Lh,
+  sliderBufferStyles: wh,
+  sliderContainerStyles: Jh,
+  sliderHoverStyles: Ah,
+  sliderNippleStyles: Rh,
+  sliderPopImageStyles: Ih,
+  sliderPopStyles: Dh,
+  sliderProgressStyles: kh,
+  sliderTextStyles: Mh,
+  speedButtonTextStyles: Ph,
+  spinnerContainerStyles: Nu,
+  spinnerStyles: Uu,
+  statusTextStyles: $u,
+  subMenuContentStyles: Fh,
+  subMenuStyles: _h,
+  subtitleButtonContainerStyles: Du,
+  svgSizeStyles: Oh,
+  thumbnailCloneStyles: pd,
+  thumbnailStyles: dd,
+  timeStyles: Nh,
+  titleStyles: ku,
+  tooltipStyles: nu,
+  topBarStyles: Bh,
+  topRowStyles: Uh,
+  touchPlaybackButtonStyles: $h,
+  touchPlaybackStyles: Vh,
+  tvBottomRowStyles: Ju,
+  tvButtonStyles: cu,
+  tvButtonTextStyles: hu,
+  tvCurrentItemContainerStyles: nd,
+  tvCurrentItemEpisodeStyles: od,
+  tvCurrentItemShowStyles: rd,
+  tvCurrentItemTitleContainerStyles: ad,
+  tvCurrentItemTitleStyles: ld,
+  tvEpisodeMenuButtonLeftStyles: fu,
+  tvEpisodeMenuButtonOverviewStyles: gu,
+  tvEpisodeMenuButtonRightSideStyles: pu,
+  tvEpisodeMenuButtonTitleStyles: mu,
+  tvOverlayStyles: Xu,
+  tvSeasonButtonStyles: uu,
+  tvSeasonButtonTextStyles: du,
+  tvSeekBarInnerBufferStyles: id,
+  tvSeekBarInnerProgressStyles: sd,
+  tvSeekBarInnerStyles: td,
+  tvSeekBarStyles: ed,
+  volumeContainerStyles: Hh,
+  volumeSliderStyles: Gh,
+  yearStyles: Eu
+}, Symbol.toStringTag, { value: "Module" })), ei = "-", gd = (a) => {
+  const e = vd(a), {
     conflictingClassGroups: t,
     conflictingClassGroupModifiers: s
   } = a;
   return {
     getClassGroupId: (r) => {
       const o = r.split(ei);
-      return o[0] === "" && o.length !== 1 && o.shift(), Cr(o, e) || gd(r);
+      return o[0] === "" && o.length !== 1 && o.shift(), Cr(o, e) || yd(r);
     },
     getConflictingClassGroupIds: (r, o) => {
       const l = t[r] || [];
@@ -20845,13 +20861,13 @@ const an = {
   return (r = e.validators.find(({
     validator: o
   }) => o(n))) == null ? void 0 : r.classGroupId;
-}, on = /^\[(.+)\]$/, gd = (a) => {
+}, on = /^\[(.+)\]$/, yd = (a) => {
   if (on.test(a)) {
     const e = on.exec(a)[1], t = e == null ? void 0 : e.substring(0, e.indexOf(":"));
     if (t)
       return "arbitrary.." + t;
   }
-}, yd = (a) => {
+}, vd = (a) => {
   const {
     theme: e,
     prefix: t
@@ -20859,7 +20875,7 @@ const an = {
     nextPart: /* @__PURE__ */ new Map(),
     validators: []
   };
-  return Cd(Object.entries(a.classGroups), t).forEach(([n, r]) => {
+  return Td(Object.entries(a.classGroups), t).forEach(([n, r]) => {
     _s(r, s, n, e);
   }), s;
 }, _s = (a, e, t, s) => {
@@ -20870,7 +20886,7 @@ const an = {
       return;
     }
     if (typeof i == "function") {
-      if (vd(i)) {
+      if (Cd(i)) {
         _s(i(s), e, t, s);
         return;
       }
@@ -20892,10 +20908,10 @@ const an = {
       validators: []
     }), t = t.nextPart.get(s);
   }), t;
-}, vd = (a) => a.isThemeGetter, Cd = (a, e) => e ? a.map(([t, s]) => {
+}, Cd = (a) => a.isThemeGetter, Td = (a, e) => e ? a.map(([t, s]) => {
   const i = s.map((n) => typeof n == "string" ? e + n : typeof n == "object" ? Object.fromEntries(Object.entries(n).map(([r, o]) => [e + r, o])) : n);
   return [t, i];
-}) : a, Td = (a) => {
+}) : a, xd = (a) => {
   if (a < 1)
     return {
       get: () => {
@@ -20919,7 +20935,7 @@ const an = {
       t.has(n) ? t.set(n, r) : i(n, r);
     }
   };
-}, Tr = "!", xd = (a) => {
+}, Tr = "!", bd = (a) => {
   const {
     separator: e,
     experimentalParseClassName: t
@@ -20952,7 +20968,7 @@ const an = {
     className: o,
     parseClassName: r
   }) : r;
-}, bd = (a) => {
+}, Ed = (a) => {
   if (a.length <= 1)
     return a;
   const e = [];
@@ -20960,16 +20976,16 @@ const an = {
   return a.forEach((s) => {
     s[0] === "[" ? (e.push(...t.sort(), s), t = []) : t.push(s);
   }), e.push(...t.sort()), e;
-}, Ed = (a) => ({
-  cache: Td(a.cacheSize),
-  parseClassName: xd(a),
-  ...md(a)
-}), Sd = /\s+/, Ld = (a, e) => {
+}, Sd = (a) => ({
+  cache: xd(a.cacheSize),
+  parseClassName: bd(a),
+  ...gd(a)
+}), Ld = /\s+/, wd = (a, e) => {
   const {
     parseClassName: t,
     getClassGroupId: s,
     getConflictingClassGroupIds: i
-  } = e, n = [], r = a.trim().split(Sd);
+  } = e, n = [], r = a.trim().split(Ld);
   let o = "";
   for (let l = r.length - 1; l >= 0; l -= 1) {
     const c = r[l], {
@@ -20990,7 +21006,7 @@ const an = {
       }
       p = !1;
     }
-    const g = bd(h).join(":"), v = u ? g + Tr : g, C = v + m;
+    const g = Ed(h).join(":"), v = u ? g + Tr : g, C = v + m;
     if (n.includes(C))
       continue;
     n.push(C);
@@ -21003,7 +21019,7 @@ const an = {
   }
   return o;
 };
-function wd() {
+function Ad() {
   let a = 0, e, t, s = "";
   for (; a < arguments.length; )
     (e = arguments[a++]) && (t = xr(e)) && (s && (s += " "), s += t);
@@ -21017,35 +21033,35 @@ const xr = (a) => {
     a[s] && (e = xr(a[s])) && (t && (t += " "), t += e);
   return t;
 };
-function Ad(a, ...e) {
+function kd(a, ...e) {
   let t, s, i, n = r;
   function r(l) {
     const c = e.reduce((h, u) => u(h), a());
-    return t = Ed(c), s = t.cache.get, i = t.cache.set, n = o, o(l);
+    return t = Sd(c), s = t.cache.get, i = t.cache.set, n = o, o(l);
   }
   function o(l) {
     const c = s(l);
     if (c)
       return c;
-    const h = Ld(l, t);
+    const h = wd(l, t);
     return i(l, h), h;
   }
   return function() {
-    return n(wd.apply(null, arguments));
+    return n(Ad.apply(null, arguments));
   };
 }
 const se = (a) => {
   const e = (t) => t[a] || [];
   return e.isThemeGetter = !0, e;
-}, br = /^\[(?:([a-z-]+):)?(.+)\]$/i, kd = /^\d+\/\d+$/, Rd = /* @__PURE__ */ new Set(["px", "full", "screen"]), Id = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, Dd = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, Md = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, Pd = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, Fd = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, Fe = (a) => tt(a) || Rd.has(a) || kd.test(a), Ue = (a) => ot(a, "length", Hd), tt = (a) => !!a && !Number.isNaN(Number(a)), Cs = (a) => ot(a, "number", tt), ht = (a) => !!a && Number.isInteger(Number(a)), _d = (a) => a.endsWith("%") && tt(a.slice(0, -1)), j = (a) => br.test(a), $e = (a) => Id.test(a), Od = /* @__PURE__ */ new Set(["length", "size", "percentage"]), Nd = (a) => ot(a, Od, Er), Bd = (a) => ot(a, "position", Er), Ud = /* @__PURE__ */ new Set(["image", "url"]), $d = (a) => ot(a, Ud, Kd), Vd = (a) => ot(a, "", Gd), ut = () => !0, ot = (a, e, t) => {
+}, br = /^\[(?:([a-z-]+):)?(.+)\]$/i, Rd = /^\d+\/\d+$/, Id = /* @__PURE__ */ new Set(["px", "full", "screen"]), Dd = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, Md = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, Pd = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, Fd = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, _d = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, Fe = (a) => tt(a) || Id.has(a) || Rd.test(a), Ue = (a) => ot(a, "length", Gd), tt = (a) => !!a && !Number.isNaN(Number(a)), Cs = (a) => ot(a, "number", tt), ht = (a) => !!a && Number.isInteger(Number(a)), Od = (a) => a.endsWith("%") && tt(a.slice(0, -1)), j = (a) => br.test(a), $e = (a) => Dd.test(a), Nd = /* @__PURE__ */ new Set(["length", "size", "percentage"]), Bd = (a) => ot(a, Nd, Er), Ud = (a) => ot(a, "position", Er), $d = /* @__PURE__ */ new Set(["image", "url"]), Vd = (a) => ot(a, $d, Wd), Hd = (a) => ot(a, "", Kd), ut = () => !0, ot = (a, e, t) => {
   const s = br.exec(a);
   return s ? s[1] ? typeof e == "string" ? s[1] === e : e.has(s[1]) : t(s[2]) : !1;
-}, Hd = (a) => (
+}, Gd = (a) => (
   // `colorFunctionRegex` check is necessary because color functions can have percentages in them which which would be incorrectly classified as lengths.
   // For example, `hsl(0 0% 0%)` would be classified as a length without this check.
   // I could also use lookbehind assertion in `lengthUnitRegex` but that isn't supported widely enough.
-  Dd.test(a) && !Md.test(a)
-), Er = () => !1, Gd = (a) => Pd.test(a), Kd = (a) => Fd.test(a), Wd = () => {
+  Md.test(a) && !Pd.test(a)
+), Er = () => !1, Kd = (a) => Fd.test(a), Wd = (a) => _d.test(a), zd = () => {
   const a = se("colors"), e = se("spacing"), t = se("blur"), s = se("brightness"), i = se("borderColor"), n = se("borderRadius"), r = se("borderSpacing"), o = se("borderWidth"), l = se("contrast"), c = se("grayscale"), h = se("hueRotate"), u = se("invert"), d = se("gap"), f = se("gradientColorStops"), p = se("gradientColorStopPositions"), m = se("inset"), g = se("margin"), v = se("opacity"), C = se("padding"), x = se("saturate"), T = se("scale"), b = se("sepia"), A = se("skew"), L = se("space"), k = se("translate"), R = () => ["auto", "contain", "none"], I = () => ["auto", "hidden", "clip", "visible", "scroll"], D = () => ["auto", j, e], P = () => [j, e], F = () => ["", Fe, Ue], $ = () => ["auto", tt, j], U = () => ["bottom", "center", "left", "left-bottom", "left-top", "right", "right-bottom", "right-top", "top"], N = () => ["solid", "dashed", "dotted", "double", "none"], Z = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], X = () => ["start", "end", "center", "between", "around", "evenly", "stretch"], O = () => ["", "0", j], _ = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], z = () => [tt, j];
   return {
     cacheSize: 500,
@@ -21065,7 +21081,7 @@ const se = (a) => {
       invert: O(),
       gap: P(),
       gradientColorStops: [a],
-      gradientColorStopPositions: [_d, Ue],
+      gradientColorStopPositions: [Od, Ue],
       inset: D(),
       margin: D(),
       opacity: z(),
@@ -21978,7 +21994,7 @@ const se = (a) => {
        * @see https://tailwindcss.com/docs/background-position
        */
       "bg-position": [{
-        bg: [...U(), Bd]
+        bg: [...U(), Ud]
       }],
       /**
        * Background Repeat
@@ -21994,7 +22010,7 @@ const se = (a) => {
        * @see https://tailwindcss.com/docs/background-size
        */
       "bg-size": [{
-        bg: ["auto", "cover", "contain", Nd]
+        bg: ["auto", "cover", "contain", Bd]
       }],
       /**
        * Background Image
@@ -22003,7 +22019,7 @@ const se = (a) => {
       "bg-image": [{
         bg: ["none", {
           "gradient-to": ["t", "tr", "r", "br", "b", "bl", "l", "tl"]
-        }, $d]
+        }, Vd]
       }],
       /**
        * Background Color
@@ -22405,7 +22421,7 @@ const se = (a) => {
        * @see https://tailwindcss.com/docs/box-shadow
        */
       shadow: [{
-        shadow: ["", "inner", "none", $e, Vd]
+        shadow: ["", "inner", "none", $e, Hd]
       }],
       /**
        * Box Shadow Color
@@ -23060,13 +23076,13 @@ const se = (a) => {
       "font-size": ["leading"]
     }
   };
-}, zd = /* @__PURE__ */ Ad(Wd);
+}, jd = /* @__PURE__ */ kd(zd);
 var Yt, Sr;
-class jd extends at {
+class Yd extends at {
   constructor() {
     super(...arguments);
     ti(this, Yt);
-    this.player = {}, this.overlay = {}, this.topBar = {}, this.bottomRow = {}, this.frame = {}, this.chapters = [], this.timer = {}, this.isMouseDown = !1, this.isScrubbing = !1, this.menuOpen = !1, this.mainMenuOpen = !1, this.languageMenuOpen = !1, this.subtitlesMenuOpen = !1, this.qualityMenuOpen = !1, this.speedMenuOpen = !1, this.playlistMenuOpen = !1, this.theaterModeEnabled = !1, this.pipEnabled = !1, this.previewTime = [], this.sliderPopImage = {}, this.chapterBar = {}, this.bottomBar = {}, this.topRow = {}, this.nextUp = {}, this.currentTimeFile = "", this.buttons = {}, this.tooltip = {}, this.sliderBar = {}, this.currentScrubTime = 0, this.imageBaseUrl = "", this.timeout = {}, this.currentMenu = null, this.thumbs = [], this.image = "", this.disablePauseScreen = !1, this.disableOverlay = !1, this.seekContainer = {}, this.shouldSlide = !1, this.thumbnail = {}, this.controlsVisible = !1, this.menuFrame = {}, this.mainMenu = {}, this.makeStyles = (t) => this.mergeStyles(`${t}`, pd[t]);
+    this.player = {}, this.overlay = {}, this.topBar = {}, this.bottomRow = {}, this.frame = {}, this.chapters = [], this.timer = {}, this.isMouseDown = !1, this.isScrubbing = !1, this.menuOpen = !1, this.mainMenuOpen = !1, this.languageMenuOpen = !1, this.subtitlesMenuOpen = !1, this.qualityMenuOpen = !1, this.speedMenuOpen = !1, this.playlistMenuOpen = !1, this.theaterModeEnabled = !1, this.pipEnabled = !1, this.previewTime = [], this.sliderPopImage = {}, this.chapterBar = {}, this.bottomBar = {}, this.topRow = {}, this.nextUp = {}, this.currentTimeFile = "", this.buttons = {}, this.tooltip = {}, this.sliderBar = {}, this.currentScrubTime = 0, this.imageBaseUrl = "", this.timeout = {}, this.currentMenu = null, this.thumbs = [], this.image = "", this.disablePauseScreen = !1, this.disableOverlay = !1, this.seekContainer = {}, this.shouldSlide = !1, this.thumbnail = {}, this.controlsVisible = !1, this.menuFrame = {}, this.mainMenu = {}, this.makeStyles = (t) => this.mergeStyles(`${t}`, md[t]);
   }
   initialize(t) {
     this.player = t, this.overlay = t.overlay, this.buttons = eh(), this.imageBaseUrl = t.options.basePath ? "" : "https://image.tmdb.org/t/p/w185";
@@ -23228,7 +23244,7 @@ class jd extends at {
   }
   createSVGElement(t, s, i, n = !1, r = !1) {
     const o = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    o.setAttribute("viewBox", "0 0 24 24"), o.id = s, this.player.addClasses(o, zd([
+    o.setAttribute("viewBox", "0 0 24 24"), o.id = s, this.player.addClasses(o, jd([
       `${s}-icon`,
       ...this.makeStyles("svgSizeStyles"),
       ...this.makeStyles("iconStyles"),
@@ -23739,47 +23755,47 @@ class jd extends at {
   }
   createMenuFrame(t) {
     this.menuFrame = this.player.createElement("dialog", "menu-frame-dialog").addClasses([
-      "group-[&.nomercyplayer:has(.open)]:backdrop:bg-black/70",
+      "group-[&.nomercyplayer:has(.open)]:backdrop:bg-black/60",
       "group-[&.nomercyplayer:has(.open)]:backdrop:pointer-events-none"
     ]).appendTo(t), this.menuFrame.setAttribute("popover", "manual"), this.menuFrame.setAttribute("role", "modal");
-    const s = this.player.createElement("div", "menu-frame").addClasses(this.makeStyles("menuFrameStyles")).appendTo(this.menuFrame);
+    const s = this.player.createElement("div", "menu-wrapper").addClasses(this.makeStyles("menuWrapperStyles")).appendTo(this.menuFrame), i = this.player.createElement("div", "menu-frame").addClasses(this.makeStyles("menuFrameStyles")).appendTo(s);
     this.sizeMenuFrame();
-    const i = this.player.createElement("div", "menu-content").addClasses(this.makeStyles("menuContentStyles")).appendTo(s);
+    const n = this.player.createElement("div", "menu-content").addClasses(this.makeStyles("menuContentStyles")).appendTo(i);
     return this.player.on("resize", () => {
       this.sizeMenuFrame();
     }), this.player.on("fullscreen", () => {
       this.sizeMenuFrame();
-    }), this.player.on("show-menu", (n) => {
-      this.menuOpen = n, this.player.lockActive = n, n ? (this.sizeMenuFrame(), s.style.display = "flex", s.classList.add("open"), this.menuFrame.showModal()) : (s.style.display = "none", s.classList.remove("open"), this.menuFrame.close()), i.classList.add("translate-x-0"), i.classList.remove("sub-menu-open"), setTimeout(() => {
-        [...this.mainMenu.children].find((r) => r.style.display != "none" && r.id != "menu-header").focus();
+    }), this.player.on("show-menu", (r) => {
+      this.menuOpen = r, this.player.lockActive = r, r ? (this.sizeMenuFrame(), i.style.display = "flex", i.classList.add("open"), this.menuFrame.showModal()) : (i.style.display = "none", i.classList.remove("open"), this.menuFrame.close()), n.classList.add("translate-x-0"), n.classList.remove("sub-menu-open"), setTimeout(() => {
+        [...this.mainMenu.children].find((o) => o.style.display != "none" && o.id != "menu-header").focus();
       }, 200), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1);
-    }), this.player.on("show-main-menu", (n) => {
-      this.mainMenuOpen = n, this.player.lockActive = n, n && (s.classList.add("open"), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), i.classList.add("translate-x-0"), i.classList.remove("sub-menu-open"), s.style.display = "flex", setTimeout(() => {
-        [...this.mainMenu.children].find((r) => r.style.display != "none" && r.id != "menu-header").focus();
+    }), this.player.on("show-main-menu", (r) => {
+      this.mainMenuOpen = r, this.player.lockActive = r, r && (i.classList.add("open"), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), n.classList.add("translate-x-0"), n.classList.remove("sub-menu-open"), i.style.display = "flex", setTimeout(() => {
+        [...this.mainMenu.children].find((o) => o.style.display != "none" && o.id != "menu-header").focus();
       }, 200));
-    }), this.player.on("show-language-menu", (n) => {
-      this.languageMenuOpen = n, this.player.lockActive = n, n && (s.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), i.classList.remove("translate-x-0"), i.classList.add("sub-menu-open"), s.style.display = "flex");
-    }), this.player.on("show-subtitles-menu", (n) => {
-      this.subtitlesMenuOpen = n, this.player.lockActive = n, n && (s.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), i.classList.remove("translate-x-0"), i.classList.add("sub-menu-open"), s.style.display = "flex");
-    }), this.player.on("show-quality-menu", (n) => {
-      this.qualityMenuOpen = n, this.player.lockActive = n, n && (s.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), i.classList.remove("translate-x-0"), i.classList.add("sub-menu-open"), s.style.display = "flex");
-    }), this.player.on("show-speed-menu", (n) => {
-      this.speedMenuOpen = n, this.player.lockActive = n, n && (s.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-playlist-menu", !1), i.classList.remove("translate-x-0"), i.classList.add("sub-menu-open"), s.style.display = "flex");
-    }), this.player.on("show-playlist-menu", (n) => {
-      this.playlistMenuOpen = n, this.player.lockActive = n, n ? (s.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), i.classList.remove("translate-x-0"), i.classList.add("sub-menu-open"), s.style.display = "flex") : s.style.width = "";
-    }), this.player.on("controls", (n) => {
-      this.player.lockActive = n, n || (this.player.emit("show-menu", !1), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1));
-    }), i;
+    }), this.player.on("show-language-menu", (r) => {
+      this.languageMenuOpen = r, this.player.lockActive = r, r && (i.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), n.classList.remove("translate-x-0"), n.classList.add("sub-menu-open"), i.style.display = "flex");
+    }), this.player.on("show-subtitles-menu", (r) => {
+      this.subtitlesMenuOpen = r, this.player.lockActive = r, r && (i.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), n.classList.remove("translate-x-0"), n.classList.add("sub-menu-open"), i.style.display = "flex");
+    }), this.player.on("show-quality-menu", (r) => {
+      this.qualityMenuOpen = r, this.player.lockActive = r, r && (i.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), n.classList.remove("translate-x-0"), n.classList.add("sub-menu-open"), i.style.display = "flex");
+    }), this.player.on("show-speed-menu", (r) => {
+      this.speedMenuOpen = r, this.player.lockActive = r, r && (i.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-playlist-menu", !1), n.classList.remove("translate-x-0"), n.classList.add("sub-menu-open"), i.style.display = "flex");
+    }), this.player.on("show-playlist-menu", (r) => {
+      this.playlistMenuOpen = r, this.player.lockActive = r, r ? (i.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), n.classList.remove("translate-x-0"), n.classList.add("sub-menu-open"), i.style.display = "flex") : i.style.width = "";
+    }), this.player.on("controls", (r) => {
+      this.player.lockActive = r, r || (this.player.emit("show-menu", !1), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1));
+    }), n;
   }
   sizeMenuFrame() {
     const {
-      // width,
-      height: t,
-      top: s,
-      bottom: i,
-      left: n
+      width: t,
+      height: s,
+      top: i,
+      bottom: n,
+      left: r
     } = this.player.getElement().getBoundingClientRect();
-    this.menuFrame.firstChild.style.width = "auto", this.menuFrame.firstChild.style.height = `calc(${t}px - 4rem)`, this.menuFrame.firstChild.style.top = `${s}px`, this.menuFrame.firstChild.style.bottom = `${i}px`, this.menuFrame.firstChild.style.left = `calc(${n}px + 2rem)`, this.menuFrame.firstChild.style.margin = "2rem", this.menuFrame.firstChild.style.marginLeft = "auto";
+    this.menuFrame.firstChild.style.width = `${t}px`, this.menuFrame.firstChild.style.height = `${s}px`, this.menuFrame.firstChild.style.top = `${i}px`, this.menuFrame.firstChild.style.bottom = `${n}px`, this.menuFrame.firstChild.style.left = `${r}px`, this.menuFrame.firstChild.style.padding = "2rem", this.menuFrame.firstChild.style.position = "fixed";
   }
   createMainMenu(t) {
     return this.mainMenu = this.player.createElement("div", "main-menu").addClasses(this.makeStyles("mainMenuStyles")).appendTo(t), this.mainMenu.style.transform = "translateX(0)", this.createMainMenuHeader(this.mainMenu, "").classList.add("!min-h-[2rem]", "-mr-1"), this.player.addClasses(this.mainMenu, this.makeStyles("mainMenuStyles")), this.createMenuButton(this.mainMenu, "language"), this.createMenuButton(this.mainMenu, "subtitles"), this.createMenuButton(this.mainMenu, "quality"), this.createMenuButton(this.mainMenu, "speed"), this.createMenuButton(this.mainMenu, "playlist"), this.createSubMenu(t), this.mainMenu;
@@ -23962,6 +23978,13 @@ class jd extends at {
     })), n.addEventListener("keyup", (l) => {
       var c, h, u, d;
       l.key == "ArrowLeft" ? (c = this.player.getClosestElement(n, '[id^="audio-button-"]')) == null || c.focus() : l.key == "ArrowRight" ? (h = this.player.getClosestElement(n, '[id^="subtitle-button-"]')) == null || h.focus() : l.key == "ArrowUp" && !this.player.options.disableTouchControls ? (u = n.previousElementSibling) == null || u.focus() : l.key == "ArrowDown" && !this.player.options.disableTouchControls && ((d = n.nextElementSibling) == null || d.focus());
+    }), n.addEventListener("focus", () => {
+      setTimeout(() => {
+        this.scrollCenter(n, t, {
+          duration: 100,
+          margin: 1
+        });
+      }, 0);
     }), n;
   }
   createSeekRipple(t, s) {
@@ -24197,7 +24220,7 @@ class jd extends at {
     s.style.minHeight = `${parseInt(getComputedStyle(this.player.getVideoElement()).height.split("px")[0], 10) * 0.8}px`, this.player.on("resize", () => {
       s.style.minHeight = `${parseInt(getComputedStyle(this.player.getVideoElement()).height.split("px")[0], 10) * 0.8}px`;
     });
-    const i = this.player.createElement("div", "sub-menu").addClasses([
+    const i = this.player.createElement("div", "sub-menu-content").addClasses([
       ...this.makeStyles("subMenuContentStyles"),
       "!flex",
       "!w-1/3",
@@ -24242,6 +24265,13 @@ class jd extends at {
     const o = this.createSVGElement(n, "menu", this.buttons.chevronR, !1, i);
     return this.player.addClasses(o, ["ml-auto"]), n.addEventListener("click", () => {
       this.player.emit("switch-season", s == null ? void 0 : s.season);
+    }), n.addEventListener("focus", () => {
+      setTimeout(() => {
+        this.scrollCenter(n, t, {
+          duration: 100,
+          margin: 1
+        });
+      }, 0);
     }), n;
   }
   createEpisodeMenuButton(t, s, i) {
@@ -24270,6 +24300,13 @@ class jd extends at {
       ((L = this.player.playlistItem()) == null ? void 0 : L.uuid) == s.uuid && (f.style.width = `${A.percentage}%`, A.percentage > 0 && (d.style.display = "flex"));
     }), s.episode && s.show && (h.innerText = s.season == null ? `${s.episode}` : `${this.player.localize("S")}${s.season}: ${this.player.localize("E")}${s.episode}`), n.addEventListener("click", () => {
       this.player.emit("show-menu", !1), s.episode && s.season ? this.setEpisode(s.season, s.episode) : this.player.playlistItem(i), this.player.emit("playlist-menu-button-clicked", s);
+    }), n.addEventListener("focus", () => {
+      setTimeout(() => {
+        this.scrollCenter(n, t, {
+          duration: 100,
+          margin: 1
+        });
+      }, 0);
     }), n;
   }
   createToolTip(t) {
@@ -24493,6 +24530,16 @@ ${i[0]} ${n[1]}`;
     }
     return t;
   }
+  scrollCenter(t, s, i) {
+    if (!t)
+      return;
+    const n = (i == null ? void 0 : i.duration) || 60, r = (i == null ? void 0 : i.margin) || 1.5, o = t.getBoundingClientRect().top + t.getBoundingClientRect().height / 2 - s.getBoundingClientRect().height / r, l = s.scrollTop, c = performance.now();
+    function h(u) {
+      const d = u - c, f = Math.min(d / n, 1);
+      s.scrollTo(0, Math.floor(l + o * f)), d < n && requestAnimationFrame(h);
+    }
+    requestAnimationFrame(h);
+  }
 }
 Yt = new WeakSet(), Sr = function(t) {
   const i = t.parentElement, n = t.getBoundingClientRect().left + t.offsetWidth / 2 - i.offsetWidth / 2, r = i.scrollLeft, o = performance.now();
@@ -24502,15 +24549,6 @@ Yt = new WeakSet(), Sr = function(t) {
   }
   requestAnimationFrame(l);
 };
-class Yd extends at {
-  initialize(e) {
-    this.player = e;
-  }
-  use() {
-  }
-  dispose() {
-  }
-}
 class Zd extends at {
   initialize(e) {
     this.player = e;
@@ -24521,6 +24559,15 @@ class Zd extends at {
   }
 }
 class qd extends at {
+  initialize(e) {
+    this.player = e;
+  }
+  use() {
+  }
+  dispose() {
+  }
+}
+class Xd extends at {
   initialize(e) {
     this.player = e;
   }
@@ -24745,7 +24792,7 @@ class qd extends at {
     }));
   }
 }
-class Xd extends at {
+class Qd extends at {
   constructor() {
     super(...arguments), this.player = {}, this.frameCallbackHandle = null;
   }
@@ -24832,7 +24879,7 @@ class Xd extends at {
     });
   }
 }
-const Qd = {
+const Jd = {
   muted: !1,
   controls: !1,
   preload: "auto",
@@ -24840,6 +24887,7 @@ const Qd = {
   playlist: [
     {
       title: "Sintel (2010)",
+      id: "sintel",
       description: `Sintel is an independently produced short film, initiated by the Blender Foundation as a means to further improve and validate the free/open source 3D creation suite Blender. With initial funding provided by 1000s of donations via the internet community, it has again proven to be a viable development model for both open 3D technology as for independent animation film.
 This 15 minute film has been realized in the studio of the Amsterdam Blender Institute, by an international team of artists and developers. In addition to that, several crucial technical and creative targets have been realized online, by developers and artists and teams all over the world.
 www.sintel.org`,
@@ -24929,6 +24977,7 @@ www.sintel.org`,
     },
     {
       title: "Cosmos Laundromat (2015)",
+      id: "cosmos-laundromat",
       description: "On a desolate island, a suicidal sheep named Franck meets his fate…in the form of a quirky salesman named Victor, who offers him the gift of a lifetime. The gift is many lifetimes, actually, in many different worlds – each lasting just a few minutes. In the sequel to the pilot, Franck will find a new reason to live…in the form of a bewitching female adventurer named Tara, who awakens his long-lost lust for life. But can Franck keep up with her?",
       image: "https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg",
       file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8",
@@ -24987,6 +25036,7 @@ www.sintel.org`,
     },
     {
       title: "Tears of Steel (2012)",
+      id: "tears-of-steel",
       description: "Tears of Steel was realized with crowd-funding by users of the open source 3D creation tool Blender. Target was to improve and test a complete open and free pipeline for visual effects in film - and to make a compelling sci-fi film in Amsterdam, the Netherlands.  The film itself, and all raw material used for making it, have been released under the Creatieve Commons 3.0 Attribution license. Visit the tearsofsteel.org website to find out more about this, or to purchase the 4-DVD box with a lot of extras.  (CC) Blender Foundation - https://www.tearsofsteel.org",
       image: "https://image.tmdb.org/t/p/w780/fOy6SL5Zs2PFcNXwqEPIDPrLB1q.jpg",
       file: "https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Tears.of.Steel.(2012)/Tears.of.Steel.(2012).NoMercy.m3u8",
@@ -25148,6 +25198,7 @@ www.sintel.org`,
     },
     {
       title: "Rail Wars",
+      id: "rail-wars",
       description: "Takayama enters the training program of JNR with the ambition of becoming one of the venerable train company's engineers. As a trainee he is teamed up with fight-ready Sakurai and stolid Iwaizumi and fellow Haruka Kōmi who has encyclopedic knowledge of trains. Together they learn how security officers for the train line work and get involved in more than one tricky situation.",
       image: "https://image.tmdb.org/t/p/original/vH8NqN2LMcmtBv037iHGwcPOgCZ.jpg",
       file: "https://backstore.fra1.digitaloceanspaces.com/demo/railwars/railwars.mp4",
@@ -25167,6 +25218,7 @@ www.sintel.org`,
     },
     {
       title: "No-Rin",
+      id: "no-rin",
       description: "The sudden retirement of the famous idol Yuka Kusakabe from the entertainment business shocks the world and devastates her biggest fan, teenager Kosaku Hata. His classmates at the Tamo Agriculture School manages to get him out of his depression and bring him out of his room to attend his classes. But to everyone's surprise, Yuka Kusakabe - her stage name - comes into their class under the name Ringo Kinoshita as a transfer student. Kosaku realizes he has a once-in-a-lifetime opportunity to get to personally know his dream girl and, together with his group of friends, try to find out why she came to the agricultural school and become more than just classmates.",
       image: "https://image.tmdb.org/t/p/original/myHS6X2yonpoBQOptVuQ85PudtC.jpg",
       file: "https://backstore.fra1.digitaloceanspaces.com/demo/nourin/nourin.mp4",
@@ -25206,23 +25258,23 @@ www.sintel.org`,
   }
   // NoMercy test account
   // accessToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJkNWE1YTAwNS05ZWE2LTRlODMtYmZmNy05ZTQ0MjY5OTg4OWMiLCJqdGkiOiJiNDAyZWU0YThjNGYxYzJjN2RhNmE0ODZjNjY2NDI4YWYyMzMwNGI2MzIyNzRmZjZjNThkODI2YTdjYTEzYTFhYmM2NTA2YjIyOWVmNWE3YiIsImlhdCI6MTY5MzI0NTIwNi42Mjk3NTUsIm5iZiI6MTY5MzI0NTIwNi42Mjk3NTYsImV4cCI6MTcyNDc4MTIwNi42MjM2NjcsInN1YiI6ImQ5OWE1NzQxLTM2ZTgtNGU1ZC1iYzUzLTg1MzAyNmIzZjRhYSIsInNjb3BlcyI6WyJvcGVuaWQiLCJwcm9maWxlIiwiZW1haWwiXSwibmFtZSI6IlRlc3QgVXNlciIsImVtYWlsIjoidGVzdEBub21lcmN5LnR2In0.GV7HlmRAVDL3Bb1MdWltS1AX8dR1LHRMF_vtvM01abLu2983djSKSUvtB26KV5MCpOSuOX-ZwlBlqbMJ5JUX55fSonUE0oiz0ujn8QIk0-G0ptB1-hqn6qIRtxncwZaT0TGNpF7TFejjMC_VcqwjtzmRA58JC940u7QL7k5304cbHJXv-_Op1FpAR3dRA0g3BVR8uJ5ckp1hO-KAj83NOetnviglQf6130WQKtx2AWC1qT55NW3Xx1YFAZZUptjgRZ5mhvDd0_OmTNnFvsQZYaHr5H2WFAzKfW7GEvlu7xFIiMxfhpfowyvV3u4VqoDU-wIfkod-U0lL9JlwnsufFAvE_dfXjMhDXZG80oFPifYLanj7DsL4lIfbaVJO92W1K4bYW0t8Jfi8U3ZdqXtvPSpjPmx5dyz9Z2Na16GtH0_sZu5oMPgbGRMk0pZLi0uGWb_Wxyg3MFMEE4f0zA3gRSc1yt3gCI-AIaiCeMKAbC_uPauV3QcNzbCV2JVxOzW-tKlexALBPYe53DKkODPVcQHhv_d1sqXZxqwS8OfkZzqNCg2MpN2DodgSAVM8b1xZMG_6Ym-hEtDYw0ZCghda7v0pZSAo67jFDv5kEk9MF4j7OGfvk3sFT-mi7gFogKLByrMfQMfs4-qnHrsoKOVZRU6S1JHkRJFSxkwcamv_AYI',
-}, V = vr("player").setup(Qd), Jd = new Xd();
-V.registerPlugin("sabre", Jd);
+}, V = vr("player").setup(Jd), e1 = new Qd();
+V.registerPlugin("sabre", e1);
 V.usePlugin("sabre");
-const e1 = new jd();
-V.registerPlugin("desktopUI", e1);
-V.usePlugin("desktopUI");
 const t1 = new Yd();
-V.registerPlugin("mobileUI", t1);
-V.usePlugin("mobileUI");
+V.registerPlugin("desktopUI", t1);
+V.usePlugin("desktopUI");
 const s1 = new Zd();
-V.registerPlugin("tvUI", s1);
+V.registerPlugin("mobileUI", s1);
+V.usePlugin("mobileUI");
+const i1 = new qd();
+V.registerPlugin("tvUI", i1);
 V.usePlugin("tvUI");
-const i1 = new Jc();
-V.registerPlugin("octopus", i1);
+const n1 = new Jc();
+V.registerPlugin("octopus", n1);
 V.usePlugin("octopus");
-const n1 = new qd();
-V.registerPlugin("keyHandler", n1);
+const r1 = new Xd();
+V.registerPlugin("keyHandler", r1);
 V.usePlugin("keyHandler");
 V.on("ready", (a) => {
   console.log("ready", a);

@@ -297,17 +297,6 @@ export class DesktopUIPlugin extends Plugin {
 	}
 
 	eventHandlers() {
-		// this.player.on('volume', (data) => {
-		// 	this.player.displayMessage(`${this.player.localize('Volume')}: ${Math.floor(data)}%`);
-		// });
-		// this.player.on('mute', (data) => {
-		// 	if (data.mute) {
-		// 		this.player.displayMessage(this.player.localize('Muted'));
-		// 	} else {
-		// 		this.player.displayMessage(`${this.player.localize('Volume')}: ${data.volume}%`);
-		// 	}
-		// });
-
 		this.player.on('controls', (showing) => {
 			if (this.player.getElement()) {
 				if (showing) {
@@ -347,16 +336,6 @@ export class DesktopUIPlugin extends Plugin {
 		window.addEventListener('resize', () => {
 			this.sizeMenuFrame();
 		});
-
-		// let inactivityTimeout: NodeJS.Timeout = <NodeJS.Timeout>{};
-		// ['touchstart', 'mousemove', 'touchmove', 'mousein'].forEach((event) => {
-		// 	this.getElement()?.addEventListener(event, (e) => {
-		// 		clearTimeout(inactivityTimeout);
-		// 		inactivityTimeout = setTimeout(() => {
-		// 			this.getElement().focus();
-		// 		}, 50);
-		// 	});
-		// });
 	}
 
 	/**
@@ -391,9 +370,7 @@ export class DesktopUIPlugin extends Plugin {
 		const center = this.player.createElement('div', 'center')
 			.addClasses(this.makeStyles('centerStyles'))
 			.appendTo(parent);
-
-		// this.createOverlayCenterMessage(center);
-
+		
 		this.createSpinnerContainer(center);
 
 		if (this.player.isMobile()) {
@@ -413,7 +390,6 @@ export class DesktopUIPlugin extends Plugin {
 	}
 
 	createTouchSeekBack(parent: HTMLElement, currentTime: Position) {
-		// if (!this.isMobile()) return;
 		const touchSeekBack = this.createTouchBox(parent, 'touchSeekBack', currentTime);
 		['click'].forEach((event) => {
 			touchSeekBack.addEventListener(event, this.doubleTap(() => {
@@ -459,7 +435,6 @@ export class DesktopUIPlugin extends Plugin {
 
 
 	createTouchSeekForward(parent: HTMLElement, currentTime: Position) {
-		// if (!this.isMobile()) return;
 		const touchSeekForward = this.createTouchBox(parent, 'touchSeekForward', currentTime);
 		['mouseup', 'touchend'].forEach((event) => {
 			touchSeekForward.addEventListener(event, this.doubleTap(() => {
@@ -485,7 +460,6 @@ export class DesktopUIPlugin extends Plugin {
 			));
 		});
 
-		// if (this.player.isMobile()) {
 		const playButton = this.createSVGElement(touchPlayback, 'bigPlay', this.buttons.bigPlay, false,  hovered);
 		this.player.addClasses(playButton, this.makeStyles('touchPlaybackButtonStyles'));
 
@@ -495,7 +469,6 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('play', () => {
 			playButton.style.display = 'none';
 		});
-		// }
 
 		return touchPlayback;
 	}
@@ -1238,11 +1211,9 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses(this.makeStyles('seekScrollCloneStyles'))
 			.appendTo(seekContainer);
 
-		// for (let index = 0; index <= 4; index += 1) {
 		this.player.createElement('div', `thumbnail-clone-${1}`)
 			.addClasses(this.makeStyles('thumbnailCloneStyles'))
 			.appendTo(seekScrollCloneContainer);
-		// }
 
 		const seekScrollContainer = this.player.createElement('div', 'seek-scroll-container')
 			.addClasses(this.makeStyles('seekScrollContainerStyles'))
@@ -1351,8 +1322,7 @@ export class DesktopUIPlugin extends Plugin {
 		}
 		requestAnimationFrame(scrollStep);
 	}
-
-
+	
 	createTvCurrentItem(parent: HTMLElement) {
 
 		const currentItemContainer = this.player.createElement('div', 'current-item-container')
@@ -1957,7 +1927,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		this.menuFrame = this.player.createElement('dialog', 'menu-frame-dialog')
 			.addClasses([
-				'group-[&.nomercyplayer:has(.open)]:backdrop:bg-black/70',
+				'group-[&.nomercyplayer:has(.open)]:backdrop:bg-black/60',
 				'group-[&.nomercyplayer:has(.open)]:backdrop:pointer-events-none',
 			])
 			.appendTo(parent);
@@ -1965,9 +1935,13 @@ export class DesktopUIPlugin extends Plugin {
 		this.menuFrame.setAttribute('popover', 'manual');
 		this.menuFrame.setAttribute('role', 'modal');
 
+		const menuWrapper = this.player.createElement('div', 'menu-wrapper')
+			.addClasses(this.makeStyles('menuWrapperStyles'))
+			.appendTo(this.menuFrame);
+
 		const menuFrame = this.player.createElement('div', 'menu-frame')
 			.addClasses(this.makeStyles('menuFrameStyles'))
-			.appendTo(this.menuFrame);
+			.appendTo(menuWrapper);
 
 		this.sizeMenuFrame();
 
@@ -2141,21 +2115,21 @@ export class DesktopUIPlugin extends Plugin {
 
 	sizeMenuFrame() {
 		const {
-			// width,
+			width,
 			height,
 			top,
 			bottom,
 			left,
 		} = this.player.getElement().getBoundingClientRect();
 
-		// (this.menuFrame.firstChild as HTMLDivElement).style.width = `calc(${width}px - 4rem)`;
-		(this.menuFrame.firstChild as HTMLDivElement).style.width = 'auto';
-		(this.menuFrame.firstChild as HTMLDivElement).style.height = `calc(${height}px - 4rem)`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.width = `${width}px`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.height = `${height}px`;
 		(this.menuFrame.firstChild as HTMLDivElement).style.top = `${top}px`;
 		(this.menuFrame.firstChild as HTMLDivElement).style.bottom = `${bottom}px`;
-		(this.menuFrame.firstChild as HTMLDivElement).style.left = `calc(${left}px + 2rem)`;
-		(this.menuFrame.firstChild as HTMLDivElement).style.margin = '2rem';
-		(this.menuFrame.firstChild as HTMLDivElement).style.marginLeft = 'auto';
+		(this.menuFrame.firstChild as HTMLDivElement).style.left = `${left}px`;
+		(this.menuFrame.firstChild as HTMLDivElement).style.padding = '2rem';
+		(this.menuFrame.firstChild as HTMLDivElement).style.position = 'fixed';
+		// (this.menuFrame.firstChild as HTMLDivElement).style.background = 'red';
 	}
 
 	createMainMenu(parent: HTMLDivElement) {
@@ -2571,7 +2545,8 @@ export class DesktopUIPlugin extends Plugin {
         bitrate: number;
         label: string;
         height: number
-    }, hovered = false) {
+    }, hovered = false
+	) {
 
 		const qualityButton = this.player.createElement('button', `quality-button-${data.height}-${data.bitrate}`)
 			.addClasses(this.makeStyles('languageButtonStyles'))
@@ -2617,7 +2592,8 @@ export class DesktopUIPlugin extends Plugin {
 		id: number,
 		styled?: boolean;
 		buttonType: string;
-	}, hovered = false) {
+	}, hovered = false
+	) {
 
 		const languageButton = this.player.createElement('button', `${data.type}-button-${data.language}`)
 			.addClasses(this.makeStyles('languageButtonStyles'))
@@ -2694,6 +2670,15 @@ export class DesktopUIPlugin extends Plugin {
 			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				(languageButton.nextElementSibling as HTMLButtonElement)?.focus();
 			}
+		});
+
+		languageButton.addEventListener('focus', () => {
+			setTimeout(() => {
+				this.scrollCenter(languageButton, parent, {
+					duration: 100,
+					margin: 1,
+				});
+			}, 0);
 		});
 
 		return languageButton;
@@ -3266,7 +3251,7 @@ export class DesktopUIPlugin extends Plugin {
 			playlistMenu.style.minHeight = `${parseInt(getComputedStyle(this.player.getVideoElement()).height.split('px')[0], 10) * 0.8}px`;
 		});
 
-		const subMenu = this.player.createElement('div', 'sub-menu')
+		const subMenu = this.player.createElement('div', 'sub-menu-content')
 			.addClasses([
 				...this.makeStyles('subMenuContentStyles'),
 				'!flex',
@@ -3373,6 +3358,15 @@ export class DesktopUIPlugin extends Plugin {
 
 		seasonButton.addEventListener('click', () => {
 			this.player.emit('switch-season', item?.season);
+		});
+
+		seasonButton.addEventListener('focus', () => {
+			setTimeout(() => {
+				this.scrollCenter(seasonButton, parent, {
+					duration: 100,
+					margin: 1,
+				});
+			}, 0);
 		});
 
 		return seasonButton;
@@ -3503,6 +3497,15 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.playlistItem(index);
 			}
 			this.player.emit('playlist-menu-button-clicked', item);
+		});
+
+		button.addEventListener('focus', () => {
+			setTimeout(() => {
+				this.scrollCenter(button, parent, {
+					duration: 100,
+					margin: 1,
+				});
+			}, 0);
 		});
 
 		return button;
@@ -3768,8 +3771,7 @@ export class DesktopUIPlugin extends Plugin {
 		spinner.appendChild(path2);
 
 	}
-
-
+	
 	getButtonKeyCode(id: string) {
 
 		switch (id) {
@@ -3815,8 +3817,7 @@ export class DesktopUIPlugin extends Plugin {
 		}
 
 	};
-
-
+	
 	createButton(match: string, id: string, insert: 'before'| 'after' = 'after', icon: Icon['path'], click?: () => void, rightClick?: () => void) {
 
 		const element = document.querySelector<HTMLButtonElement>(`${match}`);
@@ -3865,8 +3866,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		return el;
 	}
-
-
+	
 	/**
      * Limits a sentence to a specified number of characters by truncating it at the last period before the limit.
      * @param str - The sentence to limit.
@@ -3957,5 +3957,33 @@ export class DesktopUIPlugin extends Plugin {
 
 		return str;
 	}
+
+	scrollCenter(el: HTMLElement, container: HTMLElement, options?: {
+		duration?: number;
+		margin?: number;
+	}) {
+		if (!el) return;
+		
+		const scrollDuration = options?.duration || 60;
+		const margin = options?.margin || 1.5;
+
+		const elementTop = (el.getBoundingClientRect().top) + (el!.getBoundingClientRect().height / 2) - (container.getBoundingClientRect().height / margin);
+
+		const startingY = container.scrollTop;
+		const startTime = performance.now();
+
+		function scrollStep(timestamp: number) {
+			const currentTime = timestamp - startTime;
+			const progress = Math.min(currentTime / scrollDuration, 1);
+
+			container.scrollTo(0, Math.floor(startingY + (elementTop * progress)));
+
+			if (currentTime < scrollDuration) {
+				requestAnimationFrame(scrollStep);
+			}
+		}
+
+		requestAnimationFrame(scrollStep);
+	};
 
 }

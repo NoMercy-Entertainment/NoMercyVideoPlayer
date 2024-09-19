@@ -28,7 +28,7 @@ export const bottomBarShadowStyles = [
 	'bg-gradient-to-t',
 	'via-black/20',
 	'from-black/90',
-	'pt-[20%]',
+	'pt-[10%]',
 	'w-available',
 ];
 
@@ -229,18 +229,25 @@ export const menuContentStyles = [
 	'mt-auto',
 ];
 
+export const menuWrapperStyles = [
+	'menu-wrapper',
+	
+];
+
 export const menuFrameStyles = [
 	'menu-frame',
-	'bottom-10',
-	'fixed',
-	'flex',
 	'flex-col',
 	'hidden',
-	'overflow-clip',
-	'right-[2%]',
+	'absolute',
+	'inset-4',
 	'w-fit',
+	'h-available',
 	'z-50',
-	'max-w-[70rem]',
+	'max-h-[calc(100%-2rem)]',
+	'max-w-[min(70rem,calc(100%-2rem))]',
+	'overflow-clip',
+	'justify-self-end',
+	'rounded-lg',
 ];
 
 export const menuHeaderButtonTextStyles = [
@@ -270,14 +277,12 @@ export const scrollContainerStyles = [
 	'overflow-x-hidden',
 	'overflow-y-auto',
 	'p-2',
+	'transition-all',
+	'duration-300',
 	'w-available',
-
-	// 	scroll-padding-block: 1rem;
-	// scroll-snap-align: center;
-	// scroll-behavior: smooth;
 	'scroll-p-4',
 	'scroll-snap-align-center',
-	'scroll-behavior-smooth',
+	'scroll-smooth',
 ];
 
 export const sliderBarStyles = [
@@ -391,6 +396,7 @@ export const subMenuContentStyles = [
 	'max-h-available',
 	'w-available',
 	'overflow-auto',
+	'min-w-52',
 ];
 
 export const subMenuStyles = [
@@ -438,6 +444,7 @@ export const topBarStyles = [
 	'gap-2',
 	'px-6',
 	'py-4',
+	'pb-[10%]',
 	'mb-auto',
 	'-translate-y-full',
 	'group-[&.nomercyplayer.active]:translate-y-0',
@@ -447,6 +454,10 @@ export const topBarStyles = [
 	'group-[&.nomercyplayer:has(:focus)]:duration-0',
 	'transition-all',
 	'duration-300',
+
+	'bg-gradient-to-b',
+	'from-black/90',
+	'via-black/50',
 ];
 
 export const topRowStyles = [
@@ -557,17 +568,18 @@ export const playlistMenuButtonStyles = [
 ];
 
 export const episodeMenuButtonLeftStyles = [
-	'playlist-card-left',
+	'episode-menu-button-left',
 	'relative',
 	'rounded-md',
 	'w-[30%]',
+	'h-available',
 	'overflow-clip',
 	'self-center',
 	'pointer-events-none',
 ];
 
 export const episodeMenuButtonShadowStyles = [
-	'episode-card-shadow',
+	'episode-menu-button-shadow',
 	'bg-[linear-gradient(0deg,rgba(0,0,0,0.87)_0%,rgba(0,0,0,0.7)_25%,rgba(0,0,0,0)_50%,rgba(0,0,0,0)_100%)]',
 	'shadow-[inset_0px_1px_0px_rgba(255,255,255,0.24),inset_0px_-1px_0px_rgba(0,0,0,0.24),inset_0px_-2px_0px_rgba(0,0,0,0.24)]',
 	'bottom-0',
@@ -578,7 +590,7 @@ export const episodeMenuButtonShadowStyles = [
 ];
 
 export const episodeMenuButtonImageStyles = [
-	'playlist-card-image',
+	'episode-menu-button-image',
 	'w-available',
 	'h-auto',
 	'aspect-video',
@@ -587,7 +599,7 @@ export const episodeMenuButtonImageStyles = [
 ];
 
 export const episodeMenuProgressContainerStyles = [
-	'progress-container',
+	'episode-menu-progress-container',
 	'absolute',
 	'bottom-0',
 	'w-available',
@@ -597,7 +609,7 @@ export const episodeMenuProgressContainerStyles = [
 ];
 
 export const episodeMenuProgressBoxStyles = [
-	'progress-box',
+	'episode-menu-progress-box',
 	'flex',
 	'justify-between',
 	'h-available',
@@ -607,7 +619,7 @@ export const episodeMenuProgressBoxStyles = [
 ];
 
 export const progressContainerItemTextStyles = [
-	'progress-item',
+	'progress-item-text',
 	'text-[0.7rem]',
 	'',
 ];
@@ -807,7 +819,7 @@ export const tvSeasonButtonTextStyles = [
 
 
 export const tvEpisodeMenuButtonLeftStyles = [
-	'playlist-card-left',
+	'episode-menu-button-left',
 	'relative',
 	'rounded-md',
 	'w-[50%]',
@@ -1096,7 +1108,7 @@ export const nextTipStyles = [
 ];
 
 export const nextTipTextStyles = [
-	'playlist-card-left',
+	'next-tip-text',
 	'relative',
 	'rounded-sm',
 	'w-[40%]',
@@ -1116,7 +1128,7 @@ export const nextTipImageStyles = [
 ];
 
 export const nextTipLeftSideStyles = [
-	'playlist-card-left',
+	'next-tip-left',
 	'relative',
 	'rounded-sm',
 	'w-[40%]',
@@ -1126,7 +1138,7 @@ export const nextTipLeftSideStyles = [
 ];
 
 export const nextTipRightSideStyles = [
-	'playlist-card-right',
+	'next-tip-right',
 	'w-[60%]',
 	'flex',
 	'flex-col',
@@ -1135,19 +1147,19 @@ export const nextTipRightSideStyles = [
 ];
 
 export const nextTipHeaderStyles = [
-	'playlist-card-header',
+	'next-tip-header',
 	'font-bold',
 	'',
 ];
 
 export const nextTipTitleStyles = [
-	'tooltip-title',
+	'next-tip-title',
 	'font-bold',
 	'text-white',
 ];
 
 export const nextUpStyles = [
-	'episode-tip',
+	'next-up',
 	'flex',
 	'gap-2',
 	'absolute',
@@ -1161,7 +1173,7 @@ export const nextUpStyles = [
 ];
 
 export const nextUpCreditsButtonStyles = [
-	'nextup-button',
+	'next-up-credits-button',
 	'bg-neutral-900/95',
 	'block',
 	'!text-[0.9rem]',
@@ -1178,7 +1190,7 @@ export const nextUpCreditsButtonStyles = [
 ];
 
 export const nextUpNextButtonStyles = [
-	'nextup-button',
+	'next-up-next-button',
 	'animated',
 	'bg-neutral-100',
 	'w-[55%]',
@@ -1202,6 +1214,7 @@ export const tvOverlayStyles = [
 ];
 
 export const backgroundStyles = [
+	'background',
 	'absolute',
 	'inset-0',
 	'bg-black',
@@ -1212,6 +1225,7 @@ export const backgroundStyles = [
 ];
 
 export const tvBottomRowStyles = [
+	'tv-bottom-row',
 	'relative',
 	'flex',
 	'flex-row',
