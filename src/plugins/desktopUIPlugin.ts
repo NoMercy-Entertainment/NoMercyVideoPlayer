@@ -43,12 +43,12 @@ export class DesktopUIPlugin extends Plugin {
 	bottomBar: HTMLDivElement = <HTMLDivElement>{};
 	topRow: HTMLDivElement = <HTMLDivElement>{};
 	nextUp: HTMLDivElement & {
-        firstChild: HTMLButtonElement,
-        lastChild: HTMLButtonElement
-    } = <HTMLDivElement & {
-        firstChild: HTMLButtonElement,
-        lastChild: HTMLButtonElement
-    }>{};
+		firstChild: HTMLButtonElement,
+		lastChild: HTMLButtonElement
+	} = <HTMLDivElement & {
+		firstChild: HTMLButtonElement,
+		lastChild: HTMLButtonElement
+	}>{};
 
 	currentTimeFile = '';
 	buttons: Icon = <Icon>{};
@@ -65,9 +65,9 @@ export class DesktopUIPlugin extends Plugin {
 
 	currentMenu: 'language'|'episode'|'pause'|'quality'|'seek'|null = null;
 	thumbs: {
-        time: PreviewTime,
-        el: HTMLDivElement
-    }[] = [];
+		time: PreviewTime,
+		el: HTMLDivElement
+	}[] = [];
 
 	image = '';
 	disablePauseScreen = false;
@@ -313,23 +313,23 @@ export class DesktopUIPlugin extends Plugin {
 
 		this.player.on('back-button-hyjack', () => {
 			switch (this.currentMenu) {
-			case 'episode':
-			case 'language':
-			case 'quality':
-				this.player.emit('showPauseScreen');
-				break;
-			case 'seek':
-			case 'pause':
-				this.seekContainer.style.transform = '';
-				this.player.play();
-				break;
-			default:
-				if (this.player.hasBackEventHandler) {
-					this.player.emit('back');
-				} else {
-					history.back();
-				}
-				break;
+				case 'episode':
+				case 'language':
+				case 'quality':
+					this.player.emit('showPauseScreen');
+					break;
+				case 'seek':
+				case 'pause':
+					this.seekContainer.style.transform = '';
+					this.player.play();
+					break;
+				default:
+					if (this.player.hasBackEventHandler) {
+						this.player.emit('back');
+					} else {
+						history.back();
+					}
+					break;
 			}
 		});
 
@@ -339,21 +339,21 @@ export class DesktopUIPlugin extends Plugin {
 	}
 
 	/**
-     * Merges the default styles with the styles for a specific style name.
-     * @param styleName - The name of the style to merge.
-     * @param defaultStyles - The default styles to merge.
-     * @returns An array containing the merged styles.
-     */
+	 * Merges the default styles with the styles for a specific style name.
+	 * @param styleName - The name of the style to merge.
+	 * @param defaultStyles - The default styles to merge.
+	 * @returns An array containing the merged styles.
+	 */
 	mergeStyles(styleName: string, defaultStyles: string[]) {
 		const styles = this.player.options.styles?.[styleName] || [];
 		return [...defaultStyles, ...styles];
 	}
 
 	/**
-     * Returns a merged style object for the given style name.
-     * @param name - The name of the style to merge.
-     * @returns The merged style object.
-     */
+	 * Returns a merged style object for the given style name.
+	 * @param name - The name of the style to merge.
+	 * @returns The merged style object.
+	 */
 	makeStyles = (name: string) => {
 		return this.mergeStyles(`${name}`, (styles as any)[name]);
 	};
@@ -404,11 +404,11 @@ export class DesktopUIPlugin extends Plugin {
 	}
 
 	/**
-     * Attaches a double tap event listener to the element.
-     * @param callback - The function to execute when a double tap event occurs.
-     * @param callback2 - An optional function to execute when a second double tap event occurs.
-     * @returns A function that detects double tap events.
-     */
+	 * Attaches a double tap event listener to the element.
+	 * @param callback - The function to execute when a double tap event occurs.
+	 * @param callback2 - An optional function to execute when a second double tap event occurs.
+	 * @returns A function that detects double tap events.
+	 */
 	doubleTap(callback: (event: Event) => void, callback2?: (event2: Event) => void) {
 		const delay = this.player.options.doubleClickDelay ?? 500;
 		let lastTap = 0;
@@ -466,11 +466,14 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('ready', () => {
 			playButton.style.display = 'flex';
 		});
-		
 		this.player.on('pause', () => {
 			playButton.style.display = 'flex';
 		});
+
 		this.player.on('play', () => {
+			playButton.style.display = 'none';
+		});
+		this.player.on('firstFrame', () => {
 			playButton.style.display = 'none';
 		});
 
@@ -824,49 +827,49 @@ export class DesktopUIPlugin extends Plugin {
 		time.textContent = '00:00';
 
 		switch (type) {
-		case 'current':
+			case 'current':
 
-			this.player.on('time', (data) => {
-				time.textContent = humanTime(data.currentTime);
-			});
+				this.player.on('time', (data) => {
+					time.textContent = humanTime(data.currentTime);
+				});
 
-			this.player.on('currentScrubTime', (data) => {
-				time.textContent = humanTime(data.currentTime);
-			});
-			break;
+				this.player.on('currentScrubTime', (data) => {
+					time.textContent = humanTime(data.currentTime);
+				});
+				break;
 
-		case 'remaining':
+			case 'remaining':
 
-			this.player.on('duration', (data) => {
-				if (data.remaining === Infinity) {
-					time.textContent = 'Live';
-				} else {
-					time.textContent = humanTime(data.remaining);
-				}
-			});
+				this.player.on('duration', (data) => {
+					if (data.remaining === Infinity) {
+						time.textContent = 'Live';
+					} else {
+						time.textContent = humanTime(data.remaining);
+					}
+				});
 
-			this.player.on('time', (data) => {
-				if (data.remaining === Infinity) {
-					time.textContent = 'Live';
-				} else {
-					time.textContent = humanTime(data.remaining);
-				}
-			});
+				this.player.on('time', (data) => {
+					if (data.remaining === Infinity) {
+						time.textContent = 'Live';
+					} else {
+						time.textContent = humanTime(data.remaining);
+					}
+				});
 
-			break;
+				break;
 
-		case 'duration':
-			this.player.on('duration', (data) => {
-				if (data.duration === Infinity) {
-					time.textContent = 'Live';
-				} else {
-					time.textContent = humanTime(data.duration);
-				}
-			});
-			break;
+			case 'duration':
+				this.player.on('duration', (data) => {
+					if (data.duration === Infinity) {
+						time.textContent = 'Live';
+					} else {
+						time.textContent = humanTime(data.duration);
+					}
+				});
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 		this.player.on('pip-internal', (data) => {
@@ -2541,12 +2544,12 @@ export class DesktopUIPlugin extends Plugin {
 	}
 
 	createQualityMenuButton(parent: HTMLDivElement, data: {
-        width: number;
-        id: number;
-        bitrate: number;
-        label: string;
-        height: number
-    }, hovered = false) {
+		width: number;
+		id: number;
+		bitrate: number;
+		label: string;
+		height: number
+	}, hovered = false) {
 
 		const qualityButton = this.player.createElement('button', `quality-button-${data.height}-${data.bitrate}`)
 			.addClasses(this.makeStyles('languageButtonStyles'))
@@ -2957,8 +2960,8 @@ export class DesktopUIPlugin extends Plugin {
 		});
 
 		return this.player.getChapters()[index - 1]?.title
-            ?? this.player.getChapters()[this.player.getChapters()?.length - 1]?.title
-            ?? null;
+			?? this.player.getChapters()[this.player.getChapters()?.length - 1]?.title
+			?? null;
 	}
 
 	createChapterMarker(chapter: Chapter) {
@@ -3482,7 +3485,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		if (item.episode && item.show) {
 			progressContainerItemText.innerText
-                = item.season == undefined ? `${item.episode}` : `${this.player.localize('S')}${item.season}: ${this.player.localize('E')}${item.episode}`;
+				= item.season == undefined ? `${item.episode}` : `${this.player.localize('S')}${item.season}: ${this.player.localize('E')}${item.episode}`;
 		}
 
 		button.addEventListener('click', () => {
@@ -3590,7 +3593,7 @@ export class DesktopUIPlugin extends Plugin {
 	}
 
 	getTipData({ direction, header, title, image }:
-                    { direction: string; header: HTMLSpanElement; title: HTMLSpanElement; image: HTMLImageElement; }) {
+				   { direction: string; header: HTMLSpanElement; title: HTMLSpanElement; image: HTMLImageElement; }) {
 
 		const item = this.getTipDataIndex(direction);
 		if (!item) return;
@@ -3780,45 +3783,45 @@ export class DesktopUIPlugin extends Plugin {
 	getButtonKeyCode(id: string) {
 
 		switch (id) {
-		case 'play':
-		case 'pause':
-			return `(${this.player.localize('SPACE')})`;
-		case 'volumeMuted':
-		case 'volumeLow':
-		case 'volumeMedium':
-		case 'volumeHigh':
-			return '(m)';
-		case 'seekBack':
-			return '(<)';
-		case 'seekForward':
-			return '(>)';
-		case 'next':
-			return '(n)';
-		case 'theater':
-			return '(t)';
-		case 'theater-enabled':
-			return '(t)';
-		case 'pip-enter':
-		case 'pip-exit':
-			return '(i)';
-		case 'playlist':
-			return '';
-		case 'previous':
-			return '(p)';
-		case 'speed':
-			return '';
-		case 'subtitle':
-		case 'subtitled':
-			return '(v)';
-		case 'audio':
-			return '(b)';
-		case 'settings':
-			return '';
-		case 'fullscreen-enable':
-		case 'fullscreen':
-			return '(f)';
-		default:
-			return '';
+			case 'play':
+			case 'pause':
+				return `(${this.player.localize('SPACE')})`;
+			case 'volumeMuted':
+			case 'volumeLow':
+			case 'volumeMedium':
+			case 'volumeHigh':
+				return '(m)';
+			case 'seekBack':
+				return '(<)';
+			case 'seekForward':
+				return '(>)';
+			case 'next':
+				return '(n)';
+			case 'theater':
+				return '(t)';
+			case 'theater-enabled':
+				return '(t)';
+			case 'pip-enter':
+			case 'pip-exit':
+				return '(i)';
+			case 'playlist':
+				return '';
+			case 'previous':
+				return '(p)';
+			case 'speed':
+				return '';
+			case 'subtitle':
+			case 'subtitled':
+				return '(v)';
+			case 'audio':
+				return '(b)';
+			case 'settings':
+				return '';
+			case 'fullscreen-enable':
+			case 'fullscreen':
+				return '(f)';
+			default:
+				return '';
 		}
 
 	};
@@ -3866,18 +3869,18 @@ export class DesktopUIPlugin extends Plugin {
 		const originEl = element!.getBoundingClientRect();
 
 		const el = arr.find(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2))
-		== this.nearestValue(arr.map(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2)))
-			, originEl.top + (originEl.height / 2)));
+			== this.nearestValue(arr.map(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2)))
+				, originEl.top + (originEl.height / 2)));
 
 		return el;
 	}
 
 	/**
-     * Limits a sentence to a specified number of characters by truncating it at the last period before the limit.
-     * @param str - The sentence to limit.
-     * @param characters - The maximum number of characters to allow in the sentence.
-     * @returns The truncated sentence.
-     */
+	 * Limits a sentence to a specified number of characters by truncating it at the last period before the limit.
+	 * @param str - The sentence to limit.
+	 * @param characters - The maximum number of characters to allow in the sentence.
+	 * @returns The truncated sentence.
+	 */
 	limitSentenceByCharacters(str: string, characters = 360) {
 		if (!str) {
 			return '';
@@ -3888,11 +3891,11 @@ export class DesktopUIPlugin extends Plugin {
 	};
 
 	/**
-     * Adds a line break before the episode title in a TV show string.
-     * @param str - The TV show string to modify.
-     * @param removeShow - Whether to remove the TV show name from the modified string.
-     * @returns The modified TV show string.
-     */
+	 * Adds a line break before the episode title in a TV show string.
+	 * @param str - The TV show string to modify.
+	 * @param removeShow - Whether to remove the TV show name from the modified string.
+	 * @returns The modified TV show string.
+	 */
 	lineBreakShowTitle(str: string, removeShow = false) {
 		if (!str) {
 			return '';
@@ -3911,11 +3914,11 @@ export class DesktopUIPlugin extends Plugin {
 	};
 
 	/**
-     * Returns an array of unique objects based on a specified key.
-     * @param array The array to filter.
-     * @param key The key to use for uniqueness comparison.
-     * @returns An array of unique objects.
-     */
+	 * Returns an array of unique objects based on a specified key.
+	 * @param array The array to filter.
+	 * @param key The key to use for uniqueness comparison.
+	 * @returns An array of unique objects.
+	 */
 	unique<T>(array: T[], key: string): T[] {
 		if (!array || !Array.isArray(array)) {
 			return [];
@@ -3926,11 +3929,11 @@ export class DesktopUIPlugin extends Plugin {
 	};
 
 	/**
-     * Sets the current episode to play based on the given season and episode numbers.
-     * If the episode is not found in the playlist, the first item in the playlist is played.
-     * @param season - The season number of the episode to play.
-     * @param episode - The episode number to play.
-     */
+	 * Sets the current episode to play based on the given season and episode numbers.
+	 * If the episode is not found in the playlist, the first item in the playlist is played.
+	 * @param season - The season number of the episode to play.
+	 * @param episode - The episode number to play.
+	 */
 	setEpisode(season: number, episode: number) {
 		const item = this.player.getPlaylist().findIndex((l: any) => l.season == season && l.episode == episode);
 		if (item == -1) {
@@ -3942,11 +3945,11 @@ export class DesktopUIPlugin extends Plugin {
 	};
 
 	/**
-     * Breaks a logo title string into two lines by inserting a newline character after a specified set of characters.
-     * @param str The logo title string to break.
-     * @param characters An optional array of characters to break the string on. Defaults to [':', '!', '?'].
-     * @returns The broken logo title string.
-     */
+	 * Breaks a logo title string into two lines by inserting a newline character after a specified set of characters.
+	 * @param str The logo title string to break.
+	 * @param characters An optional array of characters to break the string on. Defaults to [':', '!', '?'].
+	 * @returns The broken logo title string.
+	 */
 	breakLogoTitle(str: string, characters = [':', '!', '?']) {
 		if (!str) {
 			return '';

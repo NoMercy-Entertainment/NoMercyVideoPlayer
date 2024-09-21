@@ -3776,11 +3776,11 @@ class cs extends ce {
     });
   }
   /**
-      * Merges the default styles with the styles for a specific style name.
-      * @param styleName - The name of the style to merge.
-      * @param defaultStyles - The default styles to merge.
-      * @returns An array containing the merged styles.
-      */
+   * Merges the default styles with the styles for a specific style name.
+   * @param styleName - The name of the style to merge.
+   * @param defaultStyles - The default styles to merge.
+   * @returns An array containing the merged styles.
+   */
   mergeStyles(i, t) {
     var s;
     const e = ((s = this.player.options.styles) == null ? void 0 : s[i]) || [];
@@ -3802,11 +3802,11 @@ class cs extends ce {
     }), this.createSeekRipple(e, "left"), e;
   }
   /**
-      * Attaches a double tap event listener to the element.
-      * @param callback - The function to execute when a double tap event occurs.
-      * @param callback2 - An optional function to execute when a second double tap event occurs.
-      * @returns A function that detects double tap events.
-      */
+   * Attaches a double tap event listener to the element.
+   * @param callback - The function to execute when a double tap event occurs.
+   * @param callback2 - An optional function to execute when a second double tap event occurs.
+   * @returns A function that detects double tap events.
+   */
   doubleTap(i, t) {
     const e = this.player.options.doubleClickDelay ?? 500;
     let s = 0, l, a;
@@ -3843,6 +3843,8 @@ class cs extends ce {
     }), this.player.on("pause", () => {
       l.style.display = "flex";
     }), this.player.on("play", () => {
+      l.style.display = "none";
+    }), this.player.on("firstFrame", () => {
       l.style.display = "none";
     }), s;
   }
@@ -5102,11 +5104,11 @@ class cs extends ce {
     ));
   }
   /**
-      * Limits a sentence to a specified number of characters by truncating it at the last period before the limit.
-      * @param str - The sentence to limit.
-      * @param characters - The maximum number of characters to allow in the sentence.
-      * @returns The truncated sentence.
-      */
+   * Limits a sentence to a specified number of characters by truncating it at the last period before the limit.
+   * @param str - The sentence to limit.
+   * @param characters - The maximum number of characters to allow in the sentence.
+   * @returns The truncated sentence.
+   */
   limitSentenceByCharacters(i, t = 360) {
     if (!i)
       return "";
@@ -5114,11 +5116,11 @@ class cs extends ce {
     return e.pop(e.length), `${e.join(".")}.`;
   }
   /**
-      * Adds a line break before the episode title in a TV show string.
-      * @param str - The TV show string to modify.
-      * @param removeShow - Whether to remove the TV show name from the modified string.
-      * @returns The modified TV show string.
-      */
+   * Adds a line break before the episode title in a TV show string.
+   * @param str - The TV show string to modify.
+   * @param removeShow - Whether to remove the TV show name from the modified string.
+   * @returns The modified TV show string.
+   */
   lineBreakShowTitle(i, t = !1) {
     if (!i)
       return "";
@@ -5131,30 +5133,30 @@ ${e[0]} ${s[1]}`;
     return i;
   }
   /**
-      * Returns an array of unique objects based on a specified key.
-      * @param array The array to filter.
-      * @param key The key to use for uniqueness comparison.
-      * @returns An array of unique objects.
-      */
+   * Returns an array of unique objects based on a specified key.
+   * @param array The array to filter.
+   * @param key The key to use for uniqueness comparison.
+   * @returns An array of unique objects.
+   */
   unique(i, t) {
     return !i || !Array.isArray(i) ? [] : i.filter((e, s, l) => l.map((a) => a[t]).indexOf(e[t]) === s);
   }
   /**
-      * Sets the current episode to play based on the given season and episode numbers.
-      * If the episode is not found in the playlist, the first item in the playlist is played.
-      * @param season - The season number of the episode to play.
-      * @param episode - The episode number to play.
-      */
+   * Sets the current episode to play based on the given season and episode numbers.
+   * If the episode is not found in the playlist, the first item in the playlist is played.
+   * @param season - The season number of the episode to play.
+   * @param episode - The episode number to play.
+   */
   setEpisode(i, t) {
     const e = this.player.getPlaylist().findIndex((s) => s.season == i && s.episode == t);
     e == -1 ? this.player.playlistItem(0) : this.player.playlistItem(e), this.player.play();
   }
   /**
-      * Breaks a logo title string into two lines by inserting a newline character after a specified set of characters.
-      * @param str The logo title string to break.
-      * @param characters An optional array of characters to break the string on. Defaults to [':', '!', '?'].
-      * @returns The broken logo title string.
-      */
+   * Breaks a logo title string into two lines by inserting a newline character after a specified set of characters.
+   * @param str The logo title string to break.
+   * @param characters An optional array of characters to break the string on. Defaults to [':', '!', '?'].
+   * @returns The broken logo title string.
+   */
   breakLogoTitle(i, t = [":", "!", "?"]) {
     if (!i)
       return "";
