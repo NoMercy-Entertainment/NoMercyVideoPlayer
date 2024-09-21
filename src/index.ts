@@ -45,7 +45,7 @@ export class NMPlayer extends Base {
 	// Playlist functionality
 	playlist: PlaylistItem[] = [];
 	currentPlaylistItem: PlaylistItem = <PlaylistItem>{} as PlaylistItem;
-	currentIndex = 0;
+	currentIndex = -1;
 	isPlaying = false;
 	muted: boolean = false;
 	volume: number = 100;
@@ -638,8 +638,6 @@ export class NMPlayer extends Base {
 		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('beforePlay');
 
-		this.emit('captionsList', this.getCaptionsList());
-
 		this.container.classList.remove('paused');
 		this.container.classList.add('playing');
 		this.emit('play');
@@ -674,9 +672,8 @@ export class NMPlayer extends Base {
 				localStorage.getItem('nmplayer-subtitle-ext') as string
 			);
 			if (track == null || track == -1) return;
-
+			
 			console.log('Setting caption from storage', track);
-
 			this.setCurrentCaption(track);
 		}
 	}
@@ -868,10 +865,16 @@ export class NMPlayer extends Base {
 
 		this.on('play', this.ui_setPlayClass.bind(this));
 		this.on('pause', this.ui_setPauseClass.bind(this));
+		
+		// this.on('captionsList', () => {
+		// 	console.log('Captions list updated');
+		// 	this.setCaptionFromStorage();
+		// });
 
 		this.on('item', () => {
 			this.lastTime = 0;
 			setTimeout(() => {
+				this.emit('captionsList', this.getCaptionsList());
 				this.emit('levels', this.getQualityLevels());
 				this.emit('levelsChanging', {
 					id: this.hls?.loadLevel,
@@ -1027,6 +1030,9 @@ export class NMPlayer extends Base {
 		});
 
 		this.once('item', () => {
+			this.on('captionsList', () => {
+				this.setCaptionFromStorage();
+			});
 			this.emit('speed', this.videoElement.playbackRate);
 			this.once('audio', () => {
 				if (localStorage.getItem('nmplayer-audio-language')) {
@@ -1041,9 +1047,6 @@ export class NMPlayer extends Base {
 						this.setCurrentAudioTrack(0);
 					}
 				});
-			});
-			this.once('play', () => {
-				this.setCaptionFromStorage();
 			});
 
 			if (!this.options.disableControls) {
@@ -1065,7 +1068,8 @@ export class NMPlayer extends Base {
 				setTimeout(() => {
 					this.setEpisode(seasonNumber, episodeNumber);
 				}, 0);
-			} else {
+			} 
+			else {
 				// Get item with the latest progress timer
 
 				const progressItem = this.getPlaylist()
@@ -1086,13 +1090,13 @@ export class NMPlayer extends Base {
 					return;
 				}
 
-				// setTimeout(() => {
-				if (playlistItem.progress && playlistItem.progress.percentage > 95) {
-					this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
-				} else {
-					this.playlistItem(this.getPlaylist().indexOf(playlistItem));
-				}
-				// }, 0);
+				setTimeout(() => {
+					if (playlistItem.progress && playlistItem.progress.percentage > 90) {
+						this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
+					} else {
+						this.playlistItem(this.getPlaylist().indexOf(playlistItem));
+					}
+				}, 0);
 
 				this.once('playing', () => {
 					if (!playlistItem.progress) return;
@@ -1548,19 +1552,22 @@ export class NMPlayer extends Base {
 	// Method to load and play a video from the playlist
 	playVideo(index: number) {
 		if (index >= 0 && index < this.playlist.length) {
-			this.currentPlaylistItem = this.playlist[index];
-
 			this.subtitles = <VTTData>{};
 			this.subtitleText.textContent = '';
 			this.subtitleOverlay.style.display = 'none';
 
-			setTimeout(() => {
-				this.emit('item', this.currentPlaylistItem);
-			}, 0);
+			if (this.currentIndex !== index){
+				setTimeout(() => {
+					this.emit('item', this.currentPlaylistItem);
+				}, 0);				
+			}
 
 			this.currentIndex = index;
+			this.currentPlaylistItem = this.playlist[index];
+			
 			this.videoElement.poster = this.currentPlaylistItem.image ?? '';
 			this.loadSource((this.options.basePath ?? '') + this.currentPlaylistItem.file);
+			
 		} else {
 			console.log('No more videos in the playlist.');
 		}
@@ -2166,7 +2173,7 @@ export class NMPlayer extends Base {
 				t.language === language && t.type === type && t.ext === ext) - 1;
 		}
 
-		return index - 2;
+		return index - 1;
 	}
 
 	setCurrentCaption(index?: number): void {

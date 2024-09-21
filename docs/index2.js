@@ -17346,7 +17346,7 @@ var vi = {};
 const Pe = /* @__PURE__ */ new Map();
 class Ah extends Jn {
   constructor(e) {
-    if (super(), this.translations = {}, this.defaultTranslations = Zn, this.message = {}, this.leftTap = {}, this.rightTap = {}, this.leeway = 300, this.seekInterval = 10, this.tapCount = 0, this.chapters = {}, this.currentChapterFile = "", this.fonts = [], this.currentFontFile = "", this.currentSkipFile = "", this.currentSubtitleIndex = 0, this.subtitles = {}, this.currentSubtitleFile = "", this.currentSpriteFile = "", this.playlist = [], this.currentPlaylistItem = {}, this.currentIndex = 0, this.isPlaying = !1, this.muted = !1, this.volume = 100, this.lastTime = 0, this.lockActive = !1, this.plugins = {}, this.stretchOptions = [
+    if (super(), this.translations = {}, this.defaultTranslations = Zn, this.message = {}, this.leftTap = {}, this.rightTap = {}, this.leeway = 300, this.seekInterval = 10, this.tapCount = 0, this.chapters = {}, this.currentChapterFile = "", this.fonts = [], this.currentFontFile = "", this.currentSkipFile = "", this.currentSubtitleIndex = 0, this.subtitles = {}, this.currentSubtitleFile = "", this.currentSpriteFile = "", this.playlist = [], this.currentPlaylistItem = {}, this.currentIndex = -1, this.isPlaying = !1, this.muted = !1, this.volume = 100, this.lastTime = 0, this.lockActive = !1, this.plugins = {}, this.stretchOptions = [
       "uniform",
       "fill",
       "exactfit",
@@ -17614,7 +17614,7 @@ class Ah extends Jn {
     };
   }
   videoPlayer_playEvent(e) {
-    this.emit("beforePlay"), this.emit("captionsList", this.getCaptionsList()), this.container.classList.remove("paused"), this.container.classList.add("playing"), this.emit("play");
+    this.emit("beforePlay"), this.container.classList.remove("paused"), this.container.classList.add("playing"), this.emit("play");
   }
   videoPlayer_onPlayingEvent(e) {
     this.videoElement.removeEventListener("playing", this.videoPlayer_onPlayingEvent), this.firstFrame || (this.emit("firstFrame"), this.firstFrame = !0), this.setMediaAPI(), this.on("item", () => {
@@ -17719,7 +17719,7 @@ class Ah extends Jn {
     this.videoElement.addEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.addEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.addEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.addEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.addEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.addEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.addEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.addEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.addEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.addEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.addEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.addEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.on("play", this.ui_setPlayClass.bind(this)), this.on("pause", this.ui_setPauseClass.bind(this)), this.on("item", () => {
       this.lastTime = 0, setTimeout(() => {
         var e, t;
-        this.emit("levels", this.getQualityLevels()), this.emit("levelsChanging", {
+        this.emit("captionsList", this.getCaptionsList()), this.emit("levels", this.getQualityLevels()), this.emit("levelsChanging", {
           id: (e = this.hls) == null ? void 0 : e.loadLevel,
           name: (t = this.getQualityLevels().find((i) => {
             var s;
@@ -17808,12 +17808,12 @@ class Ah extends Jn {
         console.log("Media detaching", e);
       }));
     }), this.once("item", () => {
-      this.emit("speed", this.videoElement.playbackRate), this.once("audio", () => {
+      this.on("captionsList", () => {
+        this.setCaptionFromStorage();
+      }), this.emit("speed", this.videoElement.playbackRate), this.once("audio", () => {
         localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0), this.once("play", () => {
           localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0);
         });
-      }), this.once("play", () => {
-        this.setCaptionFromStorage();
       }), this.options.disableControls || this.getVideoElement().focus();
       const e = this.getParameterByName("item"), t = e ? parseInt(e, 10) : null, i = this.getParameterByName("season"), s = i ? parseInt(i, 10) : null, n = this.getParameterByName("episode"), r = n ? parseInt(n, 10) : null;
       if (t)
@@ -17838,7 +17838,9 @@ class Ah extends Jn {
           this.options.autoPlay && this.play().then();
           return;
         }
-        l.progress && l.progress.percentage > 95 ? this.playlistItem(this.getPlaylist().indexOf(l) + 1) : this.playlistItem(this.getPlaylist().indexOf(l)), this.once("playing", () => {
+        setTimeout(() => {
+          l.progress && l.progress.percentage > 90 ? this.playlistItem(this.getPlaylist().indexOf(l) + 1) : this.playlistItem(this.getPlaylist().indexOf(l));
+        }, 0), this.once("playing", () => {
           l.progress && setTimeout(() => {
             l.progress && this.seek(er(l.duration) / 100 * l.progress.percentage);
           }, 350);
@@ -18154,9 +18156,9 @@ class Ah extends Jn {
   }
   // Method to load and play a video from the playlist
   playVideo(e) {
-    e >= 0 && e < this.playlist.length ? (this.currentPlaylistItem = this.playlist[e], this.subtitles = {}, this.subtitleText.textContent = "", this.subtitleOverlay.style.display = "none", setTimeout(() => {
+    e >= 0 && e < this.playlist.length ? (this.subtitles = {}, this.subtitleText.textContent = "", this.subtitleOverlay.style.display = "none", this.currentIndex !== e && setTimeout(() => {
       this.emit("item", this.currentPlaylistItem);
-    }, 0), this.currentIndex = e, this.videoElement.poster = this.currentPlaylistItem.image ?? "", this.loadSource((this.options.basePath ?? "") + this.currentPlaylistItem.file)) : console.log("No more videos in the playlist.");
+    }, 0), this.currentIndex = e, this.currentPlaylistItem = this.playlist[e], this.videoElement.poster = this.currentPlaylistItem.image ?? "", this.loadSource((this.options.basePath ?? "") + this.currentPlaylistItem.file)) : console.log("No more videos in the playlist.");
   }
   /**
       * Fetches a playlist from the specified URL and returns it as a converted playlist for the current player.
@@ -18551,7 +18553,7 @@ class Ah extends Jn {
   getTextTrackIndexBy(e, t, i) {
     var n, r;
     const s = (n = this.getCaptionsList()) == null ? void 0 : n.findIndex((o) => (o.file ?? o.id).endsWith(`${e}.${t}.${i}`));
-    return s === -1 ? ((r = this.getCaptionsList()) == null ? void 0 : r.findIndex((o) => o.language === e && o.type === t && o.ext === i)) - 1 : s - 2;
+    return s === -1 ? ((r = this.getCaptionsList()) == null ? void 0 : r.findIndex((o) => o.language === e && o.type === t && o.ext === i)) - 1 : s - 1;
   }
   setCurrentCaption(e) {
     if (!(!e && e != 0)) {
