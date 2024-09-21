@@ -1601,7 +1601,7 @@ export class DesktopUIPlugin extends Plugin {
 			audioButton.style.display = 'none';
 		});
 		this.player.on('audioTracks', (tracks) => {
-			if (tracks.length > 2) {
+			if (tracks.length > 1) {
 				audioButton.style.display = 'flex';
 			} else {
 				audioButton.style.display = 'none';

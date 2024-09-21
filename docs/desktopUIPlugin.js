@@ -4289,7 +4289,7 @@ class cs extends ce {
     }), this.player.on("item", () => {
       e.style.display = "none";
     }), this.player.on("audioTracks", (l) => {
-      l.length > 2 ? e.style.display = "flex" : e.style.display = "none";
+      l.length > 1 ? e.style.display = "flex" : e.style.display = "none";
     }), this.player.on("pip-internal", (l) => {
       l ? e.style.display = "none" : this.player.hasAudioTracks() && (e.style.display = "flex");
     }), i.appendChild(e), e;
