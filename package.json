@@ -1,29 +1,32 @@
 {
   "name": "nomercyplayer",
   "version": "1.0.1",
-  "description": "",
+  "description": "Full event-driven video player without a UI.",
   "type": "module",
   "files": [
     "docs"
   ],
-  "main": "./docs/no-mercy-player.umd.cjs",
-  "module": "./docs/no-mercy-player.js",
-  "types": "./docs/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./docs/no-mercy-player.js",
-      "require": "./docs/no-mercy-player.umd.cjs"
-    }
-  },
+  "main": "dist/index.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run clean-dist && tsc && vite build && npm run clean-docs && npm run copy-docs",
     "serve": "vite preview",
     "test": "jest",
-    "lint": "eslint ./src --ext .js,.ts,.d.ts --fix"
+    "lint": "eslint ./src --ext .js,.ts,.d.ts --fix",
+    "clean-dist": "shx rm -rf dist",
+    "clean-docs": "shx mv docs/CNAME CNAME.tmp && shx rm -rf docs/* && shx mkdir -p docs && shx mv CNAME.tmp docs/CNAME",
+    "copy-docs": "shx cp -r dist/* docs/"
   },
-  "keywords": [],
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer.git"
+  },
+  "keywords": [
+    "video",
+    "player",
+    "NoMercy"
+  ],
+  "author": "Stoney_Eagle",
   "license": "ISC",
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.3",
@@ -68,5 +71,43 @@
     "libass-wasm": "^4.1.0",
     "tailwind-merge": "^2.5.2",
     "webvtt-parser": "^2.2.0"
+  },
+  "exports": {
+    "./src": {
+      "import": "./src/index.ts",
+      "require": "./dist/index.js"
+    },
+    "./src/index": {
+      "import": "./src/index.ts",
+      "require": "./dist/index.js"
+    },
+    "./src/index.css": {
+      "import": "./src/index.css",
+      "require": "./dist/index.cjs"
+    },
+    "./src/plugins/octopusPlugin": {
+      "import": "./src/plugins/octopusPlugin.ts",
+      "require": "./dist/plugins/octopusPlugin.js"
+    },
+    "./src/plugins/desktopUIPlugin": {
+      "import": "./src/plugins/desktopUIPlugin.ts",
+      "require": "./dist/plugins/desktopUIPlugin.js"
+    },
+    "./src/plugins/mobileUIPlugin": {
+      "import": "./src/plugins/mobileUIPlugin.ts",
+      "require": "./dist/plugins/mobileUIPlugin.js"
+    },
+    "./src/plugins/tvUIPlugin": {
+      "import": "./src/plugins/tvUIPlugin.ts",
+      "require": "./dist/plugins/tvUIPlugin.js"
+    },
+    "./src/plugins/keyHandlerPlugin": {
+      "import": "./src/plugins/keyHandlerPlugin.ts",
+      "require": "./dist/plugins/keyHandlerPlugin.js"
+    },
+    "./src/plugins/sabrePlugin": {
+      "import": "./src/plugins/sabrePlugin.ts",
+      "require": "./dist/plugins/sabrePlugin.js"
+    }
   }
 }

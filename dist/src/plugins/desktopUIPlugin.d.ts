@@ -1,4 +1,4 @@
-import { default as Plugin } from '../Plugin';
+import { default as Plugin } from '../plugin';
 import { Chapter, NMPlayer, PlaylistItem, Position, PreviewTime, VolumeState } from '../index.d';
 import { Icon } from './UIPlugin/buttons';
 

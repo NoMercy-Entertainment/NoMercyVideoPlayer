@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		"target": "ES2018",
-		"module": "es6",
-		"outDir": "./docs",
+		"module": "ES2020",
+		"outDir": "./dist",
 		// "outFile": "./build/build.js",
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
@@ -18,5 +18,5 @@
 		"declaration": true,
 		"types": ["node", "jest"]
 	},
-	"include": ["./src/**/*.ts", "./src/**/*.d.ts", "src/*.d.ts", "*.d.ts", "src/app.js", "./vite.config.ts", "./index.js"]
+	"include": ["./src/**/*.ts", "./src/**/*.d.ts", "src/*.d.ts", "*.d.ts", "src/app.js", "./vite.config.ts", "./setup.ts"]
 }

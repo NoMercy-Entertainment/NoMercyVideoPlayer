@@ -1,4 +1,4 @@
-import Plugin from '../Plugin';
+import Plugin from '../plugin';
 import type { Chapter, NMPlayer, PlaylistItem, Position, PreviewTime, VolumeState } from '../index.d';
 import { buttons, Icon } from './UIPlugin/buttons';
 import { humanTime } from '../helpers';
@@ -370,7 +370,7 @@ export class DesktopUIPlugin extends Plugin {
 		const center = this.player.createElement('div', 'center')
 			.addClasses(this.makeStyles('centerStyles'))
 			.appendTo(parent);
-		
+
 		this.createSpinnerContainer(center);
 
 		if (this.player.isMobile()) {
@@ -542,7 +542,7 @@ export class DesktopUIPlugin extends Plugin {
 		]).split(' '));
 
 		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-		path.setAttribute('d', !hovered ? icon.hover : icon.normal);
+		path.setAttribute('d', hovered ? icon.normal : icon.hover);
 		this.player.addClasses(path, [
 			'group-hover/button:hidden',
 			'group-hover/volume:hidden',
@@ -550,7 +550,7 @@ export class DesktopUIPlugin extends Plugin {
 		svg.appendChild(path);
 
 		const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-		path2.setAttribute('d', !hovered ? icon.normal : icon.hover);
+		path2.setAttribute('d', hovered ? icon.hover : icon.normal);
 		this.player.addClasses(path2, [
 			'hidden',
 			'group-hover/button:flex',
@@ -903,7 +903,7 @@ export class DesktopUIPlugin extends Plugin {
 		const mutedButton = this.createSVGElement(volumeButton, 'volumeMuted', this.buttons.volumeMuted, true, hovered);
 		const lowButton = this.createSVGElement(volumeButton, 'volumeLow', this.buttons.volumeLow, true, hovered);
 		const mediumButton = this.createSVGElement(volumeButton, 'volumeMedium', this.buttons.volumeMedium, true, hovered);
-		const highButton = this.createSVGElement(volumeButton, 'volumeHigh', this.buttons.volumeHigh, false,  hovered,);
+		const highButton = this.createSVGElement(volumeButton, 'volumeHigh', this.buttons.volumeHigh, false,  hovered);
 
 		volumeButton.addEventListener('click', (event) => {
 			event.stopPropagation();
@@ -1322,7 +1322,7 @@ export class DesktopUIPlugin extends Plugin {
 		}
 		requestAnimationFrame(scrollStep);
 	}
-	
+
 	createTvCurrentItem(parent: HTMLElement) {
 
 		const currentItemContainer = this.player.createElement('div', 'current-item-container')
@@ -1347,7 +1347,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		this.player.on('item', () => {
 			const item = this.player.playlistItem();
-			currentItemShow.innerHTML = this.breakLogoTitle(item.show);
+			currentItemShow.innerHTML = this.breakLogoTitle(item.show ?? '');
 			currentItemEpisode.innerHTML = '';
 			if (item.season) {
 				currentItemEpisode.innerHTML += `${this.player.localize('S')}${item.season}`;
@@ -1355,7 +1355,7 @@ export class DesktopUIPlugin extends Plugin {
 			if (item.season && item.episode) {
 				currentItemEpisode.innerHTML += `: ${this.player.localize('E')}${item.episode}`;
 			}
-			currentItemTitle.innerHTML = item.title?.replace(item.show, '').length > 0 ? `"${item.title?.replace(item.show, '').replace('%S', this.player.localize('S'))
+			currentItemTitle.innerHTML = item.title?.replace(item.show ?? '', '').length > 0 ? `"${item.title?.replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
 				.replace('%E', this.player.localize('E'))}"` : '';
 		});
 
@@ -1520,7 +1520,7 @@ export class DesktopUIPlugin extends Plugin {
 		captionButton.style.display = 'none';
 		captionButton.ariaLabel = this.buttons.subtitles?.title;
 
-		const offButton = this.createSVGElement(captionButton, 'subtitle', this.buttons.subtitlesOff, false, hovered,);
+		const offButton = this.createSVGElement(captionButton, 'subtitle', this.buttons.subtitlesOff, false, hovered);
 		const onButton = this.createSVGElement(captionButton, 'subtitled', this.buttons.subtitles, true, hovered);
 
 		captionButton.addEventListener('click', (event) => {
@@ -2303,8 +2303,7 @@ export class DesktopUIPlugin extends Plugin {
 					menuButton.style.display = 'none';
 				}
 			});
-		} 
-		else if (item === 'subtitles') {
+		} else if (item === 'subtitles') {
 			this.player.on('item', () => {
 				menuButton.style.display = 'none';
 			});
@@ -2315,8 +2314,7 @@ export class DesktopUIPlugin extends Plugin {
 					menuButton.style.display = 'none';
 				}
 			});
-		} 
-		else if (item === 'quality') {
+		} else if (item === 'quality') {
 			this.player.on('item', () => {
 				menuButton.style.display = 'none';
 			});
@@ -2327,8 +2325,7 @@ export class DesktopUIPlugin extends Plugin {
 					menuButton.style.display = 'none';
 				}
 			});
-		} 
-		else if (item === 'playlist') {
+		} else if (item === 'playlist') {
 			this.player.on('playlist', (playlist) => {
 				if (playlist.length > 1) {
 					menuButton.style.display = 'flex';
@@ -2361,10 +2358,10 @@ export class DesktopUIPlugin extends Plugin {
 
 			Object.values(tracks).forEach((track) => {
 				this.createLanguageMenuButton(scrollContainer, {
-					language: track.language,
-					label: track.label,
+					language: track.language!,
+					label: track.label!,
 					type: 'audio',
-					id: track.id,
+					id: track.id!,
 					buttonType: 'audio',
 				});
 			});
@@ -2373,7 +2370,7 @@ export class DesktopUIPlugin extends Plugin {
 		this.player.on('show-language-menu', (showing) => {
 			if (showing) {
 				languageMenu.style.display = 'flex';
-				
+
 				setTimeout(() => {
 					(scrollContainer.firstChild as HTMLButtonElement).focus();
 				}, 200);
@@ -2407,10 +2404,10 @@ export class DesktopUIPlugin extends Plugin {
 
 			Object.values(tracks).forEach((track) => {
 				this.createLanguageMenuButton(scrollContainer, {
-					language: track.language,
-					label: track.label,
-					type: track.type,
-					id: track.id,
+					language: track.language!,
+					label: track.label!,
+					type: track.type!,
+					id: track.id!,
 					buttonType: 'subtitle',
 				});
 			});
@@ -2545,8 +2542,7 @@ export class DesktopUIPlugin extends Plugin {
         bitrate: number;
         label: string;
         height: number
-    }, hovered = false
-	) {
+    }, hovered = false) {
 
 		const qualityButton = this.player.createElement('button', `quality-button-${data.height}-${data.bitrate}`)
 			.addClasses(this.makeStyles('languageButtonStyles'))
@@ -2592,8 +2588,7 @@ export class DesktopUIPlugin extends Plugin {
 		id: number,
 		styled?: boolean;
 		buttonType: string;
-	}, hovered = false
-	) {
+	}, hovered = false) {
 
 		const languageButton = this.player.createElement('button', `${data.type}-button-${data.language}`)
 			.addClasses(this.makeStyles('languageButtonStyles'))
@@ -2611,8 +2606,7 @@ export class DesktopUIPlugin extends Plugin {
 			} else {
 				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
 			}
-		} 
-		else {
+		} else {
 			languageButtonText.textContent = this.player.localize(data.language);
 		}
 
@@ -2622,7 +2616,7 @@ export class DesktopUIPlugin extends Plugin {
 		if (data.id > 0) {
 			chevron.classList.add('hidden');
 		}
-		
+
 		if (data.buttonType == 'audio') {
 			this.player.on('audioTrackChanging', (audio) => {
 				if (data.id === audio.id) {
@@ -2637,8 +2631,7 @@ export class DesktopUIPlugin extends Plugin {
 				this.player.setCurrentAudioTrack(data.id);
 				this.player.emit('show-menu', false);
 			});
-		} 
-		else if (data.buttonType == 'subtitle') {
+		} else if (data.buttonType == 'subtitle') {
 			if (data.id === this.player.getCaptionIndex()) {
 				chevron.classList.remove('hidden');
 			} else {
@@ -3431,7 +3424,7 @@ export class DesktopUIPlugin extends Plugin {
 			progressBar.style.width = `${item.progress.percentage > 98 ? 100 : item.progress}%`;
 		}
 		if (item.progress?.percentage) {
-			// sliderContainer.style.display = 'flex';
+			sliderContainer.style.display = 'flex';
 		}
 
 		const episodeMenuButtonRightSide = this.player.createElement('div', `episode-${item.id}-right-side`)
@@ -3443,7 +3436,7 @@ export class DesktopUIPlugin extends Plugin {
 			.appendTo(episodeMenuButtonRightSide);
 
 		// if (item.episode) {
-		episodeMenuButtonTitle.textContent = this.lineBreakShowTitle(item.title?.replace(item.show, '').replace('%S', this.player.localize('S'))
+		episodeMenuButtonTitle.textContent = this.lineBreakShowTitle(item.title?.replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
 			.replace('%E', this.player.localize('E')));
 		// }
 
@@ -3452,8 +3445,8 @@ export class DesktopUIPlugin extends Plugin {
 			.appendTo(episodeMenuButtonRightSide);
 		episodeMenuButtonOverview.textContent = this.limitSentenceByCharacters(item.description, 600);
 
-		this.player.on('item', () => {
-			if (this.player.playlistItem().season == item.season) {
+		this.player.on('item', (playlistItem) => {
+			if (playlistItem.season == item.season) {
 				button.style.display = 'flex';
 			} else {
 				button.style.display = 'none';
@@ -3475,7 +3468,7 @@ export class DesktopUIPlugin extends Plugin {
 		});
 
 		this.player.on('time', (data) => {
-			if (this.player.playlistItem()?.uuid == item.uuid) {
+			if (this.player.playlistItem()?.id == item.id) {
 				progressBar.style.width = `${data.percentage}%`;
 				if (data.percentage > 0) {
 					sliderContainer.style.display = 'flex';
@@ -3600,7 +3593,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		image.src = item.image && item.image != '' ? `${this.imageBaseUrl}${item.image}` : '';
 		header.textContent = `${this.player.localize(`${direction.toTitleCase()} Episode`)} ${this.getButtonKeyCode(direction)}`;
-		title.textContent = item.title?.replace(item.show, '').replace('%S', this.player.localize('S'))
+		title.textContent = item.title?.replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
 			.replace('%E', this.player.localize('E'));
 
 		this.player.once('item', () => {
@@ -3771,7 +3764,7 @@ export class DesktopUIPlugin extends Plugin {
 		spinner.appendChild(path2);
 
 	}
-	
+
 	getButtonKeyCode(id: string) {
 
 		switch (id) {
@@ -3817,7 +3810,7 @@ export class DesktopUIPlugin extends Plugin {
 		}
 
 	};
-	
+
 	createButton(match: string, id: string, insert: 'before'| 'after' = 'after', icon: Icon['path'], click?: () => void, rightClick?: () => void) {
 
 		const element = document.querySelector<HTMLButtonElement>(`${match}`);
@@ -3866,7 +3859,7 @@ export class DesktopUIPlugin extends Plugin {
 
 		return el;
 	}
-	
+
 	/**
      * Limits a sentence to a specified number of characters by truncating it at the last period before the limit.
      * @param str - The sentence to limit.
@@ -3963,7 +3956,7 @@ export class DesktopUIPlugin extends Plugin {
 		margin?: number;
 	}) {
 		if (!el) return;
-		
+
 		const scrollDuration = options?.duration || 60;
 		const margin = options?.margin || 1.5;
 

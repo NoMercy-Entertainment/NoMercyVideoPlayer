@@ -7,7 +7,7 @@ import { type VTTData, WebVTTParser } from 'webvtt-parser';
 import translations from './translations';
 
 import type { PlaylistItem, SetupConfig, Stretching, Track, TimeData, TypeMappings } from './index.d';
-import {convertToSeconds, humanTime, pad} from './helpers';
+import { convertToSeconds, humanTime, pad } from './helpers';
 
 const instances = new Map<string, NMPlayer>();
 
@@ -514,14 +514,14 @@ export class NMPlayer extends Base {
 		this.subtitleText.innerHTML = ''; // Clear previous content
 
 		const fragment = document.createDocumentFragment();
-		const parts = newSubtitleText.split(/(<\/?i>|<\/?b>)/g);
-		
+		const parts = newSubtitleText.split(/(<\/?i>|<\/?b>)/gu);
+
 		if (parts.length == 1 && parts[0] == '') return;
 		console.log(parts);
-		
+
 		let currentElement: HTMLElement | null = null;
 
-		parts.forEach(part => {
+		parts.forEach((part) => {
 			if (part === '<i>') {
 				currentElement = document.createElement('i');
 			} else if (part === '<b>') {
@@ -531,12 +531,10 @@ export class NMPlayer extends Base {
 					fragment.appendChild(currentElement);
 					currentElement = null;
 				}
+			} else if (currentElement) {
+				currentElement.appendChild(document.createTextNode(part));
 			} else {
-				if (currentElement) {
-					currentElement.appendChild(document.createTextNode(part));
-				} else {
-					fragment.appendChild(document.createTextNode(part));
-				}
+				fragment.appendChild(document.createTextNode(part));
 			}
 		});
 
@@ -640,6 +638,8 @@ export class NMPlayer extends Base {
 		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('beforePlay');
 
+		this.emit('captionsList', this.getCaptionsList());
+
 		this.container.classList.remove('paused');
 		this.container.classList.add('playing');
 		this.emit('play');
@@ -673,13 +673,11 @@ export class NMPlayer extends Base {
 				localStorage.getItem('nmplayer-subtitle-type') as string,
 				localStorage.getItem('nmplayer-subtitle-ext') as string
 			);
+			if (track == null || track == -1) return;
+
 			console.log('Setting caption from storage', track);
 
-			if (track == null) return;
-
 			this.setCurrentCaption(track);
-		} else {
-			this.setCurrentCaption(-1);
 		}
 	}
 
@@ -722,11 +720,9 @@ export class NMPlayer extends Base {
 	}
 
 	videoPlayer_loadedmetadataEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('loadedmetadata', this.videoElement);
-		this.emit('duration', this.videoElement.duration);
-		this.emit('captionsList', this.getCaptionsList());
+		this.emit('duration', this.videoPlayer_getTimeData.bind(this)(_e));
 	}
 
 	videoPlayer_loadstartEvent(e: Event): void {
@@ -736,7 +732,6 @@ export class NMPlayer extends Base {
 	}
 
 	videoPlayer_timeupdateEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const _e = e as Event & {target: HTMLVideoElement};
 		if (Number.isNaN(_e.target.duration) || Number.isNaN(_e.target.currentTime)) return;
 
@@ -744,7 +739,6 @@ export class NMPlayer extends Base {
 	}
 
 	videoPlayer_durationchangeEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('duration', this.videoPlayer_getTimeData.bind(this)(_e));
 	}
@@ -770,7 +764,7 @@ export class NMPlayer extends Base {
 		this.volume = Math.round(this.videoElement.volume * 100);
 	}
 
-	videoPlayer_getTimeData(_e: {target: HTMLVideoElement}): TimeData {		
+	videoPlayer_getTimeData(_e: {target: HTMLVideoElement}): TimeData {
 		return {
 			currentTime: _e.target.currentTime,
 			duration: _e.target.duration,
@@ -939,6 +933,7 @@ export class NMPlayer extends Base {
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
 				console.log('Level loaded', data);
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.LEVEL_LOADING, (event, data) => {
 				this.emit('levels', this.getQualityLevels());
 				this.emit('levelsChanging', {
@@ -1047,6 +1042,9 @@ export class NMPlayer extends Base {
 					}
 				});
 			});
+			this.once('play', () => {
+				this.setCaptionFromStorage();
+			});
 
 			if (!this.options.disableControls) {
 				this.getVideoElement().focus();
@@ -1058,7 +1056,7 @@ export class NMPlayer extends Base {
 			const seasonNumber = season ? parseInt(season, 10) : null;
 			const episode = this.getParameterByName('episode');
 			const episodeNumber = episode ? parseInt(episode, 10) : null;
-			
+
 			if (itemNumber) {
 				setTimeout(() => {
 					this.setEpisode(0, itemNumber);
@@ -1089,12 +1087,11 @@ export class NMPlayer extends Base {
 				}
 
 				// setTimeout(() => {
-					if (playlistItem.progress && playlistItem.progress.percentage > 95) {
-						this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
-					} 
-					else {
-						this.playlistItem(this.getPlaylist().indexOf(playlistItem));
-					}
+				if (playlistItem.progress && playlistItem.progress.percentage > 95) {
+					this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
+				} else {
+					this.playlistItem(this.getPlaylist().indexOf(playlistItem));
+				}
 				// }, 0);
 
 				this.once('playing', () => {
@@ -1211,7 +1208,7 @@ export class NMPlayer extends Base {
 			navigator.mediaSession.metadata = new MediaMetadata({
 				title: parsedTitle,
 				artist: playlistItem.show,
-				album: playlistItem.season ? `S${pad(playlistItem.season, 2)}E${pad(playlistItem.episode, 2)}` : '',
+				album: playlistItem.season ? `S${pad(playlistItem.season, 2)}E${pad(playlistItem.episode ?? 0, 2)}` : '',
 				artwork: playlistItem.image ? [
                     {
                     	src: playlistItem.image,
@@ -1440,8 +1437,7 @@ export class NMPlayer extends Base {
 								file: `${baseFolder}/fonts/${f.file}`,
 							};
 						});
-					}
-					catch (e) {
+					} catch (e) {
 						this.fonts = [];
 					}
 
@@ -1624,7 +1620,7 @@ export class NMPlayer extends Base {
 			setTimeout(() => {
 				this.emit('playlist', this.playlist);
 			}, 0);
-			
+
 			this.playVideo(0);
 		}
 
@@ -2123,7 +2119,7 @@ export class NMPlayer extends Base {
 			type: 'none',
 			ext: 'none',
 			file: '',
-			kind: 'captions',
+			kind: 'subtitles',
 		} as Track);
 
 		return subs;
@@ -2138,7 +2134,7 @@ export class NMPlayer extends Base {
 			id: -1,
 			label: 'Off',
 			language: '',
-			kind: 'captions',
+			kind: 'subtitles',
 			type: 'none',
 			file: '',
 			ext: 'none',
@@ -2167,10 +2163,10 @@ export class NMPlayer extends Base {
 
 		if (index === -1) {
 			return this.getCaptionsList()?.findIndex((t: any) =>
-				t.language === language && t.type === type && t.ext === ext);
+				t.language === language && t.type === type && t.ext === ext) - 1;
 		}
 
-		return index - 1;
+		return index - 2;
 	}
 
 	setCurrentCaption(index?: number): void {
@@ -2204,7 +2200,11 @@ export class NMPlayer extends Base {
      * Triggers the styled subtitles based on the provided file.
      */
 	storeSubtitleChoice() {
-		const { language, type, ext } = this.getCurrentCaptions()!;
+		const currentCaotpion = this.getCurrentCaptions();
+		if (!currentCaotpion) return;
+
+		const { language, type, ext } = currentCaotpion;
+		if (!language || !type || !ext) return;
 
 		localStorage.setItem('nmplayer-subtitle-language', language);
 		localStorage.setItem('nmplayer-subtitle-type', type);
@@ -2332,8 +2332,8 @@ export class NMPlayer extends Base {
 	stopCasting(): void {
 		//
 	}
-	
-	dispose(): void {		
+
+	dispose(): void {
 		// Clear timeouts
 		clearTimeout(this.message);
 		clearTimeout(this.leftTap);
@@ -2351,7 +2351,7 @@ export class NMPlayer extends Base {
 				plugin.destroy();
 			}
 		}
-		
+
 		this.plugins = {};
 
 		// Dispose HLS instance if exists
@@ -2376,7 +2376,7 @@ export class NMPlayer extends Base {
 
 		// Emit dispose event
 		this.emit('dispose');
-		
+
 		this.off('all');
 	}
 }

@@ -96,21 +96,20 @@ export type Level = ReturnType<NMPlayer['getQualityLevels']>[number];
 export type Preload = 'metadata' | 'auto' | 'none';
 
 export interface PlaylistItem {
-    id: any;
-	uuid: any;
-    seasonName: any;
-    progress: any;
+    id: string | number;
+	uuid?: string;
+    seasonName?: string;
+    progress?: any;
     duration: string;
     file: string;
     image: string;
-    starttime?: number;
     title: string;
     tracks?: Track[];
     withCredentials?: boolean;
     description: string;
-    season: number;
-    episode: number;
-    show: string;
+    season?: number;
+    episode?: number;
+    show?: string;
 }
 
 export interface Adschedule {
@@ -140,12 +139,12 @@ export interface Source {
 export interface Track {
     default?: boolean;
     file: string;
-    kind: 'captions' | 'chapters' | 'thumbnails';
-    label: string;
-    language: string;
-    type: string;
-    ext: string;
-    id: number;
+    kind: 'subtitles' | 'chapters' | 'thumbnails' | 'sprite' | 'fonts';
+    label?: string;
+    language?: string;
+    type?: string;
+    ext?: string;
+    id?: number;
 }
 
 export interface CurrentTrack {
@@ -369,9 +368,9 @@ export interface TimeData {
 }
 
 export interface SetupConfig {
-	styles: any;
-	nipple: boolean;
-	chapters: boolean;
+	nipple?: boolean;
+	styles?: any;
+	chapters?: boolean;
     playlist: string | PlaylistItem[];
     debug?: boolean;
     muted?: boolean;
@@ -381,14 +380,6 @@ export interface SetupConfig {
     stretching?: StretchOptions;
 
     playbackRates?: number[];
-    fullscreen?: {
-        enable: boolean;
-        enterOnRotate: boolean;
-        alwaysInLandscapeMode: boolean;
-        iOS: boolean;
-        exitOnRotate: boolean;
-    };
-
     accessToken?: string;
     basePath?: string;
     subtitleRenderer?: 'octopus' | 'sabre';
@@ -416,9 +407,9 @@ export interface SetupConfig {
     subtitleRenderer?: 'octopus' | 'sabre';
     sabreVersion?: string;
     disableMediaControls?: boolean;
-    disableControls: boolean;
-    disableTouchControls: boolean;
-    doubleClickDelay: number;
+    disableControls?: boolean;
+    disableTouchControls?: boolean;
+    doubleClickDelay?: number;
 	forceTvMode?: boolean;
 }
 

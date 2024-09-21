@@ -1,6 +1,6 @@
 import subtitlesOctopus from '../../public/js/octopus/subtitles-octopus';
 
-import Plugin from '../Plugin';
+import Plugin from '../plugin';
 import { NMPlayer } from '../index';
 
 export class OctopusPlugin extends Plugin {
@@ -19,7 +19,7 @@ export class OctopusPlugin extends Plugin {
 	dispose() {
 		this.player.off('item', this.destroy.bind(this));
 		this.player.off('captionsChanged', this.opus.bind(this));
-		
+
 		this.destroy();
 	}
 
@@ -39,7 +39,7 @@ export class OctopusPlugin extends Plugin {
 		let [,, ext] = tag ? tag.split('.') : [];
 		if (!ext) {
 			const parts = subtitleURL.split('.');
-			ext = parts.at(-1) || "";
+			ext = parts.at(-1) || '';
 		}
 		if (ext != 'ass' && ext != 'ssa') return;
 

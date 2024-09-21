@@ -1,89 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="icon"
-              type="image/svg+xml"
-              href="/favicon.ico" />
-        <meta name="viewport"
-              content="width=device-width, initial-scale=1.0" />
-        <title>NoMercy VideoPlayer</title>
+<head>
+      <meta charset="UTF-8" />
+      <link rel="icon"
+            type="image/svg+xml"
+            href="/favicon.ico" />
+      <meta name="viewport"
+            content="width=device-width, initial-scale=1.0" />
+      <title>NoMercy VideoPlayer</title>
 
-        <!-- Open Graph Metadata -->
-        <meta property="og:title" content="NoMercy VideoPlayer" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://player.nomercy.tv" />
-        <!-- <meta property="og:image" content="https://player.nomercy.tv/preview.jpg" /> -->
-        <meta property="og:description" content="Full event-driven video player without a UI." />
-        <meta property="og:site_name" content="NoMercy VideoPlayer" />
-        <meta property="og:locale" content="en_US" />
-    </head>
+      <!-- Open Graph Metadata -->
+      <meta property="og:title"
+            content="NoMercy VideoPlayer" />
+      <meta property="og:type"
+            content="website" />
+      <meta property="og:url"
+            content="https://player.nomercy.tv" />
+      <!-- <meta property="og:image" cntent="https://player.nomercy.tv/preview.jpg" /> -->
+      <meta property="og:description"
+            content="Full event-driven video player without a UI." />
+      <meta property="og:site_name"
+            content="NoMercy VideoPlayer" />
+      <meta property="og:locale"
+            content="en_US" />
 
-    <body class="flex flex-col items-center justify-center w-screen h-screen gap-4 text-white bg-zinc-900">
 
-        <div id="container"
-             class="flex flex-col justify-evenly items-center w-full max-h-available gap-4 p-4 sm:flex-row">
+      <script type="module" defer
+            src='./src/index.ts'></script>
 
-            <div id="left"
-                 class="flex flex-col gap-1  w-px flex-1 max-w-xs h-5/6">
+      <script type="module" defer
+            src='./setup.ts'></script>
+</head>
 
-<!--                <div class="text-lg font-semibold ml-2 flex flex-nowrap">-->
-<!--                    <span>Current Audio:</span>-->
-<!--                    <div id="currentAudio"-->
-<!--                         class="ml-1"></div>-->
-<!--                </div>-->
-<!--                <div id="audioTracks"-->
-<!--                     class="flex flex-col gap-1 overflow-clip h-[30%] mb-2"></div>-->
+<body class="flex flex-col items-center justify-center w-screen h-screen gap-4 text-white bg-zinc-900">
 
-<!--                <div class="text-lg font-semibold ml-2 flex flex-nowrap">-->
-<!--                    <span>Current Subtitle:</span>-->
-<!--                    <div id="currentSubtitle"-->
-<!--                         class="ml-1"></div>-->
-<!--                </div>-->
-<!--                <div id="subtitleTracks"-->
-<!--                     class="flex flex-col gap-1 overflow-clip h-[30%] mb-2"></div>-->
+      <div id="container"
+            class="flex flex-col justify-evenly items-center w-full max-h-available gap-4 p-4 sm:flex-row">
 
-<!--                <div class="text-lg font-semibold ml-2 flex flex-nowrap">-->
-<!--                    <span>Current Quality:</span>-->
-<!--                    <div id="currentQuality"-->
-<!--                         class="ml-1"></div>-->
-<!--                </div>-->
-<!--                <div id="qualities"-->
-<!--                     class="flex flex-col gap-1 overflow-clip h-[30%] mb-2"></div>-->
+      <div id="left"
+            class="flex flex-col gap-1  w-px flex-1 max-w-xs h-5/6">
 
+            <!-- <div class="text-lg font-semibold ml-2 flex flex-nowrap">
+                  <span>Current Audio:</span>
+                  <div id="currentAudio"
+                        class="ml-1"></div>
+            </div>
+            <div id="audioTracks"
+                  class="flex flex-col gap-1 overflow-clip h-[30%] mb-2"></div>
+
+            <div class="text-lg font-semibold ml-2 flex flex-nowrap">
+                  <span>Current Subtitle:</span>
+                  <div id="currentSubtitle"
+                        class="ml-1"></div>
+            </div>
+            <div id="subtitleTracks"
+                  class="flex flex-col gap-1 overflow-clip h-[30%] mb-2"></div>
+
+            <div class="text-lg font-semibold ml-2 flex flex-nowrap">
+                  <span>Current Quality:</span>
+                  <div id="currentQuality"
+                        class="ml-1"></div>
+            </div>
+            <div id="qualities"
+                  class="flex flex-col gap-1 overflow-clip h-[30%] mb-2"></div> -->
+
+      </div>
+
+      <div id="wrapper"
+            class="flex flex-col items-center w-px flex-1 max-w-7xl gap-2 text-center tv:absolute tv:inset-0 tv:w-screen tv:h-screen">
+
+            <div id="player"
+                  class="group"
+                  style="max-height: 90vh;">
             </div>
 
-            <div id="wrapper"
-                 class="flex flex-col items-center w-px flex-1 max-w-7xl gap-2 text-center tv:absolute tv:inset-0 tv:w-screen tv:h-screen">
+            <!-- <div class="flex flex-wrap items-center justify-center gap-4">
+                  <button id="enableGain">Enable Gain</button>
+                  <label class="flex items-center gap-2">
+                  Gain: <span id="gain">0</span>
+                  <input type="range"
+                              style="display: none;"
+                              min="1"
+                              max="10"
+                              step="1"
+                              value="0"
+                              name="gain"
+                              id="gainSlider"
+                              class=" appearance-none h-1 mr-2 rounded-full cursor-pointer accent-purple-900">
+                  </label>
+            </div> -->
+      </div>
+      </div>
 
-                <div id="player"
-                     class="group" style="max-height: 90vh;">
-                </div>
-
-<!--                <div class="flex flex-wrap items-center justify-center gap-4">-->
-<!--                    <button id="enableGain">Enable Gain</button>-->
-<!--                    <label class="flex items-center gap-2">-->
-<!--                        Gain: <span id="gain">0</span>-->
-<!--                        <input type="range" style="display: none;"-->
-<!--                               min="1"-->
-<!--                               max="10"-->
-<!--                               step="1"-->
-<!--                               value="0"-->
-<!--                               name="gain"-->
-<!--                               id="gainSlider"-->
-<!--                               class=" appearance-none h-1 mr-2 rounded-full cursor-pointer accent-purple-900">-->
-<!--                    </label>-->
-<!--                </div>-->
-            </div>
-        </div>
-
-        <script type="module"
-                src='./src/index.ts'></script>
-
-        <script type="module"
-                src='./index.js'></script>
-
-    </body>
+</body>
 
 </html>

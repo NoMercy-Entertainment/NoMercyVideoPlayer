@@ -131,24 +131,15 @@
     height: 100% !important;
 }
 
-/*.libassjs-canvas {*/
-/*    position: absolute !important;*/
-/*    left:0 !important;*/
-/*    top:0 !important;*/
-/*    width: 100% !important;*/
-/*    height: 100% !important;*/
-/*    transition: all 0.3s ease;*/
-/*}*/
 .libassjs-canvas {
-    /*left: -50vw !important;*/
     top:0 !important;
 }
-@media (min-width: 900px) {
-    .nomercyplayer:has(div *:focus) .libassjs-canvas,
-    .nomercyplayer:has(.open) .libassjs-canvas {
-        height: calc(100% - 10%) !important;
-    }
-}
+/*@media (min-width: 900px) {*/
+/*    .nomercyplayer:has(div *:focus) .libassjs-canvas,*/
+/*    .nomercyplayer:has(.open) .libassjs-canvas {*/
+/*        height: calc(100% - 10%) !important;*/
+/*    }*/
+/*}*/
 
 .nomercyplayer * {
     scrollbar-width: thin;

@@ -1,4 +1,4 @@
-import Plugin from '../Plugin';
+import Plugin from '../plugin';
 import { NMPlayer } from '../index';
 
 export class KeyHandlerPlugin extends Plugin {

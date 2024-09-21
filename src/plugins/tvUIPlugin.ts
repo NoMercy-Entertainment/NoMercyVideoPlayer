@@ -1,4 +1,4 @@
-import Plugin from '../Plugin';
+import Plugin from '../plugin';
 import { NMPlayer } from '../index';
 
 export class TVUIPlugin extends Plugin {
@@ -12,7 +12,7 @@ export class TVUIPlugin extends Plugin {
 	use() {
 		//
 	}
-	
+
 	dispose() {
 		//
 	}

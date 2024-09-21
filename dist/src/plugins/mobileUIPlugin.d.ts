@@ -1,4 +1,4 @@
-import { default as Plugin } from '../Plugin';
+import { default as Plugin } from '../plugin';
 import { NMPlayer } from '../index';
 
 export declare class MobileUIPlugin extends Plugin {

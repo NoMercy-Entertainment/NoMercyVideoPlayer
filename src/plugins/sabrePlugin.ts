@@ -1,5 +1,5 @@
 
-import Plugin from '../Plugin';
+import Plugin from '../plugin';
 import { NMPlayer } from '../index';
 
 export class SabrePlugin extends Plugin {
@@ -28,7 +28,7 @@ export class SabrePlugin extends Plugin {
 
 		this.destroy();
 	}
-	
+
 	destroy() {
 		if (this.frameCallbackHandle) {
 			this.player.getVideoElement().cancelVideoFrameCallback(this.frameCallbackHandle);
@@ -38,7 +38,7 @@ export class SabrePlugin extends Plugin {
 		if (sabreContainer) {
 			sabreContainer.remove();
 		}
-	}	
+	}
 
 	async sabre() {
 		if (this.frameCallbackHandle) {
