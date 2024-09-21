@@ -75,39 +75,52 @@
   "exports": {
     "./src": {
       "import": "./src/index.ts",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "types": "./dist/src/index.d.ts"
     },
     "./src/index": {
       "import": "./src/index.ts",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./src/plugin": {
+      "import": "./src/plugin.ts",
+      "require": "./dist/plugin.js",
+      "types": "./dist/src/plugin.d.ts"
     },
     "./src/index.css": {
       "import": "./src/index.css",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.css"
     },
     "./src/plugins/octopusPlugin": {
       "import": "./src/plugins/octopusPlugin.ts",
-      "require": "./dist/plugins/octopusPlugin.js"
+      "require": "./dist/octopusPlugin.js",
+      "types": "./dist/src/plugins/octopusPlugin.d.ts"
     },
     "./src/plugins/desktopUIPlugin": {
       "import": "./src/plugins/desktopUIPlugin.ts",
-      "require": "./dist/plugins/desktopUIPlugin.js"
+      "require": "./dist/desktopUIPlugin.js",
+      "types": "./dist/src/plugins/desktopUIPlugin.d.ts"
     },
     "./src/plugins/mobileUIPlugin": {
       "import": "./src/plugins/mobileUIPlugin.ts",
-      "require": "./dist/plugins/mobileUIPlugin.js"
+      "require": "./dist/mobileUIPlugin.js",
+      "types": "./dist/src/plugins/mobileUIPlugin.d.ts"
     },
     "./src/plugins/tvUIPlugin": {
       "import": "./src/plugins/tvUIPlugin.ts",
-      "require": "./dist/plugins/tvUIPlugin.js"
+      "require": "./dist/tvUIPlugin.js",
+      "types": "./dist/src/plugins/tvUIPlugin.d.ts"
     },
     "./src/plugins/keyHandlerPlugin": {
       "import": "./src/plugins/keyHandlerPlugin.ts",
-      "require": "./dist/plugins/keyHandlerPlugin.js"
+      "require": "./dist/keyHandlerPlugin.js",
+      "types": "./dist/src/plugins/keyHandlerPlugin.d.ts"
     },
     "./src/plugins/sabrePlugin": {
       "import": "./src/plugins/sabrePlugin.ts",
-      "require": "./dist/plugins/sabrePlugin.js"
+      "require": "./dist/sabrePlugin.js",
+      "types": "./dist/src/plugins/sabrePlugin.d.ts"
     }
   }
 }
