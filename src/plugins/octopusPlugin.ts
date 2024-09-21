@@ -1,3 +1,4 @@
+// @ts-nocheck
 import subtitlesOctopus from '../../public/js/octopus/subtitles-octopus';
 
 import Plugin from '../plugin';
@@ -84,3 +85,5 @@ export class OctopusPlugin extends Plugin {
 		}
 	};
 }
+
+export default OctopusPlugin;

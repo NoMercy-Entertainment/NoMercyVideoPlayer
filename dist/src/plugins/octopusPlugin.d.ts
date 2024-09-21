@@ -9,3 +9,4 @@ export declare class OctopusPlugin extends Plugin {
     destroy(): void;
     opus(): Promise<void>;
 }
+export default OctopusPlugin;

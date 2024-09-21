@@ -672,7 +672,7 @@ export class NMPlayer extends Base {
 				localStorage.getItem('nmplayer-subtitle-ext') as string
 			);
 			if (track == null || track == -1) return;
-			
+
 			console.log('Setting caption from storage', track);
 			this.setCurrentCaption(track);
 		}
@@ -865,7 +865,7 @@ export class NMPlayer extends Base {
 
 		this.on('play', this.ui_setPlayClass.bind(this));
 		this.on('pause', this.ui_setPauseClass.bind(this));
-		
+
 		// this.on('captionsList', () => {
 		// 	console.log('Captions list updated');
 		// 	this.setCaptionFromStorage();
@@ -881,6 +881,7 @@ export class NMPlayer extends Base {
 					name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
 				});
 				this.emit('audioTracks', this.getAudioTracks());
+				this.emit('ready');
 			}, 250);
 		});
 
@@ -1068,8 +1069,7 @@ export class NMPlayer extends Base {
 				setTimeout(() => {
 					this.setEpisode(seasonNumber, episodeNumber);
 				}, 0);
-			} 
-			else {
+			} else {
 				// Get item with the latest progress timer
 
 				const progressItem = this.getPlaylist()
@@ -1556,18 +1556,18 @@ export class NMPlayer extends Base {
 			this.subtitleText.textContent = '';
 			this.subtitleOverlay.style.display = 'none';
 
-			if (this.currentIndex !== index){
+			if (this.currentIndex !== index) {
 				setTimeout(() => {
 					this.emit('item', this.currentPlaylistItem);
-				}, 0);				
+				}, 0);
 			}
 
 			this.currentIndex = index;
 			this.currentPlaylistItem = this.playlist[index];
-			
+
 			this.videoElement.poster = this.currentPlaylistItem.image ?? '';
 			this.loadSource((this.options.basePath ?? '') + this.currentPlaylistItem.file);
-			
+
 		} else {
 			console.log('No more videos in the playlist.');
 		}
@@ -2393,7 +2393,7 @@ String.prototype.toTitleCase = function (): string {
 	let j: number;
 	let str: string;
 
-	str = this.replace(/([^\W_]+[^\s-]*) */gu, (txt) => {
+	str = this.replace(/([^\W_]+[^\s-]*) */gu, (txt: string) => {
 		return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
 	});
 
@@ -2402,7 +2402,7 @@ String.prototype.toTitleCase = function (): string {
 	// ['a', 'for', 'so', 'an', 'in', 'the', 'and', 'nor', 'to', 'at', 'of', 'up', 'but', 'on', 'yet', 'by', 'or'];
 	const lowers = ['A', 'An', 'The', 'And', 'But', 'Or', 'For', 'Nor', 'As', 'At', 'By', 'For', 'From', 'In', 'Into', 'Near', 'Of', 'On', 'Onto', 'To', 'With'];
 	for (i = 0, j = lowers.length; i < j; i++) {
-		str = str.replace(new RegExp(`\\s${lowers[i]}\\s`, 'gu'), (txt) => {
+		str = str.replace(new RegExp(`\\s${lowers[i]}\\s`, 'gu'), (txt: string) => {
 			return txt.toLowerCase();
 		});
 	}
@@ -2424,9 +2424,9 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 	let string: string;
 	let lowers: string[] = [];
 
-	string = this.replace(/([^\s:\-'])([^\s:\-']*)/gu, (txt) => {
+	string = this.replace(/([^\s:\-'])([^\s:\-']*)/gu, (txt: string) => {
 		return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
-	}).replace(/Mc(.)/gu, (_match, next) => {
+	}).replace(/Mc(.)/gu, (_match: string, next: string): string => {
 		return `Mc${next.toUpperCase()}`;
 	});
 
@@ -2438,7 +2438,7 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 			lowers = ['De', 'Het', 'Een', 'En', 'Van', 'Naar', 'Op', 'Door', 'Voor', 'In', 'Als', 'Maar', 'Waar', 'Niet', 'Bij', 'Aan'];
 		}
 		for (let i = 0; i < lowers.length; i++) {
-			string = string.replace(new RegExp(`\\s${lowers[i]}\\s`, 'gu'), (txt) => {
+			string = string.replace(new RegExp(`\\s${lowers[i]}\\s`, 'gu'), (txt: string) => {
 				return txt.toLowerCase();
 			});
 		}
@@ -2452,7 +2452,7 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 	return string;
 };
 
-const nmplayer = (id?: string) => new NMPlayer(id);
+export const nmplayer = (id?: string) => new NMPlayer(id);
 export default nmplayer;
 
 window.nmplayer = nmplayer;

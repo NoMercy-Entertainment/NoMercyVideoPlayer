@@ -1226,4 +1226,22 @@ interface NMPlayerStatic {
     version: string;
 }
 
-declare const nmplayer: NMPlayerStatic;
+declare module '*.scss';
+declare module '*.jpg';
+declare module '*.webp';
+declare module '*.svg';
+declare module '*.png';
+declare module '*.gif';
+declare module '@sabre-js/sabre';
+declare module '*/subtitles-octopus';
+
+declare global {
+    interface Window {
+        octopusInstance: any;
+        Hls: import('hls.js');
+        opentype: import('opentype.js');
+        sabre: import('@sabre-js/sabre/dist/sabre.min.js');
+        gainNode: GainNode;
+        nmplayer: (id?: string) => import('./index').NMPlayer;
+    }
+}

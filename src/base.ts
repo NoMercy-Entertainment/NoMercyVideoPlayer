@@ -42,7 +42,7 @@ export class Base {
 	hasTheaterEventHandler = false;
 	hasBackEventHandler = false;
 	hasCloseEventHandler = false;
-	
+
 	events: {
 		type: string;
 		fn: (arg?: any) => void;
@@ -253,10 +253,10 @@ export class Base {
 	on(event: string, callback: () => void): void;
 	on(event: any, callback: (arg0: any) => any) {
 		this.eventHooks(event, true);
-		this.eventElement?.addEventListener(event, (e: { 
-			detail: any; 
+		this.eventElement?.addEventListener(event, (e: {
+			detail: any;
 		}) => callback(e.detail));
-		
+
 		this.events.push({ type: event, fn: callback });
 	}
 
@@ -365,15 +365,15 @@ export class Base {
 		this.eventHooks(event, false);
 
 		callback && this.eventElement.removeEventListener(event, () => callback());
-		
+
 		if (event === 'all') {
-			this.events.forEach(e => {
+			this.events.forEach((e) => {
 				this.eventElement.removeEventListener(e.type, e.fn);
 			});
 			return;
 		}
 
-		this.events.filter(e => e.type === event).forEach(e => {
+		this.events.filter(e => e.type === event).forEach((e) => {
 			this.eventElement.removeEventListener(e.type, e.fn);
 		});
 	}

@@ -10,3 +10,10 @@ export declare class SabrePlugin extends Plugin {
     destroy(): void;
     sabre(): Promise<void>;
 }
+declare global {
+    interface Window {
+        opentype: 'module:opentype.js';
+        sabre: 'module:@sabre-js/sabre';
+    }
+}
+export default SabrePlugin;

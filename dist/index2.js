@@ -17725,7 +17725,7 @@ class Ah extends Jn {
             var s;
             return i.id === ((s = this.hls) == null ? void 0 : s.loadLevel);
           })) == null ? void 0 : t.name
-        }), this.emit("audioTracks", this.getAudioTracks());
+        }), this.emit("audioTracks", this.getAudioTracks()), this.emit("ready");
       }, 250);
     }), this.on("firstFrame", () => {
       var e, t;

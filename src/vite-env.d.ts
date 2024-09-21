@@ -6,16 +6,12 @@ declare module '*.webp';
 declare module '*.svg';
 declare module '*.png';
 declare module '*.gif';
-declare module '@sabre-js/sabre';
-
 
 interface Window {
 	octopusInstance: any;
 	Hls: import('hls.js');
-	opentype: import('opentype.js');
-	sabre: import('@sabre/sabre/dist/sabre.min.js');
 	gainNode: GainNode;
-	nmplayer: (id?: string) => NMPlayer;
+	nmplayer: (id?: string) => import('./index').NMPlayer;
 }
 
 interface Navigator {

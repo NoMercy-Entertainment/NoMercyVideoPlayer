@@ -651,7 +651,8 @@ const ee = {
 ], Ke = [
   "touch-playback-button",
   "pointer-events-none",
-  "fill-white"
+  "fill-white",
+  "hidden"
 ], Je = [
   "touch-playback",
   "flex",
@@ -1136,7 +1137,7 @@ const ee = {
   "pointer-events-none",
   "place-content-center"
 ], Q1 = [
-  "hidden",
+  "flex",
   "flex-col",
   "items-center",
   "gap-4",
@@ -3837,7 +3838,9 @@ class cs extends ce {
       ));
     });
     const l = this.createSVGElement(s, "bigPlay", this.buttons.bigPlay, !1, e);
-    return this.player.addClasses(l, this.makeStyles("touchPlaybackButtonStyles")), this.player.on("pause", () => {
+    return this.player.addClasses(l, this.makeStyles("touchPlaybackButtonStyles")), this.player.on("ready", () => {
+      l.style.display = "flex";
+    }), this.player.on("pause", () => {
       l.style.display = "flex";
     }), this.player.on("play", () => {
       l.style.display = "none";
@@ -4998,7 +5001,7 @@ class cs extends ce {
     this.player.createElement("h2", "loader").addClasses(["loader", "pointer-events-none"]).appendTo(i);
   }
   createSpinnerContainer(i) {
-    const t = this.player.createElement("div", "spinner-container").addClasses(this.makeStyles("spinnerContainerStyles")).appendTo(i), e = this.player.createElement("div", "spinner-container").addClasses(this.makeStyles("roleStyles")).appendTo(t);
+    const t = this.player.createElement("div", "spinner-container").addClasses(this.makeStyles("spinnerContainerStyles")).appendTo(i), e = this.player.createElement("div", "spinner-role").addClasses(this.makeStyles("roleStyles")).appendTo(t);
     e.setAttribute("role", "status"), this.createSpinner(e);
     const s = this.player.createElement("span", "status-text").addClasses(this.makeStyles("statusTextStyles")).appendTo(e);
     return s.innerText = this.player.localize("Loading..."), this.player.on("playing", () => {
@@ -5008,6 +5011,8 @@ class cs extends ce {
     }), this.player.on("error", () => {
       t.style.display = "none", s.innerText = this.player.localize("Something went wrong trying to play this item");
     }), this.player.on("ended", () => {
+      t.style.display = "none";
+    }), this.player.on("ready", () => {
       t.style.display = "none";
     }), this.player.on("time", () => {
       t.style.display = "none";

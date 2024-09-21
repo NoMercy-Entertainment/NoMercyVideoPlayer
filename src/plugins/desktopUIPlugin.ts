@@ -463,6 +463,10 @@ export class DesktopUIPlugin extends Plugin {
 		const playButton = this.createSVGElement(touchPlayback, 'bigPlay', this.buttons.bigPlay, false,  hovered);
 		this.player.addClasses(playButton, this.makeStyles('touchPlaybackButtonStyles'));
 
+		this.player.on('ready', () => {
+			playButton.style.display = 'flex';
+		});
+		
 		this.player.on('pause', () => {
 			playButton.style.display = 'flex';
 		});
@@ -3687,7 +3691,7 @@ export class DesktopUIPlugin extends Plugin {
 			.addClasses(this.makeStyles('spinnerContainerStyles'))
 			.appendTo(parent);
 
-		const role = this.player.createElement('div', 'spinner-container')
+		const role = this.player.createElement('div', 'spinner-role')
 			.addClasses(this.makeStyles('roleStyles'))
 			.appendTo(spinnerContainer);
 
@@ -3716,6 +3720,10 @@ export class DesktopUIPlugin extends Plugin {
 		});
 
 		this.player.on('ended', () => {
+			spinnerContainer.style.display = 'none';
+		});
+
+		this.player.on('ready', () => {
 			spinnerContainer.style.display = 'none';
 		});
 

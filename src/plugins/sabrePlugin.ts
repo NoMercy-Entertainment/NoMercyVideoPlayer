@@ -162,10 +162,19 @@ export class SabrePlugin extends Plugin {
 					};
 					sabreRenderer = new sabre.SABRERenderer(options);
 					updateCanvas(true);
-					sabreRenderer.setColorSpace(sabre.VideoColorSpaces.AUTOMATIC, video.videoWidth, video.videoHeight);
+					sabreRenderer.setColorSpace(1, video.videoWidth, video.videoHeight);
 					this.frameCallbackHandle = video.requestVideoFrameCallback(renderFrame.bind(this.player));
 				},
 			});
 		}
 	}
 }
+
+declare global {
+	interface Window {
+		opentype: 'module:opentype.js';
+		sabre: 'module:@sabre-js/sabre';
+	}
+}
+
+export default SabrePlugin;

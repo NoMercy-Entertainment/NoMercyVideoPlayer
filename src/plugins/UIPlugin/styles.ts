@@ -476,6 +476,7 @@ export const touchPlaybackButtonStyles = [
 	'touch-playback-button',
 	'pointer-events-none',
 	'fill-white',
+	'hidden',
 ];
 
 export const touchPlaybackStyles = [
@@ -1065,7 +1066,7 @@ export const spinnerContainerStyles = [
 ];
 
 export const roleStyles = [
-	'hidden',
+	'flex',
 	'flex-col',
 	'items-center',
 	'gap-4',
