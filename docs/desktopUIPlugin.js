@@ -4271,7 +4271,7 @@ class cs extends ce {
     return e.addEventListener("click", (r) => {
       r.stopPropagation(), this.player.emit("hide-tooltip"), this.subtitlesMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-subtitles-menu", !0), this.menuFrame.showModal());
     }), this.player.on("captionsList", (r) => {
-      r.length > 0 ? e.style.display = "flex" : e.style.display = "none";
+      r.length > 1 ? e.style.display = "flex" : e.style.display = "none";
     }), this.player.on("captionsChanging", (r) => {
       r.id == -1 ? (l.style.display = "none", s.style.display = "flex") : (l.style.display = "flex", s.style.display = "none");
     }), this.player.on("pip-internal", (r) => {
@@ -4289,7 +4289,7 @@ class cs extends ce {
     }), this.player.on("item", () => {
       e.style.display = "none";
     }), this.player.on("audioTracks", (l) => {
-      l.length > 1 ? e.style.display = "flex" : e.style.display = "none";
+      l.length > 2 ? e.style.display = "flex" : e.style.display = "none";
     }), this.player.on("pip-internal", (l) => {
       l ? e.style.display = "none" : this.player.hasAudioTracks() && (e.style.display = "flex");
     }), i.appendChild(e), e;
@@ -4485,7 +4485,7 @@ class cs extends ce {
     })) : t === "subtitles" ? (this.player.on("item", () => {
       s.style.display = "none";
     }), this.player.on("captionsList", (r) => {
-      r.length > 0 ? s.style.display = "flex" : s.style.display = "none";
+      r.length > 1 ? s.style.display = "flex" : s.style.display = "none";
     })) : t === "quality" ? (this.player.on("item", () => {
       s.style.display = "none";
     }), this.player.on("levels", (r) => {
@@ -5004,7 +5004,9 @@ class cs extends ce {
     const t = this.player.createElement("div", "spinner-container").addClasses(this.makeStyles("spinnerContainerStyles")).appendTo(i), e = this.player.createElement("div", "spinner-role").addClasses(this.makeStyles("roleStyles")).appendTo(t);
     e.setAttribute("role", "status"), this.createSpinner(e);
     const s = this.player.createElement("span", "status-text").addClasses(this.makeStyles("statusTextStyles")).appendTo(e);
-    return s.innerText = this.player.localize("Loading..."), this.player.on("playing", () => {
+    return s.innerText = this.player.localize("Loading..."), this.player.on("ready", () => {
+      t.style.display = "none";
+    }), this.player.on("playing", () => {
       t.style.display = "none";
     }), this.player.on("waiting", () => {
       t.style.display = "grid", s.innerText = `${this.player.localize("Buffering")}...`;

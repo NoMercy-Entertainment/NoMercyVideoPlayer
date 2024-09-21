@@ -17502,7 +17502,7 @@ class Ah extends Jn {
     this.container.classList.add("nomercyplayer"), this.container.style.overflow = "hidden", this.container.style.position = "relative", this.container.style.display = "flex", this.container.style.width = "100%", this.container.style.height = "auto", this.container.style.aspectRatio = "16/9", this.container.style.zIndex = "0", this.container.style.alignItems = "center", this.container.style.justifyContent = "center";
   }
   createVideoElement() {
-    this.videoElement = this.createElement("video", `${this.playerId}_video`, !0).appendTo(this.container), this.videoElement.style.width = "100%", this.videoElement.style.height = "100%", this.videoElement.style.objectFit = "contain", this.videoElement.style.zIndex = "0", this.videoElement.style.backgroundColor = "black", this.videoElement.style.display = "block", this.videoElement.style.position = "absolute", this.videoElement.autoplay = this.options.autoPlay ?? !1, this.videoElement.controls = this.options.controls ?? !1, this.videoElement.preload = this.options.preload ?? "auto", this.videoElement.muted = this.options.muted ?? localStorage.getItem("nmplayer-muted") === "true", this.videoElement.volume = localStorage.getItem("nmplayer-volume") ? parseFloat(localStorage.getItem("nmplayer-volume")) / 100 : 0.4, this.ui_setPauseClass(), this.emit("ready");
+    this.videoElement = this.createElement("video", `${this.playerId}_video`, !0).appendTo(this.container), this.videoElement.style.width = "100%", this.videoElement.style.height = "100%", this.videoElement.style.objectFit = "contain", this.videoElement.style.zIndex = "0", this.videoElement.style.backgroundColor = "black", this.videoElement.style.display = "block", this.videoElement.style.position = "absolute", this.videoElement.autoplay = this.options.autoPlay ?? !1, this.videoElement.controls = this.options.controls ?? !1, this.videoElement.preload = this.options.preload ?? "auto", this.videoElement.muted = this.options.muted ?? localStorage.getItem("nmplayer-muted") === "true", this.videoElement.volume = localStorage.getItem("nmplayer-volume") ? parseFloat(localStorage.getItem("nmplayer-volume")) / 100 : 0.4, this.ui_setPauseClass();
   }
   createOverlayElement() {
     this.overlay = this.createElement("div", `${this.playerId}_overlay`, !0).addClasses(["overlay"]).appendTo(this.container), this.overlay.style.width = "100%", this.overlay.style.height = "100%", this.overlay.style.position = "absolute", this.overlay.style.zIndex = "10", this.overlay.style.display = "flex", this.overlay.style.flexDirection = "column", this.overlay.style.justifyContent = "center", this.overlay.style.alignItems = "center";
@@ -17661,7 +17661,7 @@ class Ah extends Jn {
   }
   videoPlayer_durationchangeEvent(e) {
     const t = e;
-    this.emit("duration", this.videoPlayer_getTimeData.bind(this)(t));
+    this.emit("duration", this.videoPlayer_getTimeData.bind(this)(t)), this.emit("ready");
   }
   videoPlayer_volumechangeEvent(e) {
     this.volume != Math.round(this.videoElement.volume * 100) && this.emit("volume", {
@@ -17725,7 +17725,7 @@ class Ah extends Jn {
             var s;
             return i.id === ((s = this.hls) == null ? void 0 : s.loadLevel);
           })) == null ? void 0 : t.name
-        }), this.emit("audioTracks", this.getAudioTracks()), this.emit("ready");
+        }), this.emit("audioTracks", this.getAudioTracks());
       }, 250);
     }), this.on("firstFrame", () => {
       var e, t;

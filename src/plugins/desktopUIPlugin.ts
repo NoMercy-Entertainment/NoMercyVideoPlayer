@@ -1543,7 +1543,7 @@ export class DesktopUIPlugin extends Plugin {
 		});
 
 		this.player.on('captionsList', (tracks) => {
-			if (tracks.length > 0) {
+			if (tracks.length > 1) {
 				captionButton.style.display = 'flex';
 			} else {
 				captionButton.style.display = 'none';
@@ -1601,7 +1601,7 @@ export class DesktopUIPlugin extends Plugin {
 			audioButton.style.display = 'none';
 		});
 		this.player.on('audioTracks', (tracks) => {
-			if (tracks.length > 1) {
+			if (tracks.length > 2) {
 				audioButton.style.display = 'flex';
 			} else {
 				audioButton.style.display = 'none';
@@ -2312,7 +2312,7 @@ export class DesktopUIPlugin extends Plugin {
 				menuButton.style.display = 'none';
 			});
 			this.player.on('captionsList', (captions) => {
-				if (captions.length > 0) {
+				if (captions.length > 1) {
 					menuButton.style.display = 'flex';
 				} else {
 					menuButton.style.display = 'none';
@@ -3704,6 +3704,10 @@ export class DesktopUIPlugin extends Plugin {
 			.appendTo(role);
 
 		status.innerText = this.player.localize('Loading...');
+
+		this.player.on('ready', () => {
+			spinnerContainer.style.display = 'none';
+		});
 
 		this.player.on('playing', () => {
 			spinnerContainer.style.display = 'none';

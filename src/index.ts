@@ -407,8 +407,6 @@ export class NMPlayer extends Base {
 		this.videoElement.volume = localStorage.getItem('nmplayer-volume') ? parseFloat(localStorage.getItem('nmplayer-volume') as string) / 100 : 0.4;
 
 		this.ui_setPauseClass();
-
-		this.emit('ready');
 	}
 
 	createOverlayElement(): void {
@@ -738,6 +736,8 @@ export class NMPlayer extends Base {
 	videoPlayer_durationchangeEvent(e: Event): void {
 		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('duration', this.videoPlayer_getTimeData.bind(this)(_e));
+
+		this.emit('ready');
 	}
 
 	videoPlayer_volumechangeEvent(e: Event): void {
@@ -881,7 +881,6 @@ export class NMPlayer extends Base {
 					name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
 				});
 				this.emit('audioTracks', this.getAudioTracks());
-				this.emit('ready');
 			}, 250);
 		});
 
