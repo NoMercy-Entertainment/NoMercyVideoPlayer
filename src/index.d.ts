@@ -110,6 +110,12 @@ export interface PlaylistItem {
     season?: number;
     episode?: number;
     show?: string;
+    year?: number;
+    logo?: string;
+    rating?: {
+        rating: number;
+        image: string;
+    };
 }
 
 export interface Adschedule {
@@ -506,6 +512,7 @@ export interface NMPlayer {
     stopCasting(): NMPlayer;
 
     overlay: HTMLDivElement;
+    container: HTMLDivElement;
     options: SetupConfig;
 	hasBackEventHandler: any;
 	hasNextTip: boolean;
@@ -540,8 +547,8 @@ export interface NMPlayer {
         prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
         get: () => HTMLElementTagNameMap[K];
     }
-	createLanguageMenuButton(scrollContainer: any, arg1: { language: any; label: any; type: string; index: any; }): HTMLDivElement;
-	createQualityMenuButton(scrollContainer: any, arg1: { index: number; width: any; height: any; label: any; bitrate: any; }): HTMLDivElement;
+	createLanguageMenuButton(scrollContainer: any, arg1: { language: any; label: any; type: string; index: any; }): HTMLButtonElement;
+	createQualityMenuButton(scrollContainer: any, arg1: { index: number; width: any; height: any; label: any; bitrate: any; }): HTMLButtonElement;
 	createTopBar(tvOverlay: any): HTMLDivElement;
 	currentTime(): number;
 	displayMessage(arg0: string): void;
@@ -551,6 +558,8 @@ export interface NMPlayer {
 	getClosestElement(languageButton: any, arg1: string): HTMLElement;
 	getCurrentSrc(): string;
 	getElement(): HTMLDivElement;
+    getTimeData(): TimeData;
+    getSeasons(): Array<{ season: number; seasonName: string; episodes: number; }>
 
 	getFileContents: <T extends TypeMappings>({ url, options, callback }: {
         url: string;
@@ -596,7 +605,9 @@ export interface NMPlayer {
 	volumeUp(): void;
     addButton(icon: string, label: string, handler: () => void, id: string, className?: string): NMPlayer;
     dispose(): void;
-
+    
+    ui_removeActiveClass(): void;
+    ui_resetInactivityTimer(): void;
 
 	emit(event: 'all', data?: any): void;
 

@@ -72,3 +72,82 @@ export const pad = (number: string | number, places = 2) => {
 	}
 	return '';
 };
+
+/**
+ * Returns an array of unique objects based on a specified key.
+ * @param array The array to filter.
+ * @param key The key to use for uniqueness comparison.
+ * @returns An array of unique objects.
+ */
+export const unique = <T>(array: T[], key: string): T[] => {
+	if (!array || !Array.isArray(array)) {
+		return [];
+	}
+
+	return array.filter((obj: any, pos, arr) => arr
+		.map((mapObj: any) => mapObj[key]).indexOf(obj[key]) === pos);
+};
+
+/**
+ * Breaks a logo title string into two lines by inserting a newline character after a specified set of characters.
+ * @param str The logo title string to break.
+ * @param characters An optional array of characters to break the string on. Defaults to [':', '!', '?'].
+ * @returns The broken logo title string.
+ */
+export const breakLogoTitle = (str: string, characters = [':', '!', '?']) => {
+	if (!str) {
+		return '';
+	}
+
+	if (str.split('').some((l: string) => characters.includes(l))) {
+		const reg = new RegExp(characters.map(l => (l == '?' ? `\\${l}` : l)).join('|'), 'u');
+		const reg2 = new RegExp(characters.map(l => (l == '?' ? `\\${l}\\s` : `${l}\\s`)).join('|'), 'u');
+		if (reg && reg2 && str.match(reg2)) {
+			return str.replace((str.match(reg2) as any)[0], `${(str.match(reg) as any)[0]}\n`);
+		}
+	}
+
+	return str;
+};
+
+export const nearestValue = (arr: any[], val: number) => {
+	return arr.reduce((p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p), Infinity) + val;
+};
+
+/**
+ * Limits a sentence to a specified number of characters by truncating it at the last period before the limit.
+ * @param str - The sentence to limit.
+ * @param characters - The maximum number of characters to allow in the sentence.
+ * @returns The truncated sentence.
+ */
+export const limitSentenceByCharacters = (str: string, characters = 360) => {
+	if (!str) {
+		return '';
+	}
+	const arr: any = str.substring(0, characters).split('.');
+	arr.pop(arr.length);
+	return `${arr.join('.')}.`;
+};
+
+/**
+ * Adds a line break before the episode title in a TV show string.
+ * @param str - The TV show string to modify.
+ * @param removeShow - Whether to remove the TV show name from the modified string.
+ * @returns The modified TV show string.
+ */
+export const lineBreakShowTitle = (str: string, removeShow = false) =>{
+	if (!str) {
+		return '';
+	}
+	const ep = str.match(/S\d{2}E\d{2}/u);
+
+	if (ep) {
+		const arr = str.split(/\sS\d{2}E\d{2}\s/u);
+		if (removeShow) {
+			return `${ep[0]} ${arr[1]}`;
+		}
+		return `${arr[0]} \n${ep[0]} ${arr[1]}`;
+	}
+
+	return str;
+};

@@ -197,3 +197,8 @@
 .nomercyplayer .subtitle-text[data-language="jpn"] {
     font-family: 'Noto Sans JP', sans-serif;
 }
+
+[popover],
+::backdrop {
+    background-color: transparent;
+}

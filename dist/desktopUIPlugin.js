@@ -1,17 +1,7 @@
-var pe = (n, c, i) => {
-  if (!c.has(n))
-    throw TypeError("Cannot " + i);
-};
-var K = (n, c, i) => {
-  if (c.has(n))
-    throw TypeError("Cannot add the same private member more than once");
-  c instanceof WeakSet ? c.add(n) : c.set(n, i);
-};
-var J = (n, c, i) => (pe(n, c, "access private method"), i);
-import { P as ce } from "./plugin.js";
-import { h as V } from "./helpers.js";
-import { p as de } from "./index2.js";
-const ee = {
+import { P as i1 } from "./plugin.js";
+import { h as E, u as o1 } from "./helpers.js";
+import { p as n1 } from "./index2.js";
+const Y = {
   back: {
     classes: [],
     hover: "M10.2949 19.7162C10.6883 20.1038 11.3215 20.0991 11.7091 19.7057C12.0967 19.3123 12.092 18.6792 11.6986 18.2915L6.32827 13.0001H19.9995C20.5517 13.0001 20.9995 12.5524 20.9995 12.0001C20.9995 11.4479 20.5517 11.0001 19.9995 11.0001H6.33488L11.6986 5.71525C12.092 5.32763 12.0967 4.69448 11.7091 4.30108C11.3215 3.90767 10.6883 3.90298 10.2949 4.29061L3.37073 11.113C2.87382 11.6026 2.87382 12.4042 3.37073 12.8938L10.2949 19.7162Z",
@@ -252,1476 +242,270 @@ const ee = {
     normal: "",
     title: "Template"
   }
-}, he = () => {
-  const n = {};
-  for (const c of Object.keys(ee))
-    n[c] = ee[c];
-  return n;
-}, ue = [
-  "bottom-bar",
-  "z-10",
-  "flex",
-  "flex-col",
-  "items-center",
-  "w-full",
-  "gap-2",
-  "text-center",
-  "px-6",
-  "py-4",
-  "mt-auto",
-  "translate-y-full",
-  "group-[&.nomercyplayer.active]:translate-y-0",
-  "group-[&.nomercyplayer.paused]:translate-y-0",
-  "group-[&.nomercyplayer:has(.open)]:translate-y-0",
-  // 'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
-  "group-[&.nomercyplayer:has(:focus)]:duration-0",
-  "transition-all",
-  "duration-300"
-], ye = [
-  "absolute",
-  "pointer-events-none",
-  "bottom-0",
-  "bg-gradient-to-t",
-  "via-black/20",
-  "from-black/90",
-  "pt-[10%]",
-  "w-available"
-], Ce = [
-  "bottom-row",
-  "flex",
-  "h-10",
-  "mb-2",
-  "p-1",
-  "px-4",
-  "items-center",
-  "relative",
-  "w-available"
-], me = [
-  "button-base",
-  "flex",
-  "h-10",
-  "items-center",
-  "justify-center",
-  "w-10"
-], fe = [
-  "cursor-pointer",
-  "fill-white",
-  "tv:fill-white/30",
-  "focus-visible:fill-white",
-  "flex",
-  "-outline-offset-2",
-  "focus-visible:outline",
-  "focus-visible:outline-2",
-  "focus-visible:outline-white/20",
-  "group/button",
-  "h-10",
-  "items-center",
-  "justify-center",
-  "p-2",
-  "relative",
-  "rounded-full",
-  "w-10",
-  "min-w-[40px]"
-], be = [
-  "center",
-  "absolute",
-  "grid",
-  "grid-cols-3",
-  "grid-rows-6",
-  "h-full",
-  "w-full",
-  "z-0",
-  "transition-all",
-  "duration-300",
-  "bg-transparent",
-  "group-[&.nomercyplayer.buffering]:bg-gradient-circle-c",
-  "group-[&.nomercyplayer.error]:bg-gradient-circle-c",
-  "group-[&.nomercyplayer.paused]:bg-gradient-circle-c",
-  "from-black/50",
-  "from-15%",
-  "via-60%",
-  "via-black/30",
-  "to-100%",
-  "to-black/0"
-], ge = [
-  "chapter-bar",
-  "bg-transparent",
-  "flex",
-  "h-2",
-  "relative",
-  "rounded-full",
-  "overflow-clip",
-  "w-available"
-], ve = [
-  "chapter-marker",
-  "min-w-[2px]",
-  "absolute",
-  "h-available",
-  "last:translate-x-[1.5px]",
-  "[&:last-child(2):.5px]",
-  "rounded-sm",
-  "overflow-hidden"
-], xe = [
-  "chapter-marker-bg",
-  "bg-white/20",
-  "absolute",
-  "h-available",
-  "left-0",
-  "w-available",
-  "z-0",
-  "rounded-sm"
-], we = [
-  "chapter-marker-buffer",
-  "absolute",
-  "bg-gray-300/30",
-  "h-available",
-  "left-0",
-  "origin-left",
-  "scale-x-0",
-  "w-available",
-  "z-10",
-  "rounded-sm"
-], Le = [
-  "chapter-marker-hover",
-  "absolute",
-  "bg-gray-200",
-  "h-available",
-  "left-0",
-  "origin-left",
-  "scale-x-0",
-  "w-available",
-  "z-10",
-  "rounded-sm"
-], Se = [
-  "chapter-marker-progress",
-  "absolute",
-  "bg-white",
-  "h-available",
-  "left-0",
-  "origin-left",
-  "scale-x-0",
-  "w-available",
-  "z-20",
-  "rounded-sm"
-], Me = ["chapter-text"], ke = [
-  "divider",
-  "flex",
-  "flex-1"
-], Te = ["text-white"], Ee = [
-  "language-button-span",
-  "MuiSvgIcon-root",
-  "cursor-pointer",
-  "h-6",
-  "object-contain",
-  "rounded-sm",
-  "w-6"
-], Be = [
-  "main-menu",
-  "bg-neutral-900/95",
-  "flex",
-  "flex-col",
-  "gap-1",
-  "group-[&.nomercyplayer:has(.sub-menu-open)]:!hidden",
-  "h-auto",
-  "max-h-full",
-  "min-w-64",
-  "mt-auto",
-  "overflow-clip",
-  "p-2",
-  "pt-0",
-  "rounded-lg"
-], Ve = [
-  "menu-button-text",
-  "cursor-pointer",
-  "font-semibold",
-  "pl-2",
-  "flex",
-  "gap-2",
-  "leading-[normal]"
-], He = [
-  "menu-content",
-  "flex",
-  "justify-end",
-  "flex-row",
-  "overflow-clip",
-  "w-full",
-  "h-available",
-  "mt-auto"
-], Ze = [
-  "menu-wrapper"
-], Pe = [
-  "menu-frame",
-  "flex-col",
-  "hidden",
-  "absolute",
-  "inset-4",
-  "w-fit",
-  "h-available",
-  "z-50",
-  "max-h-[calc(100%-2rem)]",
-  "max-w-[min(70rem,calc(100%-2rem))]",
-  "overflow-clip",
-  "justify-self-end",
-  "rounded-lg"
-], $e = [
-  "menu-header-button-text",
-  "font-semibold",
-  "leading-[normal]",
-  "pl-2"
-], Ie = [
-  "menu-header",
-  "flex",
-  "h-9",
-  "items-center",
-  "min-h-[2.5rem]",
-  "py-2",
-  "text-white",
-  "w-available"
-], ze = [
-  "scroll-container",
-  "flex",
-  "flex-col",
-  "gap-1",
-  "language-scroll-container",
-  "overflow-x-hidden",
-  "overflow-y-auto",
-  "p-2",
-  "transition-all",
-  "duration-300",
-  "w-available",
-  "scroll-p-4",
-  "scroll-snap-align-center",
-  "scroll-smooth"
-], Re = [
-  "slider-bar",
-  "group/slider",
-  "flex",
-  "rounded-full",
-  "bg-white/20",
-  "h-2",
-  "mx-4",
-  "relative",
-  "w-available"
-], Ae = [
-  "slider-buffer",
-  "absolute",
-  "flex",
-  "h-full",
-  "pointer-events-none",
-  "rounded-full",
-  "bg-white/20",
-  "z-0",
-  "overflow-hidden",
-  "overflow-clip"
-], Ue = [
-  "slider-hover",
-  "absolute",
-  "opacity-1",
-  "flex",
-  "h-full",
-  "pointer-events-none",
-  "rounded-full",
-  "bg-white/30",
-  "z-0",
-  "overflow-hidden",
-  "overflow-clip"
-], Fe = [
-  "slider-progress",
-  "absolute",
-  "flex",
-  "h-full",
-  "pointer-events-none",
-  "rounded-full",
-  "bg-white",
-  "z-10",
-  "overflow-hidden",
-  "overflow-clip"
-], Ge = [
-  "slider-nipple",
-  "-translate-x-1/2",
-  "-translate-y-[25%]",
-  "absolute",
-  "hidden",
-  "group-hover/slider:flex",
-  "bg-white",
-  "h-4",
-  "left-0",
-  "rounded-full",
-  "top-0",
-  "w-4",
-  "z-20"
-], Oe = ["slider-pop-image"], Ne = [
-  "slider-pop",
-  "-translate-x-1/2",
-  "absolute",
-  "bg-neutral-900/95",
-  "bottom-4",
-  "flex",
-  "flex-col",
-  "font-semibold",
-  "gap-1",
-  "hover:scale-110",
-  "overflow-clip",
-  "pb-1",
-  "pointer-events-none",
-  "rounded-md",
-  "text-center",
-  "z-20"
-], je = [
-  "slider-pop-text",
-  "font-mono"
-], qe = [
-  "speed-button-text",
-  "cursor-pointer",
-  "font-semibold",
-  "pl-2",
-  "leading-[normal]"
-], De = [
-  "sub-menu-content",
-  "flex",
-  "flex-col",
-  "gap-1",
-  "hidden",
-  "max-h-available",
-  "w-available",
-  "overflow-auto",
-  "min-w-52"
-], _e = [
-  "sub-menu",
-  "bg-neutral-900/95",
-  "flex-col",
-  "gap-1",
-  "h-auto",
-  "w-full",
-  "mt-auto",
-  "overflow-clip",
-  "rounded-lg",
-  "max-h-full",
-  "min-w-64",
-  "hidden",
-  "group-[&.nomercyplayer:has(.sub-menu-open)]:flex"
-], Xe = [
-  "svg-size",
-  "h-5",
-  "w-5",
-  "pointer-events-none",
-  "group-hover/button:scale-110",
-  "duration-700"
-], We = [
-  "time",
-  "flex",
-  "font-mono",
-  "items-center",
-  "pointer-events-none",
-  "select-none",
-  "text-sm"
-], Qe = [
-  "top-bar",
-  "z-10",
-  "flex",
-  "items-start",
-  "justify-between",
-  "w-full",
-  "gap-2",
-  "px-6",
-  "py-4",
-  "pb-[10%]",
-  "mb-auto",
-  "-translate-y-full",
-  "group-[&.nomercyplayer.active]:translate-y-0",
-  "group-[&.nomercyplayer.paused]:translate-y-0",
-  "group-[&.nomercyplayer:has(.open)]:translate-y-0",
-  // 'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
-  "group-[&.nomercyplayer:has(:focus)]:duration-0",
-  "transition-all",
-  "duration-300",
-  "bg-gradient-to-b",
-  "from-black/90",
-  "via-black/50"
-], Ye = [
-  "top-row",
-  "flex",
-  "gap-1",
-  "h-2",
-  "items-center",
-  "pl-2",
-  "pr-2",
-  "relative",
-  "w-available"
-], Ke = [
-  "touch-playback-button",
-  "pointer-events-none",
-  "fill-white",
-  "hidden"
-], Je = [
-  "touch-playback",
-  "flex",
-  "-ml-2",
-  "items-center",
-  "justify-center"
-], e1 = [
-  "volume-container",
-  "group/volume",
-  "flex",
-  "overflow-clip"
-], t1 = [
-  "volume-slider",
-  "w-0",
-  "rounded-full",
-  "opacity-0",
-  "duration-300",
-  "group-hover/volume:w-20",
-  "group-hover/volume:mx-2",
-  "group-hover/volume:opacity-100",
-  "group-focus-within/volume:w-20",
-  "group-focus-within/volume:mx-2",
-  "group-focus-within/volume:opacity-100",
-  "appearance-none",
-  "volume-slider",
-  "bg-white/70",
-  "bg-gradient-to-r",
-  "from-white",
-  "to-white",
-  "self-center",
-  "h-1",
-  "bg-no-repeat",
-  "rounded-full",
-  "shadow-sm",
-  "transition-all",
-  "range-track:appearance-none",
-  "range-track:border-none",
-  "range-track:bg-transparent",
-  "range-track:shadow-none",
-  "range-thumb:h-3",
-  "range-thumb:w-3",
-  "range-thumb:appearance-none",
-  "range-thumb:rounded-full",
-  "range-thumb:bg-white",
-  "range-thumb:shadow-sm",
-  "range-thumb:border-none"
-], s1 = [
-  "player-message",
-  "hidden",
-  "absolute",
-  "rounded-md",
-  "bg-neutral-900/95",
-  "left-1/2",
-  "px-4",
-  "py-2",
-  "pointer-events-none",
-  "text-center",
-  "top-12",
-  "-translate-x-1/2",
-  "z-50"
-], i1 = [
-  "playlist-menu-button",
-  "relative",
-  "flex",
-  "w-available",
-  "p-2",
-  "gap-2",
-  "rounded-lg",
-  "snap-center",
-  "outline-transparent",
-  "outline",
-  "outline-1",
-  "outline-solid",
-  "text-white",
-  "focus-visible:outline-2",
-  "focus-visible:outline-white",
-  "transition-all",
-  "duration-300",
-  "hover:bg-neutral-600/20"
-], l1 = [
-  "episode-menu-button-left",
-  "relative",
-  "rounded-md",
-  "w-[30%]",
-  "h-available",
-  "overflow-clip",
-  "self-center",
-  "pointer-events-none"
-], a1 = [
-  "episode-menu-button-shadow",
-  "bg-[linear-gradient(0deg,rgba(0,0,0,0.87)_0%,rgba(0,0,0,0.7)_25%,rgba(0,0,0,0)_50%,rgba(0,0,0,0)_100%)]",
-  "shadow-[inset_0px_1px_0px_rgba(255,255,255,0.24),inset_0px_-1px_0px_rgba(0,0,0,0.24),inset_0px_-2px_0px_rgba(0,0,0,0.24)]",
-  "bottom-0",
-  "left-0",
-  "absolute",
-  "!h-available",
-  "w-available"
-], r1 = [
-  "episode-menu-button-image",
-  "w-available",
-  "h-auto",
-  "aspect-video",
-  "object-cover",
-  ""
-], n1 = [
-  "episode-menu-progress-container",
-  "absolute",
-  "bottom-0",
-  "w-available",
-  "flex",
-  "flex-col",
-  "px-3"
-], o1 = [
-  "episode-menu-progress-box",
-  "flex",
-  "justify-between",
-  "h-available",
-  "sm:mx-2",
-  "mb-1",
-  "px-1"
-], p1 = [
-  "progress-item-text",
-  "text-[0.7rem]",
-  ""
-], c1 = [
-  "progress-duration",
-  "text-[0.7rem]"
-], d1 = [
-  "slider-container",
-  "hidden",
-  "rounded-md",
-  "overflow-clip",
-  "bg-gray-500/80",
-  "h-1",
-  "mb-2",
-  "mx-1",
-  "sm:mx-2"
-], h1 = [
-  "progress-bar",
-  "bg-white"
-], u1 = [
-  "playlist-card-right",
-  "w-3/4",
-  "flex",
-  "flex-col",
-  "text-left",
-  "gap-1",
-  "pointer-events-none"
-], y1 = [
-  "playlist-menu-button-title",
-  "font-bold",
-  "line-clamp-1",
-  "text-white",
-  ""
-], C1 = [
-  "playlist-menu-button-overview",
-  "text-[0.7rem]",
-  "leading-[1rem]",
-  "line-clamp-4",
-  "overflow-hidden",
-  "text-white",
-  ""
-], m1 = [
-  "tooltip",
-  "hidden",
-  "absolute",
-  "left-0",
-  "bottom-0",
-  "z-50",
-  "px-3",
-  "py-2",
-  "text-xs",
-  "text-white",
-  "rounded-lg",
-  "font-medium",
-  "bg-neutral-900/95",
-  "pointer-events-none"
-], f1 = [
-  "pause-screen",
-  "absolute",
-  "bg-black/80",
-  "inset-0",
-  "flex",
-  "p-6",
-  "text-white",
-  "w-available",
-  "h-available",
-  "z-0",
-  "hidden"
-], b1 = [
-  "episode-screen",
-  "absolute",
-  "bg-black/80",
-  "inset-0",
-  "flex",
-  "gap-4",
-  "p-6",
-  "text-white",
-  "w-available",
-  "h-available",
-  "z-0",
-  "hidden"
-], g1 = [
-  "language-screen",
-  "absolute",
-  "bg-black/80",
-  "inset-0",
-  "flex",
-  "p-6",
-  "text-white",
-  "w-available",
-  "h-available",
-  "z-0",
-  "hidden"
-], v1 = [
-  "language-button",
-  "w-available",
-  "mr-auto",
-  "h-8",
-  "px-1",
-  "py-2",
-  "flex",
-  "items-center",
-  "rounded",
-  "snap-center",
-  "outline-transparent",
-  "outline",
-  "whitespace-nowrap",
-  "hover:bg-neutral-600/50",
-  "transition-all",
-  "duration-200",
-  "outline-1",
-  "outline-solid",
-  "focus-visible:outline-2",
-  "focus-visible:outline-white",
-  "active:outline-white"
-], x1 = [
-  "w-7/12",
-  "mr-auto",
-  "h-8",
-  "px-1",
-  "py-2",
-  "flex",
-  "items-center",
-  "rounded",
-  "snap-center",
-  "outline-transparent",
-  "outline",
-  "outline-1",
-  "outline-solid",
-  "focus-visible:outline-2",
-  "focus-visible:outline-white",
-  "active:outline-white"
-], w1 = [
-  "text-white",
-  "text-sm",
-  "font-bold",
-  "mx-2",
-  "flex",
-  "justify-between"
-], L1 = [
-  "w-available",
-  "mr-auto",
-  "h-8",
-  "px-1",
-  "py-2",
-  "flex",
-  "flex-nowrap",
-  "items-center",
-  "snap-center",
-  "rounded",
-  "outline-transparent",
-  "outline",
-  "outline-1",
-  "outline-solid",
-  "focus-visible:outline-2",
-  "focus-visible:outline-white",
-  "active:outline-white"
-], S1 = [
-  "w-available",
-  "text-white",
-  "text-sm",
-  "font-bold",
-  "mx-2",
-  "flex",
-  "justify-between",
-  "flex-nowrap"
-], M1 = [
-  "episode-menu-button-left",
-  "relative",
-  "rounded-md",
-  "w-[50%]",
-  "overflow-clip",
-  "self-center"
-], k1 = [
-  "playlist-card-right",
-  "w-3/4",
-  "flex",
-  "flex-col",
-  "text-left",
-  "gap-1",
-  "px-1",
-  "outline-transparent",
-  "outline",
-  "outline-1",
-  "outline-solid",
-  "focus-visible:outline-2",
-  "focus-visible:outline-white",
-  "active:outline-white"
-], T1 = [
-  "playlist-menu-button-title",
-  "font-bold",
-  "text-lg",
-  "line-clamp-1",
-  "text-white",
-  ""
-], E1 = [
-  "playlist-menu-button-overview",
-  "font-bold",
-  "text-[0.7rem]",
-  "leading-4",
-  "line-clamp-4",
-  "overflow-hidden",
-  "text-white"
-], B1 = [
-  "flex",
-  "flex-col",
-  "justify-between",
-  "items-center",
-  "w-2/3",
-  "h-available"
-], V1 = [
-  "flex",
-  "flex-col",
-  "justify-center",
-  "items-center",
-  "w-available",
-  "gap-2",
-  "h-auto"
-], H1 = [
-  "flex",
-  "flex-col",
-  "justify-center",
-  "items-center",
-  "w-available",
-  "h-[85px]",
-  "min-h-[85px]"
-], Z1 = [
-  "w-auto",
-  "px-2",
-  "py-2",
-  "mr-auto",
-  "object-fit",
-  "h-auto",
-  "max-w-[23rem]",
-  "max-h-available",
-  ""
-], P1 = [
-  "w-auto",
-  "h-available",
-  "items-center",
-  "py-0",
-  "max-w-[38vw]",
-  "mr-auto",
-  "leading-[1.2]",
-  "font-bold",
-  "object-fit"
-], $1 = [
-  "flex",
-  "flex-col",
-  "w-available",
-  "h-[40px]"
-], I1 = [
-  "flex",
-  "text-white",
-  "text-sm",
-  "font-bold",
-  "mx-2"
-], z1 = [
-  "flex",
-  "gap-2",
-  "items-center",
-  "w-available",
-  "text-white"
-], R1 = [
-  "w-8",
-  "h-available",
-  "object-fit",
-  "invert"
-], A1 = [
-  "flex",
-  "text-white",
-  "text-sm",
-  "font-bold",
-  "mx-2"
-], U1 = [
-  "flex",
-  "flex-col",
-  "w-available",
-  "h-available"
-], F1 = [
-  "flex",
-  "text-white",
-  "text-lg",
-  "font-bold",
-  "mx-2"
-], G1 = [
-  "text-white",
-  "text-sm",
-  "line-clamp-4",
-  "font-bold",
-  "leading-5",
-  "overflow-hidden",
-  "mx-2"
-], O1 = [
-  "flex",
-  "flex-col",
-  "gap-3",
-  "w-available",
-  "h-1/2",
-  "mt-7",
-  "mb-3",
-  "overflow-auto",
-  "px-2",
-  "py-0.5",
-  "[*::-webkit-scrollbar]:hidden"
-], N1 = [
-  "flex",
-  "flex-col",
-  "gap-3",
-  "w-available",
-  "h-available",
-  "mt-7",
-  "mb-3",
-  "overflow-auto",
-  "px-2",
-  "py-0.5",
-  "[*::-webkit-scrollbar]:hidden"
-], j1 = [
-  "flex",
-  "flex-col",
-  "justify-center",
-  "w-1/3",
-  "h-available"
-], q1 = [
-  "flex",
-  "flex-col",
-  "justify-start",
-  "mt-28",
-  "w-1/3",
-  "h-available"
-], D1 = [
-  "flex",
-  "flex-col",
-  "justify-between",
-  "items-center",
-  "w-2/5",
-  "h-available"
-], _1 = [
-  "flex",
-  "flex-col",
-  "justify-center",
-  "w-3/5",
-  "h-available"
-], X1 = [
-  "flex",
-  "flex-col",
-  "overflow-auto",
-  "h-available",
-  "pt-6",
-  "gap-2",
-  "p-1",
-  "min-h-[50%]"
-], W1 = [
-  "absolute",
-  "inset-0",
-  "hidden",
-  "w-available",
-  "h-available",
-  "z-50",
-  "grid",
-  "pointer-events-none",
-  "place-content-center"
-], Q1 = [
-  "flex",
-  "flex-col",
-  "items-center",
-  "gap-4",
-  "mt-11"
-], Y1 = [
-  "inline",
-  "w-12",
-  "h-12",
-  "mr-2",
-  "animate-spin",
-  "text-white/20",
-  "fill-white"
-], K1 = [
-  "text-white",
-  "text-lg",
-  "font-bold"
-], J1 = [
-  "episode-tip",
-  "hidden",
-  "absolute",
-  "left-0",
-  "-bottom-10",
-  "z-50",
-  "!w-96",
-  "h-24",
-  "px-2",
-  "gap-2",
-  "py-2",
-  "text-xs",
-  "text-white",
-  "rounded-lg",
-  "font-medium",
-  "bg-neutral-900/95"
-], et = [
-  "next-tip-text",
-  "relative",
-  "rounded-sm",
-  "w-[40%]",
-  "overflow-clip",
-  "self-center",
-  ""
-], tt = [
-  "playlist-card-image",
-  "w-available",
-  "h-auto",
-  "aspect-video",
-  "object-cover",
-  "rounded-md",
-  ""
-], st = [
-  "next-tip-left",
-  "relative",
-  "rounded-sm",
-  "w-[40%]",
-  "overflow-clip",
-  "self-center",
-  ""
-], it = [
-  "next-tip-right",
-  "w-[60%]",
-  "flex",
-  "flex-col",
-  "text-left",
-  "gap-1"
-], lt = [
-  "next-tip-header",
-  "font-bold",
-  ""
-], at = [
-  "next-tip-title",
-  "font-bold",
-  "text-white"
-], rt = [
-  "next-up",
-  "flex",
-  "gap-2",
-  "absolute",
-  "right-4",
-  "bottom-8",
-  "!w-80",
-  "h-24",
-  "px-2",
-  "py-2",
-  "z-50"
-], nt = [
-  "next-up-credits-button",
-  "bg-neutral-900/95",
-  "block",
-  "!text-[0.9rem]",
-  "font-bold",
-  "!text-neutral-100",
-  "!py-1.5",
-  "w-[45%]",
-  "outline",
-  "outline-transparent",
-  "focus-visible:outline-2",
-  "focus-visible:outline-white",
-  "active:outline-white",
-  ""
-], ot = [
-  "next-up-next-button",
-  "animated",
-  "bg-neutral-100",
-  "w-[55%]",
-  "outline",
-  "outline-transparent",
-  "focus-visible:outline-2",
-  "focus-visible:outline-white",
-  "active:outline-white",
-  ""
-], pt = [
-  "absolute",
-  "flex",
-  "flex-col",
-  "justify-end",
-  "gap-4",
-  "w-available",
-  "h-available",
-  "z-0"
-], ct = [
-  "background",
-  "absolute",
-  "inset-0",
-  "bg-black",
-  "pointer-events-none",
-  "bg-opacity-80",
-  "opacity-0",
-  "z-20"
-], dt = [
-  "tv-bottom-row",
-  "relative",
-  "flex",
-  "flex-row",
-  "items-center",
-  "gap-4",
-  "mt-auto",
-  "w-available",
-  "px-20",
-  "pb-10",
-  "z-0"
-], ht = [], ut = [], yt = [], Ct = [], mt = [
-  "flex",
-  "flex-col",
-  "justify-end",
-  "items-end",
-  "gap-2"
-], ft = [
-  "text-white",
-  "text-sm",
-  "whitespace-pre",
-  "font-bold"
-], bt = [
-  "flex",
-  "flex-row",
-  "gap-2"
-], gt = [], vt = [], xt = [
-  "relative",
-  "h-auto",
-  "mb-28",
-  "w-available",
-  "translate-y-[80vh]",
-  "z-40",
-  "w-available"
-], wt = [
-  "relative",
-  "flex",
-  "h-available",
-  "w-available",
-  "overflow-auto",
-  "px-[calc(100%/2.14)]",
-  "gap-1.5",
-  "scrollbar-none"
-], Lt = [
-  "w-available",
-  "flex",
-  "gap-1.5",
-  "scroll-smooth",
-  "snap-x"
-], St = [
-  "w-1/5",
-  "h-auto",
-  "object-cover",
-  "aspect-video",
-  "snap-center"
-], Mt = [
-  "[--gap:1.5rem]",
-  "absolute",
-  "flex",
-  "h-available",
-  "w-available",
-  "gap-[var(--gap)]",
-  "z-10",
-  "pointer-events-none"
-], kt = [
-  "w-[calc(26%+(var(--gap)/2))]",
-  "h-auto",
-  "object-cover",
-  "aspect-video",
-  "border-4",
-  "mx-auto",
-  ""
-], Tt = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  backgroundStyles: ct,
-  bottomBarShadowStyles: ye,
-  bottomBarStyles: ue,
-  bottomRowStyles: Ce,
-  buttonBaseStyles: me,
-  buttonContainerStyles: O1,
-  buttonStyles: fe,
-  centerStyles: be,
-  chapterBarStyles: ge,
-  chapterMarkerBGStyles: xe,
-  chapterMarkerBufferStyles: we,
-  chapterMarkerHoverStyles: Le,
-  chapterMarkerProgressStyles: Se,
-  chapterMarkersStyles: ve,
-  chapterTextStyles: Me,
-  descriptionStyles: G1,
-  dividerStyles: ke,
-  episodeLeftSideStyles: D1,
-  episodeMenuButtonImageStyles: r1,
-  episodeMenuButtonLeftStyles: l1,
-  episodeMenuButtonOverviewStyles: C1,
-  episodeMenuButtonRightSideStyles: u1,
-  episodeMenuButtonShadowStyles: a1,
-  episodeMenuButtonTitleStyles: y1,
-  episodeMenuProgressBoxStyles: o1,
-  episodeMenuProgressContainerStyles: n1,
-  episodeRightSideStyles: _1,
-  episodeScreenStyles: b1,
-  episodeScrollContainerStyles: X1,
-  episodesCountStyles: A1,
-  fallbackTextStyles: P1,
-  iconStyles: Te,
-  languageButtonSpanStyles: Ee,
-  languageButtonStyles: v1,
-  languageRightSideStyles: q1,
-  languageScreenStyles: g1,
-  leftSideStyles: B1,
-  leftSideTopStyles: V1,
-  logoContainerStyles: H1,
-  logoFooterStyles: $1,
-  logoStyles: Z1,
-  mainMenuStyles: Be,
-  menuButtonTextStyles: Ve,
-  menuContentStyles: He,
-  menuFrameStyles: Pe,
-  menuHeaderButtonTextStyles: $e,
-  menuHeaderStyles: Ie,
-  menuWrapperStyles: Ze,
-  nextTipHeaderStyles: lt,
-  nextTipImageStyles: tt,
-  nextTipLeftSideStyles: st,
-  nextTipRightSideStyles: it,
-  nextTipStyles: J1,
-  nextTipTextStyles: et,
-  nextTipTitleStyles: at,
-  nextUpCreditsButtonStyles: nt,
-  nextUpNextButtonStyles: ot,
-  nextUpStyles: rt,
-  overviewContainerStyles: U1,
-  pauseScreenStyles: f1,
-  playerMessageStyles: s1,
-  playlistMenuButtonStyles: i1,
-  progressBarStyles: h1,
-  progressContainerDurationTextStyles: c1,
-  progressContainerItemTextStyles: p1,
-  ratingContainerStyles: z1,
-  ratingImageStyles: R1,
-  rightSideStyles: j1,
-  roleStyles: Q1,
-  scrollContainerStyles: ze,
-  seekContainerChildStyles: Lt,
-  seekContainerStyles: xt,
-  seekScrollCloneStyles: Mt,
-  seekScrollContainerStyles: wt,
-  sliderBarStyles: Re,
-  sliderBufferStyles: Ae,
-  sliderContainerStyles: d1,
-  sliderHoverStyles: Ue,
-  sliderNippleStyles: Ge,
-  sliderPopImageStyles: Oe,
-  sliderPopStyles: Ne,
-  sliderProgressStyles: Fe,
-  sliderTextStyles: je,
-  speedButtonTextStyles: qe,
-  spinnerContainerStyles: W1,
-  spinnerStyles: Y1,
-  statusTextStyles: K1,
-  subMenuContentStyles: De,
-  subMenuStyles: _e,
-  subtitleButtonContainerStyles: N1,
-  svgSizeStyles: Xe,
-  thumbnailCloneStyles: kt,
-  thumbnailStyles: St,
-  timeStyles: We,
-  titleStyles: F1,
-  tooltipStyles: m1,
-  topBarStyles: Qe,
-  topRowStyles: Ye,
-  touchPlaybackButtonStyles: Ke,
-  touchPlaybackStyles: Je,
-  tvBottomRowStyles: dt,
-  tvButtonStyles: x1,
-  tvButtonTextStyles: w1,
-  tvCurrentItemContainerStyles: mt,
-  tvCurrentItemEpisodeStyles: gt,
-  tvCurrentItemShowStyles: ft,
-  tvCurrentItemTitleContainerStyles: bt,
-  tvCurrentItemTitleStyles: vt,
-  tvEpisodeMenuButtonLeftStyles: M1,
-  tvEpisodeMenuButtonOverviewStyles: E1,
-  tvEpisodeMenuButtonRightSideStyles: k1,
-  tvEpisodeMenuButtonTitleStyles: T1,
-  tvOverlayStyles: pt,
-  tvSeasonButtonStyles: L1,
-  tvSeasonButtonTextStyles: S1,
-  tvSeekBarInnerBufferStyles: Ct,
-  tvSeekBarInnerProgressStyles: yt,
-  tvSeekBarInnerStyles: ut,
-  tvSeekBarStyles: ht,
-  volumeContainerStyles: e1,
-  volumeSliderStyles: t1,
-  yearStyles: I1
-}, Symbol.toStringTag, { value: "Module" })), D = "-", Et = (n) => {
-  const c = Vt(n), {
-    conflictingClassGroups: i,
-    conflictingClassGroupModifiers: t
-  } = n;
+}, a1 = () => {
+  const i = {};
+  for (const s of Object.keys(Y))
+    i[s] = Y[s];
+  return i;
+}, N = "-", C1 = (i) => {
+  const s = p1(i), {
+    conflictingClassGroups: t,
+    conflictingClassGroupModifiers: e
+  } = i;
   return {
-    getClassGroupId: (l) => {
-      const a = l.split(D);
-      return a[0] === "" && a.length !== 1 && a.shift(), ie(a, c) || Bt(l);
+    getClassGroupId: (n) => {
+      const o = n.split(N);
+      return o[0] === "" && o.length !== 1 && o.shift(), e1(o, s) || c1(n);
     },
-    getConflictingClassGroupIds: (l, a) => {
-      const r = i[l] || [];
-      return a && t[l] ? [...r, ...t[l]] : r;
+    getConflictingClassGroupIds: (n, o) => {
+      const a = t[n] || [];
+      return o && e[n] ? [...a, ...e[n]] : a;
     }
   };
-}, ie = (n, c) => {
-  var l;
-  if (n.length === 0)
-    return c.classGroupId;
-  const i = n[0], t = c.nextPart.get(i), e = t ? ie(n.slice(1), t) : void 0;
-  if (e)
-    return e;
-  if (c.validators.length === 0)
+}, e1 = (i, s) => {
+  var n;
+  if (i.length === 0)
+    return s.classGroupId;
+  const t = i[0], e = s.nextPart.get(t), l = e ? e1(i.slice(1), e) : void 0;
+  if (l)
+    return l;
+  if (s.validators.length === 0)
     return;
-  const s = n.join(D);
-  return (l = c.validators.find(({
-    validator: a
-  }) => a(s))) == null ? void 0 : l.classGroupId;
-}, te = /^\[(.+)\]$/, Bt = (n) => {
-  if (te.test(n)) {
-    const c = te.exec(n)[1], i = c == null ? void 0 : c.substring(0, c.indexOf(":"));
-    if (i)
-      return "arbitrary.." + i;
+  const r = i.join(N);
+  return (n = s.validators.find(({
+    validator: o
+  }) => o(r))) == null ? void 0 : n.classGroupId;
+}, K = /^\[(.+)\]$/, c1 = (i) => {
+  if (K.test(i)) {
+    const s = K.exec(i)[1], t = s == null ? void 0 : s.substring(0, s.indexOf(":"));
+    if (t)
+      return "arbitrary.." + t;
   }
-}, Vt = (n) => {
+}, p1 = (i) => {
   const {
-    theme: c,
-    prefix: i
-  } = n, t = {
+    theme: s,
+    prefix: t
+  } = i, e = {
     nextPart: /* @__PURE__ */ new Map(),
     validators: []
   };
-  return Zt(Object.entries(n.classGroups), i).forEach(([s, l]) => {
-    q(l, t, s, c);
-  }), t;
-}, q = (n, c, i, t) => {
-  n.forEach((e) => {
-    if (typeof e == "string") {
-      const s = e === "" ? c : se(c, e);
-      s.classGroupId = i;
+  return d1(Object.entries(i.classGroups), t).forEach(([r, n]) => {
+    O(n, e, r, s);
+  }), e;
+}, O = (i, s, t, e) => {
+  i.forEach((l) => {
+    if (typeof l == "string") {
+      const r = l === "" ? s : J(s, l);
+      r.classGroupId = t;
       return;
     }
-    if (typeof e == "function") {
-      if (Ht(e)) {
-        q(e(t), c, i, t);
+    if (typeof l == "function") {
+      if (u1(l)) {
+        O(l(e), s, t, e);
         return;
       }
-      c.validators.push({
-        validator: e,
-        classGroupId: i
+      s.validators.push({
+        validator: l,
+        classGroupId: t
       });
       return;
     }
-    Object.entries(e).forEach(([s, l]) => {
-      q(l, se(c, s), i, t);
+    Object.entries(l).forEach(([r, n]) => {
+      O(n, J(s, r), t, e);
     });
   });
-}, se = (n, c) => {
-  let i = n;
-  return c.split(D).forEach((t) => {
-    i.nextPart.has(t) || i.nextPart.set(t, {
+}, J = (i, s) => {
+  let t = i;
+  return s.split(N).forEach((e) => {
+    t.nextPart.has(e) || t.nextPart.set(e, {
       nextPart: /* @__PURE__ */ new Map(),
       validators: []
-    }), i = i.nextPart.get(t);
-  }), i;
-}, Ht = (n) => n.isThemeGetter, Zt = (n, c) => c ? n.map(([i, t]) => {
-  const e = t.map((s) => typeof s == "string" ? c + s : typeof s == "object" ? Object.fromEntries(Object.entries(s).map(([l, a]) => [c + l, a])) : s);
-  return [i, e];
-}) : n, Pt = (n) => {
-  if (n < 1)
+    }), t = t.nextPart.get(e);
+  }), t;
+}, u1 = (i) => i.isThemeGetter, d1 = (i, s) => s ? i.map(([t, e]) => {
+  const l = e.map((r) => typeof r == "string" ? s + r : typeof r == "object" ? Object.fromEntries(Object.entries(r).map(([n, o]) => [s + n, o])) : r);
+  return [t, l];
+}) : i, h1 = (i) => {
+  if (i < 1)
     return {
       get: () => {
       },
       set: () => {
       }
     };
-  let c = 0, i = /* @__PURE__ */ new Map(), t = /* @__PURE__ */ new Map();
-  const e = (s, l) => {
-    i.set(s, l), c++, c > n && (c = 0, t = i, i = /* @__PURE__ */ new Map());
+  let s = 0, t = /* @__PURE__ */ new Map(), e = /* @__PURE__ */ new Map();
+  const l = (r, n) => {
+    t.set(r, n), s++, s > i && (s = 0, e = t, t = /* @__PURE__ */ new Map());
   };
   return {
-    get(s) {
-      let l = i.get(s);
-      if (l !== void 0)
-        return l;
-      if ((l = t.get(s)) !== void 0)
-        return e(s, l), l;
+    get(r) {
+      let n = t.get(r);
+      if (n !== void 0)
+        return n;
+      if ((n = e.get(r)) !== void 0)
+        return l(r, n), n;
     },
-    set(s, l) {
-      i.has(s) ? i.set(s, l) : e(s, l);
+    set(r, n) {
+      t.has(r) ? t.set(r, n) : l(r, n);
     }
   };
-}, le = "!", $t = (n) => {
+}, t1 = "!", y1 = (i) => {
   const {
-    separator: c,
-    experimentalParseClassName: i
-  } = n, t = c.length === 1, e = c[0], s = c.length, l = (a) => {
-    const r = [];
-    let o = 0, h = 0, d;
-    for (let f = 0; f < a.length; f++) {
-      let g = a[f];
-      if (o === 0) {
-        if (g === e && (t || a.slice(f, f + s) === c)) {
-          r.push(a.slice(h, f)), h = f + s;
+    separator: s,
+    experimentalParseClassName: t
+  } = i, e = s.length === 1, l = s[0], r = s.length, n = (o) => {
+    const a = [];
+    let p = 0, u = 0, c;
+    for (let m = 0; m < o.length; m++) {
+      let g = o[m];
+      if (p === 0) {
+        if (g === l && (e || o.slice(m, m + r) === s)) {
+          a.push(o.slice(u, m)), u = m + r;
           continue;
         }
         if (g === "/") {
-          d = f;
+          c = m;
           continue;
         }
       }
-      g === "[" ? o++ : g === "]" && o--;
+      g === "[" ? p++ : g === "]" && p--;
     }
-    const p = r.length === 0 ? a : a.substring(h), u = p.startsWith(le), y = u ? p.substring(1) : p, m = d && d > h ? d - h : void 0;
+    const d = a.length === 0 ? o : o.substring(u), L = d.startsWith(t1), v = L ? d.substring(1) : d, f = c && c > u ? c - u : void 0;
     return {
-      modifiers: r,
-      hasImportantModifier: u,
-      baseClassName: y,
-      maybePostfixModifierPosition: m
+      modifiers: a,
+      hasImportantModifier: L,
+      baseClassName: v,
+      maybePostfixModifierPosition: f
     };
   };
-  return i ? (a) => i({
-    className: a,
-    parseClassName: l
-  }) : l;
-}, It = (n) => {
-  if (n.length <= 1)
-    return n;
-  const c = [];
-  let i = [];
-  return n.forEach((t) => {
-    t[0] === "[" ? (c.push(...i.sort(), t), i = []) : i.push(t);
-  }), c.push(...i.sort()), c;
-}, zt = (n) => ({
-  cache: Pt(n.cacheSize),
-  parseClassName: $t(n),
-  ...Et(n)
-}), Rt = /\s+/, At = (n, c) => {
+  return t ? (o) => t({
+    className: o,
+    parseClassName: n
+  }) : n;
+}, m1 = (i) => {
+  if (i.length <= 1)
+    return i;
+  const s = [];
+  let t = [];
+  return i.forEach((e) => {
+    e[0] === "[" ? (s.push(...t.sort(), e), t = []) : t.push(e);
+  }), s.push(...t.sort()), s;
+}, f1 = (i) => ({
+  cache: h1(i.cacheSize),
+  parseClassName: y1(i),
+  ...C1(i)
+}), g1 = /\s+/, b1 = (i, s) => {
   const {
-    parseClassName: i,
-    getClassGroupId: t,
-    getConflictingClassGroupIds: e
-  } = c, s = [], l = n.trim().split(Rt);
-  let a = "";
-  for (let r = l.length - 1; r >= 0; r -= 1) {
-    const o = l[r], {
-      modifiers: h,
-      hasImportantModifier: d,
-      baseClassName: p,
-      maybePostfixModifierPosition: u
-    } = i(o);
-    let y = !!u, m = t(y ? p.substring(0, u) : p);
-    if (!m) {
-      if (!y) {
-        a = o + (a.length > 0 ? " " + a : a);
+    parseClassName: t,
+    getClassGroupId: e,
+    getConflictingClassGroupIds: l
+  } = s, r = [], n = i.trim().split(g1);
+  let o = "";
+  for (let a = n.length - 1; a >= 0; a -= 1) {
+    const p = n[a], {
+      modifiers: u,
+      hasImportantModifier: c,
+      baseClassName: d,
+      maybePostfixModifierPosition: L
+    } = t(p);
+    let v = !!L, f = e(v ? d.substring(0, L) : d);
+    if (!f) {
+      if (!v) {
+        o = p + (o.length > 0 ? " " + o : o);
         continue;
       }
-      if (m = t(p), !m) {
-        a = o + (a.length > 0 ? " " + a : a);
+      if (f = e(d), !f) {
+        o = p + (o.length > 0 ? " " + o : o);
         continue;
       }
-      y = !1;
+      v = !1;
     }
-    const f = It(h).join(":"), g = d ? f + le : f, x = g + m;
-    if (s.includes(x))
+    const m = m1(u).join(":"), g = c ? m + t1 : m, b = g + f;
+    if (r.includes(b))
       continue;
-    s.push(x);
-    const w = e(m, y);
-    for (let L = 0; L < w.length; ++L) {
-      const B = w[L];
-      s.push(g + B);
+    r.push(b);
+    const k = l(f, v);
+    for (let S = 0; S < k.length; ++S) {
+      const P = k[S];
+      r.push(g + P);
     }
-    a = o + (a.length > 0 ? " " + a : a);
+    o = p + (o.length > 0 ? " " + o : o);
   }
-  return a;
+  return o;
 };
-function Ut() {
-  let n = 0, c, i, t = "";
-  for (; n < arguments.length; )
-    (c = arguments[n++]) && (i = ae(c)) && (t && (t += " "), t += i);
-  return t;
+function L1() {
+  let i = 0, s, t, e = "";
+  for (; i < arguments.length; )
+    (s = arguments[i++]) && (t = s1(s)) && (e && (e += " "), e += t);
+  return e;
 }
-const ae = (n) => {
-  if (typeof n == "string")
-    return n;
-  let c, i = "";
-  for (let t = 0; t < n.length; t++)
-    n[t] && (c = ae(n[t])) && (i && (i += " "), i += c);
-  return i;
+const s1 = (i) => {
+  if (typeof i == "string")
+    return i;
+  let s, t = "";
+  for (let e = 0; e < i.length; e++)
+    i[e] && (s = s1(i[e])) && (t && (t += " "), t += s);
+  return t;
 };
-function Ft(n, ...c) {
-  let i, t, e, s = l;
-  function l(r) {
-    const o = c.reduce((h, d) => d(h), n());
-    return i = zt(o), t = i.cache.get, e = i.cache.set, s = a, a(r);
+function v1(i, ...s) {
+  let t, e, l, r = n;
+  function n(a) {
+    const p = s.reduce((u, c) => c(u), i());
+    return t = f1(p), e = t.cache.get, l = t.cache.set, r = o, o(a);
   }
-  function a(r) {
-    const o = t(r);
-    if (o)
-      return o;
-    const h = At(r, i);
-    return e(r, h), h;
+  function o(a) {
+    const p = e(a);
+    if (p)
+      return p;
+    const u = b1(a, t);
+    return l(a, u), u;
   }
   return function() {
-    return s(Ut.apply(null, arguments));
+    return r(L1.apply(null, arguments));
   };
 }
-const b = (n) => {
-  const c = (i) => i[n] || [];
-  return c.isThemeGetter = !0, c;
-}, re = /^\[(?:([a-z-]+):)?(.+)\]$/i, Gt = /^\d+\/\d+$/, Ot = /* @__PURE__ */ new Set(["px", "full", "screen"]), Nt = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, jt = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, qt = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, Dt = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, _t = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, k = (n) => H(n) || Ot.has(n) || Gt.test(n), T = (n) => Z(n, "length", ts), H = (n) => !!n && !Number.isNaN(Number(n)), j = (n) => Z(n, "number", H), I = (n) => !!n && Number.isInteger(Number(n)), Xt = (n) => n.endsWith("%") && H(n.slice(0, -1)), C = (n) => re.test(n), E = (n) => Nt.test(n), Wt = /* @__PURE__ */ new Set(["length", "size", "percentage"]), Qt = (n) => Z(n, Wt, ne), Yt = (n) => Z(n, "position", ne), Kt = /* @__PURE__ */ new Set(["image", "url"]), Jt = (n) => Z(n, Kt, is), es = (n) => Z(n, "", ss), z = () => !0, Z = (n, c, i) => {
-  const t = re.exec(n);
-  return t ? t[1] ? typeof c == "string" ? t[1] === c : c.has(t[1]) : i(t[2]) : !1;
-}, ts = (n) => (
+const h = (i) => {
+  const s = (t) => t[i] || [];
+  return s.isThemeGetter = !0, s;
+}, l1 = /^\[(?:([a-z-]+):)?(.+)\]$/i, x1 = /^\d+\/\d+$/, w1 = /* @__PURE__ */ new Set(["px", "full", "screen"]), M1 = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, V1 = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, S1 = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, H1 = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, Z1 = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, w = (i) => H(i) || w1.has(i) || x1.test(i), M = (i) => Z(i, "length", A1), H = (i) => !!i && !Number.isNaN(Number(i)), F = (i) => Z(i, "number", H), B = (i) => !!i && Number.isInteger(Number(i)), k1 = (i) => i.endsWith("%") && H(i.slice(0, -1)), C = (i) => l1.test(i), V = (i) => M1.test(i), T1 = /* @__PURE__ */ new Set(["length", "size", "percentage"]), E1 = (i) => Z(i, T1, r1), B1 = (i) => Z(i, "position", r1), z1 = /* @__PURE__ */ new Set(["image", "url"]), P1 = (i) => Z(i, z1, G1), I1 = (i) => Z(i, "", $1), z = () => !0, Z = (i, s, t) => {
+  const e = l1.exec(i);
+  return e ? e[1] ? typeof s == "string" ? e[1] === s : s.has(e[1]) : t(e[2]) : !1;
+}, A1 = (i) => (
   // `colorFunctionRegex` check is necessary because color functions can have percentages in them which which would be incorrectly classified as lengths.
   // For example, `hsl(0 0% 0%)` would be classified as a length without this check.
   // I could also use lookbehind assertion in `lengthUnitRegex` but that isn't supported widely enough.
-  jt.test(n) && !qt.test(n)
-), ne = () => !1, ss = (n) => Dt.test(n), is = (n) => _t.test(n), ls = () => {
-  const n = b("colors"), c = b("spacing"), i = b("blur"), t = b("brightness"), e = b("borderColor"), s = b("borderRadius"), l = b("borderSpacing"), a = b("borderWidth"), r = b("contrast"), o = b("grayscale"), h = b("hueRotate"), d = b("invert"), p = b("gap"), u = b("gradientColorStops"), y = b("gradientColorStopPositions"), m = b("inset"), f = b("margin"), g = b("opacity"), x = b("padding"), w = b("saturate"), L = b("scale"), B = b("sepia"), S = b("skew"), P = b("space"), _ = b("translate"), F = () => ["auto", "contain", "none"], G = () => ["auto", "hidden", "clip", "visible", "scroll"], O = () => ["auto", C, c], v = () => [C, c], X = () => ["", k, T], R = () => ["auto", H, C], W = () => ["bottom", "center", "left", "left-bottom", "left-top", "right", "right-bottom", "right-top", "top"], A = () => ["solid", "dashed", "dotted", "double", "none"], Q = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], N = () => ["start", "end", "center", "between", "around", "evenly", "stretch"], $ = () => ["", "0", C], Y = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], M = () => [H, C];
+  V1.test(i) && !S1.test(i)
+), r1 = () => !1, $1 = (i) => H1.test(i), G1 = (i) => Z1.test(i), R1 = () => {
+  const i = h("colors"), s = h("spacing"), t = h("blur"), e = h("brightness"), l = h("borderColor"), r = h("borderRadius"), n = h("borderSpacing"), o = h("borderWidth"), a = h("contrast"), p = h("grayscale"), u = h("hueRotate"), c = h("invert"), d = h("gap"), L = h("gradientColorStops"), v = h("gradientColorStopPositions"), f = h("inset"), m = h("margin"), g = h("opacity"), b = h("padding"), k = h("saturate"), S = h("scale"), P = h("sepia"), j = h("skew"), _ = h("space"), q = h("translate"), $ = () => ["auto", "contain", "none"], G = () => ["auto", "hidden", "clip", "visible", "scroll"], R = () => ["auto", C, s], y = () => [C, s], W = () => ["", w, M], I = () => ["auto", H, C], X = () => ["bottom", "center", "left", "left-bottom", "left-top", "right", "right-bottom", "right-top", "top"], A = () => ["solid", "dashed", "dotted", "double", "none"], Q = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], U = () => ["start", "end", "center", "between", "around", "evenly", "stretch"], T = () => ["", "0", C], D = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], x = () => [H, C];
   return {
     cacheSize: 500,
     separator: ":",
     theme: {
       colors: [z],
-      spacing: [k, T],
-      blur: ["none", "", E, C],
-      brightness: M(),
-      borderColor: [n],
-      borderRadius: ["none", "", "full", E, C],
-      borderSpacing: v(),
-      borderWidth: X(),
-      contrast: M(),
-      grayscale: $(),
-      hueRotate: M(),
-      invert: $(),
-      gap: v(),
-      gradientColorStops: [n],
-      gradientColorStopPositions: [Xt, T],
-      inset: O(),
-      margin: O(),
-      opacity: M(),
-      padding: v(),
-      saturate: M(),
-      scale: M(),
-      sepia: $(),
-      skew: M(),
-      space: v(),
-      translate: v()
+      spacing: [w, M],
+      blur: ["none", "", V, C],
+      brightness: x(),
+      borderColor: [i],
+      borderRadius: ["none", "", "full", V, C],
+      borderSpacing: y(),
+      borderWidth: W(),
+      contrast: x(),
+      grayscale: T(),
+      hueRotate: x(),
+      invert: T(),
+      gap: y(),
+      gradientColorStops: [i],
+      gradientColorStopPositions: [k1, M],
+      inset: R(),
+      margin: R(),
+      opacity: x(),
+      padding: y(),
+      saturate: x(),
+      scale: x(),
+      sepia: T(),
+      skew: x(),
+      space: y(),
+      translate: y()
     },
     classGroups: {
       // Layout
@@ -1742,21 +526,21 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/columns
        */
       columns: [{
-        columns: [E]
+        columns: [V]
       }],
       /**
        * Break After
        * @see https://tailwindcss.com/docs/break-after
        */
       "break-after": [{
-        "break-after": Y()
+        "break-after": D()
       }],
       /**
        * Break Before
        * @see https://tailwindcss.com/docs/break-before
        */
       "break-before": [{
-        "break-before": Y()
+        "break-before": D()
       }],
       /**
        * Break Inside
@@ -1815,7 +599,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/object-position
        */
       "object-position": [{
-        object: [...W(), C]
+        object: [...X(), C]
       }],
       /**
        * Overflow
@@ -1843,21 +627,21 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/overscroll-behavior
        */
       overscroll: [{
-        overscroll: F()
+        overscroll: $()
       }],
       /**
        * Overscroll Behavior X
        * @see https://tailwindcss.com/docs/overscroll-behavior
        */
       "overscroll-x": [{
-        "overscroll-x": F()
+        "overscroll-x": $()
       }],
       /**
        * Overscroll Behavior Y
        * @see https://tailwindcss.com/docs/overscroll-behavior
        */
       "overscroll-y": [{
-        "overscroll-y": F()
+        "overscroll-y": $()
       }],
       /**
        * Position
@@ -1869,63 +653,63 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/top-right-bottom-left
        */
       inset: [{
-        inset: [m]
+        inset: [f]
       }],
       /**
        * Right / Left
        * @see https://tailwindcss.com/docs/top-right-bottom-left
        */
       "inset-x": [{
-        "inset-x": [m]
+        "inset-x": [f]
       }],
       /**
        * Top / Bottom
        * @see https://tailwindcss.com/docs/top-right-bottom-left
        */
       "inset-y": [{
-        "inset-y": [m]
+        "inset-y": [f]
       }],
       /**
        * Start
        * @see https://tailwindcss.com/docs/top-right-bottom-left
        */
       start: [{
-        start: [m]
+        start: [f]
       }],
       /**
        * End
        * @see https://tailwindcss.com/docs/top-right-bottom-left
        */
       end: [{
-        end: [m]
+        end: [f]
       }],
       /**
        * Top
        * @see https://tailwindcss.com/docs/top-right-bottom-left
        */
       top: [{
-        top: [m]
+        top: [f]
       }],
       /**
        * Right
        * @see https://tailwindcss.com/docs/top-right-bottom-left
        */
       right: [{
-        right: [m]
+        right: [f]
       }],
       /**
        * Bottom
        * @see https://tailwindcss.com/docs/top-right-bottom-left
        */
       bottom: [{
-        bottom: [m]
+        bottom: [f]
       }],
       /**
        * Left
        * @see https://tailwindcss.com/docs/top-right-bottom-left
        */
       left: [{
-        left: [m]
+        left: [f]
       }],
       /**
        * Visibility
@@ -1937,7 +721,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/z-index
        */
       z: [{
-        z: ["auto", I, C]
+        z: ["auto", B, C]
       }],
       // Flexbox and Grid
       /**
@@ -1945,7 +729,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/flex-basis
        */
       basis: [{
-        basis: O()
+        basis: R()
       }],
       /**
        * Flex Direction
@@ -1973,21 +757,21 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/flex-grow
        */
       grow: [{
-        grow: $()
+        grow: T()
       }],
       /**
        * Flex Shrink
        * @see https://tailwindcss.com/docs/flex-shrink
        */
       shrink: [{
-        shrink: $()
+        shrink: T()
       }],
       /**
        * Order
        * @see https://tailwindcss.com/docs/order
        */
       order: [{
-        order: ["first", "last", "none", I, C]
+        order: ["first", "last", "none", B, C]
       }],
       /**
        * Grid Template Columns
@@ -2002,7 +786,7 @@ const b = (n) => {
        */
       "col-start-end": [{
         col: ["auto", {
-          span: ["full", I, C]
+          span: ["full", B, C]
         }, C]
       }],
       /**
@@ -2010,14 +794,14 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/grid-column
        */
       "col-start": [{
-        "col-start": R()
+        "col-start": I()
       }],
       /**
        * Grid Column End
        * @see https://tailwindcss.com/docs/grid-column
        */
       "col-end": [{
-        "col-end": R()
+        "col-end": I()
       }],
       /**
        * Grid Template Rows
@@ -2032,7 +816,7 @@ const b = (n) => {
        */
       "row-start-end": [{
         row: ["auto", {
-          span: [I, C]
+          span: [B, C]
         }, C]
       }],
       /**
@@ -2040,14 +824,14 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/grid-row
        */
       "row-start": [{
-        "row-start": R()
+        "row-start": I()
       }],
       /**
        * Grid Row End
        * @see https://tailwindcss.com/docs/grid-row
        */
       "row-end": [{
-        "row-end": R()
+        "row-end": I()
       }],
       /**
        * Grid Auto Flow
@@ -2075,28 +859,28 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/gap
        */
       gap: [{
-        gap: [p]
+        gap: [d]
       }],
       /**
        * Gap X
        * @see https://tailwindcss.com/docs/gap
        */
       "gap-x": [{
-        "gap-x": [p]
+        "gap-x": [d]
       }],
       /**
        * Gap Y
        * @see https://tailwindcss.com/docs/gap
        */
       "gap-y": [{
-        "gap-y": [p]
+        "gap-y": [d]
       }],
       /**
        * Justify Content
        * @see https://tailwindcss.com/docs/justify-content
        */
       "justify-content": [{
-        justify: ["normal", ...N()]
+        justify: ["normal", ...U()]
       }],
       /**
        * Justify Items
@@ -2117,7 +901,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/align-content
        */
       "align-content": [{
-        content: ["normal", ...N(), "baseline"]
+        content: ["normal", ...U(), "baseline"]
       }],
       /**
        * Align Items
@@ -2138,7 +922,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/place-content
        */
       "place-content": [{
-        "place-content": [...N(), "baseline"]
+        "place-content": [...U(), "baseline"]
       }],
       /**
        * Place Items
@@ -2160,133 +944,133 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/padding
        */
       p: [{
-        p: [x]
+        p: [b]
       }],
       /**
        * Padding X
        * @see https://tailwindcss.com/docs/padding
        */
       px: [{
-        px: [x]
+        px: [b]
       }],
       /**
        * Padding Y
        * @see https://tailwindcss.com/docs/padding
        */
       py: [{
-        py: [x]
+        py: [b]
       }],
       /**
        * Padding Start
        * @see https://tailwindcss.com/docs/padding
        */
       ps: [{
-        ps: [x]
+        ps: [b]
       }],
       /**
        * Padding End
        * @see https://tailwindcss.com/docs/padding
        */
       pe: [{
-        pe: [x]
+        pe: [b]
       }],
       /**
        * Padding Top
        * @see https://tailwindcss.com/docs/padding
        */
       pt: [{
-        pt: [x]
+        pt: [b]
       }],
       /**
        * Padding Right
        * @see https://tailwindcss.com/docs/padding
        */
       pr: [{
-        pr: [x]
+        pr: [b]
       }],
       /**
        * Padding Bottom
        * @see https://tailwindcss.com/docs/padding
        */
       pb: [{
-        pb: [x]
+        pb: [b]
       }],
       /**
        * Padding Left
        * @see https://tailwindcss.com/docs/padding
        */
       pl: [{
-        pl: [x]
+        pl: [b]
       }],
       /**
        * Margin
        * @see https://tailwindcss.com/docs/margin
        */
       m: [{
-        m: [f]
+        m: [m]
       }],
       /**
        * Margin X
        * @see https://tailwindcss.com/docs/margin
        */
       mx: [{
-        mx: [f]
+        mx: [m]
       }],
       /**
        * Margin Y
        * @see https://tailwindcss.com/docs/margin
        */
       my: [{
-        my: [f]
+        my: [m]
       }],
       /**
        * Margin Start
        * @see https://tailwindcss.com/docs/margin
        */
       ms: [{
-        ms: [f]
+        ms: [m]
       }],
       /**
        * Margin End
        * @see https://tailwindcss.com/docs/margin
        */
       me: [{
-        me: [f]
+        me: [m]
       }],
       /**
        * Margin Top
        * @see https://tailwindcss.com/docs/margin
        */
       mt: [{
-        mt: [f]
+        mt: [m]
       }],
       /**
        * Margin Right
        * @see https://tailwindcss.com/docs/margin
        */
       mr: [{
-        mr: [f]
+        mr: [m]
       }],
       /**
        * Margin Bottom
        * @see https://tailwindcss.com/docs/margin
        */
       mb: [{
-        mb: [f]
+        mb: [m]
       }],
       /**
        * Margin Left
        * @see https://tailwindcss.com/docs/margin
        */
       ml: [{
-        ml: [f]
+        ml: [m]
       }],
       /**
        * Space Between X
        * @see https://tailwindcss.com/docs/space
        */
       "space-x": [{
-        "space-x": [P]
+        "space-x": [_]
       }],
       /**
        * Space Between X Reverse
@@ -2298,7 +1082,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/space
        */
       "space-y": [{
-        "space-y": [P]
+        "space-y": [_]
       }],
       /**
        * Space Between Y Reverse
@@ -2311,51 +1095,51 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/width
        */
       w: [{
-        w: ["auto", "min", "max", "fit", "svw", "lvw", "dvw", C, c]
+        w: ["auto", "min", "max", "fit", "svw", "lvw", "dvw", C, s]
       }],
       /**
        * Min-Width
        * @see https://tailwindcss.com/docs/min-width
        */
       "min-w": [{
-        "min-w": [C, c, "min", "max", "fit"]
+        "min-w": [C, s, "min", "max", "fit"]
       }],
       /**
        * Max-Width
        * @see https://tailwindcss.com/docs/max-width
        */
       "max-w": [{
-        "max-w": [C, c, "none", "full", "min", "max", "fit", "prose", {
-          screen: [E]
-        }, E]
+        "max-w": [C, s, "none", "full", "min", "max", "fit", "prose", {
+          screen: [V]
+        }, V]
       }],
       /**
        * Height
        * @see https://tailwindcss.com/docs/height
        */
       h: [{
-        h: [C, c, "auto", "min", "max", "fit", "svh", "lvh", "dvh"]
+        h: [C, s, "auto", "min", "max", "fit", "svh", "lvh", "dvh"]
       }],
       /**
        * Min-Height
        * @see https://tailwindcss.com/docs/min-height
        */
       "min-h": [{
-        "min-h": [C, c, "min", "max", "fit", "svh", "lvh", "dvh"]
+        "min-h": [C, s, "min", "max", "fit", "svh", "lvh", "dvh"]
       }],
       /**
        * Max-Height
        * @see https://tailwindcss.com/docs/max-height
        */
       "max-h": [{
-        "max-h": [C, c, "min", "max", "fit", "svh", "lvh", "dvh"]
+        "max-h": [C, s, "min", "max", "fit", "svh", "lvh", "dvh"]
       }],
       /**
        * Size
        * @see https://tailwindcss.com/docs/size
        */
       size: [{
-        size: [C, c, "auto", "min", "max", "fit"]
+        size: [C, s, "auto", "min", "max", "fit"]
       }],
       // Typography
       /**
@@ -2363,7 +1147,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/font-size
        */
       "font-size": [{
-        text: ["base", E, T]
+        text: ["base", V, M]
       }],
       /**
        * Font Smoothing
@@ -2380,7 +1164,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/font-weight
        */
       "font-weight": [{
-        font: ["thin", "extralight", "light", "normal", "medium", "semibold", "bold", "extrabold", "black", j]
+        font: ["thin", "extralight", "light", "normal", "medium", "semibold", "bold", "extrabold", "black", F]
       }],
       /**
        * Font Family
@@ -2431,14 +1215,14 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/line-clamp
        */
       "line-clamp": [{
-        "line-clamp": ["none", H, j]
+        "line-clamp": ["none", H, F]
       }],
       /**
        * Line Height
        * @see https://tailwindcss.com/docs/line-height
        */
       leading: [{
-        leading: ["none", "tight", "snug", "normal", "relaxed", "loose", k, C]
+        leading: ["none", "tight", "snug", "normal", "relaxed", "loose", w, C]
       }],
       /**
        * List Style Image
@@ -2467,7 +1251,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/placeholder-color
        */
       "placeholder-color": [{
-        placeholder: [n]
+        placeholder: [i]
       }],
       /**
        * Placeholder Opacity
@@ -2488,7 +1272,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/text-color
        */
       "text-color": [{
-        text: [n]
+        text: [i]
       }],
       /**
        * Text Opacity
@@ -2514,21 +1298,21 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/text-decoration-thickness
        */
       "text-decoration-thickness": [{
-        decoration: ["auto", "from-font", k, T]
+        decoration: ["auto", "from-font", w, M]
       }],
       /**
        * Text Underline Offset
        * @see https://tailwindcss.com/docs/text-underline-offset
        */
       "underline-offset": [{
-        "underline-offset": ["auto", k, C]
+        "underline-offset": ["auto", w, C]
       }],
       /**
        * Text Decoration Color
        * @see https://tailwindcss.com/docs/text-decoration-color
        */
       "text-decoration-color": [{
-        decoration: [n]
+        decoration: [i]
       }],
       /**
        * Text Transform
@@ -2552,7 +1336,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/text-indent
        */
       indent: [{
-        indent: v()
+        indent: y()
       }],
       /**
        * Vertical Alignment
@@ -2624,7 +1408,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/background-position
        */
       "bg-position": [{
-        bg: [...W(), Yt]
+        bg: [...X(), B1]
       }],
       /**
        * Background Repeat
@@ -2640,7 +1424,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/background-size
        */
       "bg-size": [{
-        bg: ["auto", "cover", "contain", Qt]
+        bg: ["auto", "cover", "contain", E1]
       }],
       /**
        * Background Image
@@ -2649,56 +1433,56 @@ const b = (n) => {
       "bg-image": [{
         bg: ["none", {
           "gradient-to": ["t", "tr", "r", "br", "b", "bl", "l", "tl"]
-        }, Jt]
+        }, P1]
       }],
       /**
        * Background Color
        * @see https://tailwindcss.com/docs/background-color
        */
       "bg-color": [{
-        bg: [n]
+        bg: [i]
       }],
       /**
        * Gradient Color Stops From Position
        * @see https://tailwindcss.com/docs/gradient-color-stops
        */
       "gradient-from-pos": [{
-        from: [y]
+        from: [v]
       }],
       /**
        * Gradient Color Stops Via Position
        * @see https://tailwindcss.com/docs/gradient-color-stops
        */
       "gradient-via-pos": [{
-        via: [y]
+        via: [v]
       }],
       /**
        * Gradient Color Stops To Position
        * @see https://tailwindcss.com/docs/gradient-color-stops
        */
       "gradient-to-pos": [{
-        to: [y]
+        to: [v]
       }],
       /**
        * Gradient Color Stops From
        * @see https://tailwindcss.com/docs/gradient-color-stops
        */
       "gradient-from": [{
-        from: [u]
+        from: [L]
       }],
       /**
        * Gradient Color Stops Via
        * @see https://tailwindcss.com/docs/gradient-color-stops
        */
       "gradient-via": [{
-        via: [u]
+        via: [L]
       }],
       /**
        * Gradient Color Stops To
        * @see https://tailwindcss.com/docs/gradient-color-stops
        */
       "gradient-to": [{
-        to: [u]
+        to: [L]
       }],
       // Borders
       /**
@@ -2706,168 +1490,168 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/border-radius
        */
       rounded: [{
-        rounded: [s]
+        rounded: [r]
       }],
       /**
        * Border Radius Start
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-s": [{
-        "rounded-s": [s]
+        "rounded-s": [r]
       }],
       /**
        * Border Radius End
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-e": [{
-        "rounded-e": [s]
+        "rounded-e": [r]
       }],
       /**
        * Border Radius Top
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-t": [{
-        "rounded-t": [s]
+        "rounded-t": [r]
       }],
       /**
        * Border Radius Right
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-r": [{
-        "rounded-r": [s]
+        "rounded-r": [r]
       }],
       /**
        * Border Radius Bottom
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-b": [{
-        "rounded-b": [s]
+        "rounded-b": [r]
       }],
       /**
        * Border Radius Left
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-l": [{
-        "rounded-l": [s]
+        "rounded-l": [r]
       }],
       /**
        * Border Radius Start Start
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-ss": [{
-        "rounded-ss": [s]
+        "rounded-ss": [r]
       }],
       /**
        * Border Radius Start End
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-se": [{
-        "rounded-se": [s]
+        "rounded-se": [r]
       }],
       /**
        * Border Radius End End
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-ee": [{
-        "rounded-ee": [s]
+        "rounded-ee": [r]
       }],
       /**
        * Border Radius End Start
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-es": [{
-        "rounded-es": [s]
+        "rounded-es": [r]
       }],
       /**
        * Border Radius Top Left
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-tl": [{
-        "rounded-tl": [s]
+        "rounded-tl": [r]
       }],
       /**
        * Border Radius Top Right
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-tr": [{
-        "rounded-tr": [s]
+        "rounded-tr": [r]
       }],
       /**
        * Border Radius Bottom Right
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-br": [{
-        "rounded-br": [s]
+        "rounded-br": [r]
       }],
       /**
        * Border Radius Bottom Left
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-bl": [{
-        "rounded-bl": [s]
+        "rounded-bl": [r]
       }],
       /**
        * Border Width
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w": [{
-        border: [a]
+        border: [o]
       }],
       /**
        * Border Width X
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-x": [{
-        "border-x": [a]
+        "border-x": [o]
       }],
       /**
        * Border Width Y
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-y": [{
-        "border-y": [a]
+        "border-y": [o]
       }],
       /**
        * Border Width Start
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-s": [{
-        "border-s": [a]
+        "border-s": [o]
       }],
       /**
        * Border Width End
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-e": [{
-        "border-e": [a]
+        "border-e": [o]
       }],
       /**
        * Border Width Top
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-t": [{
-        "border-t": [a]
+        "border-t": [o]
       }],
       /**
        * Border Width Right
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-r": [{
-        "border-r": [a]
+        "border-r": [o]
       }],
       /**
        * Border Width Bottom
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-b": [{
-        "border-b": [a]
+        "border-b": [o]
       }],
       /**
        * Border Width Left
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-l": [{
-        "border-l": [a]
+        "border-l": [o]
       }],
       /**
        * Border Opacity
@@ -2888,7 +1672,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/divide-width
        */
       "divide-x": [{
-        "divide-x": [a]
+        "divide-x": [o]
       }],
       /**
        * Divide Width X Reverse
@@ -2900,7 +1684,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/divide-width
        */
       "divide-y": [{
-        "divide-y": [a]
+        "divide-y": [o]
       }],
       /**
        * Divide Width Y Reverse
@@ -2926,56 +1710,56 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color": [{
-        border: [e]
+        border: [l]
       }],
       /**
        * Border Color X
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-x": [{
-        "border-x": [e]
+        "border-x": [l]
       }],
       /**
        * Border Color Y
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-y": [{
-        "border-y": [e]
+        "border-y": [l]
       }],
       /**
        * Border Color Top
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-t": [{
-        "border-t": [e]
+        "border-t": [l]
       }],
       /**
        * Border Color Right
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-r": [{
-        "border-r": [e]
+        "border-r": [l]
       }],
       /**
        * Border Color Bottom
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-b": [{
-        "border-b": [e]
+        "border-b": [l]
       }],
       /**
        * Border Color Left
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-l": [{
-        "border-l": [e]
+        "border-l": [l]
       }],
       /**
        * Divide Color
        * @see https://tailwindcss.com/docs/divide-color
        */
       "divide-color": [{
-        divide: [e]
+        divide: [l]
       }],
       /**
        * Outline Style
@@ -2989,28 +1773,28 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/outline-offset
        */
       "outline-offset": [{
-        "outline-offset": [k, C]
+        "outline-offset": [w, C]
       }],
       /**
        * Outline Width
        * @see https://tailwindcss.com/docs/outline-width
        */
       "outline-w": [{
-        outline: [k, T]
+        outline: [w, M]
       }],
       /**
        * Outline Color
        * @see https://tailwindcss.com/docs/outline-color
        */
       "outline-color": [{
-        outline: [n]
+        outline: [i]
       }],
       /**
        * Ring Width
        * @see https://tailwindcss.com/docs/ring-width
        */
       "ring-w": [{
-        ring: X()
+        ring: W()
       }],
       /**
        * Ring Width Inset
@@ -3022,7 +1806,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/ring-color
        */
       "ring-color": [{
-        ring: [n]
+        ring: [i]
       }],
       /**
        * Ring Opacity
@@ -3036,14 +1820,14 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/ring-offset-width
        */
       "ring-offset-w": [{
-        "ring-offset": [k, T]
+        "ring-offset": [w, M]
       }],
       /**
        * Ring Offset Color
        * @see https://tailwindcss.com/docs/ring-offset-color
        */
       "ring-offset-color": [{
-        "ring-offset": [n]
+        "ring-offset": [i]
       }],
       // Effects
       /**
@@ -3051,7 +1835,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/box-shadow
        */
       shadow: [{
-        shadow: ["", "inner", "none", E, es]
+        shadow: ["", "inner", "none", V, I1]
       }],
       /**
        * Box Shadow Color
@@ -3095,63 +1879,63 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/blur
        */
       blur: [{
-        blur: [i]
+        blur: [t]
       }],
       /**
        * Brightness
        * @see https://tailwindcss.com/docs/brightness
        */
       brightness: [{
-        brightness: [t]
+        brightness: [e]
       }],
       /**
        * Contrast
        * @see https://tailwindcss.com/docs/contrast
        */
       contrast: [{
-        contrast: [r]
+        contrast: [a]
       }],
       /**
        * Drop Shadow
        * @see https://tailwindcss.com/docs/drop-shadow
        */
       "drop-shadow": [{
-        "drop-shadow": ["", "none", E, C]
+        "drop-shadow": ["", "none", V, C]
       }],
       /**
        * Grayscale
        * @see https://tailwindcss.com/docs/grayscale
        */
       grayscale: [{
-        grayscale: [o]
+        grayscale: [p]
       }],
       /**
        * Hue Rotate
        * @see https://tailwindcss.com/docs/hue-rotate
        */
       "hue-rotate": [{
-        "hue-rotate": [h]
+        "hue-rotate": [u]
       }],
       /**
        * Invert
        * @see https://tailwindcss.com/docs/invert
        */
       invert: [{
-        invert: [d]
+        invert: [c]
       }],
       /**
        * Saturate
        * @see https://tailwindcss.com/docs/saturate
        */
       saturate: [{
-        saturate: [w]
+        saturate: [k]
       }],
       /**
        * Sepia
        * @see https://tailwindcss.com/docs/sepia
        */
       sepia: [{
-        sepia: [B]
+        sepia: [P]
       }],
       /**
        * Backdrop Filter
@@ -3166,42 +1950,42 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/backdrop-blur
        */
       "backdrop-blur": [{
-        "backdrop-blur": [i]
+        "backdrop-blur": [t]
       }],
       /**
        * Backdrop Brightness
        * @see https://tailwindcss.com/docs/backdrop-brightness
        */
       "backdrop-brightness": [{
-        "backdrop-brightness": [t]
+        "backdrop-brightness": [e]
       }],
       /**
        * Backdrop Contrast
        * @see https://tailwindcss.com/docs/backdrop-contrast
        */
       "backdrop-contrast": [{
-        "backdrop-contrast": [r]
+        "backdrop-contrast": [a]
       }],
       /**
        * Backdrop Grayscale
        * @see https://tailwindcss.com/docs/backdrop-grayscale
        */
       "backdrop-grayscale": [{
-        "backdrop-grayscale": [o]
+        "backdrop-grayscale": [p]
       }],
       /**
        * Backdrop Hue Rotate
        * @see https://tailwindcss.com/docs/backdrop-hue-rotate
        */
       "backdrop-hue-rotate": [{
-        "backdrop-hue-rotate": [h]
+        "backdrop-hue-rotate": [u]
       }],
       /**
        * Backdrop Invert
        * @see https://tailwindcss.com/docs/backdrop-invert
        */
       "backdrop-invert": [{
-        "backdrop-invert": [d]
+        "backdrop-invert": [c]
       }],
       /**
        * Backdrop Opacity
@@ -3215,14 +1999,14 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/backdrop-saturate
        */
       "backdrop-saturate": [{
-        "backdrop-saturate": [w]
+        "backdrop-saturate": [k]
       }],
       /**
        * Backdrop Sepia
        * @see https://tailwindcss.com/docs/backdrop-sepia
        */
       "backdrop-sepia": [{
-        "backdrop-sepia": [B]
+        "backdrop-sepia": [P]
       }],
       // Tables
       /**
@@ -3237,21 +2021,21 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/border-spacing
        */
       "border-spacing": [{
-        "border-spacing": [l]
+        "border-spacing": [n]
       }],
       /**
        * Border Spacing X
        * @see https://tailwindcss.com/docs/border-spacing
        */
       "border-spacing-x": [{
-        "border-spacing-x": [l]
+        "border-spacing-x": [n]
       }],
       /**
        * Border Spacing Y
        * @see https://tailwindcss.com/docs/border-spacing
        */
       "border-spacing-y": [{
-        "border-spacing-y": [l]
+        "border-spacing-y": [n]
       }],
       /**
        * Table Layout
@@ -3280,7 +2064,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/transition-duration
        */
       duration: [{
-        duration: M()
+        duration: x()
       }],
       /**
        * Transition Timing Function
@@ -3294,7 +2078,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/transition-delay
        */
       delay: [{
-        delay: M()
+        delay: x()
       }],
       /**
        * Animation
@@ -3316,56 +2100,56 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/scale
        */
       scale: [{
-        scale: [L]
+        scale: [S]
       }],
       /**
        * Scale X
        * @see https://tailwindcss.com/docs/scale
        */
       "scale-x": [{
-        "scale-x": [L]
+        "scale-x": [S]
       }],
       /**
        * Scale Y
        * @see https://tailwindcss.com/docs/scale
        */
       "scale-y": [{
-        "scale-y": [L]
+        "scale-y": [S]
       }],
       /**
        * Rotate
        * @see https://tailwindcss.com/docs/rotate
        */
       rotate: [{
-        rotate: [I, C]
+        rotate: [B, C]
       }],
       /**
        * Translate X
        * @see https://tailwindcss.com/docs/translate
        */
       "translate-x": [{
-        "translate-x": [_]
+        "translate-x": [q]
       }],
       /**
        * Translate Y
        * @see https://tailwindcss.com/docs/translate
        */
       "translate-y": [{
-        "translate-y": [_]
+        "translate-y": [q]
       }],
       /**
        * Skew X
        * @see https://tailwindcss.com/docs/skew
        */
       "skew-x": [{
-        "skew-x": [S]
+        "skew-x": [j]
       }],
       /**
        * Skew Y
        * @see https://tailwindcss.com/docs/skew
        */
       "skew-y": [{
-        "skew-y": [S]
+        "skew-y": [j]
       }],
       /**
        * Transform Origin
@@ -3380,7 +2164,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/accent-color
        */
       accent: [{
-        accent: ["auto", n]
+        accent: ["auto", i]
       }],
       /**
        * Appearance
@@ -3401,7 +2185,7 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/just-in-time-mode#caret-color-utilities
        */
       "caret-color": [{
-        caret: [n]
+        caret: [i]
       }],
       /**
        * Pointer Events
@@ -3429,126 +2213,126 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-m": [{
-        "scroll-m": v()
+        "scroll-m": y()
       }],
       /**
        * Scroll Margin X
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-mx": [{
-        "scroll-mx": v()
+        "scroll-mx": y()
       }],
       /**
        * Scroll Margin Y
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-my": [{
-        "scroll-my": v()
+        "scroll-my": y()
       }],
       /**
        * Scroll Margin Start
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-ms": [{
-        "scroll-ms": v()
+        "scroll-ms": y()
       }],
       /**
        * Scroll Margin End
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-me": [{
-        "scroll-me": v()
+        "scroll-me": y()
       }],
       /**
        * Scroll Margin Top
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-mt": [{
-        "scroll-mt": v()
+        "scroll-mt": y()
       }],
       /**
        * Scroll Margin Right
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-mr": [{
-        "scroll-mr": v()
+        "scroll-mr": y()
       }],
       /**
        * Scroll Margin Bottom
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-mb": [{
-        "scroll-mb": v()
+        "scroll-mb": y()
       }],
       /**
        * Scroll Margin Left
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-ml": [{
-        "scroll-ml": v()
+        "scroll-ml": y()
       }],
       /**
        * Scroll Padding
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-p": [{
-        "scroll-p": v()
+        "scroll-p": y()
       }],
       /**
        * Scroll Padding X
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-px": [{
-        "scroll-px": v()
+        "scroll-px": y()
       }],
       /**
        * Scroll Padding Y
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-py": [{
-        "scroll-py": v()
+        "scroll-py": y()
       }],
       /**
        * Scroll Padding Start
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-ps": [{
-        "scroll-ps": v()
+        "scroll-ps": y()
       }],
       /**
        * Scroll Padding End
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pe": [{
-        "scroll-pe": v()
+        "scroll-pe": y()
       }],
       /**
        * Scroll Padding Top
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pt": [{
-        "scroll-pt": v()
+        "scroll-pt": y()
       }],
       /**
        * Scroll Padding Right
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pr": [{
-        "scroll-pr": v()
+        "scroll-pr": y()
       }],
       /**
        * Scroll Padding Bottom
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pb": [{
-        "scroll-pb": v()
+        "scroll-pb": y()
       }],
       /**
        * Scroll Padding Left
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pl": [{
-        "scroll-pl": v()
+        "scroll-pl": y()
       }],
       /**
        * Scroll Snap Align
@@ -3624,21 +2408,21 @@ const b = (n) => {
        * @see https://tailwindcss.com/docs/fill
        */
       fill: [{
-        fill: [n, "none"]
+        fill: [i, "none"]
       }],
       /**
        * Stroke Width
        * @see https://tailwindcss.com/docs/stroke-width
        */
       "stroke-w": [{
-        stroke: [k, T, j]
+        stroke: [w, M, F]
       }],
       /**
        * Stroke
        * @see https://tailwindcss.com/docs/stroke
        */
       stroke: [{
-        stroke: [n, "none"]
+        stroke: [i, "none"]
       }],
       // Accessibility
       /**
@@ -3706,74 +2490,673 @@ const b = (n) => {
       "font-size": ["leading"]
     }
   };
-}, as = /* @__PURE__ */ Ft(ls);
-var U, oe;
-class cs extends ce {
+}, U1 = /* @__PURE__ */ v1(R1), F1 = [
+  "bottom-bar",
+  "z-10",
+  "flex",
+  "flex-col",
+  "items-center",
+  "w-full",
+  "gap-2",
+  "text-center",
+  "px-6",
+  "py-4",
+  "mt-auto",
+  "translate-y-full",
+  "group-[&.nomercyplayer.active]:translate-y-0",
+  "group-[&.nomercyplayer.paused]:translate-y-0",
+  "group-[&.nomercyplayer:has(.open)]:translate-y-0",
+  // 'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
+  "group-[&.nomercyplayer:has(:focus)]:duration-0",
+  "transition-all",
+  "duration-300"
+], O1 = [
+  "absolute",
+  "pointer-events-none",
+  "bottom-0",
+  "bg-gradient-to-t",
+  "via-black/20",
+  "from-black/90",
+  "pt-[10%]",
+  "w-available"
+], N1 = [
+  "cursor-pointer",
+  "fill-white",
+  "tv:fill-white/30",
+  "focus-visible:fill-white",
+  "flex",
+  "-outline-offset-2",
+  "focus-visible:outline",
+  "focus-visible:outline-2",
+  "focus-visible:outline-white/20",
+  "group/button",
+  "h-10",
+  "items-center",
+  "justify-center",
+  "p-2",
+  "relative",
+  "rounded-full",
+  "w-10",
+  "min-w-[40px]"
+], j1 = [
+  "chapter-bar",
+  "bg-transparent",
+  "flex",
+  "h-2",
+  "relative",
+  "rounded-full",
+  "overflow-clip",
+  "w-available"
+], _1 = [
+  "chapter-marker",
+  "min-w-[2px]",
+  "absolute",
+  "h-available",
+  "last:translate-x-[1.5px]",
+  "[&:last-child(2):.5px]",
+  "rounded-sm",
+  "overflow-hidden"
+], q1 = [
+  "chapter-marker-bg",
+  "bg-white/20",
+  "absolute",
+  "h-available",
+  "left-0",
+  "w-available",
+  "z-0",
+  "rounded-sm"
+], W1 = [
+  "chapter-marker-buffer",
+  "absolute",
+  "bg-gray-300/30",
+  "h-available",
+  "left-0",
+  "origin-left",
+  "scale-x-0",
+  "w-available",
+  "z-10",
+  "rounded-sm"
+], X1 = [
+  "chapter-marker-hover",
+  "absolute",
+  "bg-gray-200",
+  "h-available",
+  "left-0",
+  "origin-left",
+  "scale-x-0",
+  "w-available",
+  "z-10",
+  "rounded-sm"
+], Q1 = [
+  "chapter-marker-progress",
+  "absolute",
+  "bg-white",
+  "h-available",
+  "left-0",
+  "origin-left",
+  "scale-x-0",
+  "w-available",
+  "z-20",
+  "rounded-sm"
+], D1 = ["chapter-text"], Y1 = [
+  "divider",
+  "flex",
+  "flex-1"
+], K1 = ["text-white"], J1 = [
+  "scroll-container",
+  "flex",
+  "flex-col",
+  "gap-1",
+  "language-scroll-container",
+  "overflow-x-hidden",
+  "overflow-y-auto",
+  "p-2",
+  "transition-all",
+  "duration-300",
+  "w-available",
+  "scroll-p-4",
+  "scroll-snap-align-center",
+  "scroll-smooth"
+], e5 = [
+  "slider-bar",
+  "group/slider",
+  "flex",
+  "rounded-full",
+  "bg-white/20",
+  "h-2",
+  "mx-4",
+  "relative",
+  "w-available"
+], t5 = [
+  "slider-buffer",
+  "absolute",
+  "flex",
+  "h-full",
+  "pointer-events-none",
+  "rounded-full",
+  "bg-white/20",
+  "z-0",
+  "overflow-hidden",
+  "overflow-clip"
+], s5 = [
+  "slider-hover",
+  "absolute",
+  "opacity-1",
+  "flex",
+  "h-full",
+  "pointer-events-none",
+  "rounded-full",
+  "bg-white/30",
+  "z-0",
+  "overflow-hidden",
+  "overflow-clip"
+], l5 = [
+  "slider-progress",
+  "absolute",
+  "flex",
+  "h-full",
+  "pointer-events-none",
+  "rounded-full",
+  "bg-white",
+  "z-10",
+  "overflow-hidden",
+  "overflow-clip"
+], r5 = [
+  "slider-nipple",
+  "-translate-x-1/2",
+  "-translate-y-[25%]",
+  "absolute",
+  "hidden",
+  "group-hover/slider:flex",
+  "bg-white",
+  "h-4",
+  "left-0",
+  "rounded-full",
+  "top-0",
+  "w-4",
+  "z-20"
+], i5 = ["slider-pop-image"], o5 = [
+  "slider-pop",
+  "-translate-x-1/2",
+  "absolute",
+  "bg-neutral-900/95",
+  "bottom-4",
+  "flex",
+  "flex-col",
+  "font-semibold",
+  "gap-1",
+  "hover:scale-110",
+  "overflow-clip",
+  "pb-1",
+  "pointer-events-none",
+  "rounded-md",
+  "text-center",
+  "z-20"
+], n5 = [
+  "slider-pop-text",
+  "font-mono"
+], a5 = [
+  "speed-button-text",
+  "cursor-pointer",
+  "font-semibold",
+  "pl-2",
+  "leading-[normal]"
+], C5 = [
+  "sub-menu-content",
+  "flex",
+  "flex-col",
+  "gap-1",
+  "hidden",
+  "max-h-available",
+  "w-available",
+  "overflow-auto",
+  "min-w-52"
+], c5 = [
+  "svg-size",
+  "h-5",
+  "w-5",
+  "pointer-events-none",
+  "group-hover/button:scale-110",
+  "duration-700"
+], p5 = [
+  "time",
+  "flex",
+  "font-mono",
+  "items-center",
+  "pointer-events-none",
+  "select-none",
+  "text-sm"
+], u5 = [
+  "top-bar",
+  "z-10",
+  "flex",
+  "items-start",
+  "justify-between",
+  "w-full",
+  "gap-2",
+  "px-6",
+  "py-4",
+  "pb-[10%]",
+  "mb-auto",
+  "-translate-y-full",
+  "group-[&.nomercyplayer.active]:translate-y-0",
+  "group-[&.nomercyplayer.paused]:translate-y-0",
+  "group-[&.nomercyplayer:has(.open)]:translate-y-0",
+  // 'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
+  "group-[&.nomercyplayer:has(:focus)]:duration-0",
+  "transition-all",
+  "duration-300",
+  "bg-gradient-to-b",
+  "from-black/90",
+  "via-black/50"
+], d5 = [
+  "volume-container",
+  "group/volume",
+  "flex",
+  "overflow-clip"
+], h5 = [
+  "volume-slider",
+  "w-0",
+  "rounded-full",
+  "opacity-0",
+  "duration-300",
+  "group-hover/volume:w-20",
+  "group-hover/volume:mx-2",
+  "group-hover/volume:opacity-100",
+  "group-focus-within/volume:w-20",
+  "group-focus-within/volume:mx-2",
+  "group-focus-within/volume:opacity-100",
+  "appearance-none",
+  "volume-slider",
+  "bg-white/70",
+  "bg-gradient-to-r",
+  "from-white",
+  "to-white",
+  "self-center",
+  "h-1",
+  "bg-no-repeat",
+  "rounded-full",
+  "shadow-sm",
+  "transition-all",
+  "range-track:appearance-none",
+  "range-track:border-none",
+  "range-track:bg-transparent",
+  "range-track:shadow-none",
+  "range-thumb:h-3",
+  "range-thumb:w-3",
+  "range-thumb:appearance-none",
+  "range-thumb:rounded-full",
+  "range-thumb:bg-white",
+  "range-thumb:shadow-sm",
+  "range-thumb:border-none"
+], y5 = [
+  "player-message",
+  "hidden",
+  "absolute",
+  "rounded-md",
+  "bg-neutral-900/95",
+  "left-1/2",
+  "px-4",
+  "py-2",
+  "pointer-events-none",
+  "text-center",
+  "top-12",
+  "-translate-x-1/2",
+  "z-50"
+], m5 = [
+  "playlist-menu-button",
+  "relative",
+  "flex",
+  "w-available",
+  "p-2",
+  "gap-2",
+  "rounded-lg",
+  "snap-center",
+  "outline-transparent",
+  "outline",
+  "outline-1",
+  "outline-solid",
+  "text-white",
+  "focus-visible:outline-2",
+  "focus-visible:outline-white",
+  "transition-all",
+  "duration-300",
+  "hover:bg-neutral-600/20"
+], f5 = [
+  "episode-menu-button-left",
+  "relative",
+  "rounded-md",
+  "w-[30%]",
+  "h-available",
+  "overflow-clip",
+  "self-center",
+  "pointer-events-none"
+], g5 = [
+  "episode-menu-button-shadow",
+  "bg-[linear-gradient(0deg,rgba(0,0,0,0.87)_0%,rgba(0,0,0,0.7)_25%,rgba(0,0,0,0)_50%,rgba(0,0,0,0)_100%)]",
+  "shadow-[inset_0px_1px_0px_rgba(255,255,255,0.24),inset_0px_-1px_0px_rgba(0,0,0,0.24),inset_0px_-2px_0px_rgba(0,0,0,0.24)]",
+  "bottom-0",
+  "left-0",
+  "absolute",
+  "!h-available",
+  "w-available"
+], b5 = [
+  "episode-menu-button-image",
+  "w-available",
+  "h-auto",
+  "aspect-video",
+  "object-cover",
+  ""
+], L5 = [
+  "episode-menu-progress-container",
+  "absolute",
+  "bottom-0",
+  "w-available",
+  "flex",
+  "flex-col",
+  "px-3"
+], v5 = [
+  "episode-menu-progress-box",
+  "flex",
+  "justify-between",
+  "h-available",
+  "sm:mx-2",
+  "mb-1",
+  "px-1"
+], x5 = [
+  "progress-item-text",
+  "text-[0.7rem]",
+  ""
+], w5 = [
+  "progress-duration",
+  "text-[0.7rem]"
+], M5 = [
+  "slider-container",
+  "hidden",
+  "rounded-md",
+  "overflow-clip",
+  "bg-gray-500/80",
+  "h-1",
+  "mb-2",
+  "mx-1",
+  "sm:mx-2"
+], V5 = [
+  "progress-bar",
+  "bg-white"
+], S5 = [
+  "playlist-card-right",
+  "w-3/4",
+  "flex",
+  "flex-col",
+  "text-left",
+  "gap-1",
+  "pointer-events-none"
+], H5 = [
+  "playlist-menu-button-title",
+  "font-bold",
+  "line-clamp-1",
+  "text-white",
+  ""
+], Z5 = [
+  "playlist-menu-button-overview",
+  "text-[0.7rem]",
+  "leading-[1rem]",
+  "line-clamp-4",
+  "overflow-hidden",
+  "text-white",
+  ""
+], k5 = [
+  "tooltip",
+  "hidden",
+  "absolute",
+  "left-0",
+  "bottom-0",
+  "z-50",
+  "px-3",
+  "py-2",
+  "text-xs",
+  "text-white",
+  "rounded-lg",
+  "font-medium",
+  "bg-neutral-900/95",
+  "pointer-events-none"
+], T5 = [
+  "absolute",
+  "inset-0",
+  "hidden",
+  "w-available",
+  "h-available",
+  "z-50",
+  "grid",
+  "pointer-events-none",
+  "place-content-center"
+], E5 = [
+  "flex",
+  "flex-col",
+  "items-center",
+  "gap-4",
+  "mt-11"
+], B5 = [
+  "inline",
+  "w-12",
+  "h-12",
+  "mr-2",
+  "animate-spin",
+  "text-white/20",
+  "fill-white"
+], z5 = [
+  "text-white",
+  "text-lg",
+  "font-bold"
+], P5 = [
+  "episode-tip",
+  "hidden",
+  "absolute",
+  "left-0",
+  "-bottom-10",
+  "z-50",
+  "!w-96",
+  "h-24",
+  "px-2",
+  "gap-2",
+  "py-2",
+  "text-xs",
+  "text-white",
+  "rounded-lg",
+  "font-medium",
+  "bg-neutral-900/95"
+], I5 = [
+  "next-tip-text",
+  "relative",
+  "rounded-sm",
+  "w-[40%]",
+  "overflow-clip",
+  "self-center",
+  ""
+], A5 = [
+  "playlist-card-image",
+  "w-available",
+  "h-auto",
+  "aspect-video",
+  "object-cover",
+  "rounded-md",
+  ""
+], $5 = [
+  "next-tip-left",
+  "relative",
+  "rounded-sm",
+  "w-[40%]",
+  "overflow-clip",
+  "self-center",
+  ""
+], G5 = [
+  "next-tip-right",
+  "w-[60%]",
+  "flex",
+  "flex-col",
+  "text-left",
+  "gap-1"
+], R5 = [
+  "next-tip-header",
+  "font-bold",
+  ""
+], U5 = [
+  "next-tip-title",
+  "font-bold",
+  "text-white"
+], F5 = [
+  "next-up",
+  "flex",
+  "gap-2",
+  "absolute",
+  "right-4",
+  "bottom-8",
+  "!w-80",
+  "h-24",
+  "px-2",
+  "py-2",
+  "z-50"
+], O5 = [
+  "next-up-credits-button",
+  "bg-neutral-900/95",
+  "block",
+  "!text-[0.9rem]",
+  "font-bold",
+  "!text-neutral-100",
+  "!py-1.5",
+  "w-[45%]",
+  "outline",
+  "outline-transparent",
+  "focus-visible:outline-2",
+  "focus-visible:outline-white",
+  "active:outline-white",
+  ""
+], N5 = [
+  "next-up-next-button",
+  "animated",
+  "bg-neutral-100",
+  "w-[55%]",
+  "outline",
+  "outline-transparent",
+  "focus-visible:outline-2",
+  "focus-visible:outline-white",
+  "active:outline-white",
+  ""
+], j5 = [
+  "relative",
+  "h-auto",
+  "-mb-28",
+  "w-available",
+  "translate-y-[80vh]",
+  "z-40",
+  "w-available"
+], _5 = [
+  "relative",
+  "flex",
+  "h-available",
+  "w-available",
+  "overflow-auto",
+  "px-[calc(100%/2.14)]",
+  "gap-1.5",
+  "scrollbar-none"
+], q5 = [
+  "[--gap:1.5rem]",
+  "absolute",
+  "flex",
+  "h-available",
+  "w-available",
+  "gap-[var(--gap)]",
+  "z-10",
+  "pointer-events-none"
+], W5 = [
+  "w-[calc(26%+(var(--gap)/2))]",
+  "h-auto",
+  "object-cover",
+  "aspect-video",
+  "border-4",
+  "mx-auto",
+  ""
+], X5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  bottomBarShadowStyles: O1,
+  bottomBarStyles: F1,
+  buttonStyles: N1,
+  chapterBarStyles: j1,
+  chapterMarkerBGStyles: q1,
+  chapterMarkerBufferStyles: W1,
+  chapterMarkerHoverStyles: X1,
+  chapterMarkerProgressStyles: Q1,
+  chapterMarkersStyles: _1,
+  chapterTextStyles: D1,
+  dividerStyles: Y1,
+  episodeMenuButtonImageStyles: b5,
+  episodeMenuButtonLeftStyles: f5,
+  episodeMenuButtonOverviewStyles: Z5,
+  episodeMenuButtonRightSideStyles: S5,
+  episodeMenuButtonShadowStyles: g5,
+  episodeMenuButtonTitleStyles: H5,
+  episodeMenuProgressBoxStyles: v5,
+  episodeMenuProgressContainerStyles: L5,
+  iconStyles: K1,
+  nextTipHeaderStyles: R5,
+  nextTipImageStyles: A5,
+  nextTipLeftSideStyles: $5,
+  nextTipRightSideStyles: G5,
+  nextTipStyles: P5,
+  nextTipTextStyles: I5,
+  nextTipTitleStyles: U5,
+  nextUpCreditsButtonStyles: O5,
+  nextUpNextButtonStyles: N5,
+  nextUpStyles: F5,
+  playerMessageStyles: y5,
+  playlistMenuButtonStyles: m5,
+  progressBarStyles: V5,
+  progressContainerDurationTextStyles: w5,
+  progressContainerItemTextStyles: x5,
+  roleStyles: E5,
+  scrollContainerStyles: J1,
+  seekContainerStyles: j5,
+  seekScrollCloneStyles: q5,
+  seekScrollContainerStyles: _5,
+  sliderBarStyles: e5,
+  sliderBufferStyles: t5,
+  sliderContainerStyles: M5,
+  sliderHoverStyles: s5,
+  sliderNippleStyles: r5,
+  sliderPopImageStyles: i5,
+  sliderPopStyles: o5,
+  sliderProgressStyles: l5,
+  sliderTextStyles: n5,
+  speedButtonTextStyles: a5,
+  spinnerContainerStyles: T5,
+  spinnerStyles: B5,
+  statusTextStyles: z5,
+  subMenuContentStyles: C5,
+  svgSizeStyles: c5,
+  thumbnailCloneStyles: W5,
+  timeStyles: p5,
+  tooltipStyles: k5,
+  topBarStyles: u5,
+  volumeContainerStyles: d5,
+  volumeSliderStyles: h5
+}, Symbol.toStringTag, { value: "Module" }));
+class K5 extends i1 {
   constructor() {
-    super(...arguments);
-    K(this, U);
-    this.player = {}, this.overlay = {}, this.topBar = {}, this.bottomRow = {}, this.frame = {}, this.chapters = [], this.timer = {}, this.isMouseDown = !1, this.isScrubbing = !1, this.menuOpen = !1, this.mainMenuOpen = !1, this.languageMenuOpen = !1, this.subtitlesMenuOpen = !1, this.qualityMenuOpen = !1, this.speedMenuOpen = !1, this.playlistMenuOpen = !1, this.theaterModeEnabled = !1, this.pipEnabled = !1, this.previewTime = [], this.sliderPopImage = {}, this.chapterBar = {}, this.bottomBar = {}, this.topRow = {}, this.nextUp = {}, this.currentTimeFile = "", this.buttons = {}, this.tooltip = {}, this.sliderBar = {}, this.currentScrubTime = 0, this.imageBaseUrl = "", this.timeout = {}, this.currentMenu = null, this.thumbs = [], this.image = "", this.disablePauseScreen = !1, this.disableOverlay = !1, this.seekContainer = {}, this.shouldSlide = !1, this.thumbnail = {}, this.controlsVisible = !1, this.menuFrame = {}, this.mainMenu = {}, this.makeStyles = (i) => this.mergeStyles(`${i}`, Tt[i]);
+    super(...arguments), this.player = {}, this.overlay = {}, this.buttons = {}, this.chapterBar = {}, this.mainMenu = {}, this.menuFrame = {}, this.nextUp = {}, this.seekContainer = {}, this.sliderBar = {}, this.sliderPopImage = {}, this.thumbnail = {}, this.episodeScrollContainer = {}, this.chapters = [], this.previewTime = [], this.timer = {}, this.timeout = {}, this.image = "", this.controlsVisible = !1, this.currentScrubTime = 0, this.imageBaseUrl = "", this.isScrubbing = !1, this.menuOpen = !1, this.mainMenuOpen = !1, this.languageMenuOpen = !1, this.subtitlesMenuOpen = !1, this.qualityMenuOpen = !1, this.speedMenuOpen = !1, this.playlistMenuOpen = !1, this.theaterModeEnabled = !1, this.shouldSlide = !1, this.currentTimeFile = "", this.currentMenu = null, this.thumbs = [], this.makeStyles = (s) => this.mergeStyles(`${s}`, X5[s]);
   }
-  initialize(i) {
-    this.player = i, this.overlay = i.overlay, this.buttons = he(), this.imageBaseUrl = i.options.basePath ? "" : "https://image.tmdb.org/t/p/w185";
-  }
-  use() {
-    this.topBar = this.createTopBar(this.overlay), this.createBackButton(this.topBar), this.createCloseButton(this.topBar), this.createDivider(this.topBar);
-    const i = this.createTvCurrentItem(this.topBar);
-    this.player.addClasses(i, [
-      "px-2",
-      "pt-2",
-      "z-0"
-    ]), this.player.options.disableTouchControls || this.createCenter(this.overlay), this.bottomBar = this.createBottomBar(this.overlay), this.bottomBar.onmouseleave = (e) => {
-      var l;
-      const s = (l = this.player.getVideoElement()) == null ? void 0 : l.getBoundingClientRect();
-      !s || e.x > s.left && e.x < s.right && e.y > s.top && e.y < s.bottom || this.player.emit("hide-tooltip");
-    }, this.topRow = this.createTopRow(this.bottomBar), this.player.addClasses(this.topRow, ["mt-4"]), this.bottomRow = this.createBottomRow(this.bottomBar), this.createProgressBar(this.topRow), this.createPlaybackButton(this.bottomRow, !0), this.createPreviousButton(this.bottomRow, !0), this.createSeekBackButton(this.bottomRow, !0), this.createSeekForwardButton(this.bottomRow, !0), this.createNextButton(this.bottomRow, !0), this.createVolumeButton(this.bottomRow, !0), this.createTime(this.bottomRow, "current", ["ml-2"]), this.createDivider(this.bottomRow), this.createTime(this.bottomRow, "remaining", ["mr-2"]), this.createTheaterButton(this.bottomRow, !0), this.createPIPButton(this.bottomRow, !0), this.createPlaylistsButton(this.bottomRow, !0), this.createSpeedButton(this.bottomRow, !0), this.createCaptionsButton(this.bottomRow, !0), this.createAudioButton(this.bottomRow, !0), this.createQualityButton(this.bottomRow, !0), this.createSettingsButton(this.bottomRow, !0), this.createFullscreenButton(this.bottomRow, !0), this.frame = this.createMenuFrame(this.bottomRow), this.createMainMenu(this.frame), this.createToolTip(this.overlay), this.createEpisodeTip(this.overlay), this.createNextUp(this.overlay), this.modifySpinner(this.overlay), this.eventHandlers(), this.player.plugins.desktopUIPlugin = {};
-    let t = this;
-    do
-      Object.getOwnPropertyNames(t).forEach((e) => {
-        const s = this[e];
-        typeof s == "function" ? this.player.plugins.desktopUIPlugin[e] = s.bind(this) : this.player.plugins.desktopUIPlugin[e] = s;
-      });
-    while ((t = Object.getPrototypeOf(t)) !== null);
+  initialize(s) {
+    this.player = s, this.overlay = s.overlay, this.buttons = a1(), this.imageBaseUrl = s.options.basePath ? "" : "https://image.tmdb.org/t/p/w185";
   }
   dispose() {
-    clearTimeout(this.timer), clearTimeout(this.timeout), this.overlay && this.overlay.parentNode && this.overlay.parentNode.removeChild(this.overlay), this.bottomBar && this.bottomBar.parentNode && this.bottomBar.parentNode.removeChild(this.bottomBar), this.topBar && this.topBar.parentNode && this.topBar.parentNode.removeChild(this.topBar), this.frame && this.frame.parentNode && this.frame.parentNode.removeChild(this.frame), this.tooltip && this.tooltip.parentNode && this.tooltip.parentNode.removeChild(this.tooltip), this.nextUp && this.nextUp.parentNode && this.nextUp.parentNode.removeChild(this.nextUp), this.sliderBar && this.sliderBar.parentNode && this.sliderBar.parentNode.removeChild(this.sliderBar), this.chapterBar && this.chapterBar.parentNode && this.chapterBar.parentNode.removeChild(this.chapterBar), this.thumbnail && this.thumbnail.parentNode && this.thumbnail.parentNode.removeChild(this.thumbnail), this.player.plugins.desktopUIPlugin = void 0, this.chapters = [], this.previewTime = [];
+    clearTimeout(this.timer), clearTimeout(this.timeout), this.player.plugins.desktopUIPlugin = void 0, this.chapters = [], this.previewTime = [], this.overlay && this.overlay.parentNode && this.overlay.parentNode.removeChild(this.overlay);
   }
-  createBottomBar(i) {
-    const t = this.player.createElement("div", "bottom-bar").addClasses(this.makeStyles("bottomBarStyles")).appendTo(i);
-    return this.player.createElement("div", "bottom-bar-shadow").addClasses(this.makeStyles("bottomBarShadowStyles")).appendTo(t), t;
-  }
-  createTopRow(i) {
-    return this.player.createElement("div", "top-row").addClasses(this.makeStyles("topRowStyles")).appendTo(i);
-  }
-  createBottomRow(i) {
-    return this.player.createElement("div", "bottom-row").addClasses(this.makeStyles("bottomRowStyles")).appendTo(i);
-  }
-  eventHandlers() {
-    this.player.on("controls", (i) => {
-      var t, e;
-      this.player.getElement() && (i ? (t = this.player.getElement()) == null || t.setAttribute("active", "true") : (e = this.player.getElement()) == null || e.setAttribute("active", "false"));
-    }), this.player.on("chapters", () => {
-      this.createChapterMarkers();
-    }), this.player.on("back-button-hyjack", () => {
-      switch (this.currentMenu) {
-        case "episode":
-        case "language":
-        case "quality":
-          this.player.emit("showPauseScreen");
-          break;
-        case "seek":
-        case "pause":
-          this.seekContainer.style.transform = "", this.player.play();
-          break;
-        default:
-          this.player.hasBackEventHandler ? this.player.emit("back") : history.back();
-          break;
-      }
-    }), window.addEventListener("resize", () => {
-      this.sizeMenuFrame();
-    });
+  scrollIntoView(s) {
+    const e = s.parentElement, l = s.getBoundingClientRect().left + s.offsetWidth / 2 - e.offsetWidth / 2, r = e.scrollLeft, n = performance.now();
+    function o(a) {
+      const p = a - n, u = Math.min(p / 200, 1);
+      e.scrollTo(r + l * u, 0), p < 200 && requestAnimationFrame(o);
+    }
+    requestAnimationFrame(o);
   }
   /**
    * Merges the default styles with the styles for a specific style name.
@@ -3781,1239 +3164,61 @@ class cs extends ce {
    * @param defaultStyles - The default styles to merge.
    * @returns An array containing the merged styles.
    */
-  mergeStyles(i, t) {
-    var s;
-    const e = ((s = this.player.options.styles) == null ? void 0 : s[i]) || [];
+  mergeStyles(s, t) {
+    var l;
+    const e = ((l = this.player.options.styles) == null ? void 0 : l[s]) || [];
     return [...t, ...e];
   }
-  createTopBar(i) {
-    return this.player.createElement("div", "top-bar").addClasses(this.makeStyles("topBarStyles")).appendTo(i);
-  }
-  createCenter(i) {
-    const t = this.player.createElement("div", "center").addClasses(this.makeStyles("centerStyles")).appendTo(i);
-    return this.createSpinnerContainer(t), this.player.isMobile() ? (this.createTouchSeekBack(t, { x: { start: 1, end: 1 }, y: { start: 2, end: 6 } }), this.createTouchPlayback(t, { x: { start: 2, end: 2 }, y: { start: 3, end: 5 } }), this.createTouchSeekForward(t, { x: { start: 3, end: 3 }, y: { start: 2, end: 6 } }), this.createTouchVolUp(t, { x: { start: 2, end: 2 }, y: { start: 1, end: 3 } }), this.createTouchVolDown(t, { x: { start: 2, end: 2 }, y: { start: 5, end: 7 } })) : (this.createTouchSeekBack(t, { x: { start: 1, end: 2 }, y: { start: 2, end: 6 } }), this.createTouchPlayback(t, { x: { start: 2, end: 3 }, y: { start: 2, end: 6 } }), this.createTouchSeekForward(t, { x: { start: 3, end: 4 }, y: { start: 2, end: 6 } })), t;
-  }
-  createTouchSeekBack(i, t) {
-    const e = this.createTouchBox(i, "touchSeekBack", t);
-    return ["click"].forEach((s) => {
-      e.addEventListener(s, this.doubleTap(() => {
-        this.player.rewindVideo();
-      }));
-    }), this.createSeekRipple(e, "left"), e;
-  }
-  /**
-   * Attaches a double tap event listener to the element.
-   * @param callback - The function to execute when a double tap event occurs.
-   * @param callback2 - An optional function to execute when a second double tap event occurs.
-   * @returns A function that detects double tap events.
-   */
-  doubleTap(i, t) {
-    const e = this.player.options.doubleClickDelay ?? 500;
-    let s = 0, l, a;
-    return function(o, h) {
-      const d = (/* @__PURE__ */ new Date()).getTime(), p = d - s;
-      p > 0 && p < e ? (o.preventDefault(), i(o), clearTimeout(a)) : (l = setTimeout(() => {
-        clearTimeout(l);
-      }, e), a = setTimeout(() => {
-        t == null || t(h);
-      }, e)), s = d;
-    };
-  }
-  createTouchSeekForward(i, t) {
-    const e = this.createTouchBox(i, "touchSeekForward", t);
-    return ["mouseup", "touchend"].forEach((s) => {
-      e.addEventListener(s, this.doubleTap(() => {
-        this.player.forwardVideo();
-      }));
-    }), this.createSeekRipple(e, "right"), e;
-  }
-  createTouchPlayback(i, t, e = !1) {
-    const s = this.createTouchBox(i, "touchPlayback", t);
-    this.player.addClasses(s, this.makeStyles("touchPlaybackStyles")), ["click"].forEach((a) => {
-      s.addEventListener(a, this.doubleTap(
-        () => this.player.getFullscreen(),
-        () => {
-          (this.controlsVisible || !this.player.options.disableTouchControls) && this.player.togglePlayback();
-        }
-      ));
-    });
-    const l = this.createSVGElement(s, "bigPlay", this.buttons.bigPlay, !1, e);
-    return this.player.addClasses(l, this.makeStyles("touchPlaybackButtonStyles")), this.player.on("ready", () => {
-      l.style.display = "flex";
-    }), this.player.on("pause", () => {
-      l.style.display = "flex";
-    }), this.player.on("play", () => {
-      l.style.display = "none";
-    }), this.player.on("firstFrame", () => {
-      l.style.display = "none";
-    }), s;
-  }
-  createTouchVolUp(i, t) {
-    if (!this.player.isMobile())
-      return;
-    const e = this.createTouchBox(i, "touchVolUp", t);
-    return ["click"].forEach((s) => {
-      e.addEventListener(s, this.doubleTap(() => {
-        this.player.volumeUp();
-      }));
-    }), e;
-  }
-  createTouchVolDown(i, t) {
-    if (!this.player.isMobile())
-      return;
-    const e = this.createTouchBox(i, "touchVolDown", t);
-    return ["click"].forEach((s) => {
-      e.addEventListener(s, this.doubleTap(() => {
-        this.player.volumeDown();
-      }));
-    }), e;
-  }
-  createTouchBox(i, t, e) {
-    const s = this.player.createElement("div", `touch-box-${t}`).addClasses([`touch-box-${t}`, "z-40"]).appendTo(i);
-    return s.style.gridColumnStart = e.x.start.toString(), s.style.gridColumnEnd = e.x.end.toString(), s.style.gridRowStart = e.y.start.toString(), s.style.gridRowEnd = e.y.end.toString(), i.appendChild(s), s;
-  }
-  createDivider(i, t) {
-    const e = this.player.createElement("div", "divider").addClasses(this.makeStyles("dividerStyles")).appendTo(i);
-    return t ? e.innerHTML = t : this.player.addClasses(e, this.makeStyles("dividerStyles")), e;
-  }
-  createSVGElement(i, t, e, s = !1, l = !1) {
-    const a = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    a.setAttribute("viewBox", "0 0 24 24"), a.id = t, this.player.addClasses(a, as([
+  createSVGElement(s, t, e, l = !1, r = !1) {
+    const n = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    n.setAttribute("viewBox", "0 0 24 24"), n.id = t, this.player.addClasses(n, U1([
       `${t}-icon`,
       ...this.makeStyles("svgSizeStyles"),
       ...this.makeStyles("iconStyles"),
-      s ? "hidden" : "flex",
+      l ? "hidden" : "flex",
       ...e.classes
     ]).split(" "));
-    const r = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    r.setAttribute("d", l ? e.normal : e.hover), this.player.addClasses(r, [
+    const o = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    o.setAttribute("d", r ? e.normal : e.hover), this.player.addClasses(o, [
       "group-hover/button:hidden",
       "group-hover/volume:hidden"
-    ]), a.appendChild(r);
-    const o = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    return o.setAttribute("d", l ? e.hover : e.normal), this.player.addClasses(o, [
+    ]), n.appendChild(o);
+    const a = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    return a.setAttribute("d", r ? e.hover : e.normal), this.player.addClasses(a, [
       "hidden",
       "group-hover/button:flex",
       "group-hover/volume:flex"
-    ]), a.appendChild(o), !i.classList.contains("menu-button") && l && (i.addEventListener("mouseenter", () => {
+    ]), n.appendChild(a), !s.classList.contains("menu-button") && r && (s.addEventListener("mouseenter", () => {
       if (e.title.length == 0 || ["Next", "Previous"].includes(e.title) && this.player.hasNextTip || e.title == "Fullscreen" && this.player.getFullscreen() || e.title == "Exit fullscreen" && !this.player.getFullscreen() || e.title == "Play" && this.player.isPlaying || e.title == "Pause" && !this.player.isPlaying || e.title == "Mute" && this.player.isMuted() || e.title == "Unmute" && !this.player.isMuted())
         return;
-      const h = `${this.player.localize(e.title)} ${this.getButtonKeyCode(t)}`, d = this.player.getElement().getBoundingClientRect(), p = i.getBoundingClientRect();
-      let u = Math.abs(d.left - (p.left + p.width * 0.5) - h.length * 0.5);
-      const y = Math.abs(d.bottom - (p.bottom + p.height * 1.2));
-      u < 35 && (u = 35), u > d.right - d.left - 75 && (u = d.right - d.left - 75), this.player.emit("show-tooltip", {
-        text: h,
+      const p = `${this.player.localize(e.title)} ${this.getButtonKeyCode(t)}`, u = this.player.getElement().getBoundingClientRect(), c = s.getBoundingClientRect();
+      let d = Math.abs(u.left - (c.left + c.width * 0.5) - p.length * 0.5);
+      const L = Math.abs(u.bottom - (c.bottom + c.height * 1.2));
+      d < 35 && (d = 35), d > u.right - u.left - 75 && (d = u.right - u.left - 75), this.player.emit("show-tooltip", {
+        text: p,
         currentTime: "bottom",
-        x: `${u}px`,
-        y: `-${y}px`
+        x: `${d}px`,
+        y: `-${L}px`
       });
-    }), i.addEventListener("mouseleave", () => {
+    }), s.addEventListener("mouseleave", () => {
       this.player.emit("hide-tooltip");
-    })), i.appendChild(a), a;
+    })), s.appendChild(n), n;
   }
-  createUiButton(i, t) {
-    var s;
-    const e = this.player.createElement("button", t).addClasses(this.makeStyles("buttonStyles")).appendTo(i);
-    return e.ariaLabel = (s = this.buttons[t]) == null ? void 0 : s.title, e.addEventListener("keydown", (l) => {
-      l.key === "Backspace" && (e.blur(), this.player.emit("show-menu", !1)), l.key === "Escape" && (e.blur(), this.player.emit("show-menu", !1));
-    }), e;
+  modifySpinner(s) {
+    this.player.createElement("h2", "loader").addClasses(["loader", "pointer-events-none"]).appendTo(s);
   }
-  createSettingsButton(i, t = !1) {
-    if (!this.player.hasSpeeds() && !this.player.hasAudioTracks() && !this.player.hasCaptions())
-      return;
-    const e = this.createUiButton(
-      i,
-      "settings"
-    );
-    return this.createSVGElement(e, "settings", this.buttons.settings, !1, t), e.addEventListener("click", () => {
-      this.player.emit("hide-tooltip"), this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !1) : !this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !0) : this.menuOpen && !this.mainMenuOpen ? (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0)) : (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0));
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : e.style.display = "flex";
-    }), i.append(e), e;
-  }
-  createBackButton(i, t = !1) {
-    if (!this.player.hasBackEventHandler)
-      return;
-    const e = this.createUiButton(
-      i,
-      "back"
-    );
-    return i.appendChild(e), this.createSVGElement(e, "back", this.buttons.back, !1, t), e.addEventListener("click", () => {
-      this.player.emit("hide-tooltip"), this.player.emit("back");
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : e.style.display = "flex";
-    }), e;
-  }
-  createCloseButton(i, t = !1) {
-    if (!this.player.hasCloseEventHandler)
-      return;
-    const e = this.createUiButton(
-      i,
-      "close"
-    );
-    return i.appendChild(e), this.createSVGElement(e, "close", this.buttons.close, !1, t), e.addEventListener("click", () => {
-      this.player.emit("hide-tooltip"), this.player.emit("close");
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : e.style.display = "flex";
-    }), e;
-  }
-  createPlaybackButton(i, t = !1) {
-    var a;
-    const e = this.createUiButton(
-      i,
-      "playback"
-    );
-    i.appendChild(e), e.ariaLabel = (a = this.buttons.play) == null ? void 0 : a.title;
-    const s = this.createSVGElement(e, "paused", this.buttons.play, !1, t), l = this.createSVGElement(e, "playing", this.buttons.pause, !0, t);
-    return e.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.togglePlayback(), this.player.emit("hide-tooltip");
-    }), this.player.on("pause", () => {
-      l.style.display = "none", s.style.display = "flex";
-    }), this.player.on("play", () => {
-      s.style.display = "none", l.style.display = "flex";
-    }), this.player.on("item", () => {
-      l.focus();
-    }), e;
-  }
-  createSeekBackButton(i, t = !1) {
-    if (this.player.isMobile())
-      return;
-    const e = this.createUiButton(
-      i,
-      "seekBack"
-    );
-    return this.createSVGElement(e, "seekBack", this.buttons.seekBack, !1, t), e.addEventListener("click", () => {
-      this.player.emit("hide-tooltip"), this.player.rewindVideo();
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : e.style.display = "flex";
-    }), i.append(e), e;
-  }
-  createSeekForwardButton(i, t = !1) {
-    if (this.player.isMobile())
-      return;
-    const e = this.createUiButton(
-      i,
-      "seekForward"
-    );
-    return this.createSVGElement(e, "seekForward", this.buttons.seekForward, !1, t), e.addEventListener("click", () => {
-      this.player.emit("hide-tooltip"), this.player.forwardVideo();
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : e.style.display = "flex";
-    }), i.append(e), e;
-  }
-  createTime(i, t, e) {
-    const s = this.player.createElement("div", `${t}-time`).addClasses([
-      ...e,
-      ...this.makeStyles("timeStyles"),
-      `${t}-time`
-    ]).appendTo(i);
-    switch (s.textContent = "00:00", t) {
-      case "current":
-        this.player.on("time", (l) => {
-          s.textContent = V(l.currentTime);
-        }), this.player.on("currentScrubTime", (l) => {
-          s.textContent = V(l.currentTime);
-        });
-        break;
-      case "remaining":
-        this.player.on("duration", (l) => {
-          l.remaining === 1 / 0 ? s.textContent = "Live" : s.textContent = V(l.remaining);
-        }), this.player.on("time", (l) => {
-          l.remaining === 1 / 0 ? s.textContent = "Live" : s.textContent = V(l.remaining);
-        });
-        break;
-      case "duration":
-        this.player.on("duration", (l) => {
-          l.duration === 1 / 0 ? s.textContent = "Live" : s.textContent = V(l.duration);
-        });
-        break;
-    }
-    return this.player.on("pip-internal", (l) => {
-      l ? s.style.display = "none" : s.style.display = "";
-    }), s;
-  }
-  createVolumeButton(i, t = !1) {
-    var d;
-    if (this.player.isMobile())
-      return;
-    const e = this.player.createElement("div", "volume-container").addClasses(this.makeStyles("volumeContainerStyles")).appendTo(i), s = this.createUiButton(
-      e,
-      "volume"
-    );
-    s.ariaLabel = (d = this.buttons.volumeHigh) == null ? void 0 : d.title;
-    const l = this.player.createElement("input", "volume-slider").addClasses(this.makeStyles("volumeSliderStyles")).appendTo(e);
-    l.type = "range", l.min = "0", l.max = "100", l.step = "1", l.value = this.player.getVolume().toString(), l.style.backgroundSize = `${this.player.getVolume()}% 100%`;
-    const a = this.createSVGElement(s, "volumeMuted", this.buttons.volumeMuted, !0, t), r = this.createSVGElement(s, "volumeLow", this.buttons.volumeLow, !0, t), o = this.createSVGElement(s, "volumeMedium", this.buttons.volumeMedium, !0, t), h = this.createSVGElement(s, "volumeHigh", this.buttons.volumeHigh, !1, t);
-    return s.addEventListener("click", (p) => {
-      p.stopPropagation(), this.player.toggleMute(), this.player.emit("hide-tooltip");
-    }), l.addEventListener("input", (p) => {
-      p.stopPropagation();
-      const u = Math.floor(parseInt(l.value, 10));
-      l.style.backgroundSize = `${u}% 100%`, this.player.setVolume(u);
-    }), e.addEventListener("wheel", (p) => {
-      p.preventDefault();
-      const u = p.deltaY === 0 ? -p.deltaX : -p.deltaY;
-      u !== 0 && (l.style.backgroundSize = `${l.value}% 100%`, l.value = (parseFloat(l.value) + u * 0.5).toString(), this.player.setVolume(parseFloat(l.value)));
-    }, {
-      passive: !0
-    }), this.player.on("volume", (p) => {
-      this.volumeHandle(p, a, r, o, h), l.style.backgroundSize = `${p.volume}% 100%`, l.value = p.volume.toString();
-    }), this.player.on("mute", (p) => {
-      this.volumeHandle(p, a, r, o, h), p.muted ? (l.style.backgroundSize = "0% 100%", l.value = "0") : (l.style.backgroundSize = `${this.player.getVolume()}% 100%`, l.value = this.player.getVolume().toString());
-    }), e;
-  }
-  volumeHandle(i, t, e, s, l) {
-    this.player.getMute() || i.volume == 0 ? (e.style.display = "none", s.style.display = "none", l.style.display = "none", t.style.display = "flex") : i.volume <= 30 ? (s.style.display = "none", l.style.display = "none", t.style.display = "none", e.style.display = "flex") : i.volume <= 60 ? (e.style.display = "none", l.style.display = "none", t.style.display = "none", s.style.display = "flex") : (e.style.display = "none", s.style.display = "none", t.style.display = "none", l.style.display = "flex");
-  }
-  isLastSibbling(i) {
-    return !i.nextElementSibling;
-  }
-  createTvOverlay(i) {
-    const t = this.player.createElement("div", "tv-overlay").addClasses(this.makeStyles("tvOverlayStyles")).appendTo(i), e = this.player.createElement("div", "background").addClasses(this.makeStyles("backgroundStyles")).appendTo(t), s = this.player.createTopBar(t);
-    this.player.addClasses(s, [
-      "px-10",
-      "pt-10",
-      "z-0"
-    ]);
-    const l = this.createBackButton(s, !0);
-    l && this.player.addClasses(l, ["children:stroke-2"]);
-    const a = this.createRestartButton(s, !0);
-    this.player.addClasses(a, ["children:stroke-2"]);
-    const r = this.createNextButton(s, !0);
-    this.player.addClasses(r, ["children:stroke-2"]), this.createDivider(s), this.createTvCurrentItem(s), this.createOverlayCenterMessage(t), this.seekContainer = this.createSeekContainer(t);
-    const o = this.createBottomBar(t), h = this.player.createElement("div", "seek-container").addClasses(this.makeStyles("tvBottomRowStyles")).appendTo(o), d = this.createPlaybackButton(h, !0);
-    this.createTime(h, "current", []), this.createTvProgressBar(h), this.createTime(h, "remaining", ["mr-14"]), this.createNextUp(t), this.player.on("show-seek-container", (u) => {
-      u ? e.style.opacity = "1" : e.style.opacity = "0";
-    }), this.player.on("controls", (u) => {
-      u && this.currentMenu !== "seek" && !this.controlsVisible && d.focus();
-    }), this.player.on("pause", () => {
-      e.style.opacity = "1";
-    }), this.player.on("play", () => {
-      e.style.opacity = "0", this.hideSeekMenu();
-    });
-    let p = l ?? a ?? r;
-    return [l, a, r].forEach((u) => {
-      u == null || u.addEventListener("keydown", (y) => {
-        var m;
-        y.key == "ArrowDown" ? this.nextUp.style.display == "none" ? d == null || d.focus() : (m = this.nextUp.lastChild) == null || m.focus() : y.key == "ArrowLeft" ? (p = y.target.previousElementSibling, p == null || p.focus()) : y.key == "ArrowRight" && (y.preventDefault(), p = y.target.nextElementSibling, p == null || p.focus());
-      });
-    }), [this.nextUp.firstChild, this.nextUp.lastChild].forEach((u) => {
-      u == null || u.addEventListener("keydown", (y) => {
-        var m, f, g;
-        y.key == "ArrowUp" ? (m = p || a) == null || m.focus() : y.key == "ArrowDown" ? d.focus() : y.key == "ArrowLeft" ? (f = this.nextUp.firstChild) == null || f.focus() : y.key == "ArrowRight" && ((g = this.nextUp.lastChild) == null || g.focus());
-      });
-    }), [d].forEach((u) => {
-      u == null || u.addEventListener("keydown", (y) => {
-        var m;
-        y.key == "ArrowUp" && (y.preventDefault(), this.nextUp.style.display == "none" ? p == null || p.focus() : (m = this.nextUp.lastChild) == null || m.focus());
-      });
-    }), [this.player.getVideoElement(), t].forEach((u) => {
-      u == null || u.addEventListener("keydown", (y) => {
-        if (y.key == "ArrowLeft") {
-          if ([l, a, r, this.nextUp.firstChild, this.nextUp.lastChild].includes(y.target))
-            return;
-          if (y.preventDefault(), this.showSeekMenu(), this.shouldSlide)
-            this.currentScrubTime = this.getClosestSeekableInterval(), this.shouldSlide = !1;
-          else {
-            const m = this.currentScrubTime - 10;
-            this.player.emit("currentScrubTime", {
-              ...this.player.videoPlayer_getTimeData(),
-              currentTime: m
-            });
-          }
-        } else if (y.key == "ArrowRight") {
-          if ([l, a, r, this.nextUp.firstChild, this.nextUp.lastChild].includes(y.target))
-            return;
-          if (y.preventDefault(), this.showSeekMenu(), this.shouldSlide)
-            this.currentScrubTime = this.getClosestSeekableInterval(), this.shouldSlide = !1;
-          else {
-            const m = this.currentScrubTime + 10;
-            this.player.emit("currentScrubTime", {
-              ...this.player.videoPlayer_getTimeData(),
-              currentTime: m
-            });
-          }
-        }
-      });
-    }), [this.player.getVideoElement(), d, l, a, r].forEach((u) => {
-      u == null || u.addEventListener("keydown", (y) => {
-        y.key == "ArrowUp" ? (this.disablePauseScreen = !1, this.hideSeekMenu()) : y.key == "ArrowDown" ? (this.disablePauseScreen = !1, this.hideSeekMenu()) : y.key == "Enter" && (this.player.seek(this.currentScrubTime), this.player.play());
-      });
-    }), d.focus(), o;
-  }
-  getClosestSeekableInterval() {
-    const i = this.player.currentTime(), e = this.previewTime.find((s) => i >= s.start && i < s.end);
-    return e == null ? void 0 : e.start;
-  }
-  showSeekMenu() {
-    this.currentMenu = "seek", this.disablePauseScreen = !0, this.player.emit("show-seek-container", !0);
-  }
-  hideSeekMenu() {
-    this.currentMenu = null, this.disablePauseScreen = !1, this.disableOverlay = !1, this.currentMenu = null, this.disablePauseScreen = !1, this.shouldSlide = !0, this.player.emit("show-seek-container", !1);
-  }
-  createSeekContainer(i) {
-    const t = this.player.createElement("div", "seek-container").addClasses(this.makeStyles("seekContainerStyles")).appendTo(i), e = this.player.createElement("div", "seek-scroll-clone-container").addClasses(this.makeStyles("seekScrollCloneStyles")).appendTo(t);
-    this.player.createElement("div", "thumbnail-clone-1").addClasses(this.makeStyles("thumbnailCloneStyles")).appendTo(e);
-    const s = this.player.createElement("div", "seek-scroll-container").addClasses(this.makeStyles("seekScrollContainerStyles")).appendTo(t);
-    return this.player.once("item", () => {
-      this.player.on("preview-time", () => {
-        this.thumbs = [];
-        for (const l of this.previewTime)
-          this.thumbs.push({
-            time: l,
-            el: this.createThumbnail(l)
-          });
-        s.innerHTML = "", this.unique(this.thumbs.map((l) => l.el), "id").forEach((l) => {
-          s.appendChild(l);
-        }), this.player.once("time", () => {
-          this.currentScrubTime = this.getClosestSeekableInterval(), this.player.emit("currentScrubTime", {
-            ...this.player.videoPlayer_getTimeData(),
-            currentTime: this.getClosestSeekableInterval()
-          });
-        });
-      });
-    }), this.player.on("lastTimeTrigger", () => {
-      this.currentScrubTime = this.getClosestSeekableInterval(), this.player.emit("currentScrubTime", {
-        ...this.player.videoPlayer_getTimeData(),
-        currentTime: this.getClosestSeekableInterval()
-      });
-    }), this.player.on("currentScrubTime", (l) => {
-      l.currentTime <= 0 ? l.currentTime = 0 : l.currentTime >= this.player.getDuration() && (l.currentTime = this.player.getDuration() - 10);
-      const a = this.thumbs.find((p) => l.currentTime >= p.time.start && l.currentTime <= p.time.end);
-      if (this.currentScrubTime = l.currentTime, !a)
-        return;
-      J(this, U, oe).call(this, a.el);
-      const r = this.thumbs.findIndex((p) => p.el == a.el);
-      if (!r)
-        return;
-      const o = 3, h = r - o, d = r + o;
-      for (const [p, u] of this.thumbs.entries())
-        p > h && p < d ? u.el.style.opacity = "1" : u.el.style.opacity = "0";
-    }), this.player.on("show-seek-container", (l) => {
-      l ? (t.style.transform = "none", this.player.pause()) : this.seekContainer.style.transform = "";
-    }), t;
-  }
-  createTvCurrentItem(i) {
-    const t = this.player.createElement("div", "current-item-container").addClasses(this.makeStyles("tvCurrentItemContainerStyles")).appendTo(i), e = this.player.createElement("div", "current-item-show").addClasses(this.makeStyles("tvCurrentItemShowStyles")).appendTo(t), s = this.player.createElement("div", "current-item-title-container").addClasses(this.makeStyles("tvCurrentItemTitleContainerStyles")).appendTo(t), l = this.player.createElement("div", "current-item-episode").addClasses(this.makeStyles("tvCurrentItemEpisodeStyles")).appendTo(s), a = this.player.createElement("div", "current-item-title").addClasses(this.makeStyles("tvCurrentItemTitleStyles")).appendTo(s);
-    return this.player.on("item", () => {
-      var o, h;
-      const r = this.player.playlistItem();
-      e.innerHTML = this.breakLogoTitle(r.show ?? ""), l.innerHTML = "", r.season && (l.innerHTML += `${this.player.localize("S")}${r.season}`), r.season && r.episode && (l.innerHTML += `: ${this.player.localize("E")}${r.episode}`), a.innerHTML = ((o = r.title) == null ? void 0 : o.replace(r.show ?? "", "").length) > 0 ? `"${(h = r.title) == null ? void 0 : h.replace(r.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E"))}"` : "";
-    }), t;
-  }
-  createPreviousButton(i, t = !1) {
-    if (this.player.isMobile())
-      return;
-    const e = this.createUiButton(
-      i,
-      "previous"
-    );
-    return e.style.display = "none", this.createSVGElement(e, "previous", this.buttons.previous, !1, t), e.addEventListener("click", (s) => {
-      s.stopPropagation(), this.player.previous(), this.player.emit("hide-tooltip");
-    }), this.player.on("item", () => {
-      this.player.getPlaylistIndex() > 0 ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : (this.player.playlistItem().episode ?? -0 - 1 == 0) && (e.style.display = "flex");
-    }), e.addEventListener("mouseenter", () => {
-      const s = e.getBoundingClientRect(), l = i.getBoundingClientRect();
-      let a = Math.abs(l.left - s.left + 50);
-      const r = Math.abs(l.bottom - s.bottom - 60);
-      a < 30 && (a = 30), a > s.right - s.left - 10 && (a = s.right - s.left - 10), this.player.emit("show-episode-tip", {
-        direction: "previous",
-        currentTime: "bottom",
-        x: `${a}px`,
-        y: `-${r}px`
-      });
-    }), e.addEventListener("mouseleave", () => {
-      this.player.emit("hide-episode-tip");
-    }), i.appendChild(e), e;
-  }
-  createNextButton(i, t = !1) {
-    const e = this.createUiButton(
-      i,
-      "next"
-    );
-    return e.style.display = "none", this.player.hasNextTip = !0, this.createSVGElement(e, "next", this.buttons.next, !1, t), e.addEventListener("click", (s) => {
-      s.stopPropagation(), this.player.next(), this.player.emit("hide-tooltip");
-    }), this.player.on("item", () => {
-      this.player.isLastPlaylistItem() ? e.style.display = "none" : e.style.display = "flex";
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : this.player.isLastPlaylistItem() && (e.style.display = "flex");
-    }), e.addEventListener("mouseenter", () => {
-      const s = e.getBoundingClientRect(), l = i.getBoundingClientRect();
-      let a = Math.abs(l.left - s.left + 50);
-      const r = Math.abs(l.bottom - s.bottom - 60);
-      a < 30 && (a = 30), a > s.right - s.left - 10 && (a = s.right - s.left - 10), this.player.emit("show-episode-tip", {
-        direction: "next",
-        currentTime: "bottom",
-        x: `${a}px`,
-        y: `-${r}px`
-      });
-    }), e.addEventListener("mouseleave", () => {
-      this.player.emit("hide-episode-tip");
-    }), i.appendChild(e), e;
-  }
-  createRestartButton(i, t = !1) {
-    const e = this.createUiButton(
-      i,
-      "restart"
-    );
-    return i.appendChild(e), this.createSVGElement(e, "restart", this.buttons.restart, !1, t), e.addEventListener("click", (s) => {
-      s.stopPropagation(), this.player.restart();
-    }), e;
-  }
-  createCaptionsButton(i, t = !1) {
-    var a;
-    const e = this.createUiButton(
-      i,
-      "subtitles"
-    );
-    e.style.display = "none", e.ariaLabel = (a = this.buttons.subtitles) == null ? void 0 : a.title;
-    const s = this.createSVGElement(e, "subtitle", this.buttons.subtitlesOff, !1, t), l = this.createSVGElement(e, "subtitled", this.buttons.subtitles, !0, t);
-    return e.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.emit("hide-tooltip"), this.subtitlesMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-subtitles-menu", !0), this.menuFrame.showModal());
-    }), this.player.on("captionsList", (r) => {
-      r.length > 1 ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("captionsChanging", (r) => {
-      r.id == -1 ? (l.style.display = "none", s.style.display = "flex") : (l.style.display = "flex", s.style.display = "none");
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : this.player.hasCaptions() && (e.style.display = "flex");
-    }), i.appendChild(e), e;
-  }
-  createAudioButton(i, t = !1) {
-    var s;
-    const e = this.createUiButton(
-      i,
-      "audio"
-    );
-    return e.style.display = "none", e.ariaLabel = (s = this.buttons.language) == null ? void 0 : s.title, this.createSVGElement(e, "audio", this.buttons.languageOff, !1, t), e.addEventListener("click", (l) => {
-      l.stopPropagation(), this.player.emit("hide-tooltip"), this.languageMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-language-menu", !0), this.menuFrame.showModal());
-    }), this.player.on("item", () => {
-      e.style.display = "none";
-    }), this.player.on("audioTracks", (l) => {
-      l.length > 1 ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : this.player.hasAudioTracks() && (e.style.display = "flex");
-    }), i.appendChild(e), e;
-  }
-  createQualityButton(i, t = !1) {
-    const e = this.createUiButton(
-      i,
-      "quality"
-    );
-    e.style.display = "none";
-    const s = this.createSVGElement(e, "low", this.buttons.quality, !1, t), l = this.createSVGElement(e, "high", this.buttons.quality, !0, t);
-    return e.addEventListener("click", (a) => {
-      a.stopPropagation(), this.player.emit("hide-tooltip"), this.qualityMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-quality-menu", !0), this.menuFrame.showModal()), this.player.highQuality ? (this.player.highQuality = !1, l.style.display = "none", s.style.display = "flex") : (this.player.highQuality = !0, s.style.display = "none", l.style.display = "flex");
-    }), this.player.on("item", () => {
-      e.style.display = "none";
-    }), this.player.on("levels", () => {
-      this.player.hasQualities() ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (a) => {
-      a ? e.style.display = "none" : this.player.hasQualities() && (e.style.display = "flex");
-    }), i.appendChild(e), e;
-  }
-  createTheaterButton(i, t = !1) {
-    if (this.player.isMobile() || !this.player.hasTheaterEventHandler)
-      return;
-    const e = this.createUiButton(
-      i,
-      "theater"
-    );
-    return this.createSVGElement(e, "theater", this.buttons.theater, t), this.createSVGElement(e, "theater-enabled", this.buttons.theaterExit, !0, t), e.addEventListener("click", (s) => {
-      s.stopPropagation(), this.player.emit("hide-tooltip"), this.theaterModeEnabled ? (this.theaterModeEnabled = !1, e.querySelector(".theater-enabled-icon").style.display = "none", e.querySelector(".theater-icon").style.display = "flex", this.player.emit("theaterMode", !1), this.player.emit("resize")) : (this.theaterModeEnabled = !0, e.querySelector(".theater-icon").style.display = "none", e.querySelector(".theater-enabled-icon").style.display = "flex", this.player.emit("theaterMode", !0), this.player.emit("resize"));
-    }), this.player.on("fullscreen", () => {
-      this.player.getFullscreen() ? e.style.display = "none" : e.style.display = "flex";
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : e.style.display = "flex";
-    }), i.appendChild(e), e;
-  }
-  createFullscreenButton(i, t = !1) {
-    const e = this.createUiButton(
-      i,
-      "fullscreen"
-    );
-    return this.createSVGElement(e, "fullscreen", this.buttons.fullscreen, !1, t), this.createSVGElement(e, "fullscreen-enabled", this.buttons.exitFullscreen, !0, t), e.addEventListener("click", (s) => {
-      s.stopPropagation(), this.player.toggleFullscreen(), this.player.emit("hide-tooltip");
-    }), this.player.on("fullscreen", (s) => {
-      s ? (e.querySelector(".fullscreen-icon").style.display = "none", e.querySelector(".fullscreen-enabled-icon").style.display = "flex") : (e.querySelector(".fullscreen-enabled-icon").style.display = "none", e.querySelector(".fullscreen-icon").style.display = "flex");
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : e.style.display = "flex";
-    }), i.appendChild(e), e;
-  }
-  createPlaylistsButton(i, t = !1) {
-    const e = this.createUiButton(
-      i,
-      "playlist"
-    );
-    return e.style.display = "none", this.createSVGElement(e, "playlist", this.buttons.playlist, !1, t), e.addEventListener("click", (s) => {
-      s.stopPropagation(), this.player.emit("hide-tooltip"), this.playlistMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-playlist-menu", !0), this.player.emit("switch-season", this.player.playlistItem().season), this.menuFrame.showModal(), setTimeout(() => {
-        var l;
-        (l = document.querySelector(`playlist-${this.player.playlistItem().id}`)) == null || l.scrollIntoView({ block: "center" });
-      }, 100));
-    }), this.player.on("item", () => {
-      this.player.hasPlaylists() ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : this.player.hasPlaylists() && (e.style.display = "flex");
-    }), i.appendChild(e), e;
-  }
-  createSpeedButton(i, t = !1) {
-    if (this.player.isMobile())
-      return;
-    const e = this.createUiButton(
-      i,
-      "speed"
-    );
-    return this.player.hasSpeeds() ? e.style.display = "flex" : e.style.display = "none", this.createSVGElement(e, "speed", this.buttons.speed, !1, t), e.addEventListener("click", (s) => {
-      s.stopPropagation(), this.player.emit("hide-tooltip"), this.speedMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-speed-menu", !0), this.menuFrame.showModal());
-    }), this.player.on("pip-internal", (s) => {
-      s ? e.style.display = "none" : this.player.hasSpeeds() && (e.style.display = "flex");
-    }), i.appendChild(e), e;
-  }
-  createPIPButton(i, t = !1) {
-    var s;
-    if (this.player.isMobile() || !this.player.hasPipEventHandler)
-      return;
-    const e = this.createUiButton(
-      i,
-      "pip"
-    );
-    return this.player.hasPIP() ? e.style.display = "flex" : e.style.display = "none", e.ariaLabel = (s = this.buttons.pipEnter) == null ? void 0 : s.title, this.createSVGElement(e, "pip-enter", this.buttons.pipEnter, !1, t), this.createSVGElement(e, "pip-exit", this.buttons.pipExit, !0, t), document.addEventListener("visibilitychange", () => {
-      this.pipEnabled && (document.hidden ? document.pictureInPictureEnabled && this.player.getVideoElement().requestPictureInPicture() : document.pictureInPictureElement && document.exitPictureInPicture());
-    }), e.addEventListener("click", (l) => {
-      var a, r;
-      l.stopPropagation(), this.player.emit("hide-tooltip"), this.player.emit("controls", !1), this.pipEnabled ? (this.pipEnabled = !1, e.querySelector(".pip-exit-icon").style.display = "none", e.querySelector(".pip-enter-icon").style.display = "flex", e.ariaLabel = (a = this.buttons.pipEnter) == null ? void 0 : a.title, this.player.emit("pip-internal", !1), this.player.emit("pip", !1)) : (this.pipEnabled = !0, e.querySelector(".pip-enter-icon").style.display = "none", e.querySelector(".pip-exit-icon").style.display = "flex", e.ariaLabel = (r = this.buttons.pipExit) == null ? void 0 : r.title, this.player.emit("pip-internal", !0), this.player.emit("pip", !0), this.player.emit("show-menu", !1));
-    }), this.player.on("fullscreen", () => {
-      this.player.getFullscreen() ? e.style.display = "none" : e.style.display = "flex";
-    }), i.appendChild(e), e;
-  }
-  createMenuFrame(i) {
-    this.menuFrame = this.player.createElement("dialog", "menu-frame-dialog").addClasses([
-      "group-[&.nomercyplayer:has(.open)]:backdrop:bg-black/60",
-      "group-[&.nomercyplayer:has(.open)]:backdrop:pointer-events-none"
-    ]).appendTo(i), this.menuFrame.setAttribute("popover", "manual"), this.menuFrame.setAttribute("role", "modal");
-    const t = this.player.createElement("div", "menu-wrapper").addClasses(this.makeStyles("menuWrapperStyles")).appendTo(this.menuFrame), e = this.player.createElement("div", "menu-frame").addClasses(this.makeStyles("menuFrameStyles")).appendTo(t);
-    this.sizeMenuFrame();
-    const s = this.player.createElement("div", "menu-content").addClasses(this.makeStyles("menuContentStyles")).appendTo(e);
-    return this.player.on("resize", () => {
-      this.sizeMenuFrame();
-    }), this.player.on("fullscreen", () => {
-      this.sizeMenuFrame();
-    }), this.player.on("show-menu", (l) => {
-      this.menuOpen = l, this.player.lockActive = l, l ? (this.sizeMenuFrame(), e.style.display = "flex", e.classList.add("open"), this.menuFrame.showModal()) : (e.style.display = "none", e.classList.remove("open"), this.menuFrame.close()), s.classList.add("translate-x-0"), s.classList.remove("sub-menu-open"), setTimeout(() => {
-        [...this.mainMenu.children].find((a) => a.style.display != "none" && a.id != "menu-header").focus();
-      }, 200), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1);
-    }), this.player.on("show-main-menu", (l) => {
-      this.mainMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.add("translate-x-0"), s.classList.remove("sub-menu-open"), e.style.display = "flex", setTimeout(() => {
-        [...this.mainMenu.children].find((a) => a.style.display != "none" && a.id != "menu-header").focus();
-      }, 200));
-    }), this.player.on("show-language-menu", (l) => {
-      this.languageMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex");
-    }), this.player.on("show-subtitles-menu", (l) => {
-      this.subtitlesMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex");
-    }), this.player.on("show-quality-menu", (l) => {
-      this.qualityMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex");
-    }), this.player.on("show-speed-menu", (l) => {
-      this.speedMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex");
-    }), this.player.on("show-playlist-menu", (l) => {
-      this.playlistMenuOpen = l, this.player.lockActive = l, l ? (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex") : e.style.width = "";
-    }), this.player.on("controls", (l) => {
-      this.player.lockActive = l, l || (this.player.emit("show-menu", !1), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1));
-    }), s;
-  }
-  sizeMenuFrame() {
-    const {
-      width: i,
-      height: t,
-      top: e,
-      bottom: s,
-      left: l
-    } = this.player.getElement().getBoundingClientRect();
-    this.menuFrame.firstChild.style.width = `${i}px`, this.menuFrame.firstChild.style.height = `${t}px`, this.menuFrame.firstChild.style.top = `${e}px`, this.menuFrame.firstChild.style.bottom = `${s}px`, this.menuFrame.firstChild.style.left = `${l}px`, this.menuFrame.firstChild.style.padding = "2rem", this.menuFrame.firstChild.style.position = "fixed";
-  }
-  createMainMenu(i) {
-    return this.mainMenu = this.player.createElement("div", "main-menu").addClasses(this.makeStyles("mainMenuStyles")).appendTo(i), this.mainMenu.style.transform = "translateX(0)", this.createMainMenuHeader(this.mainMenu, "").classList.add("!min-h-[2rem]", "-mr-1"), this.player.addClasses(this.mainMenu, this.makeStyles("mainMenuStyles")), this.createMenuButton(this.mainMenu, "language"), this.createMenuButton(this.mainMenu, "subtitles"), this.createMenuButton(this.mainMenu, "quality"), this.createMenuButton(this.mainMenu, "speed"), this.createMenuButton(this.mainMenu, "playlist"), this.createSubMenu(i), this.mainMenu;
-  }
-  createSubMenu(i) {
-    const t = this.player.createElement("div", "sub-menu").addClasses(this.makeStyles("subMenuStyles")).appendTo(i);
-    return t.style.transform = "translateX(0)", this.createLanguageMenu(t), this.createSubtitleMenu(t), this.createQualityMenu(t), this.createSpeedMenu(t), this.player.once("playlist", () => {
-      this.createEpisodeMenu(t);
-    }), t;
-  }
-  createMainMenuHeader(i, t, e = !1) {
-    const s = this.player.createElement("div", "menu-header").addClasses(this.makeStyles("menuHeaderStyles")).addClasses(["border-b", "border-gray-300/20", "!p-0"]).appendTo(i), l = this.createUiButton(
-      s,
-      "close"
-    );
-    return this.createSVGElement(l, "menu", this.buttons.close, e), this.player.addClasses(l, ["ml-auto", "w-8"]), l.classList.remove("w-5"), l.addEventListener("click", (a) => {
-      a.stopPropagation(), this.player.emit("show-menu", !1), this.player.lockActive = !1, this.player.emit("controls", !1), this.menuFrame.close();
-    }), s;
-  }
-  createMenuHeader(i, t, e = !1) {
-    const s = this.player.createElement("div", "menu-header").addClasses(this.makeStyles("menuHeaderStyles")).addClasses(["border-b", "border-gray-300/20"]).appendTo(i);
-    if (t !== "Episodes") {
-      const a = this.createUiButton(
-        s,
-        "back"
-      );
-      this.createSVGElement(a, "menu", this.buttons.chevronL, e), this.player.addClasses(a, ["w-8"]), a.classList.remove("w-5"), a.addEventListener("click", (r) => {
-        r.stopPropagation(), this.player.emit("show-main-menu", !0), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1);
-      });
-    }
-    const l = this.player.createElement("span", "menu-button-text").addClasses(this.makeStyles("menuHeaderButtonTextStyles")).appendTo(s);
-    if (l.textContent = this.player.localize(t).toTitleCase(), t !== "Seasons") {
-      const a = this.createUiButton(
-        s,
-        "close"
-      );
-      this.createSVGElement(a, "menu", this.buttons.close, e), this.player.addClasses(a, ["ml-auto", "w-8"]), a.classList.remove("w-5"), a.addEventListener("click", (r) => {
-        r.stopPropagation(), this.player.emit("show-menu", !1), this.player.lockActive = !1, this.player.emit("controls", !1), this.menuFrame.close();
-      });
-    }
-    return s;
-  }
-  createMenuButton(i, t, e = !1) {
-    const s = this.player.createElement("button", `menu-button-${t}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(i);
-    t !== "speed" ? s.style.display = "none" : this.player.hasSpeeds() ? s.style.display = "flex" : s.style.display = "none", this.createSVGElement(s, "menu", this.buttons[t], e);
-    const l = this.player.createElement("span", `menu-button-${t}`).addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(s);
-    l.textContent = this.player.localize(t).toTitleCase();
-    const a = this.createSVGElement(s, "menu", this.buttons.chevronR, !1, e);
-    this.player.addClasses(a, ["ml-auto"]), s.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.emit(`show-${t}-menu`, !0);
-    }), t === "language" ? (this.player.on("item", () => {
-      s.style.display = "none";
-    }), this.player.on("audioTracks", (r) => {
-      r.length > 1 ? s.style.display = "flex" : s.style.display = "none";
-    })) : t === "subtitles" ? (this.player.on("item", () => {
-      s.style.display = "none";
-    }), this.player.on("captionsList", (r) => {
-      r.length > 1 ? s.style.display = "flex" : s.style.display = "none";
-    })) : t === "quality" ? (this.player.on("item", () => {
-      s.style.display = "none";
-    }), this.player.on("levels", (r) => {
-      r.length > 1 ? s.style.display = "flex" : s.style.display = "none";
-    })) : t === "playlist" && this.player.on("playlist", (r) => {
-      r.length > 1 ? s.style.display = "flex" : s.style.display = "none";
-    });
-  }
-  createLanguageMenu(i) {
-    const t = this.player.createElement("div", "language-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(i);
-    this.createMenuHeader(t, "Language");
-    const e = this.player.createElement("div", "language-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(t);
-    return e.style.transform = "translateX(0)", this.player.on("item", () => {
-      e.innerHTML = "";
-    }), this.player.on("audioTracks", (s) => {
-      e.innerHTML = "", Object.values(s).forEach((l) => {
-        this.createLanguageMenuButton(e, {
-          language: l.language,
-          label: l.label,
-          type: "audio",
-          id: l.id,
-          buttonType: "audio"
-        });
-      });
-    }), this.player.on("show-language-menu", (s) => {
-      s ? (t.style.display = "flex", setTimeout(() => {
-        e.firstChild.focus();
-      }, 200)) : t.style.display = "none";
-    }), t;
-  }
-  createSubtitleMenu(i) {
-    const t = this.player.createElement("div", "subtitle-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(i);
-    this.createMenuHeader(t, "subtitles");
-    const e = this.player.createElement("div", "subtitle-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(t);
-    return e.style.transform = "translateX(0)", this.player.on("item", () => {
-      e.innerHTML = "";
-    }), this.player.on("captionsList", (s) => {
-      e.innerHTML = "", Object.values(s).forEach((l) => {
-        this.createLanguageMenuButton(e, {
-          language: l.language,
-          label: l.label,
-          type: l.type,
-          id: l.id,
-          buttonType: "subtitle"
-        });
-      });
-    }), this.player.on("show-subtitles-menu", (s) => {
-      s ? (t.style.display = "flex", setTimeout(() => {
-        e.firstChild.focus();
-      }, 200)) : t.style.display = "none";
-    }), t;
-  }
-  createSpeedMenu(i, t = !1) {
-    const e = this.player.createElement("div", "speed-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(i);
-    this.createMenuHeader(e, "speed");
-    const s = this.player.createElement("div", "speed-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(e);
-    s.style.transform = "translateX(0)";
-    for (const l of this.player.getSpeeds() ?? []) {
-      const a = this.player.createElement("button", `speed-button-${l}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(s), r = this.player.createElement("span", `menu-button-text-${l}`).appendTo(a), o = this.player.createElement("span", `menu-button-text-${l}`).addClasses(this.makeStyles("speedButtonTextStyles")).appendTo(r);
-      o.textContent = l == 1 ? this.player.localize("Normal") : l.toString();
-      const h = this.createSVGElement(a, "menu", this.buttons.checkmark, !1, t);
-      this.player.addClasses(h, [
-        "ml-auto",
-        "hidden"
-      ]), this.player.on("speed", (d) => {
-        d === l ? h.classList.remove("hidden") : h.classList.add("hidden");
-      }), a.addEventListener("click", () => {
-        this.player.emit("show-menu", !1), this.player.setSpeed(l);
-      });
-    }
-    return this.player.on("show-speed-menu", (l) => {
-      l ? (e.style.display = "flex", setTimeout(() => {
-        s.firstChild.focus();
-      }, 200)) : e.style.display = "none";
-    }), e;
-  }
-  createQualityMenu(i) {
-    const t = this.player.createElement("div", "quality-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(i);
-    this.createMenuHeader(t, "quality");
-    const e = this.player.createElement("div", "quality-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(t);
-    return e.style.transform = "translateX(0)", this.player.on("item", () => {
-      e.innerHTML = "";
-    }), this.player.on("levels", (s) => {
-      e.innerHTML = "", Object.values(s).forEach((l) => {
-        this.createQualityMenuButton(e, {
-          id: l.id,
-          width: l.width ?? 0,
-          height: l.height ?? 0,
-          label: l.label,
-          bitrate: l.bitrate ?? 0
-        });
-      });
-    }), this.player.on("show-quality-menu", (s) => {
-      s ? (t.style.display = "flex", setTimeout(() => {
-        e.firstChild.focus();
-      }, 200)) : t.style.display = "none";
-    }), t;
-  }
-  createQualityMenuButton(i, t, e = !1) {
-    var r;
-    const s = this.player.createElement("button", `quality-button-${t.height}-${t.bitrate}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(i), l = this.player.createElement("span", "menu-button-text").addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(s);
-    l.textContent = `${this.player.localize((r = t.label) == null ? void 0 : r.replace("segment-metadata", "Off"))}`;
-    const a = this.createSVGElement(s, "checkmark", this.buttons.checkmark, !1, e);
-    return this.player.addClasses(a, ["ml-auto"]), t.id > 0 && a.classList.add("hidden"), this.player.on("levelsChanging", (o) => {
-      o.id == t.id ? a.classList.remove("hidden") : a.classList.add("hidden");
-    }), s.addEventListener("click", (o) => {
-      o.stopPropagation(), this.player.setCurrentQuality(t.id), this.player.emit("show-menu", !1);
-    }), s;
-  }
-  createLanguageMenuButton(i, t, e = !1) {
-    const s = this.player.createElement("button", `${t.type}-button-${t.language}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(i), l = this.player.createElement("span", "menu-button-text").addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(s);
-    t.buttonType == "subtitle" ? t.styled ? l.textContent = `${this.player.localize(t.language ?? "")} ${this.player.localize(t.label)} ${this.player.localize("styled")}` : t.language == "" ? l.textContent = this.player.localize(t.label) : l.textContent = `${this.player.localize(t.language ?? "")} (${this.player.localize(t.type)})` : l.textContent = this.player.localize(t.language);
-    const a = this.createSVGElement(s, "checkmark", this.buttons.checkmark, !1, e);
-    return this.player.addClasses(a, ["ml-auto"]), t.id > 0 && a.classList.add("hidden"), t.buttonType == "audio" ? (this.player.on("audioTrackChanging", (r) => {
-      t.id === r.id ? a.classList.remove("hidden") : a.classList.add("hidden");
-    }), s.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.setCurrentAudioTrack(t.id), this.player.emit("show-menu", !1);
-    })) : t.buttonType == "subtitle" && (t.id === this.player.getCaptionIndex() ? a.classList.remove("hidden") : a.classList.add("hidden"), this.player.on("captionsChanged", (r) => {
-      t.id === r.id ? a.classList.remove("hidden") : a.classList.add("hidden");
-    }), s.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.setCurrentCaption(t.id), this.player.emit("show-menu", !1);
-    })), s.addEventListener("keyup", (r) => {
-      var o, h, d, p;
-      r.key == "ArrowLeft" ? (o = this.player.getClosestElement(s, '[id^="audio-button-"]')) == null || o.focus() : r.key == "ArrowRight" ? (h = this.player.getClosestElement(s, '[id^="subtitle-button-"]')) == null || h.focus() : r.key == "ArrowUp" && !this.player.options.disableTouchControls ? (d = s.previousElementSibling) == null || d.focus() : r.key == "ArrowDown" && !this.player.options.disableTouchControls && ((p = s.nextElementSibling) == null || p.focus());
-    }), s.addEventListener("focus", () => {
-      setTimeout(() => {
-        this.scrollCenter(s, i, {
-          duration: 100,
-          margin: 1
-        });
-      }, 0);
-    }), s;
-  }
-  createSeekRipple(i, t) {
-    const e = this.player.createElement("div", "seek-ripple").addClasses(["seek-ripple", t]).appendTo(i), s = this.player.createElement("div", "seek-ripple-arrow").addClasses(["seek-ripple-arrow"]).appendTo(e), l = this.player.createElement("p", "seek-ripple-text").addClasses(["seek-ripple-text"]).appendTo(e);
-    return t == "left" ? (e.style.borderRadius = "0 50% 50% 0", e.style.left = "0px", s.innerHTML = `
-				<div class="arrow arrow2 arrow-left"></div>
-				<div class="arrow arrow1 arrow-left"></div>
-				<div class="arrow arrow3 arrow-left"></div>
-			`, this.player.on("rewind", (a) => {
-      l.textContent = `${Math.abs(a)} ${this.player.localize("seconds")}`, e.style.display = "flex";
-    }), this.player.on("remove-rewind", () => {
-      e.style.display = "none";
-    })) : t == "right" && (e.style.borderRadius = "50% 0 0 50%", e.style.right = "0px", s.innerHTML = `
-				<div class="arrow arrow3 arrow-right"></div>
-				<div class="arrow arrow1 arrow-right"></div>
-				<div class="arrow arrow2 arrow-right"></div>
-			`, this.player.on("forward", (a) => {
-      l.textContent = `${Math.abs(a)} ${this.player.localize("seconds")}`, e.style.display = "flex";
-    }), this.player.on("remove-forward", () => {
-      e.style.display = "none";
-    })), e;
-  }
-  createProgressBar(i) {
-    var h;
-    this.sliderBar = this.player.createElement("div", "slider-bar").addClasses(this.makeStyles("sliderBarStyles")).appendTo(i);
-    const t = this.player.createElement("div", "slider-buffer").addClasses(this.makeStyles("sliderBufferStyles")).appendTo(this.sliderBar), e = this.player.createElement("div", "slider-hover").addClasses(this.makeStyles("sliderHoverStyles")).appendTo(this.sliderBar), s = this.player.createElement("div", "slider-progress").addClasses(this.makeStyles("sliderProgressStyles")).appendTo(this.sliderBar);
-    this.chapterBar = this.player.createElement("div", "chapter-progress").addClasses(this.makeStyles("chapterBarStyles")).appendTo(this.sliderBar);
-    const l = document.createElement("div");
-    this.player.addClasses(l, this.makeStyles("sliderNippleStyles")), l.id = "slider-nipple", this.player.options.nipple != !1 && this.sliderBar.append(l);
-    const a = this.player.createElement("div", "slider-pop").addClasses(this.makeStyles("sliderPopStyles")).appendTo(this.sliderBar);
-    a.style.setProperty("--visibility", "0"), a.style.opacity = "var(--visibility)", this.sliderPopImage = this.player.createElement("div", "slider-pop-image").addClasses(this.makeStyles("sliderPopImageStyles")).appendTo(a);
-    const r = this.player.createElement("div", "slider-text").addClasses(this.makeStyles("sliderTextStyles")).appendTo(a), o = this.player.createElement("div", "chapter-text").addClasses(this.makeStyles("chapterTextStyles")).appendTo(a);
-    return this.player.options.chapters && !this.player.isTv() && ((h = this.player.getChapters()) == null ? void 0 : h.length) > 0 && (this.sliderBar.style.background = ""), ["mousedown", "touchstart"].forEach((d) => {
-      this.sliderBar.addEventListener(d, () => {
-        this.isMouseDown || (this.isMouseDown = !0, this.isScrubbing = !0);
-      }, {
-        passive: !0
-      });
-    }), this.bottomBar.addEventListener("click", (d) => {
-      if (this.player.emit("hide-tooltip"), !this.isMouseDown)
-        return;
-      this.isMouseDown = !1, this.isScrubbing = !1, a.style.setProperty("--visibility", "0");
-      const p = this.getScrubTime(d);
-      l.style.left = `${p.scrubTime}%`, this.player.seek(p.scrubTimePlayer);
-    }, {
-      passive: !0
-    }), ["mousemove", "touchmove"].forEach((d) => {
-      this.sliderBar.addEventListener(d, (p) => {
-        var m;
-        const u = this.getScrubTime(p);
-        this.getSliderPopImage(u), r.textContent = V(u.scrubTimePlayer);
-        const y = this.getSliderPopOffsetX(a, u);
-        a.style.left = `${y}%`, (!this.player.options.chapters || ((m = this.player.getChapters()) == null ? void 0 : m.length) == 0) && (e.style.width = `${u.scrubTime}%`), this.isMouseDown && (o.textContent = this.getChapterText(u.scrubTimePlayer), l.style.left = `${u.scrubTime}%`, this.previewTime.length > 0 && a.style.setProperty("--visibility", "1"));
-      }, {
-        passive: !0
-      });
-    }), this.sliderBar.addEventListener("mouseover", (d) => {
-      const p = this.getScrubTime(d);
-      if (this.getSliderPopImage(p), r.textContent = V(p.scrubTimePlayer), o.textContent = this.getChapterText(p.scrubTimePlayer), this.previewTime.length > 0) {
-        a.style.setProperty("--visibility", "1");
-        const u = this.getSliderPopOffsetX(a, p);
-        a.style.left = `${u}%`;
-      }
-    }, {
-      passive: !0
-    }), this.sliderBar.addEventListener("mouseleave", () => {
-      a.style.setProperty("--visibility", "0"), e.style.width = "0";
-    }, {
-      passive: !0
-    }), this.player.on("seeked", () => {
-      a.style.setProperty("--visibility", "0");
-    }), this.player.on("item", () => {
-      this.sliderBar.classList.add("bg-white/20"), this.previewTime = [], this.chapters = [], t.style.width = "0", s.style.width = "0", this.fetchPreviewTime();
-    }), this.player.on("chapters", () => {
-      var d;
-      ((d = this.player.getChapters()) == null ? void 0 : d.length) > 0 && !this.player.isTv() ? this.sliderBar.classList.remove("bg-white/20") : this.sliderBar.classList.add("bg-white/20");
-    }), this.player.on("time", (d) => {
-      var p;
-      ((p = this.player.getChapters()) == null ? void 0 : p.length) == 0 && (t.style.width = `${d.buffered}%`, s.style.width = `${d.percentage}%`), this.isScrubbing || (l.style.left = `${d.percentage}%`);
-    }), this.player.on("controls", (d) => {
-      d || (a.style.setProperty("--visibility", "0"), this.menuFrame.close());
-    }), this.player.on("pip-internal", (d) => {
-      d ? this.sliderBar.style.display = "none" : this.sliderBar.style.display = "flex";
-    }), this.sliderBar;
-  }
-  createTvProgressBar(i) {
-    this.sliderBar = this.player.createElement("div", "slider-bar").addClasses(this.makeStyles("sliderBarStyles")).appendTo(i);
-    const t = this.player.createElement("div", "slider-buffer").addClasses(this.makeStyles("sliderBufferStyles")).appendTo(this.sliderBar), e = this.player.createElement("div", "slider-progress").addClasses(this.makeStyles("sliderProgressStyles")).appendTo(this.sliderBar);
-    return this.chapterBar = this.player.createElement("div", "chapter-progress").addClasses(this.makeStyles("chapterBarStyles")).appendTo(this.sliderBar), this.player.on("item", () => {
-      this.sliderBar.classList.add("bg-white/20"), this.previewTime = [], this.chapters = [], t.style.width = "0", e.style.width = "0", this.fetchPreviewTime();
-    }), this.player.on("chapters", () => {
-      var s;
-      ((s = this.player.getChapters()) == null ? void 0 : s.length) > 0 && !this.player.isTv() ? this.sliderBar.classList.remove("bg-white/20") : this.sliderBar.classList.add("bg-white/20");
-    }), this.player.on("time", (s) => {
-      t.style.width = `${s.buffered}%`, e.style.width = `${s.percentage}%`;
-    }), this.player.on("currentScrubTime", (s) => {
-      e.style.width = `${s.currentTime / s.duration * 100}%`;
-    }), this.sliderBar;
-  }
-  getChapterText(i) {
-    var e, s, l, a;
-    if (this.player.getChapters().length == 0)
-      return null;
-    const t = (e = this.player.getChapters()) == null ? void 0 : e.findIndex((r) => r.startTime > i);
-    return ((s = this.player.getChapters()[t - 1]) == null ? void 0 : s.title) ?? ((a = this.player.getChapters()[((l = this.player.getChapters()) == null ? void 0 : l.length) - 1]) == null ? void 0 : a.title) ?? null;
-  }
-  createChapterMarker(i) {
-    const t = this.player.createElement("div", `chapter-marker-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkersStyles")).appendTo(this.chapterBar);
-    t.style.left = `${i.left}%`, t.style.width = `calc(${i.width}% - 2px)`, this.player.createElement("div", `chapter-marker-bg-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkerBGStyles")).appendTo(t);
-    const e = this.player.createElement("div", `chapter-marker-buffer-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkerBufferStyles")).appendTo(t), s = this.player.createElement("div", `chapter-marker-hover-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkerHoverStyles")).appendTo(t), l = this.player.createElement("div", `chapter-marker-progress-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkerProgressStyles")).appendTo(t), a = i.left, r = i.left + i.width;
-    return this.player.on("time", (o) => {
-      o.percentage < a ? l.style.transform = "scaleX(0)" : o.percentage > r ? l.style.transform = "scaleX(1)" : l.style.transform = `scaleX(${(o.percentage - a) / (r - a)})`, o.buffered < a ? e.style.transform = "scaleX(0)" : o.buffered > r ? e.style.transform = "scaleX(1)" : e.style.transform = `scaleX(${(o.buffered - a) / (r - a)})`;
-    }), ["mousemove", "touchmove"].forEach((o) => {
-      this.chapterBar.addEventListener(o, (h) => {
-        const { scrubTime: d } = this.getScrubTime(h);
-        d < a ? s.style.transform = "scaleX(0)" : d > r ? s.style.transform = "scaleX(1)" : s.style.transform = `scaleX(${(d - a) / (r - a)})`;
-      });
-    }), this.chapterBar.addEventListener("mouseleave", () => {
-      s.style.transform = "scaleX(0)";
-    }), t;
-  }
-  createChapterMarkers() {
-    var i;
-    this.player.isTv() || (this.chapterBar.style.background = "", this.player.on("item", () => {
-      this.chapterBar.style.background = "";
-    }), this.chapterBar.querySelectorAll(".chapter-marker").forEach((t) => {
-      this.chapterBar.classList.add("bg-white/20"), t.remove();
-    }), (i = this.player.getChapters()) == null || i.forEach((t) => {
-      this.player.createChapterMarker(t);
-    }));
-  }
-  getSliderPopOffsetX(i, t) {
-    const e = this.sliderBar.getBoundingClientRect(), l = i.getBoundingClientRect().width * 0.5 / e.width * 100;
-    let a = t.scrubTime;
-    return a <= l && (a = l), a >= 100 - l && (a = 100 - l), a;
-  }
-  createThumbnail(i) {
-    return this.thumbnail = this.player.createElement("div", `thumbnail-${i.start}`).addClasses(this.makeStyles("thumbnailStyles")).get(), this.thumbnail.style.backgroundImage = this.image, this.thumbnail.style.backgroundPosition = `-${i.x}px -${i.y}px`, this.thumbnail.style.width = `${i.w}px`, this.thumbnail.style.minWidth = `${i.w}px`, this.thumbnail.style.height = `${i.h}px`, this.thumbnail;
-  }
-  getSliderPopImage(i) {
-    const t = this.loadSliderPopImage(i);
-    t && (this.sliderPopImage.style.backgroundPosition = `-${t.x}px -${t.y}px`, this.sliderPopImage.style.width = `${t.w}px`, this.sliderPopImage.style.height = `${t.h}px`);
-  }
-  adjustScaling(i, t) {
-    const e = i % t;
-    return e % 1 !== 0 && (i /= e / Math.round(e)), e > 1 && (i *= e), i;
-  }
-  fetchPreviewTime() {
-    if (this.previewTime.length === 0) {
-      const i = this.player.getSpriteFile(), t = new Image();
-      this.player.once("item", () => {
-        t.remove();
-      }), i && (this.player.options.accessToken ? this.player.getFileContents({
-        url: i,
-        options: {
-          type: "blob"
-        },
-        callback: (s) => {
-          const l = URL.createObjectURL(s);
-          t.src = l, this.sliderPopImage.style.backgroundImage = `url('${l}')`, this.player.once("item", () => {
-            URL.revokeObjectURL(l);
-          }), setTimeout(() => {
-            this.player.emit("preview-time", this.previewTime);
-          }, 400);
-        }
-      }).then() : (this.sliderPopImage.style.backgroundImage = `url('${i}')`, t.src = i, setTimeout(() => {
-        this.player.emit("preview-time", this.previewTime);
-      }, 400)));
-      const e = this.player.getTimeFile();
-      e && this.currentTimeFile !== e && (this.player.currentTimeFile = e, t.onload = () => {
-        this.player.getFileContents({
-          url: e,
-          options: {
-            type: "text"
-          },
-          callback: (s) => {
-            const a = new de.WebVTTParser().parse(s, "metadata"), r = /(?<x>\d*),(?<y>\d*),(?<w>\d*),(?<h>\d*)/u;
-            this.previewTime = [], a.cues.forEach((o) => {
-              const h = r.exec(o.text);
-              if (!(h != null && h.groups))
-                return;
-              const { x: d, y: p, w: u, h: y } = h.groups, [m, f, g, x] = [d, p, u, y].map((w) => parseInt(w, 10));
-              this.previewTime.push({
-                start: o.startTime,
-                end: o.endTime,
-                x: m,
-                y: f,
-                w: g,
-                h: x
-              });
-            }), setTimeout(() => {
-              this.player.emit("preview-time", this.previewTime);
-            }, 400);
-          }
-        }).then(() => {
-          this.loadSliderPopImage(0);
-        });
-      });
-    }
-  }
-  loadSliderPopImage(i) {
-    this.fetchPreviewTime();
-    let t = this.previewTime.find(
-      (e) => i.scrubTimePlayer >= e.start && i.scrubTimePlayer < e.end
-    );
-    return t || (t = this.previewTime.at(-1)), t;
-  }
-  getScrubTime(i, t = this.sliderBar) {
-    var a, r, o, h;
-    const e = t.getBoundingClientRect();
-    let l = (i.clientX ?? ((r = (a = i.touches) == null ? void 0 : a[0]) == null ? void 0 : r.clientX) ?? ((h = (o = i.changedTouches) == null ? void 0 : o[0]) == null ? void 0 : h.clientX) ?? 0) - e.left;
-    return l <= 0 && (l = 0), l >= e.width && (l = e.width), {
-      scrubTime: l / t.offsetWidth * 100,
-      scrubTimePlayer: l / t.offsetWidth * this.player.getDuration()
-    };
-  }
-  createOverlayCenterMessage(i) {
-    const t = this.player.createElement("button", "player-message").addClasses(this.makeStyles("playerMessageStyles")).appendTo(i);
-    return this.player.on("display-message", (e) => {
-      t.style.display = "flex", t.textContent = e;
-    }), this.player.on("remove-message", () => {
-      t.style.display = "none", t.textContent = "";
-    }), t;
-  }
-  createEpisodeMenu(i) {
-    if (!this.player.getVideoElement())
-      return;
-    const t = this.player.createElement("div", "playlist-menu").addClasses([
-      ...this.makeStyles("subMenuContentStyles"),
-      "!flex-row",
-      "!gap-0"
-    ]).appendTo(i);
-    t.style.minHeight = `${parseInt(getComputedStyle(this.player.getVideoElement()).height.split("px")[0], 10) * 0.8}px`, this.player.on("resize", () => {
-      t.style.minHeight = `${parseInt(getComputedStyle(this.player.getVideoElement()).height.split("px")[0], 10) * 0.8}px`;
-    });
-    const e = this.player.createElement("div", "sub-menu-content").addClasses([
-      ...this.makeStyles("subMenuContentStyles"),
-      "!flex",
-      "!w-1/3",
-      "border-r-2",
-      "border-gray-500/20"
-    ]).appendTo(t);
-    this.createMenuHeader(e, "Seasons");
-    const s = this.player.createElement("div", "playlist-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(e);
-    s.style.transform = "translateX(0)", s.innerHTML = "";
-    for (const [, r] of this.unique(this.player.getPlaylist(), "season").entries() ?? [])
-      this.createSeasonMenuButton(s, r);
-    const l = this.player.createElement("div", "episode-menu").addClasses([
-      ...this.makeStyles("subMenuContentStyles"),
-      "!flex",
-      "!w-[63rem]"
-    ]).appendTo(t);
-    this.createMainMenuHeader(l, "");
-    const a = this.player.createElement("div", "playlist-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(l);
-    a.innerHTML = "", a.tabIndex = 1, a.addEventListener("focus", () => {
-      var r;
-      (r = a.firstChild) == null || r.focus();
-    });
-    for (const [r, o] of this.player.getPlaylist().entries() ?? [])
-      this.createEpisodeMenuButton(a, o, r);
-    return this.player.on("show-playlist-menu", (r) => {
-      r ? (t.style.display = "flex", setTimeout(() => {
-        a.firstChild.focus();
-      }, 200)) : t.style.display = "none";
-    }), t;
-  }
-  createSeasonMenuButton(i, t, e = !1) {
-    var r;
-    const s = this.player.createElement("button", `season-${t.id}`).addClasses(this.makeStyles("languageButtonStyles")).appendTo(i);
-    ((r = this.player.playlistItem()) == null ? void 0 : r.season) === (t == null ? void 0 : t.season) ? (s.classList.add("active"), s.style.backgroundColor = "rgb(82 82 82 / 0.5)") : (s.classList.remove("active"), s.style.backgroundColor = ""), this.player.on("item", () => {
-      var o;
-      ((o = this.player.playlistItem()) == null ? void 0 : o.season) === (t == null ? void 0 : t.season) ? (s.classList.add("active"), s.style.backgroundColor = "rgb(82 82 82 / 0.5)") : (s.classList.remove("active"), s.style.backgroundColor = "");
-    }), this.player.on("switch-season", (o) => {
-      o === (t == null ? void 0 : t.season) ? (s.classList.add("active"), s.style.backgroundColor = "rgb(82 82 82 / 0.5)", s.style.outline = "2px solid fff") : (s.classList.remove("active"), s.style.backgroundColor = "", s.style.outline = "");
-    });
-    const l = this.player.createElement("span", `season-${t.id}-span`).addClasses(this.makeStyles("menuButtonTextStyles")).appendTo(s);
-    l.innerText = t != null && t.seasonName ? t == null ? void 0 : t.seasonName : `Season ${t == null ? void 0 : t.season}`;
-    const a = this.createSVGElement(s, "menu", this.buttons.chevronR, !1, e);
-    return this.player.addClasses(a, ["ml-auto"]), s.addEventListener("click", () => {
-      this.player.emit("switch-season", t == null ? void 0 : t.season);
-    }), s.addEventListener("focus", () => {
-      setTimeout(() => {
-        this.scrollCenter(s, i, {
-          duration: 100,
-          margin: 1
-        });
-      }, 0);
-    }), s;
-  }
-  createEpisodeMenuButton(i, t, e) {
-    var g, x, w, L, B;
-    const s = this.player.createElement("button", `playlist-${t.id}`).addClasses(this.makeStyles("playlistMenuButtonStyles")).appendTo(i);
-    ((g = this.player.playlistItem()) == null ? void 0 : g.season) !== 1 && (s.style.display = "none");
-    const l = this.player.createElement("div", `playlist-${t.id}-left`).addClasses(this.makeStyles("episodeMenuButtonLeftStyles")).appendTo(s);
-    this.player.createElement("div", `episode-${t.id}-shadow`).addClasses(this.makeStyles("episodeMenuButtonShadowStyles")).appendTo(l);
-    const a = this.player.createElement("img", `episode-${t.id}-image`).addClasses(this.makeStyles("episodeMenuButtonImageStyles")).appendTo(l);
-    a.setAttribute("loading", "lazy"), a.src = t.image && t.image != "" ? `${this.imageBaseUrl}${t.image}` : "";
-    const r = this.player.createElement("div", `episode-${t.id}-progress-container`).addClasses(this.makeStyles("episodeMenuProgressContainerStyles")).appendTo(l), o = this.player.createElement("div", `episode-${t.id}-progress-box`).addClasses(this.makeStyles("episodeMenuProgressBoxStyles")).appendTo(r), h = this.player.createElement("div", `episode-${t.id}-progress-item`).addClasses(this.makeStyles("progressContainerItemTextStyles")).appendTo(o);
-    t.episode && (h.innerText = `${this.player.localize("E")}${t.episode}`);
-    const d = this.player.createElement("div", `episode-${t.id}-progress-duration`).addClasses(this.makeStyles("progressContainerDurationTextStyles")).appendTo(o);
-    d.innerText = ((x = t.duration) == null ? void 0 : x.replace(/^00:/u, "")) ?? "";
-    const p = this.player.createElement("div", `episode-${t.id}-slider-container`).addClasses(this.makeStyles("sliderContainerStyles")).appendTo(r), u = this.player.createElement("div", `episode-${t.id}-progress-bar`).addClasses(this.makeStyles("progressBarStyles")).appendTo(p);
-    (w = t.progress) != null && w.percentage && (u.style.width = `${t.progress.percentage > 98 ? 100 : t.progress}%`), (L = t.progress) != null && L.percentage && (p.style.display = "flex");
-    const y = this.player.createElement("div", `episode-${t.id}-right-side`).addClasses(this.makeStyles("episodeMenuButtonRightSideStyles")).appendTo(s), m = this.player.createElement("span", `episode-${t.id}-title`).addClasses(this.makeStyles("episodeMenuButtonTitleStyles")).appendTo(y);
-    m.textContent = this.lineBreakShowTitle((B = t.title) == null ? void 0 : B.replace(t.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E")));
-    const f = this.player.createElement("span", `episode-${t.id}-overview`).addClasses(this.makeStyles("episodeMenuButtonOverviewStyles")).appendTo(y);
-    return f.textContent = this.limitSentenceByCharacters(t.description, 600), this.player.on("item", (S) => {
-      S.season == t.season ? s.style.display = "flex" : s.style.display = "none", this.player.playlistItem().season == t.season && this.player.playlistItem().episode == t.episode ? s.style.background = "rgba(255,255,255,.1)" : s.style.background = "";
-    }), this.player.on("switch-season", (S) => {
-      S == t.season ? s.style.display = "flex" : s.style.display = "none";
-    }), this.player.on("time", (S) => {
-      var P;
-      ((P = this.player.playlistItem()) == null ? void 0 : P.id) == t.id && (u.style.width = `${S.percentage}%`, S.percentage > 0 && (p.style.display = "flex"));
-    }), t.episode && t.show && (h.innerText = t.season == null ? `${t.episode}` : `${this.player.localize("S")}${t.season}: ${this.player.localize("E")}${t.episode}`), s.addEventListener("click", () => {
-      this.player.emit("show-menu", !1), t.episode && t.season ? this.setEpisode(t.season, t.episode) : this.player.playlistItem(e), this.player.emit("playlist-menu-button-clicked", t);
-    }), s.addEventListener("focus", () => {
-      setTimeout(() => {
-        this.scrollCenter(s, i, {
-          duration: 100,
-          margin: 1
-        });
-      }, 0);
-    }), s;
-  }
-  createToolTip(i) {
-    return this.tooltip = this.player.createElement("div", "tooltip").addClasses(this.makeStyles("tooltipStyles")).appendTo(i), this.tooltip.style.transform = "translateX(10px)", this.tooltip.innerText = "Play (space)", this.player.on("show-tooltip", (t) => {
-      this.tooltip.innerText = t.text, this.tooltip.style.display = "block", this.tooltip.style.transform = `translate(calc(${t.x} - 50%), calc(${t.y} - 100%))`, t.currentTime == "top" ? (this.tooltip.classList.add("top-0"), this.tooltip.classList.remove("bottom-0")) : (this.tooltip.classList.remove("top-0"), this.tooltip.classList.add("bottom-0"));
-    }), this.player.on("hide-tooltip", () => {
-      this.tooltip.style.display = "none";
-    }), this.tooltip;
-  }
-  createEpisodeTip(i) {
-    const t = this.player.createElement("div", "episode-tip").addClasses(this.makeStyles("nextTipStyles")).appendTo(i), e = this.player.createElement("div", "next-tip-left").addClasses(this.makeStyles("nextTipLeftSideStyles")).appendTo(t), s = this.player.createElement("img", "next-tip-image").addClasses(this.makeStyles("nextTipImageStyles")).appendTo(e);
-    s.setAttribute("loading", "eager");
-    const l = this.player.createElement("div", "next-tip-right-side").addClasses(this.makeStyles("nextTipRightSideStyles")).appendTo(t), a = this.player.createElement("span", "next-tip-header").addClasses(this.makeStyles("nextTipHeaderStyles")).appendTo(l), r = this.player.createElement("span", "next-tip-title").addClasses(this.makeStyles("nextTipTitleStyles")).appendTo(l);
-    return this.player.on("show-episode-tip", (o) => {
-      this.getTipData({ direction: o.direction, header: a, title: r, image: s }), t.style.display = "flex", t.style.transform = `translate(${o.x}, calc(${o.y} - 50%))`;
-    }), this.player.on("hide-episode-tip", () => {
-      t.style.display = "none";
-    }), t;
-  }
-  getTipDataIndex(i) {
-    let t;
-    return i == "previous" ? t = this.player.playlistItem().episode ?? 0 - 1 - 1 : t = this.player.getPlaylistIndex() + 1, this.player.getPlaylist().at(t);
-  }
-  getTipData({ direction: i, header: t, title: e, image: s }) {
-    var a;
-    const l = this.getTipDataIndex(i);
-    l && (s.src = l.image && l.image != "" ? `${this.imageBaseUrl}${l.image}` : "", t.textContent = `${this.player.localize(`${i.toTitleCase()} Episode`)} ${this.getButtonKeyCode(i)}`, e.textContent = (a = l.title) == null ? void 0 : a.replace(l.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E")), this.player.once("item", () => {
-      this.getTipData({ direction: i, header: t, title: e, image: s });
-    }));
-  }
-  cancelNextUp() {
-    clearTimeout(this.timeout), this.nextUp.style.display = "none";
-  }
-  createNextUp(i) {
-    this.nextUp = this.player.createElement("div", "episode-tip").addClasses(this.makeStyles("nextUpStyles")).appendTo(i), this.nextUp.style.display = "none";
-    const t = this.player.createElement("button", "next-up-credits").addClasses(this.makeStyles("nextUpCreditsButtonStyles")).appendTo(this.nextUp);
-    t.innerText = this.player.localize("Watch credits");
-    const e = this.player.createElement("button", "next-up-next").addClasses(this.makeStyles("nextUpNextButtonStyles")).appendTo(this.nextUp);
-    e.setAttribute("data-label", this.player.localize("Next")), e.setAttribute("data-icon", "▶︎"), this.player.on("show-next-up", () => {
-      this.nextUp.style.display = "flex", this.timeout = setTimeout(() => {
-        this.nextUp.style.display = "none", this.player.isPlaying && this.player.next();
-      }, 4200), setTimeout(() => {
-        e.focus();
-      }, 100);
-    }), t.addEventListener("click", () => {
-      clearTimeout(this.timeout), this.nextUp.style.display = "none";
-    }), e.addEventListener("click", () => {
-      clearTimeout(this.timeout), this.nextUp.style.display = "none", this.player.next();
-    });
-    let s = !1;
-    return this.player.on("item", () => {
-      clearTimeout(this.timeout), this.nextUp.style.display = "none", s = !1;
-    }), this.player.once("playing", () => {
-      this.player.on("time", (l) => {
-        this.player.getDuration() > 0 && l.currentTime > this.player.getDuration() - 5 && !s && !this.player.isLastPlaylistItem() && (this.player.emit("show-next-up"), s = !0);
-      });
-    }), this.nextUp;
-  }
-  modifySpinner(i) {
-    this.player.createElement("h2", "loader").addClasses(["loader", "pointer-events-none"]).appendTo(i);
-  }
-  createSpinnerContainer(i) {
-    const t = this.player.createElement("div", "spinner-container").addClasses(this.makeStyles("spinnerContainerStyles")).appendTo(i), e = this.player.createElement("div", "spinner-role").addClasses(this.makeStyles("roleStyles")).appendTo(t);
+  createSpinnerContainer(s) {
+    const t = this.player.createElement("div", "spinner-container").addClasses(this.makeStyles("spinnerContainerStyles")).appendTo(s), e = this.player.createElement("div", "spinner-role").addClasses(this.makeStyles("roleStyles")).appendTo(t);
     e.setAttribute("role", "status"), this.createSpinner(e);
-    const s = this.player.createElement("span", "status-text").addClasses(this.makeStyles("statusTextStyles")).appendTo(e);
-    return s.innerText = this.player.localize("Loading..."), this.player.on("ready", () => {
+    const l = this.player.createElement("span", "status-text").addClasses(this.makeStyles("statusTextStyles")).appendTo(e);
+    return l.innerText = this.player.localize("Loading..."), this.player.on("ready", () => {
       t.style.display = "none";
     }), this.player.on("playing", () => {
       t.style.display = "none";
     }), this.player.on("waiting", () => {
-      t.style.display = "grid", s.innerText = `${this.player.localize("Buffering")}...`;
+      t.style.display = "grid", l.innerText = `${this.player.localize("Buffering")}...`;
     }), this.player.on("error", () => {
-      t.style.display = "none", s.innerText = this.player.localize("Something went wrong trying to play this item");
+      t.style.display = "none", l.innerText = this.player.localize("Something went wrong trying to play this item");
     }), this.player.on("ended", () => {
       t.style.display = "none";
     }), this.player.on("ready", () => {
@@ -5023,24 +3228,24 @@ class cs extends ce {
     }), this.player.on("bufferedEnd", () => {
       t.style.display = "none";
     }), this.player.on("stalled", () => {
-      t.style.display = "grid", s.innerText = `${this.player.localize("Buffering")}...`;
+      t.style.display = "grid", l.innerText = `${this.player.localize("Buffering")}...`;
     }), this.player.on("item", () => {
       t.style.display = "grid";
     }), t;
   }
-  createSpinner(i) {
+  createSpinner(s) {
     const t = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     t.setAttribute("viewBox", "0 0 100 101"), t.id = "spinner", t.setAttribute("fill", "none"), this.player.addClasses(t, [
       "spinner-icon",
       ...this.makeStyles("spinnerStyles")
-    ]), i.appendChild(t);
+    ]), s.appendChild(t);
     const e = document.createElementNS("http://www.w3.org/2000/svg", "path");
     e.setAttribute("d", "M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"), e.setAttribute("fill", "currentColor"), t.appendChild(e);
-    const s = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    s.setAttribute("d", "M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"), s.setAttribute("fill", "currentFill"), t.appendChild(s);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    l.setAttribute("d", "M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"), l.setAttribute("fill", "currentFill"), t.appendChild(l);
   }
-  getButtonKeyCode(i) {
-    switch (i) {
+  getButtonKeyCode(s) {
+    switch (s) {
       case "play":
       case "pause":
         return `(${this.player.localize("SPACE")})`;
@@ -5082,64 +3287,550 @@ class cs extends ce {
         return "";
     }
   }
-  createButton(i, t, e = "after", s, l, a) {
-    const r = document.querySelector(`${i}`);
-    if (!r)
-      throw new Error("Element not found");
-    const o = this.createUiButton(r, t.replace(/\s/gu, "_"));
-    return o.ariaLabel = t, e === "before" ? r == null || r.before(o) : r == null || r.after(o), this.createSVGElement(o, `${t.replace(/\s/gu, "_")}-enabled`, s, !0, !1), this.createSVGElement(o, t.replace(/\s/gu, "_"), s, !1), o.addEventListener("click", (h) => {
-      h.stopPropagation(), l == null || l(), this.player.emit("hide-tooltip");
-    }), o.addEventListener("contextmenu", (h) => {
-      h.stopPropagation(), a == null || a(), this.player.emit("hide-tooltip");
-    }), o;
-  }
-  nearestValue(i, t) {
-    return i.reduce((e, s) => Math.abs(e) > Math.abs(s - t) ? s - t : e, 1 / 0) + t;
-  }
-  getClosestElement(i, t) {
-    const e = [...document.querySelectorAll(t)].filter((a) => getComputedStyle(a).display == "flex"), s = i.getBoundingClientRect();
-    return e.find((a) => a.getBoundingClientRect().top + a.getBoundingClientRect().height / 2 == this.nearestValue(
-      e.map((r) => r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2),
-      s.top + s.height / 2
-    ));
-  }
-  /**
-   * Limits a sentence to a specified number of characters by truncating it at the last period before the limit.
-   * @param str - The sentence to limit.
-   * @param characters - The maximum number of characters to allow in the sentence.
-   * @returns The truncated sentence.
-   */
-  limitSentenceByCharacters(i, t = 360) {
-    if (!i)
-      return "";
-    const e = i.substring(0, t).split(".");
-    return e.pop(e.length), `${e.join(".")}.`;
-  }
-  /**
-   * Adds a line break before the episode title in a TV show string.
-   * @param str - The TV show string to modify.
-   * @param removeShow - Whether to remove the TV show name from the modified string.
-   * @returns The modified TV show string.
-   */
-  lineBreakShowTitle(i, t = !1) {
-    if (!i)
-      return "";
-    const e = i.match(/S\d{2}E\d{2}/u);
-    if (e) {
-      const s = i.split(/\sS\d{2}E\d{2}\s/u);
-      return t ? `${e[0]} ${s[1]}` : `${s[0]} 
-${e[0]} ${s[1]}`;
+  fetchPreviewTime() {
+    if (this.previewTime.length === 0) {
+      const s = this.player.getSpriteFile(), t = new Image();
+      this.player.once("item", () => {
+        t.remove();
+      }), s && (this.image = s, this.player.options.accessToken ? this.player.getFileContents({
+        url: s,
+        options: {
+          type: "blob"
+        },
+        callback: (l) => {
+          const r = URL.createObjectURL(l);
+          t.src = r, this.sliderPopImage.style && (this.sliderPopImage.style.backgroundImage = `url('${r}')`), this.player.once("item", () => {
+            URL.revokeObjectURL(r);
+          }), setTimeout(() => {
+            this.player.emit("preview-time", this.previewTime);
+          }, 400);
+        }
+      }).then() : (this.sliderPopImage.style && (this.sliderPopImage.style.backgroundImage = `url('${s}')`), t.src = s, setTimeout(() => {
+        this.player.emit("preview-time", this.previewTime);
+      }, 400)));
+      const e = this.player.getTimeFile();
+      e && this.currentTimeFile !== e && (this.player.currentTimeFile = e, t.onload = () => {
+        this.player.getFileContents({
+          url: e,
+          options: {
+            type: "text"
+          },
+          callback: (l) => {
+            const n = new n1.WebVTTParser().parse(l, "metadata"), o = /(?<x>\d*),(?<y>\d*),(?<w>\d*),(?<h>\d*)/u;
+            this.previewTime = [], n.cues.forEach((a) => {
+              const p = o.exec(a.text);
+              if (!(p != null && p.groups))
+                return;
+              const { x: u, y: c, w: d, h: L } = p.groups, [v, f, m, g] = [u, c, d, L].map((b) => parseInt(b, 10));
+              this.previewTime.push({
+                start: a.startTime,
+                end: a.endTime,
+                x: v,
+                y: f,
+                w: m,
+                h: g
+              });
+            }), setTimeout(() => {
+              this.player.emit("preview-time", this.previewTime);
+            }, 400);
+          }
+        }).then(() => {
+          this.loadSliderPopImage(0);
+        });
+      });
     }
-    return i;
   }
-  /**
-   * Returns an array of unique objects based on a specified key.
-   * @param array The array to filter.
-   * @param key The key to use for uniqueness comparison.
-   * @returns An array of unique objects.
-   */
-  unique(i, t) {
-    return !i || !Array.isArray(i) ? [] : i.filter((e, s, l) => l.map((a) => a[t]).indexOf(e[t]) === s);
+  createUiButton(s, t) {
+    var l;
+    const e = this.player.createElement("button", t).addClasses(this.makeStyles("buttonStyles")).appendTo(s);
+    return e.ariaLabel = (l = this.buttons[t]) == null ? void 0 : l.title, e.addEventListener("keyup", (r) => {
+      r.key === "Backspace" && (e.blur(), this.player.emit("show-menu", !1)), r.key === "Escape" && (e.blur(), this.player.emit("show-menu", !1));
+    }), e;
+  }
+  createBackButton(s, t = !1) {
+    if (!this.player.hasBackEventHandler)
+      return;
+    const e = this.createUiButton(
+      s,
+      "back"
+    );
+    return s.appendChild(e), this.createSVGElement(e, "back", this.buttons.back, !1, t), e.addEventListener("click", () => {
+      this.player.emit("hide-tooltip"), this.player.emit("back");
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : e.style.display = "flex";
+    }), e;
+  }
+  createRestartButton(s, t = !1) {
+    const e = this.createUiButton(
+      s,
+      "restart"
+    );
+    return s.appendChild(e), this.createSVGElement(e, "restart", this.buttons.restart, !1, t), e.addEventListener("click", (l) => {
+      l.stopPropagation(), this.player.restart();
+    }), e;
+  }
+  createSettingsButton(s, t = !1) {
+    if (!this.player.hasSpeeds() && !this.player.hasAudioTracks() && !this.player.hasCaptions())
+      return;
+    const e = this.createUiButton(
+      s,
+      "settings"
+    );
+    return this.createSVGElement(e, "settings", this.buttons.settings, !1, t), e.addEventListener("click", () => {
+      this.player.emit("hide-tooltip"), this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !1) : !this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !0) : this.menuOpen && !this.mainMenuOpen ? (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0)) : (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0));
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : e.style.display = "flex";
+    }), s.append(e), e;
+  }
+  createCloseButton(s, t = !1) {
+    if (!this.player.hasCloseEventHandler)
+      return;
+    const e = this.createUiButton(
+      s,
+      "close"
+    );
+    return s.appendChild(e), this.createSVGElement(e, "close", this.buttons.close, !1, t), e.addEventListener("click", () => {
+      this.player.emit("hide-tooltip"), this.player.emit("close");
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : e.style.display = "flex";
+    }), e;
+  }
+  createPlaybackButton(s, t = !1) {
+    var n;
+    const e = this.createUiButton(
+      s,
+      "playback"
+    );
+    s.appendChild(e), e.ariaLabel = (n = this.buttons.play) == null ? void 0 : n.title;
+    const l = this.createSVGElement(e, "paused", this.buttons.play, !1, t), r = this.createSVGElement(e, "playing", this.buttons.pause, !0, t);
+    return e.addEventListener("click", (o) => {
+      o.stopPropagation(), this.player.togglePlayback(), this.player.emit("hide-tooltip");
+    }), this.player.on("pause", () => {
+      r.style.display = "none", l.style.display = "flex";
+    }), this.player.on("play", () => {
+      l.style.display = "none", r.style.display = "flex";
+    }), this.player.on("item", () => {
+      r.focus();
+    }), e;
+  }
+  createSeekBackButton(s, t = !1) {
+    if (this.player.isMobile())
+      return;
+    const e = this.createUiButton(
+      s,
+      "seekBack"
+    );
+    return this.createSVGElement(e, "seekBack", this.buttons.seekBack, !1, t), e.addEventListener("click", () => {
+      this.player.emit("hide-tooltip"), this.player.rewindVideo();
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : e.style.display = "flex";
+    }), s.append(e), e;
+  }
+  createSeekForwardButton(s, t = !1) {
+    if (this.player.isMobile())
+      return;
+    const e = this.createUiButton(
+      s,
+      "seekForward"
+    );
+    return this.createSVGElement(e, "seekForward", this.buttons.seekForward, !1, t), e.addEventListener("click", () => {
+      this.player.emit("hide-tooltip"), this.player.forwardVideo();
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : e.style.display = "flex";
+    }), s.append(e), e;
+  }
+  createTime(s, t, e) {
+    const l = this.player.createElement("div", `${t}-time`).addClasses([
+      ...e,
+      ...this.makeStyles("timeStyles"),
+      `${t}-time`
+    ]).appendTo(s);
+    switch (l.textContent = "00:00", t) {
+      case "current":
+        this.player.on("time", (r) => {
+          l.textContent = E(r.currentTime);
+        }), this.player.on("currentScrubTime", (r) => {
+          l.textContent = E(r.currentTime);
+        });
+        break;
+      case "remaining":
+        this.player.on("duration", (r) => {
+          r.remaining === 1 / 0 ? l.textContent = "Live" : l.textContent = E(r.remaining);
+        }), this.player.on("time", (r) => {
+          r.remaining === 1 / 0 ? l.textContent = "Live" : l.textContent = E(r.remaining);
+        });
+        break;
+      case "duration":
+        this.player.on("duration", (r) => {
+          r.duration === 1 / 0 ? l.textContent = "Live" : l.textContent = E(r.duration);
+        });
+        break;
+    }
+    return this.player.on("pip-internal", (r) => {
+      r ? l.style.display = "none" : l.style.display = "";
+    }), l;
+  }
+  createVolumeButton(s, t = !1) {
+    var u;
+    if (this.player.isMobile())
+      return;
+    const e = this.player.createElement("div", "volume-container").addClasses(this.makeStyles("volumeContainerStyles")).appendTo(s), l = this.createUiButton(
+      e,
+      "volume"
+    );
+    l.ariaLabel = (u = this.buttons.volumeHigh) == null ? void 0 : u.title;
+    const r = this.player.createElement("input", "volume-slider").addClasses(this.makeStyles("volumeSliderStyles")).appendTo(e);
+    r.type = "range", r.min = "0", r.max = "100", r.step = "1", r.value = this.player.getVolume().toString(), r.style.backgroundSize = `${this.player.getVolume()}% 100%`;
+    const n = this.createSVGElement(l, "volumeMuted", this.buttons.volumeMuted, !0, t), o = this.createSVGElement(l, "volumeLow", this.buttons.volumeLow, !0, t), a = this.createSVGElement(l, "volumeMedium", this.buttons.volumeMedium, !0, t), p = this.createSVGElement(l, "volumeHigh", this.buttons.volumeHigh, !1, t);
+    return l.addEventListener("click", (c) => {
+      c.stopPropagation(), this.player.toggleMute(), this.player.emit("hide-tooltip");
+    }), r.addEventListener("input", (c) => {
+      c.stopPropagation();
+      const d = Math.floor(parseInt(r.value, 10));
+      r.style.backgroundSize = `${d}% 100%`, this.player.setVolume(d);
+    }), e.addEventListener("wheel", (c) => {
+      c.preventDefault();
+      const d = c.deltaY === 0 ? -c.deltaX : -c.deltaY;
+      d !== 0 && (r.style.backgroundSize = `${r.value}% 100%`, r.value = (parseFloat(r.value) + d * 0.5).toString(), this.player.setVolume(parseFloat(r.value)));
+    }, {
+      passive: !0
+    }), this.player.on("volume", (c) => {
+      this.volumeHandle(c, n, o, a, p), r.style.backgroundSize = `${c.volume}% 100%`, r.value = c.volume.toString();
+    }), this.player.on("mute", (c) => {
+      this.volumeHandle(c, n, o, a, p), c.muted ? (r.style.backgroundSize = "0% 100%", r.value = "0") : (r.style.backgroundSize = `${this.player.getVolume()}% 100%`, r.value = this.player.getVolume().toString());
+    }), e;
+  }
+  volumeHandle(s, t, e, l, r) {
+    this.player.getMute() || s.volume == 0 ? (e.style.display = "none", l.style.display = "none", r.style.display = "none", t.style.display = "flex") : s.volume <= 30 ? (l.style.display = "none", r.style.display = "none", t.style.display = "none", e.style.display = "flex") : s.volume <= 60 ? (e.style.display = "none", r.style.display = "none", t.style.display = "none", l.style.display = "flex") : (e.style.display = "none", l.style.display = "none", t.style.display = "none", r.style.display = "flex");
+  }
+  getClosestSeekableInterval() {
+    const s = this.player.getPosition(), e = this.previewTime.find((l) => s >= l.start && s < l.end);
+    return e == null ? void 0 : e.start;
+  }
+  createPreviousButton(s, t = !1) {
+    if (this.player.isMobile())
+      return;
+    const e = this.createUiButton(
+      s,
+      "previous"
+    );
+    return e.style.display = "none", this.createSVGElement(e, "previous", this.buttons.previous, !1, t), e.addEventListener("click", (l) => {
+      l.stopPropagation(), this.player.previous(), this.player.emit("hide-tooltip");
+    }), this.player.on("item", () => {
+      this.player.getPlaylistIndex() > 0 ? e.style.display = "flex" : e.style.display = "none";
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : (this.player.playlistItem().episode ?? -0 - 1 == 0) && (e.style.display = "flex");
+    }), e.addEventListener("mouseenter", () => {
+      const l = e.getBoundingClientRect(), r = s.getBoundingClientRect();
+      let n = Math.abs(r.left - l.left + 50);
+      const o = Math.abs(r.bottom - l.bottom - 60);
+      n < 30 && (n = 30), n > l.right - l.left - 10 && (n = l.right - l.left - 10), this.player.emit("show-episode-tip", {
+        direction: "previous",
+        currentTime: "bottom",
+        x: `${n}px`,
+        y: `-${o}px`
+      });
+    }), e.addEventListener("mouseleave", () => {
+      this.player.emit("hide-episode-tip");
+    }), s.appendChild(e), e;
+  }
+  createNextButton(s, t = !1) {
+    const e = this.createUiButton(
+      s,
+      "next"
+    );
+    return e.style.display = "none", this.player.hasNextTip = !0, this.createSVGElement(e, "next", this.buttons.next, !1, t), e.addEventListener("click", (l) => {
+      l.stopPropagation(), this.player.next(), this.player.emit("hide-tooltip");
+    }), this.player.on("item", () => {
+      this.player.isLastPlaylistItem() ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : this.player.isLastPlaylistItem() && (e.style.display = "flex");
+    }), e.addEventListener("mouseenter", () => {
+      const l = e.getBoundingClientRect(), r = s.getBoundingClientRect();
+      let n = Math.abs(r.left - l.left + 50);
+      const o = Math.abs(r.bottom - l.bottom - 60);
+      n < 30 && (n = 30), n > l.right - l.left - 10 && (n = l.right - l.left - 10), this.player.emit("show-episode-tip", {
+        direction: "next",
+        currentTime: "bottom",
+        x: `${n}px`,
+        y: `-${o}px`
+      });
+    }), e.addEventListener("mouseleave", () => {
+      this.player.emit("hide-episode-tip");
+    }), s.appendChild(e), e;
+  }
+  createCaptionsButton(s, t = !1) {
+    var n;
+    const e = this.createUiButton(
+      s,
+      "subtitles"
+    );
+    e.style.display = "none", e.ariaLabel = (n = this.buttons.subtitles) == null ? void 0 : n.title;
+    const l = this.createSVGElement(e, "subtitle", this.buttons.subtitlesOff, !1, t), r = this.createSVGElement(e, "subtitled", this.buttons.subtitles, !0, t);
+    return e.addEventListener("click", (o) => {
+      o.stopPropagation(), this.player.emit("hide-tooltip"), this.subtitlesMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-subtitles-menu", !0), this.menuFrame.showModal());
+    }), this.player.on("captionsList", (o) => {
+      o.length > 1 ? e.style.display = "flex" : e.style.display = "none";
+    }), this.player.on("captionsChanging", (o) => {
+      o.id == -1 ? (r.style.display = "none", l.style.display = "flex") : (r.style.display = "flex", l.style.display = "none");
+    }), this.player.on("pip-internal", (o) => {
+      o ? e.style.display = "none" : this.player.hasCaptions() && (e.style.display = "flex");
+    }), s.appendChild(e), e;
+  }
+  createAudioButton(s, t = !1) {
+    var l;
+    const e = this.createUiButton(
+      s,
+      "audio"
+    );
+    return e.style.display = "none", e.ariaLabel = (l = this.buttons.language) == null ? void 0 : l.title, this.createSVGElement(e, "audio", this.buttons.languageOff, !1, t), e.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.emit("hide-tooltip"), this.languageMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-language-menu", !0), this.menuFrame.showModal());
+    }), this.player.on("item", () => {
+      e.style.display = "none";
+    }), this.player.on("audioTracks", (r) => {
+      r.length > 1 ? e.style.display = "flex" : e.style.display = "none";
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : this.player.hasAudioTracks() && (e.style.display = "flex");
+    }), s.appendChild(e), e;
+  }
+  createQualityButton(s, t = !1) {
+    const e = this.createUiButton(
+      s,
+      "quality"
+    );
+    e.style.display = "none";
+    const l = this.createSVGElement(e, "low", this.buttons.quality, !1, t), r = this.createSVGElement(e, "high", this.buttons.quality, !0, t);
+    return e.addEventListener("click", (n) => {
+      n.stopPropagation(), this.player.emit("hide-tooltip"), this.qualityMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-quality-menu", !0), this.menuFrame.showModal()), this.player.highQuality ? (this.player.highQuality = !1, r.style.display = "none", l.style.display = "flex") : (this.player.highQuality = !0, l.style.display = "none", r.style.display = "flex");
+    }), this.player.on("item", () => {
+      e.style.display = "none";
+    }), this.player.on("levels", () => {
+      this.player.hasQualities() ? e.style.display = "flex" : e.style.display = "none";
+    }), this.player.on("pip-internal", (n) => {
+      n ? e.style.display = "none" : this.player.hasQualities() && (e.style.display = "flex");
+    }), s.appendChild(e), e;
+  }
+  createTheaterButton(s, t = !1) {
+    if (this.player.isMobile() || !this.player.hasTheaterEventHandler)
+      return;
+    const e = this.createUiButton(
+      s,
+      "theater"
+    );
+    return this.createSVGElement(e, "theater", this.buttons.theater, t), this.createSVGElement(e, "theater-enabled", this.buttons.theaterExit, !0, t), e.addEventListener("click", (l) => {
+      l.stopPropagation(), this.player.emit("hide-tooltip"), this.theaterModeEnabled ? (this.theaterModeEnabled = !1, e.querySelector(".theater-enabled-icon").style.display = "none", e.querySelector(".theater-icon").style.display = "flex", this.player.emit("theaterMode", !1), this.player.emit("resize")) : (this.theaterModeEnabled = !0, e.querySelector(".theater-icon").style.display = "none", e.querySelector(".theater-enabled-icon").style.display = "flex", this.player.emit("theaterMode", !0), this.player.emit("resize"));
+    }), this.player.on("fullscreen", () => {
+      this.player.getFullscreen() ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : e.style.display = "flex";
+    }), s.appendChild(e), e;
+  }
+  createFullscreenButton(s, t = !1) {
+    const e = this.createUiButton(
+      s,
+      "fullscreen"
+    );
+    return this.createSVGElement(e, "fullscreen", this.buttons.fullscreen, !1, t), this.createSVGElement(e, "fullscreen-enabled", this.buttons.exitFullscreen, !0, t), e.addEventListener("click", (l) => {
+      l.stopPropagation(), this.player.toggleFullscreen(), this.player.emit("hide-tooltip");
+    }), this.player.on("fullscreen", (l) => {
+      l ? (e.querySelector(".fullscreen-icon").style.display = "none", e.querySelector(".fullscreen-enabled-icon").style.display = "flex") : (e.querySelector(".fullscreen-enabled-icon").style.display = "none", e.querySelector(".fullscreen-icon").style.display = "flex");
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : e.style.display = "flex";
+    }), s.appendChild(e), e;
+  }
+  createPlaylistsButton(s, t = !1) {
+    const e = this.createUiButton(
+      s,
+      "playlist"
+    );
+    return e.style.display = "none", this.createSVGElement(e, "playlist", this.buttons.playlist, !1, t), e.addEventListener("click", (l) => {
+      l.stopPropagation(), this.player.emit("hide-tooltip"), this.playlistMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-playlist-menu", !0), this.player.emit("switch-season", this.player.playlistItem().season), this.menuFrame.showModal(), setTimeout(() => {
+        var r;
+        (r = document.querySelector(`playlist-${this.player.playlistItem().id}`)) == null || r.scrollIntoView({ block: "center" });
+      }, 100));
+    }), this.player.on("item", () => {
+      this.player.hasPlaylists() ? e.style.display = "flex" : e.style.display = "none";
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : this.player.hasPlaylists() && (e.style.display = "flex");
+    }), s.appendChild(e), e;
+  }
+  createBottomBar(s) {
+    const t = this.player.createElement("div", "bottom-bar").addClasses(this.makeStyles("bottomBarStyles")).appendTo(s);
+    return this.player.createElement("div", "bottom-bar-shadow").addClasses(this.makeStyles("bottomBarShadowStyles")).appendTo(t), t;
+  }
+  createDivider(s, t) {
+    const e = this.player.createElement("div", "divider").addClasses(this.makeStyles("dividerStyles")).appendTo(s);
+    return t ? e.innerHTML = t : this.player.addClasses(e, this.makeStyles("dividerStyles")), e;
+  }
+  createOverlayCenterMessage(s) {
+    const t = this.player.createElement("button", "player-message").addClasses(this.makeStyles("playerMessageStyles")).appendTo(s);
+    return this.player.on("display-message", (e) => {
+      t.style.display = "flex", t.textContent = e;
+    }), this.player.on("remove-message", () => {
+      t.style.display = "none", t.textContent = "";
+    }), t;
+  }
+  createSeekContainer(s) {
+    const t = this.player.createElement("div", "seek-container").addClasses(this.makeStyles("seekContainerStyles")).appendTo(s), e = this.player.createElement("div", "seek-scroll-clone-container").addClasses(this.makeStyles("seekScrollCloneStyles")).appendTo(t);
+    this.player.createElement("div", "thumbnail-clone-1").addClasses(this.makeStyles("thumbnailCloneStyles")).appendTo(e);
+    const l = this.player.createElement("div", "seek-scroll-container").addClasses(this.makeStyles("seekScrollContainerStyles")).appendTo(t);
+    return this.player.once("item", () => {
+      this.player.on("preview-time", () => {
+        this.thumbs = [];
+        for (const r of this.previewTime)
+          this.thumbs.push({
+            time: r,
+            el: this.createThumbnail(r)
+          });
+        l.innerHTML = "", o1(this.thumbs.map((r) => r.el), "id").forEach((r) => {
+          l.appendChild(r);
+        }), this.player.once("time", () => {
+          this.currentScrubTime = this.getClosestSeekableInterval(), this.player.emit("currentScrubTime", {
+            ...this.player.getTimeData(),
+            currentTime: this.getClosestSeekableInterval()
+          });
+        });
+      });
+    }), this.player.on("lastTimeTrigger", () => {
+      this.currentScrubTime = this.getClosestSeekableInterval(), this.player.emit("currentScrubTime", {
+        ...this.player.getTimeData(),
+        currentTime: this.getClosestSeekableInterval()
+      });
+    }), this.player.on("currentScrubTime", (r) => {
+      r.currentTime <= 0 ? r.currentTime = 0 : r.currentTime >= this.player.getDuration() && (r.currentTime = this.player.getDuration() - 10);
+      const n = this.thumbs.find((o) => r.currentTime >= o.time.start && r.currentTime <= o.time.end);
+      this.currentScrubTime = r.currentTime, n && this.scrollIntoView(n.el);
+    }), this.player.on("show-seek-container", (r) => {
+      r ? (t.style.transform = "none", this.player.pause()) : this.seekContainer.style.transform = "";
+    }), t;
+  }
+  createNextUp(s) {
+    this.nextUp = this.player.createElement("div", "episode-tip").addClasses(this.makeStyles("nextUpStyles")).appendTo(s), this.nextUp.style.display = "none";
+    const t = this.player.createElement("button", "next-up-credits").addClasses(this.makeStyles("nextUpCreditsButtonStyles")).appendTo(this.nextUp);
+    t.innerText = this.player.localize("Watch credits");
+    const e = this.player.createElement("button", "next-up-next").addClasses(this.makeStyles("nextUpNextButtonStyles")).appendTo(this.nextUp);
+    e.setAttribute("data-label", this.player.localize("Next")), e.setAttribute("data-icon", "▶︎"), this.player.on("show-next-up", () => {
+      this.nextUp.style.display = "flex", this.timeout = setTimeout(() => {
+        this.nextUp.style.display = "none", this.player.isPlaying && this.player.next();
+      }, 4200), setTimeout(() => {
+        e.focus();
+      }, 100);
+    }), t.addEventListener("click", () => {
+      clearTimeout(this.timeout), this.nextUp.style.display = "none";
+    }), e.addEventListener("click", () => {
+      clearTimeout(this.timeout), this.nextUp.style.display = "none", this.player.next();
+    });
+    let l = !1;
+    return this.player.on("item", () => {
+      clearTimeout(this.timeout), this.nextUp.style.display = "none", l = !1;
+    }), this.player.once("playing", () => {
+      this.player.on("time", (r) => {
+        this.player.getDuration() > 0 && r.currentTime > this.player.getDuration() - 5 && !l && !this.player.isLastPlaylistItem() && (this.player.emit("show-next-up"), l = !0);
+      });
+    }), this.nextUp;
+  }
+  createTopBar(s) {
+    return this.player.createElement("div", "top-bar").addClasses(this.makeStyles("topBarStyles")).appendTo(s);
+  }
+  createLanguageMenuButton(s, t, e = !1) {
+    const l = this.player.createElement("button", `${t.type}-button-${t.language}`).addClasses([
+      "language-button",
+      "w-available",
+      "mr-auto",
+      "h-8",
+      "px-1",
+      "py-2",
+      "flex",
+      "items-center",
+      "rounded",
+      "snap-center",
+      "outline-transparent",
+      "outline",
+      "whitespace-nowrap",
+      "hover:bg-neutral-600/50",
+      "transition-all",
+      "duration-100",
+      "outline-1",
+      "outline-solid",
+      "focus-visible:outline-2",
+      "focus-visible:outline-white",
+      "active:outline-white"
+    ]).appendTo(s), r = this.player.createElement("span", "menu-button-text").addClasses([
+      "menu-button-text",
+      "cursor-pointer",
+      "font-semibold",
+      "pl-2",
+      "flex",
+      "gap-2",
+      "leading-[normal]"
+    ]).appendTo(l);
+    t.buttonType == "subtitle" ? t.styled ? r.textContent = `${this.player.localize(t.language ?? "")} ${this.player.localize(t.label)} ${this.player.localize("styled")}` : t.language == "" ? r.textContent = this.player.localize(t.label) : r.textContent = `${this.player.localize(t.language ?? "")} (${this.player.localize(t.type)})` : r.textContent = this.player.localize(t.language);
+    const n = this.createSVGElement(l, "checkmark", this.buttons.checkmark, !1, e);
+    return this.player.addClasses(n, ["ml-auto"]), t.id > 0 && n.classList.add("hidden"), t.buttonType == "audio" ? (this.player.on("audioTrackChanging", (o) => {
+      t.id === o.id ? n.classList.remove("hidden") : n.classList.add("hidden");
+    }), l.addEventListener("click", (o) => {
+      o.stopPropagation(), this.player.setCurrentAudioTrack(t.id), this.player.emit("show-menu", !1);
+    })) : t.buttonType == "subtitle" && (t.id === this.player.getCaptionIndex() ? n.classList.remove("hidden") : n.classList.add("hidden"), this.player.on("captionsChanged", (o) => {
+      t.id === o.id ? n.classList.remove("hidden") : n.classList.add("hidden");
+    }), l.addEventListener("click", (o) => {
+      o.stopPropagation(), this.player.setCurrentCaption(t.id), this.player.emit("show-menu", !1);
+    })), l.addEventListener("keyup", (o) => {
+      var a, p, u, c;
+      o.key == "ArrowLeft" ? (a = this.player.getClosestElement(l, '[id^="audio-button-"]')) == null || a.focus() : o.key == "ArrowRight" ? (p = this.player.getClosestElement(l, '[id^="subtitle-button-"]')) == null || p.focus() : o.key == "ArrowUp" && !this.player.options.disableTouchControls ? (u = l.previousElementSibling) == null || u.focus() : o.key == "ArrowDown" && !this.player.options.disableTouchControls && ((c = l.nextElementSibling) == null || c.focus());
+    }), l.addEventListener("focus", () => {
+      setTimeout(() => {
+        this.scrollCenter(l, s, {
+          duration: 100,
+          margin: 1
+        });
+      }, 0);
+    }), l;
+  }
+  getLanguageButtonText(s, t) {
+    const e = this.player.createElement("span", "menu-button-text").addClasses([
+      "menu-button-text",
+      "cursor-pointer",
+      "font-semibold",
+      "pl-2",
+      "flex",
+      "gap-2",
+      "leading-[normal]"
+    ]).appendTo(s);
+    return t.buttonType == "subtitle" ? t.styled ? e.textContent = `${this.player.localize(t.language ?? "")} ${this.player.localize(t.label)} ${this.player.localize("styled")}` : t.language == "" ? e.textContent = this.player.localize(t.label) : e.textContent = `${this.player.localize(t.language ?? "")} (${this.player.localize(t.type)})` : e.textContent = this.player.localize(t.language), e;
+  }
+  createThumbnail(s) {
+    const t = this.player.createElement("div", `thumbnail-${s.start}`).addClasses([
+      "w-1/5",
+      "h-auto",
+      "object-cover",
+      "aspect-video",
+      "snap-center"
+    ]).get();
+    return t.style.backgroundImage = `url('${this.image}')`, t.style.backgroundPosition = `-${s.x}px -${s.y}px`, t.style.width = `${s.w}px`, t.style.minWidth = `${s.w}px`, t.style.height = `${s.h}px`, t;
+  }
+  getSliderPopImage(s) {
+    const t = this.loadSliderPopImage(s);
+    t && (this.sliderPopImage.style.backgroundPosition = `-${t.x}px -${t.y}px`, this.sliderPopImage.style.width = `${t.w}px`, this.sliderPopImage.style.height = `${t.h}px`);
+  }
+  adjustScaling(s, t) {
+    const e = s % t;
+    return e % 1 !== 0 && (s /= e / Math.round(e)), e > 1 && (s *= e), s;
+  }
+  loadSliderPopImage(s) {
+    this.fetchPreviewTime();
+    let t = this.previewTime.find(
+      (e) => s.scrubTimePlayer >= e.start && s.scrubTimePlayer < e.end
+    );
+    return t || (t = this.previewTime.at(-1)), t;
+  }
+  getScrubTime(s, t = this.sliderBar) {
+    var n, o, a, p;
+    const e = t.getBoundingClientRect();
+    let r = (s.clientX ?? ((o = (n = s.touches) == null ? void 0 : n[0]) == null ? void 0 : o.clientX) ?? ((p = (a = s.changedTouches) == null ? void 0 : a[0]) == null ? void 0 : p.clientX) ?? 0) - e.left;
+    return r <= 0 && (r = 0), r >= e.width && (r = e.width), {
+      scrubTime: r / t.offsetWidth * 100,
+      scrubTimePlayer: r / t.offsetWidth * this.player.getDuration()
+    };
   }
   /**
    * Sets the current episode to play based on the given season and episode numbers.
@@ -5147,46 +3838,21 @@ ${e[0]} ${s[1]}`;
    * @param season - The season number of the episode to play.
    * @param episode - The episode number to play.
    */
-  setEpisode(i, t) {
-    const e = this.player.getPlaylist().findIndex((s) => s.season == i && s.episode == t);
+  setEpisode(s, t) {
+    const e = this.player.getPlaylist().findIndex((l) => l.season == s && l.episode == t);
     e == -1 ? this.player.playlistItem(0) : this.player.playlistItem(e), this.player.play();
   }
-  /**
-   * Breaks a logo title string into two lines by inserting a newline character after a specified set of characters.
-   * @param str The logo title string to break.
-   * @param characters An optional array of characters to break the string on. Defaults to [':', '!', '?'].
-   * @returns The broken logo title string.
-   */
-  breakLogoTitle(i, t = [":", "!", "?"]) {
-    if (!i)
-      return "";
-    if (i.split("").some((e) => t.includes(e))) {
-      const e = new RegExp(t.map((l) => l == "?" ? `\\${l}` : l).join("|"), "u"), s = new RegExp(t.map((l) => l == "?" ? `\\${l}\\s` : `${l}\\s`).join("|"), "u");
-      if (e && s && i.match(s))
-        return i.replace(i.match(s)[0], `${i.match(e)[0]}
-`);
-    }
-    return i;
-  }
-  scrollCenter(i, t, e) {
-    if (!i)
+  scrollCenter(s, t, e) {
+    if (!s)
       return;
-    const s = (e == null ? void 0 : e.duration) || 60, l = (e == null ? void 0 : e.margin) || 1.5, a = i.getBoundingClientRect().top + i.getBoundingClientRect().height / 2 - t.getBoundingClientRect().height / l, r = t.scrollTop, o = performance.now();
-    function h(d) {
-      const p = d - o, u = Math.min(p / s, 1);
-      t.scrollTo(0, Math.floor(r + a * u)), p < s && requestAnimationFrame(h);
+    const l = (e == null ? void 0 : e.duration) || 60, r = (e == null ? void 0 : e.margin) || 1.5, n = s.getBoundingClientRect().top + s.getBoundingClientRect().height / 2 - t.getBoundingClientRect().height / r, o = t.scrollTop, a = performance.now();
+    function p(u) {
+      const c = u - a, d = Math.min(c / l, 1);
+      t.scrollTo(0, Math.floor(o + n * d)), c < l && requestAnimationFrame(p);
     }
-    requestAnimationFrame(h);
+    requestAnimationFrame(p);
   }
 }
-U = new WeakSet(), oe = function(i) {
-  const e = i.parentElement, s = i.getBoundingClientRect().left + i.offsetWidth / 2 - e.offsetWidth / 2, l = e.scrollLeft, a = performance.now();
-  function r(o) {
-    const h = o - a, d = Math.min(h / 200, 1);
-    e.scrollTo(l + s * d, 0), h < 200 && requestAnimationFrame(r);
-  }
-  requestAnimationFrame(r);
-};
 export {
-  cs as D
+  K5 as B
 };

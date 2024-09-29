@@ -6,8 +6,8 @@ import HLS, { type MediaPlaylist } from 'hls.js';
 import { type VTTData, WebVTTParser } from 'webvtt-parser';
 import translations from './translations';
 
-import type { PlaylistItem, SetupConfig, Stretching, Track, TimeData, TypeMappings } from './index.d';
-import { convertToSeconds, humanTime, pad } from './helpers';
+import type { PlaylistItem, SetupConfig, Stretching, Track, TimeData, TypeMappings, PreviewTime } from './index.d';
+import {convertToSeconds, humanTime, pad, unique} from './helpers';
 
 const instances = new Map<string, NMPlayer>();
 
@@ -29,6 +29,9 @@ export class NMPlayer extends Base {
 	// Store
 	chapters: VTTData = <VTTData>{};
 	currentChapterFile = '';
+
+	previewTime: PreviewTime[] = [];
+	currentTimeFile = '';
 
 	fonts: string[] = [];
 	currentFontFile = '';
@@ -56,12 +59,12 @@ export class NMPlayer extends Base {
 	plugins: {[key: string]: any} = {};
 
 	/**
-     * The available options for stretching the video to fit the player dimensions.
-     * - `uniform`: Fits Player dimensions while maintaining aspect ratio.
-     * - `fill`: Zooms and crops video to fill dimensions, maintaining aspect ratio.
-     * - `exactfit`: Fits Player dimensions without maintaining aspect ratio.
-     * - `none`: Displays the actual size of the video file (Black borders).
-     */
+	 * The available options for stretching the video to fit the player dimensions.
+	 * - `uniform`: Fits Player dimensions while maintaining aspect ratio.
+	 * - `fill`: Zooms and crops video to fill dimensions, maintaining aspect ratio.
+	 * - `exactfit`: Fits Player dimensions without maintaining aspect ratio.
+	 * - `none`: Displays the actual size of the video file (Black borders).
+	 */
 	stretchOptions: Array<Stretching> = [
 		'uniform',
 		'fill',
@@ -83,7 +86,7 @@ export class NMPlayer extends Base {
 
 		if (!id && instances.size > 0) {
 			// get the first player
-			return instances.values().next().value;
+			return instances.values().next().value!;
 		}
 
 		if (typeof id === 'number') {
@@ -152,11 +155,11 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Appends script and stylesheet files to the document head.
-     * @param {string | any[]} filePaths - The file paths to append to the document head.
-     * @returns {Promise<void>} A promise that resolves when all files have been successfully appended, or rejects if any file fails to load.
-     * @throws {Error} If an unsupported file type is provided.
-     */
+	 * Appends script and stylesheet files to the document head.
+	 * @param {string | any[]} filePaths - The file paths to append to the document head.
+	 * @returns {Promise<void>} A promise that resolves when all files have been successfully appended, or rejects if any file fails to load.
+	 * @throws {Error} If an unsupported file type is provided.
+	 */
 	appendScriptFilesToDocument(filePaths: string | any[]): Promise<Awaited<void>[]> {
 
 		if (!Array.isArray(filePaths)) {
@@ -194,10 +197,10 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Displays a message for a specified amount of time.
-     * @param data The message to display.
-     * @param time The amount of time to display the message for, in milliseconds. Defaults to 2000.
-     */
+	 * Displays a message for a specified amount of time.
+	 * @param data The message to display.
+	 * @param time The amount of time to display the message for, in milliseconds. Defaults to 2000.
+	 */
 	displayMessage(data: string, time = 2000): void {
 		clearTimeout(this.message);
 		this.emit('display-message', data);
@@ -207,25 +210,25 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns the HTMLDivElement element with the specified player ID.
-     * @returns The HTMLDivElement element with the specified player ID.
-     */
+	 * Returns the HTMLDivElement element with the specified player ID.
+	 * @returns The HTMLDivElement element with the specified player ID.
+	 */
 	getElement(): HTMLDivElement {
 		return document.getElementById(this.playerId) as HTMLDivElement;
 	}
 
 	/**
-     * Returns the HTMLVideoElement contained within the base element.
-     * @returns The HTMLVideoElement contained within the base element.
-     */
+	 * Returns the HTMLVideoElement contained within the base element.
+	 * @returns The HTMLVideoElement contained within the base element.
+	 */
 	getVideoElement(): HTMLVideoElement {
 		return this.getElement().querySelector<HTMLVideoElement>('video')!;
 	}
 
 	/**
-     * Checks if the player element is currently in the viewport.
-     * @returns {boolean} True if the player is in the viewport, false otherwise.
-     */
+	 * Checks if the player element is currently in the viewport.
+	 * @returns {boolean} True if the player is in the viewport, false otherwise.
+	 */
 	isInViewport(): boolean {
 		const rect = this.getVideoElement().getBoundingClientRect();
 		const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
@@ -239,12 +242,12 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Fetches the contents of a file from the specified URL using the provided options and callback function.
-     * @param url - The URL of the file to fetch.
-     * @param options - The options to use when fetching the file.
-     * @param callback - The callback function to invoke with the fetched file contents.
-     * @returns A Promise that resolves with the fetched file contents.
-     */
+	 * Fetches the contents of a file from the specified URL using the provided options and callback function.
+	 * @param url - The URL of the file to fetch.
+	 * @param options - The options to use when fetching the file.
+	 * @param callback - The callback function to invoke with the fetched file contents.
+	 * @returns A Promise that resolves with the fetched file contents.
+	 */
 	getFileContents = async <T = TypeMappings>({ url, options, callback }: {
 		url: string,
 		options: {
@@ -271,23 +274,23 @@ export class NMPlayer extends Base {
 		})
 			.then(async (body) => {
 				switch (options.type) {
-				case 'blob':
-					// @ts-ignore
-					callback(await body.blob() as ReturnType<T>);
-					break;
-				case 'json':
-					// @ts-ignore
-					callback(await body.json() as ReturnType<T>);
-					break;
-				case 'arrayBuffer':
-					// @ts-ignore
-					callback(await body.arrayBuffer() as ReturnType<T>);
-					break;
-				case 'text':
-				default:
-					// @ts-ignore
-					callback(await body.text() as ReturnType<T>);
-					break;
+					case 'blob':
+						// @ts-ignore
+						callback(await body.blob() as ReturnType<T>);
+						break;
+					case 'json':
+						// @ts-ignore
+						callback(await body.json() as ReturnType<T>);
+						break;
+					case 'arrayBuffer':
+						// @ts-ignore
+						callback(await body.arrayBuffer() as ReturnType<T>);
+						break;
+					case 'text':
+					default:
+						// @ts-ignore
+						callback(await body.text() as ReturnType<T>);
+						break;
 				}
 			})
 			.catch((reason) => {
@@ -296,16 +299,16 @@ export class NMPlayer extends Base {
 	};
 
 	/**
-     * Creates a new HTML element of the specified type and assigns the given ID to it.
-     * @param type - The type of the HTML element to create.
-     * @param id - The ID to assign to the new element.
-     * @param unique - Whether to use an existing element with the specified ID if it already exists.
-     * @returns An object with four methods:
-     *   - `addClasses`: A function that adds the specified CSS class names to the element's class list and returns the next 3 functions.
-     *   - `appendTo`: A function that appends the element to a parent element and returns the element.
-     *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
-     *   - `get`: A function that returns the element.
-     */
+	 * Creates a new HTML element of the specified type and assigns the given ID to it.
+	 * @param type - The type of the HTML element to create.
+	 * @param id - The ID to assign to the new element.
+	 * @param unique - Whether to use an existing element with the specified ID if it already exists.
+	 * @returns An object with four methods:
+	 *   - `addClasses`: A function that adds the specified CSS class names to the element's class list and returns the next 3 functions.
+	 *   - `appendTo`: A function that appends the element to a parent element and returns the element.
+	 *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
+	 *   - `get`: A function that returns the element.
+	 */
 	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): {
 		prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
 		get: () => HTMLElementTagNameMap[K];
@@ -345,16 +348,16 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Adds the specified CSS class names to the given element's class list.
-     *
-     * @param el - The element to add the classes to.
-     * @param names - An array of CSS class names to add.
-     * @returns An object with three methods:
-     *   - `appendTo`: A function that appends the element to a parent element and returns the element.
-     *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
-     *   - `get`: A function that returns the element.
-     * @template T - The type of the element to add the classes to.
-     */
+	 * Adds the specified CSS class names to the given element's class list.
+	 *
+	 * @param el - The element to add the classes to.
+	 * @param names - An array of CSS class names to add.
+	 * @returns An object with three methods:
+	 *   - `appendTo`: A function that appends the element to a parent element and returns the element.
+	 *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
+	 *   - `get`: A function that returns the element.
+	 * @template T - The type of the element to add the classes to.
+	 */
 	addClasses<T extends Element>(el: T, names: string[]) {
 		for (const name of names.filter(Boolean)) {
 			el.classList?.add(name.trim());
@@ -479,7 +482,7 @@ export class NMPlayer extends Base {
 			.addClasses(['subtitle-text', 'text-center', 'whitespace-pre-line', 'font-bolder', 'leading-normal'])
 			.appendTo(this.subtitleOverlay);
 
-		this.subtitleText.style.fontSize = 'clamp(20px, 2.5vw, 30px)';
+		this.subtitleText.style.fontSize = 'clamp(1.5rem, 2vw, 2.5rem)';
 		this.subtitleText.style.textShadow = 'black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px';
 
 		this.videoElement.addEventListener('timeupdate', this.checkSubtitles.bind(this));
@@ -717,7 +720,7 @@ export class NMPlayer extends Base {
 	videoPlayer_loadedmetadataEvent(e: Event): void {
 		const _e = e as Event & {target: HTMLVideoElement};
 		this.emit('loadedmetadata', this.videoElement);
-		this.emit('duration', this.videoPlayer_getTimeData.bind(this)(_e));
+		this.emit('duration', this.videoPlayer_getTimeData(_e));
 	}
 
 	videoPlayer_loadstartEvent(e: Event): void {
@@ -730,12 +733,12 @@ export class NMPlayer extends Base {
 		const _e = e as Event & {target: HTMLVideoElement};
 		if (Number.isNaN(_e.target.duration) || Number.isNaN(_e.target.currentTime)) return;
 
-		this.emit('time', this.videoPlayer_getTimeData.bind(this)(_e));
+		this.emit('time', this.videoPlayer_getTimeData(_e));
 	}
 
 	videoPlayer_durationchangeEvent(e: Event): void {
 		const _e = e as Event & {target: HTMLVideoElement};
-		this.emit('duration', this.videoPlayer_getTimeData.bind(this)(_e));
+		this.emit('duration', this.videoPlayer_getTimeData(_e));
 
 		this.emit('ready');
 	}
@@ -771,6 +774,19 @@ export class NMPlayer extends Base {
 			durationHuman: humanTime(_e.target.duration),
 			remainingHuman: humanTime(_e.target.duration - _e.target.currentTime),
 			playbackRate: _e.target.playbackRate,
+		};
+	}
+
+	getTimeData(): TimeData {
+		return {
+			currentTime: this.videoElement.currentTime,
+			duration: this.videoElement.duration,
+			percentage: (this.videoElement.currentTime / this.videoElement.duration) * 100,
+			remaining: this.videoElement.duration - this.videoElement.currentTime,
+			currentTimeHuman: humanTime(this.videoElement.currentTime),
+			durationHuman: humanTime(this.videoElement.duration),
+			remainingHuman: humanTime(this.videoElement.duration - this.videoElement.currentTime),
+			playbackRate: this.videoElement.playbackRate,
 		};
 	}
 
@@ -816,9 +832,9 @@ export class NMPlayer extends Base {
 
 		if (this.lockActive) return;
 
-		const target = event.target as HTMLElement;
+		const target = event?.target as HTMLElement;
 
-		if (target && (target.tagName === 'BUTTON' || target.tagName === 'INPUT')) {
+		if (!target || (target.tagName === 'BUTTON' || target.tagName === 'INPUT') && !this.isTv()) {
 			return;
 		}
 
@@ -1189,13 +1205,13 @@ export class NMPlayer extends Base {
 	};
 
 	/**
-     * Sets up the media session API for the player.
-     *
-     * @remarks
-     * This method sets up the media session API for the player, which allows the user to control media playback
-     * using the media session controls on their device. It sets the metadata for the current media item, as well
-     * as the action handlers for the media session controls.
-     */
+	 * Sets up the media session API for the player.
+	 *
+	 * @remarks
+	 * This method sets up the media session API for the player, which allows the user to control media playback
+	 * using the media session controls on their device. It sets the metadata for the current media item, as well
+	 * as the action handlers for the media session controls.
+	 */
 	setMediaAPI(): void {
 
 		if ('mediaSession' in navigator) {
@@ -1213,10 +1229,10 @@ export class NMPlayer extends Base {
 				artist: playlistItem.show,
 				album: playlistItem.season ? `S${pad(playlistItem.season, 2)}E${pad(playlistItem.episode ?? 0, 2)}` : '',
 				artwork: playlistItem.image ? [
-                    {
-                    	src: playlistItem.image,
-                    	type: `image/${playlistItem.image.split('.').at(-1)}`,
-                    } as MediaImage,
+					{
+						src: playlistItem.image,
+						type: `image/${playlistItem.image.split('.').at(-1)}`,
+					} as MediaImage,
 				] : [],
 			});
 
@@ -1233,11 +1249,11 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns the localized string for the given value, if available.
-     * If the value is not found in the translations, it returns the original value.
-     * @param value - The string value to be localized.
-     * @returns The localized string, if available. Otherwise, the original value.
-     */
+	 * Returns the localized string for the given value, if available.
+	 * If the value is not found in the translations, it returns the original value.
+	 * @param value - The string value to be localized.
+	 * @returns The localized string, if available. Otherwise, the original value.
+	 */
 	localize(value: string): string {
 		if (this.translations && this.translations[value as unknown as number]) {
 			return this.translations[value as unknown as number];
@@ -1251,17 +1267,17 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Sets the title of the document.
-     * @param value - The new title to set.
-     */
+	 * Sets the title of the document.
+	 * @param value - The new title to set.
+	 */
 	setTitle(value: string): void {
 		document.title = value;
 	}
 
 	/**
-     * Returns an array of subtitle tracks for the current playlist item.
-     * @returns {Array} An array of subtitle tracks for the current playlist item.
-     */
+	 * Returns an array of subtitle tracks for the current playlist item.
+	 * @returns {Array} An array of subtitle tracks for the current playlist item.
+	 */
 	getSubtitles(): Track[] | undefined {
 		return this.playlistItem().tracks
 			?.filter((t: { kind: string }) => t.kind === 'subtitles')
@@ -1274,51 +1290,51 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns an array of audio tracks for the current playlist item.
-     * @returns {Array} An array of audio tracks for the current playlist item.
-     */
+	 * Returns an array of audio tracks for the current playlist item.
+	 * @returns {Array} An array of audio tracks for the current playlist item.
+	 */
 	getSubtitleFile(): string | undefined {
 		return this.getCurrentCaptions()?.file;
 	}
 
 	/**
-     * Returns the file associated with the thumbnail of the current playlist item.
-     * @returns The file associated with the thumbnail of the current playlist item, or undefined if no thumbnail is found.
-     */
+	 * Returns the file associated with the thumbnail of the current playlist item.
+	 * @returns The file associated with the thumbnail of the current playlist item, or undefined if no thumbnail is found.
+	 */
 	getTimeFile(): string | undefined {
 		return this.playlistItem().tracks?.find((t: { kind: string }) => t.kind === 'thumbnails')?.file;
 	}
 
 	/**
-     * Returns the file associated with the sprite metadata of the current playlist item.
-     * @returns The sprite file, or undefined if no sprite metadata is found.
-     */
+	 * Returns the file associated with the sprite metadata of the current playlist item.
+	 * @returns The sprite file, or undefined if no sprite metadata is found.
+	 */
 	getSpriteFile(): string | undefined {
 		return this.playlistItem().tracks?.find((t: { kind: string }) => t.kind === 'sprite')?.file;
 	}
 
 	/**
-     * Returns the file associated with the chapter metadata of the current playlist item, if any.
-     * @returns The chapter file, or undefined if no chapter metadata is found.
-     */
+	 * Returns the file associated with the chapter metadata of the current playlist item, if any.
+	 * @returns The chapter file, or undefined if no chapter metadata is found.
+	 */
 	getChapterFile(): string | undefined {
 		return this.playlistItem().tracks?.find((t: { kind: string }) => t.kind === 'chapters')?.file;
 	}
 
 	/**
-     * Returns the file associated with the chapter metadata of the current playlist item, if any.
-     * @returns The chapter file, or undefined if no chapter metadata is found.
-     */
+	 * Returns the file associated with the chapter metadata of the current playlist item, if any.
+	 * @returns The chapter file, or undefined if no chapter metadata is found.
+	 */
 	getSkipFile(): string | undefined {
 		return this.playlistItem().tracks?.find((t: { kind: string }) => t.kind === 'skippers')?.file;
 	}
 
 
 	/**
-     * Fetches the skip file and parses it to get the skippers.
-     * Emits the 'skippers' event with the parsed skippers.
-     * If the video duration is not available yet, waits for the 'duration' event to be emitted before emitting the 'skippers' event.
-     */
+	 * Fetches the skip file and parses it to get the skippers.
+	 * Emits the 'skippers' event with the parsed skippers.
+	 * If the video duration is not available yet, waits for the 'duration' event to be emitted before emitting the 'skippers' event.
+	 */
 	fetchSkipFile() {
 		this.skippers = [];
 		const file = this.getSkipFile();
@@ -1345,9 +1361,9 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns an array of skip objects, each containing information about the skip's ID, title, start and end times, and position within the video.
-     * @returns {Array} An array of skip objects.
-     */
+	 * Returns an array of skip objects, each containing information about the skip's ID, title, start and end times, and position within the video.
+	 * @returns {Array} An array of skip objects.
+	 */
 	getSkippers(): Array<any> {
 		return this.skippers?.cues?.map((skip: { id: any; text: any; startTime: any; endTime: any }, index: number) => {
 			return {
@@ -1361,9 +1377,9 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns the current skip based on the current time.
-     * @returns The current skip object or undefined if no skip is found.
-     */
+	 * Returns the current skip based on the current time.
+	 * @returns The current skip object or undefined if no skip is found.
+	 */
 	getSkip(): any {
 		return this.getSkippers()?.find((chapter: { startTime: number; endTime: number; }) => {
 			return this.getPosition() >= chapter.startTime && this.getPosition() <= chapter.endTime;
@@ -1371,27 +1387,27 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns an array of available playback speeds.
-     * If the player is a JWPlayer, it returns the playbackRates from the options object.
-     * Otherwise, it returns the playbackRates from the player object.
-     * @returns An array of available playback speeds.
-     */
+	 * Returns an array of available playback speeds.
+	 * If the player is a JWPlayer, it returns the playbackRates from the options object.
+	 * Otherwise, it returns the playbackRates from the player object.
+	 * @returns An array of available playback speeds.
+	 */
 	getSpeeds(): any {
 		return this.options.playbackRates ?? [];
 	}
 
 	/**
-     * Returns the current playback speed of the player.
-     * @returns The current playback speed of the player.
-     */
+	 * Returns the current playback speed of the player.
+	 * @returns The current playback speed of the player.
+	 */
 	getSpeed(): number {
 		return this.videoElement.playbackRate;
 	}
 
 	/**
-     * Checks if the player has multiple speeds.
-     * @returns {boolean} True if the player has multiple speeds, false otherwise.
-     */
+	 * Checks if the player has multiple speeds.
+	 * @returns {boolean} True if the player has multiple speeds, false otherwise.
+	 */
 	hasSpeeds(): boolean {
 		const speeds = this.getSpeeds();
 		return speeds !== undefined && speeds.length > 1;
@@ -1403,26 +1419,26 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns a boolean indicating whether the player has a Picture-in-Picture (PIP) event handler.
-     * @returns {boolean} Whether the player has a PIP event handler.
-     */
+	 * Returns a boolean indicating whether the player has a Picture-in-Picture (PIP) event handler.
+	 * @returns {boolean} Whether the player has a PIP event handler.
+	 */
 	hasPIP(): boolean {
 		return this.hasPipEventHandler;
 	}
 
 	/**
-     * Returns the file associated with the 'fonts' metadata item of the current playlist item, if it exists.
-     * @returns {string | undefined} The file associated with the 'fonts' metadata item
-     * of the current playlist item, or undefined if it does not exist.
-     */
+	 * Returns the file associated with the 'fonts' metadata item of the current playlist item, if it exists.
+	 * @returns {string | undefined} The file associated with the 'fonts' metadata item
+	 * of the current playlist item, or undefined if it does not exist.
+	 */
 	getFontsFile(): string | undefined {
 		return this.playlistItem().tracks?.find((t: { kind: string }) => t.kind === 'fonts')?.file;
 	}
 
 	/**
-     * Fetches the font file and updates the fonts array if the file has changed.
-     * @returns {Promise<void>} A Promise that resolves when the font file has been fetched and the fonts array has been updated.
-     */
+	 * Fetches the font file and updates the fonts array if the file has changed.
+	 * @returns {Promise<void>} A Promise that resolves when the font file has been fetched and the fonts array has been updated.
+	 */
 	async fetchFontFile(): Promise<void> {
 		const file = this.getFontsFile();
 		if (file && this.currentFontFile !== file) {
@@ -1451,9 +1467,9 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Fetches the translations file for the specified language or the user's browser language.
-     * @returns A Promise that resolves when the translations file has been fetched and parsed.
-     */
+	 * Fetches the translations file for the specified language or the user's browser language.
+	 * @returns A Promise that resolves when the translations file has been fetched and parsed.
+	 */
 	async fetchTranslationsFile(): Promise<void> {
 		const language = this.options.language ?? navigator.language;
 
@@ -1472,10 +1488,10 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Fetches the chapter file and parses it to get the chapters.
-     * Emits the 'chapters' event with the parsed chapters.
-     * If the video duration is not available yet, waits for the 'duration' event to be emitted before emitting the 'chapters' event.
-     */
+	 * Fetches the chapter file and parses it to get the chapters.
+	 * Emits the 'chapters' event with the parsed chapters.
+	 * If the video duration is not available yet, waits for the 'duration' event to be emitted before emitting the 'chapters' event.
+	 */
 	fetchChapterFile(): void {
 		const file = this.getChapterFile();
 		if (file && this.currentChapterFile !== file) {
@@ -1496,9 +1512,9 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns an array of chapter objects, each containing information about the chapter's ID, title, start and end times, and position within the video.
-     * @returns {Array} An array of chapter objects.
-     */
+	 * Returns an array of chapter objects, each containing information about the chapter's ID, title, start and end times, and position within the video.
+	 * @returns {Array} An array of chapter objects.
+	 */
 	getChapters(): Array<any> {
 		return this.chapters?.cues?.map((chapter: { id: any; text: any; startTime: any; }, index: number) => {
 			const endTime = this.chapters?.cues[index + 1]?.startTime ?? this.getDuration();
@@ -1514,9 +1530,9 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns the current chapter based on the current time.
-     * @returns The current chapter object or undefined if no chapter is found.
-     */
+	 * Returns the current chapter based on the current time.
+	 * @returns The current chapter object or undefined if no chapter is found.
+	 */
 	getChapter(): any {
 		return this.getChapters()?.find((chapter: { startTime: number; endTime: number; }) => {
 			return this.getPosition() >= chapter.startTime && this.getPosition() <= chapter.endTime;
@@ -1573,10 +1589,10 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Fetches a playlist from the specified URL and returns it as a converted playlist for the current player.
-     * @param url The URL to fetch the playlist from.
-     * @returns The converted playlist for the current player.
-     */
+	 * Fetches a playlist from the specified URL and returns it as a converted playlist for the current player.
+	 * @param url The URL to fetch the playlist from.
+	 * @returns The converted playlist for the current player.
+	 */
 	async fetchPlaylist(url: string) {
 
 		const headers: { [arg: string]: string; } = {
@@ -1595,10 +1611,10 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Loads the playlist for the player based on the options provided.
-     * If the playlist is a string, it will be fetched and parsed as JSON.
-     * If the playlist is an array, it will be used directly.
-     */
+	 * Loads the playlist for the player based on the options provided.
+	 * If the playlist is a string, it will be fetched and parsed as JSON.
+	 * If the playlist is an array, it will be used directly.
+	 */
 	loadPlaylist(): void {
 		if (typeof this.options.playlist === 'string') {
 			this.fetchPlaylist(this.options.playlist)
@@ -1607,8 +1623,8 @@ export class NMPlayer extends Base {
 
 					this.playlist = json.map((item: PlaylistItem, index: number) => ({
 						...item,
-						season: item.season ?? 1,
-						episode: item.episode ?? index + 1,
+						season: item.season,
+						episode: item.episode,
 					}));
 
 					setTimeout(() => {
@@ -1620,8 +1636,8 @@ export class NMPlayer extends Base {
 		} else if (Array.isArray(this.options.playlist)) {
 			this.playlist = this.options.playlist.map((item: PlaylistItem, index: number) => ({
 				...item,
-				season: item.season ?? 1,
-				episode: item.episode ?? index + 1,
+				season: item.season,
+				episode: item.episode,
 			}));
 			setTimeout(() => {
 				this.emit('playlist', this.playlist);
@@ -1638,56 +1654,56 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns a boolean indicating whether the current playlist item is the first item in the playlist.
-     * @returns {boolean} True if the current playlist item is the first item in the playlist, false otherwise.
-     */
+	 * Returns a boolean indicating whether the current playlist item is the first item in the playlist.
+	 * @returns {boolean} True if the current playlist item is the first item in the playlist, false otherwise.
+	 */
 	isFirstPlaylistItem(): boolean {
 		return this.getPlaylistIndex() === 0;
 	}
 
 	/**
-     * Returns the current source URL of the player.
-     * If the player is a JWPlayer, it returns the file URL of the current playlist item.
-     * Otherwise, it returns the URL of the first source in the current playlist item.
-     * @returns The current source URL of the player, or undefined if there is no current source.
-     */
+	 * Returns the current source URL of the player.
+	 * If the player is a JWPlayer, it returns the file URL of the current playlist item.
+	 * Otherwise, it returns the URL of the first source in the current playlist item.
+	 * @returns The current source URL of the player, or undefined if there is no current source.
+	 */
 	getCurrentSrc(): any {
 		return this.playlistItem()?.file;
 	}
 
 	/**
-     * Checks if the current playlist item is the last item in the playlist.
-     * @returns {boolean} True if the current playlist item is the last item in the playlist, false otherwise.
-     */
+	 * Checks if the current playlist item is the last item in the playlist.
+	 * @returns {boolean} True if the current playlist item is the last item in the playlist, false otherwise.
+	 */
 	isLastPlaylistItem(): boolean {
 		return this.getPlaylistIndex() === this.getPlaylist().length - 1;
 	}
 
 	/**
-     * Checks if the player has more than one playlist.
-     * @returns {boolean} True if the player has more than one playlist, false otherwise.
-     */
+	 * Checks if the player has more than one playlist.
+	 * @returns {boolean} True if the player has more than one playlist, false otherwise.
+	 */
 	hasPlaylists(): boolean {
 		return this.getPlaylist().length > 1;
 	}
 
 	/**
-     * Public API methods
-     */
+	 * Public API methods
+	 */
 
 	/**
-     * Determines if the current device is a mobile device.
-     * @returns {boolean} True if the device is a mobile device, false otherwise.
-     */
+	 * Determines if the current device is a mobile device.
+	 * @returns {boolean} True if the device is a mobile device, false otherwise.
+	 */
 	isMobile(): boolean {
 		return matchMedia('(max-width: 520px) and (orientation: portrait), (max-height: 520px) and (orientation: landscape)').matches;
 		// return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu.test(navigator.userAgent) && !this.options.disableTouchControls;
 	}
 
 	/**
-     * Determines if the current device is a TV based on the user agent string or the window dimensions.
-     * @returns {boolean} True if the current device is a TV, false otherwise.
-     */
+	 * Determines if the current device is a TV based on the user agent string or the window dimensions.
+	 * @returns {boolean} True if the current device is a TV, false otherwise.
+	 */
 	isTv(): boolean {
 		return matchMedia('(width: 960px) and (height: 540px)').matches;
 		// return /Playstation|webOS|AppleTV|AndroidTV|NetCast|NetTV|SmartTV|Tizen|TV/u.test(navigator.userAgent)
@@ -1840,9 +1856,9 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Rewinds the video by a specified time interval.
-     * @param time - The time interval to rewind the video by. Defaults to 10 seconds if not provided.
-     */
+	 * Rewinds the video by a specified time interval.
+	 * @param time - The time interval to rewind the video by. Defaults to 10 seconds if not provided.
+	 */
 	rewindVideo(time = this.seekInterval ?? 10): void {
 		this.emit('remove-forward');
 		clearTimeout(this.leftTap);
@@ -1858,9 +1874,9 @@ export class NMPlayer extends Base {
 	};
 
 	/**
-     * Forwards the video by the specified time interval.
-     * @param time - The time interval to forward the video by, in seconds. Defaults to 10 seconds if not provided.
-     */
+	 * Forwards the video by the specified time interval.
+	 * @param time - The time interval to forward the video by, in seconds. Defaults to 10 seconds if not provided.
+	 */
 	forwardVideo(time = this.seekInterval ?? 10): void {
 		this.emit('remove-rewind');
 		clearTimeout(this.rightTap);
@@ -1902,18 +1918,18 @@ export class NMPlayer extends Base {
 
 
 	/**
-     * Returns a boolean indicating whether the player is currently muted.
-     * If the player is a JWPlayer, it will return the value of `player.getMute()`.
-     * Otherwise, it will return the value of `player.muted()`.
-     * @returns {boolean} A boolean indicating whether the player is currently muted.
-     */
+	 * Returns a boolean indicating whether the player is currently muted.
+	 * If the player is a JWPlayer, it will return the value of `player.getMute()`.
+	 * Otherwise, it will return the value of `player.muted()`.
+	 * @returns {boolean} A boolean indicating whether the player is currently muted.
+	 */
 	isMuted(): boolean {
 		return this.getMute();
 	}
 
 	/**
-     * Increases the volume of the player by 10 units, up to a maximum of 100.
-     */
+	 * Increases the volume of the player by 10 units, up to a maximum of 100.
+	 */
 	volumeUp(): void {
 		if (this.getVolume() === 100) {
 			this.setVolume(100);
@@ -1925,8 +1941,8 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Decreases the volume of the player by 10 units. If the volume is already at 0, the player is muted.
-     */
+	 * Decreases the volume of the player by 10 units. If the volume is already at 0, the player is muted.
+	 */
 	volumeDown(): void {
 		if (this.getVolume() === 0) {
 			this.setMute(true);
@@ -1967,8 +1983,8 @@ export class NMPlayer extends Base {
 
 
 	/**
-     * Enters fullscreen mode for the player.
-     */
+	 * Enters fullscreen mode for the player.
+	 */
 	enterFullscreen(): void {
 		if (navigator.userActivation.isActive) {
 			this.container.requestFullscreen().then(() => {
@@ -1983,8 +1999,8 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Exits fullscreen mode for the player.
-     */
+	 * Exits fullscreen mode for the player.
+	 */
 	exitFullscreen(): void {
 		document.exitFullscreen().then(() => {
 			this.emit('fullscreen', this.getFullscreen());
@@ -1995,10 +2011,10 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Toggles the fullscreen mode of the player.
-     * If the player is currently in fullscreen mode, it exits fullscreen mode.
-     * If the player is not in fullscreen mode, it enters fullscreen mode.
-     */
+	 * Toggles the fullscreen mode of the player.
+	 * If the player is currently in fullscreen mode, it exits fullscreen mode.
+	 * If the player is not in fullscreen mode, it enters fullscreen mode.
+	 */
 	toggleFullscreen(): void {
 		if (this.getFullscreen()) {
 			this.exitFullscreen();
@@ -2046,20 +2062,20 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns a boolean indicating whether there are multiple audio tracks available.
-     * @returns {boolean} True if there are multiple audio tracks, false otherwise.
-     */
+	 * Returns a boolean indicating whether there are multiple audio tracks available.
+	 * @returns {boolean} True if there are multiple audio tracks, false otherwise.
+	 */
 	hasAudioTracks(): boolean {
 		return this.getAudioTracks().length > 1;
 	}
 
 	/**
-     * Cycles to the next audio track in the playlist.
-     * If there are no audio tracks, this method does nothing.
-     * If the current track is the last track in the playlist, this method will cycle back to the first track.
-     * Otherwise, this method will cycle to the next track in the playlist.
-     * After cycling to the next track, this method will display a message indicating the new audio track.
-     */
+	 * Cycles to the next audio track in the playlist.
+	 * If there are no audio tracks, this method does nothing.
+	 * If the current track is the last track in the playlist, this method will cycle back to the first track.
+	 * Otherwise, this method will cycle to the next track in the playlist.
+	 * After cycling to the next track, this method will display a message indicating the new audio track.
+	 */
 	cycleAudioTracks(): void {
 
 		if (!this.hasAudioTracks()) {
@@ -2108,9 +2124,9 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns a boolean indicating whether the player has more than one quality.
-     * @returns {boolean} True if the player has more than one quality, false otherwise.
-     */
+	 * Returns a boolean indicating whether the player has more than one quality.
+	 * @returns {boolean} True if the player has more than one quality, false otherwise.
+	 */
 	hasQualities(): boolean {
 		return this.getQualityLevels().length > 1;
 	}
@@ -2132,7 +2148,7 @@ export class NMPlayer extends Base {
 	}
 
 	hasCaptions(): boolean {
-		return (this.getSubtitles()?.length ?? 0) > 0 ?? false;
+		return (this.getSubtitles()?.length ?? 0) > 0;
 	}
 
 	getCurrentCaptions(): Track | undefined {
@@ -2157,12 +2173,12 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Returns the index of the text track that matches the specified language, type, and extension.
-     * @param language The language of the text track.
-     * @param type The type of the text track.
-     * @param ext The extension of the text track.
-     * @returns The index of the matching text track, or -1 if no match is found.
-     */
+	 * Returns the index of the text track that matches the specified language, type, and extension.
+	 * @param language The language of the text track.
+	 * @param type The type of the text track.
+	 * @param ext The extension of the text track.
+	 * @returns The index of the matching text track, or -1 if no match is found.
+	 */
 	getTextTrackIndexBy(language: string, type: string, ext: string): number | undefined {
 		const index = this.getCaptionsList()
 			?.findIndex((t: any) => (t.file ?? t.id).endsWith(`${language}.${type}.${ext}`));
@@ -2203,8 +2219,8 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Triggers the styled subtitles based on the provided file.
-     */
+	 * Triggers the styled subtitles based on the provided file.
+	 */
 	storeSubtitleChoice() {
 		const currentCaotpion = this.getCurrentCaptions();
 		if (!currentCaotpion) return;
@@ -2218,12 +2234,12 @@ export class NMPlayer extends Base {
 	}
 
 	/**
-     * Cycles through the available subtitle tracks and sets the active track to the next one.
-     * If there are no subtitle tracks, this method does nothing.
-     * If the current track is the last one, this method sets the active track to the first one.
-     * Otherwise, it sets the active track to the next one.
-     * Finally, it displays a message indicating the current subtitle track.
-     */
+	 * Cycles through the available subtitle tracks and sets the active track to the next one.
+	 * If there are no subtitle tracks, this method does nothing.
+	 * If the current track is the last one, this method sets the active track to the first one.
+	 * Otherwise, it sets the active track to the next one.
+	 * Finally, it displays a message indicating the current subtitle track.
+	 */
 	cycleSubtitles(): void {
 
 		if (!this.hasCaptions()) {
@@ -2241,42 +2257,42 @@ export class NMPlayer extends Base {
 
 
 	/**
-     * Returns the current aspect ratio of the player.
-     * If the player is a JWPlayer, it returns the current stretching mode.
-     * Otherwise, it returns the current aspect ratio.
-     * @returns The current aspect ratio of the player.
-     */
+	 * Returns the current aspect ratio of the player.
+	 * If the player is a JWPlayer, it returns the current stretching mode.
+	 * Otherwise, it returns the current aspect ratio.
+	 * @returns The current aspect ratio of the player.
+	 */
 	getCurrentAspect() {
 		return this.currentAspectRatio;
 	}
 
 	/**
-     * Sets the aspect ratio of the player.
-     * @param aspect - The aspect ratio to set.
-     */
+	 * Sets the aspect ratio of the player.
+	 * @param aspect - The aspect ratio to set.
+	 */
 	setAspect(aspect: 'exactfit' | 'fill' | 'none' | 'uniform'): void {
 		this.currentAspectRatio = aspect;
 		switch (aspect) {
-		case 'fill':
-			this.videoElement.style.objectFit = 'fill';
-			break;
-		case 'uniform':
-			this.videoElement.style.objectFit = 'contain';
-			break;
-		case 'exactfit':
-			this.videoElement.style.objectFit = 'cover';
-			break;
-		case 'none':
-			this.videoElement.style.objectFit = 'none';
-			break;
+			case 'fill':
+				this.videoElement.style.objectFit = 'fill';
+				break;
+			case 'uniform':
+				this.videoElement.style.objectFit = 'contain';
+				break;
+			case 'exactfit':
+				this.videoElement.style.objectFit = 'cover';
+				break;
+			case 'none':
+				this.videoElement.style.objectFit = 'none';
+				break;
 		}
 
 		this.displayMessage(`${this.localize('Aspect ratio')}: ${this.localize(aspect)}`);
 	}
 
 	/**
-     * Cycles through the available aspect ratio options and sets the current aspect ratio to the next one.
-     */
+	 * Cycles through the available aspect ratio options and sets the current aspect ratio to the next one.
+	 */
 	cycleAspectRatio(): void {
 		const index = this.stretchOptions.findIndex((s: string) => s == this.getCurrentAspect());
 		if (index == this.stretchOptions.length - 1) {
@@ -2385,6 +2401,21 @@ export class NMPlayer extends Base {
 
 		this.off('all');
 	}
+
+	/**
+	 * Returns an array of objects representing each season in the playlist, along with the number of episodes in each season.
+	 * @returns {Array<{ season: number, seasonName: string, episodes: number }>} An array of objects representing each season in the playlist, along with the number of episodes in each season.
+	 */
+	getSeasons(): Array<{ season: number; seasonName: string; episodes: number; }> {
+		return unique(this.getPlaylist(), 'season').map((s: any) => {
+			return {
+				season: s.season,
+				seasonName: s.seasonName,
+				episodes: this.getPlaylist().filter((e: any) => e.season == s.season).length,
+			};
+		});
+	}
+
 }
 
 String.prototype.toTitleCase = function (): string {

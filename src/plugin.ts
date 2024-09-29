@@ -9,6 +9,7 @@ class Plugin {
 	use() {
 		// This method should be overridden by subclasses
 	}
+	
 }
 
 export default Plugin;
