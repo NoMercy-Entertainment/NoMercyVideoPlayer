@@ -753,7 +753,7 @@ export interface NMPlayer {
 	emit(eventType: 'hideLanguageScreen'): void;
 	emit(eventType: 'showQualityScreen'): void;
 	emit(eventType: 'hideQualityScreen'): void;
-	emit(eventType: 'back-button-hyjack'): void;
+	emit(eventType: 'back-button'): void;
 	emit(eventType: 'translations', data: { [key: string]: string }): void;
 
 	// emit(event: string, data?: any): void;
@@ -909,7 +909,7 @@ export interface NMPlayer {
 	on(event: 'hideLanguageScreen', callback: () => void): void;
 	on(event: 'showQualityScreen', callback: () => void): void;
 	on(event: 'hideQualityScreen', callback: () => void): void;
-	on(event: 'back-button-hyjack', callback: () => void): void;
+	on(event: 'back-button', callback: () => void): void;
 	on(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
 	// on(event: string, callback: () => void): void;
 	// on(event: string, callback: (arg0: any) => any): void;
@@ -1064,7 +1064,7 @@ export interface NMPlayer {
 	off(event: 'hideLanguageScreen', callback: () => void): void;
 	off(event: 'showQualityScreen', callback: () => void): void;
 	off(event: 'hideQualityScreen', callback: () => void): void;
-	off(event: 'back-button-hyjack', callback: () => void): void;
+	off(event: 'back-button', callback: () => void): void;
 	off(event: 'translations', callback: () => void): void;
 
 	// off(event: string, callback: () => void): void;
@@ -1220,7 +1220,7 @@ export interface NMPlayer {
 	once(event: 'hideLanguageScreen', callback: () => void): void;
 	once(event: 'showQualityScreen', callback: () => void): void;
 	once(event: 'hideQualityScreen', callback: () => void): void;
-	once(event: 'back-button-hyjack', callback: () => void): void;
+	once(event: 'back-button', callback: () => void): void;
 	once(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
 
 	// once(event: string, callback: () => void): void;

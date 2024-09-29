@@ -36,24 +36,16 @@ export class TVUIPlugin extends BaseUIPlugin {
 		}
 
 		this.player.on('play', () => {
+			this.player.getVideoElement().scrollIntoView();
 			this.closePreScreen();
 		});
+
+		this.player.on('back-button', this.backMenu.bind(this));
 
 		document.addEventListener('keyup', (e) => {
 			//back button
 			if (e.key == 'Backspace') {
-				if (this.player.isTv() && this.currentMenu !== 'seek') {
-					if (this.player.container.classList.contains('episode-screen')){
-						this.closeEpisodeScreen();
-					}
-					else if (this.player.container.classList.contains('language-screen')){
-						this.closeLanguageScreen();
-					}
-					else {
-						this.player.pause();
-						this.showPreScreen();
-					}
-				}
+				this.backMenu();
 			}
 			if (e.key == 'ArrowUp') {
 				this.player.ui_resetInactivityTimer();
@@ -72,6 +64,19 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.player.on('pause', () => {
 			// this.showPreScreen();
 		});
+	}
+
+	backMenu() {
+		if (this.player.isTv() && this.currentMenu !== 'seek') {
+			if (this.player.container.classList.contains('episode-screen')) {
+				this.closeEpisodeScreen();
+			} else if (this.player.container.classList.contains('language-screen')) {
+				this.closeLanguageScreen();
+			} else {
+				this.player.pause();
+				this.showPreScreen();
+			}
+		}
 	}
 
 	createTvOverlay(parent: HTMLElement) {

@@ -184,7 +184,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 			this.createChapterMarkers();
 		});
 
-		this.player.on('back-button-hyjack', () => {
+		this.player.on('back-button', () => {
 			switch (this.currentMenu) {
 				case 'episode':
 				case 'language':

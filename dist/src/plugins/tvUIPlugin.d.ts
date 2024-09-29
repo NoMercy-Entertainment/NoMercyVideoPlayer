@@ -10,6 +10,7 @@ export declare class TVUIPlugin extends BaseUIPlugin {
     selectedSeason: number | undefined;
     tvDialogStyles: string[];
     use(): void;
+    backMenu(): void;
     createTvOverlay(parent: HTMLElement): HTMLDivElement;
     showPreScreen(): void;
     closePreScreen(): void;
