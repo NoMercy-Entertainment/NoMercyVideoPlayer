@@ -14,7 +14,7 @@ class A extends C {
     this.createTvOverlay(this.player.overlay), this.createPreScreen(this.player.overlay), this.createEpisodeScreen(this.player.overlay), this.createLanguageScreen(this.player.overlay), this.player.options.autoPlay || this.showPreScreen(), this.player.on("play", () => {
       this.player.getVideoElement().scrollIntoView(), this.closePreScreen();
     }), this.player.on("back-button", this.backMenu.bind(this)), document.addEventListener("keyup", (n) => {
-      n.key == "Backspace" && this.backMenu(), n.key == "ArrowUp" && this.player.ui_resetInactivityTimer(), n.key == "ArrowDown" && this.player.ui_resetInactivityTimer(), n.key == "ArrowLeft" && this.player.ui_resetInactivityTimer(), n.key == "ArrowRight" && this.player.ui_resetInactivityTimer();
+      n.key == "Backspace" && this.backMenu();
     }), this.player.on("pause", () => {
     });
   }
@@ -33,19 +33,19 @@ class A extends C {
       "z-0"
     ]).addClasses([
       "group-[&.nomercyplayer.paused.pre-screen]:hidden"
-    ]).appendTo(n), r = this.createTopBar(e);
-    this.player.addClasses(r, [
+    ]).appendTo(n), l = this.createTopBar(e);
+    this.player.addClasses(l, [
       "px-10",
       "pt-10",
       "z-0"
     ]);
-    const t = this.createBackButton(r, !0);
+    const t = this.createBackButton(l, !0);
     t && this.player.addClasses(t, ["children:stroke-2"]);
-    const s = this.createRestartButton(r, !0);
+    const s = this.createRestartButton(l, !0);
     this.player.addClasses(s, ["children:stroke-2"]);
-    const i = this.createNextButton(r, !0);
-    this.player.addClasses(i, ["children:stroke-2"]), this.createDivider(r), this.createTvCurrentItem(r), this.createOverlayCenterMessage(e), this.seekContainer = this.createSeekContainer(e);
-    const d = this.createBottomBar(e), l = this.player.createElement("div", "bottom-row").addClasses([
+    const i = this.createNextButton(l, !0);
+    this.player.addClasses(i, ["children:stroke-2"]), this.createDivider(l), this.createTvCurrentItem(l), this.createOverlayCenterMessage(e), this.seekContainer = this.createSeekContainer(e);
+    const d = this.createBottomBar(e), a = this.player.createElement("div", "bottom-row").addClasses([
       "tv-bottom-row",
       "relative",
       "flex",
@@ -57,32 +57,32 @@ class A extends C {
       "px-20",
       "pb-10",
       "z-0"
-    ]).appendTo(d), o = this.createPlaybackButton(l, !0);
-    this.createTime(l, "current", []), this.createTvProgressBar(l), this.createTime(l, "remaining", ["mr-14"]), this.createNextUp(e), this.player.on("playing", () => {
-      this.currentMenu !== "seek" && !this.controlsVisible && o.focus();
+    ]).appendTo(d), p = this.createPlaybackButton(a, !0);
+    this.createTime(a, "current", []), this.createTvProgressBar(a), this.createTime(a, "remaining", ["mr-14"]), this.createNextUp(e), this.player.on("playing", () => {
+      this.currentMenu !== "seek" && !this.controlsVisible && p.focus();
     });
     let c = t ?? s ?? i;
-    return [t, s, i].forEach((a) => {
-      a == null || a.addEventListener("keyup", (p) => {
+    return [t, s, i].forEach((r) => {
+      r == null || r.addEventListener("keyup", (o) => {
         var h;
-        p.key == "ArrowDown" ? this.nextUp.style.display == "none" ? o == null || o.focus() : (h = this.nextUp.lastChild) == null || h.focus() : p.key == "ArrowLeft" ? (c = p.target.previousElementSibling, c == null || c.focus()) : p.key == "ArrowRight" && (p.preventDefault(), c = p.target.nextElementSibling, c == null || c.focus());
+        o.key == "ArrowDown" ? this.nextUp.style.display == "none" ? p == null || p.focus() : (h = this.nextUp.lastChild) == null || h.focus() : o.key == "ArrowLeft" ? (c = o.target.previousElementSibling, c == null || c.focus()) : o.key == "ArrowRight" && (o.preventDefault(), c = o.target.nextElementSibling, c == null || c.focus());
       });
-    }), [this.nextUp.firstChild, this.nextUp.lastChild].forEach((a) => {
-      a == null || a.addEventListener("keyup", (p) => {
+    }), [this.nextUp.firstChild, this.nextUp.lastChild].forEach((r) => {
+      r == null || r.addEventListener("keyup", (o) => {
         var h, u, y;
-        p.key == "ArrowUp" ? (h = c || s) == null || h.focus() : p.key == "ArrowDown" ? o.focus() : p.key == "ArrowLeft" ? (u = this.nextUp.firstChild) == null || u.focus() : p.key == "ArrowRight" && ((y = this.nextUp.lastChild) == null || y.focus());
+        o.key == "ArrowUp" ? (h = c || s) == null || h.focus() : o.key == "ArrowDown" ? p.focus() : o.key == "ArrowLeft" ? (u = this.nextUp.firstChild) == null || u.focus() : o.key == "ArrowRight" && ((y = this.nextUp.lastChild) == null || y.focus());
       });
-    }), [o].forEach((a) => {
-      a == null || a.addEventListener("keyup", (p) => {
+    }), [p].forEach((r) => {
+      r == null || r.addEventListener("keyup", (o) => {
         var h;
-        p.key == "ArrowUp" && (p.preventDefault(), this.nextUp.style.display == "none" ? c == null || c.focus() : (h = this.nextUp.lastChild) == null || h.focus());
+        o.key == "ArrowUp" && (o.preventDefault(), this.nextUp.style.display == "none" ? c == null || c.focus() : (h = this.nextUp.lastChild) == null || h.focus());
       });
-    }), [this.player.getVideoElement(), e].forEach((a) => {
-      a == null || a.addEventListener("keydown", (p) => {
-        if (p.key == "ArrowLeft") {
-          if ([t, s, i, this.nextUp.firstChild, this.nextUp.lastChild].includes(p.target))
+    }), [this.player.getVideoElement(), e].forEach((r) => {
+      r == null || r.addEventListener("keydown", (o) => {
+        if (o.key == "ArrowLeft") {
+          if ([t, s, i, this.nextUp.firstChild, this.nextUp.lastChild].includes(o.target))
             return;
-          if (p.preventDefault(), this.player.emit("show-seek-container", !0), this.shouldSlide)
+          if (o.preventDefault(), this.player.emit("show-seek-container", !0), this.shouldSlide)
             this.currentScrubTime = this.getClosestSeekableInterval(), this.shouldSlide = !1;
           else {
             const h = this.currentScrubTime - 10;
@@ -91,10 +91,10 @@ class A extends C {
               currentTime: h
             });
           }
-        } else if (p.key == "ArrowRight") {
-          if ([t, s, i, this.nextUp.firstChild, this.nextUp.lastChild].includes(p.target))
+        } else if (o.key == "ArrowRight") {
+          if ([t, s, i, this.nextUp.firstChild, this.nextUp.lastChild].includes(o.target))
             return;
-          if (p.preventDefault(), this.player.emit("show-seek-container", !0), this.shouldSlide)
+          if (o.preventDefault(), this.player.emit("show-seek-container", !0), this.shouldSlide)
             this.currentScrubTime = this.getClosestSeekableInterval(), this.shouldSlide = !1;
           else {
             const h = this.currentScrubTime + 10;
@@ -105,11 +105,11 @@ class A extends C {
           }
         }
       });
-    }), [this.player.getVideoElement(), o, t, s, i].forEach((a) => {
-      a == null || a.addEventListener("keyup", (p) => {
-        p.key == "Enter" && (this.player.seek(this.currentScrubTime), this.player.play(), this.player.emit("show-seek-container", !1));
+    }), [this.player.getVideoElement(), p, t, s, i].forEach((r) => {
+      r == null || r.addEventListener("keyup", (o) => {
+        o.key == "Enter" && (this.player.seek(this.currentScrubTime), this.player.play(), this.player.emit("show-seek-container", !1));
       });
-    }), o.focus(), d;
+    }), p.focus(), d;
   }
   showPreScreen() {
     var n;
@@ -136,14 +136,14 @@ class A extends C {
     ]).addClasses([
       "group-[&.nomercyplayer.paused.episode-screen]:hidden",
       "group-[&.nomercyplayer.paused.language-screen]:hidden"
-    ]).appendTo(this.preScreen), r = this.player.createElement("div", "left-side").addClasses([
+    ]).appendTo(this.preScreen), l = this.player.createElement("div", "left-side").addClasses([
       "flex",
       "flex-col",
       "justify-between",
       "items-center",
       "w-1/2",
       "h-available"
-    ]).appendTo(e), t = this.createImageContainer(r), s = this.player.createElement("div", "title-container").addClasses([
+    ]).appendTo(e), t = this.createImageContainer(l), s = this.player.createElement("div", "title-container").addClasses([
       "flex",
       "flex-col",
       "w-available",
@@ -167,7 +167,7 @@ class A extends C {
     this.player.on("item", () => {
       i.innerHTML = this.player.playlistItem().title.replace(this.player.playlistItem().show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E")), d.innerHTML = this.player.playlistItem().description;
     });
-    const l = this.player.createElement("div", "button-container").addClasses([
+    const a = this.player.createElement("div", "button-container").addClasses([
       "button-container",
       "flex",
       "flex-col",
@@ -180,13 +180,13 @@ class A extends C {
       "px-2",
       "py-0.5",
       "[*::-webkit-scrollbar]:hidden"
-    ]).appendTo(r);
-    this.createTvButton(l, "play", "Resume", this.player.play, this.buttons.play), this.createTvButton(l, "restart", "Play from beginning", this.player.restart, this.buttons.restart);
-    const o = this.createTvButton(l, "showEpisodeMenu", "Episodes", () => this.player.emit("showEpisodeScreen"), this.buttons.playlist);
-    o.style.display = "none", o.addEventListener("click", () => {
+    ]).appendTo(l);
+    this.createTvButton(a, "play", "Resume", this.player.play, this.buttons.play), this.createTvButton(a, "restart", "Play from beginning", this.player.restart, this.buttons.restart);
+    const p = this.createTvButton(a, "showEpisodeMenu", "Episodes", () => this.player.emit("showEpisodeScreen"), this.buttons.playlist);
+    p.style.display = "none", p.addEventListener("click", () => {
       this.player.emit("switch-season", this.player.playlistItem().season), this.showEpisodeScreen();
     });
-    const c = this.createTvButton(l, "showLanguageMenu", "Audio and subtitles", () => this.player.emit("showLanguageScreen"), this.buttons.language);
+    const c = this.createTvButton(a, "showLanguageMenu", "Audio and subtitles", () => this.player.emit("showLanguageScreen"), this.buttons.language);
     c.style.display = "none", c.addEventListener("click", () => {
       this.showLanguageScreen();
     }), this.player.createElement("div", "pre-screen-right-side").addClasses([
@@ -198,7 +198,7 @@ class A extends C {
     ]).appendTo(e), this.player.on("audioTracks", () => {
       this.player.hasAudioTracks() || this.player.hasCaptions() ? c.style.display = "flex" : c.style.display = "none";
     }), this.player.on("item", () => {
-      this.player.getPlaylist().length > 1 ? o.style.display = "flex" : o.style.display = "none";
+      this.player.getPlaylist().length > 1 ? p.style.display = "flex" : p.style.display = "none";
     });
   }
   showEpisodeScreen() {
@@ -226,7 +226,7 @@ class A extends C {
       "w-available",
       "h-available",
       "z-0"
-    ]).appendTo(this.episodeScreen), r = this.player.createElement("div", "episode-screen-left-side").addClasses([
+    ]).appendTo(this.episodeScreen), l = this.player.createElement("div", "episode-screen-left-side").addClasses([
       "flex",
       "flex-col",
       "justify-between",
@@ -234,7 +234,7 @@ class A extends C {
       "w-2/5",
       "h-available"
     ]).appendTo(e);
-    this.createImageContainer(r);
+    this.createImageContainer(l);
     const t = this.player.createElement("div", "season-button-container").addClasses([
       "flex",
       "flex-col",
@@ -247,24 +247,24 @@ class A extends C {
       "px-2",
       "py-0.5",
       "[*::-webkit-scrollbar]:hidden"
-    ]).appendTo(r);
+    ]).appendTo(l);
     let s = {};
-    for (const l of this.player.getSeasons())
+    for (const a of this.player.getSeasons())
       s = this.createTvSeasonButton(
         t,
-        `season-${l.season}`,
-        l,
-        () => this.player.emit("switch-season", l.season)
+        `season-${a.season}`,
+        a,
+        () => this.player.emit("switch-season", a.season)
       );
-    (d = s.addEventListener) == null || d.call(s, "keyup", (l) => {
-      var o, c;
-      if (l.key != "ArrowLeft") {
-        if (l.key != "ArrowRight") {
-          if (!(l.key == "ArrowUp" && !this.player.options.disableTouchControls)) {
-            if (l.key == "ArrowDown" && !this.player.options.disableTouchControls) {
-              (o = s.nextElementSibling) == null || o.focus();
-              const a = s.nextElementSibling;
-              (a == null ? void 0 : a.nodeName) == "BUTTON" ? a == null || a.focus() : (c = s.parentElement.nextElementSibling) == null || c.focus();
+    (d = s.addEventListener) == null || d.call(s, "keyup", (a) => {
+      var p, c;
+      if (a.key != "ArrowLeft") {
+        if (a.key != "ArrowRight") {
+          if (!(a.key == "ArrowUp" && !this.player.options.disableTouchControls)) {
+            if (a.key == "ArrowDown" && !this.player.options.disableTouchControls) {
+              (p = s.nextElementSibling) == null || p.focus();
+              const r = s.nextElementSibling;
+              (r == null ? void 0 : r.nodeName) == "BUTTON" ? r == null || r.focus() : (c = s.parentElement.nextElementSibling) == null || c.focus();
             }
           }
         }
@@ -291,8 +291,8 @@ class A extends C {
       "scroll-snap-align-center",
       "scroll-smooth"
     ]).appendTo(i);
-    for (const [l, o] of this.player.getPlaylist().entries() ?? [])
-      this.createTvEpisodeMenuButton(this.episodeScrollContainer, o, l);
+    for (const [a, p] of this.player.getPlaylist().entries() ?? [])
+      this.createTvEpisodeMenuButton(this.episodeScrollContainer, p, a);
   }
   showLanguageScreen() {
     var n;
@@ -303,6 +303,7 @@ class A extends C {
     this.languageScreen.close(), this.player.container.classList.remove("language-screen"), this.player.container.classList.remove("open"), (n = this.preScreen.querySelector(".button-container>button")) == null || n.focus();
   }
   createLanguageScreen(n) {
+    var r;
     this.languageScreen = this.player.createElement("dialog", "language-screen-dialog").addClasses(this.tvDialogStyles).addClasses([
       "group-[&.nomercyplayer.paused.language-screen]:backdrop:bg-black/80",
       "group-[&.nomercyplayer.paused.language-screen]:backdrop:pointer-events-none"
@@ -317,7 +318,7 @@ class A extends C {
       "w-available",
       "h-available",
       "z-0"
-    ]).appendTo(this.languageScreen), r = this.player.createElement("div", "language-screen-left-side").addClasses([
+    ]).appendTo(this.languageScreen), l = this.player.createElement("div", "language-screen-left-side").addClasses([
       "flex",
       "flex-col",
       "items-center",
@@ -325,7 +326,7 @@ class A extends C {
       "w-2/5",
       "h-available"
     ]).appendTo(e);
-    this.createImageContainer(r);
+    this.createImageContainer(l);
     const t = this.player.createElement("div", "language-scroll-container").addClasses([
       "flex",
       "flex-col",
@@ -334,7 +335,7 @@ class A extends C {
       "h-available",
       "gap-3",
       "p-1"
-    ]).appendTo(r), s = this.player.createElement("div", "language-button-container").addClasses([
+    ]).appendTo(l), s = this.player.createElement("div", "language-button-container").addClasses([
       "flex-shrink-0",
       "h-auto",
       "px-2",
@@ -356,33 +357,31 @@ class A extends C {
     ]).appendTo(t);
     i.style.paddingRight = "5rem";
     let d = {};
-    const l = (a) => {
-      var p, h;
-      if (a.key != "ArrowLeft") {
-        if (a.key != "ArrowRight") {
-          if (a.key == "ArrowUp" && !this.player.options.disableTouchControls)
-            (p = a.target.previousElementSibling) == null || p.focus();
-          else if (a.key == "ArrowDown" && !this.player.options.disableTouchControls) {
-            const u = a.target.nextElementSibling;
-            (u == null ? void 0 : u.nodeName) == "BUTTON" ? u == null || u.focus() : (h = d.parentElement.nextElementSibling) == null || h.focus();
+    const a = (o) => {
+      var h, u;
+      if (o.key != "ArrowLeft") {
+        if (o.key != "ArrowRight") {
+          if (o.key == "ArrowUp" && !this.player.options.disableTouchControls)
+            (h = o.target.previousElementSibling) == null || h.focus();
+          else if (o.key == "ArrowDown" && !this.player.options.disableTouchControls) {
+            const y = o.target.nextElementSibling;
+            (y == null ? void 0 : y.nodeName) == "BUTTON" ? y == null || y.focus() : (u = d.parentElement.nextElementSibling) == null || u.focus();
           }
         }
       }
     };
-    this.player.on("audioTracks", (a) => {
-      var p, h;
-      (p = d.removeEventListener) == null || p.call(d, "keyup", l), i.innerHTML = "";
-      for (const [u, y] of (a == null ? void 0 : a.entries()) ?? [])
+    (r = d.removeEventListener) == null || r.call(d, "keyup", a), this.player.on("audioTracks", (o) => {
+      i.innerHTML = "";
+      for (const [h, u] of (o == null ? void 0 : o.entries()) ?? [])
         d = this.createTvLanguageMenuButton(i, {
-          language: y.language ?? "",
-          label: y.label ?? "",
-          type: y.type ?? "",
-          id: y.id ?? u - 1,
+          language: u.language ?? "",
+          label: u.label ?? "",
+          type: u.type ?? "",
+          id: u.id ?? h - 1,
           buttonType: "audio"
         });
-      (h = d.addEventListener) == null || h.call(d, "keyup", l);
     });
-    const o = this.player.createElement("div", "language-button-container").addClasses([
+    const p = this.player.createElement("div", "language-button-container").addClasses([
       "flex-shrink-0",
       "h-auto",
       "px-2",
@@ -391,7 +390,7 @@ class A extends C {
       "text-left",
       "mt-3"
     ]).appendTo(t);
-    o.innerText = this.player.localize("Subtitles");
+    p.innerText = this.player.localize("Subtitles");
     const c = this.player.createElement("div", "subtitle-button-container").addClasses([
       "[*::-webkit-scrollbar]:hidden",
       "flex",
@@ -403,14 +402,14 @@ class A extends C {
       "py-0.5",
       "w-available"
     ]).appendTo(t);
-    c.style.paddingRight = "5rem", c.style.marginTop = "0", this.player.on("captionsList", (a) => {
+    c.style.paddingRight = "5rem", c.style.marginTop = "0", this.player.on("captionsList", (o) => {
       c.innerHTML = "";
-      for (const [p, h] of a.entries() ?? [])
+      for (const [h, u] of o.entries() ?? [])
         this.createTvLanguageMenuButton(c, {
-          language: h.language ?? "",
-          label: h.label ?? "",
-          type: h.type ?? "",
-          id: h.id ?? p - 1,
+          language: u.language ?? "",
+          label: u.label ?? "",
+          type: u.type ?? "",
+          id: u.id ?? h - 1,
           buttonType: "subtitle"
         });
     });
@@ -438,7 +437,7 @@ class A extends C {
       "z-0",
       "overflow-hidden",
       "overflow-clip"
-    ]).appendTo(this.sliderBar), r = this.player.createElement("div", "slider-progress").addClasses([
+    ]).appendTo(this.sliderBar), l = this.player.createElement("div", "slider-progress").addClasses([
       "slider-progress",
       "absolute",
       "flex",
@@ -460,24 +459,24 @@ class A extends C {
       "overflow-clip",
       "w-available"
     ]).appendTo(this.sliderBar), this.player.on("item", () => {
-      this.sliderBar.classList.add("bg-white/20"), this.previewTime = [], this.chapters = [], e.style.width = "0", r.style.width = "0", this.fetchPreviewTime();
+      this.sliderBar.classList.add("bg-white/20"), this.previewTime = [], this.chapters = [], e.style.width = "0", l.style.width = "0", this.fetchPreviewTime();
     }), this.player.on("chapters", () => {
       var t;
       ((t = this.player.getChapters()) == null ? void 0 : t.length) > 0 && !this.player.isTv() ? this.sliderBar.classList.remove("bg-white/20") : this.sliderBar.classList.add("bg-white/20");
     }), this.player.on("time", (t) => {
-      e.style.width = `${t.buffered}%`, r.style.width = `${t.percentage}%`;
+      e.style.width = `${t.buffered}%`, l.style.width = `${t.percentage}%`;
     }), this.player.on("currentScrubTime", (t) => {
-      r.style.width = `${t.currentTime / t.duration * 100}%`;
+      l.style.width = `${t.currentTime / t.duration * 100}%`;
     }), this.sliderBar;
   }
   getClosestElement(n, e) {
-    const r = [...document.querySelectorAll(e)].filter((s) => getComputedStyle(s).display == "flex"), t = n.getBoundingClientRect();
-    return r.find((s) => s.getBoundingClientRect().top + s.getBoundingClientRect().height / 2 == E(
-      r.map((i) => i.getBoundingClientRect().top + i.getBoundingClientRect().height / 2),
+    const l = [...document.querySelectorAll(e)].filter((s) => getComputedStyle(s).display == "flex"), t = n.getBoundingClientRect();
+    return l.find((s) => s.getBoundingClientRect().top + s.getBoundingClientRect().height / 2 == E(
+      l.map((i) => i.getBoundingClientRect().top + i.getBoundingClientRect().height / 2),
       t.top + t.height / 2
     ));
   }
-  createTvEpisodeMenuButton(n, e, r) {
+  createTvEpisodeMenuButton(n, e, l) {
     var f, m, b;
     const t = this.player.createElement("button", `playlist-${e.id}`).addClasses([
       "playlist-menu-button",
@@ -535,7 +534,7 @@ class A extends C {
       "flex",
       "flex-col",
       "px-3"
-    ]).appendTo(s), l = this.player.createElement("div", `episode-${e.id}-progress-box`).addClasses([
+    ]).appendTo(s), a = this.player.createElement("div", `episode-${e.id}-progress-box`).addClasses([
       "episode-menu-progress-box",
       "flex",
       "justify-between",
@@ -543,18 +542,18 @@ class A extends C {
       "sm:mx-2",
       "mb-1",
       "px-1"
-    ]).appendTo(d), o = this.player.createElement("div", `episode-${e.id}-progress-item`).addClasses([
+    ]).appendTo(d), p = this.player.createElement("div", `episode-${e.id}-progress-item`).addClasses([
       "progress-item-text",
       "text-[0.7rem]",
       ""
-    ]).appendTo(l);
-    e.episode && e.show && (o.innerText = `${this.player.localize("E")}${e.episode}`);
+    ]).appendTo(a);
+    e.episode && e.show && (p.innerText = `${this.player.localize("E")}${e.episode}`);
     const c = this.player.createElement("div", `episode-${e.id}-progress-duration`).addClasses([
       "progress-duration",
       "text-[0.7rem]"
-    ]).appendTo(l);
+    ]).appendTo(a);
     c.innerText = (m = e.duration) == null ? void 0 : m.replace(/^00:/u, "");
-    const a = this.player.createElement("div", `episode-${e.id}-slider-container`).addClasses([
+    const r = this.player.createElement("div", `episode-${e.id}-slider-container`).addClasses([
       "slider-container",
       "hidden",
       "rounded-md",
@@ -565,12 +564,12 @@ class A extends C {
       "mx-1",
       "sm:mx-2"
     ]).appendTo(d);
-    a.style.display = e.progress ? "flex" : "none";
-    const p = this.player.createElement("div", `episode-${e.id}-progress-bar`).addClasses([
+    r.style.display = e.progress ? "flex" : "none";
+    const o = this.player.createElement("div", `episode-${e.id}-progress-bar`).addClasses([
       "progress-bar",
       "bg-white"
-    ]).appendTo(a);
-    (b = e.progress) != null && b.percentage && (p.style.width = `${e.progress.percentage > 98 ? 100 : e.progress}%`);
+    ]).appendTo(r);
+    (b = e.progress) != null && b.percentage && (o.style.width = `${e.progress.percentage > 98 ? 100 : e.progress}%`);
     const h = this.player.createElement("div", `episode-${e.id}-right-side`).addClasses([
       "playlist-card-right",
       "w-3/4",
@@ -614,8 +613,8 @@ class A extends C {
       }, 50) : this.player.playlistItem().season !== g && this.episodeScrollContainer.scrollTo(0, 0), g == e.season ? t.style.display = "flex" : t.style.display = "none";
     }), this.player.on("time", (g) => {
       var v;
-      ((v = this.player.playlistItem()) == null ? void 0 : v.uuid) == e.uuid && (p.style.width = `${g.percentage}%`, a.style.display = "flex");
-    }), e.episode && e.show && (o.innerText = e.season == null ? `${e.episode}` : `${this.player.localize("S")}${e.season}: ${this.player.localize("E")}${e.episode}`), t.addEventListener("keyup", (g) => {
+      ((v = this.player.playlistItem()) == null ? void 0 : v.uuid) == e.uuid && (o.style.width = `${g.percentage}%`, r.style.display = "flex");
+    }), e.episode && e.show && (p.innerText = e.season == null ? `${e.episode}` : `${this.player.localize("S")}${e.season}: ${this.player.localize("E")}${e.episode}`), t.addEventListener("keyup", (g) => {
       var v, w, x;
       g.key == "ArrowLeft" ? (v = document.querySelector(`#season-${this.player.playlistItem().season}`)) == null || v.focus() : g.key == "ArrowRight" || (g.key == "ArrowUp" && !this.player.options.disableTouchControls ? (w = t.previousElementSibling) == null || w.focus() : g.key == "ArrowDown" && !this.player.options.disableTouchControls && ((x = t.nextElementSibling) == null || x.focus()));
     }), t.addEventListener("focus", () => {
@@ -625,10 +624,10 @@ class A extends C {
         });
       }, 0);
     }), t.addEventListener("click", () => {
-      e.episode && e.season ? this.setEpisode(e.season, e.episode) : this.player.playlistItem(r), this.closeEpisodeScreen(), this.closePreScreen(), this.player.play();
+      e.episode && e.season ? this.setEpisode(e.season, e.episode) : this.player.playlistItem(l), this.closeEpisodeScreen(), this.closePreScreen(), this.player.play();
     }), t;
   }
-  createTvSeasonButton(n, e, r, t, s) {
+  createTvSeasonButton(n, e, l, t, s) {
     const i = this.player.createElement("button", e).addClasses([
       "w-available",
       "mr-auto",
@@ -651,14 +650,14 @@ class A extends C {
     ]).appendTo(n);
     if (i.type = "button", i.addEventListener("focus", () => {
       this.scrollIntoView(i);
-    }), i.addEventListener("keyup", (l) => {
-      var o, c, a, p, h, u;
-      l.key == "ArrowLeft" || (l.key == "ArrowRight" ? this.selectedSeason == ((o = this.player.playlistItem()) == null ? void 0 : o.season) ? (a = [...document.querySelectorAll("[id^=playlist-]")].filter((y) => getComputedStyle(y).display == "flex").at((((c = this.player.playlistItem()) == null ? void 0 : c.episode) ?? 0) - 1)) == null || a.focus() : (p = this.getClosestElement(i, "[id^=playlist-]")) == null || p.focus() : l.key == "ArrowUp" && !this.player.options.disableTouchControls ? (h = i.previousElementSibling) == null || h.focus() : l.key == "ArrowDown" && !this.player.options.disableTouchControls && ((u = i.nextElementSibling) == null || u.focus()));
+    }), i.addEventListener("keyup", (a) => {
+      var p, c, r, o, h, u;
+      a.key == "ArrowLeft" || (a.key == "ArrowRight" ? this.selectedSeason == ((p = this.player.playlistItem()) == null ? void 0 : p.season) ? (r = [...document.querySelectorAll("[id^=playlist-]")].filter((y) => getComputedStyle(y).display == "flex").at((((c = this.player.playlistItem()) == null ? void 0 : c.episode) ?? 0) - 1)) == null || r.focus() : (o = this.getClosestElement(i, "[id^=playlist-]")) == null || o.focus() : a.key == "ArrowUp" && !this.player.options.disableTouchControls ? (h = i.previousElementSibling) == null || h.focus() : a.key == "ArrowDown" && !this.player.options.disableTouchControls && ((u = i.nextElementSibling) == null || u.focus()));
     }), i.addEventListener("click", () => {
       t == null || t.bind(this)();
     }), s) {
-      const l = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      l.setAttribute("viewBox", "0 0 24 24"), l.id = e, this.player.addClasses(l, [
+      const a = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      a.setAttribute("viewBox", "0 0 24 24"), a.id = e, this.player.addClasses(a, [
         `${e}-icon`,
         ...s.classes,
         "svg-size",
@@ -668,8 +667,8 @@ class A extends C {
         "group-hover/button:scale-110",
         "duration-700"
       ]);
-      const o = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      o.setAttribute("d", s.hover), l.appendChild(o), i.appendChild(l);
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", s.hover), a.appendChild(p), i.appendChild(a);
     }
     const d = this.player.createElement("span", `${e}-buttonText`).addClasses([
       "w-available",
@@ -681,30 +680,30 @@ class A extends C {
       "justify-between",
       "flex-nowrap"
     ]).appendTo(i);
-    return r.seasonName ? d.innerHTML = `
+    return l.seasonName ? d.innerHTML = `
 				<span>
-					${r.seasonName ?? ""}  
+					${l.seasonName ?? ""}  
 				</span>
 				<span>
-					${r.episodes} ${this.player.localize("episodes")}
+					${l.episodes} ${this.player.localize("episodes")}
 				</span>
-			` : r.season ? d.innerHTML = `
+			` : l.season ? d.innerHTML = `
 				<span>
-					${this.player.localize("Season")} ${r.season}
+					${this.player.localize("Season")} ${l.season}
 				</span>
 				<span>
-					${r.episodes} ${this.player.localize("episodes")}
+					${l.episodes} ${this.player.localize("episodes")}
 				</span>
 			` : d.innerHTML = `
 				<span>
 					
 				</span>
 				<span>
-					${r.episodes} ${this.player.localize("episodes")}
+					${l.episodes} ${this.player.localize("episodes")}
 				</span>
 			`, i;
   }
-  createTvLanguageMenuButton(n, e, r = !1) {
+  createTvLanguageMenuButton(n, e, l = !1) {
     const t = this.player.createElement("button", `${e.type}-button-${e.language}`).addClasses([
       "language-button",
       "w-available",
@@ -727,7 +726,7 @@ class A extends C {
       "focus-visible:outline-2",
       "focus-visible:outline-white",
       "active:outline-white"
-    ]).appendTo(n), s = this.createSVGElement(t, "checkmark", this.buttons.checkmark, !1, r);
+    ]).appendTo(n), s = this.createSVGElement(t, "checkmark", this.buttons.checkmark, !1, l);
     return this.player.addClasses(s, [
       "w-10",
       "opacity-0"
@@ -740,8 +739,8 @@ class A extends C {
     }), t.addEventListener("click", (i) => {
       i.stopPropagation(), this.player.setCurrentCaption(e.id);
     })), t.addEventListener("keyup", (i) => {
-      var d, l, o, c;
-      i.key == "ArrowLeft" ? (d = this.player.getClosestElement(t, '[id^="audio-button-"]')) == null || d.focus() : i.key == "ArrowRight" ? (l = this.player.getClosestElement(t, '[id^="subtitle-button-"]')) == null || l.focus() : i.key == "ArrowUp" && !this.player.options.disableTouchControls ? (o = t.previousElementSibling) == null || o.focus() : i.key == "ArrowDown" && !this.player.options.disableTouchControls && ((c = t.nextElementSibling) == null || c.focus());
+      var d, a, p, c;
+      i.key == "ArrowLeft" ? (d = this.player.getClosestElement(t, '[id^="audio-button-"]')) == null || d.focus() : i.key == "ArrowRight" ? (a = this.player.getClosestElement(t, '[id^="subtitle-button-"]')) == null || a.focus() : i.key == "ArrowUp" && !this.player.options.disableTouchControls ? (p = t.previousElementSibling) == null || p.focus() : i.key == "ArrowDown" && !this.player.options.disableTouchControls && ((c = t.nextElementSibling) == null || c.focus());
     }), t.addEventListener("focus", () => {
       setTimeout(() => {
         this.scrollCenter(n, t, {
@@ -751,10 +750,10 @@ class A extends C {
     }), t;
   }
   getVisibleButtons(n) {
-    const e = n.parentElement, r = e == null ? void 0 : e.querySelectorAll("button");
-    if (!r || (r == null ? void 0 : r.length) == 0)
+    const e = n.parentElement, l = e == null ? void 0 : e.querySelectorAll("button");
+    if (!l || (l == null ? void 0 : l.length) == 0)
       return;
-    const t = [...r].filter((i) => i.style.display != "none"), s = t.findIndex((i) => i == n);
+    const t = [...l].filter((i) => i.style.display != "none"), s = t.findIndex((i) => i == n);
     return {
       visibleButtons: t,
       currentButtonIndex: s
@@ -764,17 +763,17 @@ class A extends C {
     const e = this.getVisibleButtons(n);
     if (!e)
       return;
-    const { visibleButtons: r, currentButtonIndex: t } = e;
+    const { visibleButtons: l, currentButtonIndex: t } = e;
     for (let s = t; s >= 0; s--)
-      return r[s - 1];
+      return l[s - 1];
   }
   findNextVisibleButton(n) {
     const e = this.getVisibleButtons(n);
     if (!e)
       return;
-    const { visibleButtons: r, currentButtonIndex: t } = e;
-    for (let s = t; s < r.length; s++)
-      return r[s + 1];
+    const { visibleButtons: l, currentButtonIndex: t } = e;
+    for (let s = t; s < l.length; s++)
+      return l[s + 1];
   }
   createImageContainer(n) {
     const e = this.player.createElement("div", "left-side-top").addClasses([
@@ -785,7 +784,7 @@ class A extends C {
       "w-available",
       "gap-2",
       "h-auto"
-    ]).appendTo(n), r = this.player.createElement("div", "logo-container").addClasses([
+    ]).appendTo(n), l = this.player.createElement("div", "logo-container").addClasses([
       "flex",
       "flex-col",
       "justify-center",
@@ -803,7 +802,7 @@ class A extends C {
       "leading-[1.2]",
       "font-bold",
       "object-fit"
-    ]).appendTo(r), s = this.player.createElement("img", "logo").addClasses([
+    ]).appendTo(l), s = this.player.createElement("img", "logo").addClasses([
       "w-auto",
       "px-2",
       "py-2",
@@ -813,7 +812,7 @@ class A extends C {
       "max-w-[23rem]",
       "max-h-available",
       ""
-    ]).appendTo(r), i = this.player.createElement("div", "left-side-top-overview").addClasses([
+    ]).appendTo(l), i = this.player.createElement("div", "left-side-top-overview").addClasses([
       "flex",
       "flex-col",
       "w-available",
@@ -824,13 +823,13 @@ class A extends C {
       "items-center",
       "w-available",
       "text-white"
-    ]).appendTo(i), l = this.player.createElement("span", "year-text").addClasses([
+    ]).appendTo(i), a = this.player.createElement("span", "year-text").addClasses([
       "flex",
       "text-white",
       "text-sm",
       "font-bold",
       "mx-2"
-    ]).appendTo(d), o = this.player.createElement("img", "rating-image").addClasses([
+    ]).appendTo(d), p = this.player.createElement("img", "rating-image").addClasses([
       "w-8",
       "h-available",
       "object-fit",
@@ -844,13 +843,13 @@ class A extends C {
     ]).appendTo(d);
     return this.player.on("item", () => {
       var h, u, y, f, m, b;
-      const a = (h = this.player.playlistItem()) == null ? void 0 : h.logo;
-      !a || a == "" || a.includes("null") || a.includes("undefined") ? (t.textContent = T(((u = this.player.playlistItem()) == null ? void 0 : u.show) ?? ""), t.style.fontSize = `calc(110px / ${t.textContent.length} + 3ch)`, t.style.display = "flex", s.style.display = "none") : (s.style.display = "block", t.style.display = "none", a != null && a.startsWith("http") ? s.src = a : s.src = a && a != "" ? `${this.imageBaseUrl}${a}` : ""), l.innerHTML = ((f = (y = this.player.playlistItem()) == null ? void 0 : y.year) == null ? void 0 : f.toString()) ?? "", (m = this.player.playlistItem()) != null && m.year ? l.style.display = "flex" : l.style.display = "none", o.removeAttribute("src"), o.removeAttribute("alt"), o.style.opacity = "0", this.player.getPlaylist().length > 1 && (c.innerHTML = `${this.player.getPlaylist().length} ${this.player.localize("episodes")}`);
-      const p = (b = this.player.playlistItem()) == null ? void 0 : b.rating;
-      p && (o.src = `https://storage.nomercy.tv/laravel/kijkwijzer/${p.image}`, o.alt = p.rating.toString(), o.style.opacity = "1");
+      const r = (h = this.player.playlistItem()) == null ? void 0 : h.logo;
+      !r || r == "" || r.includes("null") || r.includes("undefined") ? (t.textContent = T(((u = this.player.playlistItem()) == null ? void 0 : u.show) ?? ""), t.style.fontSize = `calc(110px / ${t.textContent.length} + 3ch)`, t.style.display = "flex", s.style.display = "none") : (s.style.display = "block", t.style.display = "none", r != null && r.startsWith("http") ? s.src = r : s.src = r && r != "" ? `${this.imageBaseUrl}${r}` : ""), a.innerHTML = ((f = (y = this.player.playlistItem()) == null ? void 0 : y.year) == null ? void 0 : f.toString()) ?? "", (m = this.player.playlistItem()) != null && m.year ? a.style.display = "flex" : a.style.display = "none", p.removeAttribute("src"), p.removeAttribute("alt"), p.style.opacity = "0", this.player.getPlaylist().length > 1 && (c.innerHTML = `${this.player.getPlaylist().length} ${this.player.localize("episodes")}`);
+      const o = (b = this.player.playlistItem()) == null ? void 0 : b.rating;
+      o && (p.src = `https://storage.nomercy.tv/laravel/kijkwijzer/${o.image}`, p.alt = o.rating.toString(), p.style.opacity = "1");
     }), e;
   }
-  createTvButton(n, e, r, t, s) {
+  createTvButton(n, e, l, t, s) {
     const i = this.player.createElement("button", e).addClasses([
       "w-9/12",
       "mr-auto",
@@ -874,17 +873,17 @@ class A extends C {
       this.scrollCenter(n, i, {
         margin: 1
       });
-    }), i.addEventListener("keyup", (l) => {
-      var o, c, a;
-      if (l.key == "ArrowUp" && !this.player.options.disableTouchControls)
-        (o = this.findPreviousVisibleButton(i)) == null || o.focus();
-      else if (l.key == "ArrowDown" && !this.player.options.disableTouchControls) {
-        const p = this.findNextVisibleButton(i);
-        p ? p == null || p.focus() : (a = (c = i.parentElement) == null ? void 0 : c.nextElementSibling) == null || a.focus();
+    }), i.addEventListener("keyup", (a) => {
+      var p, c, r;
+      if (a.key == "ArrowUp" && !this.player.options.disableTouchControls)
+        (p = this.findPreviousVisibleButton(i)) == null || p.focus();
+      else if (a.key == "ArrowDown" && !this.player.options.disableTouchControls) {
+        const o = this.findNextVisibleButton(i);
+        o ? o == null || o.focus() : (r = (c = i.parentElement) == null ? void 0 : c.nextElementSibling) == null || r.focus();
       }
     }), i.addEventListener("click", t == null ? void 0 : t.bind(this.player)), s) {
-      const l = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      l.setAttribute("viewBox", "0 0 24 24"), l.id = e, this.player.addClasses(l, [
+      const a = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      a.setAttribute("viewBox", "0 0 24 24"), a.id = e, this.player.addClasses(a, [
         `${e}-icon`,
         ...s.classes,
         "svg-size",
@@ -894,8 +893,8 @@ class A extends C {
         "group-hover/button:scale-110",
         "duration-700"
       ]);
-      const o = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      o.setAttribute("d", s.hover), l.appendChild(o), i.appendChild(l);
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", s.hover), a.appendChild(p), i.appendChild(a);
     }
     const d = this.player.createElement("span", `${e}-buttonText`).addClasses([
       "text-white",
@@ -905,7 +904,7 @@ class A extends C {
       "flex",
       "justify-between"
     ]).appendTo(i);
-    return d.innerHTML = this.player.localize(r), i;
+    return d.innerHTML = this.player.localize(l), i;
   }
   createTvCurrentItem(n) {
     const e = this.player.createElement("div", "current-item-container").addClasses([
@@ -914,7 +913,7 @@ class A extends C {
       "justify-end",
       "items-end",
       "gap-2"
-    ]).appendTo(n), r = this.player.createElement("div", "current-item-show").addClasses([
+    ]).appendTo(n), l = this.player.createElement("div", "current-item-show").addClasses([
       "text-white",
       "text-sm",
       "whitespace-pre",
@@ -925,9 +924,9 @@ class A extends C {
       "gap-2"
     ]).appendTo(e), s = this.player.createElement("div", "current-item-episode").addClasses([]).appendTo(t), i = this.player.createElement("div", "current-item-title").addClasses([]).appendTo(t);
     return this.player.on("item", () => {
-      var l, o;
+      var a, p;
       const d = this.player.playlistItem();
-      r.innerHTML = T(d.show ?? ""), s.innerHTML = "", d.season && (s.innerHTML += `${this.player.localize("S")}${d.season}`), d.season && d.episode && (s.innerHTML += `: ${this.player.localize("E")}${d.episode}`), i.innerHTML = ((l = d.title) == null ? void 0 : l.replace(d.show ?? "", "").length) > 0 ? `"${(o = d.title) == null ? void 0 : o.replace(d.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E"))}"` : "";
+      l.innerHTML = T(d.show ?? ""), s.innerHTML = "", d.season && (s.innerHTML += `${this.player.localize("S")}${d.season}`), d.season && d.episode && (s.innerHTML += `: ${this.player.localize("E")}${d.episode}`), i.innerHTML = ((a = d.title) == null ? void 0 : a.replace(d.show ?? "", "").length) > 0 ? `"${(p = d.title) == null ? void 0 : p.replace(d.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E"))}"` : "";
     }), e;
   }
 }

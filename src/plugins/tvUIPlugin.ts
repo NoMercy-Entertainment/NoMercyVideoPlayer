@@ -47,18 +47,18 @@ export class TVUIPlugin extends BaseUIPlugin {
 			if (e.key == 'Backspace') {
 				this.backMenu();
 			}
-			if (e.key == 'ArrowUp') {
-				this.player.ui_resetInactivityTimer();
-			}
-			if (e.key == 'ArrowDown') {
-				this.player.ui_resetInactivityTimer();
-			}
-			if (e.key == 'ArrowLeft') {
-				this.player.ui_resetInactivityTimer();
-			}
-			if (e.key == 'ArrowRight') {
-				this.player.ui_resetInactivityTimer();
-			}
+			// if (e.key == 'ArrowUp') {
+			// 	this.player.ui_resetInactivityTimer();
+			// }
+			// if (e.key == 'ArrowDown') {
+			// 	this.player.ui_resetInactivityTimer();
+			// }
+			// if (e.key == 'ArrowLeft') {
+			// 	this.player.ui_resetInactivityTimer();
+			// }
+			// if (e.key == 'ArrowRight') {
+			// 	this.player.ui_resetInactivityTimer();
+			// }
 		});
 
 		this.player.on('pause', () => {
@@ -186,11 +186,14 @@ export class TVUIPlugin extends BaseUIPlugin {
 			button?.addEventListener('keyup', (e: KeyboardEvent) => {
 				if (e.key == 'ArrowUp') {
 					(activeButton || restartButton)?.focus();
-				} else if (e.key == 'ArrowDown') {
+				}
+				else if (e.key == 'ArrowDown') {
 					playbackButton.focus();
-				} else if (e.key == 'ArrowLeft') {
+				}
+				else if (e.key == 'ArrowLeft') {
 					this.nextUp.firstChild?.focus();
-				} else if (e.key == 'ArrowRight') {
+				}
+				else if (e.key == 'ArrowRight') {
 					this.nextUp.lastChild?.focus();
 				}
 			});
@@ -667,7 +670,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 		const eventHandler = (e: KeyboardEvent) => {
 			if (e.key == 'ArrowLeft') {
 				//
-			} else if (e.key == 'ArrowRight') {
+			}
+			else if (e.key == 'ArrowRight') {
 				//
 			}
 			else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
@@ -683,8 +687,9 @@ export class TVUIPlugin extends BaseUIPlugin {
 			}
 		};
 
+		lastAudioButton.removeEventListener?.('keyup', eventHandler);
+
 		this.player.on('audioTracks', (event) => {
-			lastAudioButton.removeEventListener?.('keyup', eventHandler);
 
 			audioButtonContainer.innerHTML = '';
 			for (const [index, track] of event?.entries() ?? []) {
@@ -696,7 +701,6 @@ export class TVUIPlugin extends BaseUIPlugin {
 					buttonType: 'audio',
 				});
 			}
-			lastAudioButton.addEventListener?.('keyup', eventHandler);
 		});
 
 		const subtitleTitle = this.player.createElement('div', 'language-button-container')
@@ -1326,7 +1330,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 				event.stopPropagation();
 				this.player.setCurrentAudioTrack(data.id);
 			});
-		} else if (data.buttonType == 'subtitle') {
+		}
+		else if (data.buttonType == 'subtitle') {
 			if (data.id === this.player.getCaptionIndex()) {
 				chevron.classList.remove('opacity-0');
 			} else {
