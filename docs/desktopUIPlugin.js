@@ -3343,7 +3343,7 @@ class K5 extends i1 {
   createUiButton(s, t) {
     var l;
     const e = this.player.createElement("button", t).addClasses(this.makeStyles("buttonStyles")).appendTo(s);
-    return e.ariaLabel = (l = this.buttons[t]) == null ? void 0 : l.title, e.addEventListener("keyup", (r) => {
+    return e.ariaLabel = (l = this.buttons[t]) == null ? void 0 : l.title, e.addEventListener("keypress", (r) => {
       r.key === "Backspace" && (e.blur(), this.player.emit("show-menu", !1)), r.key === "Escape" && (e.blur(), this.player.emit("show-menu", !1));
     }), e;
   }
@@ -3774,7 +3774,7 @@ class K5 extends i1 {
       t.id === o.id ? n.classList.remove("hidden") : n.classList.add("hidden");
     }), l.addEventListener("click", (o) => {
       o.stopPropagation(), this.player.setCurrentCaption(t.id), this.player.emit("show-menu", !1);
-    })), l.addEventListener("keyup", (o) => {
+    })), l.addEventListener("keypress", (o) => {
       var a, p, u, c;
       o.key == "ArrowLeft" ? (a = this.player.getClosestElement(l, '[id^="audio-button-"]')) == null || a.focus() : o.key == "ArrowRight" ? (p = this.player.getClosestElement(l, '[id^="subtitle-button-"]')) == null || p.focus() : o.key == "ArrowUp" && !this.player.options.disableTouchControls ? (u = l.previousElementSibling) == null || u.focus() : o.key == "ArrowDown" && !this.player.options.disableTouchControls && ((c = l.nextElementSibling) == null || c.focus());
     }), l.addEventListener("focus", () => {

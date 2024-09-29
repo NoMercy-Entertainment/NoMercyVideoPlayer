@@ -1,7 +1,7 @@
-import {BaseUIPlugin} from "./UIPlugin/baseUIPlugin";
-import {breakLogoTitle, limitSentenceByCharacters, lineBreakShowTitle, nearestValue} from "../helpers";
-import {Icon} from "./UIPlugin/buttons";
-import {PlaylistItem} from '../index.d';
+import { BaseUIPlugin } from './UIPlugin/baseUIPlugin';
+import { breakLogoTitle, limitSentenceByCharacters, lineBreakShowTitle, nearestValue } from '../helpers';
+import { Icon } from './UIPlugin/buttons';
+import { PlaylistItem } from '../index.d';
 
 interface NMPlayer {
 	playlistItem: () => any
@@ -15,7 +15,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 	languageScreen: HTMLDialogElement = <HTMLDialogElement>{};
 
 	selectedSeason: number | undefined;
-	
+
 	tvDialogStyles = [
 		'w-available',
 		'h-available',
@@ -23,7 +23,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		'max-h-available',
 		'',
 	];
-	
+
 	use() {
 		this.createTvOverlay(this.player.overlay);
 
@@ -42,23 +42,23 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		this.player.on('back-button', this.backMenu.bind(this));
 
-		document.addEventListener('keyup', (e) => {
-			//back button
+		document.addEventListener('keypress', (e) => {
+			// back button
 			if (e.key == 'Backspace') {
 				this.backMenu();
 			}
-			// if (e.key == 'ArrowUp') {
-			// 	this.player.ui_resetInactivityTimer();
-			// }
-			// if (e.key == 'ArrowDown') {
-			// 	this.player.ui_resetInactivityTimer();
-			// }
-			// if (e.key == 'ArrowLeft') {
-			// 	this.player.ui_resetInactivityTimer();
-			// }
-			// if (e.key == 'ArrowRight') {
-			// 	this.player.ui_resetInactivityTimer();
-			// }
+			if (e.key == 'ArrowUp') {
+				this.player.ui_resetInactivityTimer();
+			}
+			if (e.key == 'ArrowDown') {
+				this.player.ui_resetInactivityTimer();
+			}
+			if (e.key == 'ArrowLeft') {
+				this.player.ui_resetInactivityTimer();
+			}
+			if (e.key == 'ArrowRight') {
+				this.player.ui_resetInactivityTimer();
+			}
 		});
 
 		this.player.on('pause', () => {
@@ -92,9 +92,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'h-available',
 				'z-0',
 			])
-			.addClasses([
-				'group-[&.nomercyplayer.paused.pre-screen]:hidden',
-			])
+			.addClasses(['group-[&.nomercyplayer.paused.pre-screen]:hidden'])
 			.appendTo(parent);
 
 		const topBar = this.createTopBar(tvOverlay);
@@ -162,19 +160,17 @@ export class TVUIPlugin extends BaseUIPlugin {
 		let activeButton = backButton ?? restartButton ?? nextButton;
 
 		[backButton, restartButton, nextButton].forEach((button) => {
-			button?.addEventListener('keyup', (e) => {
+			button?.addEventListener('keypress', (e) => {
 				if (e.key == 'ArrowDown') {
 					if (this.nextUp.style.display == 'none') {
 						playbackButton?.focus();
 					} else {
 						this.nextUp.lastChild?.focus();
 					}
-				} 
-				else if (e.key == 'ArrowLeft') {
+				} else if (e.key == 'ArrowLeft') {
 					activeButton = ((e.target as HTMLButtonElement).previousElementSibling as HTMLButtonElement);
 					activeButton?.focus();
-				} 
-				else if (e.key == 'ArrowRight') {
+				} else if (e.key == 'ArrowRight') {
 					e.preventDefault();
 					activeButton = ((e.target as HTMLButtonElement).nextElementSibling as HTMLButtonElement);
 					activeButton?.focus();
@@ -183,24 +179,21 @@ export class TVUIPlugin extends BaseUIPlugin {
 		});
 
 		[this.nextUp.firstChild, this.nextUp.lastChild].forEach((button) => {
-			button?.addEventListener('keyup', (e: KeyboardEvent) => {
+			button?.addEventListener('keypress', (e: KeyboardEvent) => {
 				if (e.key == 'ArrowUp') {
 					(activeButton || restartButton)?.focus();
-				}
-				else if (e.key == 'ArrowDown') {
+				} else if (e.key == 'ArrowDown') {
 					playbackButton.focus();
-				}
-				else if (e.key == 'ArrowLeft') {
+				} else if (e.key == 'ArrowLeft') {
 					this.nextUp.firstChild?.focus();
-				}
-				else if (e.key == 'ArrowRight') {
+				} else if (e.key == 'ArrowRight') {
 					this.nextUp.lastChild?.focus();
 				}
 			});
 		});
 
 		[playbackButton].forEach((button) => {
-			button?.addEventListener('keyup', (e) => {
+			button?.addEventListener('keypress', (e) => {
 				if (e.key == 'ArrowUp') {
 					e.preventDefault();
 					if (this.nextUp.style.display == 'none') {
@@ -235,8 +228,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 						});
 					}
 
-				}
-				else if (e.key == 'ArrowRight') {
+				} else if (e.key == 'ArrowRight') {
 					// eslint-disable-next-line max-len
 					if ([backButton, restartButton, nextButton, this.nextUp.firstChild, this.nextUp.lastChild].includes(e.target as HTMLButtonElement)) {
 						return;
@@ -261,7 +253,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 
 		[this.player.getVideoElement(), playbackButton, backButton, restartButton, nextButton].forEach((button) => {
-			(button as unknown as HTMLButtonElement)?.addEventListener('keyup', (e: KeyboardEvent) => {
+			(button as unknown as HTMLButtonElement)?.addEventListener('keypress', (e: KeyboardEvent) => {
 				if (e.key == 'Enter') {
 					this.player.seek(this.currentScrubTime);
 					this.player.play();
@@ -281,11 +273,13 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.player.container.classList.add('pre-screen');
 		this.preScreen.querySelector<HTMLButtonElement>('.button-container>button')?.focus();
 	}
+
 	closePreScreen() {
 		this.preScreen.close();
 		this.player.container.classList.remove('pre-screen');
 		this.player.ui_removeActiveClass();
 	}
+
 	createPreScreen(parent: HTMLElement) {
 
 		this.preScreen = this.player.createElement('dialog', 'pre-screen-dialog')
@@ -442,12 +436,14 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.player.container.classList.add('open');
 		this.episodeScrollContainer.querySelector<HTMLButtonElement>('.button-container>button')?.focus();
 	}
+
 	closeEpisodeScreen() {
 		this.episodeScreen.close();
 		this.player.container.classList.remove('episode-screen');
 		this.player.container.classList.remove('open');
 		this.preScreen.querySelector<HTMLButtonElement>('.button-container>button')?.focus();
 	}
+
 	createEpisodeScreen(parent: HTMLElement) {
 
 		this.episodeScreen = this.player.createElement('dialog', 'episode-screen-dialog')
@@ -516,23 +512,19 @@ export class TVUIPlugin extends BaseUIPlugin {
 			);
 		}
 
-		lastSeasonButton.addEventListener?.('keyup', (e) => {
+		lastSeasonButton.addEventListener?.('keypress', (e) => {
 			if (e.key == 'ArrowLeft') {
 				//
-			} 
-			else if (e.key == 'ArrowRight') {
+			} else if (e.key == 'ArrowRight') {
 				//
-			}
-			else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				//
-			}
-			else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				(lastSeasonButton.nextElementSibling as HTMLButtonElement)?.focus();
 				const el = (lastSeasonButton.nextElementSibling as HTMLButtonElement);
 				if (el?.nodeName == 'BUTTON') {
 					el?.focus();
-				} 
-				else {
+				} else {
 					((lastSeasonButton.parentElement as HTMLButtonElement).nextElementSibling as HTMLButtonElement)?.focus();
 				}
 			}
@@ -578,12 +570,14 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.player.container.classList.add('open');
 		this.languageScreen.querySelector<HTMLButtonElement>('.button-container>button')?.focus();
 	}
+
 	closeLanguageScreen() {
 		this.languageScreen.close();
 		this.player.container.classList.remove('language-screen');
 		this.player.container.classList.remove('open');
 		this.preScreen.querySelector<HTMLButtonElement>('.button-container>button')?.focus();
 	}
+
 	createLanguageScreen(parent: HTMLElement) {
 
 		this.languageScreen = this.player.createElement('dialog', 'language-screen-dialog')
@@ -670,14 +664,11 @@ export class TVUIPlugin extends BaseUIPlugin {
 		const eventHandler = (e: KeyboardEvent) => {
 			if (e.key == 'ArrowLeft') {
 				//
-			}
-			else if (e.key == 'ArrowRight') {
+			} else if (e.key == 'ArrowRight') {
 				//
-			}
-			else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				((e.target as HTMLButtonElement).previousElementSibling as HTMLButtonElement)?.focus();
-			}
-			else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				const el = ((e.target as HTMLButtonElement).nextElementSibling as HTMLButtonElement);
 				if (el?.nodeName == 'BUTTON') {
 					el?.focus();
@@ -687,7 +678,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			}
 		};
 
-		lastAudioButton.removeEventListener?.('keyup', eventHandler);
+		lastAudioButton.removeEventListener?.('keypress', eventHandler);
 
 		this.player.on('audioTracks', (event) => {
 
@@ -697,7 +688,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 					language: track.language ?? '',
 					label: track.label ?? '',
 					type: track.type ?? '',
-					id: track.id ??  index - 1,
+					id: track.id ?? index - 1,
 					buttonType: 'audio',
 				});
 			}
@@ -742,7 +733,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 					language: track.language ?? '',
 					label: track.label ?? '',
 					type: track.type ?? '',
-					id: track.id ??  index - 1,
+					id: track.id ?? index - 1,
 					buttonType: 'subtitle',
 				});
 			}
@@ -752,7 +743,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		// 	backButton.focus();
 		// }, 50);
 	}
-	
+
 	createTvProgressBar(parent: HTMLDivElement) {
 
 		this.sliderBar = this.player.createElement('div', 'slider-bar')
@@ -881,7 +872,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		}
 
 		const leftSide = this.player.createElement('div', `playlist-${item.id}-left`)
-			.addClasses( [
+			.addClasses([
 				'episode-menu-button-left',
 				'relative',
 				'rounded-md',
@@ -918,8 +909,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		if (item.image?.startsWith('http')) {
 			image.src = item.image ?? '';
-		} 
-		else {
+		} else {
 			image.src = item.image && item.image != '' ? `${this.imageBaseUrl}${item.image}` : '';
 		}
 
@@ -1044,15 +1034,13 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.player.on('item', () => {
 			if (this.player.playlistItem().season == item.season) {
 				episodeMenuButton.style.display = 'flex';
-			}
-			else {
+			} else {
 				episodeMenuButton.style.display = 'none';
 			}
 
 			if (this.player.playlistItem().season == item.season && this.player.playlistItem().episode == item.episode) {
 				episodeMenuButton.style.background = 'rgba(255,255,255,.1)';
-			}
-			else {
+			} else {
 				episodeMenuButton.style.background = 'transparent';
 			}
 		});
@@ -1063,11 +1051,10 @@ export class TVUIPlugin extends BaseUIPlugin {
 			if (this.player.playlistItem().id == item.id) {
 				setTimeout(() => {
 					this.scrollCenter(parent, episodeMenuButton, {
-						margin: 1
+						margin: 1,
 					});
 				}, 50);
-			}
-			else if (this.player.playlistItem().season !== season) {
+			} else if (this.player.playlistItem().season !== season) {
 				this.episodeScrollContainer.scrollTo(0, 0);
 			}
 
@@ -1090,17 +1077,14 @@ export class TVUIPlugin extends BaseUIPlugin {
 				= item.season == undefined ? `${item.episode}` : `${this.player.localize('S')}${item.season}: ${this.player.localize('E')}${item.episode}`;
 		}
 
-		episodeMenuButton.addEventListener('keyup', (e) => {
+		episodeMenuButton.addEventListener('keypress', (e) => {
 			if (e.key == 'ArrowLeft') {
 				document.querySelector<HTMLButtonElement>(`#season-${this.player.playlistItem().season}`)?.focus();
-			} 
-			else if (e.key == 'ArrowRight') {
+			} else if (e.key == 'ArrowRight') {
 				//
-			} 
-			else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				(episodeMenuButton.previousElementSibling as HTMLButtonElement)?.focus();
-			} 
-			else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				(episodeMenuButton.nextElementSibling as HTMLButtonElement)?.focus();
 			}
 		});
@@ -1108,7 +1092,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		episodeMenuButton.addEventListener('focus', () => {
 			setTimeout(() => {
 				this.scrollCenter(parent, episodeMenuButton, {
-					margin: 1.1
+					margin: 1.1,
 				});
 			}, 0);
 		});
@@ -1116,11 +1100,10 @@ export class TVUIPlugin extends BaseUIPlugin {
 		episodeMenuButton.addEventListener('click', () => {
 			if (item.episode && item.season) {
 				this.setEpisode(item.season, item.episode);
-			}
-			else {
+			} else {
 				this.player.playlistItem(index);
 			}
-			
+
 			this.closeEpisodeScreen();
 			this.closePreScreen();
 			this.player.play();
@@ -1169,25 +1152,21 @@ export class TVUIPlugin extends BaseUIPlugin {
 			this.scrollIntoView(button);
 		});
 
-		button.addEventListener('keyup', (e) => {
+		button.addEventListener('keypress', (e) => {
 			if (e.key == 'ArrowLeft') {
 				//
-			} 
-			else if (e.key == 'ArrowRight') {
+			} else if (e.key == 'ArrowRight') {
 				if (this.selectedSeason == this.player.playlistItem()?.season) {
 					[...document.querySelectorAll<HTMLButtonElement>('[id^=playlist-]')]
 						.filter(el => getComputedStyle(el).display == 'flex')
 						.at((this.player.playlistItem()?.episode ?? 0) - 1)
 						?.focus();
-				}
-				else {
+				} else {
 					this.getClosestElement(button, '[id^=playlist-]')?.focus();
 				}
-			}
-			else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				(button.previousElementSibling as HTMLButtonElement)?.focus();
-			}
-			else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				(button.nextElementSibling as HTMLButtonElement)?.focus();
 			}
 		});
@@ -1195,7 +1174,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		button.addEventListener('click', () => {
 			action?.bind(this)();
 		});
-		
+
 		if (icon) {
 			const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			svg.setAttribute('viewBox', '0 0 24 24');
@@ -1230,7 +1209,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'flex-nowrap',
 			])
 			.appendTo(button);
-		
+
 		if (data.seasonName) {
 			buttonText.innerHTML = `
 				<span>
@@ -1240,8 +1219,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 					${data.episodes} ${this.player.localize('episodes')}
 				</span>
 			`;
-		} 
-		else if (data.season) {
+		} else if (data.season) {
 			buttonText.innerHTML = `
 				<span>
 					${this.player.localize('Season')} ${data.season}
@@ -1250,8 +1228,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 					${data.episodes} ${this.player.localize('episodes')}
 				</span>
 			`;
-		}
-		else {
+		} else {
 			buttonText.innerHTML = `
 				<span>
 					
@@ -1261,7 +1238,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				</span>
 			`;
 		}
-		
+
 		return button;
 
 	}
@@ -1273,8 +1250,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 								   id: number,
 								   styled?: boolean;
 								   buttonType: string;
-							   }, hovered = false
-	) {
+							   }, hovered = false) {
 
 		const languageButton = this.player.createElement('button', `${data.type}-button-${data.language}`)
 			.addClasses([
@@ -1312,8 +1288,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		if (data.id > 1) {
 			chevron.classList.add('opacity-0');
-		}
-		else {
+		} else {
 			chevron.classList.remove('opacity-0');
 		}
 
@@ -1330,8 +1305,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				event.stopPropagation();
 				this.player.setCurrentAudioTrack(data.id);
 			});
-		}
-		else if (data.buttonType == 'subtitle') {
+		} else if (data.buttonType == 'subtitle') {
 			if (data.id === this.player.getCaptionIndex()) {
 				chevron.classList.remove('opacity-0');
 			} else {
@@ -1352,17 +1326,14 @@ export class TVUIPlugin extends BaseUIPlugin {
 			});
 		}
 
-		languageButton.addEventListener('keyup', (e) => {
+		languageButton.addEventListener('keypress', (e) => {
 			if (e.key == 'ArrowLeft') {
 				this.player.getClosestElement(languageButton, '[id^="audio-button-"]')?.focus();
-			} 
-			else if (e.key == 'ArrowRight') {
+			} else if (e.key == 'ArrowRight') {
 				this.player.getClosestElement(languageButton, '[id^="subtitle-button-"]')?.focus();
-			} 
-			else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				(languageButton.previousElementSibling as HTMLButtonElement)?.focus();
-			} 
-			else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				(languageButton.nextElementSibling as HTMLButtonElement)?.focus();
 			}
 		});
@@ -1370,7 +1341,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		languageButton.addEventListener('focus', () => {
 			setTimeout(() => {
 				this.scrollCenter(parent, languageButton, {
-					margin: 1
+					margin: 1,
 				});
 			}, 0);
 		});
@@ -1530,8 +1501,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				fallbackText.style.display = 'flex';
 				logo.style.display = 'none';
 
-			}
-			else {
+			} else {
 
 				logo.style.display = 'block';
 				fallbackText.style.display = 'none';
@@ -1546,8 +1516,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			year.innerHTML = this.player.playlistItem()?.year?.toString() ?? '';
 			if (this.player.playlistItem()?.year) {
 				year.style.display = 'flex';
-			} 
-			else {
+			} else {
 				year.style.display = 'none';
 			}
 
@@ -1591,27 +1560,25 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'focus-visible:outline-2',
 				'focus-visible:outline-white',
 				'active:outline-white',
-				`${id}-button`
+				`${id}-button`,
 			])
 			.appendTo(parent);
 		tvButton.type = 'button';
 
 		tvButton.addEventListener('focus', () => {
 			this.scrollCenter(parent, tvButton, {
-				margin: 1
+				margin: 1,
 			});
 		});
 
-		tvButton.addEventListener('keyup', (e) => {
+		tvButton.addEventListener('keypress', (e) => {
 			if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				this.findPreviousVisibleButton(tvButton)?.focus();
-			} 
-			else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				const el = this.findNextVisibleButton(tvButton);
 				if (el) {
 					el?.focus();
-				}
-				else {
+				} else {
 					(tvButton.parentElement?.nextElementSibling as HTMLButtonElement)?.focus();
 				}
 			}
@@ -1704,12 +1671,10 @@ export class TVUIPlugin extends BaseUIPlugin {
 			if (item.season && item.episode) {
 				currentItemEpisode.innerHTML += `: ${this.player.localize('E')}${item.episode}`;
 			}
-			currentItemTitle.innerHTML = item.title?.replace(item.show ?? '', '').length > 0 
-				? `"${item.title
-					?.replace(item.show ?? '', '')
-					.replace('%S', this.player.localize('S'))
-					.replace('%E', this.player.localize('E'))}"` 
-				: '';
+			currentItemTitle.innerHTML = item.title?.replace(item.show ?? '', '').length > 0 ? `"${item.title
+				?.replace(item.show ?? '', '')
+				.replace('%S', this.player.localize('S'))
+				.replace('%E', this.player.localize('E'))}"` : '';
 		});
 
 		return currentItemContainer;

@@ -12,12 +12,12 @@ export class KeyHandlerPlugin extends Plugin {
 	use() {
 		if (this.player.options.disableControls) return;
 
-		document.removeEventListener('keyup', this.keyHandler.bind(this), false);
-		document.addEventListener('keyup', this.keyHandler.bind(this), false);
+		document.removeEventListener('keypress', this.keyHandler.bind(this), false);
+		document.addEventListener('keypress', this.keyHandler.bind(this), false);
 	}
 
 	dispose() {
-		document.removeEventListener('keyup', this.keyHandler.bind(this), false);
+		document.removeEventListener('keypress', this.keyHandler.bind(this), false);
 	}
 
 	/**

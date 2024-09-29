@@ -4,10 +4,10 @@ class c extends l {
     this.player = e;
   }
   use() {
-    this.player.options.disableControls || (document.removeEventListener("keyup", this.keyHandler.bind(this), !1), document.addEventListener("keyup", this.keyHandler.bind(this), !1));
+    this.player.options.disableControls || (document.removeEventListener("keypress", this.keyHandler.bind(this), !1), document.addEventListener("keypress", this.keyHandler.bind(this), !1));
   }
   dispose() {
-    document.removeEventListener("keyup", this.keyHandler.bind(this), !1);
+    document.removeEventListener("keypress", this.keyHandler.bind(this), !1);
   }
   /**
       * Handles keyboard events and executes the corresponding function based on the key binding.

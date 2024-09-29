@@ -460,7 +460,7 @@ export class BaseUIPlugin extends Plugin {
 
 		button.ariaLabel = this.buttons[icon]?.title;
 
-		button.addEventListener('keyup', (event) => {
+		button.addEventListener('keypress', (event) => {
 			if (event.key === 'Backspace') {
 				button.blur();
 				this.player.emit('show-menu', false);
@@ -1591,7 +1591,7 @@ export class BaseUIPlugin extends Plugin {
 			});
 		}
 
-		languageButton.addEventListener('keyup', (e) => {
+		languageButton.addEventListener('keypress', (e) => {
 			if (e.key == 'ArrowLeft') {
 				this.player.getClosestElement(languageButton, '[id^="audio-button-"]')?.focus();
 			} else if (e.key == 'ArrowRight') {
