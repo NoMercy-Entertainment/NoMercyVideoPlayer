@@ -18676,7 +18676,7 @@ class Lh extends Jn {
   dispose() {
     clearTimeout(this.message), clearTimeout(this.leftTap), clearTimeout(this.rightTap), this.inactivityTimeout && clearTimeout(this.inactivityTimeout), this._removeEvents();
     for (const e of Object.values(this.plugins))
-      typeof e.destroy == "function" && e.destroy();
+      console.log("Disposing plugin", e), e.dispose();
     this.plugins = {}, this.hls && (this.hls.destroy(), this.hls = void 0), this.gainNode && (this.removeGainNode(), this.gainNode = void 0), this.container && (this.container.innerHTML = ""), Pe.delete(this.playerId), this.emit("dispose"), this.off("all");
   }
   /**

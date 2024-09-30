@@ -1703,7 +1703,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 					duration: 100,
 					margin: 1,
 				});
-			}, 0);
+			}, 50);
 		});
 
 		return seasonButton;
@@ -1842,7 +1842,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 					duration: 100,
 					margin: 1,
 				});
-			}, 0);
+			}, 50);
 		});
 
 		return button;

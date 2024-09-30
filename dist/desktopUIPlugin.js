@@ -266,15 +266,15 @@ const Y = {
   var n;
   if (i.length === 0)
     return s.classGroupId;
-  const t = i[0], e = s.nextPart.get(t), l = e ? e1(i.slice(1), e) : void 0;
-  if (l)
-    return l;
+  const t = i[0], e = s.nextPart.get(t), r = e ? e1(i.slice(1), e) : void 0;
+  if (r)
+    return r;
   if (s.validators.length === 0)
     return;
-  const r = i.join(N);
+  const l = i.join(N);
   return (n = s.validators.find(({
     validator: o
-  }) => o(r))) == null ? void 0 : n.classGroupId;
+  }) => o(l))) == null ? void 0 : n.classGroupId;
 }, K = /^\[(.+)\]$/, c1 = (i) => {
   if (K.test(i)) {
     const s = K.exec(i)[1], t = s == null ? void 0 : s.substring(0, s.indexOf(":"));
@@ -289,29 +289,29 @@ const Y = {
     nextPart: /* @__PURE__ */ new Map(),
     validators: []
   };
-  return d1(Object.entries(i.classGroups), t).forEach(([r, n]) => {
-    O(n, e, r, s);
+  return d1(Object.entries(i.classGroups), t).forEach(([l, n]) => {
+    O(n, e, l, s);
   }), e;
 }, O = (i, s, t, e) => {
-  i.forEach((l) => {
-    if (typeof l == "string") {
-      const r = l === "" ? s : J(s, l);
-      r.classGroupId = t;
+  i.forEach((r) => {
+    if (typeof r == "string") {
+      const l = r === "" ? s : J(s, r);
+      l.classGroupId = t;
       return;
     }
-    if (typeof l == "function") {
-      if (u1(l)) {
-        O(l(e), s, t, e);
+    if (typeof r == "function") {
+      if (u1(r)) {
+        O(r(e), s, t, e);
         return;
       }
       s.validators.push({
-        validator: l,
+        validator: r,
         classGroupId: t
       });
       return;
     }
-    Object.entries(l).forEach(([r, n]) => {
-      O(n, J(s, r), t, e);
+    Object.entries(r).forEach(([l, n]) => {
+      O(n, J(s, l), t, e);
     });
   });
 }, J = (i, s) => {
@@ -323,8 +323,8 @@ const Y = {
     }), t = t.nextPart.get(e);
   }), t;
 }, u1 = (i) => i.isThemeGetter, d1 = (i, s) => s ? i.map(([t, e]) => {
-  const l = e.map((r) => typeof r == "string" ? s + r : typeof r == "object" ? Object.fromEntries(Object.entries(r).map(([n, o]) => [s + n, o])) : r);
-  return [t, l];
+  const r = e.map((l) => typeof l == "string" ? s + l : typeof l == "object" ? Object.fromEntries(Object.entries(l).map(([n, o]) => [s + n, o])) : l);
+  return [t, r];
 }) : i, h1 = (i) => {
   if (i < 1)
     return {
@@ -334,33 +334,33 @@ const Y = {
       }
     };
   let s = 0, t = /* @__PURE__ */ new Map(), e = /* @__PURE__ */ new Map();
-  const l = (r, n) => {
-    t.set(r, n), s++, s > i && (s = 0, e = t, t = /* @__PURE__ */ new Map());
+  const r = (l, n) => {
+    t.set(l, n), s++, s > i && (s = 0, e = t, t = /* @__PURE__ */ new Map());
   };
   return {
-    get(r) {
-      let n = t.get(r);
+    get(l) {
+      let n = t.get(l);
       if (n !== void 0)
         return n;
-      if ((n = e.get(r)) !== void 0)
-        return l(r, n), n;
+      if ((n = e.get(l)) !== void 0)
+        return r(l, n), n;
     },
-    set(r, n) {
-      t.has(r) ? t.set(r, n) : l(r, n);
+    set(l, n) {
+      t.has(l) ? t.set(l, n) : r(l, n);
     }
   };
 }, t1 = "!", y1 = (i) => {
   const {
     separator: s,
     experimentalParseClassName: t
-  } = i, e = s.length === 1, l = s[0], r = s.length, n = (o) => {
+  } = i, e = s.length === 1, r = s[0], l = s.length, n = (o) => {
     const a = [];
     let p = 0, u = 0, c;
     for (let m = 0; m < o.length; m++) {
       let g = o[m];
       if (p === 0) {
-        if (g === l && (e || o.slice(m, m + r) === s)) {
-          a.push(o.slice(u, m)), u = m + r;
+        if (g === r && (e || o.slice(m, m + l) === s)) {
+          a.push(o.slice(u, m)), u = m + l;
           continue;
         }
         if (g === "/") {
@@ -398,8 +398,8 @@ const Y = {
   const {
     parseClassName: t,
     getClassGroupId: e,
-    getConflictingClassGroupIds: l
-  } = s, r = [], n = i.trim().split(g1);
+    getConflictingClassGroupIds: r
+  } = s, l = [], n = i.trim().split(g1);
   let o = "";
   for (let a = n.length - 1; a >= 0; a -= 1) {
     const p = n[a], {
@@ -421,13 +421,13 @@ const Y = {
       v = !1;
     }
     const m = m1(u).join(":"), g = c ? m + t1 : m, b = g + f;
-    if (r.includes(b))
+    if (l.includes(b))
       continue;
-    r.push(b);
-    const k = l(f, v);
+    l.push(b);
+    const k = r(f, v);
     for (let S = 0; S < k.length; ++S) {
       const P = k[S];
-      r.push(g + P);
+      l.push(g + P);
     }
     o = p + (o.length > 0 ? " " + o : o);
   }
@@ -448,35 +448,35 @@ const s1 = (i) => {
   return t;
 };
 function v1(i, ...s) {
-  let t, e, l, r = n;
+  let t, e, r, l = n;
   function n(a) {
     const p = s.reduce((u, c) => c(u), i());
-    return t = f1(p), e = t.cache.get, l = t.cache.set, r = o, o(a);
+    return t = f1(p), e = t.cache.get, r = t.cache.set, l = o, o(a);
   }
   function o(a) {
     const p = e(a);
     if (p)
       return p;
     const u = b1(a, t);
-    return l(a, u), u;
+    return r(a, u), u;
   }
   return function() {
-    return r(L1.apply(null, arguments));
+    return l(L1.apply(null, arguments));
   };
 }
 const h = (i) => {
   const s = (t) => t[i] || [];
   return s.isThemeGetter = !0, s;
-}, l1 = /^\[(?:([a-z-]+):)?(.+)\]$/i, x1 = /^\d+\/\d+$/, w1 = /* @__PURE__ */ new Set(["px", "full", "screen"]), M1 = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, V1 = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, S1 = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, H1 = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, Z1 = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, w = (i) => H(i) || w1.has(i) || x1.test(i), M = (i) => Z(i, "length", A1), H = (i) => !!i && !Number.isNaN(Number(i)), F = (i) => Z(i, "number", H), B = (i) => !!i && Number.isInteger(Number(i)), k1 = (i) => i.endsWith("%") && H(i.slice(0, -1)), C = (i) => l1.test(i), V = (i) => M1.test(i), T1 = /* @__PURE__ */ new Set(["length", "size", "percentage"]), E1 = (i) => Z(i, T1, r1), B1 = (i) => Z(i, "position", r1), z1 = /* @__PURE__ */ new Set(["image", "url"]), P1 = (i) => Z(i, z1, G1), I1 = (i) => Z(i, "", $1), z = () => !0, Z = (i, s, t) => {
-  const e = l1.exec(i);
+}, r1 = /^\[(?:([a-z-]+):)?(.+)\]$/i, x1 = /^\d+\/\d+$/, w1 = /* @__PURE__ */ new Set(["px", "full", "screen"]), M1 = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, V1 = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, S1 = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, H1 = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, Z1 = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, w = (i) => H(i) || w1.has(i) || x1.test(i), M = (i) => Z(i, "length", A1), H = (i) => !!i && !Number.isNaN(Number(i)), F = (i) => Z(i, "number", H), B = (i) => !!i && Number.isInteger(Number(i)), k1 = (i) => i.endsWith("%") && H(i.slice(0, -1)), C = (i) => r1.test(i), V = (i) => M1.test(i), T1 = /* @__PURE__ */ new Set(["length", "size", "percentage"]), E1 = (i) => Z(i, T1, l1), B1 = (i) => Z(i, "position", l1), z1 = /* @__PURE__ */ new Set(["image", "url"]), P1 = (i) => Z(i, z1, G1), I1 = (i) => Z(i, "", $1), z = () => !0, Z = (i, s, t) => {
+  const e = r1.exec(i);
   return e ? e[1] ? typeof s == "string" ? e[1] === s : s.has(e[1]) : t(e[2]) : !1;
 }, A1 = (i) => (
   // `colorFunctionRegex` check is necessary because color functions can have percentages in them which which would be incorrectly classified as lengths.
   // For example, `hsl(0 0% 0%)` would be classified as a length without this check.
   // I could also use lookbehind assertion in `lengthUnitRegex` but that isn't supported widely enough.
   V1.test(i) && !S1.test(i)
-), r1 = () => !1, $1 = (i) => H1.test(i), G1 = (i) => Z1.test(i), R1 = () => {
-  const i = h("colors"), s = h("spacing"), t = h("blur"), e = h("brightness"), l = h("borderColor"), r = h("borderRadius"), n = h("borderSpacing"), o = h("borderWidth"), a = h("contrast"), p = h("grayscale"), u = h("hueRotate"), c = h("invert"), d = h("gap"), L = h("gradientColorStops"), v = h("gradientColorStopPositions"), f = h("inset"), m = h("margin"), g = h("opacity"), b = h("padding"), k = h("saturate"), S = h("scale"), P = h("sepia"), j = h("skew"), _ = h("space"), q = h("translate"), $ = () => ["auto", "contain", "none"], G = () => ["auto", "hidden", "clip", "visible", "scroll"], R = () => ["auto", C, s], y = () => [C, s], W = () => ["", w, M], I = () => ["auto", H, C], X = () => ["bottom", "center", "left", "left-bottom", "left-top", "right", "right-bottom", "right-top", "top"], A = () => ["solid", "dashed", "dotted", "double", "none"], Q = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], U = () => ["start", "end", "center", "between", "around", "evenly", "stretch"], T = () => ["", "0", C], D = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], x = () => [H, C];
+), l1 = () => !1, $1 = (i) => H1.test(i), G1 = (i) => Z1.test(i), R1 = () => {
+  const i = h("colors"), s = h("spacing"), t = h("blur"), e = h("brightness"), r = h("borderColor"), l = h("borderRadius"), n = h("borderSpacing"), o = h("borderWidth"), a = h("contrast"), p = h("grayscale"), u = h("hueRotate"), c = h("invert"), d = h("gap"), L = h("gradientColorStops"), v = h("gradientColorStopPositions"), f = h("inset"), m = h("margin"), g = h("opacity"), b = h("padding"), k = h("saturate"), S = h("scale"), P = h("sepia"), j = h("skew"), _ = h("space"), q = h("translate"), $ = () => ["auto", "contain", "none"], G = () => ["auto", "hidden", "clip", "visible", "scroll"], R = () => ["auto", C, s], y = () => [C, s], W = () => ["", w, M], I = () => ["auto", H, C], X = () => ["bottom", "center", "left", "left-bottom", "left-top", "right", "right-bottom", "right-top", "top"], A = () => ["solid", "dashed", "dotted", "double", "none"], Q = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], U = () => ["start", "end", "center", "between", "around", "evenly", "stretch"], T = () => ["", "0", C], D = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], x = () => [H, C];
   return {
     cacheSize: 500,
     separator: ":",
@@ -1490,105 +1490,105 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/border-radius
        */
       rounded: [{
-        rounded: [r]
+        rounded: [l]
       }],
       /**
        * Border Radius Start
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-s": [{
-        "rounded-s": [r]
+        "rounded-s": [l]
       }],
       /**
        * Border Radius End
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-e": [{
-        "rounded-e": [r]
+        "rounded-e": [l]
       }],
       /**
        * Border Radius Top
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-t": [{
-        "rounded-t": [r]
+        "rounded-t": [l]
       }],
       /**
        * Border Radius Right
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-r": [{
-        "rounded-r": [r]
+        "rounded-r": [l]
       }],
       /**
        * Border Radius Bottom
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-b": [{
-        "rounded-b": [r]
+        "rounded-b": [l]
       }],
       /**
        * Border Radius Left
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-l": [{
-        "rounded-l": [r]
+        "rounded-l": [l]
       }],
       /**
        * Border Radius Start Start
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-ss": [{
-        "rounded-ss": [r]
+        "rounded-ss": [l]
       }],
       /**
        * Border Radius Start End
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-se": [{
-        "rounded-se": [r]
+        "rounded-se": [l]
       }],
       /**
        * Border Radius End End
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-ee": [{
-        "rounded-ee": [r]
+        "rounded-ee": [l]
       }],
       /**
        * Border Radius End Start
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-es": [{
-        "rounded-es": [r]
+        "rounded-es": [l]
       }],
       /**
        * Border Radius Top Left
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-tl": [{
-        "rounded-tl": [r]
+        "rounded-tl": [l]
       }],
       /**
        * Border Radius Top Right
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-tr": [{
-        "rounded-tr": [r]
+        "rounded-tr": [l]
       }],
       /**
        * Border Radius Bottom Right
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-br": [{
-        "rounded-br": [r]
+        "rounded-br": [l]
       }],
       /**
        * Border Radius Bottom Left
        * @see https://tailwindcss.com/docs/border-radius
        */
       "rounded-bl": [{
-        "rounded-bl": [r]
+        "rounded-bl": [l]
       }],
       /**
        * Border Width
@@ -1710,56 +1710,56 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color": [{
-        border: [l]
+        border: [r]
       }],
       /**
        * Border Color X
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-x": [{
-        "border-x": [l]
+        "border-x": [r]
       }],
       /**
        * Border Color Y
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-y": [{
-        "border-y": [l]
+        "border-y": [r]
       }],
       /**
        * Border Color Top
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-t": [{
-        "border-t": [l]
+        "border-t": [r]
       }],
       /**
        * Border Color Right
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-r": [{
-        "border-r": [l]
+        "border-r": [r]
       }],
       /**
        * Border Color Bottom
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-b": [{
-        "border-b": [l]
+        "border-b": [r]
       }],
       /**
        * Border Color Left
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-l": [{
-        "border-l": [l]
+        "border-l": [r]
       }],
       /**
        * Divide Color
        * @see https://tailwindcss.com/docs/divide-color
        */
       "divide-color": [{
-        divide: [l]
+        divide: [r]
       }],
       /**
        * Outline Style
@@ -2616,7 +2616,8 @@ const h = (i) => {
   "w-available",
   "scroll-p-4",
   "scroll-snap-align-center",
-  "scroll-smooth"
+  "scroll-smooth",
+  "scroll-p-4"
 ], e5 = [
   "slider-bar",
   "group/slider",
@@ -2650,7 +2651,7 @@ const h = (i) => {
   "z-0",
   "overflow-hidden",
   "overflow-clip"
-], l5 = [
+], r5 = [
   "slider-progress",
   "absolute",
   "flex",
@@ -2661,7 +2662,7 @@ const h = (i) => {
   "z-10",
   "overflow-hidden",
   "overflow-clip"
-], r5 = [
+], l5 = [
   "slider-nipple",
   "-translate-x-1/2",
   "-translate-y-[25%]",
@@ -3069,7 +3070,7 @@ const h = (i) => {
   "z-10",
   "pointer-events-none"
 ], W5 = [
-  "w-[calc(26%+(var(--gap)/2))]",
+  "w-[calc(23%+(var(--gap)/2))]",
   "h-auto",
   "object-cover",
   "aspect-video",
@@ -3122,10 +3123,10 @@ const h = (i) => {
   sliderBufferStyles: t5,
   sliderContainerStyles: M5,
   sliderHoverStyles: s5,
-  sliderNippleStyles: r5,
+  sliderNippleStyles: l5,
   sliderPopImageStyles: i5,
   sliderPopStyles: o5,
-  sliderProgressStyles: l5,
+  sliderProgressStyles: r5,
   sliderTextStyles: n5,
   speedButtonTextStyles: a5,
   spinnerContainerStyles: T5,
@@ -3151,10 +3152,10 @@ class K5 extends i1 {
     clearTimeout(this.timer), clearTimeout(this.timeout), this.player.plugins.desktopUIPlugin = void 0, this.chapters = [], this.previewTime = [], this.overlay && this.overlay.parentNode && this.overlay.parentNode.removeChild(this.overlay);
   }
   scrollIntoView(s) {
-    const e = s.parentElement, l = s.getBoundingClientRect().left + s.offsetWidth / 2 - e.offsetWidth / 2, r = e.scrollLeft, n = performance.now();
+    const e = s.parentElement, r = s.getBoundingClientRect().left + s.offsetWidth / 2 - e.offsetWidth / 2, l = e.scrollLeft, n = performance.now();
     function o(a) {
       const p = a - n, u = Math.min(p / 200, 1);
-      e.scrollTo(r + l * u, 0), p < 200 && requestAnimationFrame(o);
+      e.scrollTo(l + r * u, 0), p < 200 && requestAnimationFrame(o);
     }
     requestAnimationFrame(o);
   }
@@ -3165,30 +3166,30 @@ class K5 extends i1 {
    * @returns An array containing the merged styles.
    */
   mergeStyles(s, t) {
-    var l;
-    const e = ((l = this.player.options.styles) == null ? void 0 : l[s]) || [];
+    var r;
+    const e = ((r = this.player.options.styles) == null ? void 0 : r[s]) || [];
     return [...t, ...e];
   }
-  createSVGElement(s, t, e, l = !1, r = !1) {
+  createSVGElement(s, t, e, r = !1, l = !1) {
     const n = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     n.setAttribute("viewBox", "0 0 24 24"), n.id = t, this.player.addClasses(n, U1([
       `${t}-icon`,
       ...this.makeStyles("svgSizeStyles"),
       ...this.makeStyles("iconStyles"),
-      l ? "hidden" : "flex",
+      r ? "hidden" : "flex",
       ...e.classes
     ]).split(" "));
     const o = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    o.setAttribute("d", r ? e.normal : e.hover), this.player.addClasses(o, [
+    o.setAttribute("d", l ? e.normal : e.hover), this.player.addClasses(o, [
       "group-hover/button:hidden",
       "group-hover/volume:hidden"
     ]), n.appendChild(o);
     const a = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    return a.setAttribute("d", r ? e.hover : e.normal), this.player.addClasses(a, [
+    return a.setAttribute("d", l ? e.hover : e.normal), this.player.addClasses(a, [
       "hidden",
       "group-hover/button:flex",
       "group-hover/volume:flex"
-    ]), n.appendChild(a), !s.classList.contains("menu-button") && r && (s.addEventListener("mouseenter", () => {
+    ]), n.appendChild(a), !s.classList.contains("menu-button") && l && (s.addEventListener("mouseenter", () => {
       if (e.title.length == 0 || ["Next", "Previous"].includes(e.title) && this.player.hasNextTip || e.title == "Fullscreen" && this.player.getFullscreen() || e.title == "Exit fullscreen" && !this.player.getFullscreen() || e.title == "Play" && this.player.isPlaying || e.title == "Pause" && !this.player.isPlaying || e.title == "Mute" && this.player.isMuted() || e.title == "Unmute" && !this.player.isMuted())
         return;
       const p = `${this.player.localize(e.title)} ${this.getButtonKeyCode(t)}`, u = this.player.getElement().getBoundingClientRect(), c = s.getBoundingClientRect();
@@ -3208,17 +3209,28 @@ class K5 extends i1 {
     this.player.createElement("h2", "loader").addClasses(["loader", "pointer-events-none"]).appendTo(s);
   }
   createSpinnerContainer(s) {
-    const t = this.player.createElement("div", "spinner-container").addClasses(this.makeStyles("spinnerContainerStyles")).appendTo(s), e = this.player.createElement("div", "spinner-role").addClasses(this.makeStyles("roleStyles")).appendTo(t);
+    const t = this.player.createElement("div", "spinner-container").addClasses(this.makeStyles("spinnerContainerStyles")).addClasses([
+      "bg-transparent",
+      "group-[&.nomercyplayer.buffering]:bg-gradient-circle-c",
+      "group-[&.nomercyplayer.error]:bg-gradient-circle-c",
+      "group-[&.nomercyplayer.paused]:bg-gradient-circle-c",
+      "from-black/50",
+      "from-15%",
+      "via-60%",
+      "via-black/30",
+      "to-100%",
+      "to-black/0"
+    ]).appendTo(s), e = this.player.createElement("div", "spinner-role").addClasses(this.makeStyles("roleStyles")).appendTo(t);
     e.setAttribute("role", "status"), this.createSpinner(e);
-    const l = this.player.createElement("span", "status-text").addClasses(this.makeStyles("statusTextStyles")).appendTo(e);
-    return l.innerText = this.player.localize("Loading..."), this.player.on("ready", () => {
+    const r = this.player.createElement("span", "status-text").addClasses(this.makeStyles("statusTextStyles")).appendTo(e);
+    return r.innerText = this.player.localize("Loading..."), this.player.on("ready", () => {
       t.style.display = "none";
     }), this.player.on("playing", () => {
       t.style.display = "none";
     }), this.player.on("waiting", () => {
-      t.style.display = "grid", l.innerText = `${this.player.localize("Buffering")}...`;
+      t.style.display = "grid", r.innerText = `${this.player.localize("Buffering")}...`;
     }), this.player.on("error", () => {
-      t.style.display = "none", l.innerText = this.player.localize("Something went wrong trying to play this item");
+      t.style.display = "none", r.innerText = this.player.localize("Something went wrong trying to play this item");
     }), this.player.on("ended", () => {
       t.style.display = "none";
     }), this.player.on("ready", () => {
@@ -3228,7 +3240,7 @@ class K5 extends i1 {
     }), this.player.on("bufferedEnd", () => {
       t.style.display = "none";
     }), this.player.on("stalled", () => {
-      t.style.display = "grid", l.innerText = `${this.player.localize("Buffering")}...`;
+      t.style.display = "grid", r.innerText = `${this.player.localize("Buffering")}...`;
     }), this.player.on("item", () => {
       t.style.display = "grid";
     }), t;
@@ -3241,8 +3253,8 @@ class K5 extends i1 {
     ]), s.appendChild(t);
     const e = document.createElementNS("http://www.w3.org/2000/svg", "path");
     e.setAttribute("d", "M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"), e.setAttribute("fill", "currentColor"), t.appendChild(e);
-    const l = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    l.setAttribute("d", "M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"), l.setAttribute("fill", "currentFill"), t.appendChild(l);
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    r.setAttribute("d", "M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"), r.setAttribute("fill", "currentFill"), t.appendChild(r);
   }
   getButtonKeyCode(s) {
     switch (s) {
@@ -3297,10 +3309,10 @@ class K5 extends i1 {
         options: {
           type: "blob"
         },
-        callback: (l) => {
-          const r = URL.createObjectURL(l);
-          t.src = r, this.sliderPopImage.style && (this.sliderPopImage.style.backgroundImage = `url('${r}')`), this.player.once("item", () => {
-            URL.revokeObjectURL(r);
+        callback: (r) => {
+          const l = URL.createObjectURL(r);
+          t.src = l, this.sliderPopImage.style && (this.sliderPopImage.style.backgroundImage = `url('${l}')`), this.player.once("item", () => {
+            URL.revokeObjectURL(l);
           }), setTimeout(() => {
             this.player.emit("preview-time", this.previewTime);
           }, 400);
@@ -3315,8 +3327,8 @@ class K5 extends i1 {
           options: {
             type: "text"
           },
-          callback: (l) => {
-            const n = new n1.WebVTTParser().parse(l, "metadata"), o = /(?<x>\d*),(?<y>\d*),(?<w>\d*),(?<h>\d*)/u;
+          callback: (r) => {
+            const n = new n1.WebVTTParser().parse(r, "metadata"), o = /(?<x>\d*),(?<y>\d*),(?<w>\d*),(?<h>\d*)/u;
             this.previewTime = [], n.cues.forEach((a) => {
               const p = o.exec(a.text);
               if (!(p != null && p.groups))
@@ -3341,10 +3353,10 @@ class K5 extends i1 {
     }
   }
   createUiButton(s, t) {
-    var l;
+    var r;
     const e = this.player.createElement("button", t).addClasses(this.makeStyles("buttonStyles")).appendTo(s);
-    return e.ariaLabel = (l = this.buttons[t]) == null ? void 0 : l.title, e.addEventListener("keypress", (r) => {
-      r.key === "Backspace" && (e.blur(), this.player.emit("show-menu", !1)), r.key === "Escape" && (e.blur(), this.player.emit("show-menu", !1));
+    return e.ariaLabel = (r = this.buttons[t]) == null ? void 0 : r.title, e.addEventListener("keypress", (l) => {
+      l.key === "Backspace" && (e.blur(), this.player.emit("show-menu", !1)), l.key === "Escape" && (e.blur(), this.player.emit("show-menu", !1));
     }), e;
   }
   createBackButton(s, t = !1) {
@@ -3356,8 +3368,8 @@ class K5 extends i1 {
     );
     return s.appendChild(e), this.createSVGElement(e, "back", this.buttons.back, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.emit("back");
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : e.style.display = "flex";
     }), e;
   }
   createRestartButton(s, t = !1) {
@@ -3365,8 +3377,8 @@ class K5 extends i1 {
       s,
       "restart"
     );
-    return s.appendChild(e), this.createSVGElement(e, "restart", this.buttons.restart, !1, t), e.addEventListener("click", (l) => {
-      l.stopPropagation(), this.player.restart();
+    return s.appendChild(e), this.createSVGElement(e, "restart", this.buttons.restart, !1, t), e.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.restart();
     }), e;
   }
   createSettingsButton(s, t = !1) {
@@ -3378,8 +3390,8 @@ class K5 extends i1 {
     );
     return this.createSVGElement(e, "settings", this.buttons.settings, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !1) : !this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !0) : this.menuOpen && !this.mainMenuOpen ? (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0)) : (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0));
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : e.style.display = "flex";
     }), s.append(e), e;
   }
   createCloseButton(s, t = !1) {
@@ -3391,8 +3403,8 @@ class K5 extends i1 {
     );
     return s.appendChild(e), this.createSVGElement(e, "close", this.buttons.close, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.emit("close");
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : e.style.display = "flex";
     }), e;
   }
   createPlaybackButton(s, t = !1) {
@@ -3402,15 +3414,15 @@ class K5 extends i1 {
       "playback"
     );
     s.appendChild(e), e.ariaLabel = (n = this.buttons.play) == null ? void 0 : n.title;
-    const l = this.createSVGElement(e, "paused", this.buttons.play, !1, t), r = this.createSVGElement(e, "playing", this.buttons.pause, !0, t);
+    const r = this.createSVGElement(e, "paused", this.buttons.play, !1, t), l = this.createSVGElement(e, "playing", this.buttons.pause, !0, t);
     return e.addEventListener("click", (o) => {
       o.stopPropagation(), this.player.togglePlayback(), this.player.emit("hide-tooltip");
     }), this.player.on("pause", () => {
-      r.style.display = "none", l.style.display = "flex";
-    }), this.player.on("play", () => {
       l.style.display = "none", r.style.display = "flex";
+    }), this.player.on("play", () => {
+      r.style.display = "none", l.style.display = "flex";
     }), this.player.on("item", () => {
-      r.focus();
+      l.focus();
     }), e;
   }
   createSeekBackButton(s, t = !1) {
@@ -3422,8 +3434,8 @@ class K5 extends i1 {
     );
     return this.createSVGElement(e, "seekBack", this.buttons.seekBack, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.rewindVideo();
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : e.style.display = "flex";
     }), s.append(e), e;
   }
   createSeekForwardButton(s, t = !1) {
@@ -3435,76 +3447,76 @@ class K5 extends i1 {
     );
     return this.createSVGElement(e, "seekForward", this.buttons.seekForward, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.forwardVideo();
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : e.style.display = "flex";
     }), s.append(e), e;
   }
   createTime(s, t, e) {
-    const l = this.player.createElement("div", `${t}-time`).addClasses([
+    const r = this.player.createElement("div", `${t}-time`).addClasses([
       ...e,
       ...this.makeStyles("timeStyles"),
       `${t}-time`
     ]).appendTo(s);
-    switch (l.textContent = "00:00", t) {
+    switch (r.textContent = "00:00", t) {
       case "current":
-        this.player.on("time", (r) => {
-          l.textContent = E(r.currentTime);
-        }), this.player.on("currentScrubTime", (r) => {
-          l.textContent = E(r.currentTime);
+        this.player.on("time", (l) => {
+          r.textContent = E(l.currentTime);
+        }), this.player.on("currentScrubTime", (l) => {
+          r.textContent = E(l.currentTime);
         });
         break;
       case "remaining":
-        this.player.on("duration", (r) => {
-          r.remaining === 1 / 0 ? l.textContent = "Live" : l.textContent = E(r.remaining);
-        }), this.player.on("time", (r) => {
-          r.remaining === 1 / 0 ? l.textContent = "Live" : l.textContent = E(r.remaining);
+        this.player.on("duration", (l) => {
+          l.remaining === 1 / 0 ? r.textContent = "Live" : r.textContent = E(l.remaining);
+        }), this.player.on("time", (l) => {
+          l.remaining === 1 / 0 ? r.textContent = "Live" : r.textContent = E(l.remaining);
         });
         break;
       case "duration":
-        this.player.on("duration", (r) => {
-          r.duration === 1 / 0 ? l.textContent = "Live" : l.textContent = E(r.duration);
+        this.player.on("duration", (l) => {
+          l.duration === 1 / 0 ? r.textContent = "Live" : r.textContent = E(l.duration);
         });
         break;
     }
-    return this.player.on("pip-internal", (r) => {
-      r ? l.style.display = "none" : l.style.display = "";
-    }), l;
+    return this.player.on("pip-internal", (l) => {
+      l ? r.style.display = "none" : r.style.display = "";
+    }), r;
   }
   createVolumeButton(s, t = !1) {
     var u;
     if (this.player.isMobile())
       return;
-    const e = this.player.createElement("div", "volume-container").addClasses(this.makeStyles("volumeContainerStyles")).appendTo(s), l = this.createUiButton(
+    const e = this.player.createElement("div", "volume-container").addClasses(this.makeStyles("volumeContainerStyles")).appendTo(s), r = this.createUiButton(
       e,
       "volume"
     );
-    l.ariaLabel = (u = this.buttons.volumeHigh) == null ? void 0 : u.title;
-    const r = this.player.createElement("input", "volume-slider").addClasses(this.makeStyles("volumeSliderStyles")).appendTo(e);
-    r.type = "range", r.min = "0", r.max = "100", r.step = "1", r.value = this.player.getVolume().toString(), r.style.backgroundSize = `${this.player.getVolume()}% 100%`;
-    const n = this.createSVGElement(l, "volumeMuted", this.buttons.volumeMuted, !0, t), o = this.createSVGElement(l, "volumeLow", this.buttons.volumeLow, !0, t), a = this.createSVGElement(l, "volumeMedium", this.buttons.volumeMedium, !0, t), p = this.createSVGElement(l, "volumeHigh", this.buttons.volumeHigh, !1, t);
-    return l.addEventListener("click", (c) => {
+    r.ariaLabel = (u = this.buttons.volumeHigh) == null ? void 0 : u.title;
+    const l = this.player.createElement("input", "volume-slider").addClasses(this.makeStyles("volumeSliderStyles")).appendTo(e);
+    l.type = "range", l.min = "0", l.max = "100", l.step = "1", l.value = this.player.getVolume().toString(), l.style.backgroundSize = `${this.player.getVolume()}% 100%`;
+    const n = this.createSVGElement(r, "volumeMuted", this.buttons.volumeMuted, !0, t), o = this.createSVGElement(r, "volumeLow", this.buttons.volumeLow, !0, t), a = this.createSVGElement(r, "volumeMedium", this.buttons.volumeMedium, !0, t), p = this.createSVGElement(r, "volumeHigh", this.buttons.volumeHigh, !1, t);
+    return r.addEventListener("click", (c) => {
       c.stopPropagation(), this.player.toggleMute(), this.player.emit("hide-tooltip");
-    }), r.addEventListener("input", (c) => {
+    }), l.addEventListener("input", (c) => {
       c.stopPropagation();
-      const d = Math.floor(parseInt(r.value, 10));
-      r.style.backgroundSize = `${d}% 100%`, this.player.setVolume(d);
+      const d = Math.floor(parseInt(l.value, 10));
+      l.style.backgroundSize = `${d}% 100%`, this.player.setVolume(d);
     }), e.addEventListener("wheel", (c) => {
       c.preventDefault();
       const d = c.deltaY === 0 ? -c.deltaX : -c.deltaY;
-      d !== 0 && (r.style.backgroundSize = `${r.value}% 100%`, r.value = (parseFloat(r.value) + d * 0.5).toString(), this.player.setVolume(parseFloat(r.value)));
+      d !== 0 && (l.style.backgroundSize = `${l.value}% 100%`, l.value = (parseFloat(l.value) + d * 0.5).toString(), this.player.setVolume(parseFloat(l.value)));
     }, {
       passive: !0
     }), this.player.on("volume", (c) => {
-      this.volumeHandle(c, n, o, a, p), r.style.backgroundSize = `${c.volume}% 100%`, r.value = c.volume.toString();
+      this.volumeHandle(c, n, o, a, p), l.style.backgroundSize = `${c.volume}% 100%`, l.value = c.volume.toString();
     }), this.player.on("mute", (c) => {
-      this.volumeHandle(c, n, o, a, p), c.muted ? (r.style.backgroundSize = "0% 100%", r.value = "0") : (r.style.backgroundSize = `${this.player.getVolume()}% 100%`, r.value = this.player.getVolume().toString());
+      this.volumeHandle(c, n, o, a, p), c.muted ? (l.style.backgroundSize = "0% 100%", l.value = "0") : (l.style.backgroundSize = `${this.player.getVolume()}% 100%`, l.value = this.player.getVolume().toString());
     }), e;
   }
-  volumeHandle(s, t, e, l, r) {
-    this.player.getMute() || s.volume == 0 ? (e.style.display = "none", l.style.display = "none", r.style.display = "none", t.style.display = "flex") : s.volume <= 30 ? (l.style.display = "none", r.style.display = "none", t.style.display = "none", e.style.display = "flex") : s.volume <= 60 ? (e.style.display = "none", r.style.display = "none", t.style.display = "none", l.style.display = "flex") : (e.style.display = "none", l.style.display = "none", t.style.display = "none", r.style.display = "flex");
+  volumeHandle(s, t, e, r, l) {
+    this.player.getMute() || s.volume == 0 ? (e.style.display = "none", r.style.display = "none", l.style.display = "none", t.style.display = "flex") : s.volume <= 30 ? (r.style.display = "none", l.style.display = "none", t.style.display = "none", e.style.display = "flex") : s.volume <= 60 ? (e.style.display = "none", l.style.display = "none", t.style.display = "none", r.style.display = "flex") : (e.style.display = "none", r.style.display = "none", t.style.display = "none", l.style.display = "flex");
   }
   getClosestSeekableInterval() {
-    const s = this.player.getPosition(), e = this.previewTime.find((l) => s >= l.start && s < l.end);
+    const s = this.player.getPosition(), e = this.previewTime.find((r) => s >= r.start && s < r.end);
     return e == null ? void 0 : e.start;
   }
   createPreviousButton(s, t = !1) {
@@ -3514,17 +3526,17 @@ class K5 extends i1 {
       s,
       "previous"
     );
-    return e.style.display = "none", this.createSVGElement(e, "previous", this.buttons.previous, !1, t), e.addEventListener("click", (l) => {
-      l.stopPropagation(), this.player.previous(), this.player.emit("hide-tooltip");
+    return e.style.display = "none", this.createSVGElement(e, "previous", this.buttons.previous, !1, t), e.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.previous(), this.player.emit("hide-tooltip");
     }), this.player.on("item", () => {
       this.player.getPlaylistIndex() > 0 ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : (this.player.playlistItem().episode ?? -0 - 1 == 0) && (e.style.display = "flex");
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : (this.player.playlistItem().episode ?? -0 - 1 == 0) && (e.style.display = "flex");
     }), e.addEventListener("mouseenter", () => {
-      const l = e.getBoundingClientRect(), r = s.getBoundingClientRect();
-      let n = Math.abs(r.left - l.left + 50);
-      const o = Math.abs(r.bottom - l.bottom - 60);
-      n < 30 && (n = 30), n > l.right - l.left - 10 && (n = l.right - l.left - 10), this.player.emit("show-episode-tip", {
+      const r = e.getBoundingClientRect(), l = s.getBoundingClientRect();
+      let n = Math.abs(l.left - r.left + 50);
+      const o = Math.abs(l.bottom - r.bottom - 60);
+      n < 30 && (n = 30), n > r.right - r.left - 10 && (n = r.right - r.left - 10), this.player.emit("show-episode-tip", {
         direction: "previous",
         currentTime: "bottom",
         x: `${n}px`,
@@ -3539,17 +3551,17 @@ class K5 extends i1 {
       s,
       "next"
     );
-    return e.style.display = "none", this.player.hasNextTip = !0, this.createSVGElement(e, "next", this.buttons.next, !1, t), e.addEventListener("click", (l) => {
-      l.stopPropagation(), this.player.next(), this.player.emit("hide-tooltip");
+    return e.style.display = "none", this.player.hasNextTip = !0, this.createSVGElement(e, "next", this.buttons.next, !1, t), e.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.next(), this.player.emit("hide-tooltip");
     }), this.player.on("item", () => {
       this.player.isLastPlaylistItem() ? e.style.display = "none" : e.style.display = "flex";
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : this.player.isLastPlaylistItem() && (e.style.display = "flex");
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : this.player.isLastPlaylistItem() && (e.style.display = "flex");
     }), e.addEventListener("mouseenter", () => {
-      const l = e.getBoundingClientRect(), r = s.getBoundingClientRect();
-      let n = Math.abs(r.left - l.left + 50);
-      const o = Math.abs(r.bottom - l.bottom - 60);
-      n < 30 && (n = 30), n > l.right - l.left - 10 && (n = l.right - l.left - 10), this.player.emit("show-episode-tip", {
+      const r = e.getBoundingClientRect(), l = s.getBoundingClientRect();
+      let n = Math.abs(l.left - r.left + 50);
+      const o = Math.abs(l.bottom - r.bottom - 60);
+      n < 30 && (n = 30), n > r.right - r.left - 10 && (n = r.right - r.left - 10), this.player.emit("show-episode-tip", {
         direction: "next",
         currentTime: "bottom",
         x: `${n}px`,
@@ -3566,31 +3578,31 @@ class K5 extends i1 {
       "subtitles"
     );
     e.style.display = "none", e.ariaLabel = (n = this.buttons.subtitles) == null ? void 0 : n.title;
-    const l = this.createSVGElement(e, "subtitle", this.buttons.subtitlesOff, !1, t), r = this.createSVGElement(e, "subtitled", this.buttons.subtitles, !0, t);
+    const r = this.createSVGElement(e, "subtitle", this.buttons.subtitlesOff, !1, t), l = this.createSVGElement(e, "subtitled", this.buttons.subtitles, !0, t);
     return e.addEventListener("click", (o) => {
       o.stopPropagation(), this.player.emit("hide-tooltip"), this.subtitlesMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-subtitles-menu", !0), this.menuFrame.showModal());
     }), this.player.on("captionsList", (o) => {
       o.length > 1 ? e.style.display = "flex" : e.style.display = "none";
     }), this.player.on("captionsChanging", (o) => {
-      o.id == -1 ? (r.style.display = "none", l.style.display = "flex") : (r.style.display = "flex", l.style.display = "none");
+      o.id == -1 ? (l.style.display = "none", r.style.display = "flex") : (l.style.display = "flex", r.style.display = "none");
     }), this.player.on("pip-internal", (o) => {
       o ? e.style.display = "none" : this.player.hasCaptions() && (e.style.display = "flex");
     }), s.appendChild(e), e;
   }
   createAudioButton(s, t = !1) {
-    var l;
+    var r;
     const e = this.createUiButton(
       s,
       "audio"
     );
-    return e.style.display = "none", e.ariaLabel = (l = this.buttons.language) == null ? void 0 : l.title, this.createSVGElement(e, "audio", this.buttons.languageOff, !1, t), e.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.emit("hide-tooltip"), this.languageMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-language-menu", !0), this.menuFrame.showModal());
+    return e.style.display = "none", e.ariaLabel = (r = this.buttons.language) == null ? void 0 : r.title, this.createSVGElement(e, "audio", this.buttons.languageOff, !1, t), e.addEventListener("click", (l) => {
+      l.stopPropagation(), this.player.emit("hide-tooltip"), this.languageMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-language-menu", !0), this.menuFrame.showModal());
     }), this.player.on("item", () => {
       e.style.display = "none";
-    }), this.player.on("audioTracks", (r) => {
-      r.length > 1 ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : this.player.hasAudioTracks() && (e.style.display = "flex");
+    }), this.player.on("audioTracks", (l) => {
+      l.length > 1 ? e.style.display = "flex" : e.style.display = "none";
+    }), this.player.on("pip-internal", (l) => {
+      l ? e.style.display = "none" : this.player.hasAudioTracks() && (e.style.display = "flex");
     }), s.appendChild(e), e;
   }
   createQualityButton(s, t = !1) {
@@ -3599,9 +3611,9 @@ class K5 extends i1 {
       "quality"
     );
     e.style.display = "none";
-    const l = this.createSVGElement(e, "low", this.buttons.quality, !1, t), r = this.createSVGElement(e, "high", this.buttons.quality, !0, t);
+    const r = this.createSVGElement(e, "low", this.buttons.quality, !1, t), l = this.createSVGElement(e, "high", this.buttons.quality, !0, t);
     return e.addEventListener("click", (n) => {
-      n.stopPropagation(), this.player.emit("hide-tooltip"), this.qualityMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-quality-menu", !0), this.menuFrame.showModal()), this.player.highQuality ? (this.player.highQuality = !1, r.style.display = "none", l.style.display = "flex") : (this.player.highQuality = !0, l.style.display = "none", r.style.display = "flex");
+      n.stopPropagation(), this.player.emit("hide-tooltip"), this.qualityMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-quality-menu", !0), this.menuFrame.showModal()), this.player.highQuality ? (this.player.highQuality = !1, l.style.display = "none", r.style.display = "flex") : (this.player.highQuality = !0, r.style.display = "none", l.style.display = "flex");
     }), this.player.on("item", () => {
       e.style.display = "none";
     }), this.player.on("levels", () => {
@@ -3617,12 +3629,12 @@ class K5 extends i1 {
       s,
       "theater"
     );
-    return this.createSVGElement(e, "theater", this.buttons.theater, t), this.createSVGElement(e, "theater-enabled", this.buttons.theaterExit, !0, t), e.addEventListener("click", (l) => {
-      l.stopPropagation(), this.player.emit("hide-tooltip"), this.theaterModeEnabled ? (this.theaterModeEnabled = !1, e.querySelector(".theater-enabled-icon").style.display = "none", e.querySelector(".theater-icon").style.display = "flex", this.player.emit("theaterMode", !1), this.player.emit("resize")) : (this.theaterModeEnabled = !0, e.querySelector(".theater-icon").style.display = "none", e.querySelector(".theater-enabled-icon").style.display = "flex", this.player.emit("theaterMode", !0), this.player.emit("resize"));
+    return this.createSVGElement(e, "theater", this.buttons.theater, t), this.createSVGElement(e, "theater-enabled", this.buttons.theaterExit, !0, t), e.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.emit("hide-tooltip"), this.theaterModeEnabled ? (this.theaterModeEnabled = !1, e.querySelector(".theater-enabled-icon").style.display = "none", e.querySelector(".theater-icon").style.display = "flex", this.player.emit("theaterMode", !1), this.player.emit("resize")) : (this.theaterModeEnabled = !0, e.querySelector(".theater-icon").style.display = "none", e.querySelector(".theater-enabled-icon").style.display = "flex", this.player.emit("theaterMode", !0), this.player.emit("resize"));
     }), this.player.on("fullscreen", () => {
       this.player.getFullscreen() ? e.style.display = "none" : e.style.display = "flex";
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : e.style.display = "flex";
     }), s.appendChild(e), e;
   }
   createFullscreenButton(s, t = !1) {
@@ -3630,12 +3642,12 @@ class K5 extends i1 {
       s,
       "fullscreen"
     );
-    return this.createSVGElement(e, "fullscreen", this.buttons.fullscreen, !1, t), this.createSVGElement(e, "fullscreen-enabled", this.buttons.exitFullscreen, !0, t), e.addEventListener("click", (l) => {
-      l.stopPropagation(), this.player.toggleFullscreen(), this.player.emit("hide-tooltip");
-    }), this.player.on("fullscreen", (l) => {
-      l ? (e.querySelector(".fullscreen-icon").style.display = "none", e.querySelector(".fullscreen-enabled-icon").style.display = "flex") : (e.querySelector(".fullscreen-enabled-icon").style.display = "none", e.querySelector(".fullscreen-icon").style.display = "flex");
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : e.style.display = "flex";
+    return this.createSVGElement(e, "fullscreen", this.buttons.fullscreen, !1, t), this.createSVGElement(e, "fullscreen-enabled", this.buttons.exitFullscreen, !0, t), e.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.toggleFullscreen(), this.player.emit("hide-tooltip");
+    }), this.player.on("fullscreen", (r) => {
+      r ? (e.querySelector(".fullscreen-icon").style.display = "none", e.querySelector(".fullscreen-enabled-icon").style.display = "flex") : (e.querySelector(".fullscreen-enabled-icon").style.display = "none", e.querySelector(".fullscreen-icon").style.display = "flex");
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : e.style.display = "flex";
     }), s.appendChild(e), e;
   }
   createPlaylistsButton(s, t = !1) {
@@ -3643,15 +3655,15 @@ class K5 extends i1 {
       s,
       "playlist"
     );
-    return e.style.display = "none", this.createSVGElement(e, "playlist", this.buttons.playlist, !1, t), e.addEventListener("click", (l) => {
-      l.stopPropagation(), this.player.emit("hide-tooltip"), this.playlistMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-playlist-menu", !0), this.player.emit("switch-season", this.player.playlistItem().season), this.menuFrame.showModal(), setTimeout(() => {
-        var r;
-        (r = document.querySelector(`playlist-${this.player.playlistItem().id}`)) == null || r.scrollIntoView({ block: "center" });
+    return e.style.display = "none", this.createSVGElement(e, "playlist", this.buttons.playlist, !1, t), e.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.emit("hide-tooltip"), this.playlistMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-playlist-menu", !0), this.player.emit("switch-season", this.player.playlistItem().season), this.menuFrame.showModal(), setTimeout(() => {
+        var l;
+        (l = document.querySelector(`playlist-${this.player.playlistItem().id}`)) == null || l.scrollIntoView({ block: "center" });
       }, 100));
     }), this.player.on("item", () => {
       this.player.hasPlaylists() ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (l) => {
-      l ? e.style.display = "none" : this.player.hasPlaylists() && (e.style.display = "flex");
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : this.player.hasPlaylists() && (e.style.display = "flex");
     }), s.appendChild(e), e;
   }
   createBottomBar(s) {
@@ -3673,17 +3685,17 @@ class K5 extends i1 {
   createSeekContainer(s) {
     const t = this.player.createElement("div", "seek-container").addClasses(this.makeStyles("seekContainerStyles")).appendTo(s), e = this.player.createElement("div", "seek-scroll-clone-container").addClasses(this.makeStyles("seekScrollCloneStyles")).appendTo(t);
     this.player.createElement("div", "thumbnail-clone-1").addClasses(this.makeStyles("thumbnailCloneStyles")).appendTo(e);
-    const l = this.player.createElement("div", "seek-scroll-container").addClasses(this.makeStyles("seekScrollContainerStyles")).appendTo(t);
+    const r = this.player.createElement("div", "seek-scroll-container").addClasses(this.makeStyles("seekScrollContainerStyles")).appendTo(t);
     return this.player.once("item", () => {
       this.player.on("preview-time", () => {
         this.thumbs = [];
-        for (const r of this.previewTime)
+        for (const l of this.previewTime)
           this.thumbs.push({
-            time: r,
-            el: this.createThumbnail(r)
+            time: l,
+            el: this.createThumbnail(l)
           });
-        l.innerHTML = "", o1(this.thumbs.map((r) => r.el), "id").forEach((r) => {
-          l.appendChild(r);
+        r.innerHTML = "", o1(this.thumbs.map((l) => l.el), "id").forEach((l) => {
+          r.appendChild(l);
         }), this.player.once("time", () => {
           this.currentScrubTime = this.getClosestSeekableInterval(), this.player.emit("currentScrubTime", {
             ...this.player.getTimeData(),
@@ -3696,12 +3708,12 @@ class K5 extends i1 {
         ...this.player.getTimeData(),
         currentTime: this.getClosestSeekableInterval()
       });
-    }), this.player.on("currentScrubTime", (r) => {
-      r.currentTime <= 0 ? r.currentTime = 0 : r.currentTime >= this.player.getDuration() && (r.currentTime = this.player.getDuration() - 10);
-      const n = this.thumbs.find((o) => r.currentTime >= o.time.start && r.currentTime <= o.time.end);
-      this.currentScrubTime = r.currentTime, n && this.scrollIntoView(n.el);
-    }), this.player.on("show-seek-container", (r) => {
-      r ? (t.style.transform = "none", this.player.pause()) : this.seekContainer.style.transform = "";
+    }), this.player.on("currentScrubTime", (l) => {
+      l.currentTime <= 0 ? l.currentTime = 0 : l.currentTime >= this.player.getDuration() && (l.currentTime = this.player.getDuration());
+      const n = this.thumbs.find((o) => l.currentTime >= o.time.start && l.currentTime <= o.time.end);
+      this.currentScrubTime = l.currentTime, n && this.scrollIntoView(n.el);
+    }), this.player.on("show-seek-container", (l) => {
+      l ? (t.style.transform = "none", this.player.pause()) : this.seekContainer.style.transform = "";
     }), t;
   }
   createNextUp(s) {
@@ -3720,12 +3732,12 @@ class K5 extends i1 {
     }), e.addEventListener("click", () => {
       clearTimeout(this.timeout), this.nextUp.style.display = "none", this.player.next();
     });
-    let l = !1;
+    let r = !1;
     return this.player.on("item", () => {
-      clearTimeout(this.timeout), this.nextUp.style.display = "none", l = !1;
+      clearTimeout(this.timeout), this.nextUp.style.display = "none", r = !1;
     }), this.player.once("playing", () => {
-      this.player.on("time", (r) => {
-        this.player.getDuration() > 0 && r.currentTime > this.player.getDuration() - 5 && !l && !this.player.isLastPlaylistItem() && (this.player.emit("show-next-up"), l = !0);
+      this.player.on("time", (l) => {
+        this.player.getDuration() > 0 && l.currentTime > this.player.getDuration() - 5 && !r && !this.player.isLastPlaylistItem() && (this.player.emit("show-next-up"), r = !0);
       });
     }), this.nextUp;
   }
@@ -3733,7 +3745,7 @@ class K5 extends i1 {
     return this.player.createElement("div", "top-bar").addClasses(this.makeStyles("topBarStyles")).appendTo(s);
   }
   createLanguageMenuButton(s, t, e = !1) {
-    const l = this.player.createElement("button", `${t.type}-button-${t.language}`).addClasses([
+    const r = this.player.createElement("button", `${t.type}-button-${t.language}`).addClasses([
       "language-button",
       "w-available",
       "mr-auto",
@@ -3755,7 +3767,7 @@ class K5 extends i1 {
       "focus-visible:outline-2",
       "focus-visible:outline-white",
       "active:outline-white"
-    ]).appendTo(s), r = this.player.createElement("span", "menu-button-text").addClasses([
+    ]).appendTo(s), l = this.player.createElement("span", "menu-button-text").addClasses([
       "menu-button-text",
       "cursor-pointer",
       "font-semibold",
@@ -3763,28 +3775,28 @@ class K5 extends i1 {
       "flex",
       "gap-2",
       "leading-[normal]"
-    ]).appendTo(l);
-    t.buttonType == "subtitle" ? t.styled ? r.textContent = `${this.player.localize(t.language ?? "")} ${this.player.localize(t.label)} ${this.player.localize("styled")}` : t.language == "" ? r.textContent = this.player.localize(t.label) : r.textContent = `${this.player.localize(t.language ?? "")} (${this.player.localize(t.type)})` : r.textContent = this.player.localize(t.language);
-    const n = this.createSVGElement(l, "checkmark", this.buttons.checkmark, !1, e);
+    ]).appendTo(r);
+    t.buttonType == "subtitle" ? t.styled ? l.textContent = `${this.player.localize(t.language ?? "")} ${this.player.localize(t.label)} ${this.player.localize("styled")}` : t.language == "" ? l.textContent = this.player.localize(t.label) : l.textContent = `${this.player.localize(t.language ?? "")} (${this.player.localize(t.type)})` : l.textContent = this.player.localize(t.language);
+    const n = this.createSVGElement(r, "checkmark", this.buttons.checkmark, !1, e);
     return this.player.addClasses(n, ["ml-auto"]), t.id > 0 && n.classList.add("hidden"), t.buttonType == "audio" ? (this.player.on("audioTrackChanging", (o) => {
       t.id === o.id ? n.classList.remove("hidden") : n.classList.add("hidden");
-    }), l.addEventListener("click", (o) => {
+    }), r.addEventListener("click", (o) => {
       o.stopPropagation(), this.player.setCurrentAudioTrack(t.id), this.player.emit("show-menu", !1);
     })) : t.buttonType == "subtitle" && (t.id === this.player.getCaptionIndex() ? n.classList.remove("hidden") : n.classList.add("hidden"), this.player.on("captionsChanged", (o) => {
       t.id === o.id ? n.classList.remove("hidden") : n.classList.add("hidden");
-    }), l.addEventListener("click", (o) => {
+    }), r.addEventListener("click", (o) => {
       o.stopPropagation(), this.player.setCurrentCaption(t.id), this.player.emit("show-menu", !1);
-    })), l.addEventListener("keypress", (o) => {
+    })), r.addEventListener("keypress", (o) => {
       var a, p, u, c;
-      o.key == "ArrowLeft" ? (a = this.player.getClosestElement(l, '[id^="audio-button-"]')) == null || a.focus() : o.key == "ArrowRight" ? (p = this.player.getClosestElement(l, '[id^="subtitle-button-"]')) == null || p.focus() : o.key == "ArrowUp" && !this.player.options.disableTouchControls ? (u = l.previousElementSibling) == null || u.focus() : o.key == "ArrowDown" && !this.player.options.disableTouchControls && ((c = l.nextElementSibling) == null || c.focus());
-    }), l.addEventListener("focus", () => {
+      o.key == "ArrowLeft" ? (a = this.player.getClosestElement(r, '[id^="audio-button-"]')) == null || a.focus() : o.key == "ArrowRight" ? (p = this.player.getClosestElement(r, '[id^="subtitle-button-"]')) == null || p.focus() : o.key == "ArrowUp" && !this.player.options.disableTouchControls ? (u = r.previousElementSibling) == null || u.focus() : o.key == "ArrowDown" && !this.player.options.disableTouchControls && ((c = r.nextElementSibling) == null || c.focus());
+    }), r.addEventListener("focus", () => {
       setTimeout(() => {
-        this.scrollCenter(l, s, {
-          duration: 100,
-          margin: 1
+        this.scrollCenter(r, s.parentElement, {
+          margin: 1,
+          duration: 100
         });
-      }, 0);
-    }), l;
+      }, 50);
+    }), r;
   }
   getLanguageButtonText(s, t) {
     const e = this.player.createElement("span", "menu-button-text").addClasses([
@@ -3806,11 +3818,11 @@ class K5 extends i1 {
       "aspect-video",
       "snap-center"
     ]).get();
-    return t.style.backgroundImage = `url('${this.image}')`, t.style.backgroundPosition = `-${s.x}px -${s.y}px`, t.style.width = `${s.w}px`, t.style.minWidth = `${s.w}px`, t.style.height = `${s.h}px`, t;
+    return t.style.backgroundImage = `url('${(this.player.options.basePath ? this.player.options.basePath : "") + this.image}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ""}')`, t.style.backgroundPosition = `-${s.x}px -${s.y}px`, t.style.width = `max(232px, ${s.w * 0.7}px)`, t.style.minWidth = `max(232px, ${s.w * 0.7}px)`, t;
   }
   getSliderPopImage(s) {
     const t = this.loadSliderPopImage(s);
-    t && (this.sliderPopImage.style.backgroundPosition = `-${t.x}px -${t.y}px`, this.sliderPopImage.style.width = `${t.w}px`, this.sliderPopImage.style.height = `${t.h}px`);
+    t && (this.sliderPopImage.style.backgroundPosition = `-${t.x}px -${t.y}px`, this.sliderPopImage.style.width = `max(232px, ${t.w * 0.7}px)`, this.sliderPopImage.style.height = `max(232px, ${t.w * 0.7}px)`);
   }
   adjustScaling(s, t) {
     const e = s % t;
@@ -3826,10 +3838,10 @@ class K5 extends i1 {
   getScrubTime(s, t = this.sliderBar) {
     var n, o, a, p;
     const e = t.getBoundingClientRect();
-    let r = (s.clientX ?? ((o = (n = s.touches) == null ? void 0 : n[0]) == null ? void 0 : o.clientX) ?? ((p = (a = s.changedTouches) == null ? void 0 : a[0]) == null ? void 0 : p.clientX) ?? 0) - e.left;
-    return r <= 0 && (r = 0), r >= e.width && (r = e.width), {
-      scrubTime: r / t.offsetWidth * 100,
-      scrubTimePlayer: r / t.offsetWidth * this.player.getDuration()
+    let l = (s.clientX ?? ((o = (n = s.touches) == null ? void 0 : n[0]) == null ? void 0 : o.clientX) ?? ((p = (a = s.changedTouches) == null ? void 0 : a[0]) == null ? void 0 : p.clientX) ?? 0) - e.left;
+    return l <= 0 && (l = 0), l >= e.width && (l = e.width), {
+      scrubTime: l / t.offsetWidth * 100,
+      scrubTimePlayer: l / t.offsetWidth * this.player.getDuration()
     };
   }
   /**
@@ -3839,16 +3851,16 @@ class K5 extends i1 {
    * @param episode - The episode number to play.
    */
   setEpisode(s, t) {
-    const e = this.player.getPlaylist().findIndex((l) => l.season == s && l.episode == t);
+    const e = this.player.getPlaylist().findIndex((r) => r.season == s && r.episode == t);
     e == -1 ? this.player.playlistItem(0) : this.player.playlistItem(e), this.player.play();
   }
   scrollCenter(s, t, e) {
     if (!s)
       return;
-    const l = (e == null ? void 0 : e.duration) || 60, r = (e == null ? void 0 : e.margin) || 1.5, n = s.getBoundingClientRect().top + s.getBoundingClientRect().height / 2 - t.getBoundingClientRect().height / r, o = t.scrollTop, a = performance.now();
+    const r = (e == null ? void 0 : e.duration) || 60, l = (e == null ? void 0 : e.margin) || 1.5, n = s.getBoundingClientRect().top + s.getBoundingClientRect().height / 2 - t.getBoundingClientRect().height / l, o = t.scrollTop, a = performance.now();
     function p(u) {
-      const c = u - a, d = Math.min(c / l, 1);
-      t.scrollTo(0, Math.floor(o + n * d)), c < l && requestAnimationFrame(p);
+      const c = u - a, d = Math.min(c / r, 1);
+      t.scrollTo(0, Math.floor(o + n * d)), c < r && requestAnimationFrame(p);
     }
     requestAnimationFrame(p);
   }

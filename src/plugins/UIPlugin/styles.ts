@@ -150,6 +150,7 @@ export const scrollContainerStyles = [
 	'scroll-p-4',
 	'scroll-snap-align-center',
 	'scroll-smooth',
+	'scroll-p-4',
 ];
 
 export const sliderBarStyles = [
@@ -699,7 +700,7 @@ export const seekScrollCloneStyles = [
 ];
 
 export const thumbnailCloneStyles = [
-	'w-[calc(26%+(var(--gap)/2))]',
+	'w-[calc(23%+(var(--gap)/2))]',
 	'h-auto',
 	'object-cover',
 	'aspect-video',

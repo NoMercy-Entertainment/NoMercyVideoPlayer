@@ -2369,9 +2369,8 @@ export class NMPlayer extends Base {
 
 		// Dispose plugins
 		for (const plugin of Object.values(this.plugins)) {
-			if (typeof plugin.destroy === 'function') {
-				plugin.destroy();
-			}
+			console.log('Disposing plugin', plugin);
+			plugin.dispose();
 		}
 
 		this.plugins = {};

@@ -184,6 +184,7 @@
 
 *:focus {
     outline-color: transparent;
+    border-color: transparent;
 }
 *:focus-visible {
     /*outline: none;*/

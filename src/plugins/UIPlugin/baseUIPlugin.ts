@@ -220,6 +220,18 @@ export class BaseUIPlugin extends Plugin {
 
 		const spinnerContainer = this.player.createElement('div', 'spinner-container')
 			.addClasses(this.makeStyles('spinnerContainerStyles'))
+			.addClasses([
+				'bg-transparent',
+				'group-[&.nomercyplayer.buffering]:bg-gradient-circle-c',
+				'group-[&.nomercyplayer.error]:bg-gradient-circle-c',
+				'group-[&.nomercyplayer.paused]:bg-gradient-circle-c',
+				'from-black/50',
+				'from-15%',
+				'via-60%',
+				'via-black/30',
+				'to-100%',
+				'to-black/0',
+			])
 			.appendTo(parent);
 
 		const role = this.player.createElement('div', 'spinner-role')
@@ -1384,7 +1396,7 @@ export class BaseUIPlugin extends Plugin {
 				data.currentTime = 0;
 			} 
 			else if (data.currentTime >= this.player.getDuration()) {
-				data.currentTime = this.player.getDuration() - 10;
+				data.currentTime = this.player.getDuration();
 			}
 
 			const thumb = this.thumbs.find((thumb) => {
@@ -1605,11 +1617,11 @@ export class BaseUIPlugin extends Plugin {
 
 		languageButton.addEventListener('focus', () => {
 			setTimeout(() => {
-				this.scrollCenter(languageButton, parent, {
-					duration: 100,
+				this.scrollCenter(languageButton, parent.parentElement as HTMLDivElement, {
 					margin: 1,
+					duration: 100,
 				});
-			}, 0);
+			}, 50);
 		});
 
 		return languageButton;
@@ -1662,11 +1674,10 @@ export class BaseUIPlugin extends Plugin {
 			])
 			.get();
 
-		thumbnail.style.backgroundImage = `url('${this.image}')`;
+		thumbnail.style.backgroundImage = `url('${(this.player.options.basePath ? this.player.options.basePath : '') + this.image}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ''}')`;
 		thumbnail.style.backgroundPosition = `-${time.x}px -${time.y}px`;
-		thumbnail.style.width = `${time.w}px`;
-		thumbnail.style.minWidth = `${time.w}px`;
-		thumbnail.style.height = `${time.h}px`;
+		thumbnail.style.width = `max(232px, ${time.w * 0.7}px)`;
+		thumbnail.style.minWidth = `max(232px, ${time.w * 0.7}px)`;
 		
 		return thumbnail;
 	}
@@ -1676,8 +1687,8 @@ export class BaseUIPlugin extends Plugin {
 
 		if (img) {
 			this.sliderPopImage.style.backgroundPosition = `-${img.x}px -${img.y}px`;
-			this.sliderPopImage.style.width = `${img.w}px`;
-			this.sliderPopImage.style.height = `${img.h}px`;
+			this.sliderPopImage.style.width = `max(232px, ${img.w * 0.7}px)`;
+			this.sliderPopImage.style.height = `max(232px, ${img.w * 0.7}px)`;
 		}
 	}
 
@@ -1740,7 +1751,6 @@ export class BaseUIPlugin extends Plugin {
 		margin?: number;
 	}) {
 		if (!el) return;
-
 		const scrollDuration = options?.duration || 60;
 		const margin = options?.margin || 1.5;
 

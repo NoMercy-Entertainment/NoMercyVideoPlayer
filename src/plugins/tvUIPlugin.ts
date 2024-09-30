@@ -28,7 +28,9 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.createTvOverlay(this.player.overlay);
 
 		this.createPreScreen(this.player.overlay);
+
 		this.createEpisodeScreen(this.player.overlay);
+
 		this.createLanguageScreen(this.player.overlay);
 
 		if (!this.player.options.autoPlay) {
@@ -38,6 +40,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.player.on('play', () => {
 			this.player.getVideoElement().scrollIntoView();
 			this.closePreScreen();
+			this.closeEpisodeScreen();
+			this.closeLanguageScreen();
 		});
 
 		this.player.on('back-button', this.backMenu.bind(this));
@@ -72,6 +76,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 				this.closeEpisodeScreen();
 			} else if (this.player.container.classList.contains('language-screen')) {
 				this.closeLanguageScreen();
+			} else if (this.player.container.classList.contains('pre-screen')) {
+				this.player.emit('back');
 			} else {
 				this.player.pause();
 				this.showPreScreen();
@@ -116,6 +122,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.createTvCurrentItem(topBar);
 
 		this.createOverlayCenterMessage(tvOverlay);
+
+		this.createSpinnerContainer(tvOverlay);
 
 		this.seekContainer = this.createSeekContainer(tvOverlay);
 
@@ -256,9 +264,11 @@ export class TVUIPlugin extends BaseUIPlugin {
 			(button as unknown as HTMLButtonElement)?.addEventListener('keypress', (e: KeyboardEvent) => {
 				if (e.key == 'Enter') {
 					this.player.seek(this.currentScrubTime);
-					this.player.play();
 
 					this.player.emit('show-seek-container', false);
+					setTimeout(() => {
+						this.player.play();
+					},0);
 				}
 			});
 		});
@@ -270,14 +280,16 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 	showPreScreen() {
 		this.preScreen.showModal();
-		this.player.container.classList.add('pre-screen');
 		this.preScreen.querySelector<HTMLButtonElement>('.button-container>button')?.focus();
+		setTimeout(() => {
+			this.player.container.classList.add('pre-screen');
+		}, 5);
 	}
 
 	closePreScreen() {
 		this.preScreen.close();
-		this.player.container.classList.remove('pre-screen');
 		this.player.ui_removeActiveClass();
+		this.player.container.classList.remove('pre-screen');
 	}
 
 	createPreScreen(parent: HTMLElement) {
@@ -502,66 +514,67 @@ export class TVUIPlugin extends BaseUIPlugin {
 			])
 			.appendTo(leftSide);
 
-		let lastSeasonButton: HTMLButtonElement = <HTMLButtonElement>{};
-		for (const season of this.player.getSeasons()) {
-			lastSeasonButton = this.createTvSeasonButton(
-				seasonButtonContainer,
-				`season-${season.season}`,
-				season,
-				() => this.player.emit('switch-season', season.season)
-			);
-		}
+		this.player.once('playlist', () => {
 
-		lastSeasonButton.addEventListener?.('keypress', (e) => {
-			if (e.key == 'ArrowLeft') {
-				//
-			} else if (e.key == 'ArrowRight') {
-				//
-			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
-				//
-			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
-				(lastSeasonButton.nextElementSibling as HTMLButtonElement)?.focus();
-				const el = (lastSeasonButton.nextElementSibling as HTMLButtonElement);
-				if (el?.nodeName == 'BUTTON') {
-					el?.focus();
-				} else {
-					((lastSeasonButton.parentElement as HTMLButtonElement).nextElementSibling as HTMLButtonElement)?.focus();
-				}
+			let lastSeasonButton: HTMLButtonElement = <HTMLButtonElement>{};
+			for (const season of this.player.getSeasons()) {
+				lastSeasonButton = this.createTvSeasonButton(
+					seasonButtonContainer,
+					`season-${season.season}`,
+					season,
+					() => this.player.emit('switch-season', season.season)
+				);
 			}
+
+			lastSeasonButton.addEventListener?.('keypress', (e) => {
+				if (e.key == 'ArrowLeft') {
+					//
+				} else if (e.key == 'ArrowRight') {
+					//
+				} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
+					//
+				} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+					(lastSeasonButton.nextElementSibling as HTMLButtonElement)?.focus();
+					const el = (lastSeasonButton.nextElementSibling as HTMLButtonElement);
+					if (el?.nodeName == 'BUTTON') {
+						el?.focus();
+					} else {
+						((lastSeasonButton.parentElement as HTMLButtonElement).nextElementSibling as HTMLButtonElement)?.focus();
+					}
+				}
+			});
+
+			const rightSide = this.player.createElement('div', 'episode-screen-right-side')
+				.addClasses([
+					'flex',
+					'flex-col',
+					'justify-center',
+					'w-3/5',
+					'h-available',
+				])
+				.appendTo(episodeScreen);
+
+			this.episodeScrollContainer = this.player.createElement('div', 'episode-button-container')
+				.addClasses([
+					'button-container',
+					'flex',
+					'flex-col',
+					'overflow-auto',
+					'h-available',
+					'pt-6',
+					'gap-2',
+					'p-1',
+					'min-h-[50%]',
+					'scroll-p-4',
+					'scroll-smooth',
+				])
+				.appendTo(rightSide);
+
+			for (const [index, item] of this.player.getPlaylist().entries() ?? []) {
+				this.createTvEpisodeMenuButton(this.episodeScrollContainer, item, index);
+			}
+
 		});
-
-		const rightSide = this.player.createElement('div', 'episode-screen-right-side')
-			.addClasses([
-				'flex',
-				'flex-col',
-				'justify-center',
-				'w-3/5',
-				'h-available',
-			])
-			.appendTo(episodeScreen);
-
-		this.episodeScrollContainer = this.player.createElement('div', 'episode-button-container')
-			.addClasses([
-				'button-container',
-				'flex',
-				'flex-col',
-				'overflow-auto',
-				'h-available',
-				'pt-6',
-				'gap-2',
-				'p-1',
-				'min-h-[50%]',
-				'scroll-p-4',
-				'scroll-snap-align-center',
-				'scroll-smooth',
-			])
-			.appendTo(rightSide);
-
-
-		for (const [index, item] of this.player.getPlaylist().entries() ?? []) {
-			this.createTvEpisodeMenuButton(this.episodeScrollContainer, item, index);
-		}
-
 	}
 
 	showLanguageScreen() {
@@ -626,9 +639,17 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'w-available',
 				'h-available',
 				'gap-3',
+				'scroll-p-4',
+				'scroll-smooth',
+				'border-transparent',
+				'outline-transparent',
 				'p-1',
 			])
 			.appendTo(leftSide);
+
+		scrollContainer.addEventListener('focus', (e) => {
+				scrollContainer.querySelector('button')?.focus();
+		});
 
 		const audioTitle = this.player.createElement('div', 'language-button-container')
 			.addClasses([
@@ -1014,7 +1035,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'',
 			])
 			.appendTo(episodeMenuButtonRightSide);
-		episodeMenuButtonTitle.textContent = lineBreakShowTitle(item.title.replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
+		episodeMenuButtonTitle.textContent = lineBreakShowTitle((item.title ?? '').replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
 			.replace('%E', this.player.localize('E')));
 
 		const episodeMenuButtonOverview = this.player.createElement('span', `episode-${item.id}-overview`)
@@ -1050,8 +1071,9 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 			if (this.player.playlistItem().id == item.id) {
 				setTimeout(() => {
-					this.scrollCenter(parent, episodeMenuButton, {
+					this.scrollCenter(episodeMenuButton, parent, {
 						margin: 1,
+						duration: 100,
 					});
 				}, 50);
 			} else if (this.player.playlistItem().season !== season) {
@@ -1090,11 +1112,10 @@ export class TVUIPlugin extends BaseUIPlugin {
 		});
 
 		episodeMenuButton.addEventListener('focus', () => {
-			setTimeout(() => {
-				this.scrollCenter(parent, episodeMenuButton, {
-					margin: 1.1,
-				});
-			}, 0);
+			this.scrollCenter(episodeMenuButton, parent, {
+				margin: 2,
+				duration: 50,
+			});
 		});
 
 		episodeMenuButton.addEventListener('click', () => {
@@ -1152,19 +1173,26 @@ export class TVUIPlugin extends BaseUIPlugin {
 			this.scrollIntoView(button);
 		});
 
-		button.addEventListener('keypress', (e) => {
+		button.addEventListener('keyup', (e) => {
 			if (e.key == 'ArrowLeft') {
-				//
-			} else if (e.key == 'ArrowRight') {
-				if (this.selectedSeason == this.player.playlistItem()?.season) {
+			}
+			else if (e.key == 'ArrowRight') {
+				if (data.season == this.player.playlistItem()?.season) {
 					[...document.querySelectorAll<HTMLButtonElement>('[id^=playlist-]')]
 						.filter(el => getComputedStyle(el).display == 'flex')
 						.at((this.player.playlistItem()?.episode ?? 0) - 1)
 						?.focus();
 				} else {
-					this.getClosestElement(button, '[id^=playlist-]')?.focus();
+					[...document.querySelectorAll<HTMLButtonElement>('[id^=playlist-]')]
+						.filter(el => getComputedStyle(el).display == 'flex')
+						.at(0)
+						?.focus();
 				}
-			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
+			}
+		});
+
+		button.addEventListener('keypress', (e) => {
+			if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				(button.previousElementSibling as HTMLButtonElement)?.focus();
 			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				(button.nextElementSibling as HTMLButtonElement)?.focus();
@@ -1267,7 +1295,6 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'outline-transparent',
 				'outline',
 				'whitespace-nowrap',
-				'hover:bg-neutral-600/50',
 				'transition-all',
 				'duration-100',
 				'outline-1',
@@ -1286,7 +1313,9 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		this.getLanguageButtonText(languageButton, data);
 
-		if (data.id > 1) {
+		if (data.id > 0 && data.buttonType == 'audio') {
+			chevron.classList.add('opacity-0');
+		} else if (data.id > 1 && data.buttonType == 'subtitle') {
 			chevron.classList.add('opacity-0');
 		} else {
 			chevron.classList.remove('opacity-0');
@@ -1305,7 +1334,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 				event.stopPropagation();
 				this.player.setCurrentAudioTrack(data.id);
 			});
-		} else if (data.buttonType == 'subtitle') {
+		}
+		else if (data.buttonType == 'subtitle') {
 			if (data.id === this.player.getCaptionIndex()) {
 				chevron.classList.remove('opacity-0');
 			} else {
@@ -1340,10 +1370,17 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		languageButton.addEventListener('focus', () => {
 			setTimeout(() => {
-				this.scrollCenter(parent, languageButton, {
+				this.scrollCenter(languageButton, parent.parentElement as HTMLDivElement, {
 					margin: 1,
+					duration: 100,
 				});
-			}, 0);
+			}, 50);
+		});
+
+		this.player.on('audioTrackChanged', (audio) => {
+			if (data.id === audio.id) {
+				languageButton.focus();
+			}
 		});
 
 		return languageButton;
@@ -1566,9 +1603,12 @@ export class TVUIPlugin extends BaseUIPlugin {
 		tvButton.type = 'button';
 
 		tvButton.addEventListener('focus', () => {
-			this.scrollCenter(parent, tvButton, {
-				margin: 1,
-			});
+			setTimeout(() => {
+				this.scrollCenter(tvButton, parent, {
+					margin: 1,
+					duration: 100,
+				});
+			}, 50);
 		});
 
 		tvButton.addEventListener('keypress', (e) => {

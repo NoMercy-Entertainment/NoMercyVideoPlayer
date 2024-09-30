@@ -1,25 +1,25 @@
-import { P as l } from "./plugin.js";
-class c extends l {
+import { P as i } from "./plugin.js";
+class c extends i {
   initialize(e) {
     this.player = e;
   }
   use() {
-    this.player.options.disableControls || (document.removeEventListener("keypress", this.keyHandler.bind(this), !1), document.addEventListener("keypress", this.keyHandler.bind(this), !1));
+    this.player.options.disableControls || document.addEventListener("keyup", this.keyHandler.bind(this), !1);
   }
   dispose() {
-    document.removeEventListener("keypress", this.keyHandler.bind(this), !1);
+    document.removeEventListener("keyup", this.keyHandler.bind(this), !1);
   }
   /**
       * Handles keyboard events and executes the corresponding function based on the key binding.
       * @param {KeyboardEvent} event - The keyboard event to handle.
       */
   keyHandler(e) {
-    var n, i;
+    var n, l;
     if (((n = document.activeElement) == null ? void 0 : n.nodeName) == "INPUT")
       return;
     const t = this.keyBindings();
     let a = !1;
-    this.player.getElement().getBoundingClientRect().width != 0 && (!a && this.player && (a = !0, t.some((o) => o.key === e.key && o.control === e.ctrlKey) && (e.preventDefault(), (i = t.find((o) => o.key === e.key && o.control === e.ctrlKey)) == null || i.function())), setTimeout(() => {
+    this.player.getElement().getBoundingClientRect().width != 0 && (!a && this.player && (a = !0, t.some((o) => o.key === e.key && o.control === e.ctrlKey) && (e.preventDefault(), (l = t.find((o) => o.key === e.key && o.control === e.ctrlKey)) == null || l.function())), setTimeout(() => {
       a = !1;
     }, 300));
   }
