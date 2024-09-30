@@ -597,6 +597,7 @@ export interface NMPlayer {
 	setQualityLevel(index: number): void;
 	setSpeed(speed: any): void;
 	show(show: any): any;
+    enterFullscreen(): void;
 	toggleFullscreen(): void;
 	toggleMute(): void;
 	togglePlayback(): void;
