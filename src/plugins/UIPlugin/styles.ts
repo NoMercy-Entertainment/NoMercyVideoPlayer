@@ -284,6 +284,7 @@ export const timeStyles = [
 	'pointer-events-none',
 	'select-none',
 	'text-sm',
+	'justify-center',
 ];
 
 export const topBarStyles = [

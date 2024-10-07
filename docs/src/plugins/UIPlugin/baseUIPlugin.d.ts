@@ -16,8 +16,8 @@ export declare class BaseUIPlugin extends Plugin {
     seekContainer: HTMLDivElement;
     sliderBar: HTMLDivElement;
     sliderPopImage: HTMLDivElement;
-    thumbnail: HTMLDivElement;
     episodeScrollContainer: HTMLDivElement;
+    playbackButton: HTMLButtonElement;
     chapters: any[];
     previewTime: PreviewTime[];
     timer: NodeJS.Timeout;
@@ -69,7 +69,7 @@ export declare class BaseUIPlugin extends Plugin {
     createRestartButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement;
     createSettingsButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
     createCloseButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
-    createPlaybackButton(parent: HTMLElement, hovered?: boolean): HTMLButtonElement;
+    createPlaybackButton(parent: HTMLElement, hovered?: boolean): void;
     createSeekBackButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
     createSeekForwardButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
     createTime(parent: HTMLDivElement, type: 'current' | 'remaining' | 'duration', classes: string[]): HTMLDivElement;

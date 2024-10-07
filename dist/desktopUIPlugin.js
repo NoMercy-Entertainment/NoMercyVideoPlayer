@@ -1,6 +1,6 @@
-import { P as i1 } from "./plugin.js";
-import { h as E, u as o1 } from "./helpers.js";
-import { p as n1 } from "./index2.js";
+import { h as E, u as e1, l as a1, a as n1 } from "./helpers.js";
+import { P as o1 } from "./plugin.js";
+import { p as p1 } from "./index2.js";
 const Y = {
   back: {
     classes: [],
@@ -242,270 +242,270 @@ const Y = {
     normal: "",
     title: "Template"
   }
-}, a1 = () => {
-  const i = {};
-  for (const s of Object.keys(Y))
-    i[s] = Y[s];
-  return i;
-}, N = "-", C1 = (i) => {
-  const s = p1(i), {
+}, c1 = () => {
+  const n = {};
+  for (const i of Object.keys(Y))
+    n[i] = Y[i];
+  return n;
+}, N = "-", d1 = (n) => {
+  const i = h1(n), {
     conflictingClassGroups: t,
     conflictingClassGroupModifiers: e
-  } = i;
+  } = n;
   return {
-    getClassGroupId: (n) => {
-      const o = n.split(N);
-      return o[0] === "" && o.length !== 1 && o.shift(), e1(o, s) || c1(n);
+    getClassGroupId: (r) => {
+      const a = r.split(N);
+      return a[0] === "" && a.length !== 1 && a.shift(), t1(a, i) || u1(r);
     },
-    getConflictingClassGroupIds: (n, o) => {
-      const a = t[n] || [];
-      return o && e[n] ? [...a, ...e[n]] : a;
+    getConflictingClassGroupIds: (r, a) => {
+      const o = t[r] || [];
+      return a && e[r] ? [...o, ...e[r]] : o;
     }
   };
-}, e1 = (i, s) => {
-  var n;
-  if (i.length === 0)
-    return s.classGroupId;
-  const t = i[0], e = s.nextPart.get(t), r = e ? e1(i.slice(1), e) : void 0;
-  if (r)
-    return r;
-  if (s.validators.length === 0)
+}, t1 = (n, i) => {
+  var r;
+  if (n.length === 0)
+    return i.classGroupId;
+  const t = n[0], e = i.nextPart.get(t), s = e ? t1(n.slice(1), e) : void 0;
+  if (s)
+    return s;
+  if (i.validators.length === 0)
     return;
-  const l = i.join(N);
-  return (n = s.validators.find(({
-    validator: o
-  }) => o(l))) == null ? void 0 : n.classGroupId;
-}, K = /^\[(.+)\]$/, c1 = (i) => {
-  if (K.test(i)) {
-    const s = K.exec(i)[1], t = s == null ? void 0 : s.substring(0, s.indexOf(":"));
+  const l = n.join(N);
+  return (r = i.validators.find(({
+    validator: a
+  }) => a(l))) == null ? void 0 : r.classGroupId;
+}, K = /^\[(.+)\]$/, u1 = (n) => {
+  if (K.test(n)) {
+    const i = K.exec(n)[1], t = i == null ? void 0 : i.substring(0, i.indexOf(":"));
     if (t)
       return "arbitrary.." + t;
   }
-}, p1 = (i) => {
+}, h1 = (n) => {
   const {
-    theme: s,
+    theme: i,
     prefix: t
-  } = i, e = {
+  } = n, e = {
     nextPart: /* @__PURE__ */ new Map(),
     validators: []
   };
-  return d1(Object.entries(i.classGroups), t).forEach(([l, n]) => {
-    O(n, e, l, s);
+  return y1(Object.entries(n.classGroups), t).forEach(([l, r]) => {
+    q(r, e, l, i);
   }), e;
-}, O = (i, s, t, e) => {
-  i.forEach((r) => {
-    if (typeof r == "string") {
-      const l = r === "" ? s : J(s, r);
+}, q = (n, i, t, e) => {
+  n.forEach((s) => {
+    if (typeof s == "string") {
+      const l = s === "" ? i : J(i, s);
       l.classGroupId = t;
       return;
     }
-    if (typeof r == "function") {
-      if (u1(r)) {
-        O(r(e), s, t, e);
+    if (typeof s == "function") {
+      if (C1(s)) {
+        q(s(e), i, t, e);
         return;
       }
-      s.validators.push({
-        validator: r,
+      i.validators.push({
+        validator: s,
         classGroupId: t
       });
       return;
     }
-    Object.entries(r).forEach(([l, n]) => {
-      O(n, J(s, l), t, e);
+    Object.entries(s).forEach(([l, r]) => {
+      q(r, J(i, l), t, e);
     });
   });
-}, J = (i, s) => {
-  let t = i;
-  return s.split(N).forEach((e) => {
+}, J = (n, i) => {
+  let t = n;
+  return i.split(N).forEach((e) => {
     t.nextPart.has(e) || t.nextPart.set(e, {
       nextPart: /* @__PURE__ */ new Map(),
       validators: []
     }), t = t.nextPart.get(e);
   }), t;
-}, u1 = (i) => i.isThemeGetter, d1 = (i, s) => s ? i.map(([t, e]) => {
-  const r = e.map((l) => typeof l == "string" ? s + l : typeof l == "object" ? Object.fromEntries(Object.entries(l).map(([n, o]) => [s + n, o])) : l);
-  return [t, r];
-}) : i, h1 = (i) => {
-  if (i < 1)
+}, C1 = (n) => n.isThemeGetter, y1 = (n, i) => i ? n.map(([t, e]) => {
+  const s = e.map((l) => typeof l == "string" ? i + l : typeof l == "object" ? Object.fromEntries(Object.entries(l).map(([r, a]) => [i + r, a])) : l);
+  return [t, s];
+}) : n, m1 = (n) => {
+  if (n < 1)
     return {
       get: () => {
       },
       set: () => {
       }
     };
-  let s = 0, t = /* @__PURE__ */ new Map(), e = /* @__PURE__ */ new Map();
-  const r = (l, n) => {
-    t.set(l, n), s++, s > i && (s = 0, e = t, t = /* @__PURE__ */ new Map());
+  let i = 0, t = /* @__PURE__ */ new Map(), e = /* @__PURE__ */ new Map();
+  const s = (l, r) => {
+    t.set(l, r), i++, i > n && (i = 0, e = t, t = /* @__PURE__ */ new Map());
   };
   return {
     get(l) {
-      let n = t.get(l);
-      if (n !== void 0)
-        return n;
-      if ((n = e.get(l)) !== void 0)
-        return r(l, n), n;
+      let r = t.get(l);
+      if (r !== void 0)
+        return r;
+      if ((r = e.get(l)) !== void 0)
+        return s(l, r), r;
     },
-    set(l, n) {
-      t.has(l) ? t.set(l, n) : r(l, n);
+    set(l, r) {
+      t.has(l) ? t.set(l, r) : s(l, r);
     }
   };
-}, t1 = "!", y1 = (i) => {
+}, s1 = "!", f1 = (n) => {
   const {
-    separator: s,
+    separator: i,
     experimentalParseClassName: t
-  } = i, e = s.length === 1, r = s[0], l = s.length, n = (o) => {
-    const a = [];
-    let p = 0, u = 0, c;
-    for (let m = 0; m < o.length; m++) {
-      let g = o[m];
-      if (p === 0) {
-        if (g === r && (e || o.slice(m, m + l) === s)) {
-          a.push(o.slice(u, m)), u = m + l;
+  } = n, e = i.length === 1, s = i[0], l = i.length, r = (a) => {
+    const o = [];
+    let d = 0, p = 0, c;
+    for (let C = 0; C < a.length; C++) {
+      let g = a[C];
+      if (d === 0) {
+        if (g === s && (e || a.slice(C, C + l) === i)) {
+          o.push(a.slice(p, C)), p = C + l;
           continue;
         }
         if (g === "/") {
-          c = m;
+          c = C;
           continue;
         }
       }
-      g === "[" ? p++ : g === "]" && p--;
+      g === "[" ? d++ : g === "]" && d--;
     }
-    const d = a.length === 0 ? o : o.substring(u), L = d.startsWith(t1), v = L ? d.substring(1) : d, f = c && c > u ? c - u : void 0;
+    const h = o.length === 0 ? a : a.substring(p), b = h.startsWith(s1), v = b ? h.substring(1) : h, f = c && c > p ? c - p : void 0;
     return {
-      modifiers: a,
-      hasImportantModifier: L,
+      modifiers: o,
+      hasImportantModifier: b,
       baseClassName: v,
       maybePostfixModifierPosition: f
     };
   };
-  return t ? (o) => t({
-    className: o,
-    parseClassName: n
-  }) : n;
-}, m1 = (i) => {
-  if (i.length <= 1)
-    return i;
-  const s = [];
+  return t ? (a) => t({
+    className: a,
+    parseClassName: r
+  }) : r;
+}, g1 = (n) => {
+  if (n.length <= 1)
+    return n;
+  const i = [];
   let t = [];
-  return i.forEach((e) => {
-    e[0] === "[" ? (s.push(...t.sort(), e), t = []) : t.push(e);
-  }), s.push(...t.sort()), s;
-}, f1 = (i) => ({
-  cache: h1(i.cacheSize),
-  parseClassName: y1(i),
-  ...C1(i)
-}), g1 = /\s+/, b1 = (i, s) => {
+  return n.forEach((e) => {
+    e[0] === "[" ? (i.push(...t.sort(), e), t = []) : t.push(e);
+  }), i.push(...t.sort()), i;
+}, b1 = (n) => ({
+  cache: m1(n.cacheSize),
+  parseClassName: f1(n),
+  ...d1(n)
+}), v1 = /\s+/, L1 = (n, i) => {
   const {
     parseClassName: t,
     getClassGroupId: e,
-    getConflictingClassGroupIds: r
-  } = s, l = [], n = i.trim().split(g1);
-  let o = "";
-  for (let a = n.length - 1; a >= 0; a -= 1) {
-    const p = n[a], {
-      modifiers: u,
+    getConflictingClassGroupIds: s
+  } = i, l = [], r = n.trim().split(v1);
+  let a = "";
+  for (let o = r.length - 1; o >= 0; o -= 1) {
+    const d = r[o], {
+      modifiers: p,
       hasImportantModifier: c,
-      baseClassName: d,
-      maybePostfixModifierPosition: L
-    } = t(p);
-    let v = !!L, f = e(v ? d.substring(0, L) : d);
+      baseClassName: h,
+      maybePostfixModifierPosition: b
+    } = t(d);
+    let v = !!b, f = e(v ? h.substring(0, b) : h);
     if (!f) {
       if (!v) {
-        o = p + (o.length > 0 ? " " + o : o);
+        a = d + (a.length > 0 ? " " + a : a);
         continue;
       }
-      if (f = e(d), !f) {
-        o = p + (o.length > 0 ? " " + o : o);
+      if (f = e(h), !f) {
+        a = d + (a.length > 0 ? " " + a : a);
         continue;
       }
       v = !1;
     }
-    const m = m1(u).join(":"), g = c ? m + t1 : m, b = g + f;
-    if (l.includes(b))
+    const C = g1(p).join(":"), g = c ? C + s1 : C, L = g + f;
+    if (l.includes(L))
       continue;
-    l.push(b);
-    const k = r(f, v);
-    for (let S = 0; S < k.length; ++S) {
-      const P = k[S];
-      l.push(g + P);
+    l.push(L);
+    const T = s(f, v);
+    for (let w = 0; w < T.length; ++w) {
+      const x = T[w];
+      l.push(g + x);
     }
-    o = p + (o.length > 0 ? " " + o : o);
+    a = d + (a.length > 0 ? " " + a : a);
   }
-  return o;
+  return a;
 };
-function L1() {
-  let i = 0, s, t, e = "";
-  for (; i < arguments.length; )
-    (s = arguments[i++]) && (t = s1(s)) && (e && (e += " "), e += t);
+function x1() {
+  let n = 0, i, t, e = "";
+  for (; n < arguments.length; )
+    (i = arguments[n++]) && (t = i1(i)) && (e && (e += " "), e += t);
   return e;
 }
-const s1 = (i) => {
-  if (typeof i == "string")
-    return i;
-  let s, t = "";
-  for (let e = 0; e < i.length; e++)
-    i[e] && (s = s1(i[e])) && (t && (t += " "), t += s);
+const i1 = (n) => {
+  if (typeof n == "string")
+    return n;
+  let i, t = "";
+  for (let e = 0; e < n.length; e++)
+    n[e] && (i = i1(n[e])) && (t && (t += " "), t += i);
   return t;
 };
-function v1(i, ...s) {
-  let t, e, r, l = n;
-  function n(a) {
-    const p = s.reduce((u, c) => c(u), i());
-    return t = f1(p), e = t.cache.get, r = t.cache.set, l = o, o(a);
+function w1(n, ...i) {
+  let t, e, s, l = r;
+  function r(o) {
+    const d = i.reduce((p, c) => c(p), n());
+    return t = b1(d), e = t.cache.get, s = t.cache.set, l = a, a(o);
   }
-  function o(a) {
-    const p = e(a);
-    if (p)
-      return p;
-    const u = b1(a, t);
-    return r(a, u), u;
+  function a(o) {
+    const d = e(o);
+    if (d)
+      return d;
+    const p = L1(o, t);
+    return s(o, p), p;
   }
   return function() {
-    return l(L1.apply(null, arguments));
+    return l(x1.apply(null, arguments));
   };
 }
-const h = (i) => {
-  const s = (t) => t[i] || [];
-  return s.isThemeGetter = !0, s;
-}, r1 = /^\[(?:([a-z-]+):)?(.+)\]$/i, x1 = /^\d+\/\d+$/, w1 = /* @__PURE__ */ new Set(["px", "full", "screen"]), M1 = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, V1 = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, S1 = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, H1 = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, Z1 = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, w = (i) => H(i) || w1.has(i) || x1.test(i), M = (i) => Z(i, "length", A1), H = (i) => !!i && !Number.isNaN(Number(i)), F = (i) => Z(i, "number", H), B = (i) => !!i && Number.isInteger(Number(i)), k1 = (i) => i.endsWith("%") && H(i.slice(0, -1)), C = (i) => r1.test(i), V = (i) => M1.test(i), T1 = /* @__PURE__ */ new Set(["length", "size", "percentage"]), E1 = (i) => Z(i, T1, l1), B1 = (i) => Z(i, "position", l1), z1 = /* @__PURE__ */ new Set(["image", "url"]), P1 = (i) => Z(i, z1, G1), I1 = (i) => Z(i, "", $1), z = () => !0, Z = (i, s, t) => {
-  const e = r1.exec(i);
-  return e ? e[1] ? typeof s == "string" ? e[1] === s : s.has(e[1]) : t(e[2]) : !1;
-}, A1 = (i) => (
+const y = (n) => {
+  const i = (t) => t[n] || [];
+  return i.isThemeGetter = !0, i;
+}, l1 = /^\[(?:([a-z-]+):)?(.+)\]$/i, M1 = /^\d+\/\d+$/, S1 = /* @__PURE__ */ new Set(["px", "full", "screen"]), T1 = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, k1 = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, V1 = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, E1 = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, H1 = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, S = (n) => H(n) || S1.has(n) || M1.test(n), k = (n) => B(n, "length", F1), H = (n) => !!n && !Number.isNaN(Number(n)), O = (n) => B(n, "number", H), $ = (n) => !!n && Number.isInteger(Number(n)), B1 = (n) => n.endsWith("%") && H(n.slice(0, -1)), u = (n) => l1.test(n), V = (n) => T1.test(n), Z1 = /* @__PURE__ */ new Set(["length", "size", "percentage"]), P1 = (n) => B(n, Z1, r1), $1 = (n) => B(n, "position", r1), z1 = /* @__PURE__ */ new Set(["image", "url"]), R1 = (n) => B(n, z1, U1), I1 = (n) => B(n, "", A1), z = () => !0, B = (n, i, t) => {
+  const e = l1.exec(n);
+  return e ? e[1] ? typeof i == "string" ? e[1] === i : i.has(e[1]) : t(e[2]) : !1;
+}, F1 = (n) => (
   // `colorFunctionRegex` check is necessary because color functions can have percentages in them which which would be incorrectly classified as lengths.
   // For example, `hsl(0 0% 0%)` would be classified as a length without this check.
   // I could also use lookbehind assertion in `lengthUnitRegex` but that isn't supported widely enough.
-  V1.test(i) && !S1.test(i)
-), l1 = () => !1, $1 = (i) => H1.test(i), G1 = (i) => Z1.test(i), R1 = () => {
-  const i = h("colors"), s = h("spacing"), t = h("blur"), e = h("brightness"), r = h("borderColor"), l = h("borderRadius"), n = h("borderSpacing"), o = h("borderWidth"), a = h("contrast"), p = h("grayscale"), u = h("hueRotate"), c = h("invert"), d = h("gap"), L = h("gradientColorStops"), v = h("gradientColorStopPositions"), f = h("inset"), m = h("margin"), g = h("opacity"), b = h("padding"), k = h("saturate"), S = h("scale"), P = h("sepia"), j = h("skew"), _ = h("space"), q = h("translate"), $ = () => ["auto", "contain", "none"], G = () => ["auto", "hidden", "clip", "visible", "scroll"], R = () => ["auto", C, s], y = () => [C, s], W = () => ["", w, M], I = () => ["auto", H, C], X = () => ["bottom", "center", "left", "left-bottom", "left-top", "right", "right-bottom", "right-top", "top"], A = () => ["solid", "dashed", "dotted", "double", "none"], Q = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], U = () => ["start", "end", "center", "between", "around", "evenly", "stretch"], T = () => ["", "0", C], D = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], x = () => [H, C];
+  k1.test(n) && !V1.test(n)
+), r1 = () => !1, A1 = (n) => E1.test(n), U1 = (n) => H1.test(n), G1 = () => {
+  const n = y("colors"), i = y("spacing"), t = y("blur"), e = y("brightness"), s = y("borderColor"), l = y("borderRadius"), r = y("borderSpacing"), a = y("borderWidth"), o = y("contrast"), d = y("grayscale"), p = y("hueRotate"), c = y("invert"), h = y("gap"), b = y("gradientColorStops"), v = y("gradientColorStopPositions"), f = y("inset"), C = y("margin"), g = y("opacity"), L = y("padding"), T = y("saturate"), w = y("scale"), x = y("sepia"), Z = y("skew"), j = y("space"), X = y("translate"), F = () => ["auto", "contain", "none"], A = () => ["auto", "hidden", "clip", "visible", "scroll"], U = () => ["auto", u, i], m = () => [u, i], _ = () => ["", S, k], R = () => ["auto", H, u], D = () => ["bottom", "center", "left", "left-bottom", "left-top", "right", "right-bottom", "right-top", "top"], I = () => ["solid", "dashed", "dotted", "double", "none"], W = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], G = () => ["start", "end", "center", "between", "around", "evenly", "stretch"], P = () => ["", "0", u], Q = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], M = () => [H, u];
   return {
     cacheSize: 500,
     separator: ":",
     theme: {
       colors: [z],
-      spacing: [w, M],
-      blur: ["none", "", V, C],
-      brightness: x(),
-      borderColor: [i],
-      borderRadius: ["none", "", "full", V, C],
-      borderSpacing: y(),
-      borderWidth: W(),
-      contrast: x(),
-      grayscale: T(),
-      hueRotate: x(),
-      invert: T(),
-      gap: y(),
-      gradientColorStops: [i],
-      gradientColorStopPositions: [k1, M],
-      inset: R(),
-      margin: R(),
-      opacity: x(),
-      padding: y(),
-      saturate: x(),
-      scale: x(),
-      sepia: T(),
-      skew: x(),
-      space: y(),
-      translate: y()
+      spacing: [S, k],
+      blur: ["none", "", V, u],
+      brightness: M(),
+      borderColor: [n],
+      borderRadius: ["none", "", "full", V, u],
+      borderSpacing: m(),
+      borderWidth: _(),
+      contrast: M(),
+      grayscale: P(),
+      hueRotate: M(),
+      invert: P(),
+      gap: m(),
+      gradientColorStops: [n],
+      gradientColorStopPositions: [B1, k],
+      inset: U(),
+      margin: U(),
+      opacity: M(),
+      padding: m(),
+      saturate: M(),
+      scale: M(),
+      sepia: P(),
+      skew: M(),
+      space: m(),
+      translate: m()
     },
     classGroups: {
       // Layout
@@ -514,7 +514,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/aspect-ratio
        */
       aspect: [{
-        aspect: ["auto", "square", "video", C]
+        aspect: ["auto", "square", "video", u]
       }],
       /**
        * Container
@@ -533,14 +533,14 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/break-after
        */
       "break-after": [{
-        "break-after": D()
+        "break-after": Q()
       }],
       /**
        * Break Before
        * @see https://tailwindcss.com/docs/break-before
        */
       "break-before": [{
-        "break-before": D()
+        "break-before": Q()
       }],
       /**
        * Break Inside
@@ -599,49 +599,49 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/object-position
        */
       "object-position": [{
-        object: [...X(), C]
+        object: [...D(), u]
       }],
       /**
        * Overflow
        * @see https://tailwindcss.com/docs/overflow
        */
       overflow: [{
-        overflow: G()
+        overflow: A()
       }],
       /**
        * Overflow X
        * @see https://tailwindcss.com/docs/overflow
        */
       "overflow-x": [{
-        "overflow-x": G()
+        "overflow-x": A()
       }],
       /**
        * Overflow Y
        * @see https://tailwindcss.com/docs/overflow
        */
       "overflow-y": [{
-        "overflow-y": G()
+        "overflow-y": A()
       }],
       /**
        * Overscroll Behavior
        * @see https://tailwindcss.com/docs/overscroll-behavior
        */
       overscroll: [{
-        overscroll: $()
+        overscroll: F()
       }],
       /**
        * Overscroll Behavior X
        * @see https://tailwindcss.com/docs/overscroll-behavior
        */
       "overscroll-x": [{
-        "overscroll-x": $()
+        "overscroll-x": F()
       }],
       /**
        * Overscroll Behavior Y
        * @see https://tailwindcss.com/docs/overscroll-behavior
        */
       "overscroll-y": [{
-        "overscroll-y": $()
+        "overscroll-y": F()
       }],
       /**
        * Position
@@ -721,7 +721,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/z-index
        */
       z: [{
-        z: ["auto", B, C]
+        z: ["auto", $, u]
       }],
       // Flexbox and Grid
       /**
@@ -729,7 +729,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/flex-basis
        */
       basis: [{
-        basis: R()
+        basis: U()
       }],
       /**
        * Flex Direction
@@ -750,28 +750,28 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/flex
        */
       flex: [{
-        flex: ["1", "auto", "initial", "none", C]
+        flex: ["1", "auto", "initial", "none", u]
       }],
       /**
        * Flex Grow
        * @see https://tailwindcss.com/docs/flex-grow
        */
       grow: [{
-        grow: T()
+        grow: P()
       }],
       /**
        * Flex Shrink
        * @see https://tailwindcss.com/docs/flex-shrink
        */
       shrink: [{
-        shrink: T()
+        shrink: P()
       }],
       /**
        * Order
        * @see https://tailwindcss.com/docs/order
        */
       order: [{
-        order: ["first", "last", "none", B, C]
+        order: ["first", "last", "none", $, u]
       }],
       /**
        * Grid Template Columns
@@ -786,22 +786,22 @@ const h = (i) => {
        */
       "col-start-end": [{
         col: ["auto", {
-          span: ["full", B, C]
-        }, C]
+          span: ["full", $, u]
+        }, u]
       }],
       /**
        * Grid Column Start
        * @see https://tailwindcss.com/docs/grid-column
        */
       "col-start": [{
-        "col-start": I()
+        "col-start": R()
       }],
       /**
        * Grid Column End
        * @see https://tailwindcss.com/docs/grid-column
        */
       "col-end": [{
-        "col-end": I()
+        "col-end": R()
       }],
       /**
        * Grid Template Rows
@@ -816,22 +816,22 @@ const h = (i) => {
        */
       "row-start-end": [{
         row: ["auto", {
-          span: [B, C]
-        }, C]
+          span: [$, u]
+        }, u]
       }],
       /**
        * Grid Row Start
        * @see https://tailwindcss.com/docs/grid-row
        */
       "row-start": [{
-        "row-start": I()
+        "row-start": R()
       }],
       /**
        * Grid Row End
        * @see https://tailwindcss.com/docs/grid-row
        */
       "row-end": [{
-        "row-end": I()
+        "row-end": R()
       }],
       /**
        * Grid Auto Flow
@@ -845,42 +845,42 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/grid-auto-columns
        */
       "auto-cols": [{
-        "auto-cols": ["auto", "min", "max", "fr", C]
+        "auto-cols": ["auto", "min", "max", "fr", u]
       }],
       /**
        * Grid Auto Rows
        * @see https://tailwindcss.com/docs/grid-auto-rows
        */
       "auto-rows": [{
-        "auto-rows": ["auto", "min", "max", "fr", C]
+        "auto-rows": ["auto", "min", "max", "fr", u]
       }],
       /**
        * Gap
        * @see https://tailwindcss.com/docs/gap
        */
       gap: [{
-        gap: [d]
+        gap: [h]
       }],
       /**
        * Gap X
        * @see https://tailwindcss.com/docs/gap
        */
       "gap-x": [{
-        "gap-x": [d]
+        "gap-x": [h]
       }],
       /**
        * Gap Y
        * @see https://tailwindcss.com/docs/gap
        */
       "gap-y": [{
-        "gap-y": [d]
+        "gap-y": [h]
       }],
       /**
        * Justify Content
        * @see https://tailwindcss.com/docs/justify-content
        */
       "justify-content": [{
-        justify: ["normal", ...U()]
+        justify: ["normal", ...G()]
       }],
       /**
        * Justify Items
@@ -901,7 +901,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/align-content
        */
       "align-content": [{
-        content: ["normal", ...U(), "baseline"]
+        content: ["normal", ...G(), "baseline"]
       }],
       /**
        * Align Items
@@ -922,7 +922,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/place-content
        */
       "place-content": [{
-        "place-content": [...U(), "baseline"]
+        "place-content": [...G(), "baseline"]
       }],
       /**
        * Place Items
@@ -944,133 +944,133 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/padding
        */
       p: [{
-        p: [b]
+        p: [L]
       }],
       /**
        * Padding X
        * @see https://tailwindcss.com/docs/padding
        */
       px: [{
-        px: [b]
+        px: [L]
       }],
       /**
        * Padding Y
        * @see https://tailwindcss.com/docs/padding
        */
       py: [{
-        py: [b]
+        py: [L]
       }],
       /**
        * Padding Start
        * @see https://tailwindcss.com/docs/padding
        */
       ps: [{
-        ps: [b]
+        ps: [L]
       }],
       /**
        * Padding End
        * @see https://tailwindcss.com/docs/padding
        */
       pe: [{
-        pe: [b]
+        pe: [L]
       }],
       /**
        * Padding Top
        * @see https://tailwindcss.com/docs/padding
        */
       pt: [{
-        pt: [b]
+        pt: [L]
       }],
       /**
        * Padding Right
        * @see https://tailwindcss.com/docs/padding
        */
       pr: [{
-        pr: [b]
+        pr: [L]
       }],
       /**
        * Padding Bottom
        * @see https://tailwindcss.com/docs/padding
        */
       pb: [{
-        pb: [b]
+        pb: [L]
       }],
       /**
        * Padding Left
        * @see https://tailwindcss.com/docs/padding
        */
       pl: [{
-        pl: [b]
+        pl: [L]
       }],
       /**
        * Margin
        * @see https://tailwindcss.com/docs/margin
        */
       m: [{
-        m: [m]
+        m: [C]
       }],
       /**
        * Margin X
        * @see https://tailwindcss.com/docs/margin
        */
       mx: [{
-        mx: [m]
+        mx: [C]
       }],
       /**
        * Margin Y
        * @see https://tailwindcss.com/docs/margin
        */
       my: [{
-        my: [m]
+        my: [C]
       }],
       /**
        * Margin Start
        * @see https://tailwindcss.com/docs/margin
        */
       ms: [{
-        ms: [m]
+        ms: [C]
       }],
       /**
        * Margin End
        * @see https://tailwindcss.com/docs/margin
        */
       me: [{
-        me: [m]
+        me: [C]
       }],
       /**
        * Margin Top
        * @see https://tailwindcss.com/docs/margin
        */
       mt: [{
-        mt: [m]
+        mt: [C]
       }],
       /**
        * Margin Right
        * @see https://tailwindcss.com/docs/margin
        */
       mr: [{
-        mr: [m]
+        mr: [C]
       }],
       /**
        * Margin Bottom
        * @see https://tailwindcss.com/docs/margin
        */
       mb: [{
-        mb: [m]
+        mb: [C]
       }],
       /**
        * Margin Left
        * @see https://tailwindcss.com/docs/margin
        */
       ml: [{
-        ml: [m]
+        ml: [C]
       }],
       /**
        * Space Between X
        * @see https://tailwindcss.com/docs/space
        */
       "space-x": [{
-        "space-x": [_]
+        "space-x": [j]
       }],
       /**
        * Space Between X Reverse
@@ -1082,7 +1082,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/space
        */
       "space-y": [{
-        "space-y": [_]
+        "space-y": [j]
       }],
       /**
        * Space Between Y Reverse
@@ -1095,21 +1095,21 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/width
        */
       w: [{
-        w: ["auto", "min", "max", "fit", "svw", "lvw", "dvw", C, s]
+        w: ["auto", "min", "max", "fit", "svw", "lvw", "dvw", u, i]
       }],
       /**
        * Min-Width
        * @see https://tailwindcss.com/docs/min-width
        */
       "min-w": [{
-        "min-w": [C, s, "min", "max", "fit"]
+        "min-w": [u, i, "min", "max", "fit"]
       }],
       /**
        * Max-Width
        * @see https://tailwindcss.com/docs/max-width
        */
       "max-w": [{
-        "max-w": [C, s, "none", "full", "min", "max", "fit", "prose", {
+        "max-w": [u, i, "none", "full", "min", "max", "fit", "prose", {
           screen: [V]
         }, V]
       }],
@@ -1118,28 +1118,28 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/height
        */
       h: [{
-        h: [C, s, "auto", "min", "max", "fit", "svh", "lvh", "dvh"]
+        h: [u, i, "auto", "min", "max", "fit", "svh", "lvh", "dvh"]
       }],
       /**
        * Min-Height
        * @see https://tailwindcss.com/docs/min-height
        */
       "min-h": [{
-        "min-h": [C, s, "min", "max", "fit", "svh", "lvh", "dvh"]
+        "min-h": [u, i, "min", "max", "fit", "svh", "lvh", "dvh"]
       }],
       /**
        * Max-Height
        * @see https://tailwindcss.com/docs/max-height
        */
       "max-h": [{
-        "max-h": [C, s, "min", "max", "fit", "svh", "lvh", "dvh"]
+        "max-h": [u, i, "min", "max", "fit", "svh", "lvh", "dvh"]
       }],
       /**
        * Size
        * @see https://tailwindcss.com/docs/size
        */
       size: [{
-        size: [C, s, "auto", "min", "max", "fit"]
+        size: [u, i, "auto", "min", "max", "fit"]
       }],
       // Typography
       /**
@@ -1147,7 +1147,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/font-size
        */
       "font-size": [{
-        text: ["base", V, M]
+        text: ["base", V, k]
       }],
       /**
        * Font Smoothing
@@ -1164,7 +1164,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/font-weight
        */
       "font-weight": [{
-        font: ["thin", "extralight", "light", "normal", "medium", "semibold", "bold", "extrabold", "black", F]
+        font: ["thin", "extralight", "light", "normal", "medium", "semibold", "bold", "extrabold", "black", O]
       }],
       /**
        * Font Family
@@ -1208,35 +1208,35 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/letter-spacing
        */
       tracking: [{
-        tracking: ["tighter", "tight", "normal", "wide", "wider", "widest", C]
+        tracking: ["tighter", "tight", "normal", "wide", "wider", "widest", u]
       }],
       /**
        * Line Clamp
        * @see https://tailwindcss.com/docs/line-clamp
        */
       "line-clamp": [{
-        "line-clamp": ["none", H, F]
+        "line-clamp": ["none", H, O]
       }],
       /**
        * Line Height
        * @see https://tailwindcss.com/docs/line-height
        */
       leading: [{
-        leading: ["none", "tight", "snug", "normal", "relaxed", "loose", w, C]
+        leading: ["none", "tight", "snug", "normal", "relaxed", "loose", S, u]
       }],
       /**
        * List Style Image
        * @see https://tailwindcss.com/docs/list-style-image
        */
       "list-image": [{
-        "list-image": ["none", C]
+        "list-image": ["none", u]
       }],
       /**
        * List Style Type
        * @see https://tailwindcss.com/docs/list-style-type
        */
       "list-style-type": [{
-        list: ["none", "disc", "decimal", C]
+        list: ["none", "disc", "decimal", u]
       }],
       /**
        * List Style Position
@@ -1251,7 +1251,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/placeholder-color
        */
       "placeholder-color": [{
-        placeholder: [i]
+        placeholder: [n]
       }],
       /**
        * Placeholder Opacity
@@ -1272,7 +1272,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/text-color
        */
       "text-color": [{
-        text: [i]
+        text: [n]
       }],
       /**
        * Text Opacity
@@ -1291,28 +1291,28 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/text-decoration-style
        */
       "text-decoration-style": [{
-        decoration: [...A(), "wavy"]
+        decoration: [...I(), "wavy"]
       }],
       /**
        * Text Decoration Thickness
        * @see https://tailwindcss.com/docs/text-decoration-thickness
        */
       "text-decoration-thickness": [{
-        decoration: ["auto", "from-font", w, M]
+        decoration: ["auto", "from-font", S, k]
       }],
       /**
        * Text Underline Offset
        * @see https://tailwindcss.com/docs/text-underline-offset
        */
       "underline-offset": [{
-        "underline-offset": ["auto", w, C]
+        "underline-offset": ["auto", S, u]
       }],
       /**
        * Text Decoration Color
        * @see https://tailwindcss.com/docs/text-decoration-color
        */
       "text-decoration-color": [{
-        decoration: [i]
+        decoration: [n]
       }],
       /**
        * Text Transform
@@ -1336,14 +1336,14 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/text-indent
        */
       indent: [{
-        indent: y()
+        indent: m()
       }],
       /**
        * Vertical Alignment
        * @see https://tailwindcss.com/docs/vertical-align
        */
       "vertical-align": [{
-        align: ["baseline", "top", "middle", "bottom", "text-top", "text-bottom", "sub", "super", C]
+        align: ["baseline", "top", "middle", "bottom", "text-top", "text-bottom", "sub", "super", u]
       }],
       /**
        * Whitespace
@@ -1371,7 +1371,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/content
        */
       content: [{
-        content: ["none", C]
+        content: ["none", u]
       }],
       // Backgrounds
       /**
@@ -1408,7 +1408,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/background-position
        */
       "bg-position": [{
-        bg: [...X(), B1]
+        bg: [...D(), $1]
       }],
       /**
        * Background Repeat
@@ -1424,7 +1424,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/background-size
        */
       "bg-size": [{
-        bg: ["auto", "cover", "contain", E1]
+        bg: ["auto", "cover", "contain", P1]
       }],
       /**
        * Background Image
@@ -1433,14 +1433,14 @@ const h = (i) => {
       "bg-image": [{
         bg: ["none", {
           "gradient-to": ["t", "tr", "r", "br", "b", "bl", "l", "tl"]
-        }, P1]
+        }, R1]
       }],
       /**
        * Background Color
        * @see https://tailwindcss.com/docs/background-color
        */
       "bg-color": [{
-        bg: [i]
+        bg: [n]
       }],
       /**
        * Gradient Color Stops From Position
@@ -1468,21 +1468,21 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/gradient-color-stops
        */
       "gradient-from": [{
-        from: [L]
+        from: [b]
       }],
       /**
        * Gradient Color Stops Via
        * @see https://tailwindcss.com/docs/gradient-color-stops
        */
       "gradient-via": [{
-        via: [L]
+        via: [b]
       }],
       /**
        * Gradient Color Stops To
        * @see https://tailwindcss.com/docs/gradient-color-stops
        */
       "gradient-to": [{
-        to: [L]
+        to: [b]
       }],
       // Borders
       /**
@@ -1595,63 +1595,63 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w": [{
-        border: [o]
+        border: [a]
       }],
       /**
        * Border Width X
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-x": [{
-        "border-x": [o]
+        "border-x": [a]
       }],
       /**
        * Border Width Y
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-y": [{
-        "border-y": [o]
+        "border-y": [a]
       }],
       /**
        * Border Width Start
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-s": [{
-        "border-s": [o]
+        "border-s": [a]
       }],
       /**
        * Border Width End
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-e": [{
-        "border-e": [o]
+        "border-e": [a]
       }],
       /**
        * Border Width Top
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-t": [{
-        "border-t": [o]
+        "border-t": [a]
       }],
       /**
        * Border Width Right
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-r": [{
-        "border-r": [o]
+        "border-r": [a]
       }],
       /**
        * Border Width Bottom
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-b": [{
-        "border-b": [o]
+        "border-b": [a]
       }],
       /**
        * Border Width Left
        * @see https://tailwindcss.com/docs/border-width
        */
       "border-w-l": [{
-        "border-l": [o]
+        "border-l": [a]
       }],
       /**
        * Border Opacity
@@ -1665,14 +1665,14 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/border-style
        */
       "border-style": [{
-        border: [...A(), "hidden"]
+        border: [...I(), "hidden"]
       }],
       /**
        * Divide Width X
        * @see https://tailwindcss.com/docs/divide-width
        */
       "divide-x": [{
-        "divide-x": [o]
+        "divide-x": [a]
       }],
       /**
        * Divide Width X Reverse
@@ -1684,7 +1684,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/divide-width
        */
       "divide-y": [{
-        "divide-y": [o]
+        "divide-y": [a]
       }],
       /**
        * Divide Width Y Reverse
@@ -1703,98 +1703,98 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/divide-style
        */
       "divide-style": [{
-        divide: A()
+        divide: I()
       }],
       /**
        * Border Color
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color": [{
-        border: [r]
+        border: [s]
       }],
       /**
        * Border Color X
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-x": [{
-        "border-x": [r]
+        "border-x": [s]
       }],
       /**
        * Border Color Y
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-y": [{
-        "border-y": [r]
+        "border-y": [s]
       }],
       /**
        * Border Color Top
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-t": [{
-        "border-t": [r]
+        "border-t": [s]
       }],
       /**
        * Border Color Right
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-r": [{
-        "border-r": [r]
+        "border-r": [s]
       }],
       /**
        * Border Color Bottom
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-b": [{
-        "border-b": [r]
+        "border-b": [s]
       }],
       /**
        * Border Color Left
        * @see https://tailwindcss.com/docs/border-color
        */
       "border-color-l": [{
-        "border-l": [r]
+        "border-l": [s]
       }],
       /**
        * Divide Color
        * @see https://tailwindcss.com/docs/divide-color
        */
       "divide-color": [{
-        divide: [r]
+        divide: [s]
       }],
       /**
        * Outline Style
        * @see https://tailwindcss.com/docs/outline-style
        */
       "outline-style": [{
-        outline: ["", ...A()]
+        outline: ["", ...I()]
       }],
       /**
        * Outline Offset
        * @see https://tailwindcss.com/docs/outline-offset
        */
       "outline-offset": [{
-        "outline-offset": [w, C]
+        "outline-offset": [S, u]
       }],
       /**
        * Outline Width
        * @see https://tailwindcss.com/docs/outline-width
        */
       "outline-w": [{
-        outline: [w, M]
+        outline: [S, k]
       }],
       /**
        * Outline Color
        * @see https://tailwindcss.com/docs/outline-color
        */
       "outline-color": [{
-        outline: [i]
+        outline: [n]
       }],
       /**
        * Ring Width
        * @see https://tailwindcss.com/docs/ring-width
        */
       "ring-w": [{
-        ring: W()
+        ring: _()
       }],
       /**
        * Ring Width Inset
@@ -1806,7 +1806,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/ring-color
        */
       "ring-color": [{
-        ring: [i]
+        ring: [n]
       }],
       /**
        * Ring Opacity
@@ -1820,14 +1820,14 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/ring-offset-width
        */
       "ring-offset-w": [{
-        "ring-offset": [w, M]
+        "ring-offset": [S, k]
       }],
       /**
        * Ring Offset Color
        * @see https://tailwindcss.com/docs/ring-offset-color
        */
       "ring-offset-color": [{
-        "ring-offset": [i]
+        "ring-offset": [n]
       }],
       // Effects
       /**
@@ -1856,14 +1856,14 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/mix-blend-mode
        */
       "mix-blend": [{
-        "mix-blend": [...Q(), "plus-lighter", "plus-darker"]
+        "mix-blend": [...W(), "plus-lighter", "plus-darker"]
       }],
       /**
        * Background Blend Mode
        * @see https://tailwindcss.com/docs/background-blend-mode
        */
       "bg-blend": [{
-        "bg-blend": Q()
+        "bg-blend": W()
       }],
       // Filters
       /**
@@ -1893,28 +1893,28 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/contrast
        */
       contrast: [{
-        contrast: [a]
+        contrast: [o]
       }],
       /**
        * Drop Shadow
        * @see https://tailwindcss.com/docs/drop-shadow
        */
       "drop-shadow": [{
-        "drop-shadow": ["", "none", V, C]
+        "drop-shadow": ["", "none", V, u]
       }],
       /**
        * Grayscale
        * @see https://tailwindcss.com/docs/grayscale
        */
       grayscale: [{
-        grayscale: [p]
+        grayscale: [d]
       }],
       /**
        * Hue Rotate
        * @see https://tailwindcss.com/docs/hue-rotate
        */
       "hue-rotate": [{
-        "hue-rotate": [u]
+        "hue-rotate": [p]
       }],
       /**
        * Invert
@@ -1928,14 +1928,14 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/saturate
        */
       saturate: [{
-        saturate: [k]
+        saturate: [T]
       }],
       /**
        * Sepia
        * @see https://tailwindcss.com/docs/sepia
        */
       sepia: [{
-        sepia: [P]
+        sepia: [x]
       }],
       /**
        * Backdrop Filter
@@ -1964,21 +1964,21 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/backdrop-contrast
        */
       "backdrop-contrast": [{
-        "backdrop-contrast": [a]
+        "backdrop-contrast": [o]
       }],
       /**
        * Backdrop Grayscale
        * @see https://tailwindcss.com/docs/backdrop-grayscale
        */
       "backdrop-grayscale": [{
-        "backdrop-grayscale": [p]
+        "backdrop-grayscale": [d]
       }],
       /**
        * Backdrop Hue Rotate
        * @see https://tailwindcss.com/docs/backdrop-hue-rotate
        */
       "backdrop-hue-rotate": [{
-        "backdrop-hue-rotate": [u]
+        "backdrop-hue-rotate": [p]
       }],
       /**
        * Backdrop Invert
@@ -1999,14 +1999,14 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/backdrop-saturate
        */
       "backdrop-saturate": [{
-        "backdrop-saturate": [k]
+        "backdrop-saturate": [T]
       }],
       /**
        * Backdrop Sepia
        * @see https://tailwindcss.com/docs/backdrop-sepia
        */
       "backdrop-sepia": [{
-        "backdrop-sepia": [P]
+        "backdrop-sepia": [x]
       }],
       // Tables
       /**
@@ -2021,21 +2021,21 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/border-spacing
        */
       "border-spacing": [{
-        "border-spacing": [n]
+        "border-spacing": [r]
       }],
       /**
        * Border Spacing X
        * @see https://tailwindcss.com/docs/border-spacing
        */
       "border-spacing-x": [{
-        "border-spacing-x": [n]
+        "border-spacing-x": [r]
       }],
       /**
        * Border Spacing Y
        * @see https://tailwindcss.com/docs/border-spacing
        */
       "border-spacing-y": [{
-        "border-spacing-y": [n]
+        "border-spacing-y": [r]
       }],
       /**
        * Table Layout
@@ -2057,35 +2057,35 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/transition-property
        */
       transition: [{
-        transition: ["none", "all", "", "colors", "opacity", "shadow", "transform", C]
+        transition: ["none", "all", "", "colors", "opacity", "shadow", "transform", u]
       }],
       /**
        * Transition Duration
        * @see https://tailwindcss.com/docs/transition-duration
        */
       duration: [{
-        duration: x()
+        duration: M()
       }],
       /**
        * Transition Timing Function
        * @see https://tailwindcss.com/docs/transition-timing-function
        */
       ease: [{
-        ease: ["linear", "in", "out", "in-out", C]
+        ease: ["linear", "in", "out", "in-out", u]
       }],
       /**
        * Transition Delay
        * @see https://tailwindcss.com/docs/transition-delay
        */
       delay: [{
-        delay: x()
+        delay: M()
       }],
       /**
        * Animation
        * @see https://tailwindcss.com/docs/animation
        */
       animate: [{
-        animate: ["none", "spin", "ping", "pulse", "bounce", C]
+        animate: ["none", "spin", "ping", "pulse", "bounce", u]
       }],
       // Transforms
       /**
@@ -2100,63 +2100,63 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/scale
        */
       scale: [{
-        scale: [S]
+        scale: [w]
       }],
       /**
        * Scale X
        * @see https://tailwindcss.com/docs/scale
        */
       "scale-x": [{
-        "scale-x": [S]
+        "scale-x": [w]
       }],
       /**
        * Scale Y
        * @see https://tailwindcss.com/docs/scale
        */
       "scale-y": [{
-        "scale-y": [S]
+        "scale-y": [w]
       }],
       /**
        * Rotate
        * @see https://tailwindcss.com/docs/rotate
        */
       rotate: [{
-        rotate: [B, C]
+        rotate: [$, u]
       }],
       /**
        * Translate X
        * @see https://tailwindcss.com/docs/translate
        */
       "translate-x": [{
-        "translate-x": [q]
+        "translate-x": [X]
       }],
       /**
        * Translate Y
        * @see https://tailwindcss.com/docs/translate
        */
       "translate-y": [{
-        "translate-y": [q]
+        "translate-y": [X]
       }],
       /**
        * Skew X
        * @see https://tailwindcss.com/docs/skew
        */
       "skew-x": [{
-        "skew-x": [j]
+        "skew-x": [Z]
       }],
       /**
        * Skew Y
        * @see https://tailwindcss.com/docs/skew
        */
       "skew-y": [{
-        "skew-y": [j]
+        "skew-y": [Z]
       }],
       /**
        * Transform Origin
        * @see https://tailwindcss.com/docs/transform-origin
        */
       "transform-origin": [{
-        origin: ["center", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left", C]
+        origin: ["center", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left", u]
       }],
       // Interactivity
       /**
@@ -2164,7 +2164,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/accent-color
        */
       accent: [{
-        accent: ["auto", i]
+        accent: ["auto", n]
       }],
       /**
        * Appearance
@@ -2178,14 +2178,14 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/cursor
        */
       cursor: [{
-        cursor: ["auto", "default", "pointer", "wait", "text", "move", "help", "not-allowed", "none", "context-menu", "progress", "cell", "crosshair", "vertical-text", "alias", "copy", "no-drop", "grab", "grabbing", "all-scroll", "col-resize", "row-resize", "n-resize", "e-resize", "s-resize", "w-resize", "ne-resize", "nw-resize", "se-resize", "sw-resize", "ew-resize", "ns-resize", "nesw-resize", "nwse-resize", "zoom-in", "zoom-out", C]
+        cursor: ["auto", "default", "pointer", "wait", "text", "move", "help", "not-allowed", "none", "context-menu", "progress", "cell", "crosshair", "vertical-text", "alias", "copy", "no-drop", "grab", "grabbing", "all-scroll", "col-resize", "row-resize", "n-resize", "e-resize", "s-resize", "w-resize", "ne-resize", "nw-resize", "se-resize", "sw-resize", "ew-resize", "ns-resize", "nesw-resize", "nwse-resize", "zoom-in", "zoom-out", u]
       }],
       /**
        * Caret Color
        * @see https://tailwindcss.com/docs/just-in-time-mode#caret-color-utilities
        */
       "caret-color": [{
-        caret: [i]
+        caret: [n]
       }],
       /**
        * Pointer Events
@@ -2213,126 +2213,126 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-m": [{
-        "scroll-m": y()
+        "scroll-m": m()
       }],
       /**
        * Scroll Margin X
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-mx": [{
-        "scroll-mx": y()
+        "scroll-mx": m()
       }],
       /**
        * Scroll Margin Y
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-my": [{
-        "scroll-my": y()
+        "scroll-my": m()
       }],
       /**
        * Scroll Margin Start
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-ms": [{
-        "scroll-ms": y()
+        "scroll-ms": m()
       }],
       /**
        * Scroll Margin End
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-me": [{
-        "scroll-me": y()
+        "scroll-me": m()
       }],
       /**
        * Scroll Margin Top
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-mt": [{
-        "scroll-mt": y()
+        "scroll-mt": m()
       }],
       /**
        * Scroll Margin Right
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-mr": [{
-        "scroll-mr": y()
+        "scroll-mr": m()
       }],
       /**
        * Scroll Margin Bottom
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-mb": [{
-        "scroll-mb": y()
+        "scroll-mb": m()
       }],
       /**
        * Scroll Margin Left
        * @see https://tailwindcss.com/docs/scroll-margin
        */
       "scroll-ml": [{
-        "scroll-ml": y()
+        "scroll-ml": m()
       }],
       /**
        * Scroll Padding
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-p": [{
-        "scroll-p": y()
+        "scroll-p": m()
       }],
       /**
        * Scroll Padding X
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-px": [{
-        "scroll-px": y()
+        "scroll-px": m()
       }],
       /**
        * Scroll Padding Y
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-py": [{
-        "scroll-py": y()
+        "scroll-py": m()
       }],
       /**
        * Scroll Padding Start
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-ps": [{
-        "scroll-ps": y()
+        "scroll-ps": m()
       }],
       /**
        * Scroll Padding End
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pe": [{
-        "scroll-pe": y()
+        "scroll-pe": m()
       }],
       /**
        * Scroll Padding Top
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pt": [{
-        "scroll-pt": y()
+        "scroll-pt": m()
       }],
       /**
        * Scroll Padding Right
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pr": [{
-        "scroll-pr": y()
+        "scroll-pr": m()
       }],
       /**
        * Scroll Padding Bottom
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pb": [{
-        "scroll-pb": y()
+        "scroll-pb": m()
       }],
       /**
        * Scroll Padding Left
        * @see https://tailwindcss.com/docs/scroll-padding
        */
       "scroll-pl": [{
-        "scroll-pl": y()
+        "scroll-pl": m()
       }],
       /**
        * Scroll Snap Align
@@ -2400,7 +2400,7 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/will-change
        */
       "will-change": [{
-        "will-change": ["auto", "scroll", "contents", "transform", C]
+        "will-change": ["auto", "scroll", "contents", "transform", u]
       }],
       // SVG
       /**
@@ -2408,21 +2408,21 @@ const h = (i) => {
        * @see https://tailwindcss.com/docs/fill
        */
       fill: [{
-        fill: [i, "none"]
+        fill: [n, "none"]
       }],
       /**
        * Stroke Width
        * @see https://tailwindcss.com/docs/stroke-width
        */
       "stroke-w": [{
-        stroke: [w, M, F]
+        stroke: [S, k, O]
       }],
       /**
        * Stroke
        * @see https://tailwindcss.com/docs/stroke
        */
       stroke: [{
-        stroke: [i, "none"]
+        stroke: [n, "none"]
       }],
       // Accessibility
       /**
@@ -2490,7 +2490,7 @@ const h = (i) => {
       "font-size": ["leading"]
     }
   };
-}, U1 = /* @__PURE__ */ v1(R1), F1 = [
+}, O1 = /* @__PURE__ */ w1(G1), q1 = [
   "bottom-bar",
   "z-10",
   "flex",
@@ -2510,7 +2510,7 @@ const h = (i) => {
   "group-[&.nomercyplayer:has(:focus)]:duration-0",
   "transition-all",
   "duration-300"
-], O1 = [
+], N1 = [
   "absolute",
   "pointer-events-none",
   "bottom-0",
@@ -2519,7 +2519,7 @@ const h = (i) => {
   "from-black/90",
   "pt-[10%]",
   "w-available"
-], N1 = [
+], j1 = [
   "cursor-pointer",
   "fill-white",
   "tv:fill-white/30",
@@ -2538,7 +2538,7 @@ const h = (i) => {
   "rounded-full",
   "w-10",
   "min-w-[40px]"
-], j1 = [
+], X1 = [
   "chapter-bar",
   "bg-transparent",
   "flex",
@@ -2556,7 +2556,7 @@ const h = (i) => {
   "[&:last-child(2):.5px]",
   "rounded-sm",
   "overflow-hidden"
-], q1 = [
+], D1 = [
   "chapter-marker-bg",
   "bg-white/20",
   "absolute",
@@ -2576,7 +2576,7 @@ const h = (i) => {
   "w-available",
   "z-10",
   "rounded-sm"
-], X1 = [
+], Q1 = [
   "chapter-marker-hover",
   "absolute",
   "bg-gray-200",
@@ -2587,7 +2587,7 @@ const h = (i) => {
   "w-available",
   "z-10",
   "rounded-sm"
-], Q1 = [
+], Y1 = [
   "chapter-marker-progress",
   "absolute",
   "bg-white",
@@ -2598,11 +2598,11 @@ const h = (i) => {
   "w-available",
   "z-20",
   "rounded-sm"
-], D1 = ["chapter-text"], Y1 = [
+], K1 = ["chapter-text"], J1 = [
   "divider",
   "flex",
   "flex-1"
-], K1 = ["text-white"], J1 = [
+], ee = ["text-white"], te = [
   "scroll-container",
   "flex",
   "flex-col",
@@ -2618,7 +2618,7 @@ const h = (i) => {
   "scroll-snap-align-center",
   "scroll-smooth",
   "scroll-p-4"
-], e5 = [
+], se = [
   "slider-bar",
   "group/slider",
   "flex",
@@ -2628,7 +2628,7 @@ const h = (i) => {
   "mx-4",
   "relative",
   "w-available"
-], t5 = [
+], ie = [
   "slider-buffer",
   "absolute",
   "flex",
@@ -2639,7 +2639,7 @@ const h = (i) => {
   "z-0",
   "overflow-hidden",
   "overflow-clip"
-], s5 = [
+], le = [
   "slider-hover",
   "absolute",
   "opacity-1",
@@ -2651,7 +2651,7 @@ const h = (i) => {
   "z-0",
   "overflow-hidden",
   "overflow-clip"
-], r5 = [
+], re = [
   "slider-progress",
   "absolute",
   "flex",
@@ -2662,7 +2662,7 @@ const h = (i) => {
   "z-10",
   "overflow-hidden",
   "overflow-clip"
-], l5 = [
+], ae = [
   "slider-nipple",
   "-translate-x-1/2",
   "-translate-y-[25%]",
@@ -2676,7 +2676,7 @@ const h = (i) => {
   "top-0",
   "w-4",
   "z-20"
-], i5 = ["slider-pop-image"], o5 = [
+], ne = ["slider-pop-image"], oe = [
   "slider-pop",
   "-translate-x-1/2",
   "absolute",
@@ -2693,16 +2693,16 @@ const h = (i) => {
   "rounded-md",
   "text-center",
   "z-20"
-], n5 = [
+], pe = [
   "slider-pop-text",
   "font-mono"
-], a5 = [
+], ce = [
   "speed-button-text",
   "cursor-pointer",
   "font-semibold",
   "pl-2",
   "leading-[normal]"
-], C5 = [
+], de = [
   "sub-menu-content",
   "flex",
   "flex-col",
@@ -2712,22 +2712,23 @@ const h = (i) => {
   "w-available",
   "overflow-auto",
   "min-w-52"
-], c5 = [
+], ue = [
   "svg-size",
   "h-5",
   "w-5",
   "pointer-events-none",
   "group-hover/button:scale-110",
   "duration-700"
-], p5 = [
+], he = [
   "time",
   "flex",
   "font-mono",
   "items-center",
   "pointer-events-none",
   "select-none",
-  "text-sm"
-], u5 = [
+  "text-sm",
+  "justify-center"
+], Ce = [
   "top-bar",
   "z-10",
   "flex",
@@ -2750,12 +2751,12 @@ const h = (i) => {
   "bg-gradient-to-b",
   "from-black/90",
   "via-black/50"
-], d5 = [
+], ye = [
   "volume-container",
   "group/volume",
   "flex",
   "overflow-clip"
-], h5 = [
+], me = [
   "volume-slider",
   "w-0",
   "rounded-full",
@@ -2790,7 +2791,7 @@ const h = (i) => {
   "range-thumb:bg-white",
   "range-thumb:shadow-sm",
   "range-thumb:border-none"
-], y5 = [
+], fe = [
   "player-message",
   "hidden",
   "absolute",
@@ -2804,7 +2805,7 @@ const h = (i) => {
   "top-12",
   "-translate-x-1/2",
   "z-50"
-], m5 = [
+], ge = [
   "playlist-menu-button",
   "relative",
   "flex",
@@ -2823,7 +2824,7 @@ const h = (i) => {
   "transition-all",
   "duration-300",
   "hover:bg-neutral-600/20"
-], f5 = [
+], be = [
   "episode-menu-button-left",
   "relative",
   "rounded-md",
@@ -2832,7 +2833,7 @@ const h = (i) => {
   "overflow-clip",
   "self-center",
   "pointer-events-none"
-], g5 = [
+], ve = [
   "episode-menu-button-shadow",
   "bg-[linear-gradient(0deg,rgba(0,0,0,0.87)_0%,rgba(0,0,0,0.7)_25%,rgba(0,0,0,0)_50%,rgba(0,0,0,0)_100%)]",
   "shadow-[inset_0px_1px_0px_rgba(255,255,255,0.24),inset_0px_-1px_0px_rgba(0,0,0,0.24),inset_0px_-2px_0px_rgba(0,0,0,0.24)]",
@@ -2841,14 +2842,14 @@ const h = (i) => {
   "absolute",
   "!h-available",
   "w-available"
-], b5 = [
+], Le = [
   "episode-menu-button-image",
   "w-available",
   "h-auto",
   "aspect-video",
   "object-cover",
   ""
-], L5 = [
+], xe = [
   "episode-menu-progress-container",
   "absolute",
   "bottom-0",
@@ -2856,7 +2857,7 @@ const h = (i) => {
   "flex",
   "flex-col",
   "px-3"
-], v5 = [
+], we = [
   "episode-menu-progress-box",
   "flex",
   "justify-between",
@@ -2864,14 +2865,14 @@ const h = (i) => {
   "sm:mx-2",
   "mb-1",
   "px-1"
-], x5 = [
+], Me = [
   "progress-item-text",
   "text-[0.7rem]",
   ""
-], w5 = [
+], Se = [
   "progress-duration",
   "text-[0.7rem]"
-], M5 = [
+], Te = [
   "slider-container",
   "hidden",
   "rounded-md",
@@ -2881,10 +2882,10 @@ const h = (i) => {
   "mb-2",
   "mx-1",
   "sm:mx-2"
-], V5 = [
+], ke = [
   "progress-bar",
   "bg-white"
-], S5 = [
+], Ve = [
   "playlist-card-right",
   "w-3/4",
   "flex",
@@ -2892,13 +2893,13 @@ const h = (i) => {
   "text-left",
   "gap-1",
   "pointer-events-none"
-], H5 = [
+], Ee = [
   "playlist-menu-button-title",
   "font-bold",
   "line-clamp-1",
   "text-white",
   ""
-], Z5 = [
+], He = [
   "playlist-menu-button-overview",
   "text-[0.7rem]",
   "leading-[1rem]",
@@ -2906,7 +2907,7 @@ const h = (i) => {
   "overflow-hidden",
   "text-white",
   ""
-], k5 = [
+], Be = [
   "tooltip",
   "hidden",
   "absolute",
@@ -2921,7 +2922,7 @@ const h = (i) => {
   "font-medium",
   "bg-neutral-900/95",
   "pointer-events-none"
-], T5 = [
+], Ze = [
   "absolute",
   "inset-0",
   "hidden",
@@ -2931,13 +2932,13 @@ const h = (i) => {
   "grid",
   "pointer-events-none",
   "place-content-center"
-], E5 = [
+], Pe = [
   "flex",
   "flex-col",
   "items-center",
   "gap-4",
   "mt-11"
-], B5 = [
+], $e = [
   "inline",
   "w-12",
   "h-12",
@@ -2945,11 +2946,11 @@ const h = (i) => {
   "animate-spin",
   "text-white/20",
   "fill-white"
-], z5 = [
+], ze = [
   "text-white",
   "text-lg",
   "font-bold"
-], P5 = [
+], Re = [
   "episode-tip",
   "hidden",
   "absolute",
@@ -2966,7 +2967,7 @@ const h = (i) => {
   "rounded-lg",
   "font-medium",
   "bg-neutral-900/95"
-], I5 = [
+], Ie = [
   "next-tip-text",
   "relative",
   "rounded-sm",
@@ -2974,7 +2975,7 @@ const h = (i) => {
   "overflow-clip",
   "self-center",
   ""
-], A5 = [
+], Fe = [
   "playlist-card-image",
   "w-available",
   "h-auto",
@@ -2982,7 +2983,7 @@ const h = (i) => {
   "object-cover",
   "rounded-md",
   ""
-], $5 = [
+], Ae = [
   "next-tip-left",
   "relative",
   "rounded-sm",
@@ -2990,22 +2991,22 @@ const h = (i) => {
   "overflow-clip",
   "self-center",
   ""
-], G5 = [
+], Ue = [
   "next-tip-right",
   "w-[60%]",
   "flex",
   "flex-col",
   "text-left",
   "gap-1"
-], R5 = [
+], Ge = [
   "next-tip-header",
   "font-bold",
   ""
-], U5 = [
+], Oe = [
   "next-tip-title",
   "font-bold",
   "text-white"
-], F5 = [
+], qe = [
   "next-up",
   "flex",
   "gap-2",
@@ -3017,7 +3018,7 @@ const h = (i) => {
   "px-2",
   "py-2",
   "z-50"
-], O5 = [
+], Ne = [
   "next-up-credits-button",
   "bg-neutral-900/95",
   "block",
@@ -3032,7 +3033,7 @@ const h = (i) => {
   "focus-visible:outline-white",
   "active:outline-white",
   ""
-], N5 = [
+], je = [
   "next-up-next-button",
   "animated",
   "bg-neutral-100",
@@ -3043,7 +3044,7 @@ const h = (i) => {
   "focus-visible:outline-white",
   "active:outline-white",
   ""
-], j5 = [
+], Xe = [
   "relative",
   "h-auto",
   "-mb-28",
@@ -3051,7 +3052,7 @@ const h = (i) => {
   "translate-y-[80vh]",
   "z-40",
   "w-available"
-], _5 = [
+], _e = [
   "relative",
   "flex",
   "h-available",
@@ -3060,7 +3061,7 @@ const h = (i) => {
   "px-[calc(100%/2.14)]",
   "gap-1.5",
   "scrollbar-none"
-], q5 = [
+], De = [
   "[--gap:1.5rem]",
   "absolute",
   "flex",
@@ -3069,7 +3070,7 @@ const h = (i) => {
   "gap-[var(--gap)]",
   "z-10",
   "pointer-events-none"
-], W5 = [
+], We = [
   "w-[calc(23%+(var(--gap)/2))]",
   "h-auto",
   "object-cover",
@@ -3077,87 +3078,87 @@ const h = (i) => {
   "border-4",
   "mx-auto",
   ""
-], X5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+], Qe = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  bottomBarShadowStyles: O1,
-  bottomBarStyles: F1,
-  buttonStyles: N1,
-  chapterBarStyles: j1,
-  chapterMarkerBGStyles: q1,
+  bottomBarShadowStyles: N1,
+  bottomBarStyles: q1,
+  buttonStyles: j1,
+  chapterBarStyles: X1,
+  chapterMarkerBGStyles: D1,
   chapterMarkerBufferStyles: W1,
-  chapterMarkerHoverStyles: X1,
-  chapterMarkerProgressStyles: Q1,
+  chapterMarkerHoverStyles: Q1,
+  chapterMarkerProgressStyles: Y1,
   chapterMarkersStyles: _1,
-  chapterTextStyles: D1,
-  dividerStyles: Y1,
-  episodeMenuButtonImageStyles: b5,
-  episodeMenuButtonLeftStyles: f5,
-  episodeMenuButtonOverviewStyles: Z5,
-  episodeMenuButtonRightSideStyles: S5,
-  episodeMenuButtonShadowStyles: g5,
-  episodeMenuButtonTitleStyles: H5,
-  episodeMenuProgressBoxStyles: v5,
-  episodeMenuProgressContainerStyles: L5,
-  iconStyles: K1,
-  nextTipHeaderStyles: R5,
-  nextTipImageStyles: A5,
-  nextTipLeftSideStyles: $5,
-  nextTipRightSideStyles: G5,
-  nextTipStyles: P5,
-  nextTipTextStyles: I5,
-  nextTipTitleStyles: U5,
-  nextUpCreditsButtonStyles: O5,
-  nextUpNextButtonStyles: N5,
-  nextUpStyles: F5,
-  playerMessageStyles: y5,
-  playlistMenuButtonStyles: m5,
-  progressBarStyles: V5,
-  progressContainerDurationTextStyles: w5,
-  progressContainerItemTextStyles: x5,
-  roleStyles: E5,
-  scrollContainerStyles: J1,
-  seekContainerStyles: j5,
-  seekScrollCloneStyles: q5,
-  seekScrollContainerStyles: _5,
-  sliderBarStyles: e5,
-  sliderBufferStyles: t5,
-  sliderContainerStyles: M5,
-  sliderHoverStyles: s5,
-  sliderNippleStyles: l5,
-  sliderPopImageStyles: i5,
-  sliderPopStyles: o5,
-  sliderProgressStyles: r5,
-  sliderTextStyles: n5,
-  speedButtonTextStyles: a5,
-  spinnerContainerStyles: T5,
-  spinnerStyles: B5,
-  statusTextStyles: z5,
-  subMenuContentStyles: C5,
-  svgSizeStyles: c5,
-  thumbnailCloneStyles: W5,
-  timeStyles: p5,
-  tooltipStyles: k5,
-  topBarStyles: u5,
-  volumeContainerStyles: d5,
-  volumeSliderStyles: h5
+  chapterTextStyles: K1,
+  dividerStyles: J1,
+  episodeMenuButtonImageStyles: Le,
+  episodeMenuButtonLeftStyles: be,
+  episodeMenuButtonOverviewStyles: He,
+  episodeMenuButtonRightSideStyles: Ve,
+  episodeMenuButtonShadowStyles: ve,
+  episodeMenuButtonTitleStyles: Ee,
+  episodeMenuProgressBoxStyles: we,
+  episodeMenuProgressContainerStyles: xe,
+  iconStyles: ee,
+  nextTipHeaderStyles: Ge,
+  nextTipImageStyles: Fe,
+  nextTipLeftSideStyles: Ae,
+  nextTipRightSideStyles: Ue,
+  nextTipStyles: Re,
+  nextTipTextStyles: Ie,
+  nextTipTitleStyles: Oe,
+  nextUpCreditsButtonStyles: Ne,
+  nextUpNextButtonStyles: je,
+  nextUpStyles: qe,
+  playerMessageStyles: fe,
+  playlistMenuButtonStyles: ge,
+  progressBarStyles: ke,
+  progressContainerDurationTextStyles: Se,
+  progressContainerItemTextStyles: Me,
+  roleStyles: Pe,
+  scrollContainerStyles: te,
+  seekContainerStyles: Xe,
+  seekScrollCloneStyles: De,
+  seekScrollContainerStyles: _e,
+  sliderBarStyles: se,
+  sliderBufferStyles: ie,
+  sliderContainerStyles: Te,
+  sliderHoverStyles: le,
+  sliderNippleStyles: ae,
+  sliderPopImageStyles: ne,
+  sliderPopStyles: oe,
+  sliderProgressStyles: re,
+  sliderTextStyles: pe,
+  speedButtonTextStyles: ce,
+  spinnerContainerStyles: Ze,
+  spinnerStyles: $e,
+  statusTextStyles: ze,
+  subMenuContentStyles: de,
+  svgSizeStyles: ue,
+  thumbnailCloneStyles: We,
+  timeStyles: he,
+  tooltipStyles: Be,
+  topBarStyles: Ce,
+  volumeContainerStyles: ye,
+  volumeSliderStyles: me
 }, Symbol.toStringTag, { value: "Module" }));
-class K5 extends i1 {
+class Ye extends o1 {
   constructor() {
-    super(...arguments), this.player = {}, this.overlay = {}, this.buttons = {}, this.chapterBar = {}, this.mainMenu = {}, this.menuFrame = {}, this.nextUp = {}, this.seekContainer = {}, this.sliderBar = {}, this.sliderPopImage = {}, this.thumbnail = {}, this.episodeScrollContainer = {}, this.chapters = [], this.previewTime = [], this.timer = {}, this.timeout = {}, this.image = "", this.controlsVisible = !1, this.currentScrubTime = 0, this.imageBaseUrl = "", this.isScrubbing = !1, this.menuOpen = !1, this.mainMenuOpen = !1, this.languageMenuOpen = !1, this.subtitlesMenuOpen = !1, this.qualityMenuOpen = !1, this.speedMenuOpen = !1, this.playlistMenuOpen = !1, this.theaterModeEnabled = !1, this.shouldSlide = !1, this.currentTimeFile = "", this.currentMenu = null, this.thumbs = [], this.makeStyles = (s) => this.mergeStyles(`${s}`, X5[s]);
+    super(...arguments), this.player = {}, this.overlay = {}, this.buttons = {}, this.chapterBar = {}, this.mainMenu = {}, this.menuFrame = {}, this.nextUp = {}, this.seekContainer = {}, this.sliderBar = {}, this.sliderPopImage = {}, this.episodeScrollContainer = {}, this.playbackButton = {}, this.chapters = [], this.previewTime = [], this.timer = {}, this.timeout = {}, this.image = "", this.controlsVisible = !1, this.currentScrubTime = 0, this.imageBaseUrl = "", this.isScrubbing = !1, this.menuOpen = !1, this.mainMenuOpen = !1, this.languageMenuOpen = !1, this.subtitlesMenuOpen = !1, this.qualityMenuOpen = !1, this.speedMenuOpen = !1, this.playlistMenuOpen = !1, this.theaterModeEnabled = !1, this.shouldSlide = !1, this.currentTimeFile = "", this.currentMenu = null, this.thumbs = [], this.makeStyles = (i) => this.mergeStyles(`${i}`, Qe[i]);
   }
-  initialize(s) {
-    this.player = s, this.overlay = s.overlay, this.buttons = a1(), this.imageBaseUrl = s.options.basePath ? "" : "https://image.tmdb.org/t/p/w185";
+  initialize(i) {
+    this.player = i, this.overlay = i.overlay, this.buttons = c1(), this.imageBaseUrl = i.options.basePath ? "" : "https://image.tmdb.org/t/p/w185";
   }
   dispose() {
     clearTimeout(this.timer), clearTimeout(this.timeout), this.player.plugins.desktopUIPlugin = void 0, this.chapters = [], this.previewTime = [], this.overlay && this.overlay.parentNode && this.overlay.parentNode.removeChild(this.overlay);
   }
-  scrollIntoView(s) {
-    const e = s.parentElement, r = s.getBoundingClientRect().left + s.offsetWidth / 2 - e.offsetWidth / 2, l = e.scrollLeft, n = performance.now();
-    function o(a) {
-      const p = a - n, u = Math.min(p / 200, 1);
-      e.scrollTo(l + r * u, 0), p < 200 && requestAnimationFrame(o);
+  scrollIntoView(i) {
+    const e = i.parentElement, s = i.getBoundingClientRect().left + i.offsetWidth / 2 - e.offsetWidth / 2, l = e.scrollLeft, r = performance.now();
+    function a(o) {
+      const d = o - r, p = Math.min(d / 200, 1);
+      e.scrollTo(l + s * p, 0), d < 200 && requestAnimationFrame(a);
     }
-    requestAnimationFrame(o);
+    requestAnimationFrame(a);
   }
   /**
    * Merges the default styles with the styles for a specific style name.
@@ -3165,50 +3166,50 @@ class K5 extends i1 {
    * @param defaultStyles - The default styles to merge.
    * @returns An array containing the merged styles.
    */
-  mergeStyles(s, t) {
-    var r;
-    const e = ((r = this.player.options.styles) == null ? void 0 : r[s]) || [];
+  mergeStyles(i, t) {
+    var s;
+    const e = ((s = this.player.options.styles) == null ? void 0 : s[i]) || [];
     return [...t, ...e];
   }
-  createSVGElement(s, t, e, r = !1, l = !1) {
-    const n = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    n.setAttribute("viewBox", "0 0 24 24"), n.id = t, this.player.addClasses(n, U1([
+  createSVGElement(i, t, e, s = !1, l = !1) {
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    r.setAttribute("viewBox", "0 0 24 24"), r.id = t, this.player.addClasses(r, O1([
       `${t}-icon`,
       ...this.makeStyles("svgSizeStyles"),
       ...this.makeStyles("iconStyles"),
-      r ? "hidden" : "flex",
+      s ? "hidden" : "flex",
       ...e.classes
     ]).split(" "));
-    const o = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    o.setAttribute("d", l ? e.normal : e.hover), this.player.addClasses(o, [
+    const a = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    a.setAttribute("d", l ? e.normal : e.hover), this.player.addClasses(a, [
       "group-hover/button:hidden",
       "group-hover/volume:hidden"
-    ]), n.appendChild(o);
-    const a = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    return a.setAttribute("d", l ? e.hover : e.normal), this.player.addClasses(a, [
+    ]), r.appendChild(a);
+    const o = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    return o.setAttribute("d", l ? e.hover : e.normal), this.player.addClasses(o, [
       "hidden",
       "group-hover/button:flex",
       "group-hover/volume:flex"
-    ]), n.appendChild(a), !s.classList.contains("menu-button") && l && (s.addEventListener("mouseenter", () => {
+    ]), r.appendChild(o), !i.classList.contains("menu-button") && l && (i.addEventListener("mouseenter", () => {
       if (e.title.length == 0 || ["Next", "Previous"].includes(e.title) && this.player.hasNextTip || e.title == "Fullscreen" && this.player.getFullscreen() || e.title == "Exit fullscreen" && !this.player.getFullscreen() || e.title == "Play" && this.player.isPlaying || e.title == "Pause" && !this.player.isPlaying || e.title == "Mute" && this.player.isMuted() || e.title == "Unmute" && !this.player.isMuted())
         return;
-      const p = `${this.player.localize(e.title)} ${this.getButtonKeyCode(t)}`, u = this.player.getElement().getBoundingClientRect(), c = s.getBoundingClientRect();
-      let d = Math.abs(u.left - (c.left + c.width * 0.5) - p.length * 0.5);
-      const L = Math.abs(u.bottom - (c.bottom + c.height * 1.2));
-      d < 35 && (d = 35), d > u.right - u.left - 75 && (d = u.right - u.left - 75), this.player.emit("show-tooltip", {
-        text: p,
+      const d = `${this.player.localize(e.title)} ${this.getButtonKeyCode(t)}`, p = this.player.getElement().getBoundingClientRect(), c = i.getBoundingClientRect();
+      let h = Math.abs(p.left - (c.left + c.width * 0.5) - d.length * 0.5);
+      const b = Math.abs(p.bottom - (c.bottom + c.height * 1.2));
+      h < 35 && (h = 35), h > p.right - p.left - 75 && (h = p.right - p.left - 75), this.player.emit("show-tooltip", {
+        text: d,
         currentTime: "bottom",
-        x: `${d}px`,
-        y: `-${L}px`
+        x: `${h}px`,
+        y: `-${b}px`
       });
-    }), s.addEventListener("mouseleave", () => {
+    }), i.addEventListener("mouseleave", () => {
       this.player.emit("hide-tooltip");
-    })), s.appendChild(n), n;
+    })), i.appendChild(r), r;
   }
-  modifySpinner(s) {
-    this.player.createElement("h2", "loader").addClasses(["loader", "pointer-events-none"]).appendTo(s);
+  modifySpinner(i) {
+    this.player.createElement("h2", "loader").addClasses(["loader", "pointer-events-none"]).appendTo(i);
   }
-  createSpinnerContainer(s) {
+  createSpinnerContainer(i) {
     const t = this.player.createElement("div", "spinner-container").addClasses(this.makeStyles("spinnerContainerStyles")).addClasses([
       "bg-transparent",
       "group-[&.nomercyplayer.buffering]:bg-gradient-circle-c",
@@ -3220,44 +3221,40 @@ class K5 extends i1 {
       "via-black/30",
       "to-100%",
       "to-black/0"
-    ]).appendTo(s), e = this.player.createElement("div", "spinner-role").addClasses(this.makeStyles("roleStyles")).appendTo(t);
+    ]).appendTo(i), e = this.player.createElement("div", "spinner-role").addClasses(this.makeStyles("roleStyles")).appendTo(t);
     e.setAttribute("role", "status"), this.createSpinner(e);
-    const r = this.player.createElement("span", "status-text").addClasses(this.makeStyles("statusTextStyles")).appendTo(e);
-    return r.innerText = this.player.localize("Loading..."), this.player.on("ready", () => {
-      t.style.display = "none";
-    }), this.player.on("playing", () => {
+    const s = this.player.createElement("span", "status-text").addClasses(this.makeStyles("statusTextStyles")).appendTo(e);
+    return s.innerText = this.player.localize("Loading..."), this.player.on("duration", () => {
       t.style.display = "none";
     }), this.player.on("waiting", () => {
-      t.style.display = "grid", r.innerText = `${this.player.localize("Buffering")}...`;
+      t.style.display = "grid", s.innerText = `${this.player.localize("Buffering")}...`;
     }), this.player.on("error", () => {
-      t.style.display = "none", r.innerText = this.player.localize("Something went wrong trying to play this item");
+      t.style.display = "none", s.innerText = this.player.localize("Something went wrong trying to play this item");
     }), this.player.on("ended", () => {
-      t.style.display = "none";
-    }), this.player.on("ready", () => {
       t.style.display = "none";
     }), this.player.on("time", () => {
       t.style.display = "none";
     }), this.player.on("bufferedEnd", () => {
       t.style.display = "none";
     }), this.player.on("stalled", () => {
-      t.style.display = "grid", r.innerText = `${this.player.localize("Buffering")}...`;
+      t.style.display = "grid", s.innerText = `${this.player.localize("Buffering")}...`;
     }), this.player.on("item", () => {
       t.style.display = "grid";
     }), t;
   }
-  createSpinner(s) {
+  createSpinner(i) {
     const t = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     t.setAttribute("viewBox", "0 0 100 101"), t.id = "spinner", t.setAttribute("fill", "none"), this.player.addClasses(t, [
       "spinner-icon",
       ...this.makeStyles("spinnerStyles")
-    ]), s.appendChild(t);
+    ]), i.appendChild(t);
     const e = document.createElementNS("http://www.w3.org/2000/svg", "path");
     e.setAttribute("d", "M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"), e.setAttribute("fill", "currentColor"), t.appendChild(e);
-    const r = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    r.setAttribute("d", "M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"), r.setAttribute("fill", "currentFill"), t.appendChild(r);
+    const s = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    s.setAttribute("d", "M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"), s.setAttribute("fill", "currentFill"), t.appendChild(s);
   }
-  getButtonKeyCode(s) {
-    switch (s) {
+  getButtonKeyCode(i) {
+    switch (i) {
       case "play":
       case "pause":
         return `(${this.player.localize("SPACE")})`;
@@ -3301,23 +3298,23 @@ class K5 extends i1 {
   }
   fetchPreviewTime() {
     if (this.previewTime.length === 0) {
-      const s = this.player.getSpriteFile(), t = new Image();
+      const i = this.player.getSpriteFile(), t = new Image();
       this.player.once("item", () => {
         t.remove();
-      }), s && (this.image = s, this.player.options.accessToken ? this.player.getFileContents({
-        url: s,
+      }), i && (this.image = i, this.player.options.accessToken ? this.player.getFileContents({
+        url: i,
         options: {
           type: "blob"
         },
-        callback: (r) => {
-          const l = URL.createObjectURL(r);
+        callback: (s) => {
+          const l = URL.createObjectURL(s);
           t.src = l, this.sliderPopImage.style && (this.sliderPopImage.style.backgroundImage = `url('${l}')`), this.player.once("item", () => {
             URL.revokeObjectURL(l);
           }), setTimeout(() => {
             this.player.emit("preview-time", this.previewTime);
           }, 400);
         }
-      }).then() : (this.sliderPopImage.style && (this.sliderPopImage.style.backgroundImage = `url('${s}')`), t.src = s, setTimeout(() => {
+      }).then() : (this.sliderPopImage.style && (this.sliderPopImage.style.backgroundImage = `url('${i}')`), t.src = i, setTimeout(() => {
         this.player.emit("preview-time", this.previewTime);
       }, 400)));
       const e = this.player.getTimeFile();
@@ -3327,19 +3324,19 @@ class K5 extends i1 {
           options: {
             type: "text"
           },
-          callback: (r) => {
-            const n = new n1.WebVTTParser().parse(r, "metadata"), o = /(?<x>\d*),(?<y>\d*),(?<w>\d*),(?<h>\d*)/u;
-            this.previewTime = [], n.cues.forEach((a) => {
-              const p = o.exec(a.text);
-              if (!(p != null && p.groups))
+          callback: (s) => {
+            const r = new p1.WebVTTParser().parse(s, "metadata"), a = /(?<x>\d*),(?<y>\d*),(?<w>\d*),(?<h>\d*)/u;
+            this.previewTime = [], r.cues.forEach((o) => {
+              const d = a.exec(o.text);
+              if (!(d != null && d.groups))
                 return;
-              const { x: u, y: c, w: d, h: L } = p.groups, [v, f, m, g] = [u, c, d, L].map((b) => parseInt(b, 10));
+              const { x: p, y: c, w: h, h: b } = d.groups, [v, f, C, g] = [p, c, h, b].map((L) => parseInt(L, 10));
               this.previewTime.push({
-                start: a.startTime,
-                end: a.endTime,
+                start: o.startTime,
+                end: o.endTime,
                 x: v,
                 y: f,
-                w: m,
+                w: C,
                 h: g
               });
             }), setTimeout(() => {
@@ -3352,250 +3349,253 @@ class K5 extends i1 {
       });
     }
   }
-  createUiButton(s, t) {
-    var r;
-    const e = this.player.createElement("button", t).addClasses(this.makeStyles("buttonStyles")).appendTo(s);
-    return e.ariaLabel = (r = this.buttons[t]) == null ? void 0 : r.title, e.addEventListener("keypress", (l) => {
+  createUiButton(i, t) {
+    var s;
+    const e = this.player.createElement("button", t).addClasses(this.makeStyles("buttonStyles")).appendTo(i);
+    return e.ariaLabel = (s = this.buttons[t]) == null ? void 0 : s.title, e.addEventListener("keypress", (l) => {
       l.key === "Backspace" && (e.blur(), this.player.emit("show-menu", !1)), l.key === "Escape" && (e.blur(), this.player.emit("show-menu", !1));
     }), e;
   }
-  createBackButton(s, t = !1) {
+  createBackButton(i, t = !1) {
     if (!this.player.hasBackEventHandler)
       return;
     const e = this.createUiButton(
-      s,
+      i,
       "back"
     );
-    return s.appendChild(e), this.createSVGElement(e, "back", this.buttons.back, !1, t), e.addEventListener("click", () => {
+    return i.appendChild(e), this.createSVGElement(e, "back", this.buttons.back, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.emit("back");
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : e.style.display = "flex";
     }), e;
   }
-  createRestartButton(s, t = !1) {
+  createRestartButton(i, t = !1) {
     const e = this.createUiButton(
-      s,
+      i,
       "restart"
     );
-    return s.appendChild(e), this.createSVGElement(e, "restart", this.buttons.restart, !1, t), e.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.restart();
+    return i.appendChild(e), this.createSVGElement(e, "restart", this.buttons.restart, !1, t), e.addEventListener("click", (s) => {
+      s.stopPropagation(), this.player.restart();
     }), e;
   }
-  createSettingsButton(s, t = !1) {
+  createSettingsButton(i, t = !1) {
     if (!this.player.hasSpeeds() && !this.player.hasAudioTracks() && !this.player.hasCaptions())
       return;
     const e = this.createUiButton(
-      s,
+      i,
       "settings"
     );
     return this.createSVGElement(e, "settings", this.buttons.settings, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !1) : !this.menuOpen && this.mainMenuOpen ? this.player.emit("show-menu", !0) : this.menuOpen && !this.mainMenuOpen ? (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0)) : (this.player.emit("show-main-menu", !0), this.player.emit("show-menu", !0));
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : e.style.display = "flex";
-    }), s.append(e), e;
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : e.style.display = "flex";
+    }), i.append(e), e;
   }
-  createCloseButton(s, t = !1) {
+  createCloseButton(i, t = !1) {
     if (!this.player.hasCloseEventHandler)
       return;
     const e = this.createUiButton(
-      s,
+      i,
       "close"
     );
-    return s.appendChild(e), this.createSVGElement(e, "close", this.buttons.close, !1, t), e.addEventListener("click", () => {
+    return i.appendChild(e), this.createSVGElement(e, "close", this.buttons.close, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.emit("close");
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : e.style.display = "flex";
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : e.style.display = "flex";
     }), e;
   }
-  createPlaybackButton(s, t = !1) {
-    var n;
-    const e = this.createUiButton(
-      s,
+  createPlaybackButton(i, t = !1) {
+    var l;
+    this.playbackButton = this.createUiButton(
+      i,
       "playback"
-    );
-    s.appendChild(e), e.ariaLabel = (n = this.buttons.play) == null ? void 0 : n.title;
-    const r = this.createSVGElement(e, "paused", this.buttons.play, !1, t), l = this.createSVGElement(e, "playing", this.buttons.pause, !0, t);
-    return e.addEventListener("click", (o) => {
-      o.stopPropagation(), this.player.togglePlayback(), this.player.emit("hide-tooltip");
+    ), i.appendChild(this.playbackButton), this.playbackButton.ariaLabel = (l = this.buttons.play) == null ? void 0 : l.title;
+    const e = this.createSVGElement(this.playbackButton, "paused", this.buttons.play, !1, t), s = this.createSVGElement(this.playbackButton, "playing", this.buttons.pause, !0, t);
+    this.playbackButton.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.togglePlayback(), this.player.emit("hide-tooltip");
+    }), this.playbackButton.addEventListener("keydown", () => this.player.emit.bind(this)("dynamicControls")), this.player.getVideoElement().addEventListener("focus", () => {
+      this.playbackButton.focus(), this.player.emit("dynamicControls"), this.player.getVideoElement().scrollIntoView();
     }), this.player.on("pause", () => {
-      l.style.display = "none", r.style.display = "flex";
+      s.style.display = "none", e.style.display = "flex";
     }), this.player.on("play", () => {
-      r.style.display = "none", l.style.display = "flex";
+      e.style.display = "none", s.style.display = "flex";
     }), this.player.on("item", () => {
-      l.focus();
-    }), e;
+      this.playbackButton.focus();
+    });
   }
-  createSeekBackButton(s, t = !1) {
+  createSeekBackButton(i, t = !1) {
     if (this.player.isMobile())
       return;
     const e = this.createUiButton(
-      s,
+      i,
       "seekBack"
     );
     return this.createSVGElement(e, "seekBack", this.buttons.seekBack, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.rewindVideo();
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : e.style.display = "flex";
-    }), s.append(e), e;
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : e.style.display = "flex";
+    }), i.append(e), e;
   }
-  createSeekForwardButton(s, t = !1) {
+  createSeekForwardButton(i, t = !1) {
     if (this.player.isMobile())
       return;
     const e = this.createUiButton(
-      s,
+      i,
       "seekForward"
     );
     return this.createSVGElement(e, "seekForward", this.buttons.seekForward, !1, t), e.addEventListener("click", () => {
       this.player.emit("hide-tooltip"), this.player.forwardVideo();
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : e.style.display = "flex";
-    }), s.append(e), e;
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : e.style.display = "flex";
+    }), i.append(e), e;
   }
-  createTime(s, t, e) {
-    const r = this.player.createElement("div", `${t}-time`).addClasses([
+  createTime(i, t, e) {
+    const s = this.player.createElement("div", `${t}-time`).addClasses([
       ...e,
       ...this.makeStyles("timeStyles"),
       `${t}-time`
-    ]).appendTo(s);
-    switch (r.textContent = "00:00", t) {
+    ]).appendTo(i);
+    switch (s.innerText = "00:00", t) {
       case "current":
-        this.player.on("time", (l) => {
-          r.textContent = E(l.currentTime);
+        this.player.on("active", (l) => {
+          s.innerText = E(this.player.getCurrentTime());
+        }), this.player.on("time", (l) => {
+          this.player.container.classList.contains("active") && (s.innerText = E(l.currentTime));
         }), this.player.on("currentScrubTime", (l) => {
-          r.textContent = E(l.currentTime);
+          s.innerText = E(l.currentTime);
         });
         break;
       case "remaining":
         this.player.on("duration", (l) => {
-          l.remaining === 1 / 0 ? r.textContent = "Live" : r.textContent = E(l.remaining);
+          l.remaining === 1 / 0 ? s.innerText = "Live" : s.innerText = E(l.remaining);
         }), this.player.on("time", (l) => {
-          l.remaining === 1 / 0 ? r.textContent = "Live" : r.textContent = E(l.remaining);
+          l.remaining === 1 / 0 ? s.innerText = "Live" : this.player.container.classList.contains("active") && (s.innerText = E(l.remaining));
         });
         break;
       case "duration":
         this.player.on("duration", (l) => {
-          l.duration === 1 / 0 ? r.textContent = "Live" : r.textContent = E(l.duration);
+          l.duration === 1 / 0 ? s.innerText = "Live" : s.innerText = E(l.duration);
         });
         break;
     }
     return this.player.on("pip-internal", (l) => {
-      l ? r.style.display = "none" : r.style.display = "";
-    }), r;
+      l ? s.style.display = "none" : s.style.display = "";
+    }), s;
   }
-  createVolumeButton(s, t = !1) {
-    var u;
+  createVolumeButton(i, t = !1) {
+    var p;
     if (this.player.isMobile())
       return;
-    const e = this.player.createElement("div", "volume-container").addClasses(this.makeStyles("volumeContainerStyles")).appendTo(s), r = this.createUiButton(
+    const e = this.player.createElement("div", "volume-container").addClasses(this.makeStyles("volumeContainerStyles")).appendTo(i), s = this.createUiButton(
       e,
       "volume"
     );
-    r.ariaLabel = (u = this.buttons.volumeHigh) == null ? void 0 : u.title;
+    s.ariaLabel = (p = this.buttons.volumeHigh) == null ? void 0 : p.title;
     const l = this.player.createElement("input", "volume-slider").addClasses(this.makeStyles("volumeSliderStyles")).appendTo(e);
     l.type = "range", l.min = "0", l.max = "100", l.step = "1", l.value = this.player.getVolume().toString(), l.style.backgroundSize = `${this.player.getVolume()}% 100%`;
-    const n = this.createSVGElement(r, "volumeMuted", this.buttons.volumeMuted, !0, t), o = this.createSVGElement(r, "volumeLow", this.buttons.volumeLow, !0, t), a = this.createSVGElement(r, "volumeMedium", this.buttons.volumeMedium, !0, t), p = this.createSVGElement(r, "volumeHigh", this.buttons.volumeHigh, !1, t);
-    return r.addEventListener("click", (c) => {
+    const r = this.createSVGElement(s, "volumeMuted", this.buttons.volumeMuted, !0, t), a = this.createSVGElement(s, "volumeLow", this.buttons.volumeLow, !0, t), o = this.createSVGElement(s, "volumeMedium", this.buttons.volumeMedium, !0, t), d = this.createSVGElement(s, "volumeHigh", this.buttons.volumeHigh, !1, t);
+    return s.addEventListener("click", (c) => {
       c.stopPropagation(), this.player.toggleMute(), this.player.emit("hide-tooltip");
     }), l.addEventListener("input", (c) => {
       c.stopPropagation();
-      const d = Math.floor(parseInt(l.value, 10));
-      l.style.backgroundSize = `${d}% 100%`, this.player.setVolume(d);
+      const h = Math.floor(parseInt(l.value, 10));
+      l.style.backgroundSize = `${h}% 100%`, this.player.setVolume(h);
     }), e.addEventListener("wheel", (c) => {
       c.preventDefault();
-      const d = c.deltaY === 0 ? -c.deltaX : -c.deltaY;
-      d !== 0 && (l.style.backgroundSize = `${l.value}% 100%`, l.value = (parseFloat(l.value) + d * 0.5).toString(), this.player.setVolume(parseFloat(l.value)));
+      const h = c.deltaY === 0 ? -c.deltaX : -c.deltaY;
+      h !== 0 && (l.style.backgroundSize = `${l.value}% 100%`, l.value = (parseFloat(l.value) + h * 0.5).toString(), this.player.setVolume(parseFloat(l.value)));
     }, {
       passive: !0
     }), this.player.on("volume", (c) => {
-      this.volumeHandle(c, n, o, a, p), l.style.backgroundSize = `${c.volume}% 100%`, l.value = c.volume.toString();
+      this.volumeHandle(c, r, a, o, d), l.style.backgroundSize = `${c.volume}% 100%`, l.value = c.volume.toString();
     }), this.player.on("mute", (c) => {
-      this.volumeHandle(c, n, o, a, p), c.muted ? (l.style.backgroundSize = "0% 100%", l.value = "0") : (l.style.backgroundSize = `${this.player.getVolume()}% 100%`, l.value = this.player.getVolume().toString());
+      this.volumeHandle(c, r, a, o, d), c.muted ? (l.style.backgroundSize = "0% 100%", l.value = "0") : (l.style.backgroundSize = `${this.player.getVolume()}% 100%`, l.value = this.player.getVolume().toString());
     }), e;
   }
-  volumeHandle(s, t, e, r, l) {
-    this.player.getMute() || s.volume == 0 ? (e.style.display = "none", r.style.display = "none", l.style.display = "none", t.style.display = "flex") : s.volume <= 30 ? (r.style.display = "none", l.style.display = "none", t.style.display = "none", e.style.display = "flex") : s.volume <= 60 ? (e.style.display = "none", l.style.display = "none", t.style.display = "none", r.style.display = "flex") : (e.style.display = "none", r.style.display = "none", t.style.display = "none", l.style.display = "flex");
+  volumeHandle(i, t, e, s, l) {
+    this.player.getMute() || i.volume == 0 ? (e.style.display = "none", s.style.display = "none", l.style.display = "none", t.style.display = "flex") : i.volume <= 30 ? (s.style.display = "none", l.style.display = "none", t.style.display = "none", e.style.display = "flex") : i.volume <= 60 ? (e.style.display = "none", l.style.display = "none", t.style.display = "none", s.style.display = "flex") : (e.style.display = "none", s.style.display = "none", t.style.display = "none", l.style.display = "flex");
   }
   getClosestSeekableInterval() {
-    const s = this.player.getPosition(), e = this.previewTime.find((r) => s >= r.start && s < r.end);
-    return e == null ? void 0 : e.start;
+    const i = this.player.getCurrentTime(), t = this.previewTime.find((e) => i >= e.start && i < e.end);
+    return t == null ? void 0 : t.start;
   }
-  createPreviousButton(s, t = !1) {
+  createPreviousButton(i, t = !1) {
     if (this.player.isMobile())
       return;
     const e = this.createUiButton(
-      s,
+      i,
       "previous"
     );
-    return e.style.display = "none", this.createSVGElement(e, "previous", this.buttons.previous, !1, t), e.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.previous(), this.player.emit("hide-tooltip");
+    return e.style.display = "none", this.createSVGElement(e, "previous", this.buttons.previous, !1, t), e.addEventListener("click", (s) => {
+      s.stopPropagation(), this.player.previous(), this.player.emit("hide-tooltip");
     }), this.player.on("item", () => {
       this.player.getPlaylistIndex() > 0 ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : (this.player.playlistItem().episode ?? -0 - 1 == 0) && (e.style.display = "flex");
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : (this.player.playlistItem().episode ?? -0 - 1 == 0) && (e.style.display = "flex");
     }), e.addEventListener("mouseenter", () => {
-      const r = e.getBoundingClientRect(), l = s.getBoundingClientRect();
-      let n = Math.abs(l.left - r.left + 50);
-      const o = Math.abs(l.bottom - r.bottom - 60);
-      n < 30 && (n = 30), n > r.right - r.left - 10 && (n = r.right - r.left - 10), this.player.emit("show-episode-tip", {
+      const s = e.getBoundingClientRect(), l = i.getBoundingClientRect();
+      let r = Math.abs(l.left - s.left + 50);
+      const a = Math.abs(l.bottom - s.bottom - 60);
+      r < 30 && (r = 30), r > s.right - s.left - 10 && (r = s.right - s.left - 10), this.player.emit("show-episode-tip", {
         direction: "previous",
         currentTime: "bottom",
-        x: `${n}px`,
-        y: `-${o}px`
+        x: `${r}px`,
+        y: `-${a}px`
       });
     }), e.addEventListener("mouseleave", () => {
       this.player.emit("hide-episode-tip");
-    }), s.appendChild(e), e;
+    }), i.appendChild(e), e;
   }
-  createNextButton(s, t = !1) {
+  createNextButton(i, t = !1) {
     const e = this.createUiButton(
-      s,
+      i,
       "next"
     );
-    return e.style.display = "none", this.player.hasNextTip = !0, this.createSVGElement(e, "next", this.buttons.next, !1, t), e.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.next(), this.player.emit("hide-tooltip");
+    return e.style.display = "none", this.player.hasNextTip = !0, this.createSVGElement(e, "next", this.buttons.next, !1, t), e.addEventListener("click", (s) => {
+      s.stopPropagation(), this.player.next(), this.player.emit("hide-tooltip");
     }), this.player.on("item", () => {
       this.player.isLastPlaylistItem() ? e.style.display = "none" : e.style.display = "flex";
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : this.player.isLastPlaylistItem() && (e.style.display = "flex");
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : this.player.isLastPlaylistItem() && (e.style.display = "flex");
     }), e.addEventListener("mouseenter", () => {
-      const r = e.getBoundingClientRect(), l = s.getBoundingClientRect();
-      let n = Math.abs(l.left - r.left + 50);
-      const o = Math.abs(l.bottom - r.bottom - 60);
-      n < 30 && (n = 30), n > r.right - r.left - 10 && (n = r.right - r.left - 10), this.player.emit("show-episode-tip", {
+      const s = e.getBoundingClientRect(), l = i.getBoundingClientRect();
+      let r = Math.abs(l.left - s.left + 50);
+      const a = Math.abs(l.bottom - s.bottom - 60);
+      r < 30 && (r = 30), r > s.right - s.left - 10 && (r = s.right - s.left - 10), this.player.emit("show-episode-tip", {
         direction: "next",
         currentTime: "bottom",
-        x: `${n}px`,
-        y: `-${o}px`
+        x: `${r}px`,
+        y: `-${a}px`
       });
     }), e.addEventListener("mouseleave", () => {
       this.player.emit("hide-episode-tip");
-    }), s.appendChild(e), e;
+    }), i.appendChild(e), e;
   }
-  createCaptionsButton(s, t = !1) {
-    var n;
-    const e = this.createUiButton(
-      s,
-      "subtitles"
-    );
-    e.style.display = "none", e.ariaLabel = (n = this.buttons.subtitles) == null ? void 0 : n.title;
-    const r = this.createSVGElement(e, "subtitle", this.buttons.subtitlesOff, !1, t), l = this.createSVGElement(e, "subtitled", this.buttons.subtitles, !0, t);
-    return e.addEventListener("click", (o) => {
-      o.stopPropagation(), this.player.emit("hide-tooltip"), this.subtitlesMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-subtitles-menu", !0), this.menuFrame.showModal());
-    }), this.player.on("captionsList", (o) => {
-      o.length > 1 ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("captionsChanging", (o) => {
-      o.id == -1 ? (l.style.display = "none", r.style.display = "flex") : (l.style.display = "flex", r.style.display = "none");
-    }), this.player.on("pip-internal", (o) => {
-      o ? e.style.display = "none" : this.player.hasCaptions() && (e.style.display = "flex");
-    }), s.appendChild(e), e;
-  }
-  createAudioButton(s, t = !1) {
+  createCaptionsButton(i, t = !1) {
     var r;
     const e = this.createUiButton(
-      s,
+      i,
+      "subtitles"
+    );
+    e.style.display = "none", e.ariaLabel = (r = this.buttons.subtitles) == null ? void 0 : r.title;
+    const s = this.createSVGElement(e, "subtitle", this.buttons.subtitlesOff, !1, t), l = this.createSVGElement(e, "subtitled", this.buttons.subtitles, !0, t);
+    return e.addEventListener("click", (a) => {
+      a.stopPropagation(), this.player.emit("hide-tooltip"), this.subtitlesMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-subtitles-menu", !0), this.menuFrame.showModal());
+    }), this.player.on("captionsList", (a) => {
+      a.length > 1 ? e.style.display = "flex" : e.style.display = "none";
+    }), this.player.on("captionsChanging", (a) => {
+      a.id == -1 ? (l.style.display = "none", s.style.display = "flex") : (l.style.display = "flex", s.style.display = "none");
+    }), this.player.on("pip-internal", (a) => {
+      a ? e.style.display = "none" : this.player.hasCaptions() && (e.style.display = "flex");
+    }), i.appendChild(e), e;
+  }
+  createAudioButton(i, t = !1) {
+    var s;
+    const e = this.createUiButton(
+      i,
       "audio"
     );
-    return e.style.display = "none", e.ariaLabel = (r = this.buttons.language) == null ? void 0 : r.title, this.createSVGElement(e, "audio", this.buttons.languageOff, !1, t), e.addEventListener("click", (l) => {
+    return e.style.display = "none", e.ariaLabel = (s = this.buttons.language) == null ? void 0 : s.title, this.createSVGElement(e, "audio", this.buttons.languageOff, !1, t), e.addEventListener("click", (l) => {
       l.stopPropagation(), this.player.emit("hide-tooltip"), this.languageMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-language-menu", !0), this.menuFrame.showModal());
     }), this.player.on("item", () => {
       e.style.display = "none";
@@ -3603,89 +3603,89 @@ class K5 extends i1 {
       l.length > 1 ? e.style.display = "flex" : e.style.display = "none";
     }), this.player.on("pip-internal", (l) => {
       l ? e.style.display = "none" : this.player.hasAudioTracks() && (e.style.display = "flex");
-    }), s.appendChild(e), e;
+    }), i.appendChild(e), e;
   }
-  createQualityButton(s, t = !1) {
+  createQualityButton(i, t = !1) {
     const e = this.createUiButton(
-      s,
+      i,
       "quality"
     );
     e.style.display = "none";
-    const r = this.createSVGElement(e, "low", this.buttons.quality, !1, t), l = this.createSVGElement(e, "high", this.buttons.quality, !0, t);
-    return e.addEventListener("click", (n) => {
-      n.stopPropagation(), this.player.emit("hide-tooltip"), this.qualityMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-quality-menu", !0), this.menuFrame.showModal()), this.player.highQuality ? (this.player.highQuality = !1, l.style.display = "none", r.style.display = "flex") : (this.player.highQuality = !0, r.style.display = "none", l.style.display = "flex");
+    const s = this.createSVGElement(e, "low", this.buttons.quality, !1, t), l = this.createSVGElement(e, "high", this.buttons.quality, !0, t);
+    return e.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.emit("hide-tooltip"), this.qualityMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-quality-menu", !0), this.menuFrame.showModal()), this.player.highQuality ? (this.player.highQuality = !1, l.style.display = "none", s.style.display = "flex") : (this.player.highQuality = !0, s.style.display = "none", l.style.display = "flex");
     }), this.player.on("item", () => {
       e.style.display = "none";
     }), this.player.on("levels", () => {
       this.player.hasQualities() ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (n) => {
-      n ? e.style.display = "none" : this.player.hasQualities() && (e.style.display = "flex");
-    }), s.appendChild(e), e;
+    }), this.player.on("pip-internal", (r) => {
+      r ? e.style.display = "none" : this.player.hasQualities() && (e.style.display = "flex");
+    }), i.appendChild(e), e;
   }
-  createTheaterButton(s, t = !1) {
+  createTheaterButton(i, t = !1) {
     if (this.player.isMobile() || !this.player.hasTheaterEventHandler)
       return;
     const e = this.createUiButton(
-      s,
+      i,
       "theater"
     );
-    return this.createSVGElement(e, "theater", this.buttons.theater, t), this.createSVGElement(e, "theater-enabled", this.buttons.theaterExit, !0, t), e.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.emit("hide-tooltip"), this.theaterModeEnabled ? (this.theaterModeEnabled = !1, e.querySelector(".theater-enabled-icon").style.display = "none", e.querySelector(".theater-icon").style.display = "flex", this.player.emit("theaterMode", !1), this.player.emit("resize")) : (this.theaterModeEnabled = !0, e.querySelector(".theater-icon").style.display = "none", e.querySelector(".theater-enabled-icon").style.display = "flex", this.player.emit("theaterMode", !0), this.player.emit("resize"));
+    return this.createSVGElement(e, "theater", this.buttons.theater, t), this.createSVGElement(e, "theater-enabled", this.buttons.theaterExit, !0, t), e.addEventListener("click", (s) => {
+      s.stopPropagation(), this.player.emit("hide-tooltip"), this.theaterModeEnabled ? (this.theaterModeEnabled = !1, e.querySelector(".theater-enabled-icon").style.display = "none", e.querySelector(".theater-icon").style.display = "flex", this.player.emit("theaterMode", !1), this.player.emit("resize")) : (this.theaterModeEnabled = !0, e.querySelector(".theater-icon").style.display = "none", e.querySelector(".theater-enabled-icon").style.display = "flex", this.player.emit("theaterMode", !0), this.player.emit("resize"));
     }), this.player.on("fullscreen", () => {
       this.player.getFullscreen() ? e.style.display = "none" : e.style.display = "flex";
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : e.style.display = "flex";
-    }), s.appendChild(e), e;
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : e.style.display = "flex";
+    }), i.appendChild(e), e;
   }
-  createFullscreenButton(s, t = !1) {
+  createFullscreenButton(i, t = !1) {
     const e = this.createUiButton(
-      s,
+      i,
       "fullscreen"
     );
-    return this.createSVGElement(e, "fullscreen", this.buttons.fullscreen, !1, t), this.createSVGElement(e, "fullscreen-enabled", this.buttons.exitFullscreen, !0, t), e.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.toggleFullscreen(), this.player.emit("hide-tooltip");
-    }), this.player.on("fullscreen", (r) => {
-      r ? (e.querySelector(".fullscreen-icon").style.display = "none", e.querySelector(".fullscreen-enabled-icon").style.display = "flex") : (e.querySelector(".fullscreen-enabled-icon").style.display = "none", e.querySelector(".fullscreen-icon").style.display = "flex");
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : e.style.display = "flex";
-    }), s.appendChild(e), e;
+    return this.createSVGElement(e, "fullscreen", this.buttons.fullscreen, !1, t), this.createSVGElement(e, "fullscreen-enabled", this.buttons.exitFullscreen, !0, t), e.addEventListener("click", (s) => {
+      s.stopPropagation(), this.player.toggleFullscreen(), this.player.emit("hide-tooltip");
+    }), this.player.on("fullscreen", (s) => {
+      s ? (e.querySelector(".fullscreen-icon").style.display = "none", e.querySelector(".fullscreen-enabled-icon").style.display = "flex") : (e.querySelector(".fullscreen-enabled-icon").style.display = "none", e.querySelector(".fullscreen-icon").style.display = "flex");
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : e.style.display = "flex";
+    }), i.appendChild(e), e;
   }
-  createPlaylistsButton(s, t = !1) {
+  createPlaylistsButton(i, t = !1) {
     const e = this.createUiButton(
-      s,
+      i,
       "playlist"
     );
-    return e.style.display = "none", this.createSVGElement(e, "playlist", this.buttons.playlist, !1, t), e.addEventListener("click", (r) => {
-      r.stopPropagation(), this.player.emit("hide-tooltip"), this.playlistMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-playlist-menu", !0), this.player.emit("switch-season", this.player.playlistItem().season), this.menuFrame.showModal(), setTimeout(() => {
+    return e.style.display = "none", this.createSVGElement(e, "playlist", this.buttons.playlist, !1, t), e.addEventListener("click", (s) => {
+      s.stopPropagation(), this.player.emit("hide-tooltip"), this.playlistMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-playlist-menu", !0), this.player.emit("switch-season", this.player.playlistItem().season), this.menuFrame.showModal(), setTimeout(() => {
         var l;
         (l = document.querySelector(`playlist-${this.player.playlistItem().id}`)) == null || l.scrollIntoView({ block: "center" });
       }, 100));
     }), this.player.on("item", () => {
       this.player.hasPlaylists() ? e.style.display = "flex" : e.style.display = "none";
-    }), this.player.on("pip-internal", (r) => {
-      r ? e.style.display = "none" : this.player.hasPlaylists() && (e.style.display = "flex");
-    }), s.appendChild(e), e;
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : this.player.hasPlaylists() && (e.style.display = "flex");
+    }), i.appendChild(e), e;
   }
-  createBottomBar(s) {
-    const t = this.player.createElement("div", "bottom-bar").addClasses(this.makeStyles("bottomBarStyles")).appendTo(s);
+  createBottomBar(i) {
+    const t = this.player.createElement("div", "bottom-bar").addClasses(this.makeStyles("bottomBarStyles")).appendTo(i);
     return this.player.createElement("div", "bottom-bar-shadow").addClasses(this.makeStyles("bottomBarShadowStyles")).appendTo(t), t;
   }
-  createDivider(s, t) {
-    const e = this.player.createElement("div", "divider").addClasses(this.makeStyles("dividerStyles")).appendTo(s);
+  createDivider(i, t) {
+    const e = this.player.createElement("div", "divider").addClasses(this.makeStyles("dividerStyles")).appendTo(i);
     return t ? e.innerHTML = t : this.player.addClasses(e, this.makeStyles("dividerStyles")), e;
   }
-  createOverlayCenterMessage(s) {
-    const t = this.player.createElement("button", "player-message").addClasses(this.makeStyles("playerMessageStyles")).appendTo(s);
+  createOverlayCenterMessage(i) {
+    const t = this.player.createElement("button", "player-message").addClasses(this.makeStyles("playerMessageStyles")).appendTo(i);
     return this.player.on("display-message", (e) => {
-      t.style.display = "flex", t.textContent = e;
+      t.style.display = "flex", t.innerText = e ?? "";
     }), this.player.on("remove-message", () => {
-      t.style.display = "none", t.textContent = "";
+      t.style.display = "none", t.innerText = "";
     }), t;
   }
-  createSeekContainer(s) {
-    const t = this.player.createElement("div", "seek-container").addClasses(this.makeStyles("seekContainerStyles")).appendTo(s), e = this.player.createElement("div", "seek-scroll-clone-container").addClasses(this.makeStyles("seekScrollCloneStyles")).appendTo(t);
+  createSeekContainer(i) {
+    const t = this.player.createElement("div", "seek-container").addClasses(this.makeStyles("seekContainerStyles")).appendTo(i), e = this.player.createElement("div", "seek-scroll-clone-container").addClasses(this.makeStyles("seekScrollCloneStyles")).appendTo(t);
     this.player.createElement("div", "thumbnail-clone-1").addClasses(this.makeStyles("thumbnailCloneStyles")).appendTo(e);
-    const r = this.player.createElement("div", "seek-scroll-container").addClasses(this.makeStyles("seekScrollContainerStyles")).appendTo(t);
+    const s = this.player.createElement("div", "seek-scroll-container").addClasses(this.makeStyles("seekScrollContainerStyles")).appendTo(t);
     return this.player.once("item", () => {
       this.player.on("preview-time", () => {
         this.thumbs = [];
@@ -3694,30 +3694,24 @@ class K5 extends i1 {
             time: l,
             el: this.createThumbnail(l)
           });
-        r.innerHTML = "", o1(this.thumbs.map((l) => l.el), "id").forEach((l) => {
-          r.appendChild(l);
+        s.innerHTML = "", e1(this.thumbs.map((l) => l.el), "id").forEach((l) => {
+          s.appendChild(l);
         }), this.player.once("time", () => {
-          this.currentScrubTime = this.getClosestSeekableInterval(), this.player.emit("currentScrubTime", {
-            ...this.player.getTimeData(),
-            currentTime: this.getClosestSeekableInterval()
-          });
+          this.currentScrubTime = this.getClosestSeekableInterval();
         });
       });
     }), this.player.on("lastTimeTrigger", () => {
-      this.currentScrubTime = this.getClosestSeekableInterval(), this.player.emit("currentScrubTime", {
-        ...this.player.getTimeData(),
-        currentTime: this.getClosestSeekableInterval()
-      });
+      this.currentScrubTime = this.getClosestSeekableInterval();
     }), this.player.on("currentScrubTime", (l) => {
       l.currentTime <= 0 ? l.currentTime = 0 : l.currentTime >= this.player.getDuration() && (l.currentTime = this.player.getDuration());
-      const n = this.thumbs.find((o) => l.currentTime >= o.time.start && l.currentTime <= o.time.end);
-      this.currentScrubTime = l.currentTime, n && this.scrollIntoView(n.el);
+      const r = this.thumbs.find((a) => l.currentTime >= a.time.start && l.currentTime <= a.time.end);
+      this.currentScrubTime = l.currentTime, r && this.scrollIntoView(r.el);
     }), this.player.on("show-seek-container", (l) => {
       l ? (t.style.transform = "none", this.player.pause()) : this.seekContainer.style.transform = "";
     }), t;
   }
-  createNextUp(s) {
-    this.nextUp = this.player.createElement("div", "episode-tip").addClasses(this.makeStyles("nextUpStyles")).appendTo(s), this.nextUp.style.display = "none";
+  createNextUp(i) {
+    this.nextUp = this.player.createElement("div", "episode-tip").addClasses(this.makeStyles("nextUpStyles")).appendTo(i), this.nextUp.style.display = "none";
     const t = this.player.createElement("button", "next-up-credits").addClasses(this.makeStyles("nextUpCreditsButtonStyles")).appendTo(this.nextUp);
     t.innerText = this.player.localize("Watch credits");
     const e = this.player.createElement("button", "next-up-next").addClasses(this.makeStyles("nextUpNextButtonStyles")).appendTo(this.nextUp);
@@ -3732,20 +3726,20 @@ class K5 extends i1 {
     }), e.addEventListener("click", () => {
       clearTimeout(this.timeout), this.nextUp.style.display = "none", this.player.next();
     });
-    let r = !1;
+    let s = !1;
     return this.player.on("item", () => {
-      clearTimeout(this.timeout), this.nextUp.style.display = "none", r = !1;
+      clearTimeout(this.timeout), this.nextUp.style.display = "none", s = !1;
     }), this.player.once("playing", () => {
       this.player.on("time", (l) => {
-        this.player.getDuration() > 0 && l.currentTime > this.player.getDuration() - 5 && !r && !this.player.isLastPlaylistItem() && (this.player.emit("show-next-up"), r = !0);
+        this.player.getDuration() > 0 && l.currentTime > this.player.getDuration() - 5 && !s && !this.player.isLastPlaylistItem() && (this.player.emit("show-next-up"), s = !0);
       });
     }), this.nextUp;
   }
-  createTopBar(s) {
-    return this.player.createElement("div", "top-bar").addClasses(this.makeStyles("topBarStyles")).appendTo(s);
+  createTopBar(i) {
+    return this.player.createElement("div", "top-bar").addClasses(this.makeStyles("topBarStyles")).appendTo(i);
   }
-  createLanguageMenuButton(s, t, e = !1) {
-    const r = this.player.createElement("button", `${t.type}-button-${t.language}`).addClasses([
+  createLanguageMenuButton(i, t, e = !1) {
+    const s = this.player.createElement("button", `${t.type}-button-${t.language}`).addClasses([
       "language-button",
       "w-available",
       "mr-auto",
@@ -3767,39 +3761,7 @@ class K5 extends i1 {
       "focus-visible:outline-2",
       "focus-visible:outline-white",
       "active:outline-white"
-    ]).appendTo(s), l = this.player.createElement("span", "menu-button-text").addClasses([
-      "menu-button-text",
-      "cursor-pointer",
-      "font-semibold",
-      "pl-2",
-      "flex",
-      "gap-2",
-      "leading-[normal]"
-    ]).appendTo(r);
-    t.buttonType == "subtitle" ? t.styled ? l.textContent = `${this.player.localize(t.language ?? "")} ${this.player.localize(t.label)} ${this.player.localize("styled")}` : t.language == "" ? l.textContent = this.player.localize(t.label) : l.textContent = `${this.player.localize(t.language ?? "")} (${this.player.localize(t.type)})` : l.textContent = this.player.localize(t.language);
-    const n = this.createSVGElement(r, "checkmark", this.buttons.checkmark, !1, e);
-    return this.player.addClasses(n, ["ml-auto"]), t.id > 0 && n.classList.add("hidden"), t.buttonType == "audio" ? (this.player.on("audioTrackChanging", (o) => {
-      t.id === o.id ? n.classList.remove("hidden") : n.classList.add("hidden");
-    }), r.addEventListener("click", (o) => {
-      o.stopPropagation(), this.player.setCurrentAudioTrack(t.id), this.player.emit("show-menu", !1);
-    })) : t.buttonType == "subtitle" && (t.id === this.player.getCaptionIndex() ? n.classList.remove("hidden") : n.classList.add("hidden"), this.player.on("captionsChanged", (o) => {
-      t.id === o.id ? n.classList.remove("hidden") : n.classList.add("hidden");
-    }), r.addEventListener("click", (o) => {
-      o.stopPropagation(), this.player.setCurrentCaption(t.id), this.player.emit("show-menu", !1);
-    })), r.addEventListener("keypress", (o) => {
-      var a, p, u, c;
-      o.key == "ArrowLeft" ? (a = this.player.getClosestElement(r, '[id^="audio-button-"]')) == null || a.focus() : o.key == "ArrowRight" ? (p = this.player.getClosestElement(r, '[id^="subtitle-button-"]')) == null || p.focus() : o.key == "ArrowUp" && !this.player.options.disableTouchControls ? (u = r.previousElementSibling) == null || u.focus() : o.key == "ArrowDown" && !this.player.options.disableTouchControls && ((c = r.nextElementSibling) == null || c.focus());
-    }), r.addEventListener("focus", () => {
-      setTimeout(() => {
-        this.scrollCenter(r, s.parentElement, {
-          margin: 1,
-          duration: 100
-        });
-      }, 50);
-    }), r;
-  }
-  getLanguageButtonText(s, t) {
-    const e = this.player.createElement("span", "menu-button-text").addClasses([
+    ]).appendTo(i), l = this.player.createElement("span", "menu-button-text").addClasses([
       "menu-button-text",
       "cursor-pointer",
       "font-semibold",
@@ -3808,37 +3770,69 @@ class K5 extends i1 {
       "gap-2",
       "leading-[normal]"
     ]).appendTo(s);
-    return t.buttonType == "subtitle" ? t.styled ? e.textContent = `${this.player.localize(t.language ?? "")} ${this.player.localize(t.label)} ${this.player.localize("styled")}` : t.language == "" ? e.textContent = this.player.localize(t.label) : e.textContent = `${this.player.localize(t.language ?? "")} (${this.player.localize(t.type)})` : e.textContent = this.player.localize(t.language), e;
+    t.buttonType == "subtitle" ? t.styled ? l.innerText = `${this.player.localize(t.language ?? "")} ${this.player.localize(t.label)} ${this.player.localize("styled")}` : t.language == "" ? l.innerText = this.player.localize(t.label) : l.innerText = `${this.player.localize(t.language ?? "")} (${this.player.localize(t.type)})` : l.innerText = this.player.localize(t.language);
+    const r = this.createSVGElement(s, "checkmark", this.buttons.checkmark, !1, e);
+    return this.player.addClasses(r, ["ml-auto"]), t.id > 0 && r.classList.add("hidden"), t.buttonType == "audio" ? (this.player.on("audioTrackChanging", (a) => {
+      t.id === a.id ? r.classList.remove("hidden") : r.classList.add("hidden");
+    }), s.addEventListener("click", (a) => {
+      a.stopPropagation(), this.player.setCurrentAudioTrack(t.id), this.player.emit("show-menu", !1);
+    })) : t.buttonType == "subtitle" && (t.id === this.player.getCaptionIndex() ? r.classList.remove("hidden") : r.classList.add("hidden"), this.player.on("captionsChanged", (a) => {
+      t.id === a.id ? r.classList.remove("hidden") : r.classList.add("hidden");
+    }), s.addEventListener("click", (a) => {
+      a.stopPropagation(), this.player.setCurrentCaption(t.id), this.player.emit("show-menu", !1);
+    })), s.addEventListener("keypress", (a) => {
+      var o, d, p, c;
+      a.key == "ArrowLeft" ? (o = this.player.getClosestElement(s, '[id^="audio-button-"]')) == null || o.focus() : a.key == "ArrowRight" ? (d = this.player.getClosestElement(s, '[id^="subtitle-button-"]')) == null || d.focus() : a.key == "ArrowUp" && !this.player.options.disableTouchControls ? (p = s.previousElementSibling) == null || p.focus() : a.key == "ArrowDown" && !this.player.options.disableTouchControls && ((c = s.nextElementSibling) == null || c.focus());
+    }), s.addEventListener("focus", () => {
+      setTimeout(() => {
+        this.scrollCenter(s, i.parentElement, {
+          margin: 1,
+          duration: 100
+        });
+      }, 50);
+    }), s;
   }
-  createThumbnail(s) {
-    const t = this.player.createElement("div", `thumbnail-${s.start}`).addClasses([
+  getLanguageButtonText(i, t) {
+    const e = this.player.createElement("span", "menu-button-text").addClasses([
+      "menu-button-text",
+      "cursor-pointer",
+      "font-semibold",
+      "pl-2",
+      "flex",
+      "gap-2",
+      "leading-[normal]"
+    ]).appendTo(i);
+    return t.buttonType == "subtitle" ? t.styled ? e.innerText = `${this.player.localize(t.language ?? "")} ${this.player.localize(t.label)} ${this.player.localize("styled")}` : t.language == "" ? e.innerText = this.player.localize(t.label) : e.innerText = `${this.player.localize(t.language ?? "")} (${this.player.localize(t.type)})` : e.innerText = this.player.localize(t.language), e;
+  }
+  createThumbnail(i) {
+    const t = this.player.createElement("div", `thumbnail-${i.start}`).addClasses([
       "w-1/5",
       "h-auto",
       "object-cover",
       "aspect-video",
       "snap-center"
     ]).get();
-    return t.style.backgroundImage = `url('${(this.player.options.basePath ? this.player.options.basePath : "") + this.image}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ""}')`, t.style.backgroundPosition = `-${s.x}px -${s.y}px`, t.style.width = `max(232px, ${s.w * 0.7}px)`, t.style.minWidth = `max(232px, ${s.w * 0.7}px)`, t;
+    return t.style.backgroundImage = `url('${(this.player.options.basePath ? this.player.options.basePath : "") + this.image}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ""}')`, t.style.backgroundPosition = `-${i.x}px -${i.y}px`, t.style.width = `max(232px, ${i.w * 0.7}px)`, t.style.minWidth = `max(232px, ${i.w * 0.7}px)`, t;
   }
-  getSliderPopImage(s) {
-    const t = this.loadSliderPopImage(s);
-    t && (this.sliderPopImage.style.backgroundPosition = `-${t.x}px -${t.y}px`, this.sliderPopImage.style.width = `max(232px, ${t.w * 0.7}px)`, this.sliderPopImage.style.height = `max(232px, ${t.w * 0.7}px)`);
+  getSliderPopImage(i) {
+    const t = this.loadSliderPopImage(i);
+    t && (this.sliderPopImage.style.backgroundPosition = `-${t.x}px -${t.y}px`, this.sliderPopImage.style.width = `${t.w * 0.7}px`, this.sliderPopImage.style.height = `${t.h * 0.7}px`);
   }
-  adjustScaling(s, t) {
-    const e = s % t;
-    return e % 1 !== 0 && (s /= e / Math.round(e)), e > 1 && (s *= e), s;
+  adjustScaling(i, t) {
+    const e = i % t;
+    return e % 1 !== 0 && (i /= e / Math.round(e)), e > 1 && (i *= e), i;
   }
-  loadSliderPopImage(s) {
+  loadSliderPopImage(i) {
     this.fetchPreviewTime();
     let t = this.previewTime.find(
-      (e) => s.scrubTimePlayer >= e.start && s.scrubTimePlayer < e.end
+      (e) => i.scrubTimePlayer >= e.start && i.scrubTimePlayer < e.end
     );
     return t || (t = this.previewTime.at(-1)), t;
   }
-  getScrubTime(s, t = this.sliderBar) {
-    var n, o, a, p;
+  getScrubTime(i, t = this.sliderBar) {
+    var r, a, o, d;
     const e = t.getBoundingClientRect();
-    let l = (s.clientX ?? ((o = (n = s.touches) == null ? void 0 : n[0]) == null ? void 0 : o.clientX) ?? ((p = (a = s.changedTouches) == null ? void 0 : a[0]) == null ? void 0 : p.clientX) ?? 0) - e.left;
+    let l = (i.clientX ?? ((a = (r = i.touches) == null ? void 0 : r[0]) == null ? void 0 : a.clientX) ?? ((d = (o = i.changedTouches) == null ? void 0 : o[0]) == null ? void 0 : d.clientX) ?? 0) - e.left;
     return l <= 0 && (l = 0), l >= e.width && (l = e.width), {
       scrubTime: l / t.offsetWidth * 100,
       scrubTimePlayer: l / t.offsetWidth * this.player.getDuration()
@@ -3850,21 +3844,821 @@ class K5 extends i1 {
    * @param season - The season number of the episode to play.
    * @param episode - The episode number to play.
    */
-  setEpisode(s, t) {
-    const e = this.player.getPlaylist().findIndex((r) => r.season == s && r.episode == t);
+  setEpisode(i, t) {
+    const e = this.player.getPlaylist().findIndex((s) => s.season == i && s.episode == t);
     e == -1 ? this.player.playlistItem(0) : this.player.playlistItem(e), this.player.play();
   }
-  scrollCenter(s, t, e) {
-    if (!s)
+  scrollCenter(i, t, e) {
+    if (!i)
       return;
-    const r = (e == null ? void 0 : e.duration) || 60, l = (e == null ? void 0 : e.margin) || 1.5, n = s.getBoundingClientRect().top + s.getBoundingClientRect().height / 2 - t.getBoundingClientRect().height / l, o = t.scrollTop, a = performance.now();
-    function p(u) {
-      const c = u - a, d = Math.min(c / r, 1);
-      t.scrollTo(0, Math.floor(o + n * d)), c < r && requestAnimationFrame(p);
+    const s = (e == null ? void 0 : e.duration) || 60, l = (e == null ? void 0 : e.margin) || 1.5, r = i.getBoundingClientRect().top + i.getBoundingClientRect().height / 2 - t.getBoundingClientRect().height / l, a = t.scrollTop, o = performance.now();
+    function d(p) {
+      const c = p - o, h = Math.min(c / s, 1);
+      t.scrollTo(0, Math.floor(a + r * h)), c < s && requestAnimationFrame(d);
     }
-    requestAnimationFrame(p);
+    requestAnimationFrame(d);
+  }
+}
+class tt extends Ye {
+  constructor() {
+    super(...arguments), this.topBar = {}, this.bottomRow = {}, this.frame = {}, this.isMouseDown = !1, this.pipEnabled = !1, this.bottomBar = {}, this.topRow = {}, this.tooltip = {}, this.menuButtonTextStyles = [
+      "menu-button-text",
+      "cursor-pointer",
+      "font-semibold",
+      "pl-2",
+      "flex",
+      "gap-2",
+      "leading-[normal]"
+    ], this.languageMenuStyles = [
+      "language-button",
+      "w-available",
+      "mr-auto",
+      "h-8",
+      "px-1",
+      "py-2",
+      "flex",
+      "items-center",
+      "rounded",
+      "snap-center",
+      "outline-transparent",
+      "outline",
+      "whitespace-nowrap",
+      "hover:bg-neutral-600/50",
+      "transition-all",
+      "duration-200",
+      "outline-1",
+      "outline-solid",
+      "focus-visible:outline-2",
+      "focus-visible:outline-white",
+      "active:outline-white"
+    ];
+  }
+  use() {
+    this.topBar = this.createTopBar(this.overlay), this.createBackButton(this.topBar), this.createCloseButton(this.topBar), this.createDivider(this.topBar), this.player.options.disableTouchControls || this.createCenter(this.overlay), this.bottomBar = this.createBottomBar(this.overlay), this.bottomBar.onmouseleave = (t) => {
+      var s;
+      const e = (s = this.player.getVideoElement()) == null ? void 0 : s.getBoundingClientRect();
+      !e || t.x > e.left && t.x < e.right && t.y > e.top && t.y < e.bottom || this.player.emit("hide-tooltip");
+    }, this.topRow = this.createTopRow(this.bottomBar), this.player.addClasses(this.topRow, ["mt-4"]), this.bottomRow = this.createBottomRow(this.bottomBar), this.createProgressBar(this.topRow), this.createPlaybackButton(this.bottomRow, !0), this.createPreviousButton(this.bottomRow, !0), this.createSeekBackButton(this.bottomRow, !0), this.createSeekForwardButton(this.bottomRow, !0), this.createNextButton(this.bottomRow, !0), this.createVolumeButton(this.bottomRow, !0), this.createTime(this.bottomRow, "current", ["ml-2"]), this.createDivider(this.bottomRow), this.createTime(this.bottomRow, "remaining", ["mr-2"]), this.createTheaterButton(this.bottomRow, !0), this.createPIPButton(this.bottomRow, !0), this.createPlaylistsButton(this.bottomRow, !0), this.createSpeedButton(this.bottomRow, !0), this.createCaptionsButton(this.bottomRow, !0), this.createAudioButton(this.bottomRow, !0), this.createQualityButton(this.bottomRow, !0), this.createSettingsButton(this.bottomRow, !0), this.createFullscreenButton(this.bottomRow, !0), this.frame = this.createMenuFrame(this.bottomRow), this.createMainMenu(this.frame), this.createToolTip(this.overlay), this.createEpisodeTip(this.overlay), this.createNextUp(this.overlay), this.modifySpinner(this.overlay), this.eventHandlers(), this.player.plugins.desktopUIPlugin = {};
+    let i = this;
+    do
+      Object.getOwnPropertyNames(i).forEach((t) => {
+        const e = this[t];
+        typeof e == "function" ? this.player.plugins.desktopUIPlugin[t] = e.bind(this) : this.player.plugins.desktopUIPlugin[t] = e;
+      });
+    while ((i = Object.getPrototypeOf(i)) !== null);
+  }
+  createTopRow(i) {
+    return this.player.createElement("div", "top-row").addClasses([
+      "top-row",
+      "flex",
+      "gap-1",
+      "h-2",
+      "items-center",
+      "pl-2",
+      "pr-2",
+      "relative",
+      "w-available"
+    ]).appendTo(i);
+  }
+  createBottomRow(i) {
+    return this.player.createElement("div", "bottom-row").addClasses([
+      "bottom-row",
+      "flex",
+      "h-10",
+      "mb-2",
+      "p-1",
+      "px-4",
+      "items-center",
+      "relative",
+      "w-available"
+    ]).appendTo(i);
+  }
+  eventHandlers() {
+    this.player.on("controls", (i) => {
+      var t, e;
+      this.player.getElement() && (i ? (t = this.player.getElement()) == null || t.setAttribute("active", "true") : (e = this.player.getElement()) == null || e.setAttribute("active", "false"));
+    }), this.player.on("chapters", () => {
+      this.createChapterMarkers();
+    }), this.player.on("back-button", () => {
+      switch (this.currentMenu) {
+        case "episode":
+        case "language":
+        case "quality":
+          this.player.emit("showPauseScreen");
+          break;
+        case "seek":
+        case "pause":
+          this.seekContainer.style.transform = "", this.player.play();
+          break;
+        default:
+          this.player.hasBackEventHandler ? this.player.emit("back") : history.back();
+          break;
+      }
+    }), window.addEventListener("resize", () => {
+      this.sizeMenuFrame();
+    });
+  }
+  createCenter(i) {
+    const t = this.player.createElement("div", "center").addClasses([
+      "center",
+      "absolute",
+      "grid",
+      "grid-cols-3",
+      "grid-rows-6",
+      "h-full",
+      "w-full",
+      "z-0",
+      "transition-all",
+      "duration-300",
+      "bg-transparent",
+      "group-[&.nomercyplayer.buffering]:bg-gradient-circle-c",
+      "group-[&.nomercyplayer.error]:bg-gradient-circle-c",
+      "group-[&.nomercyplayer.paused]:bg-gradient-circle-c",
+      "from-black/50",
+      "from-15%",
+      "via-60%",
+      "via-black/30",
+      "to-100%",
+      "to-black/0"
+    ]).appendTo(i);
+    return this.createSpinnerContainer(t), this.player.isMobile() ? (this.createTouchSeekBack(t, { x: { start: 1, end: 1 }, y: { start: 2, end: 6 } }), this.createTouchPlayback(t, { x: { start: 2, end: 2 }, y: { start: 3, end: 5 } }), this.createTouchSeekForward(t, { x: { start: 3, end: 3 }, y: { start: 2, end: 6 } }), this.createTouchVolUp(t, { x: { start: 2, end: 2 }, y: { start: 1, end: 3 } }), this.createTouchVolDown(t, { x: { start: 2, end: 2 }, y: { start: 5, end: 7 } })) : (this.createTouchSeekBack(t, { x: { start: 1, end: 2 }, y: { start: 2, end: 6 } }), this.createTouchPlayback(t, { x: { start: 2, end: 3 }, y: { start: 2, end: 6 } }), this.createTouchSeekForward(t, { x: { start: 3, end: 4 }, y: { start: 2, end: 6 } })), t;
+  }
+  createTouchSeekBack(i, t) {
+    const e = this.createTouchBox(i, "touchSeekBack", t);
+    return ["click"].forEach((s) => {
+      e.addEventListener(s, this.doubleTap(() => {
+        this.player.rewindVideo();
+      }));
+    }), this.createSeekRipple(e, "left"), e;
+  }
+  /**
+   * Attaches a double tap event listener to the element.
+   * @param callback - The function to execute when a double tap event occurs.
+   * @param callback2 - An optional function to execute when a second double tap event occurs.
+   * @returns A function that detects double tap events.
+   */
+  doubleTap(i, t) {
+    const e = this.player.options.doubleClickDelay ?? 500;
+    let s = 0, l, r;
+    return function(o, d) {
+      const p = (/* @__PURE__ */ new Date()).getTime(), c = p - s;
+      c > 0 && c < e ? (o.preventDefault(), i(o), clearTimeout(r)) : (l = setTimeout(() => {
+        clearTimeout(l);
+      }, e), r = setTimeout(() => {
+        t == null || t(d);
+      }, e)), s = p;
+    };
+  }
+  createTouchSeekForward(i, t) {
+    const e = this.createTouchBox(i, "touchSeekForward", t);
+    return ["mouseup", "touchend"].forEach((s) => {
+      e.addEventListener(s, this.doubleTap(() => {
+        this.player.forwardVideo();
+      }));
+    }), this.createSeekRipple(e, "right"), e;
+  }
+  createTouchPlayback(i, t, e = !1) {
+    const s = this.createTouchBox(i, "touchPlayback", t);
+    this.player.addClasses(s, [
+      "touch-playback",
+      "flex",
+      "-ml-2",
+      "items-center",
+      "justify-center"
+    ]), ["click"].forEach((r) => {
+      s.addEventListener(r, this.doubleTap(
+        () => this.player.getFullscreen(),
+        () => {
+          (this.controlsVisible || !this.player.options.disableTouchControls) && this.player.togglePlayback();
+        }
+      ));
+    });
+    const l = this.createSVGElement(s, "bigPlay", this.buttons.bigPlay, !1, e);
+    return this.player.addClasses(l, [
+      "touch-playback-button",
+      "pointer-events-none",
+      "fill-white",
+      "hidden"
+    ]), this.player.on("ready", () => {
+      l.style.display = "flex";
+    }), this.player.on("pause", () => {
+      l.style.display = "flex";
+    }), this.player.on("play", () => {
+      l.style.display = "none";
+    }), this.player.on("firstFrame", () => {
+      l.style.display = "none";
+    }), s;
+  }
+  createTouchVolUp(i, t) {
+    if (!this.player.isMobile())
+      return;
+    const e = this.createTouchBox(i, "touchVolUp", t);
+    return ["click"].forEach((s) => {
+      e.addEventListener(s, this.doubleTap(() => {
+        this.player.volumeUp();
+      }));
+    }), e;
+  }
+  createTouchVolDown(i, t) {
+    if (!this.player.isMobile())
+      return;
+    const e = this.createTouchBox(i, "touchVolDown", t);
+    return ["click"].forEach((s) => {
+      e.addEventListener(s, this.doubleTap(() => {
+        this.player.volumeDown();
+      }));
+    }), e;
+  }
+  createTouchBox(i, t, e) {
+    const s = this.player.createElement("div", `touch-box-${t}`).addClasses([`touch-box-${t}`, "z-40"]).appendTo(i);
+    return s.style.gridColumnStart = e.x.start.toString(), s.style.gridColumnEnd = e.x.end.toString(), s.style.gridRowStart = e.y.start.toString(), s.style.gridRowEnd = e.y.end.toString(), i.appendChild(s), s;
+  }
+  createSpeedButton(i, t = !1) {
+    if (this.player.isMobile())
+      return;
+    const e = this.createUiButton(
+      i,
+      "speed"
+    );
+    return this.player.hasSpeeds() ? e.style.display = "flex" : e.style.display = "none", this.createSVGElement(e, "speed", this.buttons.speed, !1, t), e.addEventListener("click", (s) => {
+      s.stopPropagation(), this.player.emit("hide-tooltip"), this.speedMenuOpen ? (this.player.emit("show-menu", !1), this.menuFrame.close()) : (this.player.emit("show-speed-menu", !0), this.menuFrame.showModal());
+    }), this.player.on("pip-internal", (s) => {
+      s ? e.style.display = "none" : this.player.hasSpeeds() && (e.style.display = "flex");
+    }), i.appendChild(e), e;
+  }
+  createPIPButton(i, t = !1) {
+    var s;
+    if (this.player.isMobile() || !this.player.hasPipEventHandler)
+      return;
+    const e = this.createUiButton(
+      i,
+      "pip"
+    );
+    return this.player.hasPIP() ? e.style.display = "flex" : e.style.display = "none", e.ariaLabel = (s = this.buttons.pipEnter) == null ? void 0 : s.title, this.createSVGElement(e, "pip-enter", this.buttons.pipEnter, !1, t), this.createSVGElement(e, "pip-exit", this.buttons.pipExit, !0, t), document.addEventListener("visibilitychange", () => {
+      this.pipEnabled && (document.hidden ? document.pictureInPictureEnabled && this.player.getVideoElement().requestPictureInPicture() : document.pictureInPictureElement && document.exitPictureInPicture().then());
+    }), e.addEventListener("click", (l) => {
+      var r, a;
+      l.stopPropagation(), this.player.emit("hide-tooltip"), this.player.emit("controls", !1), this.pipEnabled ? (this.pipEnabled = !1, e.querySelector(".pip-exit-icon").style.display = "none", e.querySelector(".pip-enter-icon").style.display = "flex", e.ariaLabel = (r = this.buttons.pipEnter) == null ? void 0 : r.title, this.player.emit("pip-internal", !1), this.player.emit("pip", !1)) : (this.pipEnabled = !0, e.querySelector(".pip-enter-icon").style.display = "none", e.querySelector(".pip-exit-icon").style.display = "flex", e.ariaLabel = (a = this.buttons.pipExit) == null ? void 0 : a.title, this.player.emit("pip-internal", !0), this.player.emit("pip", !0), this.player.emit("show-menu", !1));
+    }), this.player.on("fullscreen", () => {
+      this.player.getFullscreen() ? e.style.display = "none" : e.style.display = "flex";
+    }), i.appendChild(e), e;
+  }
+  createMenuFrame(i) {
+    this.menuFrame = this.player.createElement("dialog", "menu-frame-dialog").addClasses([
+      "group-[&.nomercyplayer:has(.open)]:backdrop:bg-black/60",
+      "group-[&.nomercyplayer:has(.open)]:backdrop:pointer-events-none"
+    ]).appendTo(i), this.menuFrame.setAttribute("popover", "manual"), this.menuFrame.setAttribute("role", "modal");
+    const t = this.player.createElement("div", "menu-wrapper").addClasses([
+      "menu-wrapper"
+    ]).appendTo(this.menuFrame), e = this.player.createElement("div", "menu-frame").addClasses([
+      "menu-frame",
+      "flex-col",
+      "hidden",
+      "absolute",
+      "inset-4",
+      "w-fit",
+      "h-available",
+      "z-50",
+      "max-h-[calc(100%-2rem)]",
+      "max-w-[min(70rem,calc(100%-2rem))]",
+      "overflow-clip",
+      "justify-self-end",
+      "rounded-lg"
+    ]).appendTo(t);
+    this.sizeMenuFrame();
+    const s = this.player.createElement("div", "menu-content").addClasses([
+      "menu-content",
+      "flex",
+      "justify-end",
+      "flex-row",
+      "overflow-clip",
+      "w-full",
+      "h-available",
+      "mt-auto"
+    ]).appendTo(e);
+    return this.player.on("resize", () => {
+      this.sizeMenuFrame();
+    }), this.player.on("fullscreen", () => {
+      this.sizeMenuFrame();
+    }), this.player.on("show-menu", (l) => {
+      this.menuOpen = l, this.player.lockActive = l, l ? (this.sizeMenuFrame(), e.style.display = "flex", e.classList.add("open"), this.menuFrame.showModal()) : (e.style.display = "none", e.classList.remove("open"), this.menuFrame.close()), s.classList.add("translate-x-0"), s.classList.remove("sub-menu-open"), setTimeout(() => {
+        [...this.mainMenu.children].find((r) => r.style.display != "none" && r.id != "menu-header").focus();
+      }, 200), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1);
+    }), this.player.on("show-main-menu", (l) => {
+      this.mainMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.add("translate-x-0"), s.classList.remove("sub-menu-open"), e.style.display = "flex", setTimeout(() => {
+        [...this.mainMenu.children].find((r) => r.style.display != "none" && r.id != "menu-header").focus();
+      }, 200));
+    }), this.player.on("show-language-menu", (l) => {
+      this.languageMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex");
+    }), this.player.on("show-subtitles-menu", (l) => {
+      this.subtitlesMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex");
+    }), this.player.on("show-quality-menu", (l) => {
+      this.qualityMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex");
+    }), this.player.on("show-speed-menu", (l) => {
+      this.speedMenuOpen = l, this.player.lockActive = l, l && (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-playlist-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex");
+    }), this.player.on("show-playlist-menu", (l) => {
+      this.playlistMenuOpen = l, this.player.lockActive = l, l ? (e.classList.add("open"), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), s.classList.remove("translate-x-0"), s.classList.add("sub-menu-open"), e.style.display = "flex") : e.style.width = "";
+    }), this.player.on("controls", (l) => {
+      this.player.lockActive = l, l || (this.player.emit("show-menu", !1), this.player.emit("show-main-menu", !1), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1));
+    }), s;
+  }
+  sizeMenuFrame() {
+    const {
+      width: i,
+      height: t,
+      top: e,
+      bottom: s,
+      left: l
+    } = this.player.getElement().getBoundingClientRect();
+    this.menuFrame.firstChild.style.width = `${i}px`, this.menuFrame.firstChild.style.height = `${t}px`, this.menuFrame.firstChild.style.top = `${e}px`, this.menuFrame.firstChild.style.bottom = `${s}px`, this.menuFrame.firstChild.style.left = `${l}px`, this.menuFrame.firstChild.style.padding = "2rem", this.menuFrame.firstChild.style.position = "fixed";
+  }
+  createMainMenu(i) {
+    return this.mainMenu = this.player.createElement("div", "main-menu").addClasses([
+      "main-menu",
+      "bg-neutral-900/95",
+      "flex",
+      "flex-col",
+      "gap-1",
+      "group-[&.nomercyplayer:has(.sub-menu-open)]:!hidden",
+      "h-auto",
+      "max-h-full",
+      "min-w-64",
+      "mt-auto",
+      "overflow-clip",
+      "p-2",
+      "pt-0",
+      "rounded-lg"
+    ]).appendTo(i), this.mainMenu.style.transform = "translateX(0)", this.createMainMenuHeader(this.mainMenu, "").classList.add("!min-h-[2rem]", "-mr-1"), this.player.addClasses(this.mainMenu, [
+      "main-menu",
+      "bg-neutral-900/95",
+      "flex",
+      "flex-col",
+      "gap-1",
+      "group-[&.nomercyplayer:has(.sub-menu-open)]:!hidden",
+      "h-auto",
+      "max-h-full",
+      "min-w-64",
+      "mt-auto",
+      "overflow-clip",
+      "p-2",
+      "pt-0",
+      "rounded-lg"
+    ]), this.createMenuButton(this.mainMenu, "language"), this.createMenuButton(this.mainMenu, "subtitles"), this.createMenuButton(this.mainMenu, "quality"), this.createMenuButton(this.mainMenu, "speed"), this.createMenuButton(this.mainMenu, "playlist"), this.createSubMenu(i), this.mainMenu;
+  }
+  createSubMenu(i) {
+    const t = this.player.createElement("div", "sub-menu").addClasses([
+      "sub-menu",
+      "bg-neutral-900/95",
+      "flex-col",
+      "gap-1",
+      "h-auto",
+      "w-full",
+      "mt-auto",
+      "overflow-clip",
+      "rounded-lg",
+      "max-h-full",
+      "min-w-64",
+      "hidden",
+      "group-[&.nomercyplayer:has(.sub-menu-open)]:flex"
+    ]).appendTo(i);
+    return t.style.transform = "translateX(0)", this.createLanguageMenu(t), this.createSubtitleMenu(t), this.createQualityMenu(t), this.createSpeedMenu(t), this.player.once("playlist", () => {
+      this.createEpisodeMenu(t);
+    }), t;
+  }
+  createMainMenuHeader(i, t, e = !1) {
+    const s = this.player.createElement("div", "menu-header").addClasses([
+      "menu-header",
+      "flex",
+      "h-9",
+      "items-center",
+      "min-h-[2.5rem]",
+      "py-2",
+      "text-white",
+      "w-available"
+    ]).addClasses(["border-b", "border-gray-300/20", "!p-0"]).appendTo(i), l = this.createUiButton(
+      s,
+      "close"
+    );
+    return this.createSVGElement(l, "menu", this.buttons.close, e), this.player.addClasses(l, ["ml-auto", "w-8"]), l.classList.remove("w-5"), l.addEventListener("click", (r) => {
+      r.stopPropagation(), this.player.emit("show-menu", !1), this.player.lockActive = !1, this.player.emit("controls", !1), this.menuFrame.close();
+    }), s;
+  }
+  createMenuHeader(i, t, e = !1) {
+    const s = this.player.createElement("div", "menu-header").addClasses([
+      "menu-header",
+      "flex",
+      "h-9",
+      "items-center",
+      "min-h-[2.5rem]",
+      "py-2",
+      "text-white",
+      "w-available"
+    ]).addClasses(["border-b", "border-gray-300/20"]).appendTo(i);
+    if (t !== "Episodes") {
+      const r = this.createUiButton(
+        s,
+        "back"
+      );
+      this.createSVGElement(r, "menu", this.buttons.chevronL, e), this.player.addClasses(r, ["w-8"]), r.classList.remove("w-5"), r.addEventListener("click", (a) => {
+        a.stopPropagation(), this.player.emit("show-main-menu", !0), this.player.emit("show-language-menu", !1), this.player.emit("show-subtitles-menu", !1), this.player.emit("show-quality-menu", !1), this.player.emit("show-speed-menu", !1), this.player.emit("show-playlist-menu", !1);
+      });
+    }
+    const l = this.player.createElement("span", "menu-button-text").addClasses([
+      "menu-header-button-text",
+      "font-semibold",
+      "leading-[normal]",
+      "pl-2"
+    ]).appendTo(s);
+    if (l.innerText = this.player.localize(t).toTitleCase(), t !== "Seasons") {
+      const r = this.createUiButton(
+        s,
+        "close"
+      );
+      this.createSVGElement(r, "menu", this.buttons.close, e), this.player.addClasses(r, ["ml-auto", "w-8"]), r.classList.remove("w-5"), r.addEventListener("click", (a) => {
+        a.stopPropagation(), this.player.emit("show-menu", !1), this.player.lockActive = !1, this.player.emit("controls", !1), this.menuFrame.close();
+      });
+    }
+    return s;
+  }
+  createMenuButton(i, t, e = !1) {
+    const s = this.player.createElement("button", `menu-button-${t}`).addClasses(this.languageMenuStyles).appendTo(i);
+    t !== "speed" ? s.style.display = "none" : this.player.hasSpeeds() ? s.style.display = "flex" : s.style.display = "none", this.createSVGElement(s, "menu", this.buttons[t], e);
+    const l = this.player.createElement("span", `menu-button-${t}`).addClasses(this.menuButtonTextStyles).appendTo(s);
+    l.innerText = this.player.localize(t).toTitleCase();
+    const r = this.createSVGElement(s, "menu", this.buttons.chevronR, !1, e);
+    this.player.addClasses(r, ["ml-auto"]), s.addEventListener("click", (a) => {
+      a.stopPropagation(), this.player.emit(`show-${t}-menu`, !0);
+    }), t === "language" ? (this.player.on("item", () => {
+      s.style.display = "none";
+    }), this.player.on("audioTracks", (a) => {
+      a.length > 1 ? s.style.display = "flex" : s.style.display = "none";
+    })) : t === "subtitles" ? (this.player.on("item", () => {
+      s.style.display = "none";
+    }), this.player.on("captionsList", (a) => {
+      a.length > 1 ? s.style.display = "flex" : s.style.display = "none";
+    })) : t === "quality" ? (this.player.on("item", () => {
+      s.style.display = "none";
+    }), this.player.on("levels", (a) => {
+      a.length > 1 ? s.style.display = "flex" : s.style.display = "none";
+    })) : t === "playlist" && this.player.on("playlist", (a) => {
+      a.length > 1 ? s.style.display = "flex" : s.style.display = "none";
+    });
+  }
+  createLanguageMenu(i) {
+    const t = this.player.createElement("div", "language-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(i);
+    this.createMenuHeader(t, "Language");
+    const e = this.player.createElement("div", "language-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(t);
+    return e.style.transform = "translateX(0)", this.player.on("item", () => {
+      e.innerHTML = "";
+    }), this.player.on("audioTracks", (s) => {
+      e.innerHTML = "", Object.values(s).forEach((l) => {
+        this.createLanguageMenuButton(e, {
+          language: l.language,
+          label: l.label,
+          type: "audio",
+          id: l.id,
+          buttonType: "audio"
+        });
+      });
+    }), this.player.on("show-language-menu", (s) => {
+      s ? (t.style.display = "flex", setTimeout(() => {
+        e.firstChild.focus();
+      }, 200)) : t.style.display = "none";
+    }), t;
+  }
+  createSubtitleMenu(i) {
+    const t = this.player.createElement("div", "subtitle-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(i);
+    this.createMenuHeader(t, "subtitles");
+    const e = this.player.createElement("div", "subtitle-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(t);
+    return e.style.transform = "translateX(0)", this.player.on("item", () => {
+      e.innerHTML = "";
+    }), this.player.on("captionsList", (s) => {
+      e.innerHTML = "", Object.values(s).forEach((l) => {
+        this.createLanguageMenuButton(e, {
+          language: l.language,
+          label: l.label,
+          type: l.type,
+          id: l.id,
+          buttonType: "subtitle"
+        });
+      });
+    }), this.player.on("show-subtitles-menu", (s) => {
+      s ? (t.style.display = "flex", setTimeout(() => {
+        e.firstChild.focus();
+      }, 200)) : t.style.display = "none";
+    }), t;
+  }
+  createSpeedMenu(i, t = !1) {
+    const e = this.player.createElement("div", "speed-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(i);
+    this.createMenuHeader(e, "speed");
+    const s = this.player.createElement("div", "speed-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(e);
+    s.style.transform = "translateX(0)";
+    for (const l of this.player.getSpeeds() ?? []) {
+      const r = this.player.createElement("button", `speed-button-${l}`).addClasses(this.languageMenuStyles).appendTo(s), a = this.player.createElement("span", `menu-button-text-${l}`).appendTo(r), o = this.player.createElement("span", `menu-button-text-${l}`).addClasses(this.makeStyles("speedButtonTextStyles")).appendTo(a);
+      o.innerText = l == 1 ? this.player.localize("Normal") : l.toString();
+      const d = this.createSVGElement(r, "menu", this.buttons.checkmark, !1, t);
+      this.player.addClasses(d, [
+        "ml-auto",
+        "hidden"
+      ]), this.player.on("speed", (p) => {
+        p === l ? d.classList.remove("hidden") : d.classList.add("hidden");
+      }), r.addEventListener("click", () => {
+        this.player.emit("show-menu", !1), this.player.setSpeed(l);
+      });
+    }
+    return this.player.on("show-speed-menu", (l) => {
+      l ? (e.style.display = "flex", setTimeout(() => {
+        s.firstChild.focus();
+      }, 200)) : e.style.display = "none";
+    }), e;
+  }
+  createQualityMenu(i) {
+    const t = this.player.createElement("div", "quality-menu").addClasses(this.makeStyles("subMenuContentStyles")).appendTo(i);
+    this.createMenuHeader(t, "quality");
+    const e = this.player.createElement("div", "quality-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(t);
+    return e.style.transform = "translateX(0)", this.player.on("item", () => {
+      e.innerHTML = "";
+    }), this.player.on("levels", (s) => {
+      e.innerHTML = "", Object.values(s).forEach((l) => {
+        this.createQualityMenuButton(e, {
+          id: l.id,
+          width: l.width ?? 0,
+          height: l.height ?? 0,
+          label: l.label,
+          bitrate: l.bitrate ?? 0
+        });
+      });
+    }), this.player.on("show-quality-menu", (s) => {
+      s ? (t.style.display = "flex", setTimeout(() => {
+        e.firstChild.focus();
+      }, 200)) : t.style.display = "none";
+    }), t;
+  }
+  createQualityMenuButton(i, t, e = !1) {
+    var a;
+    const s = this.player.createElement("button", `quality-button-${t.height}-${t.bitrate}`).addClasses(this.languageMenuStyles).appendTo(i), l = this.player.createElement("span", "menu-button-text").addClasses(this.menuButtonTextStyles).appendTo(s);
+    l.innerText = `${this.player.localize((a = t.label) == null ? void 0 : a.replace("segment-metadata", "Off"))}`;
+    const r = this.createSVGElement(s, "checkmark", this.buttons.checkmark, !1, e);
+    return this.player.addClasses(r, ["ml-auto"]), t.id > 0 && r.classList.add("hidden"), this.player.on("levelsChanging", (o) => {
+      o.id == t.id ? r.classList.remove("hidden") : r.classList.add("hidden");
+    }), s.addEventListener("click", (o) => {
+      o.stopPropagation(), this.player.setCurrentQuality(t.id), this.player.emit("show-menu", !1);
+    }), s;
+  }
+  createSeekRipple(i, t) {
+    const e = this.player.createElement("div", "seek-ripple").addClasses(["seek-ripple", t]).appendTo(i), s = this.player.createElement("div", "seek-ripple-arrow").addClasses(["seek-ripple-arrow"]).appendTo(e), l = this.player.createElement("p", "seek-ripple-text").addClasses(["seek-ripple-text"]).appendTo(e);
+    return t == "left" ? (e.style.borderRadius = "0 50% 50% 0", e.style.left = "0px", s.innerHTML = `
+				<div class="arrow arrow2 arrow-left"></div>
+				<div class="arrow arrow1 arrow-left"></div>
+				<div class="arrow arrow3 arrow-left"></div>
+			`, this.player.on("rewind", (r) => {
+      l.innerText = `${Math.abs(r)} ${this.player.localize("seconds")}`, e.style.display = "flex";
+    }), this.player.on("remove-rewind", () => {
+      e.style.display = "none";
+    })) : t == "right" && (e.style.borderRadius = "50% 0 0 50%", e.style.right = "0px", s.innerHTML = `
+				<div class="arrow arrow3 arrow-right"></div>
+				<div class="arrow arrow1 arrow-right"></div>
+				<div class="arrow arrow2 arrow-right"></div>
+			`, this.player.on("forward", (r) => {
+      l.innerText = `${Math.abs(r)} ${this.player.localize("seconds")}`, e.style.display = "flex";
+    }), this.player.on("remove-forward", () => {
+      e.style.display = "none";
+    })), e;
+  }
+  createProgressBar(i) {
+    var d;
+    this.sliderBar = this.player.createElement("div", "slider-bar").addClasses(this.makeStyles("sliderBarStyles")).appendTo(i);
+    const t = this.player.createElement("div", "slider-buffer").addClasses(this.makeStyles("sliderBufferStyles")).appendTo(this.sliderBar), e = this.player.createElement("div", "slider-hover").addClasses(this.makeStyles("sliderHoverStyles")).appendTo(this.sliderBar), s = this.player.createElement("div", "slider-progress").addClasses(this.makeStyles("sliderProgressStyles")).appendTo(this.sliderBar);
+    this.chapterBar = this.player.createElement("div", "chapter-progress").addClasses(this.makeStyles("chapterBarStyles")).appendTo(this.sliderBar);
+    const l = document.createElement("div");
+    this.player.addClasses(l, this.makeStyles("sliderNippleStyles")), l.id = "slider-nipple", this.player.options.nipple != !1 && this.sliderBar.append(l);
+    const r = this.player.createElement("div", "slider-pop").addClasses(this.makeStyles("sliderPopStyles")).appendTo(this.sliderBar);
+    r.style.setProperty("--visibility", "0"), r.style.opacity = "var(--visibility)", this.sliderPopImage = this.player.createElement("div", "slider-pop-image").addClasses(this.makeStyles("sliderPopImageStyles")).appendTo(r);
+    const a = this.player.createElement("div", "slider-text").addClasses(this.makeStyles("sliderTextStyles")).appendTo(r), o = this.player.createElement("div", "chapter-text").addClasses(this.makeStyles("chapterTextStyles")).appendTo(r);
+    return this.player.options.chapters && !this.player.isTv() && ((d = this.player.getChapters()) == null ? void 0 : d.length) > 0 && (this.sliderBar.style.background = ""), ["mousedown", "touchstart"].forEach((p) => {
+      this.sliderBar.addEventListener(p, () => {
+        this.isMouseDown || (this.isMouseDown = !0, this.isScrubbing = !0);
+      }, {
+        passive: !0
+      });
+    }), this.bottomBar.addEventListener("click", (p) => {
+      if (this.player.emit("hide-tooltip"), !this.isMouseDown)
+        return;
+      this.isMouseDown = !1, this.isScrubbing = !1, r.style.setProperty("--visibility", "0");
+      const c = this.getScrubTime(p);
+      l.style.left = `${c.scrubTime}%`, this.player.seek(c.scrubTimePlayer);
+    }, {
+      passive: !0
+    }), ["mousemove", "touchmove"].forEach((p) => {
+      this.sliderBar.addEventListener(p, (c) => {
+        var v;
+        const h = this.getScrubTime(c);
+        this.getSliderPopImage(h), a.innerText = E(h.scrubTimePlayer);
+        const b = this.getSliderPopOffsetX(r, h);
+        r.style.left = `${b}%`, (!this.player.options.chapters || ((v = this.player.getChapters()) == null ? void 0 : v.length) == 0) && (e.style.width = `${h.scrubTime}%`), this.isMouseDown && (o.innerText = this.getChapterText(h.scrubTimePlayer) ?? "", l.style.left = `${h.scrubTime}%`, this.previewTime.length > 0 && r.style.setProperty("--visibility", "1"));
+      }, {
+        passive: !0
+      });
+    }), this.sliderBar.addEventListener("mouseover", (p) => {
+      const c = this.getScrubTime(p);
+      if (this.getSliderPopImage(c), a.innerText = E(c.scrubTimePlayer), o.innerText = this.getChapterText(c.scrubTimePlayer) ?? "", this.previewTime.length > 0) {
+        r.style.setProperty("--visibility", "1");
+        const h = this.getSliderPopOffsetX(r, c);
+        r.style.left = `${h}%`;
+      }
+    }, {
+      passive: !0
+    }), this.sliderBar.addEventListener("mouseleave", () => {
+      r.style.setProperty("--visibility", "0"), e.style.width = "0";
+    }, {
+      passive: !0
+    }), this.player.on("seeked", () => {
+      r.style.setProperty("--visibility", "0");
+    }), this.player.on("item", () => {
+      this.sliderBar.classList.add("bg-white/20"), this.previewTime = [], this.chapters = [], t.style.width = "0", s.style.width = "0", this.fetchPreviewTime();
+    }), this.player.on("chapters", () => {
+      var p;
+      ((p = this.player.getChapters()) == null ? void 0 : p.length) > 0 && !this.player.isTv() ? this.sliderBar.classList.remove("bg-white/20") : this.sliderBar.classList.add("bg-white/20");
+    }), this.player.on("time", (p) => {
+      var c;
+      ((c = this.player.getChapters()) == null ? void 0 : c.length) == 0 && (t.style.width = `${p.buffered}%`, s.style.width = `${p.percentage}%`), this.isScrubbing || (l.style.left = `${p.percentage}%`);
+    }), this.player.on("controls", (p) => {
+      p || (r.style.setProperty("--visibility", "0"), this.menuFrame.close());
+    }), this.player.on("pip-internal", (p) => {
+      p ? this.sliderBar.style.display = "none" : this.sliderBar.style.display = "flex";
+    }), this.sliderBar;
+  }
+  getChapterText(i) {
+    var e, s, l, r;
+    if (this.player.getChapters().length == 0)
+      return null;
+    const t = (e = this.player.getChapters()) == null ? void 0 : e.findIndex((a) => a.startTime > i);
+    return ((s = this.player.getChapters()[t - 1]) == null ? void 0 : s.title) ?? ((r = this.player.getChapters()[((l = this.player.getChapters()) == null ? void 0 : l.length) - 1]) == null ? void 0 : r.title) ?? null;
+  }
+  createChapterMarker(i) {
+    const t = this.player.createElement("div", `chapter-marker-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkersStyles")).appendTo(this.chapterBar);
+    t.style.left = `${i.left}%`, t.style.width = `calc(${i.width}% - 2px)`, this.player.createElement("div", `chapter-marker-bg-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkerBGStyles")).appendTo(t);
+    const e = this.player.createElement("div", `chapter-marker-buffer-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkerBufferStyles")).appendTo(t), s = this.player.createElement("div", `chapter-marker-hover-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkerHoverStyles")).appendTo(t), l = this.player.createElement("div", `chapter-marker-progress-${i.id.replace(/\s/gu, "-")}`).addClasses(this.makeStyles("chapterMarkerProgressStyles")).appendTo(t), r = i.left, a = i.left + i.width;
+    return this.player.on("time", (o) => {
+      o.percentage < r ? l.style.transform = "scaleX(0)" : o.percentage > a ? l.style.transform = "scaleX(1)" : l.style.transform = `scaleX(${(o.percentage - r) / (a - r)})`, o.buffered < r ? e.style.transform = "scaleX(0)" : o.buffered > a ? e.style.transform = "scaleX(1)" : e.style.transform = `scaleX(${(o.buffered - r) / (a - r)})`;
+    }), ["mousemove", "touchmove"].forEach((o) => {
+      this.chapterBar.addEventListener(o, (d) => {
+        const { scrubTime: p } = this.getScrubTime(d);
+        p < r ? s.style.transform = "scaleX(0)" : p > a ? s.style.transform = "scaleX(1)" : s.style.transform = `scaleX(${(p - r) / (a - r)})`;
+      });
+    }), this.chapterBar.addEventListener("mouseleave", () => {
+      s.style.transform = "scaleX(0)";
+    }), t;
+  }
+  createChapterMarkers() {
+    var i;
+    this.player.isTv() || (this.chapterBar.style.background = "", this.player.on("item", () => {
+      this.chapterBar.style.background = "";
+    }), this.chapterBar.querySelectorAll(".chapter-marker").forEach((t) => {
+      this.chapterBar.classList.add("bg-white/20"), t.remove();
+    }), (i = this.player.getChapters()) == null || i.forEach((t) => {
+      this.createChapterMarker(t);
+    }));
+  }
+  getSliderPopOffsetX(i, t) {
+    const e = this.sliderBar.getBoundingClientRect(), l = i.getBoundingClientRect().width * 0.5 / e.width * 100;
+    let r = t.scrubTime;
+    return r <= l && (r = l), r >= 100 - l && (r = 100 - l), r;
+  }
+  createEpisodeMenu(i) {
+    if (!this.player.getVideoElement())
+      return;
+    const t = this.player.createElement("div", "playlist-menu").addClasses([
+      ...this.makeStyles("subMenuContentStyles"),
+      "!flex-row",
+      "!gap-0"
+    ]).appendTo(i);
+    t.style.minHeight = `${parseInt(getComputedStyle(this.player.getVideoElement()).height.split("px")[0], 10) * 0.8}px`, this.player.on("resize", () => {
+      t.style.minHeight = `${parseInt(getComputedStyle(this.player.getVideoElement()).height.split("px")[0], 10) * 0.8}px`;
+    });
+    const e = this.player.createElement("div", "sub-menu-content").addClasses([
+      ...this.makeStyles("subMenuContentStyles"),
+      "!flex",
+      "!w-1/3",
+      "border-r-2",
+      "border-gray-500/20"
+    ]).appendTo(t);
+    this.createMenuHeader(e, "Seasons");
+    const s = this.player.createElement("div", "playlist-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(e);
+    s.style.transform = "translateX(0)", s.innerHTML = "";
+    for (const [, a] of e1(this.player.getPlaylist(), "season").entries() ?? [])
+      this.createSeasonMenuButton(s, a);
+    const l = this.player.createElement("div", "episode-menu").addClasses([
+      ...this.makeStyles("subMenuContentStyles"),
+      "!flex",
+      "!w-[63rem]"
+    ]).appendTo(t);
+    this.createMainMenuHeader(l, "");
+    const r = this.player.createElement("div", "playlist-scroll-container").addClasses(this.makeStyles("scrollContainerStyles")).appendTo(l);
+    r.innerHTML = "", r.tabIndex = 1, r.addEventListener("focus", () => {
+      var a;
+      (a = r.firstChild) == null || a.focus();
+    });
+    for (const [a, o] of this.player.getPlaylist().entries() ?? [])
+      this.createEpisodeMenuButton(r, o, a);
+    return this.player.on("show-playlist-menu", (a) => {
+      a ? (t.style.display = "flex", setTimeout(() => {
+        r.firstChild.focus();
+      }, 200)) : t.style.display = "none";
+    }), t;
+  }
+  createSeasonMenuButton(i, t, e = !1) {
+    if (!(t != null && t.season))
+      return;
+    const s = this.player.createElement("button", `season-${t.id}`).addClasses(this.languageMenuStyles).appendTo(i), l = this.player.createElement("span", `season-${t.id}-span`).addClasses(this.menuButtonTextStyles).appendTo(s);
+    l.innerText = t != null && t.seasonName ? t == null ? void 0 : t.seasonName : t != null && t.season ? this.player.localize("Season") + ` ${t == null ? void 0 : t.season}` : "";
+    const r = this.createSVGElement(s, "menu", this.buttons.chevronR, !1, e);
+    return this.player.addClasses(r, ["ml-auto"]), s.addEventListener("click", () => {
+      this.player.emit("switch-season", t == null ? void 0 : t.season);
+    }), s.addEventListener("focus", () => {
+      setTimeout(() => {
+        this.scrollCenter(s, i, {
+          duration: 100,
+          margin: 1
+        });
+      }, 50);
+    }), s;
+  }
+  createEpisodeMenuButton(i, t, e) {
+    var C, g, L, T, w;
+    const s = this.player.createElement("button", `playlist-${t.id}`).addClasses(this.makeStyles("playlistMenuButtonStyles")).appendTo(i);
+    ((C = this.player.playlistItem()) == null ? void 0 : C.season) !== 1 && (s.style.display = "none");
+    const l = this.player.createElement("div", `playlist-${t.id}-left`).addClasses(this.makeStyles("episodeMenuButtonLeftStyles")).appendTo(s);
+    this.player.createElement("div", `episode-${t.id}-shadow`).addClasses(this.makeStyles("episodeMenuButtonShadowStyles")).appendTo(l);
+    const r = this.player.createElement("img", `episode-${t.id}-image`).addClasses(this.makeStyles("episodeMenuButtonImageStyles")).appendTo(l);
+    r.setAttribute("loading", "lazy"), r.src = t.image && t.image != "" ? `${this.imageBaseUrl.includes("https") ? "" : this.imageBaseUrl}${t.image}` : "";
+    const a = this.player.createElement("div", `episode-${t.id}-progress-container`).addClasses(this.makeStyles("episodeMenuProgressContainerStyles")).appendTo(l), o = this.player.createElement("div", `episode-${t.id}-progress-box`).addClasses(this.makeStyles("episodeMenuProgressBoxStyles")).appendTo(a), d = this.player.createElement("div", `episode-${t.id}-progress-item`).addClasses(this.makeStyles("progressContainerItemTextStyles")).appendTo(o);
+    t.episode && (d.innerText = `${this.player.localize("E")}${t.episode}`);
+    const p = this.player.createElement("div", `episode-${t.id}-progress-duration`).addClasses(this.makeStyles("progressContainerDurationTextStyles")).appendTo(o);
+    p.innerText = ((g = t.duration) == null ? void 0 : g.replace(/^00:/u, "")) ?? "";
+    const c = this.player.createElement("div", `episode-${t.id}-slider-container`).addClasses(this.makeStyles("sliderContainerStyles")).appendTo(a), h = this.player.createElement("div", `episode-${t.id}-progress-bar`).addClasses(this.makeStyles("progressBarStyles")).appendTo(c);
+    (L = t.progress) != null && L.percentage && (h.style.width = `${t.progress.percentage > 98 ? 100 : t.progress}%`), (T = t.progress) != null && T.percentage && (c.style.display = "flex");
+    const b = this.player.createElement("div", `episode-${t.id}-right-side`).addClasses(this.makeStyles("episodeMenuButtonRightSideStyles")).appendTo(s), v = this.player.createElement("span", `episode-${t.id}-title`).addClasses(this.makeStyles("episodeMenuButtonTitleStyles")).appendTo(b);
+    t.episode && (v.innerText = a1((w = t.title) == null ? void 0 : w.replace(t.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E"))));
+    const f = this.player.createElement("span", `episode-${t.id}-overview`).addClasses(this.makeStyles("episodeMenuButtonOverviewStyles")).appendTo(b);
+    return f.innerText = n1(t.description, 600), this.player.on("item", (x) => {
+      x.season == t.season ? s.style.display = "flex" : s.style.display = "none", this.player.playlistItem().season == t.season && this.player.playlistItem().episode == t.episode ? s.style.background = "rgba(255,255,255,.1)" : s.style.background = "";
+    }), this.player.on("switch-season", (x) => {
+      x == t.season ? s.style.display = "flex" : s.style.display = "none";
+    }), this.player.on("time", (x) => {
+      var Z;
+      ((Z = this.player.playlistItem()) == null ? void 0 : Z.id) == t.id && (h.style.width = `${x.percentage}%`, x.percentage > 0 && (c.style.display = "flex"));
+    }), t.episode && t.show && (d.innerText = t.season == null ? `${t.episode}` : `${this.player.localize("S")}${t.season}: ${this.player.localize("E")}${t.episode}`), s.addEventListener("click", () => {
+      this.player.emit("show-menu", !1), t.episode && t.season ? this.setEpisode(t.season, t.episode) : this.player.playlistItem(e), this.player.emit("playlist-menu-button-clicked", t);
+    }), s.addEventListener("focus", () => {
+      setTimeout(() => {
+        this.scrollCenter(s, i, {
+          duration: 100,
+          margin: 1
+        });
+      }, 50);
+    }), s;
+  }
+  createToolTip(i) {
+    return this.tooltip = this.player.createElement("div", "tooltip").addClasses(this.makeStyles("tooltipStyles")).appendTo(i), this.tooltip.style.transform = "translateX(10px)", this.tooltip.innerText = "Play (space)", this.player.on("show-tooltip", (t) => {
+      this.tooltip.innerText = t.text, this.tooltip.style.display = "block", this.tooltip.style.transform = `translate(calc(${t.x} - 50%), calc(${t.y} - 100%))`, t.currentTime == "top" ? (this.tooltip.classList.add("top-0"), this.tooltip.classList.remove("bottom-0")) : (this.tooltip.classList.remove("top-0"), this.tooltip.classList.add("bottom-0"));
+    }), this.player.on("hide-tooltip", () => {
+      this.tooltip.style.display = "none";
+    }), this.tooltip;
+  }
+  createEpisodeTip(i) {
+    const t = this.player.createElement("div", "episode-tip").addClasses(this.makeStyles("nextTipStyles")).appendTo(i), e = this.player.createElement("div", "next-tip-left").addClasses(this.makeStyles("nextTipLeftSideStyles")).appendTo(t), s = this.player.createElement("img", "next-tip-image").addClasses(this.makeStyles("nextTipImageStyles")).appendTo(e);
+    s.setAttribute("loading", "eager");
+    const l = this.player.createElement("div", "next-tip-right-side").addClasses(this.makeStyles("nextTipRightSideStyles")).appendTo(t), r = this.player.createElement("span", "next-tip-header").addClasses(this.makeStyles("nextTipHeaderStyles")).appendTo(l), a = this.player.createElement("span", "next-tip-title").addClasses(this.makeStyles("nextTipTitleStyles")).appendTo(l);
+    return this.player.on("show-episode-tip", (o) => {
+      this.getTipData({ direction: o.direction, header: r, title: a, image: s }), t.style.display = "flex", t.style.transform = `translate(${o.x}, calc(${o.y} - 50%))`;
+    }), this.player.on("hide-episode-tip", () => {
+      t.style.display = "none";
+    }), t;
+  }
+  getTipDataIndex(i) {
+    let t;
+    return i == "previous" ? t = this.player.playlistItem().episode ?? 0 - 1 - 1 : t = this.player.getPlaylistIndex() + 1, this.player.getPlaylist().at(t);
+  }
+  getTipData({ direction: i, header: t, title: e, image: s }) {
+    var r;
+    const l = this.getTipDataIndex(i);
+    l && (s.src = l.image && l.image != "" ? `${this.imageBaseUrl}${l.image}` : "", t.innerText = `${this.player.localize(`${i.toTitleCase()} Episode`)} ${this.getButtonKeyCode(i)}`, e.innerText = (r = l.title) == null ? void 0 : r.replace(l.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E")), this.player.once("item", () => {
+      this.getTipData({ direction: i, header: t, title: e, image: s });
+    }));
+  }
+  createButton(i, t, e = "after", s, l, r) {
+    const a = document.querySelector(`${i}`);
+    if (!a)
+      throw new Error("Element not found");
+    const o = this.createUiButton(a, t.replace(/\s/gu, "_"));
+    return o.ariaLabel = t, e === "before" ? a == null || a.before(o) : a == null || a.after(o), this.createSVGElement(o, `${t.replace(/\s/gu, "_")}-enabled`, s, !0, !1), this.createSVGElement(o, t.replace(/\s/gu, "_"), s, !1), o.addEventListener("click", (d) => {
+      d.stopPropagation(), l == null || l(), this.player.emit("hide-tooltip");
+    }), o.addEventListener("contextmenu", (d) => {
+      d.stopPropagation(), r == null || r(), this.player.emit("hide-tooltip");
+    }), o;
   }
 }
 export {
-  K5 as B
+  tt as D
 };

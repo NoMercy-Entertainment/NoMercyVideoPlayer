@@ -409,6 +409,11 @@ export class NMPlayer extends Base {
 		this.videoElement.muted = this.options.muted ?? localStorage.getItem('nmplayer-muted') === 'true';
 		this.videoElement.volume = localStorage.getItem('nmplayer-volume') ? parseFloat(localStorage.getItem('nmplayer-volume') as string) / 100 : 0.4;
 
+		this.videoElement.addEventListener('scroll', () => {
+			console.log('Scrolling');
+			this.videoElement.scrollIntoView();
+		});
+
 		this.ui_setPauseClass();
 	}
 
@@ -518,7 +523,6 @@ export class NMPlayer extends Base {
 		const parts = newSubtitleText.split(/(<\/?i>|<\/?b>)/gu);
 
 		if (parts.length == 1 && parts[0] == '') return;
-		console.log(parts);
 
 		let currentElement: HTMLElement | null = null;
 
@@ -558,16 +562,23 @@ export class NMPlayer extends Base {
 			this.hls = undefined;
 
 			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
-		} else if (HLS.isSupported()) {
+		}
+		else if (HLS.isSupported()) {
+			const item = this.playlistItem();
 
 			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
 				enableWorker: true,
 				lowLatencyMode: true,
-				backBufferLength: 10,
-				maxBufferLength: 10,
-				maxMaxBufferLength: 30,
+				backBufferLength: 0,
+				maxBufferHole: 0.5,
+				maxBufferLength: 60,
+				maxMaxBufferLength: 60,
+				autoStartLoad: true,
 				testBandwidth: true,
+				// startPosition: item.progress
+				// 	? convertToSeconds(item.duration!) / 100 * item.progress.percentage
+				// 	: 0,
 				videoPreference: {
 					preferHDR: this.hdrSupported(),
 				},
@@ -579,11 +590,17 @@ export class NMPlayer extends Base {
 				},
 			});
 
+			// this.once('lastTimeTrigger', () => {
+			// 	this.hls!.config.maxBufferLength = 60;
+			// 	this.hls!.config.maxMaxBufferLength = 60;
+			// });
+
 			this.emit('hls');
 
 			this.hls?.loadSource(url);
 			this.hls?.attachMedia(this.videoElement);
-		} else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+		}
+		else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
 			this.videoElement.src = url;
 		}
 
@@ -809,6 +826,26 @@ export class NMPlayer extends Base {
 		this.emit('active', false);
 	}
 
+	ui_resetInactivityTimer(event?: MouseEvent | KeyboardEvent): void {
+		if (this.inactivityTimeout) {
+			clearTimeout(this.inactivityTimeout);
+		}
+
+		this.ui_addActiveClass();
+
+		if (this.lockActive) return;
+
+		const target = event?.target as HTMLElement;
+
+		if (target && (target.tagName === 'BUTTON' || target.tagName === 'INPUT') && !this.isTv()) {
+			return;
+		}
+
+		this.inactivityTimeout = setTimeout(() => {
+			this.ui_removeActiveClass();
+		}, this.inactivityTime);
+	}
+
 	ui_setPlayClass(): void {
 		this.container.classList.remove('paused');
 		this.container.classList.add('playing');
@@ -821,26 +858,6 @@ export class NMPlayer extends Base {
 		this.container.classList.add('paused');
 
 		this.emit('playing', false);
-	}
-
-	ui_resetInactivityTimer(event: MouseEvent) {
-		if (this.inactivityTimeout) {
-			clearTimeout(this.inactivityTimeout);
-		}
-
-		this.ui_addActiveClass();
-
-		if (this.lockActive) return;
-
-		const target = event?.target as HTMLElement;
-
-		if (!target || (target.tagName === 'BUTTON' || target.tagName === 'INPUT') && !this.isTv()) {
-			return;
-		}
-
-		this.inactivityTimeout = setTimeout(() => {
-			this.ui_removeActiveClass();
-		}, this.inactivityTime);
 	}
 
 	handleMouseLeave(event: MouseEvent) {
@@ -879,8 +896,15 @@ export class NMPlayer extends Base {
 		this.container.addEventListener('click', this.ui_resetInactivityTimer.bind(this));
 		this.container.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
 
+		this.container.addEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
+		this.videoElement.addEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
+
 		this.on('play', this.ui_setPlayClass.bind(this));
 		this.on('pause', this.ui_setPauseClass.bind(this));
+
+		this.on('showControls', this.ui_addActiveClass.bind(this));
+		this.on('hideControls', this.ui_removeActiveClass.bind(this));
+		this.on('dynamicControls', this.ui_resetInactivityTimer.bind(this));
 
 		// this.on('captionsList', () => {
 		// 	console.log('Captions list updated');
@@ -1051,6 +1075,7 @@ export class NMPlayer extends Base {
 			});
 			this.emit('speed', this.videoElement.playbackRate);
 			this.once('audio', () => {
+				if (this.getAudioTracks().length < 2) return;
 				if (localStorage.getItem('nmplayer-audio-language')) {
 					this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language') as string));
 				} else {
@@ -1080,11 +1105,13 @@ export class NMPlayer extends Base {
 				setTimeout(() => {
 					this.setEpisode(0, itemNumber);
 				}, 0);
-			} else if (seasonNumber && episodeNumber) {
+			}
+			else if (seasonNumber && episodeNumber) {
 				setTimeout(() => {
 					this.setEpisode(seasonNumber, episodeNumber);
 				}, 0);
-			} else {
+			}
+			else {
 				// Get item with the latest progress timer
 
 				const progressItem = this.getPlaylist()
@@ -1108,18 +1135,19 @@ export class NMPlayer extends Base {
 				setTimeout(() => {
 					if (playlistItem.progress && playlistItem.progress.percentage > 90) {
 						this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
-					} else {
+					}
+					else {
 						this.playlistItem(this.getPlaylist().indexOf(playlistItem));
 					}
 				}, 0);
 
-				this.once('playing', () => {
+				this.once('play', () => {
 					if (!playlistItem.progress) return;
 
-					setTimeout(() => {
-						if (!playlistItem.progress) return;
+					// setTimeout(() => {
+					// 	if (!playlistItem.progress) return;
 						this.seek(convertToSeconds(playlistItem.duration!) / 100 * playlistItem.progress.percentage);
-					}, 350);
+					// }, 50);
 				});
 			}
 		});
@@ -1186,8 +1214,15 @@ export class NMPlayer extends Base {
 		this.container.removeEventListener('click', this.ui_resetInactivityTimer.bind(this));
 		this.container.removeEventListener('mouseleave', this.handleMouseLeave.bind(this));
 
+		this.container.removeEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
+		this.videoElement.removeEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
+
 		this.off('play', this.ui_setPlayClass.bind(this));
 		this.off('pause', this.ui_setPauseClass.bind(this));
+
+		this.off('showControls', this.ui_addActiveClass.bind(this));
+		this.off('hideControls', this.ui_removeActiveClass.bind(this));
+		this.off('dynamicControls', this.ui_resetInactivityTimer.bind(this));
 
 	}
 
@@ -1382,7 +1417,7 @@ export class NMPlayer extends Base {
 	 */
 	getSkip(): any {
 		return this.getSkippers()?.find((chapter: { startTime: number; endTime: number; }) => {
-			return this.getPosition() >= chapter.startTime && this.getPosition() <= chapter.endTime;
+			return this.getCurrentTime() >= chapter.startTime && this.getCurrentTime() <= chapter.endTime;
 		});
 	}
 
@@ -1535,7 +1570,7 @@ export class NMPlayer extends Base {
 	 */
 	getChapter(): any {
 		return this.getChapters()?.find((chapter: { startTime: number; endTime: number; }) => {
-			return this.getPosition() >= chapter.startTime && this.getPosition() <= chapter.endTime;
+			return this.getCurrentTime() >= chapter.startTime && this.getCurrentTime() <= chapter.endTime;
 		});
 	}
 
@@ -1583,7 +1618,8 @@ export class NMPlayer extends Base {
 			this.videoElement.poster = this.currentPlaylistItem.image ?? '';
 			this.loadSource((this.options.basePath ?? '') + this.currentPlaylistItem.file);
 
-		} else {
+		}
+		else {
 			console.log('No more videos in the playlist.');
 		}
 	}
@@ -1618,14 +1654,16 @@ export class NMPlayer extends Base {
 	loadPlaylist(): void {
 		if (typeof this.options.playlist === 'string') {
 			this.fetchPlaylist(this.options.playlist)
-				.then((json) => {
+				.then((json: PlaylistItem[]) => {
 					console.log('Playlist fetched', json);
 
-					this.playlist = json.map((item: PlaylistItem, index: number) => ({
-						...item,
-						season: item.season,
-						episode: item.episode,
-					}));
+					this.playlist = json
+						.map(item => ({
+							...item,
+							season: item.season,
+							episode: item.episode,
+						}))
+						.filter(item => !!item.file);
 
 					setTimeout(() => {
 						this.emit('playlist', this.playlist);
@@ -1774,6 +1812,8 @@ export class NMPlayer extends Base {
 			return this.currentPlaylistItem as PlaylistItem;
 		}
 
+		if (index == this.currentIndex) return;
+
 		this.playVideo(index);
 	}
 
@@ -1839,7 +1879,7 @@ export class NMPlayer extends Base {
 	}
 
 	// Seek
-	getPosition(): number {
+	getCurrentTime(): number {
 		return this.videoElement.currentTime;
 	}
 
@@ -1849,6 +1889,10 @@ export class NMPlayer extends Base {
 
 	seek(arg: number): number {
 		return this.videoElement.currentTime = arg;
+	}
+
+	restart(): void {
+		this.seek(0);
 	}
 
 	seekByPercentage(arg: number): number {
@@ -1868,7 +1912,7 @@ export class NMPlayer extends Base {
 
 		this.leftTap = setTimeout(() => {
 			this.emit('remove-rewind');
-			this.seek(this.getPosition() - this.tapCount);
+			this.seek(this.getCurrentTime() - this.tapCount);
 			this.tapCount = 0;
 		}, this.leeway);
 	};
@@ -1878,6 +1922,7 @@ export class NMPlayer extends Base {
 	 * @param time - The time interval to forward the video by, in seconds. Defaults to 10 seconds if not provided.
 	 */
 	forwardVideo(time = this.seekInterval ?? 10): void {
+		console.log('Forwarding', time);
 		this.emit('remove-rewind');
 		clearTimeout(this.rightTap);
 
@@ -1886,7 +1931,7 @@ export class NMPlayer extends Base {
 
 		this.rightTap = setTimeout(() => {
 			this.emit('remove-forward');
-			this.seek(this.getPosition() + this.tapCount);
+			this.seek(this.getCurrentTime() + this.tapCount);
 			this.tapCount = 0;
 		}, this.leeway);
 	};

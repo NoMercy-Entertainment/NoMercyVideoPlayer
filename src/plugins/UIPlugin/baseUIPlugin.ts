@@ -1,9 +1,9 @@
 import Plugin from '../../plugin';
-import type { Chapter, NMPlayer, PlaylistItem, Position, PreviewTime, VolumeState } from '../../index.d';
+import type { NMPlayer, PreviewTime, VolumeState } from '../../index.d';
 import {buttons, Icon} from "./buttons";
 import {twMerge} from "tailwind-merge";
 import * as styles from "./styles";
-import {breakLogoTitle, humanTime, unique} from "../../helpers";
+import {humanTime, unique} from "../../helpers";
 import {WebVTTParser} from "webvtt-parser";
 
 export class BaseUIPlugin extends Plugin {
@@ -23,8 +23,8 @@ export class BaseUIPlugin extends Plugin {
 	seekContainer: HTMLDivElement = <HTMLDivElement>{};
 	sliderBar: HTMLDivElement = <HTMLDivElement>{};
 	sliderPopImage: HTMLDivElement = <HTMLDivElement>{};
-	thumbnail: HTMLDivElement = <HTMLDivElement>{};
 	episodeScrollContainer: HTMLDivElement = <HTMLDivElement>{};
+	playbackButton:  HTMLButtonElement = <HTMLButtonElement>{};
 	
 	chapters: any[] = [];
 	previewTime: PreviewTime[] = [];
@@ -248,11 +248,7 @@ export class BaseUIPlugin extends Plugin {
 
 		status.innerText = this.player.localize('Loading...');
 
-		this.player.on('ready', () => {
-			spinnerContainer.style.display = 'none';
-		});
-
-		this.player.on('playing', () => {
+		this.player.on('duration', () => {
 			spinnerContainer.style.display = 'none';
 		});
 
@@ -267,10 +263,6 @@ export class BaseUIPlugin extends Plugin {
 		});
 
 		this.player.on('ended', () => {
-			spinnerContainer.style.display = 'none';
-		});
-
-		this.player.on('ready', () => {
 			spinnerContainer.style.display = 'none';
 		});
 
@@ -596,22 +588,31 @@ export class BaseUIPlugin extends Plugin {
 	}
 
 	createPlaybackButton(parent: HTMLElement, hovered = false) {
-		const playbackButton = this.createUiButton(
+		this.playbackButton = this.createUiButton(
 			parent,
 			'playback'
 		);
-		parent.appendChild(playbackButton);
+		parent.appendChild(this.playbackButton);
 
-		playbackButton.ariaLabel = this.buttons.play?.title;
+		this.playbackButton.ariaLabel = this.buttons.play?.title;
 
-		const pausedButton = this.createSVGElement(playbackButton, 'paused', this.buttons.play, false, hovered);
-		const playButton = this.createSVGElement(playbackButton, 'playing', this.buttons.pause, true, hovered);
+		const pausedButton = this.createSVGElement(this.playbackButton, 'paused', this.buttons.play, false, hovered);
+		const playButton = this.createSVGElement(this.playbackButton, 'playing', this.buttons.pause, true, hovered);
 
-		playbackButton.addEventListener('click', (event) => {
+		this.playbackButton.addEventListener('click', (event) => {
 			event.stopPropagation();
 			this.player.togglePlayback();
 			this.player.emit('hide-tooltip');
 		});
+
+		this.playbackButton.addEventListener('keydown', () => this.player.emit.bind(this)('dynamicControls'));
+
+		this.player.getVideoElement().addEventListener('focus', () => {
+			this.playbackButton.focus();
+			this.player.emit('dynamicControls');
+			this.player.getVideoElement().scrollIntoView();
+		});
+
 		this.player.on('pause', () => {
 			playButton.style.display = 'none';
 			pausedButton.style.display = 'flex';
@@ -621,10 +622,8 @@ export class BaseUIPlugin extends Plugin {
 			playButton.style.display = 'flex';
 		});
 		this.player.on('item', () => {
-			playButton.focus();
+			this.playbackButton.focus();
 		});
-
-		return playbackButton;
 	}
 
 	createSeekBackButton(parent: HTMLDivElement, hovered = false) {
@@ -688,17 +687,23 @@ export class BaseUIPlugin extends Plugin {
 			])
 			.appendTo(parent);
 
-		time.textContent = '00:00';
+		time.innerText = '00:00';
 
 		switch (type) {
 			case 'current':
 
+				this.player.on('active', (data) => {
+					time.innerText = humanTime(this.player.getCurrentTime());
+				});
+
 				this.player.on('time', (data) => {
-					time.textContent = humanTime(data.currentTime);
+					if (this.player.container.classList.contains('active')) {
+						time.innerText = humanTime(data.currentTime);
+					}
 				});
 
 				this.player.on('currentScrubTime', (data) => {
-					time.textContent = humanTime(data.currentTime);
+					time.innerText = humanTime(data.currentTime);
 				});
 				break;
 
@@ -706,17 +711,20 @@ export class BaseUIPlugin extends Plugin {
 
 				this.player.on('duration', (data) => {
 					if (data.remaining === Infinity) {
-						time.textContent = 'Live';
+						time.innerText = 'Live';
 					} else {
-						time.textContent = humanTime(data.remaining);
+						time.innerText = humanTime(data.remaining);
 					}
 				});
 
 				this.player.on('time', (data) => {
 					if (data.remaining === Infinity) {
-						time.textContent = 'Live';
-					} else {
-						time.textContent = humanTime(data.remaining);
+						time.innerText = 'Live';
+					}
+					else {
+						if (this.player.container.classList.contains('active')) {
+							time.innerText = humanTime(data.remaining);
+						}
 					}
 				});
 
@@ -725,9 +733,9 @@ export class BaseUIPlugin extends Plugin {
 			case 'duration':
 				this.player.on('duration', (data) => {
 					if (data.duration === Infinity) {
-						time.textContent = 'Live';
+						time.innerText = 'Live';
 					} else {
-						time.textContent = humanTime(data.duration);
+						time.innerText = humanTime(data.duration);
 					}
 				});
 				break;
@@ -854,9 +862,8 @@ export class BaseUIPlugin extends Plugin {
 	}
 
 	getClosestSeekableInterval() {
-		const scrubTime = this.player.getPosition();
-		const intervals = this.previewTime;
-		const interval = intervals.find((interval) => {
+		const scrubTime = this.player.getCurrentTime();
+		const interval = this.previewTime.find((interval) => {
 			return scrubTime >= interval.start && scrubTime < interval.end;
 		})!;
 		return interval?.start;
@@ -1329,11 +1336,11 @@ export class BaseUIPlugin extends Plugin {
 
 		this.player.on('display-message', (val: string | null) => {
 			playerMessage.style.display = 'flex';
-			playerMessage.textContent = val;
+			playerMessage.innerText = val ?? '';
 		});
 		this.player.on('remove-message', () => {
 			playerMessage.style.display = 'none';
-			playerMessage.textContent = '';
+			playerMessage.innerText = '';
 		});
 
 		return playerMessage;
@@ -1375,20 +1382,20 @@ export class BaseUIPlugin extends Plugin {
 
 				this.player.once('time', () => {
 					this.currentScrubTime = this.getClosestSeekableInterval();
-					this.player.emit('currentScrubTime', {
-						...this.player.getTimeData(),
-						currentTime: this.getClosestSeekableInterval(),
-					});
+					// this.player.emit('currentScrubTime', {
+					// 	...this.player.getTimeData(),
+					// 	currentTime: this.getClosestSeekableInterval(),
+					// });
 				});
 			});
 		});
 
 		this.player.on('lastTimeTrigger', () => {
 			this.currentScrubTime = this.getClosestSeekableInterval();
-			this.player.emit('currentScrubTime', {
-				...this.player.getTimeData(),
-				currentTime: this.getClosestSeekableInterval(),
-			});
+			// this.player.emit('currentScrubTime', {
+			// 	...this.player.getTimeData(),
+			// 	currentTime: this.getClosestSeekableInterval(),
+			// });
 		});
 
 		this.player.on('currentScrubTime', (data) => {
@@ -1549,14 +1556,14 @@ export class BaseUIPlugin extends Plugin {
 
 		if (data.buttonType == 'subtitle') {
 			if (data.styled) {
-				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} ${this.player.localize(data.label)} ${this.player.localize('styled')}`;
+				languageButtonText.innerText = `${this.player.localize(data.language ?? '')} ${this.player.localize(data.label)} ${this.player.localize('styled')}`;
 			} else if (data.language == '') {
-				languageButtonText.textContent = this.player.localize(data.label);
+				languageButtonText.innerText = this.player.localize(data.label);
 			} else {
-				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
+				languageButtonText.innerText = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
 			}
 		} else {
-			languageButtonText.textContent = this.player.localize(data.language);
+			languageButtonText.innerText = this.player.localize(data.language);
 		}
 
 		const chevron = this.createSVGElement(languageButton, 'checkmark', this.buttons.checkmark, false,  hovered);
@@ -1650,14 +1657,14 @@ export class BaseUIPlugin extends Plugin {
 
 		if (data.buttonType == 'subtitle') {
 			if (data.styled) {
-				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} ${this.player.localize(data.label)} ${this.player.localize('styled')}`;
+				languageButtonText.innerText = `${this.player.localize(data.language ?? '')} ${this.player.localize(data.label)} ${this.player.localize('styled')}`;
 			} else if (data.language == '') {
-				languageButtonText.textContent = this.player.localize(data.label);
+				languageButtonText.innerText = this.player.localize(data.label);
 			} else {
-				languageButtonText.textContent = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
+				languageButtonText.innerText = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
 			}
 		} else {
-			languageButtonText.textContent = this.player.localize(data.language);
+			languageButtonText.innerText = this.player.localize(data.language);
 		}
 		
 		return languageButtonText;
@@ -1687,8 +1694,8 @@ export class BaseUIPlugin extends Plugin {
 
 		if (img) {
 			this.sliderPopImage.style.backgroundPosition = `-${img.x}px -${img.y}px`;
-			this.sliderPopImage.style.width = `max(232px, ${img.w * 0.7}px)`;
-			this.sliderPopImage.style.height = `max(232px, ${img.w * 0.7}px)`;
+			this.sliderPopImage.style.width = `${img.w * 0.7}px`;
+			this.sliderPopImage.style.height = `${img.h * 0.7}px`;
 		}
 	}
 

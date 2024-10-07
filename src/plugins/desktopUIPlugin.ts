@@ -248,7 +248,8 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 			this.createTouchSeekForward(center, { x: { start: 3, end: 3 }, y: { start: 2, end: 6 } });
 			this.createTouchVolUp(center, { x: { start: 2, end: 2 }, y: { start: 1, end: 3 } });
 			this.createTouchVolDown(center, { x: { start: 2, end: 2 }, y: { start: 5, end: 7 } });
-		} else {
+		}
+		else {
 			this.createTouchSeekBack(center, { x: { start: 1, end: 2 }, y: { start: 2, end: 6 } });
 			this.createTouchPlayback(center, { x: { start: 2, end: 3 }, y: { start: 2, end: 6 } });
 			this.createTouchSeekForward(center, { x: { start: 3, end: 4 }, y: { start: 2, end: 6 } });
@@ -468,7 +469,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 						this.player.getVideoElement().requestPictureInPicture();
 					}
 				} else if (document.pictureInPictureElement) {
-					document.exitPictureInPicture();
+					document.exitPictureInPicture().then();
 				}
 			}
 		});
@@ -913,7 +914,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 			])
 			.appendTo(menuHeader);
 
-		menuButtonText.textContent = this.player.localize(title).toTitleCase();
+		menuButtonText.innerText = this.player.localize(title).toTitleCase();
 
 		// if (title == 'playlist') {
 		// 	this.player.createDropdown(menuHeader, title, `${this.player.localize('Season')} ${this.player.playlistItem().season}`);
@@ -961,7 +962,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 			.addClasses(this.menuButtonTextStyles)
 			.appendTo(menuButton);
 
-		menuButtonText.textContent = this.player.localize(item).toTitleCase();
+		menuButtonText.innerText = this.player.localize(item).toTitleCase();
 
 		const chevron = this.createSVGElement(menuButton, 'menu', this.buttons.chevronR, false, hovered);
 		this.player.addClasses(chevron, ['ml-auto']);
@@ -1135,7 +1136,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 				.addClasses(this.makeStyles('speedButtonTextStyles'))
 				.appendTo(speedButtonSpan);
 
-			speedButtonText.textContent = speed == 1 ? this.player.localize('Normal') : speed.toString();
+			speedButtonText.innerText = speed == 1 ? this.player.localize('Normal') : speed.toString();
 
 			const chevron = this.createSVGElement(speedButton, 'menu', this.buttons.checkmark, false, hovered);
 			this.player.addClasses(chevron, [
@@ -1234,7 +1235,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 			.addClasses(this.menuButtonTextStyles)
 			.appendTo(qualityButton);
 
-		qualityButtonText.textContent = `${this.player.localize((data.label)
+		qualityButtonText.innerText = `${this.player.localize((data.label)
 			?.replace('segment-metadata', 'Off'))}`;
 
 		const chevron = this.createSVGElement(qualityButton, 'checkmark', this.buttons.checkmark, false, hovered);
@@ -1286,7 +1287,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 				<div class="arrow arrow3 arrow-left"></div>
 			`;
 			this.player.on('rewind', (val: number) => {
-				text.textContent = `${Math.abs(val)} ${this.player.localize('seconds')}`;
+				text.innerText = `${Math.abs(val)} ${this.player.localize('seconds')}`;
 				seekRipple.style.display = 'flex';
 			});
 			this.player.on('remove-rewind', () => {
@@ -1301,7 +1302,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 				<div class="arrow arrow2 arrow-right"></div>
 			`;
 			this.player.on('forward', (val: number) => {
-				text.textContent = `${Math.abs(val)} ${this.player.localize('seconds')}`;
+				text.innerText = `${Math.abs(val)} ${this.player.localize('seconds')}`;
 				seekRipple.style.display = 'flex';
 			});
 			this.player.on('remove-forward', () => {
@@ -1394,7 +1395,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 			this.sliderBar.addEventListener(event, (e: any) => {
 				const scrubTime = this.getScrubTime(e);
 				this.getSliderPopImage(scrubTime);
-				sliderText.textContent = humanTime(scrubTime.scrubTimePlayer);
+				sliderText.innerText = humanTime(scrubTime.scrubTimePlayer);
 
 				const sliderPopOffsetX = this.getSliderPopOffsetX(sliderPop, scrubTime);
 				sliderPop.style.left = `${sliderPopOffsetX}%`;
@@ -1405,7 +1406,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 				if (!this.isMouseDown) return;
 
-				chapterText.textContent = this.getChapterText(scrubTime.scrubTimePlayer);
+				chapterText.innerText = this.getChapterText(scrubTime.scrubTimePlayer) ?? '';
 				sliderNipple.style.left = `${scrubTime.scrubTime}%`;
 				if (this.previewTime.length > 0) {
 					sliderPop.style.setProperty('--visibility', '1');
@@ -1417,8 +1418,8 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		this.sliderBar.addEventListener('mouseover', (e: MouseEvent) => {
 			const scrubTime = this.getScrubTime(e);
 			this.getSliderPopImage(scrubTime);
-			sliderText.textContent = humanTime(scrubTime.scrubTimePlayer);
-			chapterText.textContent = this.getChapterText(scrubTime.scrubTimePlayer);
+			sliderText.innerText = humanTime(scrubTime.scrubTimePlayer);
+			chapterText.innerText = this.getChapterText(scrubTime.scrubTimePlayer) ?? '';
 			if (this.previewTime.length > 0) {
 				sliderPop.style.setProperty('--visibility', '1');
 				const sliderPopOffsetX = this.getSliderPopOffsetX(sliderPop, scrubTime);
@@ -1779,14 +1780,14 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 			.appendTo(episodeMenuButtonRightSide);
 
 		if (item.episode) {
-		episodeMenuButtonTitle.textContent = lineBreakShowTitle(item.title?.replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
+		episodeMenuButtonTitle.innerText = lineBreakShowTitle(item.title?.replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
 			.replace('%E', this.player.localize('E')));
 		}
 
 		const episodeMenuButtonOverview = this.player.createElement('span', `episode-${item.id}-overview`)
 			.addClasses(this.makeStyles('episodeMenuButtonOverviewStyles'))
 			.appendTo(episodeMenuButtonRightSide);
-		episodeMenuButtonOverview.textContent = limitSentenceByCharacters(item.description, 600);
+		episodeMenuButtonOverview.innerText = limitSentenceByCharacters(item.description, 600);
 
 		this.player.on('item', (playlistItem) => {
 			if (playlistItem.season == item.season) {
@@ -1936,8 +1937,8 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		if (!item) return;
 
 		image.src = item.image && item.image != '' ? `${this.imageBaseUrl}${item.image}` : '';
-		header.textContent = `${this.player.localize(`${direction.toTitleCase()} Episode`)} ${this.getButtonKeyCode(direction)}`;
-		title.textContent = item.title?.replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
+		header.innerText = `${this.player.localize(`${direction.toTitleCase()} Episode`)} ${this.getButtonKeyCode(direction)}`;
+		title.innerText = item.title?.replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
 			.replace('%E', this.player.localize('E'));
 
 		this.player.once('item', () => {

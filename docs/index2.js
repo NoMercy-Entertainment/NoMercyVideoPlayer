@@ -17502,7 +17502,9 @@ class Lh extends Jn {
     this.container.classList.add("nomercyplayer"), this.container.style.overflow = "hidden", this.container.style.position = "relative", this.container.style.display = "flex", this.container.style.width = "100%", this.container.style.height = "auto", this.container.style.aspectRatio = "16/9", this.container.style.zIndex = "0", this.container.style.alignItems = "center", this.container.style.justifyContent = "center";
   }
   createVideoElement() {
-    this.videoElement = this.createElement("video", `${this.playerId}_video`, !0).appendTo(this.container), this.videoElement.style.width = "100%", this.videoElement.style.height = "100%", this.videoElement.style.objectFit = "contain", this.videoElement.style.zIndex = "0", this.videoElement.style.backgroundColor = "black", this.videoElement.style.display = "block", this.videoElement.style.position = "absolute", this.videoElement.autoplay = this.options.autoPlay ?? !1, this.videoElement.controls = this.options.controls ?? !1, this.videoElement.preload = this.options.preload ?? "auto", this.videoElement.muted = this.options.muted ?? localStorage.getItem("nmplayer-muted") === "true", this.videoElement.volume = localStorage.getItem("nmplayer-volume") ? parseFloat(localStorage.getItem("nmplayer-volume")) / 100 : 0.4, this.ui_setPauseClass();
+    this.videoElement = this.createElement("video", `${this.playerId}_video`, !0).appendTo(this.container), this.videoElement.style.width = "100%", this.videoElement.style.height = "100%", this.videoElement.style.objectFit = "contain", this.videoElement.style.zIndex = "0", this.videoElement.style.backgroundColor = "black", this.videoElement.style.display = "block", this.videoElement.style.position = "absolute", this.videoElement.autoplay = this.options.autoPlay ?? !1, this.videoElement.controls = this.options.controls ?? !1, this.videoElement.preload = this.options.preload ?? "auto", this.videoElement.muted = this.options.muted ?? localStorage.getItem("nmplayer-muted") === "true", this.videoElement.volume = localStorage.getItem("nmplayer-volume") ? parseFloat(localStorage.getItem("nmplayer-volume")) / 100 : 0.4, this.videoElement.addEventListener("scroll", () => {
+      console.log("Scrolling"), this.videoElement.scrollIntoView();
+    }), this.ui_setPauseClass();
   }
   createOverlayElement() {
     this.overlay = this.createElement("div", `${this.playerId}_overlay`, !0).addClasses(["overlay"]).appendTo(this.container), this.overlay.style.width = "100%", this.overlay.style.height = "100%", this.overlay.style.position = "absolute", this.overlay.style.zIndex = "10", this.overlay.style.display = "flex", this.overlay.style.flexDirection = "column", this.overlay.style.justifyContent = "center", this.overlay.style.alignItems = "center";
@@ -17561,7 +17563,6 @@ class Lh extends Jn {
     const i = document.createDocumentFragment(), s = t.split(/(<\/?i>|<\/?b>)/gu);
     if (s.length == 1 && s[0] == "")
       return;
-    console.log(s);
     let n = null;
     s.forEach((r) => {
       r === "<i>" ? n = document.createElement("i") : r === "<b>" ? n = document.createElement("b") : r === "</i>" || r === "</b>" ? n && (i.appendChild(n), n = null) : n ? n.appendChild(document.createTextNode(r)) : i.appendChild(document.createTextNode(r));
@@ -17572,14 +17573,19 @@ class Lh extends Jn {
   }
   loadSource(e) {
     var t, i, s;
-    this.videoElement.pause(), this.videoElement.removeAttribute("src"), e.endsWith(".m3u8") ? J.isSupported() ? (this.hls ?? (this.hls = new J({
+    this.videoElement.pause(), this.videoElement.removeAttribute("src"), e.endsWith(".m3u8") ? J.isSupported() ? (this.playlistItem(), this.hls ?? (this.hls = new J({
       debug: this.options.debug ?? !1,
       enableWorker: !0,
       lowLatencyMode: !0,
-      backBufferLength: 10,
-      maxBufferLength: 10,
-      maxMaxBufferLength: 30,
+      backBufferLength: 0,
+      maxBufferHole: 0.5,
+      maxBufferLength: 60,
+      maxMaxBufferLength: 60,
+      autoStartLoad: !0,
       testBandwidth: !0,
+      // startPosition: item.progress
+      // 	? convertToSeconds(item.duration!) / 100 * item.progress.percentage
+      // 	: 0,
       videoPreference: {
         preferHDR: this.hdrSupported()
       },
@@ -17703,19 +17709,19 @@ class Lh extends Jn {
   ui_removeActiveClass() {
     this.container.classList.remove("active"), this.container.classList.add("inactive"), this.subtitleOverlay.style.bottom = "2rem", this.emit("active", !1);
   }
+  ui_resetInactivityTimer(e) {
+    if (this.inactivityTimeout && clearTimeout(this.inactivityTimeout), this.ui_addActiveClass(), this.lockActive)
+      return;
+    const t = e == null ? void 0 : e.target;
+    t && (t.tagName === "BUTTON" || t.tagName === "INPUT") && !this.isTv() || (this.inactivityTimeout = setTimeout(() => {
+      this.ui_removeActiveClass();
+    }, this.inactivityTime));
+  }
   ui_setPlayClass() {
     this.container.classList.remove("paused"), this.container.classList.add("playing"), this.emit("playing", !0);
   }
   ui_setPauseClass() {
     this.container.classList.remove("playing"), this.container.classList.add("paused"), this.emit("playing", !1);
-  }
-  ui_resetInactivityTimer(e) {
-    if (this.inactivityTimeout && clearTimeout(this.inactivityTimeout), this.ui_addActiveClass(), this.lockActive)
-      return;
-    const t = e == null ? void 0 : e.target;
-    !t || (t.tagName === "BUTTON" || t.tagName === "INPUT") && !this.isTv() || (this.inactivityTimeout = setTimeout(() => {
-      this.ui_removeActiveClass();
-    }, this.inactivityTime));
   }
   handleMouseLeave(e) {
     if (this.lockActive)
@@ -17728,7 +17734,7 @@ class Lh extends Jn {
     t && (t.tagName === "BUTTON" || t.tagName === "INPUT") && this.ui_addActiveClass();
   }
   _addEvents() {
-    this.videoElement.addEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.addEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.addEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.addEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.addEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.addEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.addEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.addEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.addEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.addEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.addEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.addEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.on("play", this.ui_setPlayClass.bind(this)), this.on("pause", this.ui_setPauseClass.bind(this)), this.on("item", () => {
+    this.videoElement.addEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.addEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.addEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.addEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.addEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.addEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.addEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.addEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.addEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.addEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.addEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.addEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.container.addEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.videoElement.addEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.on("play", this.ui_setPlayClass.bind(this)), this.on("pause", this.ui_setPauseClass.bind(this)), this.on("showControls", this.ui_addActiveClass.bind(this)), this.on("hideControls", this.ui_removeActiveClass.bind(this)), this.on("dynamicControls", this.ui_resetInactivityTimer.bind(this)), this.on("item", () => {
       this.lastTime = 0, setTimeout(() => {
         var e, t;
         this.emit("captionsList", this.getCaptionsList()), this.emit("levels", this.getQualityLevels()), this.emit("levelsChanging", {
@@ -17823,9 +17829,9 @@ class Lh extends Jn {
       this.on("captionsList", () => {
         this.setCaptionFromStorage();
       }), this.emit("speed", this.videoElement.playbackRate), this.once("audio", () => {
-        localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0), this.once("play", () => {
+        this.getAudioTracks().length < 2 || (localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0), this.once("play", () => {
           localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0);
-        });
+        }));
       }), this.options.disableControls || this.getVideoElement().focus();
       const e = this.getParameterByName("item"), t = e ? parseInt(e, 10) : null, i = this.getParameterByName("season"), s = i ? parseInt(i, 10) : null, n = this.getParameterByName("episode"), r = n ? parseInt(n, 10) : null;
       if (t)
@@ -17852,10 +17858,8 @@ class Lh extends Jn {
         }
         setTimeout(() => {
           l.progress && l.progress.percentage > 90 ? this.playlistItem(this.getPlaylist().indexOf(l) + 1) : this.playlistItem(this.getPlaylist().indexOf(l));
-        }, 0), this.once("playing", () => {
-          l.progress && setTimeout(() => {
-            l.progress && this.seek(er(l.duration) / 100 * l.progress.percentage);
-          }, 350);
+        }, 0), this.once("play", () => {
+          l.progress && this.seek(er(l.duration) / 100 * l.progress.percentage);
         });
       }
     }), this.on("playing", () => {
@@ -17877,7 +17881,7 @@ class Lh extends Jn {
     });
   }
   _removeEvents() {
-    this.videoElement.removeEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.removeEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.removeEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.removeEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.removeEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.removeEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.removeEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.removeEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.removeEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.removeEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.removeEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.removeEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.removeEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.removeEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.removeEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.off("play", this.ui_setPlayClass.bind(this)), this.off("pause", this.ui_setPauseClass.bind(this));
+    this.videoElement.removeEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.removeEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.removeEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.removeEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.removeEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.removeEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.removeEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.removeEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.removeEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.removeEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.removeEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.removeEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.removeEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.removeEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.removeEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.container.removeEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.videoElement.removeEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.off("play", this.ui_setPlayClass.bind(this)), this.off("pause", this.ui_setPauseClass.bind(this)), this.off("showControls", this.ui_addActiveClass.bind(this)), this.off("hideControls", this.ui_removeActiveClass.bind(this)), this.off("dynamicControls", this.ui_resetInactivityTimer.bind(this));
   }
   getParameterByName(e, t = window.location.href) {
     e = e.replace(/[[\]]/gu, "\\$&");
@@ -18022,7 +18026,7 @@ class Lh extends Jn {
    */
   getSkip() {
     var e;
-    return (e = this.getSkippers()) == null ? void 0 : e.find((t) => this.getPosition() >= t.startTime && this.getPosition() <= t.endTime);
+    return (e = this.getSkippers()) == null ? void 0 : e.find((t) => this.getCurrentTime() >= t.startTime && this.getCurrentTime() <= t.endTime);
   }
   /**
    * Returns an array of available playback speeds.
@@ -18149,7 +18153,7 @@ class Lh extends Jn {
    */
   getChapter() {
     var e;
-    return (e = this.getChapters()) == null ? void 0 : e.find((t) => this.getPosition() >= t.startTime && this.getPosition() <= t.endTime);
+    return (e = this.getChapters()) == null ? void 0 : e.find((t) => this.getCurrentTime() >= t.startTime && this.getCurrentTime() <= t.endTime);
   }
   fetchSubtitleFile() {
     const e = this.getSubtitleFile();
@@ -18194,11 +18198,11 @@ class Lh extends Jn {
    */
   loadPlaylist() {
     typeof this.options.playlist == "string" ? this.fetchPlaylist(this.options.playlist).then((e) => {
-      console.log("Playlist fetched", e), this.playlist = e.map((t, i) => ({
+      console.log("Playlist fetched", e), this.playlist = e.map((t) => ({
         ...t,
         season: t.season,
         episode: t.episode
-      })), setTimeout(() => {
+      })).filter((t) => !!t.file), setTimeout(() => {
         this.emit("playlist", this.playlist);
       }, 0), this.playVideo(0);
     }) : Array.isArray(this.options.playlist) && (this.playlist = this.options.playlist.map((e, t) => ({
@@ -18296,7 +18300,7 @@ class Lh extends Jn {
   playlistItem(e) {
     if (e === void 0)
       return this.currentPlaylistItem;
-    this.playVideo(e);
+    e != this.currentIndex && this.playVideo(e);
   }
   /**
    * Sets the current episode to play based on the given season and episode numbers.
@@ -18335,7 +18339,7 @@ class Lh extends Jn {
     this.videoElement.pause(), this.videoElement.currentTime = 0;
   }
   // Seek
-  getPosition() {
+  getCurrentTime() {
     return this.videoElement.currentTime;
   }
   getDuration() {
@@ -18343,6 +18347,9 @@ class Lh extends Jn {
   }
   seek(e) {
     return this.videoElement.currentTime = e;
+  }
+  restart() {
+    this.seek(0);
   }
   seekByPercentage(e) {
     return this.videoElement.currentTime = this.videoElement.duration * e / 100;
@@ -18353,7 +18360,7 @@ class Lh extends Jn {
    */
   rewindVideo(e = this.seekInterval ?? 10) {
     this.emit("remove-forward"), clearTimeout(this.leftTap), this.tapCount += e, this.emit("rewind", this.tapCount), this.leftTap = setTimeout(() => {
-      this.emit("remove-rewind"), this.seek(this.getPosition() - this.tapCount), this.tapCount = 0;
+      this.emit("remove-rewind"), this.seek(this.getCurrentTime() - this.tapCount), this.tapCount = 0;
     }, this.leeway);
   }
   /**
@@ -18361,8 +18368,8 @@ class Lh extends Jn {
    * @param time - The time interval to forward the video by, in seconds. Defaults to 10 seconds if not provided.
    */
   forwardVideo(e = this.seekInterval ?? 10) {
-    this.emit("remove-rewind"), clearTimeout(this.rightTap), this.tapCount += e, this.emit("forward", this.tapCount), this.rightTap = setTimeout(() => {
-      this.emit("remove-forward"), this.seek(this.getPosition() + this.tapCount), this.tapCount = 0;
+    console.log("Forwarding", e), this.emit("remove-rewind"), clearTimeout(this.rightTap), this.tapCount += e, this.emit("forward", this.tapCount), this.rightTap = setTimeout(() => {
+      this.emit("remove-forward"), this.seek(this.getCurrentTime() + this.tapCount), this.tapCount = 0;
     }, this.leeway);
   }
   // Volume

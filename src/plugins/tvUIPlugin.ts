@@ -3,13 +3,8 @@ import { breakLogoTitle, limitSentenceByCharacters, lineBreakShowTitle, nearestV
 import { Icon } from './UIPlugin/buttons';
 import { PlaylistItem } from '../index.d';
 
-interface NMPlayer {
-	playlistItem: () => any
-}
-
 export class TVUIPlugin extends BaseUIPlugin {
 
-	disablePreScreen = false;
 	preScreen: HTMLDialogElement = <HTMLDialogElement>{};
 	episodeScreen: HTMLDialogElement = <HTMLDialogElement>{};
 	languageScreen: HTMLDialogElement = <HTMLDialogElement>{};
@@ -25,6 +20,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 	];
 
 	use() {
+		this.player.container.style.display = 'contents';
+
 		this.createTvOverlay(this.player.overlay);
 
 		this.createPreScreen(this.player.overlay);
@@ -38,6 +35,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		}
 
 		this.player.on('play', () => {
+			this.player.emit('show-seek-container', false);
 			this.player.getVideoElement().scrollIntoView();
 			this.closePreScreen();
 			this.closeEpisodeScreen();
@@ -144,7 +142,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			])
 			.appendTo(bottomBar);
 
-		const playbackButton = this.createPlaybackButton(bottomRow, true);
+		this.createPlaybackButton(bottomRow, true);
 
 		this.createTime(bottomRow, 'current', []);
 		this.createTvProgressBar(bottomRow);
@@ -160,7 +158,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		this.player.on('playing', () => {
 			if (this.currentMenu !== 'seek' && !this.controlsVisible) {
-				playbackButton.focus();
+				this.playbackButton.focus();
 			}
 		});
 
@@ -171,7 +169,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			button?.addEventListener('keypress', (e) => {
 				if (e.key == 'ArrowDown') {
 					if (this.nextUp.style.display == 'none') {
-						playbackButton?.focus();
+						this.playbackButton?.focus();
 					} else {
 						this.nextUp.lastChild?.focus();
 					}
@@ -191,7 +189,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				if (e.key == 'ArrowUp') {
 					(activeButton || restartButton)?.focus();
 				} else if (e.key == 'ArrowDown') {
-					playbackButton.focus();
+					this.playbackButton.focus();
 				} else if (e.key == 'ArrowLeft') {
 					this.nextUp.firstChild?.focus();
 				} else if (e.key == 'ArrowRight') {
@@ -200,7 +198,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			});
 		});
 
-		[playbackButton].forEach((button) => {
+		[this.playbackButton].forEach((button) => {
 			button?.addEventListener('keypress', (e) => {
 				if (e.key == 'ArrowUp') {
 					e.preventDefault();
@@ -213,6 +211,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			});
 		});
 
+		let didSlide: boolean = false;
 		[this.player.getVideoElement(), tvOverlay].forEach((button) => {
 			(button as unknown as HTMLButtonElement)?.addEventListener('keydown', (e: KeyboardEvent) => {
 				if (e.key == 'ArrowLeft') {
@@ -229,14 +228,15 @@ export class TVUIPlugin extends BaseUIPlugin {
 						this.shouldSlide = false;
 					} else {
 						const newScrubbTime = this.currentScrubTime - 10;
-
+						didSlide = true;
 						this.player.emit('currentScrubTime', {
 							...this.player.getTimeData(),
 							currentTime: newScrubbTime,
 						});
 					}
 
-				} else if (e.key == 'ArrowRight') {
+				}
+				else if (e.key == 'ArrowRight') {
 					// eslint-disable-next-line max-len
 					if ([backButton, restartButton, nextButton, this.nextUp.firstChild, this.nextUp.lastChild].includes(e.target as HTMLButtonElement)) {
 						return;
@@ -250,30 +250,24 @@ export class TVUIPlugin extends BaseUIPlugin {
 						this.shouldSlide = false;
 					} else {
 						const newScrubTime = this.currentScrubTime + 10;
+						didSlide = true;
 						this.player.emit('currentScrubTime', {
 							...this.player.getTimeData(),
 							currentTime: newScrubTime,
 						});
 					}
 				}
-			});
-		});
-
-
-		[this.player.getVideoElement(), playbackButton, backButton, restartButton, nextButton].forEach((button) => {
-			(button as unknown as HTMLButtonElement)?.addEventListener('keypress', (e: KeyboardEvent) => {
-				if (e.key == 'Enter') {
-					this.player.seek(this.currentScrubTime);
-
-					this.player.emit('show-seek-container', false);
-					setTimeout(() => {
-						this.player.play();
-					},0);
+				else if (e.key == 'Enter') {
+					if (Math.abs(this.currentScrubTime - this.player.getCurrentTime()) > 5 && didSlide) {
+						console.log('seeking to', this.currentScrubTime);
+						this.player.seek(this.currentScrubTime);
+						didSlide = false;
+					}
 				}
 			});
 		});
 
-		playbackButton.focus();
+		this.playbackButton.focus();
 
 		return bottomBar;
 	}
@@ -288,7 +282,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 	closePreScreen() {
 		this.preScreen.close();
-		this.player.ui_removeActiveClass();
+		this.player.emit('hideControls');
 		this.player.container.classList.remove('pre-screen');
 	}
 
@@ -647,7 +641,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			])
 			.appendTo(leftSide);
 
-		scrollContainer.addEventListener('focus', (e) => {
+		scrollContainer.addEventListener('focus', () => {
 				scrollContainer.querySelector('button')?.focus();
 		});
 
@@ -771,6 +765,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			.addClasses([
 				'slider-bar',
 				'group/slider',
+				'overflow-clip',
 				'flex',
 				'rounded-full',
 				'bg-white/20',
@@ -791,8 +786,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'rounded-full',
 				'bg-white/20',
 				'z-0',
-				'overflow-hidden',
-				'overflow-clip',
+				'-left-full',
+				'w-full',
 			])
 			.appendTo(this.sliderBar);
 
@@ -806,8 +801,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'rounded-full',
 				'bg-white',
 				'z-10',
-				'overflow-hidden',
-				'overflow-clip',
+				'-left-full',
+				'w-full',
 			])
 			.appendTo(this.sliderBar);
 
@@ -828,8 +823,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 			this.sliderBar.classList.add('bg-white/20');
 			this.previewTime = [];
 			this.chapters = [];
-			sliderBuffer.style.width = '0';
-			sliderProgress.style.width = '0';
+			sliderBuffer.style.transform = 'translateX(0%)';
+			sliderProgress.style.transform = 'translateX(0%)';
 			this.fetchPreviewTime();
 		});
 
@@ -842,12 +837,12 @@ export class TVUIPlugin extends BaseUIPlugin {
 		});
 
 		this.player.on('time', (data) => {
-			sliderBuffer.style.width = `${data.buffered}%`;
-			sliderProgress.style.width = `${data.percentage}%`;
+			sliderBuffer.style.transform = `translateX(${data.buffered}%)`;
+			sliderProgress.style.transform = `translateX(${data.percentage}%)`;
 		});
 
 		this.player.on('currentScrubTime', (data) => {
-			sliderProgress.style.width = `${(data.currentTime / data.duration) * 100}%`;
+			sliderProgress.style.transform = `translateX(${(data.currentTime / data.duration) * 100}%)`;
 		});
 
 		return this.sliderBar;
@@ -982,14 +977,15 @@ export class TVUIPlugin extends BaseUIPlugin {
 		const sliderContainer = this.player.createElement('div', `episode-${item.id}-slider-container`)
 			.addClasses([
 				'slider-container',
-				'hidden',
-				'rounded-md',
+				'group/slider',
 				'overflow-clip',
-				'bg-gray-500/80',
-				'h-1',
-				'mb-2',
-				'mx-1',
-				'sm:mx-2',
+				'hidden',
+				'rounded-full',
+				'bg-white/20',
+				'h-2',
+				'mx-4',
+				'relative',
+				'w-available',
 			])
 			.appendTo(progressContainer);
 		sliderContainer.style.display = item.progress ? 'flex' : 'none';
@@ -997,12 +993,20 @@ export class TVUIPlugin extends BaseUIPlugin {
 		const progressBar = this.player.createElement('div', `episode-${item.id}-progress-bar`)
 			.addClasses([
 				'progress-bar',
+				'absolute',
+				'flex',
+				'h-full',
+				'pointer-events-none',
+				'rounded-full',
 				'bg-white',
+				'z-10',
+				'-left-full',
+				'w-full',
 			])
 			.appendTo(sliderContainer);
 
 		if (item.progress?.percentage) {
-			progressBar.style.width = `${item.progress.percentage > 98 ? 100 : item.progress}%`;
+			progressBar.style.transform = `translateX(${item.progress.percentage > 98 ? 100 : item.progress}%)`;
 		}
 
 		const episodeMenuButtonRightSide = this.player.createElement('div', `episode-${item.id}-right-side`)
@@ -1035,7 +1039,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'',
 			])
 			.appendTo(episodeMenuButtonRightSide);
-		episodeMenuButtonTitle.textContent = lineBreakShowTitle((item.title ?? '').replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
+		episodeMenuButtonTitle.innerText = lineBreakShowTitle((item.title ?? '').replace(item.show ?? '', '').replace('%S', this.player.localize('S'))
 			.replace('%E', this.player.localize('E')));
 
 		const episodeMenuButtonOverview = this.player.createElement('span', `episode-${item.id}-overview`)
@@ -1049,7 +1053,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'text-white',
 			])
 			.appendTo(episodeMenuButtonRightSide);
-		episodeMenuButtonOverview.textContent = limitSentenceByCharacters(item.description, 600);
+		episodeMenuButtonOverview.innerText = limitSentenceByCharacters(item.description, 600);
 
 
 		this.player.on('item', () => {
@@ -1087,10 +1091,16 @@ export class TVUIPlugin extends BaseUIPlugin {
 			}
 		});
 
+		this.player.on('active', () => {
+				progressBar.style.transform = `translateX(${this.player.getTimeData().percentage}%)`;
+		});
+
 		this.player.on('time', (data) => {
 			if (this.player.playlistItem()?.uuid == item.uuid) {
-				progressBar.style.width = `${data.percentage}%`;
-				sliderContainer.style.display = 'flex';
+				if (this.player.container.classList.contains('active')) {
+					sliderContainer.style.display = 'flex';
+					progressBar.style.transform = `translateX(${data.percentage}%)`;
+				}
 			}
 		});
 
@@ -1532,8 +1542,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 			const image = this.player.playlistItem()?.logo;
 
 			if (!image || image == '' || image.includes('null') || image.includes('undefined')) {
-				fallbackText.textContent = breakLogoTitle(this.player.playlistItem()?.show ?? '');
-				fallbackText.style.fontSize = `calc(110px / ${fallbackText.textContent.length} + 3ch)`;
+				fallbackText.innerText = breakLogoTitle(this.player.playlistItem()?.show ?? '');
+				fallbackText.style.fontSize = `calc(110px / ${fallbackText.innerText.length} + 3ch)`;
 
 				fallbackText.style.display = 'flex';
 				logo.style.display = 'none';

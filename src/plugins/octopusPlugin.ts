@@ -42,6 +42,7 @@ export class OctopusPlugin extends Plugin {
 			const parts = subtitleURL.split('.');
 			ext = parts.at(-1) || '';
 		}
+
 		if (ext != 'ass' && ext != 'ssa') return;
 
 		if (subtitleURL) {

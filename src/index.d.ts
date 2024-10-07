@@ -550,7 +550,7 @@ export interface NMPlayer {
 	createLanguageMenuButton(scrollContainer: any, arg1: { language: any; label: any; type: string; index: any; }): HTMLButtonElement;
 	createQualityMenuButton(scrollContainer: any, arg1: { index: number; width: any; height: any; label: any; bitrate: any; }): HTMLButtonElement;
 	createTopBar(tvOverlay: any): HTMLDivElement;
-	currentTime(): number;
+    getCurrentTime(): number;
 	displayMessage(arg0: string): void;
 	emit(arg0: string, arg1?: any): void;
 	forwardVideo(): void;
@@ -667,7 +667,10 @@ export interface NMPlayer {
 	emit(event: 'audioTrackChanging', data: CurrentTrack): void;
 
 	// Controls
-	emit(eventType: 'controls', showing: boolean): void;
+    emit(eventType: 'controls', showing: boolean): void;
+    emit(eventType: 'showControls'): void;
+    emit(eventType: 'hideControls'): void;
+    emit(eventType: 'dynamicControls'): void;
 	emit(event: 'displayClick', data?: any): void;
 
 	// Controls
@@ -696,66 +699,67 @@ export interface NMPlayer {
 	emit(event: 'castIntercepted', data?: any): void;
 
 
-	emit(eventType: `show-${string}-menu`, data: boolean): void;
-	emit(eventType: 'back'): void;
-	emit(eventType: 'close'): void;
-	emit(eventType: 'fonts', data: Font[]): void;
-	emit(eventType: 'chapters', data: Chapter[]): void;
-	emit(eventType: 'skippers', data: Chapter[]): void;
-	emit(eventType: 'display-message', value: string): void;
-	emit(eventType: 'duration', data: PlaybackState): void;
-	emit(eventType: 'error', data: any): void;
-	emit(eventType: 'forward', amount: number): void;
-	emit(eventType: 'hide-tooltip', data?: any): void;
-	emit(eventType: 'hide-episode-tip', data?: any): void;
-	emit(eventType: 'overlay', data?: any): void;
-	emit(eventType: 'pip', enabled: boolean): void;
-	emit(eventType: 'pip-internal', enabled: boolean): void;
-	emit(eventType: 'playing'): void;
-	emit(eventType: 'playlist-menu-button-clicked', data?: any): void;
-	emit(eventType: 'pop-image', url: string): void;
-	emit(eventType: 'remove-forward', data?: any): void;
-	emit(eventType: 'remove-message', value: string): void;
-	emit(eventType: 'remove-rewind', data?: any): void;
-	emit(eventType: 'rewind', amount: number): void;
-	emit(eventType: 'show-language-menu', open: boolean): void;
-	emit(eventType: 'show-main-menu', open: boolean): void;
-	emit(eventType: 'show-menu', open: boolean): void;
-	emit(eventType: 'show-next-up'): void;
-	emit(eventType: 'show-playlist-menu', open: boolean): void;
-	emit(eventType: 'show-seek-container', open: boolean): void;
-	emit(eventType: 'show-quality-menu', open: boolean): void;
-	emit(eventType: 'show-speed-menu', open: boolean): void;
-	emit(eventType: 'show-subtitles-menu', open: boolean): void;
-	emit(eventType: 'show-tooltip', data: toolTooltip): void;
-	emit(eventType: 'show-episode-tip', data: EpisodeTooltip): void;
-	emit(eventType: 'speed', enabled: number): void;
-	emit(eventType: 'switch-season', season: number): void;
-	emit(eventType: 'theaterMode', enabled: boolean): void;
-	emit(eventType: 'currentScrubTime', data: PlaybackState): void;
-	emit(eventType: 'lastTimeTrigger', data: PlaybackState): void;
-	emit(eventType: 'waiting', data?: any): void;
-	emit(eventType: 'stalled', data?: any): void;
-	emit(eventType: 'playlist', data?: any): void;
-	emit(eventType: 'playlistchange', data?: any): void;
-	emit(eventType: 'beforeplaylistitem', data?: any): void;
-	emit(eventType: 'bufferedEnd', data?: any): void;
-	emit(eventType: 'duringplaylistchange', data?: any): void;
-	emit(eventType: 'preview-time', data: PreviewTime[]): void;
-	emit(eventType: 'ended', data?: any): void;
-	emit(eventType: 'finished'): void;
-	emit(eventType: 'dispose'): void;
-	emit(eventType: 'remove'): void;
-	emit(eventType: 'showPauseScreen'): void;
-	emit(eventType: 'hidePauseScreen'): void;
-	emit(eventType: 'showEpisodeScreen'): void;
-	emit(eventType: 'hideEpisodeScreen'): void;
-	emit(eventType: 'showLanguageScreen'): void;
-	emit(eventType: 'hideLanguageScreen'): void;
-	emit(eventType: 'showQualityScreen'): void;
-	emit(eventType: 'hideQualityScreen'): void;
-	emit(eventType: 'back-button'): void;
-	emit(eventType: 'translations', data: { [key: string]: string }): void;
+	emit(event: `show-${string}-menu`, data: boolean): void;
+	emit(event: 'back'): void;
+    emit(event: 'active', callback: (arg: boolean) => void): void;
+	emit(event: 'close'): void;
+	emit(event: 'fonts', data: Font[]): void;
+	emit(event: 'chapters', data: Chapter[]): void;
+	emit(event: 'skippers', data: Chapter[]): void;
+	emit(event: 'display-message', value: string): void;
+	emit(event: 'duration', data: PlaybackState): void;
+	emit(event: 'error', data: any): void;
+	emit(event: 'forward', amount: number): void;
+	emit(event: 'hide-tooltip', data?: any): void;
+	emit(event: 'hide-episode-tip', data?: any): void;
+	emit(event: 'overlay', data?: any): void;
+	emit(event: 'pip', enabled: boolean): void;
+	emit(event: 'pip-internal', enabled: boolean): void;
+	emit(event: 'playing'): void;
+	emit(event: 'playlist-menu-button-clicked', data?: any): void;
+	emit(event: 'pop-image', url: string): void;
+	emit(event: 'remove-forward', data?: any): void;
+	emit(event: 'remove-message', value: string): void;
+	emit(event: 'remove-rewind', data?: any): void;
+	emit(event: 'rewind', amount: number): void;
+	emit(event: 'show-language-menu', open: boolean): void;
+	emit(event: 'show-main-menu', open: boolean): void;
+	emit(event: 'show-menu', open: boolean): void;
+	emit(event: 'show-next-up'): void;
+	emit(event: 'show-playlist-menu', open: boolean): void;
+	emit(event: 'show-seek-container', open: boolean): void;
+	emit(event: 'show-quality-menu', open: boolean): void;
+	emit(event: 'show-speed-menu', open: boolean): void;
+	emit(event: 'show-subtitles-menu', open: boolean): void;
+	emit(event: 'show-tooltip', data: toolTooltip): void;
+	emit(event: 'show-episode-tip', data: EpisodeTooltip): void;
+	emit(event: 'speed', enabled: number): void;
+	emit(event: 'switch-season', season: number): void;
+	emit(event: 'theaterMode', enabled: boolean): void;
+	emit(event: 'currentScrubTime', data: PlaybackState): void;
+	emit(event: 'lastTimeTrigger', data: PlaybackState): void;
+	emit(event: 'waiting', data?: any): void;
+	emit(event: 'stalled', data?: any): void;
+	emit(event: 'playlist', data?: any): void;
+	emit(event: 'playlistchange', data?: any): void;
+	emit(event: 'beforeplaylistitem', data?: any): void;
+	emit(event: 'bufferedEnd', data?: any): void;
+	emit(event: 'duringplaylistchange', data?: any): void;
+	emit(event: 'preview-time', data: PreviewTime[]): void;
+	emit(event: 'ended', data?: any): void;
+	emit(event: 'finished'): void;
+	emit(event: 'dispose'): void;
+	emit(event: 'remove'): void;
+	emit(event: 'showPauseScreen'): void;
+	emit(event: 'hidePauseScreen'): void;
+	emit(event: 'showEpisodeScreen'): void;
+	emit(event: 'hideEpisodeScreen'): void;
+	emit(event: 'showLanguageScreen'): void;
+	emit(event: 'hideLanguageScreen'): void;
+	emit(event: 'showQualityScreen'): void;
+	emit(event: 'hideQualityScreen'): void;
+	emit(event: 'back-button'): void;
+	emit(event: 'translations', data: { [key: string]: string }): void;
 
 	// emit(event: string, data?: any): void;
 	// emit(event: any, data?: any): void;
@@ -820,6 +824,9 @@ export interface NMPlayer {
 
 	// Controls
 	on(event: 'controls', callback: (showing: boolean) => void): void;
+    on(event: 'showControls'): void;
+    on(event: 'hideControls'): void;
+    on(event: 'dynamicControls'): void;
 	on(event: 'displayClick', callback: () => void): void;
 
 	// Controls
@@ -856,6 +863,7 @@ export interface NMPlayer {
 
 	on(event: `show-${string}-menu`, callback: (showing: boolean) => void): void;
 	on(event: 'back', callback?: (callback: (arg?: any) => any) => void): void;
+    on(event: 'active', callback: (arg: boolean) => void): void;
 	on(event: 'close', callback?: (callback: (arg?: any) => any) => void): void;
 	on(event: 'fonts', callback: (data: Font[]) => void): void;
 	on(event: 'chapters', callback: (data: Chapter[]) => void): void;
@@ -975,6 +983,9 @@ export interface NMPlayer {
 
 	// Controls
 	off(event: 'controls', callback: () => void): void;
+    off(event: 'showControls'): void;
+    off(event: 'hideControls'): void;
+    off(event: 'dynamicControls'): void;
 	off(event: 'displayClick', callback: () => void): void;
 
 	// Controls
@@ -1011,6 +1022,7 @@ export interface NMPlayer {
 
 	off(event: `show-${string}-menu`, callback: () => void): void;
 	off(event: 'back', callback?: (callback: (arg?: any) => any) => void): void;
+    off(event: 'active', callback: (arg: boolean) => void): void;
 	off(event: 'close', callback?: (callback: (arg?: any) => any) => void): void;
 	off(event: 'fonts', callback: () => void): void;
 	off(event: 'chapters', callback: () => void): void;
@@ -1131,6 +1143,9 @@ export interface NMPlayer {
 
 	// Controls
 	once(event: 'controls', callback: (showing: boolean) => void): void;
+    once(event: 'showControls'): void;
+    once(event: 'hideControls'): void;
+    once(event: 'dynamicControls'): void;
 	once(event: 'displayClick', callback: () => void): void;
 
 	// Controls
@@ -1167,6 +1182,7 @@ export interface NMPlayer {
 
 	once(event: `show-${string}-menu`, callback: (showing: boolean) => void): void;
 	once(event: 'back', callback?: (callback: (arg?: any) => any) => void): void;
+    once(event: 'active', callback: (arg: boolean) => void): void;
 	once(event: 'close', callback?: (callback: (arg?: any) => any) => void): void;
 	once(event: 'fonts', callback: (data: Font[]) => void): void;
 	once(event: 'chapters', callback: (data: Chapter[]) => void): void;

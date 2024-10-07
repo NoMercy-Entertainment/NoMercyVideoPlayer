@@ -3,7 +3,6 @@ import { Icon } from './UIPlugin/buttons';
 import { PlaylistItem } from '../index.d';
 
 export declare class TVUIPlugin extends BaseUIPlugin {
-    disablePreScreen: boolean;
     preScreen: HTMLDialogElement;
     episodeScreen: HTMLDialogElement;
     languageScreen: HTMLDialogElement;

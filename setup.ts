@@ -437,17 +437,17 @@ const config: SetupConfig = {
 const player = nmplayer('player')
 	.setup(config);
 
-// const desktopUIPlugin = new DesktopUIPlugin();
-// player.registerPlugin('desktopUI', desktopUIPlugin);
-// player.usePlugin('desktopUI');
+const desktopUIPlugin = new DesktopUIPlugin();
+player.registerPlugin('desktopUI', desktopUIPlugin);
+player.usePlugin('desktopUI');
 
-const mobileUIPlugin = new MobileUIPlugin();
-player.registerPlugin('mobileUI', mobileUIPlugin);
-player.usePlugin('mobileUI');
-
-const tvUIPlugin = new TVUIPlugin();
-player.registerPlugin('tvUI', tvUIPlugin);
-player.usePlugin('tvUI');
+// const mobileUIPlugin = new MobileUIPlugin();
+// player.registerPlugin('mobileUI', mobileUIPlugin);
+// player.usePlugin('mobileUI');
+//
+// const tvUIPlugin = new TVUIPlugin();
+// player.registerPlugin('tvUI', tvUIPlugin);
+// player.usePlugin('tvUI');
 
 // const sabrePlugin = new SabrePlugin();
 // player.registerPlugin('sabre', sabrePlugin);
