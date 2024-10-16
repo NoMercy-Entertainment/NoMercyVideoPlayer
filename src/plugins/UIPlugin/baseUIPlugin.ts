@@ -3,7 +3,7 @@ import type { NMPlayer, PreviewTime, VolumeState } from '../../index.d';
 import {buttons, Icon} from "./buttons";
 import {twMerge} from "tailwind-merge";
 import * as styles from "./styles";
-import {humanTime, unique} from "../../helpers";
+import {breakLogoTitle, humanTime, unique} from "../../helpers";
 import {WebVTTParser} from "webvtt-parser";
 
 export class BaseUIPlugin extends Plugin {
@@ -1505,6 +1505,62 @@ export class BaseUIPlugin extends Plugin {
 			.appendTo(parent);
 	}
 
+	createTvCurrentItem(parent: HTMLElement) {
+
+		const currentItemContainer = this.player.createElement('div', 'current-item-container')
+			.addClasses([
+				'flex',
+				'flex-col',
+				'justify-end',
+				'items-end',
+				'gap-2',
+			])
+			.appendTo(parent);
+
+		const currentItemShow = this.player.createElement('div', 'current-item-show')
+			.addClasses([
+				'text-white',
+				'text-sm',
+				'whitespace-pre',
+				'font-bold',
+			])
+			.appendTo(currentItemContainer);
+
+		const currentItemTitleContainer = this.player.createElement('div', 'current-item-title-container')
+			.addClasses([
+				'flex',
+				'flex-row',
+				'gap-2',
+			])
+			.appendTo(currentItemContainer);
+
+		const currentItemEpisode = this.player.createElement('div', 'current-item-episode')
+			.addClasses([])
+			.appendTo(currentItemTitleContainer);
+
+		const currentItemTitle = this.player.createElement('div', 'current-item-title')
+			.addClasses([])
+			.appendTo(currentItemTitleContainer);
+
+		this.player.on('item', () => {
+			const item = this.player.playlistItem();
+			currentItemShow.innerHTML = breakLogoTitle(item.show ?? '');
+			currentItemEpisode.innerHTML = '';
+			if (item.season) {
+				currentItemEpisode.innerHTML += `${this.player.localize('S')}${item.season}`;
+			}
+			if (item.season && item.episode) {
+				currentItemEpisode.innerHTML += `: ${this.player.localize('E')}${item.episode}`;
+			}
+			currentItemTitle.innerHTML = item.title?.replace(item.show ?? '', '').length > 0 ? `"${item.title
+				?.replace(item.show ?? '', '')
+				.replace('%S', this.player.localize('S'))
+				.replace('%E', this.player.localize('E'))}"` : '';
+		});
+
+		return currentItemContainer;
+
+	}
 
 	createLanguageMenuButton(parent: HTMLDivElement, data: {
 		language: string,

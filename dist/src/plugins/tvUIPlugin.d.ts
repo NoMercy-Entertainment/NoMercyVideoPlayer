@@ -44,5 +44,4 @@ export declare class TVUIPlugin extends BaseUIPlugin {
     findNextVisibleButton(element: HTMLButtonElement): HTMLButtonElement | undefined;
     createImageContainer(parent: HTMLElement): HTMLDivElement;
     createTvButton(parent: HTMLElement, id: string, text: string, action: () => void, icon?: Icon['path']): HTMLButtonElement;
-    createTvCurrentItem(parent: HTMLElement): HTMLDivElement;
 }

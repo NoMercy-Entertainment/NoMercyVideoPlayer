@@ -57,6 +57,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		this.createBackButton(this.topBar);
 		this.createCloseButton(this.topBar);
 		this.createDivider(this.topBar);
+		this.createTvCurrentItem(this.topBar);
 
 		if (!this.player.options.disableTouchControls) {
 			this.createCenter(this.overlay);

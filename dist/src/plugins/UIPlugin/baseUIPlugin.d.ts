@@ -93,6 +93,7 @@ export declare class BaseUIPlugin extends Plugin {
         lastChild: HTMLButtonElement;
     };
     createTopBar(parent: HTMLElement): HTMLDivElement;
+    createTvCurrentItem(parent: HTMLElement): HTMLDivElement;
     createLanguageMenuButton(parent: HTMLDivElement, data: {
         language: string;
         label: string;

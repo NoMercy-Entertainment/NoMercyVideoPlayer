@@ -1,6 +1,6 @@
-import { h as E, u as e1, l as a1, a as n1 } from "./helpers.js";
-import { P as o1 } from "./plugin.js";
-import { p as p1 } from "./index2.js";
+import { h as E, u as e1, b as a1, l as n1, a as o1 } from "./helpers.js";
+import { P as p1 } from "./plugin.js";
+import { p as c1 } from "./index2.js";
 const Y = {
   back: {
     classes: [],
@@ -242,13 +242,13 @@ const Y = {
     normal: "",
     title: "Template"
   }
-}, c1 = () => {
+}, d1 = () => {
   const n = {};
   for (const i of Object.keys(Y))
     n[i] = Y[i];
   return n;
-}, N = "-", d1 = (n) => {
-  const i = h1(n), {
+}, N = "-", h1 = (n) => {
+  const i = C1(n), {
     conflictingClassGroups: t,
     conflictingClassGroupModifiers: e
   } = n;
@@ -281,7 +281,7 @@ const Y = {
     if (t)
       return "arbitrary.." + t;
   }
-}, h1 = (n) => {
+}, C1 = (n) => {
   const {
     theme: i,
     prefix: t
@@ -289,7 +289,7 @@ const Y = {
     nextPart: /* @__PURE__ */ new Map(),
     validators: []
   };
-  return y1(Object.entries(n.classGroups), t).forEach(([l, r]) => {
+  return m1(Object.entries(n.classGroups), t).forEach(([l, r]) => {
     q(r, e, l, i);
   }), e;
 }, q = (n, i, t, e) => {
@@ -300,7 +300,7 @@ const Y = {
       return;
     }
     if (typeof s == "function") {
-      if (C1(s)) {
+      if (y1(s)) {
         q(s(e), i, t, e);
         return;
       }
@@ -322,10 +322,10 @@ const Y = {
       validators: []
     }), t = t.nextPart.get(e);
   }), t;
-}, C1 = (n) => n.isThemeGetter, y1 = (n, i) => i ? n.map(([t, e]) => {
+}, y1 = (n) => n.isThemeGetter, m1 = (n, i) => i ? n.map(([t, e]) => {
   const s = e.map((l) => typeof l == "string" ? i + l : typeof l == "object" ? Object.fromEntries(Object.entries(l).map(([r, a]) => [i + r, a])) : l);
   return [t, s];
-}) : n, m1 = (n) => {
+}) : n, f1 = (n) => {
   if (n < 1)
     return {
       get: () => {
@@ -349,28 +349,28 @@ const Y = {
       t.has(l) ? t.set(l, r) : s(l, r);
     }
   };
-}, s1 = "!", f1 = (n) => {
+}, s1 = "!", g1 = (n) => {
   const {
     separator: i,
     experimentalParseClassName: t
   } = n, e = i.length === 1, s = i[0], l = i.length, r = (a) => {
     const o = [];
-    let d = 0, p = 0, c;
+    let c = 0, p = 0, d;
     for (let C = 0; C < a.length; C++) {
       let g = a[C];
-      if (d === 0) {
+      if (c === 0) {
         if (g === s && (e || a.slice(C, C + l) === i)) {
           o.push(a.slice(p, C)), p = C + l;
           continue;
         }
         if (g === "/") {
-          c = C;
+          d = C;
           continue;
         }
       }
-      g === "[" ? d++ : g === "]" && d--;
+      g === "[" ? c++ : g === "]" && c--;
     }
-    const h = o.length === 0 ? a : a.substring(p), b = h.startsWith(s1), v = b ? h.substring(1) : h, f = c && c > p ? c - p : void 0;
+    const u = o.length === 0 ? a : a.substring(p), b = u.startsWith(s1), v = b ? u.substring(1) : u, f = d && d > p ? d - p : void 0;
     return {
       modifiers: o,
       hasImportantModifier: b,
@@ -382,7 +382,7 @@ const Y = {
     className: a,
     parseClassName: r
   }) : r;
-}, g1 = (n) => {
+}, b1 = (n) => {
   if (n.length <= 1)
     return n;
   const i = [];
@@ -390,37 +390,37 @@ const Y = {
   return n.forEach((e) => {
     e[0] === "[" ? (i.push(...t.sort(), e), t = []) : t.push(e);
   }), i.push(...t.sort()), i;
-}, b1 = (n) => ({
-  cache: m1(n.cacheSize),
-  parseClassName: f1(n),
-  ...d1(n)
-}), v1 = /\s+/, L1 = (n, i) => {
+}, v1 = (n) => ({
+  cache: f1(n.cacheSize),
+  parseClassName: g1(n),
+  ...h1(n)
+}), L1 = /\s+/, x1 = (n, i) => {
   const {
     parseClassName: t,
     getClassGroupId: e,
     getConflictingClassGroupIds: s
-  } = i, l = [], r = n.trim().split(v1);
+  } = i, l = [], r = n.trim().split(L1);
   let a = "";
   for (let o = r.length - 1; o >= 0; o -= 1) {
-    const d = r[o], {
+    const c = r[o], {
       modifiers: p,
-      hasImportantModifier: c,
-      baseClassName: h,
+      hasImportantModifier: d,
+      baseClassName: u,
       maybePostfixModifierPosition: b
-    } = t(d);
-    let v = !!b, f = e(v ? h.substring(0, b) : h);
+    } = t(c);
+    let v = !!b, f = e(v ? u.substring(0, b) : u);
     if (!f) {
       if (!v) {
-        a = d + (a.length > 0 ? " " + a : a);
+        a = c + (a.length > 0 ? " " + a : a);
         continue;
       }
-      if (f = e(h), !f) {
-        a = d + (a.length > 0 ? " " + a : a);
+      if (f = e(u), !f) {
+        a = c + (a.length > 0 ? " " + a : a);
         continue;
       }
       v = !1;
     }
-    const C = g1(p).join(":"), g = c ? C + s1 : C, L = g + f;
+    const C = b1(p).join(":"), g = d ? C + s1 : C, L = g + f;
     if (l.includes(L))
       continue;
     l.push(L);
@@ -429,11 +429,11 @@ const Y = {
       const x = T[w];
       l.push(g + x);
     }
-    a = d + (a.length > 0 ? " " + a : a);
+    a = c + (a.length > 0 ? " " + a : a);
   }
   return a;
 };
-function x1() {
+function w1() {
   let n = 0, i, t, e = "";
   for (; n < arguments.length; )
     (i = arguments[n++]) && (t = i1(i)) && (e && (e += " "), e += t);
@@ -447,46 +447,46 @@ const i1 = (n) => {
     n[e] && (i = i1(n[e])) && (t && (t += " "), t += i);
   return t;
 };
-function w1(n, ...i) {
+function M1(n, ...i) {
   let t, e, s, l = r;
   function r(o) {
-    const d = i.reduce((p, c) => c(p), n());
-    return t = b1(d), e = t.cache.get, s = t.cache.set, l = a, a(o);
+    const c = i.reduce((p, d) => d(p), n());
+    return t = v1(c), e = t.cache.get, s = t.cache.set, l = a, a(o);
   }
   function a(o) {
-    const d = e(o);
-    if (d)
-      return d;
-    const p = L1(o, t);
+    const c = e(o);
+    if (c)
+      return c;
+    const p = x1(o, t);
     return s(o, p), p;
   }
   return function() {
-    return l(x1.apply(null, arguments));
+    return l(w1.apply(null, arguments));
   };
 }
 const y = (n) => {
   const i = (t) => t[n] || [];
   return i.isThemeGetter = !0, i;
-}, l1 = /^\[(?:([a-z-]+):)?(.+)\]$/i, M1 = /^\d+\/\d+$/, S1 = /* @__PURE__ */ new Set(["px", "full", "screen"]), T1 = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, k1 = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, V1 = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, E1 = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, H1 = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, S = (n) => H(n) || S1.has(n) || M1.test(n), k = (n) => B(n, "length", F1), H = (n) => !!n && !Number.isNaN(Number(n)), O = (n) => B(n, "number", H), $ = (n) => !!n && Number.isInteger(Number(n)), B1 = (n) => n.endsWith("%") && H(n.slice(0, -1)), u = (n) => l1.test(n), V = (n) => T1.test(n), Z1 = /* @__PURE__ */ new Set(["length", "size", "percentage"]), P1 = (n) => B(n, Z1, r1), $1 = (n) => B(n, "position", r1), z1 = /* @__PURE__ */ new Set(["image", "url"]), R1 = (n) => B(n, z1, U1), I1 = (n) => B(n, "", A1), z = () => !0, B = (n, i, t) => {
+}, l1 = /^\[(?:([a-z-]+):)?(.+)\]$/i, S1 = /^\d+\/\d+$/, T1 = /* @__PURE__ */ new Set(["px", "full", "screen"]), k1 = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, V1 = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, E1 = /^(rgba?|hsla?|hwb|(ok)?(lab|lch))\(.+\)$/, H1 = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, B1 = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, S = (n) => H(n) || T1.has(n) || S1.test(n), k = (n) => B(n, "length", A1), H = (n) => !!n && !Number.isNaN(Number(n)), O = (n) => B(n, "number", H), $ = (n) => !!n && Number.isInteger(Number(n)), Z1 = (n) => n.endsWith("%") && H(n.slice(0, -1)), h = (n) => l1.test(n), V = (n) => k1.test(n), P1 = /* @__PURE__ */ new Set(["length", "size", "percentage"]), $1 = (n) => B(n, P1, r1), z1 = (n) => B(n, "position", r1), I1 = /* @__PURE__ */ new Set(["image", "url"]), R1 = (n) => B(n, I1, G1), F1 = (n) => B(n, "", U1), z = () => !0, B = (n, i, t) => {
   const e = l1.exec(n);
   return e ? e[1] ? typeof i == "string" ? e[1] === i : i.has(e[1]) : t(e[2]) : !1;
-}, F1 = (n) => (
+}, A1 = (n) => (
   // `colorFunctionRegex` check is necessary because color functions can have percentages in them which which would be incorrectly classified as lengths.
   // For example, `hsl(0 0% 0%)` would be classified as a length without this check.
   // I could also use lookbehind assertion in `lengthUnitRegex` but that isn't supported widely enough.
-  k1.test(n) && !V1.test(n)
-), r1 = () => !1, A1 = (n) => E1.test(n), U1 = (n) => H1.test(n), G1 = () => {
-  const n = y("colors"), i = y("spacing"), t = y("blur"), e = y("brightness"), s = y("borderColor"), l = y("borderRadius"), r = y("borderSpacing"), a = y("borderWidth"), o = y("contrast"), d = y("grayscale"), p = y("hueRotate"), c = y("invert"), h = y("gap"), b = y("gradientColorStops"), v = y("gradientColorStopPositions"), f = y("inset"), C = y("margin"), g = y("opacity"), L = y("padding"), T = y("saturate"), w = y("scale"), x = y("sepia"), Z = y("skew"), j = y("space"), X = y("translate"), F = () => ["auto", "contain", "none"], A = () => ["auto", "hidden", "clip", "visible", "scroll"], U = () => ["auto", u, i], m = () => [u, i], _ = () => ["", S, k], R = () => ["auto", H, u], D = () => ["bottom", "center", "left", "left-bottom", "left-top", "right", "right-bottom", "right-top", "top"], I = () => ["solid", "dashed", "dotted", "double", "none"], W = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], G = () => ["start", "end", "center", "between", "around", "evenly", "stretch"], P = () => ["", "0", u], Q = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], M = () => [H, u];
+  V1.test(n) && !E1.test(n)
+), r1 = () => !1, U1 = (n) => H1.test(n), G1 = (n) => B1.test(n), O1 = () => {
+  const n = y("colors"), i = y("spacing"), t = y("blur"), e = y("brightness"), s = y("borderColor"), l = y("borderRadius"), r = y("borderSpacing"), a = y("borderWidth"), o = y("contrast"), c = y("grayscale"), p = y("hueRotate"), d = y("invert"), u = y("gap"), b = y("gradientColorStops"), v = y("gradientColorStopPositions"), f = y("inset"), C = y("margin"), g = y("opacity"), L = y("padding"), T = y("saturate"), w = y("scale"), x = y("sepia"), Z = y("skew"), j = y("space"), X = y("translate"), F = () => ["auto", "contain", "none"], A = () => ["auto", "hidden", "clip", "visible", "scroll"], U = () => ["auto", h, i], m = () => [h, i], _ = () => ["", S, k], I = () => ["auto", H, h], D = () => ["bottom", "center", "left", "left-bottom", "left-top", "right", "right-bottom", "right-top", "top"], R = () => ["solid", "dashed", "dotted", "double", "none"], W = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], G = () => ["start", "end", "center", "between", "around", "evenly", "stretch"], P = () => ["", "0", h], Q = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], M = () => [H, h];
   return {
     cacheSize: 500,
     separator: ":",
     theme: {
       colors: [z],
       spacing: [S, k],
-      blur: ["none", "", V, u],
+      blur: ["none", "", V, h],
       brightness: M(),
       borderColor: [n],
-      borderRadius: ["none", "", "full", V, u],
+      borderRadius: ["none", "", "full", V, h],
       borderSpacing: m(),
       borderWidth: _(),
       contrast: M(),
@@ -495,7 +495,7 @@ const y = (n) => {
       invert: P(),
       gap: m(),
       gradientColorStops: [n],
-      gradientColorStopPositions: [B1, k],
+      gradientColorStopPositions: [Z1, k],
       inset: U(),
       margin: U(),
       opacity: M(),
@@ -514,7 +514,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/aspect-ratio
        */
       aspect: [{
-        aspect: ["auto", "square", "video", u]
+        aspect: ["auto", "square", "video", h]
       }],
       /**
        * Container
@@ -599,7 +599,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/object-position
        */
       "object-position": [{
-        object: [...D(), u]
+        object: [...D(), h]
       }],
       /**
        * Overflow
@@ -721,7 +721,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/z-index
        */
       z: [{
-        z: ["auto", $, u]
+        z: ["auto", $, h]
       }],
       // Flexbox and Grid
       /**
@@ -750,7 +750,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/flex
        */
       flex: [{
-        flex: ["1", "auto", "initial", "none", u]
+        flex: ["1", "auto", "initial", "none", h]
       }],
       /**
        * Flex Grow
@@ -771,7 +771,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/order
        */
       order: [{
-        order: ["first", "last", "none", $, u]
+        order: ["first", "last", "none", $, h]
       }],
       /**
        * Grid Template Columns
@@ -786,22 +786,22 @@ const y = (n) => {
        */
       "col-start-end": [{
         col: ["auto", {
-          span: ["full", $, u]
-        }, u]
+          span: ["full", $, h]
+        }, h]
       }],
       /**
        * Grid Column Start
        * @see https://tailwindcss.com/docs/grid-column
        */
       "col-start": [{
-        "col-start": R()
+        "col-start": I()
       }],
       /**
        * Grid Column End
        * @see https://tailwindcss.com/docs/grid-column
        */
       "col-end": [{
-        "col-end": R()
+        "col-end": I()
       }],
       /**
        * Grid Template Rows
@@ -816,22 +816,22 @@ const y = (n) => {
        */
       "row-start-end": [{
         row: ["auto", {
-          span: [$, u]
-        }, u]
+          span: [$, h]
+        }, h]
       }],
       /**
        * Grid Row Start
        * @see https://tailwindcss.com/docs/grid-row
        */
       "row-start": [{
-        "row-start": R()
+        "row-start": I()
       }],
       /**
        * Grid Row End
        * @see https://tailwindcss.com/docs/grid-row
        */
       "row-end": [{
-        "row-end": R()
+        "row-end": I()
       }],
       /**
        * Grid Auto Flow
@@ -845,35 +845,35 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/grid-auto-columns
        */
       "auto-cols": [{
-        "auto-cols": ["auto", "min", "max", "fr", u]
+        "auto-cols": ["auto", "min", "max", "fr", h]
       }],
       /**
        * Grid Auto Rows
        * @see https://tailwindcss.com/docs/grid-auto-rows
        */
       "auto-rows": [{
-        "auto-rows": ["auto", "min", "max", "fr", u]
+        "auto-rows": ["auto", "min", "max", "fr", h]
       }],
       /**
        * Gap
        * @see https://tailwindcss.com/docs/gap
        */
       gap: [{
-        gap: [h]
+        gap: [u]
       }],
       /**
        * Gap X
        * @see https://tailwindcss.com/docs/gap
        */
       "gap-x": [{
-        "gap-x": [h]
+        "gap-x": [u]
       }],
       /**
        * Gap Y
        * @see https://tailwindcss.com/docs/gap
        */
       "gap-y": [{
-        "gap-y": [h]
+        "gap-y": [u]
       }],
       /**
        * Justify Content
@@ -1095,21 +1095,21 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/width
        */
       w: [{
-        w: ["auto", "min", "max", "fit", "svw", "lvw", "dvw", u, i]
+        w: ["auto", "min", "max", "fit", "svw", "lvw", "dvw", h, i]
       }],
       /**
        * Min-Width
        * @see https://tailwindcss.com/docs/min-width
        */
       "min-w": [{
-        "min-w": [u, i, "min", "max", "fit"]
+        "min-w": [h, i, "min", "max", "fit"]
       }],
       /**
        * Max-Width
        * @see https://tailwindcss.com/docs/max-width
        */
       "max-w": [{
-        "max-w": [u, i, "none", "full", "min", "max", "fit", "prose", {
+        "max-w": [h, i, "none", "full", "min", "max", "fit", "prose", {
           screen: [V]
         }, V]
       }],
@@ -1118,28 +1118,28 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/height
        */
       h: [{
-        h: [u, i, "auto", "min", "max", "fit", "svh", "lvh", "dvh"]
+        h: [h, i, "auto", "min", "max", "fit", "svh", "lvh", "dvh"]
       }],
       /**
        * Min-Height
        * @see https://tailwindcss.com/docs/min-height
        */
       "min-h": [{
-        "min-h": [u, i, "min", "max", "fit", "svh", "lvh", "dvh"]
+        "min-h": [h, i, "min", "max", "fit", "svh", "lvh", "dvh"]
       }],
       /**
        * Max-Height
        * @see https://tailwindcss.com/docs/max-height
        */
       "max-h": [{
-        "max-h": [u, i, "min", "max", "fit", "svh", "lvh", "dvh"]
+        "max-h": [h, i, "min", "max", "fit", "svh", "lvh", "dvh"]
       }],
       /**
        * Size
        * @see https://tailwindcss.com/docs/size
        */
       size: [{
-        size: [u, i, "auto", "min", "max", "fit"]
+        size: [h, i, "auto", "min", "max", "fit"]
       }],
       // Typography
       /**
@@ -1208,7 +1208,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/letter-spacing
        */
       tracking: [{
-        tracking: ["tighter", "tight", "normal", "wide", "wider", "widest", u]
+        tracking: ["tighter", "tight", "normal", "wide", "wider", "widest", h]
       }],
       /**
        * Line Clamp
@@ -1222,21 +1222,21 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/line-height
        */
       leading: [{
-        leading: ["none", "tight", "snug", "normal", "relaxed", "loose", S, u]
+        leading: ["none", "tight", "snug", "normal", "relaxed", "loose", S, h]
       }],
       /**
        * List Style Image
        * @see https://tailwindcss.com/docs/list-style-image
        */
       "list-image": [{
-        "list-image": ["none", u]
+        "list-image": ["none", h]
       }],
       /**
        * List Style Type
        * @see https://tailwindcss.com/docs/list-style-type
        */
       "list-style-type": [{
-        list: ["none", "disc", "decimal", u]
+        list: ["none", "disc", "decimal", h]
       }],
       /**
        * List Style Position
@@ -1291,7 +1291,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/text-decoration-style
        */
       "text-decoration-style": [{
-        decoration: [...I(), "wavy"]
+        decoration: [...R(), "wavy"]
       }],
       /**
        * Text Decoration Thickness
@@ -1305,7 +1305,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/text-underline-offset
        */
       "underline-offset": [{
-        "underline-offset": ["auto", S, u]
+        "underline-offset": ["auto", S, h]
       }],
       /**
        * Text Decoration Color
@@ -1343,7 +1343,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/vertical-align
        */
       "vertical-align": [{
-        align: ["baseline", "top", "middle", "bottom", "text-top", "text-bottom", "sub", "super", u]
+        align: ["baseline", "top", "middle", "bottom", "text-top", "text-bottom", "sub", "super", h]
       }],
       /**
        * Whitespace
@@ -1371,7 +1371,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/content
        */
       content: [{
-        content: ["none", u]
+        content: ["none", h]
       }],
       // Backgrounds
       /**
@@ -1408,7 +1408,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/background-position
        */
       "bg-position": [{
-        bg: [...D(), $1]
+        bg: [...D(), z1]
       }],
       /**
        * Background Repeat
@@ -1424,7 +1424,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/background-size
        */
       "bg-size": [{
-        bg: ["auto", "cover", "contain", P1]
+        bg: ["auto", "cover", "contain", $1]
       }],
       /**
        * Background Image
@@ -1665,7 +1665,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/border-style
        */
       "border-style": [{
-        border: [...I(), "hidden"]
+        border: [...R(), "hidden"]
       }],
       /**
        * Divide Width X
@@ -1703,7 +1703,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/divide-style
        */
       "divide-style": [{
-        divide: I()
+        divide: R()
       }],
       /**
        * Border Color
@@ -1766,14 +1766,14 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/outline-style
        */
       "outline-style": [{
-        outline: ["", ...I()]
+        outline: ["", ...R()]
       }],
       /**
        * Outline Offset
        * @see https://tailwindcss.com/docs/outline-offset
        */
       "outline-offset": [{
-        "outline-offset": [S, u]
+        "outline-offset": [S, h]
       }],
       /**
        * Outline Width
@@ -1835,7 +1835,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/box-shadow
        */
       shadow: [{
-        shadow: ["", "inner", "none", V, I1]
+        shadow: ["", "inner", "none", V, F1]
       }],
       /**
        * Box Shadow Color
@@ -1900,14 +1900,14 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/drop-shadow
        */
       "drop-shadow": [{
-        "drop-shadow": ["", "none", V, u]
+        "drop-shadow": ["", "none", V, h]
       }],
       /**
        * Grayscale
        * @see https://tailwindcss.com/docs/grayscale
        */
       grayscale: [{
-        grayscale: [d]
+        grayscale: [c]
       }],
       /**
        * Hue Rotate
@@ -1921,7 +1921,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/invert
        */
       invert: [{
-        invert: [c]
+        invert: [d]
       }],
       /**
        * Saturate
@@ -1971,7 +1971,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/backdrop-grayscale
        */
       "backdrop-grayscale": [{
-        "backdrop-grayscale": [d]
+        "backdrop-grayscale": [c]
       }],
       /**
        * Backdrop Hue Rotate
@@ -1985,7 +1985,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/backdrop-invert
        */
       "backdrop-invert": [{
-        "backdrop-invert": [c]
+        "backdrop-invert": [d]
       }],
       /**
        * Backdrop Opacity
@@ -2057,7 +2057,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/transition-property
        */
       transition: [{
-        transition: ["none", "all", "", "colors", "opacity", "shadow", "transform", u]
+        transition: ["none", "all", "", "colors", "opacity", "shadow", "transform", h]
       }],
       /**
        * Transition Duration
@@ -2071,7 +2071,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/transition-timing-function
        */
       ease: [{
-        ease: ["linear", "in", "out", "in-out", u]
+        ease: ["linear", "in", "out", "in-out", h]
       }],
       /**
        * Transition Delay
@@ -2085,7 +2085,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/animation
        */
       animate: [{
-        animate: ["none", "spin", "ping", "pulse", "bounce", u]
+        animate: ["none", "spin", "ping", "pulse", "bounce", h]
       }],
       // Transforms
       /**
@@ -2121,7 +2121,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/rotate
        */
       rotate: [{
-        rotate: [$, u]
+        rotate: [$, h]
       }],
       /**
        * Translate X
@@ -2156,7 +2156,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/transform-origin
        */
       "transform-origin": [{
-        origin: ["center", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left", u]
+        origin: ["center", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left", h]
       }],
       // Interactivity
       /**
@@ -2178,7 +2178,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/cursor
        */
       cursor: [{
-        cursor: ["auto", "default", "pointer", "wait", "text", "move", "help", "not-allowed", "none", "context-menu", "progress", "cell", "crosshair", "vertical-text", "alias", "copy", "no-drop", "grab", "grabbing", "all-scroll", "col-resize", "row-resize", "n-resize", "e-resize", "s-resize", "w-resize", "ne-resize", "nw-resize", "se-resize", "sw-resize", "ew-resize", "ns-resize", "nesw-resize", "nwse-resize", "zoom-in", "zoom-out", u]
+        cursor: ["auto", "default", "pointer", "wait", "text", "move", "help", "not-allowed", "none", "context-menu", "progress", "cell", "crosshair", "vertical-text", "alias", "copy", "no-drop", "grab", "grabbing", "all-scroll", "col-resize", "row-resize", "n-resize", "e-resize", "s-resize", "w-resize", "ne-resize", "nw-resize", "se-resize", "sw-resize", "ew-resize", "ns-resize", "nesw-resize", "nwse-resize", "zoom-in", "zoom-out", h]
       }],
       /**
        * Caret Color
@@ -2400,7 +2400,7 @@ const y = (n) => {
        * @see https://tailwindcss.com/docs/will-change
        */
       "will-change": [{
-        "will-change": ["auto", "scroll", "contents", "transform", u]
+        "will-change": ["auto", "scroll", "contents", "transform", h]
       }],
       // SVG
       /**
@@ -2490,7 +2490,7 @@ const y = (n) => {
       "font-size": ["leading"]
     }
   };
-}, O1 = /* @__PURE__ */ w1(G1), q1 = [
+}, q1 = /* @__PURE__ */ M1(O1), N1 = [
   "bottom-bar",
   "z-10",
   "flex",
@@ -2510,7 +2510,7 @@ const y = (n) => {
   "group-[&.nomercyplayer:has(:focus)]:duration-0",
   "transition-all",
   "duration-300"
-], N1 = [
+], j1 = [
   "absolute",
   "pointer-events-none",
   "bottom-0",
@@ -2519,7 +2519,7 @@ const y = (n) => {
   "from-black/90",
   "pt-[10%]",
   "w-available"
-], j1 = [
+], X1 = [
   "cursor-pointer",
   "fill-white",
   "tv:fill-white/30",
@@ -2538,7 +2538,7 @@ const y = (n) => {
   "rounded-full",
   "w-10",
   "min-w-[40px]"
-], X1 = [
+], _1 = [
   "chapter-bar",
   "bg-transparent",
   "flex",
@@ -2547,7 +2547,7 @@ const y = (n) => {
   "rounded-full",
   "overflow-clip",
   "w-available"
-], _1 = [
+], D1 = [
   "chapter-marker",
   "min-w-[2px]",
   "absolute",
@@ -2556,7 +2556,7 @@ const y = (n) => {
   "[&:last-child(2):.5px]",
   "rounded-sm",
   "overflow-hidden"
-], D1 = [
+], W1 = [
   "chapter-marker-bg",
   "bg-white/20",
   "absolute",
@@ -2565,7 +2565,7 @@ const y = (n) => {
   "w-available",
   "z-0",
   "rounded-sm"
-], W1 = [
+], Q1 = [
   "chapter-marker-buffer",
   "absolute",
   "bg-gray-300/30",
@@ -2576,7 +2576,7 @@ const y = (n) => {
   "w-available",
   "z-10",
   "rounded-sm"
-], Q1 = [
+], Y1 = [
   "chapter-marker-hover",
   "absolute",
   "bg-gray-200",
@@ -2587,7 +2587,7 @@ const y = (n) => {
   "w-available",
   "z-10",
   "rounded-sm"
-], Y1 = [
+], K1 = [
   "chapter-marker-progress",
   "absolute",
   "bg-white",
@@ -2598,11 +2598,11 @@ const y = (n) => {
   "w-available",
   "z-20",
   "rounded-sm"
-], K1 = ["chapter-text"], J1 = [
+], J1 = ["chapter-text"], ee = [
   "divider",
   "flex",
   "flex-1"
-], ee = ["text-white"], te = [
+], te = ["text-white"], se = [
   "scroll-container",
   "flex",
   "flex-col",
@@ -2618,7 +2618,7 @@ const y = (n) => {
   "scroll-snap-align-center",
   "scroll-smooth",
   "scroll-p-4"
-], se = [
+], ie = [
   "slider-bar",
   "group/slider",
   "flex",
@@ -2628,7 +2628,7 @@ const y = (n) => {
   "mx-4",
   "relative",
   "w-available"
-], ie = [
+], le = [
   "slider-buffer",
   "absolute",
   "flex",
@@ -2639,7 +2639,7 @@ const y = (n) => {
   "z-0",
   "overflow-hidden",
   "overflow-clip"
-], le = [
+], re = [
   "slider-hover",
   "absolute",
   "opacity-1",
@@ -2651,7 +2651,7 @@ const y = (n) => {
   "z-0",
   "overflow-hidden",
   "overflow-clip"
-], re = [
+], ae = [
   "slider-progress",
   "absolute",
   "flex",
@@ -2662,7 +2662,7 @@ const y = (n) => {
   "z-10",
   "overflow-hidden",
   "overflow-clip"
-], ae = [
+], ne = [
   "slider-nipple",
   "-translate-x-1/2",
   "-translate-y-[25%]",
@@ -2676,7 +2676,7 @@ const y = (n) => {
   "top-0",
   "w-4",
   "z-20"
-], ne = ["slider-pop-image"], oe = [
+], oe = ["slider-pop-image"], pe = [
   "slider-pop",
   "-translate-x-1/2",
   "absolute",
@@ -2693,16 +2693,16 @@ const y = (n) => {
   "rounded-md",
   "text-center",
   "z-20"
-], pe = [
+], ce = [
   "slider-pop-text",
   "font-mono"
-], ce = [
+], de = [
   "speed-button-text",
   "cursor-pointer",
   "font-semibold",
   "pl-2",
   "leading-[normal]"
-], de = [
+], he = [
   "sub-menu-content",
   "flex",
   "flex-col",
@@ -2719,7 +2719,7 @@ const y = (n) => {
   "pointer-events-none",
   "group-hover/button:scale-110",
   "duration-700"
-], he = [
+], Ce = [
   "time",
   "flex",
   "font-mono",
@@ -2728,7 +2728,7 @@ const y = (n) => {
   "select-none",
   "text-sm",
   "justify-center"
-], Ce = [
+], ye = [
   "top-bar",
   "z-10",
   "flex",
@@ -2751,12 +2751,12 @@ const y = (n) => {
   "bg-gradient-to-b",
   "from-black/90",
   "via-black/50"
-], ye = [
+], me = [
   "volume-container",
   "group/volume",
   "flex",
   "overflow-clip"
-], me = [
+], fe = [
   "volume-slider",
   "w-0",
   "rounded-full",
@@ -2791,7 +2791,7 @@ const y = (n) => {
   "range-thumb:bg-white",
   "range-thumb:shadow-sm",
   "range-thumb:border-none"
-], fe = [
+], ge = [
   "player-message",
   "hidden",
   "absolute",
@@ -2805,7 +2805,7 @@ const y = (n) => {
   "top-12",
   "-translate-x-1/2",
   "z-50"
-], ge = [
+], be = [
   "playlist-menu-button",
   "relative",
   "flex",
@@ -2824,7 +2824,7 @@ const y = (n) => {
   "transition-all",
   "duration-300",
   "hover:bg-neutral-600/20"
-], be = [
+], ve = [
   "episode-menu-button-left",
   "relative",
   "rounded-md",
@@ -2833,7 +2833,7 @@ const y = (n) => {
   "overflow-clip",
   "self-center",
   "pointer-events-none"
-], ve = [
+], Le = [
   "episode-menu-button-shadow",
   "bg-[linear-gradient(0deg,rgba(0,0,0,0.87)_0%,rgba(0,0,0,0.7)_25%,rgba(0,0,0,0)_50%,rgba(0,0,0,0)_100%)]",
   "shadow-[inset_0px_1px_0px_rgba(255,255,255,0.24),inset_0px_-1px_0px_rgba(0,0,0,0.24),inset_0px_-2px_0px_rgba(0,0,0,0.24)]",
@@ -2842,14 +2842,14 @@ const y = (n) => {
   "absolute",
   "!h-available",
   "w-available"
-], Le = [
+], xe = [
   "episode-menu-button-image",
   "w-available",
   "h-auto",
   "aspect-video",
   "object-cover",
   ""
-], xe = [
+], we = [
   "episode-menu-progress-container",
   "absolute",
   "bottom-0",
@@ -2857,7 +2857,7 @@ const y = (n) => {
   "flex",
   "flex-col",
   "px-3"
-], we = [
+], Me = [
   "episode-menu-progress-box",
   "flex",
   "justify-between",
@@ -2865,14 +2865,14 @@ const y = (n) => {
   "sm:mx-2",
   "mb-1",
   "px-1"
-], Me = [
+], Se = [
   "progress-item-text",
   "text-[0.7rem]",
   ""
-], Se = [
+], Te = [
   "progress-duration",
   "text-[0.7rem]"
-], Te = [
+], ke = [
   "slider-container",
   "hidden",
   "rounded-md",
@@ -2882,10 +2882,10 @@ const y = (n) => {
   "mb-2",
   "mx-1",
   "sm:mx-2"
-], ke = [
+], Ve = [
   "progress-bar",
   "bg-white"
-], Ve = [
+], Ee = [
   "playlist-card-right",
   "w-3/4",
   "flex",
@@ -2893,13 +2893,13 @@ const y = (n) => {
   "text-left",
   "gap-1",
   "pointer-events-none"
-], Ee = [
+], He = [
   "playlist-menu-button-title",
   "font-bold",
   "line-clamp-1",
   "text-white",
   ""
-], He = [
+], Be = [
   "playlist-menu-button-overview",
   "text-[0.7rem]",
   "leading-[1rem]",
@@ -2907,7 +2907,7 @@ const y = (n) => {
   "overflow-hidden",
   "text-white",
   ""
-], Be = [
+], Ze = [
   "tooltip",
   "hidden",
   "absolute",
@@ -2922,7 +2922,7 @@ const y = (n) => {
   "font-medium",
   "bg-neutral-900/95",
   "pointer-events-none"
-], Ze = [
+], Pe = [
   "absolute",
   "inset-0",
   "hidden",
@@ -2932,13 +2932,13 @@ const y = (n) => {
   "grid",
   "pointer-events-none",
   "place-content-center"
-], Pe = [
+], $e = [
   "flex",
   "flex-col",
   "items-center",
   "gap-4",
   "mt-11"
-], $e = [
+], ze = [
   "inline",
   "w-12",
   "h-12",
@@ -2946,7 +2946,7 @@ const y = (n) => {
   "animate-spin",
   "text-white/20",
   "fill-white"
-], ze = [
+], Ie = [
   "text-white",
   "text-lg",
   "font-bold"
@@ -2967,7 +2967,7 @@ const y = (n) => {
   "rounded-lg",
   "font-medium",
   "bg-neutral-900/95"
-], Ie = [
+], Fe = [
   "next-tip-text",
   "relative",
   "rounded-sm",
@@ -2975,7 +2975,7 @@ const y = (n) => {
   "overflow-clip",
   "self-center",
   ""
-], Fe = [
+], Ae = [
   "playlist-card-image",
   "w-available",
   "h-auto",
@@ -2983,7 +2983,7 @@ const y = (n) => {
   "object-cover",
   "rounded-md",
   ""
-], Ae = [
+], Ue = [
   "next-tip-left",
   "relative",
   "rounded-sm",
@@ -2991,22 +2991,22 @@ const y = (n) => {
   "overflow-clip",
   "self-center",
   ""
-], Ue = [
+], Ge = [
   "next-tip-right",
   "w-[60%]",
   "flex",
   "flex-col",
   "text-left",
   "gap-1"
-], Ge = [
+], Oe = [
   "next-tip-header",
   "font-bold",
   ""
-], Oe = [
+], qe = [
   "next-tip-title",
   "font-bold",
   "text-white"
-], qe = [
+], Ne = [
   "next-up",
   "flex",
   "gap-2",
@@ -3018,7 +3018,7 @@ const y = (n) => {
   "px-2",
   "py-2",
   "z-50"
-], Ne = [
+], je = [
   "next-up-credits-button",
   "bg-neutral-900/95",
   "block",
@@ -3033,7 +3033,7 @@ const y = (n) => {
   "focus-visible:outline-white",
   "active:outline-white",
   ""
-], je = [
+], Xe = [
   "next-up-next-button",
   "animated",
   "bg-neutral-100",
@@ -3044,7 +3044,7 @@ const y = (n) => {
   "focus-visible:outline-white",
   "active:outline-white",
   ""
-], Xe = [
+], _e = [
   "relative",
   "h-auto",
   "-mb-28",
@@ -3052,7 +3052,7 @@ const y = (n) => {
   "translate-y-[80vh]",
   "z-40",
   "w-available"
-], _e = [
+], De = [
   "relative",
   "flex",
   "h-available",
@@ -3061,7 +3061,7 @@ const y = (n) => {
   "px-[calc(100%/2.14)]",
   "gap-1.5",
   "scrollbar-none"
-], De = [
+], We = [
   "[--gap:1.5rem]",
   "absolute",
   "flex",
@@ -3070,7 +3070,7 @@ const y = (n) => {
   "gap-[var(--gap)]",
   "z-10",
   "pointer-events-none"
-], We = [
+], Qe = [
   "w-[calc(23%+(var(--gap)/2))]",
   "h-auto",
   "object-cover",
@@ -3078,76 +3078,76 @@ const y = (n) => {
   "border-4",
   "mx-auto",
   ""
-], Qe = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+], Ye = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  bottomBarShadowStyles: N1,
-  bottomBarStyles: q1,
-  buttonStyles: j1,
-  chapterBarStyles: X1,
-  chapterMarkerBGStyles: D1,
-  chapterMarkerBufferStyles: W1,
-  chapterMarkerHoverStyles: Q1,
-  chapterMarkerProgressStyles: Y1,
-  chapterMarkersStyles: _1,
-  chapterTextStyles: K1,
-  dividerStyles: J1,
-  episodeMenuButtonImageStyles: Le,
-  episodeMenuButtonLeftStyles: be,
-  episodeMenuButtonOverviewStyles: He,
-  episodeMenuButtonRightSideStyles: Ve,
-  episodeMenuButtonShadowStyles: ve,
-  episodeMenuButtonTitleStyles: Ee,
-  episodeMenuProgressBoxStyles: we,
-  episodeMenuProgressContainerStyles: xe,
-  iconStyles: ee,
-  nextTipHeaderStyles: Ge,
-  nextTipImageStyles: Fe,
-  nextTipLeftSideStyles: Ae,
-  nextTipRightSideStyles: Ue,
+  bottomBarShadowStyles: j1,
+  bottomBarStyles: N1,
+  buttonStyles: X1,
+  chapterBarStyles: _1,
+  chapterMarkerBGStyles: W1,
+  chapterMarkerBufferStyles: Q1,
+  chapterMarkerHoverStyles: Y1,
+  chapterMarkerProgressStyles: K1,
+  chapterMarkersStyles: D1,
+  chapterTextStyles: J1,
+  dividerStyles: ee,
+  episodeMenuButtonImageStyles: xe,
+  episodeMenuButtonLeftStyles: ve,
+  episodeMenuButtonOverviewStyles: Be,
+  episodeMenuButtonRightSideStyles: Ee,
+  episodeMenuButtonShadowStyles: Le,
+  episodeMenuButtonTitleStyles: He,
+  episodeMenuProgressBoxStyles: Me,
+  episodeMenuProgressContainerStyles: we,
+  iconStyles: te,
+  nextTipHeaderStyles: Oe,
+  nextTipImageStyles: Ae,
+  nextTipLeftSideStyles: Ue,
+  nextTipRightSideStyles: Ge,
   nextTipStyles: Re,
-  nextTipTextStyles: Ie,
-  nextTipTitleStyles: Oe,
-  nextUpCreditsButtonStyles: Ne,
-  nextUpNextButtonStyles: je,
-  nextUpStyles: qe,
-  playerMessageStyles: fe,
-  playlistMenuButtonStyles: ge,
-  progressBarStyles: ke,
-  progressContainerDurationTextStyles: Se,
-  progressContainerItemTextStyles: Me,
-  roleStyles: Pe,
-  scrollContainerStyles: te,
-  seekContainerStyles: Xe,
-  seekScrollCloneStyles: De,
-  seekScrollContainerStyles: _e,
-  sliderBarStyles: se,
-  sliderBufferStyles: ie,
-  sliderContainerStyles: Te,
-  sliderHoverStyles: le,
-  sliderNippleStyles: ae,
-  sliderPopImageStyles: ne,
-  sliderPopStyles: oe,
-  sliderProgressStyles: re,
-  sliderTextStyles: pe,
-  speedButtonTextStyles: ce,
-  spinnerContainerStyles: Ze,
-  spinnerStyles: $e,
-  statusTextStyles: ze,
-  subMenuContentStyles: de,
+  nextTipTextStyles: Fe,
+  nextTipTitleStyles: qe,
+  nextUpCreditsButtonStyles: je,
+  nextUpNextButtonStyles: Xe,
+  nextUpStyles: Ne,
+  playerMessageStyles: ge,
+  playlistMenuButtonStyles: be,
+  progressBarStyles: Ve,
+  progressContainerDurationTextStyles: Te,
+  progressContainerItemTextStyles: Se,
+  roleStyles: $e,
+  scrollContainerStyles: se,
+  seekContainerStyles: _e,
+  seekScrollCloneStyles: We,
+  seekScrollContainerStyles: De,
+  sliderBarStyles: ie,
+  sliderBufferStyles: le,
+  sliderContainerStyles: ke,
+  sliderHoverStyles: re,
+  sliderNippleStyles: ne,
+  sliderPopImageStyles: oe,
+  sliderPopStyles: pe,
+  sliderProgressStyles: ae,
+  sliderTextStyles: ce,
+  speedButtonTextStyles: de,
+  spinnerContainerStyles: Pe,
+  spinnerStyles: ze,
+  statusTextStyles: Ie,
+  subMenuContentStyles: he,
   svgSizeStyles: ue,
-  thumbnailCloneStyles: We,
-  timeStyles: he,
-  tooltipStyles: Be,
-  topBarStyles: Ce,
-  volumeContainerStyles: ye,
-  volumeSliderStyles: me
+  thumbnailCloneStyles: Qe,
+  timeStyles: Ce,
+  tooltipStyles: Ze,
+  topBarStyles: ye,
+  volumeContainerStyles: me,
+  volumeSliderStyles: fe
 }, Symbol.toStringTag, { value: "Module" }));
-class Ye extends o1 {
+class Ke extends p1 {
   constructor() {
-    super(...arguments), this.player = {}, this.overlay = {}, this.buttons = {}, this.chapterBar = {}, this.mainMenu = {}, this.menuFrame = {}, this.nextUp = {}, this.seekContainer = {}, this.sliderBar = {}, this.sliderPopImage = {}, this.episodeScrollContainer = {}, this.playbackButton = {}, this.chapters = [], this.previewTime = [], this.timer = {}, this.timeout = {}, this.image = "", this.controlsVisible = !1, this.currentScrubTime = 0, this.imageBaseUrl = "", this.isScrubbing = !1, this.menuOpen = !1, this.mainMenuOpen = !1, this.languageMenuOpen = !1, this.subtitlesMenuOpen = !1, this.qualityMenuOpen = !1, this.speedMenuOpen = !1, this.playlistMenuOpen = !1, this.theaterModeEnabled = !1, this.shouldSlide = !1, this.currentTimeFile = "", this.currentMenu = null, this.thumbs = [], this.makeStyles = (i) => this.mergeStyles(`${i}`, Qe[i]);
+    super(...arguments), this.player = {}, this.overlay = {}, this.buttons = {}, this.chapterBar = {}, this.mainMenu = {}, this.menuFrame = {}, this.nextUp = {}, this.seekContainer = {}, this.sliderBar = {}, this.sliderPopImage = {}, this.episodeScrollContainer = {}, this.playbackButton = {}, this.chapters = [], this.previewTime = [], this.timer = {}, this.timeout = {}, this.image = "", this.controlsVisible = !1, this.currentScrubTime = 0, this.imageBaseUrl = "", this.isScrubbing = !1, this.menuOpen = !1, this.mainMenuOpen = !1, this.languageMenuOpen = !1, this.subtitlesMenuOpen = !1, this.qualityMenuOpen = !1, this.speedMenuOpen = !1, this.playlistMenuOpen = !1, this.theaterModeEnabled = !1, this.shouldSlide = !1, this.currentTimeFile = "", this.currentMenu = null, this.thumbs = [], this.makeStyles = (i) => this.mergeStyles(`${i}`, Ye[i]);
   }
   initialize(i) {
-    this.player = i, this.overlay = i.overlay, this.buttons = c1(), this.imageBaseUrl = i.options.basePath ? "" : "https://image.tmdb.org/t/p/w185";
+    this.player = i, this.overlay = i.overlay, this.buttons = d1(), this.imageBaseUrl = i.options.basePath ? "" : "https://image.tmdb.org/t/p/w185";
   }
   dispose() {
     clearTimeout(this.timer), clearTimeout(this.timeout), this.player.plugins.desktopUIPlugin = void 0, this.chapters = [], this.previewTime = [], this.overlay && this.overlay.parentNode && this.overlay.parentNode.removeChild(this.overlay);
@@ -3155,8 +3155,8 @@ class Ye extends o1 {
   scrollIntoView(i) {
     const e = i.parentElement, s = i.getBoundingClientRect().left + i.offsetWidth / 2 - e.offsetWidth / 2, l = e.scrollLeft, r = performance.now();
     function a(o) {
-      const d = o - r, p = Math.min(d / 200, 1);
-      e.scrollTo(l + s * p, 0), d < 200 && requestAnimationFrame(a);
+      const c = o - r, p = Math.min(c / 200, 1);
+      e.scrollTo(l + s * p, 0), c < 200 && requestAnimationFrame(a);
     }
     requestAnimationFrame(a);
   }
@@ -3173,7 +3173,7 @@ class Ye extends o1 {
   }
   createSVGElement(i, t, e, s = !1, l = !1) {
     const r = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    r.setAttribute("viewBox", "0 0 24 24"), r.id = t, this.player.addClasses(r, O1([
+    r.setAttribute("viewBox", "0 0 24 24"), r.id = t, this.player.addClasses(r, q1([
       `${t}-icon`,
       ...this.makeStyles("svgSizeStyles"),
       ...this.makeStyles("iconStyles"),
@@ -3193,13 +3193,13 @@ class Ye extends o1 {
     ]), r.appendChild(o), !i.classList.contains("menu-button") && l && (i.addEventListener("mouseenter", () => {
       if (e.title.length == 0 || ["Next", "Previous"].includes(e.title) && this.player.hasNextTip || e.title == "Fullscreen" && this.player.getFullscreen() || e.title == "Exit fullscreen" && !this.player.getFullscreen() || e.title == "Play" && this.player.isPlaying || e.title == "Pause" && !this.player.isPlaying || e.title == "Mute" && this.player.isMuted() || e.title == "Unmute" && !this.player.isMuted())
         return;
-      const d = `${this.player.localize(e.title)} ${this.getButtonKeyCode(t)}`, p = this.player.getElement().getBoundingClientRect(), c = i.getBoundingClientRect();
-      let h = Math.abs(p.left - (c.left + c.width * 0.5) - d.length * 0.5);
-      const b = Math.abs(p.bottom - (c.bottom + c.height * 1.2));
-      h < 35 && (h = 35), h > p.right - p.left - 75 && (h = p.right - p.left - 75), this.player.emit("show-tooltip", {
-        text: d,
+      const c = `${this.player.localize(e.title)} ${this.getButtonKeyCode(t)}`, p = this.player.getElement().getBoundingClientRect(), d = i.getBoundingClientRect();
+      let u = Math.abs(p.left - (d.left + d.width * 0.5) - c.length * 0.5);
+      const b = Math.abs(p.bottom - (d.bottom + d.height * 1.2));
+      u < 35 && (u = 35), u > p.right - p.left - 75 && (u = p.right - p.left - 75), this.player.emit("show-tooltip", {
+        text: c,
         currentTime: "bottom",
-        x: `${h}px`,
+        x: `${u}px`,
         y: `-${b}px`
       });
     }), i.addEventListener("mouseleave", () => {
@@ -3325,12 +3325,12 @@ class Ye extends o1 {
             type: "text"
           },
           callback: (s) => {
-            const r = new p1.WebVTTParser().parse(s, "metadata"), a = /(?<x>\d*),(?<y>\d*),(?<w>\d*),(?<h>\d*)/u;
+            const r = new c1.WebVTTParser().parse(s, "metadata"), a = /(?<x>\d*),(?<y>\d*),(?<w>\d*),(?<h>\d*)/u;
             this.previewTime = [], r.cues.forEach((o) => {
-              const d = a.exec(o.text);
-              if (!(d != null && d.groups))
+              const c = a.exec(o.text);
+              if (!(c != null && c.groups))
                 return;
-              const { x: p, y: c, w: h, h: b } = d.groups, [v, f, C, g] = [p, c, h, b].map((L) => parseInt(L, 10));
+              const { x: p, y: d, w: u, h: b } = c.groups, [v, f, C, g] = [p, d, u, b].map((L) => parseInt(L, 10));
               this.previewTime.push({
                 start: o.startTime,
                 end: o.endTime,
@@ -3493,23 +3493,23 @@ class Ye extends o1 {
     s.ariaLabel = (p = this.buttons.volumeHigh) == null ? void 0 : p.title;
     const l = this.player.createElement("input", "volume-slider").addClasses(this.makeStyles("volumeSliderStyles")).appendTo(e);
     l.type = "range", l.min = "0", l.max = "100", l.step = "1", l.value = this.player.getVolume().toString(), l.style.backgroundSize = `${this.player.getVolume()}% 100%`;
-    const r = this.createSVGElement(s, "volumeMuted", this.buttons.volumeMuted, !0, t), a = this.createSVGElement(s, "volumeLow", this.buttons.volumeLow, !0, t), o = this.createSVGElement(s, "volumeMedium", this.buttons.volumeMedium, !0, t), d = this.createSVGElement(s, "volumeHigh", this.buttons.volumeHigh, !1, t);
-    return s.addEventListener("click", (c) => {
-      c.stopPropagation(), this.player.toggleMute(), this.player.emit("hide-tooltip");
-    }), l.addEventListener("input", (c) => {
-      c.stopPropagation();
-      const h = Math.floor(parseInt(l.value, 10));
-      l.style.backgroundSize = `${h}% 100%`, this.player.setVolume(h);
-    }), e.addEventListener("wheel", (c) => {
-      c.preventDefault();
-      const h = c.deltaY === 0 ? -c.deltaX : -c.deltaY;
-      h !== 0 && (l.style.backgroundSize = `${l.value}% 100%`, l.value = (parseFloat(l.value) + h * 0.5).toString(), this.player.setVolume(parseFloat(l.value)));
+    const r = this.createSVGElement(s, "volumeMuted", this.buttons.volumeMuted, !0, t), a = this.createSVGElement(s, "volumeLow", this.buttons.volumeLow, !0, t), o = this.createSVGElement(s, "volumeMedium", this.buttons.volumeMedium, !0, t), c = this.createSVGElement(s, "volumeHigh", this.buttons.volumeHigh, !1, t);
+    return s.addEventListener("click", (d) => {
+      d.stopPropagation(), this.player.toggleMute(), this.player.emit("hide-tooltip");
+    }), l.addEventListener("input", (d) => {
+      d.stopPropagation();
+      const u = Math.floor(parseInt(l.value, 10));
+      l.style.backgroundSize = `${u}% 100%`, this.player.setVolume(u);
+    }), e.addEventListener("wheel", (d) => {
+      d.preventDefault();
+      const u = d.deltaY === 0 ? -d.deltaX : -d.deltaY;
+      u !== 0 && (l.style.backgroundSize = `${l.value}% 100%`, l.value = (parseFloat(l.value) + u * 0.5).toString(), this.player.setVolume(parseFloat(l.value)));
     }, {
       passive: !0
-    }), this.player.on("volume", (c) => {
-      this.volumeHandle(c, r, a, o, d), l.style.backgroundSize = `${c.volume}% 100%`, l.value = c.volume.toString();
-    }), this.player.on("mute", (c) => {
-      this.volumeHandle(c, r, a, o, d), c.muted ? (l.style.backgroundSize = "0% 100%", l.value = "0") : (l.style.backgroundSize = `${this.player.getVolume()}% 100%`, l.value = this.player.getVolume().toString());
+    }), this.player.on("volume", (d) => {
+      this.volumeHandle(d, r, a, o, c), l.style.backgroundSize = `${d.volume}% 100%`, l.value = d.volume.toString();
+    }), this.player.on("mute", (d) => {
+      this.volumeHandle(d, r, a, o, c), d.muted ? (l.style.backgroundSize = "0% 100%", l.value = "0") : (l.style.backgroundSize = `${this.player.getVolume()}% 100%`, l.value = this.player.getVolume().toString());
     }), e;
   }
   volumeHandle(i, t, e, s, l) {
@@ -3738,6 +3738,29 @@ class Ye extends o1 {
   createTopBar(i) {
     return this.player.createElement("div", "top-bar").addClasses(this.makeStyles("topBarStyles")).appendTo(i);
   }
+  createTvCurrentItem(i) {
+    const t = this.player.createElement("div", "current-item-container").addClasses([
+      "flex",
+      "flex-col",
+      "justify-end",
+      "items-end",
+      "gap-2"
+    ]).appendTo(i), e = this.player.createElement("div", "current-item-show").addClasses([
+      "text-white",
+      "text-sm",
+      "whitespace-pre",
+      "font-bold"
+    ]).appendTo(t), s = this.player.createElement("div", "current-item-title-container").addClasses([
+      "flex",
+      "flex-row",
+      "gap-2"
+    ]).appendTo(t), l = this.player.createElement("div", "current-item-episode").addClasses([]).appendTo(s), r = this.player.createElement("div", "current-item-title").addClasses([]).appendTo(s);
+    return this.player.on("item", () => {
+      var o, c;
+      const a = this.player.playlistItem();
+      e.innerHTML = a1(a.show ?? ""), l.innerHTML = "", a.season && (l.innerHTML += `${this.player.localize("S")}${a.season}`), a.season && a.episode && (l.innerHTML += `: ${this.player.localize("E")}${a.episode}`), r.innerHTML = ((o = a.title) == null ? void 0 : o.replace(a.show ?? "", "").length) > 0 ? `"${(c = a.title) == null ? void 0 : c.replace(a.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E"))}"` : "";
+    }), t;
+  }
   createLanguageMenuButton(i, t, e = !1) {
     const s = this.player.createElement("button", `${t.type}-button-${t.language}`).addClasses([
       "language-button",
@@ -3781,8 +3804,8 @@ class Ye extends o1 {
     }), s.addEventListener("click", (a) => {
       a.stopPropagation(), this.player.setCurrentCaption(t.id), this.player.emit("show-menu", !1);
     })), s.addEventListener("keypress", (a) => {
-      var o, d, p, c;
-      a.key == "ArrowLeft" ? (o = this.player.getClosestElement(s, '[id^="audio-button-"]')) == null || o.focus() : a.key == "ArrowRight" ? (d = this.player.getClosestElement(s, '[id^="subtitle-button-"]')) == null || d.focus() : a.key == "ArrowUp" && !this.player.options.disableTouchControls ? (p = s.previousElementSibling) == null || p.focus() : a.key == "ArrowDown" && !this.player.options.disableTouchControls && ((c = s.nextElementSibling) == null || c.focus());
+      var o, c, p, d;
+      a.key == "ArrowLeft" ? (o = this.player.getClosestElement(s, '[id^="audio-button-"]')) == null || o.focus() : a.key == "ArrowRight" ? (c = this.player.getClosestElement(s, '[id^="subtitle-button-"]')) == null || c.focus() : a.key == "ArrowUp" && !this.player.options.disableTouchControls ? (p = s.previousElementSibling) == null || p.focus() : a.key == "ArrowDown" && !this.player.options.disableTouchControls && ((d = s.nextElementSibling) == null || d.focus());
     }), s.addEventListener("focus", () => {
       setTimeout(() => {
         this.scrollCenter(s, i.parentElement, {
@@ -3830,9 +3853,9 @@ class Ye extends o1 {
     return t || (t = this.previewTime.at(-1)), t;
   }
   getScrubTime(i, t = this.sliderBar) {
-    var r, a, o, d;
+    var r, a, o, c;
     const e = t.getBoundingClientRect();
-    let l = (i.clientX ?? ((a = (r = i.touches) == null ? void 0 : r[0]) == null ? void 0 : a.clientX) ?? ((d = (o = i.changedTouches) == null ? void 0 : o[0]) == null ? void 0 : d.clientX) ?? 0) - e.left;
+    let l = (i.clientX ?? ((a = (r = i.touches) == null ? void 0 : r[0]) == null ? void 0 : a.clientX) ?? ((c = (o = i.changedTouches) == null ? void 0 : o[0]) == null ? void 0 : c.clientX) ?? 0) - e.left;
     return l <= 0 && (l = 0), l >= e.width && (l = e.width), {
       scrubTime: l / t.offsetWidth * 100,
       scrubTimePlayer: l / t.offsetWidth * this.player.getDuration()
@@ -3852,14 +3875,14 @@ class Ye extends o1 {
     if (!i)
       return;
     const s = (e == null ? void 0 : e.duration) || 60, l = (e == null ? void 0 : e.margin) || 1.5, r = i.getBoundingClientRect().top + i.getBoundingClientRect().height / 2 - t.getBoundingClientRect().height / l, a = t.scrollTop, o = performance.now();
-    function d(p) {
-      const c = p - o, h = Math.min(c / s, 1);
-      t.scrollTo(0, Math.floor(a + r * h)), c < s && requestAnimationFrame(d);
+    function c(p) {
+      const d = p - o, u = Math.min(d / s, 1);
+      t.scrollTo(0, Math.floor(a + r * u)), d < s && requestAnimationFrame(c);
     }
-    requestAnimationFrame(d);
+    requestAnimationFrame(c);
   }
 }
-class tt extends Ye {
+class st extends Ke {
   constructor() {
     super(...arguments), this.topBar = {}, this.bottomRow = {}, this.frame = {}, this.isMouseDown = !1, this.pipEnabled = !1, this.bottomBar = {}, this.topRow = {}, this.tooltip = {}, this.menuButtonTextStyles = [
       "menu-button-text",
@@ -3894,7 +3917,7 @@ class tt extends Ye {
     ];
   }
   use() {
-    this.topBar = this.createTopBar(this.overlay), this.createBackButton(this.topBar), this.createCloseButton(this.topBar), this.createDivider(this.topBar), this.player.options.disableTouchControls || this.createCenter(this.overlay), this.bottomBar = this.createBottomBar(this.overlay), this.bottomBar.onmouseleave = (t) => {
+    this.topBar = this.createTopBar(this.overlay), this.createBackButton(this.topBar), this.createCloseButton(this.topBar), this.createDivider(this.topBar), this.createTvCurrentItem(this.topBar), this.player.options.disableTouchControls || this.createCenter(this.overlay), this.bottomBar = this.createBottomBar(this.overlay), this.bottomBar.onmouseleave = (t) => {
       var s;
       const e = (s = this.player.getVideoElement()) == null ? void 0 : s.getBoundingClientRect();
       !e || t.x > e.left && t.x < e.right && t.y > e.top && t.y < e.bottom || this.player.emit("hide-tooltip");
@@ -4000,12 +4023,12 @@ class tt extends Ye {
   doubleTap(i, t) {
     const e = this.player.options.doubleClickDelay ?? 500;
     let s = 0, l, r;
-    return function(o, d) {
-      const p = (/* @__PURE__ */ new Date()).getTime(), c = p - s;
-      c > 0 && c < e ? (o.preventDefault(), i(o), clearTimeout(r)) : (l = setTimeout(() => {
+    return function(o, c) {
+      const p = (/* @__PURE__ */ new Date()).getTime(), d = p - s;
+      d > 0 && d < e ? (o.preventDefault(), i(o), clearTimeout(r)) : (l = setTimeout(() => {
         clearTimeout(l);
       }, e), r = setTimeout(() => {
-        t == null || t(d);
+        t == null || t(c);
       }, e)), s = p;
     };
   }
@@ -4356,12 +4379,12 @@ class tt extends Ye {
     for (const l of this.player.getSpeeds() ?? []) {
       const r = this.player.createElement("button", `speed-button-${l}`).addClasses(this.languageMenuStyles).appendTo(s), a = this.player.createElement("span", `menu-button-text-${l}`).appendTo(r), o = this.player.createElement("span", `menu-button-text-${l}`).addClasses(this.makeStyles("speedButtonTextStyles")).appendTo(a);
       o.innerText = l == 1 ? this.player.localize("Normal") : l.toString();
-      const d = this.createSVGElement(r, "menu", this.buttons.checkmark, !1, t);
-      this.player.addClasses(d, [
+      const c = this.createSVGElement(r, "menu", this.buttons.checkmark, !1, t);
+      this.player.addClasses(c, [
         "ml-auto",
         "hidden"
       ]), this.player.on("speed", (p) => {
-        p === l ? d.classList.remove("hidden") : d.classList.add("hidden");
+        p === l ? c.classList.remove("hidden") : c.classList.add("hidden");
       }), r.addEventListener("click", () => {
         this.player.emit("show-menu", !1), this.player.setSpeed(l);
       });
@@ -4426,7 +4449,7 @@ class tt extends Ye {
     })), e;
   }
   createProgressBar(i) {
-    var d;
+    var c;
     this.sliderBar = this.player.createElement("div", "slider-bar").addClasses(this.makeStyles("sliderBarStyles")).appendTo(i);
     const t = this.player.createElement("div", "slider-buffer").addClasses(this.makeStyles("sliderBufferStyles")).appendTo(this.sliderBar), e = this.player.createElement("div", "slider-hover").addClasses(this.makeStyles("sliderHoverStyles")).appendTo(this.sliderBar), s = this.player.createElement("div", "slider-progress").addClasses(this.makeStyles("sliderProgressStyles")).appendTo(this.sliderBar);
     this.chapterBar = this.player.createElement("div", "chapter-progress").addClasses(this.makeStyles("chapterBarStyles")).appendTo(this.sliderBar);
@@ -4435,7 +4458,7 @@ class tt extends Ye {
     const r = this.player.createElement("div", "slider-pop").addClasses(this.makeStyles("sliderPopStyles")).appendTo(this.sliderBar);
     r.style.setProperty("--visibility", "0"), r.style.opacity = "var(--visibility)", this.sliderPopImage = this.player.createElement("div", "slider-pop-image").addClasses(this.makeStyles("sliderPopImageStyles")).appendTo(r);
     const a = this.player.createElement("div", "slider-text").addClasses(this.makeStyles("sliderTextStyles")).appendTo(r), o = this.player.createElement("div", "chapter-text").addClasses(this.makeStyles("chapterTextStyles")).appendTo(r);
-    return this.player.options.chapters && !this.player.isTv() && ((d = this.player.getChapters()) == null ? void 0 : d.length) > 0 && (this.sliderBar.style.background = ""), ["mousedown", "touchstart"].forEach((p) => {
+    return this.player.options.chapters && !this.player.isTv() && ((c = this.player.getChapters()) == null ? void 0 : c.length) > 0 && (this.sliderBar.style.background = ""), ["mousedown", "touchstart"].forEach((p) => {
       this.sliderBar.addEventListener(p, () => {
         this.isMouseDown || (this.isMouseDown = !0, this.isScrubbing = !0);
       }, {
@@ -4445,26 +4468,26 @@ class tt extends Ye {
       if (this.player.emit("hide-tooltip"), !this.isMouseDown)
         return;
       this.isMouseDown = !1, this.isScrubbing = !1, r.style.setProperty("--visibility", "0");
-      const c = this.getScrubTime(p);
-      l.style.left = `${c.scrubTime}%`, this.player.seek(c.scrubTimePlayer);
+      const d = this.getScrubTime(p);
+      l.style.left = `${d.scrubTime}%`, this.player.seek(d.scrubTimePlayer);
     }, {
       passive: !0
     }), ["mousemove", "touchmove"].forEach((p) => {
-      this.sliderBar.addEventListener(p, (c) => {
+      this.sliderBar.addEventListener(p, (d) => {
         var v;
-        const h = this.getScrubTime(c);
-        this.getSliderPopImage(h), a.innerText = E(h.scrubTimePlayer);
-        const b = this.getSliderPopOffsetX(r, h);
-        r.style.left = `${b}%`, (!this.player.options.chapters || ((v = this.player.getChapters()) == null ? void 0 : v.length) == 0) && (e.style.width = `${h.scrubTime}%`), this.isMouseDown && (o.innerText = this.getChapterText(h.scrubTimePlayer) ?? "", l.style.left = `${h.scrubTime}%`, this.previewTime.length > 0 && r.style.setProperty("--visibility", "1"));
+        const u = this.getScrubTime(d);
+        this.getSliderPopImage(u), a.innerText = E(u.scrubTimePlayer);
+        const b = this.getSliderPopOffsetX(r, u);
+        r.style.left = `${b}%`, (!this.player.options.chapters || ((v = this.player.getChapters()) == null ? void 0 : v.length) == 0) && (e.style.width = `${u.scrubTime}%`), this.isMouseDown && (o.innerText = this.getChapterText(u.scrubTimePlayer) ?? "", l.style.left = `${u.scrubTime}%`, this.previewTime.length > 0 && r.style.setProperty("--visibility", "1"));
       }, {
         passive: !0
       });
     }), this.sliderBar.addEventListener("mouseover", (p) => {
-      const c = this.getScrubTime(p);
-      if (this.getSliderPopImage(c), a.innerText = E(c.scrubTimePlayer), o.innerText = this.getChapterText(c.scrubTimePlayer) ?? "", this.previewTime.length > 0) {
+      const d = this.getScrubTime(p);
+      if (this.getSliderPopImage(d), a.innerText = E(d.scrubTimePlayer), o.innerText = this.getChapterText(d.scrubTimePlayer) ?? "", this.previewTime.length > 0) {
         r.style.setProperty("--visibility", "1");
-        const h = this.getSliderPopOffsetX(r, c);
-        r.style.left = `${h}%`;
+        const u = this.getSliderPopOffsetX(r, d);
+        r.style.left = `${u}%`;
       }
     }, {
       passive: !0
@@ -4480,8 +4503,8 @@ class tt extends Ye {
       var p;
       ((p = this.player.getChapters()) == null ? void 0 : p.length) > 0 && !this.player.isTv() ? this.sliderBar.classList.remove("bg-white/20") : this.sliderBar.classList.add("bg-white/20");
     }), this.player.on("time", (p) => {
-      var c;
-      ((c = this.player.getChapters()) == null ? void 0 : c.length) == 0 && (t.style.width = `${p.buffered}%`, s.style.width = `${p.percentage}%`), this.isScrubbing || (l.style.left = `${p.percentage}%`);
+      var d;
+      ((d = this.player.getChapters()) == null ? void 0 : d.length) == 0 && (t.style.width = `${p.buffered}%`, s.style.width = `${p.percentage}%`), this.isScrubbing || (l.style.left = `${p.percentage}%`);
     }), this.player.on("controls", (p) => {
       p || (r.style.setProperty("--visibility", "0"), this.menuFrame.close());
     }), this.player.on("pip-internal", (p) => {
@@ -4502,8 +4525,8 @@ class tt extends Ye {
     return this.player.on("time", (o) => {
       o.percentage < r ? l.style.transform = "scaleX(0)" : o.percentage > a ? l.style.transform = "scaleX(1)" : l.style.transform = `scaleX(${(o.percentage - r) / (a - r)})`, o.buffered < r ? e.style.transform = "scaleX(0)" : o.buffered > a ? e.style.transform = "scaleX(1)" : e.style.transform = `scaleX(${(o.buffered - r) / (a - r)})`;
     }), ["mousemove", "touchmove"].forEach((o) => {
-      this.chapterBar.addEventListener(o, (d) => {
-        const { scrubTime: p } = this.getScrubTime(d);
+      this.chapterBar.addEventListener(o, (c) => {
+        const { scrubTime: p } = this.getScrubTime(c);
         p < r ? s.style.transform = "scaleX(0)" : p > a ? s.style.transform = "scaleX(1)" : s.style.transform = `scaleX(${(p - r) / (a - r)})`;
       });
     }), this.chapterBar.addEventListener("mouseleave", () => {
@@ -4592,23 +4615,23 @@ class tt extends Ye {
     this.player.createElement("div", `episode-${t.id}-shadow`).addClasses(this.makeStyles("episodeMenuButtonShadowStyles")).appendTo(l);
     const r = this.player.createElement("img", `episode-${t.id}-image`).addClasses(this.makeStyles("episodeMenuButtonImageStyles")).appendTo(l);
     r.setAttribute("loading", "lazy"), r.src = t.image && t.image != "" ? `${this.imageBaseUrl.includes("https") ? "" : this.imageBaseUrl}${t.image}` : "";
-    const a = this.player.createElement("div", `episode-${t.id}-progress-container`).addClasses(this.makeStyles("episodeMenuProgressContainerStyles")).appendTo(l), o = this.player.createElement("div", `episode-${t.id}-progress-box`).addClasses(this.makeStyles("episodeMenuProgressBoxStyles")).appendTo(a), d = this.player.createElement("div", `episode-${t.id}-progress-item`).addClasses(this.makeStyles("progressContainerItemTextStyles")).appendTo(o);
-    t.episode && (d.innerText = `${this.player.localize("E")}${t.episode}`);
+    const a = this.player.createElement("div", `episode-${t.id}-progress-container`).addClasses(this.makeStyles("episodeMenuProgressContainerStyles")).appendTo(l), o = this.player.createElement("div", `episode-${t.id}-progress-box`).addClasses(this.makeStyles("episodeMenuProgressBoxStyles")).appendTo(a), c = this.player.createElement("div", `episode-${t.id}-progress-item`).addClasses(this.makeStyles("progressContainerItemTextStyles")).appendTo(o);
+    t.episode && (c.innerText = `${this.player.localize("E")}${t.episode}`);
     const p = this.player.createElement("div", `episode-${t.id}-progress-duration`).addClasses(this.makeStyles("progressContainerDurationTextStyles")).appendTo(o);
     p.innerText = ((g = t.duration) == null ? void 0 : g.replace(/^00:/u, "")) ?? "";
-    const c = this.player.createElement("div", `episode-${t.id}-slider-container`).addClasses(this.makeStyles("sliderContainerStyles")).appendTo(a), h = this.player.createElement("div", `episode-${t.id}-progress-bar`).addClasses(this.makeStyles("progressBarStyles")).appendTo(c);
-    (L = t.progress) != null && L.percentage && (h.style.width = `${t.progress.percentage > 98 ? 100 : t.progress}%`), (T = t.progress) != null && T.percentage && (c.style.display = "flex");
+    const d = this.player.createElement("div", `episode-${t.id}-slider-container`).addClasses(this.makeStyles("sliderContainerStyles")).appendTo(a), u = this.player.createElement("div", `episode-${t.id}-progress-bar`).addClasses(this.makeStyles("progressBarStyles")).appendTo(d);
+    (L = t.progress) != null && L.percentage && (u.style.width = `${t.progress.percentage > 98 ? 100 : t.progress}%`), (T = t.progress) != null && T.percentage && (d.style.display = "flex");
     const b = this.player.createElement("div", `episode-${t.id}-right-side`).addClasses(this.makeStyles("episodeMenuButtonRightSideStyles")).appendTo(s), v = this.player.createElement("span", `episode-${t.id}-title`).addClasses(this.makeStyles("episodeMenuButtonTitleStyles")).appendTo(b);
-    t.episode && (v.innerText = a1((w = t.title) == null ? void 0 : w.replace(t.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E"))));
+    t.episode && (v.innerText = n1((w = t.title) == null ? void 0 : w.replace(t.show ?? "", "").replace("%S", this.player.localize("S")).replace("%E", this.player.localize("E"))));
     const f = this.player.createElement("span", `episode-${t.id}-overview`).addClasses(this.makeStyles("episodeMenuButtonOverviewStyles")).appendTo(b);
-    return f.innerText = n1(t.description, 600), this.player.on("item", (x) => {
+    return f.innerText = o1(t.description, 600), this.player.on("item", (x) => {
       x.season == t.season ? s.style.display = "flex" : s.style.display = "none", this.player.playlistItem().season == t.season && this.player.playlistItem().episode == t.episode ? s.style.background = "rgba(255,255,255,.1)" : s.style.background = "";
     }), this.player.on("switch-season", (x) => {
       x == t.season ? s.style.display = "flex" : s.style.display = "none";
     }), this.player.on("time", (x) => {
       var Z;
-      ((Z = this.player.playlistItem()) == null ? void 0 : Z.id) == t.id && (h.style.width = `${x.percentage}%`, x.percentage > 0 && (c.style.display = "flex"));
-    }), t.episode && t.show && (d.innerText = t.season == null ? `${t.episode}` : `${this.player.localize("S")}${t.season}: ${this.player.localize("E")}${t.episode}`), s.addEventListener("click", () => {
+      ((Z = this.player.playlistItem()) == null ? void 0 : Z.id) == t.id && (u.style.width = `${x.percentage}%`, x.percentage > 0 && (d.style.display = "flex"));
+    }), t.episode && t.show && (c.innerText = t.season == null ? `${t.episode}` : `${this.player.localize("S")}${t.season}: ${this.player.localize("E")}${t.episode}`), s.addEventListener("click", () => {
       this.player.emit("show-menu", !1), t.episode && t.season ? this.setEpisode(t.season, t.episode) : this.player.playlistItem(e), this.player.emit("playlist-menu-button-clicked", t);
     }), s.addEventListener("focus", () => {
       setTimeout(() => {
@@ -4652,13 +4675,13 @@ class tt extends Ye {
     if (!a)
       throw new Error("Element not found");
     const o = this.createUiButton(a, t.replace(/\s/gu, "_"));
-    return o.ariaLabel = t, e === "before" ? a == null || a.before(o) : a == null || a.after(o), this.createSVGElement(o, `${t.replace(/\s/gu, "_")}-enabled`, s, !0, !1), this.createSVGElement(o, t.replace(/\s/gu, "_"), s, !1), o.addEventListener("click", (d) => {
-      d.stopPropagation(), l == null || l(), this.player.emit("hide-tooltip");
-    }), o.addEventListener("contextmenu", (d) => {
-      d.stopPropagation(), r == null || r(), this.player.emit("hide-tooltip");
+    return o.ariaLabel = t, e === "before" ? a == null || a.before(o) : a == null || a.after(o), this.createSVGElement(o, `${t.replace(/\s/gu, "_")}-enabled`, s, !0, !1), this.createSVGElement(o, t.replace(/\s/gu, "_"), s, !1), o.addEventListener("click", (c) => {
+      c.stopPropagation(), l == null || l(), this.player.emit("hide-tooltip");
+    }), o.addEventListener("contextmenu", (c) => {
+      c.stopPropagation(), r == null || r(), this.player.emit("hide-tooltip");
     }), o;
   }
 }
 export {
-  tt as D
+  st as D
 };
