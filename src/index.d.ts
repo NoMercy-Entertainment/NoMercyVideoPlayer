@@ -409,7 +409,6 @@ export interface SetupConfig {
     preload?: string;
     subtitleRenderer?: string;
     basePath?: string;
-    playlist: any[];
     muted?: boolean
 
     subtitleRenderer?: 'octopus' | 'sabre';
@@ -419,6 +418,8 @@ export interface SetupConfig {
     disableTouchControls?: boolean;
     doubleClickDelay?: number;
 	forceTvMode?: boolean;
+    
+    [key: string]: any;
 }
 
 export interface NMPlayer {

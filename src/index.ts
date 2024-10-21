@@ -410,7 +410,6 @@ export class NMPlayer extends Base {
 		this.videoElement.volume = localStorage.getItem('nmplayer-volume') ? parseFloat(localStorage.getItem('nmplayer-volume') as string) / 100 : 0.4;
 
 		this.videoElement.addEventListener('scroll', () => {
-			console.log('Scrolling');
 			this.videoElement.scrollIntoView();
 		});
 
@@ -905,11 +904,6 @@ export class NMPlayer extends Base {
 		this.on('showControls', this.ui_addActiveClass.bind(this));
 		this.on('hideControls', this.ui_removeActiveClass.bind(this));
 		this.on('dynamicControls', this.ui_resetInactivityTimer.bind(this));
-
-		// this.on('captionsList', () => {
-		// 	console.log('Captions list updated');
-		// 	this.setCaptionFromStorage();
-		// });
 
 		this.on('item', () => {
 			this.lastTime = 0;
@@ -1538,7 +1532,6 @@ export class NMPlayer extends Base {
 				callback: (data) => {
 					const parser = new WebVTTParser();
 					this.chapters = parser.parse(data, 'chapters');
-					console.log('Chapters', this.chapters, data);
 
 					this.once('duration', () => {
 						this.emit('chapters', this.chapters);
@@ -1924,7 +1917,6 @@ export class NMPlayer extends Base {
 	 * @param time - The time interval to forward the video by, in seconds. Defaults to 10 seconds if not provided.
 	 */
 	forwardVideo(time = this.seekInterval ?? 10): void {
-		console.log('Forwarding', time);
 		this.emit('remove-rewind');
 		clearTimeout(this.rightTap);
 
