@@ -1,3 +1,5 @@
+export { type VTTData, WebVTTParser } from 'webvtt-parser';
+
 export interface TypeMapping {
     json: JSON;
     text: string;
@@ -407,7 +409,6 @@ export interface SetupConfig {
     preload?: string;
     subtitleRenderer?: string;
     basePath?: string;
-    playlist: any[];
     muted?: boolean
 
     subtitleRenderer?: 'octopus' | 'sabre';
@@ -417,6 +418,8 @@ export interface SetupConfig {
     disableTouchControls?: boolean;
     doubleClickDelay?: number;
 	forceTvMode?: boolean;
+    
+    [key: string]: any;
 }
 
 export interface NMPlayer {
@@ -529,6 +532,7 @@ export interface NMPlayer {
 	currentTimeFile: any;
 	uuid: any;
     plugins: {[key: string]: any};
+    chapters: VTTData;
 
 	addClasses(currentItem: any, arg1: string[]): HTMLDivElement;
 	createChapterMarker(chapter: Chapter): HTMLDivElement;

@@ -1,5 +1,5 @@
-import { P as i } from "./plugin.js";
-class c extends i {
+import { P as l } from "./plugin.js";
+class c extends l {
   initialize(e) {
     this.player = e;
   }
@@ -14,12 +14,12 @@ class c extends i {
       * @param {KeyboardEvent} event - The keyboard event to handle.
       */
   keyHandler(e) {
-    var n, l;
+    var n, i;
     if (((n = document.activeElement) == null ? void 0 : n.nodeName) == "INPUT")
       return;
     const t = this.keyBindings();
     let a = !1;
-    this.player.getElement().getBoundingClientRect().width != 0 && (!a && this.player && (a = !0, t.some((o) => o.key === e.key && o.control === e.ctrlKey) && (e.preventDefault(), (l = t.find((o) => o.key === e.key && o.control === e.ctrlKey)) == null || l.function())), setTimeout(() => {
+    this.player.getVideoElement().getBoundingClientRect().width != 0 && (!a && this.player && (a = !0, t.some((o) => o.key === e.key && o.control === e.ctrlKey) && (e.preventDefault(), (i = t.find((o) => o.key === e.key && o.control === e.ctrlKey)) == null || i.function())), setTimeout(() => {
       a = !1;
     }, 300));
   }

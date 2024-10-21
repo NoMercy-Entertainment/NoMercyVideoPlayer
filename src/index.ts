@@ -143,7 +143,7 @@ export class NMPlayer extends Base {
 	registerPlugin(name: string, plugin: any): void {
 		this.plugins[name] = plugin;
 		plugin.initialize(this);
-		console.log(`Plugin ${name} registered.`);
+		this.options.debug && console.log(`Plugin ${name} registered.`);
 	}
 
 	usePlugin(name: string): void {
@@ -690,7 +690,7 @@ export class NMPlayer extends Base {
 			);
 			if (track == null || track == -1) return;
 
-			console.log('Setting caption from storage', track);
+			this.options.debug && console.log('Setting caption from storage', track);
 			this.setCurrentCaption(track);
 		}
 	}
@@ -709,7 +709,7 @@ export class NMPlayer extends Base {
 		if (this.currentIndex < this.playlist.length - 1) {
 			this.playVideo(this.currentIndex + 1);
 		} else {
-			console.log('Playlist completed.');
+			this.options.debug && console.log('Playlist completed.');
 			this.isPlaying = false;
 			this.emit('playlistComplete');
 		}
@@ -933,11 +933,11 @@ export class NMPlayer extends Base {
 
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADING, (event, data) => {
-				console.log('Audio track loading', data);
+				this.options.debug && console.log('Audio track loading', data);
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADED, (event, data) => {
-				console.log('Audio track loaded', data);
+				this.options.debug && console.log('Audio track loaded', data);
 				this.emit('audioTracks', this.getAudioTracks());
 				this.emit('audioTrackChanging', {
 					id: data.id,
@@ -946,7 +946,7 @@ export class NMPlayer extends Base {
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHING, (event, data) => {
-				console.log('Audio track switching', data);
+				this.options.debug && console.log('Audio track switching', data);
 				this.emit('audioTrackChanging', {
 					id: data.id,
 					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
@@ -954,7 +954,7 @@ export class NMPlayer extends Base {
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHED, (event, data) => {
-				console.log('Audio track switched', data);
+				this.options.debug && console.log('Audio track switched', data);
 				this.emit('audioTrackChanged', {
 					id: data.id,
 					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
@@ -968,7 +968,7 @@ export class NMPlayer extends Base {
 
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
-				console.log('Level loaded', data);
+				this.options.debug && console.log('Level loaded', data);
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.LEVEL_LOADING, (event, data) => {
@@ -997,69 +997,69 @@ export class NMPlayer extends Base {
 				});
 			});
 			this.hls.on(HLS.Events.LEVELS_UPDATED, (event, data) => {
-				console.log('Levels updated', data);
+				this.options.debug && console.log('Levels updated', data);
 			});
 			// this.hls.on(HLS.Events.LEVEL_PTS_UPDATED, (event, data) => {
-			// 	console.log('Level PTS updated', data);
+			// 	this.options.debug && console.log('Level PTS updated', data);
 			// });
 
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MANIFEST_LOADED, (event, data) => {
-				console.log('Manifest loaded', data);
+				this.options.debug && console.log('Manifest loaded', data);
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MANIFEST_PARSED, (event, data) => {
-				console.log('Manifest parsed', data);
+				this.options.debug && console.log('Manifest parsed', data);
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MANIFEST_LOADING, (event, data) => {
-				console.log('Manifest loading', data);
+				this.options.debug && console.log('Manifest loading', data);
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.STEERING_MANIFEST_LOADED, (event, data) => {
-				console.log('Steering manifest loaded', data);
+				this.options.debug && console.log('Steering manifest loaded', data);
 			});
 
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_ATTACHED, (event, data) => {
-				console.log('Media attached', data);
+				this.options.debug && console.log('Media attached', data);
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_ATTACHING, (event, data) => {
-				console.log('Media attaching', data);
+				this.options.debug && console.log('Media attaching', data);
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_DETACHED, (event) => {
-				console.log('Media detached', event);
+				this.options.debug && console.log('Media detached', event);
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_DETACHING, (event) => {
-				console.log('Media detaching', event);
+				this.options.debug && console.log('Media detaching', event);
 			});
 
 			// this.hls.on(HLS.Events.BUFFER_APPENDING, (event, data) => {
-			// 	console.log('Buffer appending', data);
+			// 	this.options.debug && console.log('Buffer appending', data);
 			// });
 			// this.hls.on(HLS.Events.BUFFER_APPENDED, (event, data) => {
-			// 	console.log('Buffer appended', data);
+			// 	this.options.debug && console.log('Buffer appended', data);
 			// });
 			// this.hls.on(HLS.Events.BUFFER_FLUSHING, (event, data) => {
-			// 	console.log('Buffer flushing', data);
+			// 	this.options.debug && console.log('Buffer flushing', data);
 			// });
 			// this.hls.on(HLS.Events.BUFFER_FLUSHED, (event, data) => {
-			// 	console.log('Buffer flushed', data);
+			// 	this.options.debug && console.log('Buffer flushed', data);
 			// });
 			// this.hls.on(HLS.Events.BUFFER_CODECS, (event, data) => {
-			// 	console.log('Buffer codecs', data);
+			// 	this.options.debug && console.log('Buffer codecs', data);
 			// });
 			// this.hls.on(HLS.Events.BUFFER_CREATED, (event, data) => {
-			// 	console.log('Buffer created', data);
+			// 	this.options.debug && console.log('Buffer created', data);
 			// });
 			// this.hls.on(HLS.Events.BUFFER_EOS, (event, data) => {
-			// 	console.log('Buffer EOS', data);
+			// 	this.options.debug && console.log('Buffer EOS', data);
 			// });
 			// this.hls.on(HLS.Events.FRAG_BUFFERED, (event, data) => {
-			// 	console.log('Fragment buffered', data);
+			// 	this.options.debug && console.log('Fragment buffered', data);
 			// });
 		});
 
@@ -1615,7 +1615,7 @@ export class NMPlayer extends Base {
 
 		}
 		else {
-			console.log('No more videos in the playlist.');
+			this.options.debug && console.log('No more videos in the playlist.');
 		}
 	}
 
@@ -1650,7 +1650,7 @@ export class NMPlayer extends Base {
 		if (typeof this.options.playlist === 'string') {
 			this.fetchPlaylist(this.options.playlist)
 				.then((json: PlaylistItem[]) => {
-					console.log('Playlist fetched', json);
+					this.options.debug && console.log('Playlist fetched', json);
 
 					this.playlist = json
 						.map(item => ({
@@ -2408,7 +2408,7 @@ export class NMPlayer extends Base {
 
 		// Dispose plugins
 		for (const plugin of Object.values(this.plugins)) {
-			console.log('Disposing plugin', plugin);
+			this.options.debug && console.log('Disposing plugin', plugin);
 			plugin.dispose();
 		}
 
