@@ -1,3 +1,5 @@
+export { type VTTData, WebVTTParser } from 'webvtt-parser';
+
 export interface TypeMapping {
     json: JSON;
     text: string;
@@ -529,6 +531,7 @@ export interface NMPlayer {
 	currentTimeFile: any;
 	uuid: any;
     plugins: {[key: string]: any};
+    chapters: VTTData;
 
 	addClasses(currentItem: any, arg1: string[]): HTMLDivElement;
 	createChapterMarker(chapter: Chapter): HTMLDivElement;
