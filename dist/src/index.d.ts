@@ -606,7 +606,7 @@ export interface NMPlayer {
 	volumeUp(): void;
     addButton(icon: string, label: string, handler: () => void, id: string, className?: string): NMPlayer;
     dispose(): void;
-    
+
     ui_removeActiveClass(): void;
     ui_resetInactivityTimer(): void;
 

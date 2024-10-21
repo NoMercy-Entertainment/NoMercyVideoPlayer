@@ -77,6 +77,28 @@ export class NMPlayer extends Base {
 	shouldFloat: boolean = false;
 	firstFrame: boolean = false;
 
+	chapterSkipPatterns: RegExp[] = [
+		/^OP$/ui,
+		/^ED$/ui,
+		/^PV$/ui,
+		/^NCOP$/ui,
+		/^NCED$/ui,
+		/^CM$/ui,
+		/^Preview$/ui,
+		/^Next Episode Preview$/ui,
+		/^Next Time Preview$/ui,
+		// /^Intro$/ui,
+		/^Outro$/ui,
+		/^Opening$/ui,
+		/^Ending$/ui,
+		/^Opening Credits$/ui,
+		/^Ending Credits$/ui,
+		/^Opening Theme$/ui,
+		/^Ending Theme$/ui,
+		/^Opening Song$/ui,
+		/^Ending Song$/ui,
+	];
+
 	constructor(id?: string | number) {
 		super();
 
@@ -129,6 +151,7 @@ export class NMPlayer extends Base {
 		this.styleContainer();
 		this.createVideoElement();
 		this.createSubtitleOverlay();
+		this.createChapterSkipper();
 		this.createOverlayElement();
 		this.createOverlayCenterMessage();
 
@@ -490,7 +513,7 @@ export class NMPlayer extends Base {
 		this.subtitleText.style.fontSize = 'clamp(1.5rem, 2vw, 2.5rem)';
 		this.subtitleText.style.textShadow = 'black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px';
 
-		this.videoElement.addEventListener('timeupdate', this.checkSubtitles.bind(this));
+		this.on('time', this.checkSubtitles.bind(this));
 	}
 
 	checkSubtitles(): void {
@@ -545,6 +568,52 @@ export class NMPlayer extends Base {
 
 		this.subtitleText.appendChild(fragment);
 		this.subtitleText.setAttribute('data-language', this.getCaptionLanguage());
+	}
+
+	createChapterSkipper(): void {
+		this.on('time', this.checkChapters.bind(this));
+	}
+
+	lastChapter: string = '';
+	checkChapters(): void {
+		if (!this.chapters || !this.chapters.cues || this.chapters.cues.length === 0) {
+			return;
+		}
+		if (this.chapters.errors.length > 0) {
+			console.error('Error parsing chapters:', this.chapters.errors);
+			return;
+		}
+
+		const currentTime = this.videoElement.currentTime;
+		let currentChapter = this.getCurrentChapter(currentTime);
+		if (!currentChapter) return;
+
+		while (this.lastChapter != currentChapter.text && this.shouldSkipChapter(currentChapter.text)) {
+			this.lastChapter = currentChapter.text;
+			const nextChapter = this.getNextChapter(currentChapter.endTime);
+			if (!nextChapter) {
+				console.log('No more chapters');
+				this.next();
+				this.lastChapter = '';
+				return;
+			}
+
+			currentChapter = nextChapter;
+			console.log('Skipping chapter:', currentChapter.text);
+			this.seek(currentChapter.startTime);
+		}
+	}
+
+	shouldSkipChapter(chapterTitle: string): boolean {
+		return this.chapterSkipPatterns.some(pattern => pattern.test(chapterTitle));
+	}
+
+	getCurrentChapter(currentTime: number): VTTData['cues'][number] | undefined {
+		return this.chapters.cues.find(chapter => currentTime >= chapter.startTime && currentTime <= chapter.endTime);
+	}
+
+	getNextChapter(currentEndTime: number): VTTData['cues'][number] | undefined {
+		return this.chapters.cues.find(chapter => chapter.startTime >= currentEndTime);
 	}
 
 	hdrSupported(): boolean {
@@ -1192,6 +1261,7 @@ export class NMPlayer extends Base {
 			this.container.classList.remove('buffering');
 			this.container.classList.remove('error');
 			this.setCaptionFromStorage();
+			this.fetchChapterFile();
 		});
 	}
 
@@ -1536,10 +1606,11 @@ export class NMPlayer extends Base {
 				options: {},
 				callback: (data) => {
 					const parser = new WebVTTParser();
-					this.chapters = parser.parse(data, 'metadata');
+					this.chapters = parser.parse(data, 'chapters');
+					console.log('Chapters', this.chapters, data);
 
 					this.once('duration', () => {
-						this.emit('chapters', this.getChapters());
+						this.emit('chapters', this.chapters);
 					});
 				},
 			}).then();
@@ -1590,7 +1661,7 @@ export class NMPlayer extends Base {
 					this.storeSubtitleChoice();
 
 					this.once('duration', () => {
-						this.emit('subtitles', this.getSubtitles());
+						this.emit('subtitles', this.subtitles);
 					});
 				},
 			}).then();
