@@ -198,11 +198,6 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 					this.player.play();
 					break;
 				default:
-					if (this.player.hasBackEventHandler) {
-						this.player.emit('back');
-					} else {
-						history.back();
-					}
 					break;
 			}
 		});

@@ -418,7 +418,7 @@ export interface SetupConfig {
     disableTouchControls?: boolean;
     doubleClickDelay?: number;
 	forceTvMode?: boolean;
-    
+
     [key: string]: any;
 }
 
