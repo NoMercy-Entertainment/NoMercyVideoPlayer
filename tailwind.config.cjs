@@ -78,6 +78,9 @@ module.exports = {
 			last: ['translate-x', 'translate-y'],
 		},
 	},
+	corePlugins: {
+		preflight: '.nomercyplayer',
+	},
 	plugins: [
 		// require('@tailwindcss/forms'),
 		require('tailwindcss-children'),

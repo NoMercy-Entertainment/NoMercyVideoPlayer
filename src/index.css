@@ -1,4 +1,6 @@
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @font-face {
     font-family: 'BBC';
@@ -13,10 +15,6 @@
 }
 
 .nomercyplayer {
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
-    
     font-family: 'Inter', 'Helvetica Nueue', 'Helvetica', 'Arial', 'sans-serif';
     font-feature-settings: 'tnum' on, 'lnum' on;
 
@@ -26,6 +24,13 @@
     height: 100%;
     overflow: hidden;
     aspect-ratio: 16/9;
+}
+.nomercyplayer button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
 }
 
 .nomercyplayer * {
