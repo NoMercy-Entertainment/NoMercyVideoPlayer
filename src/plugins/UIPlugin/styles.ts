@@ -209,8 +209,8 @@ export const sliderProgressStyles = [
 
 export const sliderNippleStyles = [
 	'slider-nipple',
-	'-translate-x-1/2',
-	'-translate-y-[25%]',
+	'!-translate-x-1/2',
+	'!-translate-y-1/4',
 	'absolute',
 	'hidden',
 	'group-hover/slider:flex',
