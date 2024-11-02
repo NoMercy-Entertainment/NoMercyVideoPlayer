@@ -3,29 +3,30 @@ import type { NMPlayer, PreviewTime, VolumeState } from '../../index.d';
 import {buttons, Icon} from "./buttons";
 import {twMerge} from "tailwind-merge";
 import * as styles from "./styles";
-import {breakLogoTitle, humanTime, unique} from "../../helpers";
+import {breakEpisodeTitle, breakLogoTitle, humanTime, unique} from "../../helpers";
 import {WebVTTParser} from "webvtt-parser";
 
 export class BaseUIPlugin extends Plugin {
 	player: NMPlayer = <NMPlayer>{};
 	overlay: HTMLDivElement = <HTMLDivElement>{};
 	buttons: Icon = <Icon>{};
-	
+
 	chapterBar: HTMLDivElement = <HTMLDivElement>{};
 	mainMenu: HTMLDivElement = <HTMLDivElement>{};
 	menuFrame: HTMLDialogElement = <HTMLDialogElement>{};
-	nextUp: HTMLDivElement & {		
-		firstChild: HTMLButtonElement,		
-		lastChild: HTMLButtonElement	} = <HTMLDivElement & {		
-		firstChild: HTMLButtonElement,		
-		lastChild: HTMLButtonElement	
-	}>{};	
+	nextUp: HTMLDivElement & {
+		firstChild: HTMLButtonElement,
+		lastChild: HTMLButtonElement	} = <HTMLDivElement & {
+		firstChild: HTMLButtonElement,
+		lastChild: HTMLButtonElement
+	}>{};
 	seekContainer: HTMLDivElement = <HTMLDivElement>{};
 	sliderBar: HTMLDivElement = <HTMLDivElement>{};
 	sliderPopImage: HTMLDivElement = <HTMLDivElement>{};
+	chapterText: HTMLDivElement = <HTMLDivElement>{};
 	episodeScrollContainer: HTMLDivElement = <HTMLDivElement>{};
 	playbackButton:  HTMLButtonElement = <HTMLButtonElement>{};
-	
+
 	chapters: any[] = [];
 	previewTime: PreviewTime[] = [];
 
@@ -64,13 +65,13 @@ export class BaseUIPlugin extends Plugin {
 	}
 
 	dispose() {
-		
+
 		// Remove event listeners
 
 		// Clear timeouts
 		clearTimeout(this.timer);
 		clearTimeout(this.timeout);
-		
+
 		// Clear references
 		this.player.plugins.desktopUIPlugin = undefined;
 		this.chapters = [];
@@ -103,7 +104,7 @@ export class BaseUIPlugin extends Plugin {
 		}
 		requestAnimationFrame(scrollStep);
 	}
-	
+
 	/**
 	 * Merges the default styles with the styles for a specific style name.
 	 * @param styleName - The name of the style to merge.
@@ -140,6 +141,7 @@ export class BaseUIPlugin extends Plugin {
 
 		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		path.setAttribute('d', hovered ? icon.normal : icon.hover);
+
 		this.player.addClasses(path, [
 			'group-hover/button:hidden',
 			'group-hover/volume:hidden',
@@ -207,7 +209,7 @@ export class BaseUIPlugin extends Plugin {
 		return svg;
 
 	}
-	
+
 	modifySpinner(parent: HTMLDivElement) {
 		// console.log(parent);
 
@@ -455,7 +457,7 @@ export class BaseUIPlugin extends Plugin {
 		}
 	}
 
-	
+
 	createUiButton(parent: HTMLElement, icon: string) {
 
 		const button = this.player.createElement('button', icon)
@@ -504,7 +506,7 @@ export class BaseUIPlugin extends Plugin {
 
 		return backButton;
 	}
-	
+
 	createRestartButton(parent: HTMLDivElement, hovered = false) {
 
 		const restartButton = this.createUiButton(
@@ -522,7 +524,7 @@ export class BaseUIPlugin extends Plugin {
 
 		return restartButton;
 	}
-	
+
 	createSettingsButton(parent: HTMLDivElement, hovered = false) {
 		if (!this.player.hasSpeeds() && !this.player.hasAudioTracks() && !this.player.hasCaptions()) return;
 
@@ -676,6 +678,84 @@ export class BaseUIPlugin extends Plugin {
 
 		parent.append(seekForward);
 		return seekForward;
+	}
+
+	createChapterBackButton(parent: HTMLDivElement, hovered = false) {
+		if (this.player.isMobile()) return;
+		const chapterBack = this.createUiButton(
+			parent,
+			'chapterBack'
+		);
+		chapterBack.style.display = 'none';
+
+		this.player.on('item', () => {
+			chapterBack.style.display = 'none';
+		});
+
+		this.player.on('chapters', (data) => {
+			if (data.cues.length > 0) {
+				chapterBack.style.display = 'flex';
+			} else {
+				chapterBack.style.display = 'none';
+			}
+		});
+
+		this.createSVGElement(chapterBack, 'chapterBack', this.buttons.chapterBack, false, hovered);
+
+		chapterBack.addEventListener('click', () => {
+			this.player.emit('hide-tooltip');
+			this.player.previousChapter();
+		});
+
+		this.player.on('pip-internal', (data) => {
+			if (data) {
+				chapterBack.style.display = 'none';
+			} else {
+				chapterBack.style.display = 'flex';
+			}
+		});
+
+		parent.append(chapterBack);
+		return chapterBack;
+	}
+
+	createChapterForwardButton(parent: HTMLDivElement, hovered = false) {
+		if (this.player.isMobile()) return;
+		const chapterForward = this.createUiButton(
+			parent,
+			'chapterForward'
+		);
+		chapterForward.style.display = 'none';
+
+		this.player.on('item', () => {
+			chapterForward.style.display = 'none';
+		});
+
+		this.player.on('chapters', (data) => {
+			if (data.cues.length > 0) {
+				chapterForward.style.display = 'flex';
+			} else {
+				chapterForward.style.display = 'none';
+			}
+		});
+
+		this.createSVGElement(chapterForward, 'chapterForward', this.buttons.chapterForward, false, hovered);
+
+		chapterForward.addEventListener('click', () => {
+			this.player.emit('hide-tooltip');
+			this.player.nextChapter();
+		});
+
+		this.player.on('pip-internal', (data) => {
+			if (data) {
+				chapterForward.style.display = 'none';
+			} else {
+				chapterForward.style.display = 'flex';
+			}
+		});
+
+		parent.append(chapterForward);
+		return chapterForward;
 	}
 
 	createTime(parent: HTMLDivElement, type: 'current' | 'remaining' | 'duration', classes: string[]) {
@@ -1302,7 +1382,7 @@ export class BaseUIPlugin extends Plugin {
 		parent.appendChild(playlistButton);
 		return playlistButton;
 	}
-	
+
 	createBottomBar(parent: HTMLElement) {
 		const bottomBar = this.player.createElement('div', 'bottom-bar')
 			.addClasses(this.makeStyles('bottomBarStyles'))
@@ -1401,7 +1481,7 @@ export class BaseUIPlugin extends Plugin {
 		this.player.on('currentScrubTime', (data) => {
 			if (data.currentTime <= 0) {
 				data.currentTime = 0;
-			} 
+			}
 			else if (data.currentTime >= this.player.getDuration()) {
 				data.currentTime = this.player.getDuration();
 			}
@@ -1413,7 +1493,7 @@ export class BaseUIPlugin extends Plugin {
 			this.currentScrubTime = data.currentTime;
 
 			if (!thumb) return;
-			
+
 			this.scrollIntoView(thumb.el);
 		});
 
@@ -1539,7 +1619,10 @@ export class BaseUIPlugin extends Plugin {
 			.appendTo(currentItemTitleContainer);
 
 		const currentItemTitle = this.player.createElement('div', 'current-item-title')
-			.addClasses([])
+			.addClasses([
+				'whitespace-pre',
+				'text-sm',
+			])
 			.appendTo(currentItemTitleContainer);
 
 		this.player.on('item', () => {
@@ -1552,10 +1635,10 @@ export class BaseUIPlugin extends Plugin {
 			if (item.season && item.episode) {
 				currentItemEpisode.innerHTML += `: ${this.player.localize('E')}${item.episode}`;
 			}
-			currentItemTitle.innerHTML = item.title?.replace(item.show ?? '', '').length > 0 ? `"${item.title
+			currentItemTitle.innerHTML = breakEpisodeTitle(item.title?.replace(item.show ?? '', '').length > 0 ? `"${item.title
 				?.replace(item.show ?? '', '')
 				.replace('%S', this.player.localize('S'))
-				.replace('%E', this.player.localize('E'))}"` : '';
+				.replace('%E', this.player.localize('E'))}"` : '');
 		});
 
 		return currentItemContainer;
@@ -1607,6 +1690,7 @@ export class BaseUIPlugin extends Plugin {
 				'flex',
 				'gap-2',
 				'leading-[normal]',
+				'line-clamp-1',
 			])
 			.appendTo(languageButton);
 
@@ -1643,7 +1727,7 @@ export class BaseUIPlugin extends Plugin {
 				this.player.setCurrentAudioTrack(data.id);
 				this.player.emit('show-menu', false);
 			});
-		} 
+		}
 		else if (data.buttonType == 'subtitle') {
 			if (data.id === this.player.getCaptionIndex()) {
 				chevron.classList.remove('hidden');
@@ -1708,6 +1792,7 @@ export class BaseUIPlugin extends Plugin {
 				'flex',
 				'gap-2',
 				'leading-[normal]',
+				'line-clamp-1',
 			])
 			.appendTo(languageButton);
 
@@ -1722,7 +1807,7 @@ export class BaseUIPlugin extends Plugin {
 		} else {
 			languageButtonText.innerText = this.player.localize(data.language);
 		}
-		
+
 		return languageButtonText;
 	}
 
@@ -1739,19 +1824,20 @@ export class BaseUIPlugin extends Plugin {
 
 		thumbnail.style.backgroundImage = `url('${(this.player.options.basePath ? this.player.options.basePath : '') + this.image}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ''}')`;
 		thumbnail.style.backgroundPosition = `-${time.x}px -${time.y}px`;
-		thumbnail.style.width = `max(232px, ${time.w * 0.7}px)`;
-		thumbnail.style.minWidth = `max(232px, ${time.w * 0.7}px)`;
-		
+		thumbnail.style.width = `max(232px, ${time.w}px)`;
+		thumbnail.style.minWidth = `max(232px, ${time.w}px)`;
+
 		return thumbnail;
 	}
-	
+
 	getSliderPopImage(scrubTime: any) {
 		const img = this.loadSliderPopImage(scrubTime);
 
 		if (img) {
 			this.sliderPopImage.style.backgroundPosition = `-${img.x}px -${img.y}px`;
-			this.sliderPopImage.style.width = `${img.w * 0.7}px`;
-			this.sliderPopImage.style.height = `${img.h * 0.7}px`;
+			this.sliderPopImage.style.width = `${img.w}px`;
+			this.sliderPopImage.style.height = `${img.h}px`;
+			this.chapterText.style.width = `${img.w}px`;
 		}
 	}
 

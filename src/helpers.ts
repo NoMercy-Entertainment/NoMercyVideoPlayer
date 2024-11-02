@@ -110,6 +110,14 @@ export const breakLogoTitle = (str: string, characters = [':', '!', '?']) => {
 	return str;
 };
 
+export const breakEpisodeTitle = (str: string) => {
+	if (!str) {
+		return '';
+	}
+
+	return str.split('/').join('\\\n');
+};
+
 export const nearestValue = (arr: any[], val: number) => {
 	return arr.reduce((p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p), Infinity) + val;
 };

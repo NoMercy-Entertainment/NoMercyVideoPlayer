@@ -253,6 +253,7 @@ export const speedButtonTextStyles = [
 	'font-semibold',
 	'pl-2',
 	'leading-[normal]',
+	'line-clamp-1',
 ];
 
 export const subMenuContentStyles = [
@@ -486,7 +487,7 @@ export const episodeMenuButtonRightSideStyles = [
 export const episodeMenuButtonTitleStyles = [
 	'playlist-menu-button-title',
 	'font-bold',
-	'line-clamp-1',
+	'line-clamp-2',
 	'text-white',
 	'',
 ];

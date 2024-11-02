@@ -1,13 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
 
 @font-face {
     font-family: 'BBC';
     font-style:  normal;
     font-weight: 100;
     font-display: swap;
-    src: url("./fonts/BBCReithSans_W_Bd.woff2") format("woff2");
+    src: url("/fonts/BBCReithSans_W_Bd.woff2") format("woff2");
 }
 
 :root {
@@ -15,9 +13,13 @@
 }
 
 .nomercyplayer {
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+    
     font-family: 'Inter', 'Helvetica Nueue', 'Helvetica', 'Arial', 'sans-serif';
     font-feature-settings: 'tnum' on, 'lnum' on;
-    
+
     display: flex;
     position: relative;
     width: 100%;

@@ -31,6 +31,7 @@ export declare const unique: <T>(array: T[], key: string) => T[];
  * @returns The broken logo title string.
  */
 export declare const breakLogoTitle: (str: string, characters?: string[]) => string;
+export declare const breakEpisodeTitle: (str: string) => string;
 export declare const nearestValue: (arr: any[], val: number) => any;
 /**
  * Limits a sentence to a specified number of characters by truncating it at the last period before the limit.

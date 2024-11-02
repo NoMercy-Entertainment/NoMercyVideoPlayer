@@ -23,12 +23,13 @@ const o = (e) => {
 `);
   }
   return e;
-}, f = (e, t = 360) => {
+}, f = (e) => e ? e.split("/").join(`\\
+`) : "", l = (e, t = 360) => {
   if (!e)
     return "";
   const n = e.substring(0, t).split(".");
   return n.pop(n.length), `${n.join(".")}.`;
-}, l = (e, t = !1) => {
+}, $ = (e, t = !1) => {
   if (!e)
     return "";
   const n = e.match(/S\d{2}E\d{2}/u);
@@ -43,8 +44,9 @@ export {
   f as a,
   p as b,
   u as c,
+  l as d,
   o as h,
-  l,
+  $ as l,
   i as p,
   c as u
 };

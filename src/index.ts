@@ -9,7 +9,7 @@ import translations from './translations';
 import type { PlaylistItem, SetupConfig, Stretching, Track, TimeData, TypeMappings, PreviewTime } from './index.d';
 import {convertToSeconds, humanTime, pad, unique} from './helpers';
 
-const instances = new Map<string, NMPlayer>();
+window.instances = new Map<string, NMPlayer>();
 
 export class NMPlayer extends Base {
 	// Setup
@@ -80,18 +80,18 @@ export class NMPlayer extends Base {
 	constructor(id?: string | number) {
 		super();
 
-		if (!id && instances.size == 0) {
+		if (!id && window.instances.size == 0) {
 			throw new Error('No player element found');
 		}
 
-		if (!id && instances.size > 0) {
+		if (!id && window.instances.size > 0) {
 			// get the first player
-			return instances.values().next().value!;
+			return window.instances.values().next().value!;
 		}
 
 		if (typeof id === 'number') {
 			// get the player by index
-			instances.forEach((player, index) => {
+			window.instances.forEach((player, index) => {
 				if (parseInt(index, 10) === id) {
 					return player;
 				}
@@ -101,8 +101,8 @@ export class NMPlayer extends Base {
 		}
 
 		// return the player instance if it already exists
-		if (instances.has(id as string)) {
-			return instances.get(id as string)!;
+		if (window.instances.has(id as string)) {
+			return window.instances.get(id as string)!;
 		}
 
 		return this.init(id as string);
@@ -132,7 +132,7 @@ export class NMPlayer extends Base {
 		this.createOverlayElement();
 		this.createOverlayCenterMessage();
 
-		instances.set(id as string, this);
+		window.instances.set(id as string, this);
 
 		this._removeEvents();
 		this._addEvents();
@@ -1569,6 +1569,40 @@ export class NMPlayer extends Base {
 		});
 	}
 
+	getPreviousChapter(currentStartTime: number): VTTData['cues'][number] | undefined {
+		return this.chapters.cues.filter(chapter => chapter.endTime <= currentStartTime).at(-1);
+	}
+
+	getCurrentChapter(currentTime: number): VTTData['cues'][number] | undefined {
+		return this.chapters.cues.find(chapter => currentTime >= chapter.startTime && currentTime <= chapter.endTime);
+	}
+
+	getNextChapter(currentEndTime: number): VTTData['cues'][number] | undefined {
+		return this.chapters.cues.find(chapter => chapter.startTime >= currentEndTime);
+	}
+
+	previousChapter(): void {
+		const currentChapter = this.getCurrentChapter(this.getCurrentTime());
+		if (!currentChapter) return;
+
+		if (this.getCurrentTime() - currentChapter.startTime > 10) {
+			this.seek(currentChapter.startTime);
+			return;
+		}
+
+		const previousChapter = this.getPreviousChapter(this.getCurrentTime());
+		if (!previousChapter) return;
+
+		this.seek(previousChapter.startTime);
+	}
+
+	nextChapter(): void {
+		const nextChapter = this.getNextChapter(this.getCurrentTime());
+		if (!nextChapter) return;
+
+		this.seek(nextChapter.startTime);
+	}
+
 	fetchSubtitleFile(): void {
 		const file = this.getSubtitleFile();
 		if (file && this.currentSubtitleFile !== file) {
@@ -1580,8 +1614,13 @@ export class NMPlayer extends Base {
 					anonymous: false,
 				},
 				callback: (data) => {
+					if (!data.startsWith('WEBVTT\n')) return;
+
+					data = data.replace(/Kind: captions\nLanguage: \w+/gm,"");
+					data = data.replace(/<\d{2}:\d{2}:\d{2}.\d{3}>|<c>|<\/c>/gui, "");
+
 					const parser = new WebVTTParser();
-					this.subtitles = parser.parse(data, 'metadata');
+					this.subtitles = parser.parse(data, 'captions');
 					this.storeSubtitleChoice();
 
 					this.once('duration', () => {
@@ -2432,7 +2471,7 @@ export class NMPlayer extends Base {
 		}
 
 		// Remove instance from the map
-		instances.delete(this.playerId);
+		window.instances.delete(this.playerId);
 
 		// Emit dispose event
 		this.emit('dispose');

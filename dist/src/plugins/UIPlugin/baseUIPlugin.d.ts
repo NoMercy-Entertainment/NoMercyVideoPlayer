@@ -16,6 +16,7 @@ export declare class BaseUIPlugin extends Plugin {
     seekContainer: HTMLDivElement;
     sliderBar: HTMLDivElement;
     sliderPopImage: HTMLDivElement;
+    chapterText: HTMLDivElement;
     episodeScrollContainer: HTMLDivElement;
     playbackButton: HTMLButtonElement;
     chapters: any[];
@@ -72,6 +73,8 @@ export declare class BaseUIPlugin extends Plugin {
     createPlaybackButton(parent: HTMLElement, hovered?: boolean): void;
     createSeekBackButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
     createSeekForwardButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
+    createChapterBackButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
+    createChapterForwardButton(parent: HTMLDivElement, hovered?: boolean): HTMLButtonElement | undefined;
     createTime(parent: HTMLDivElement, type: 'current' | 'remaining' | 'duration', classes: string[]): HTMLDivElement;
     createVolumeButton(parent: HTMLDivElement, hovered?: boolean): HTMLDivElement | undefined;
     volumeHandle(data: VolumeState, mutedButton: SVGSVGElement, lowButton: SVGSVGElement, mediumButton: SVGSVGElement, highButton: SVGSVGElement): void;
