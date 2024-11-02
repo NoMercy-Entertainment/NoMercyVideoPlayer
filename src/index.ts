@@ -9,7 +9,7 @@ import translations from './translations';
 import type { PlaylistItem, SetupConfig, Stretching, Track, TimeData, TypeMappings, PreviewTime } from './index.d';
 import {convertToSeconds, humanTime, pad, unique} from './helpers';
 
-window.instances = new Map<string, NMPlayer>();
+const instances = new Map<string, NMPlayer>();
 
 export class NMPlayer extends Base {
 	// Setup
@@ -80,18 +80,18 @@ export class NMPlayer extends Base {
 	constructor(id?: string | number) {
 		super();
 
-		if (!id && window.instances.size == 0) {
+		if (!id && instances.size == 0) {
 			throw new Error('No player element found');
 		}
 
-		if (!id && window.instances.size > 0) {
+		if (!id && instances.size > 0) {
 			// get the first player
-			return window.instances.values().next().value!;
+			return instances.values().next().value!;
 		}
 
 		if (typeof id === 'number') {
 			// get the player by index
-			window.instances.forEach((player, index) => {
+			instances.forEach((player, index) => {
 				if (parseInt(index, 10) === id) {
 					return player;
 				}
@@ -101,8 +101,8 @@ export class NMPlayer extends Base {
 		}
 
 		// return the player instance if it already exists
-		if (window.instances.has(id as string)) {
-			return window.instances.get(id as string)!;
+		if (instances.has(id as string)) {
+			return instances.get(id as string)!;
 		}
 
 		return this.init(id as string);
@@ -132,7 +132,7 @@ export class NMPlayer extends Base {
 		this.createOverlayElement();
 		this.createOverlayCenterMessage();
 
-		window.instances.set(id as string, this);
+		instances.set(id as string, this);
 
 		this._removeEvents();
 		this._addEvents();
@@ -2471,7 +2471,7 @@ export class NMPlayer extends Base {
 		}
 
 		// Remove instance from the map
-		window.instances.delete(this.playerId);
+		instances.delete(this.playerId);
 
 		// Emit dispose event
 		this.emit('dispose');

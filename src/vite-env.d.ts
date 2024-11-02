@@ -15,7 +15,6 @@ declare global {
 		Hls: import('hls.js');
 		gainNode: GainNode;
 		nmplayer: (id?: string) => import('./index').NMPlayer;
-		instances: Map<string, NMPlayer>;
 	}
 
 	interface Navigator {
