@@ -44,7 +44,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		this.player.on('back-button', this.backMenu.bind(this));
 
-		document.addEventListener('keypress', (e) => {
+		document.addEventListener('keypress', (e: KeyboardEvent) => {
 			// back button
 			if (e.key == 'Backspace') {
 				this.backMenu();
