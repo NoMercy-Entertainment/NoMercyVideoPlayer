@@ -94,6 +94,10 @@
       "import": "./src/index.css",
       "require": "./dist/index.css"
     },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    },
     "./src/plugins/octopusPlugin": {
       "import": "./src/plugins/octopusPlugin.ts",
       "require": "./dist/octopusPlugin.js",

@@ -1,10 +1,10 @@
 import Plugin from '../../plugin';
 import type { NMPlayer, PreviewTime, VolumeState } from '../../index.d';
-import {buttons, Icon} from "./buttons";
-import {twMerge} from "tailwind-merge";
-import * as styles from "./styles";
-import {breakEpisodeTitle, breakLogoTitle, humanTime, unique} from "../../helpers";
-import {WebVTTParser} from "webvtt-parser";
+import { buttons, Icon } from './buttons';
+import { twMerge } from 'tailwind-merge';
+import * as styles from './styles';
+import { breakEpisodeTitle, breakLogoTitle, humanTime, unique } from '../../helpers';
+import { WebVTTParser } from 'webvtt-parser';
 
 export class BaseUIPlugin extends Plugin {
 	player: NMPlayer = <NMPlayer>{};
@@ -20,12 +20,13 @@ export class BaseUIPlugin extends Plugin {
 		firstChild: HTMLButtonElement,
 		lastChild: HTMLButtonElement
 	}>{};
+
 	seekContainer: HTMLDivElement = <HTMLDivElement>{};
 	sliderBar: HTMLDivElement = <HTMLDivElement>{};
 	sliderPopImage: HTMLDivElement = <HTMLDivElement>{};
 	chapterText: HTMLDivElement = <HTMLDivElement>{};
 	episodeScrollContainer: HTMLDivElement = <HTMLDivElement>{};
-	playbackButton:  HTMLButtonElement = <HTMLButtonElement>{};
+	playbackButton: HTMLButtonElement = <HTMLButtonElement>{};
 
 	chapters: any[] = [];
 	previewTime: PreviewTime[] = [];
@@ -317,45 +318,45 @@ export class BaseUIPlugin extends Plugin {
 	getButtonKeyCode(id: string) {
 
 		switch (id) {
-			case 'play':
-			case 'pause':
-				return `(${this.player.localize('SPACE')})`;
-			case 'volumeMuted':
-			case 'volumeLow':
-			case 'volumeMedium':
-			case 'volumeHigh':
-				return '(m)';
-			case 'seekBack':
-				return '(<)';
-			case 'seekForward':
-				return '(>)';
-			case 'next':
-				return '(n)';
-			case 'theater':
-				return '(t)';
-			case 'theater-enabled':
-				return '(t)';
-			case 'pip-enter':
-			case 'pip-exit':
-				return '(i)';
-			case 'playlist':
-				return '';
-			case 'previous':
-				return '(p)';
-			case 'speed':
-				return '';
-			case 'subtitle':
-			case 'subtitled':
-				return '(v)';
-			case 'audio':
-				return '(b)';
-			case 'settings':
-				return '';
-			case 'fullscreen-enable':
-			case 'fullscreen':
-				return '(f)';
-			default:
-				return '';
+		case 'play':
+		case 'pause':
+			return `(${this.player.localize('SPACE')})`;
+		case 'volumeMuted':
+		case 'volumeLow':
+		case 'volumeMedium':
+		case 'volumeHigh':
+			return '(m)';
+		case 'seekBack':
+			return '(<)';
+		case 'seekForward':
+			return '(>)';
+		case 'next':
+			return '(n)';
+		case 'theater':
+			return '(t)';
+		case 'theater-enabled':
+			return '(t)';
+		case 'pip-enter':
+		case 'pip-exit':
+			return '(i)';
+		case 'playlist':
+			return '';
+		case 'previous':
+			return '(p)';
+		case 'speed':
+			return '';
+		case 'subtitle':
+		case 'subtitled':
+			return '(v)';
+		case 'audio':
+			return '(b)';
+		case 'settings':
+			return '';
+		case 'fullscreen-enable':
+		case 'fullscreen':
+			return '(f)';
+		default:
+			return '';
 		}
 
 	};
@@ -396,7 +397,7 @@ export class BaseUIPlugin extends Plugin {
 						},
 					}).then();
 				} else {
-					if(this.sliderPopImage.style) {
+					if (this.sliderPopImage.style) {
 						this.sliderPopImage.style.backgroundImage = `url('${imageFile}')`;
 					}
 
@@ -770,58 +771,55 @@ export class BaseUIPlugin extends Plugin {
 		time.innerText = '00:00';
 
 		switch (type) {
-			case 'current':
+		case 'current':
 
-				this.player.on('active', (data) => {
-					time.innerText = humanTime(this.player.getCurrentTime());
-				});
+			this.player.on('active', (data) => {
+				time.innerText = humanTime(this.player.getCurrentTime());
+			});
 
-				this.player.on('time', (data) => {
-					if (this.player.container.classList.contains('active')) {
-						time.innerText = humanTime(data.currentTime);
-					}
-				});
-
-				this.player.on('currentScrubTime', (data) => {
+			this.player.on('time', (data) => {
+				if (this.player.container.classList.contains('active')) {
 					time.innerText = humanTime(data.currentTime);
-				});
-				break;
+				}
+			});
 
-			case 'remaining':
+			this.player.on('currentScrubTime', (data) => {
+				time.innerText = humanTime(data.currentTime);
+			});
+			break;
 
-				this.player.on('duration', (data) => {
-					if (data.remaining === Infinity) {
-						time.innerText = 'Live';
-					} else {
-						time.innerText = humanTime(data.remaining);
-					}
-				});
+		case 'remaining':
 
-				this.player.on('time', (data) => {
-					if (data.remaining === Infinity) {
-						time.innerText = 'Live';
-					}
-					else {
-						if (this.player.container.classList.contains('active')) {
-							time.innerText = humanTime(data.remaining);
-						}
-					}
-				});
+			this.player.on('duration', (data) => {
+				if (data.remaining === Infinity) {
+					time.innerText = 'Live';
+				} else {
+					time.innerText = humanTime(data.remaining);
+				}
+			});
 
-				break;
+			this.player.on('time', (data) => {
+				if (data.remaining === Infinity) {
+					time.innerText = 'Live';
+				} else if (this.player.container.classList.contains('active')) {
+					time.innerText = humanTime(data.remaining);
+				}
+			});
 
-			case 'duration':
-				this.player.on('duration', (data) => {
-					if (data.duration === Infinity) {
-						time.innerText = 'Live';
-					} else {
-						time.innerText = humanTime(data.duration);
-					}
-				});
-				break;
+			break;
 
-			default:
-				break;
+		case 'duration':
+			this.player.on('duration', (data) => {
+				if (data.duration === Infinity) {
+					time.innerText = 'Live';
+				} else {
+					time.innerText = humanTime(data.duration);
+				}
+			});
+			break;
+
+		default:
+			break;
 		}
 
 		this.player.on('pip-internal', (data) => {
@@ -1481,8 +1479,7 @@ export class BaseUIPlugin extends Plugin {
 		this.player.on('currentScrubTime', (data) => {
 			if (data.currentTime <= 0) {
 				data.currentTime = 0;
-			}
-			else if (data.currentTime >= this.player.getDuration()) {
+			} else if (data.currentTime >= this.player.getDuration()) {
 				data.currentTime = this.player.getDuration();
 			}
 
@@ -1502,8 +1499,7 @@ export class BaseUIPlugin extends Plugin {
 				seekContainer.style.transform = 'none';
 
 				this.player.pause();
-			}
-			else {
+			} else {
 				this.seekContainer.style.transform = '';
 			}
 		});
@@ -1652,8 +1648,7 @@ export class BaseUIPlugin extends Plugin {
 		id: number,
 		styled?: boolean;
 		buttonType: string;
-	}, hovered = false
-	) {
+	}, hovered = false) {
 
 		const languageButton = this.player.createElement('button', `${data.type}-button-${data.language}`)
 			.addClasses([
@@ -1727,8 +1722,7 @@ export class BaseUIPlugin extends Plugin {
 				this.player.setCurrentAudioTrack(data.id);
 				this.player.emit('show-menu', false);
 			});
-		}
-		else if (data.buttonType == 'subtitle') {
+		} else if (data.buttonType == 'subtitle') {
 			if (data.id === this.player.getCaptionIndex()) {
 				chevron.classList.remove('hidden');
 			} else {
@@ -1774,16 +1768,15 @@ export class BaseUIPlugin extends Plugin {
 		return languageButton;
 	}
 
-	getLanguageButtonText(languageButton: HTMLButtonElement,  data: {
+	getLanguageButtonText(languageButton: HTMLButtonElement, data: {
 		language: string,
 		label: string,
 		type: string,
 		id: number,
 		styled?: boolean;
 		buttonType: string;
-	}
-	){
-		const languageButtonText =this.player.createElement('span', 'menu-button-text')
+	}) {
+		const languageButtonText = this.player.createElement('span', 'menu-button-text')
 			.addClasses([
 				'menu-button-text',
 				'cursor-pointer',

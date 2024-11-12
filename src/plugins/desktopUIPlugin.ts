@@ -84,9 +84,11 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 		this.createPreviousButton(this.bottomRow, true);
 
-		// this.createSeekBackButton(this.bottomRow, true);
+		if (this.player.options.seekButtons) {
+			this.createSeekBackButton(this.bottomRow, true);
 
-		// this.createSeekForwardButton(this.bottomRow, true);
+			this.createSeekForwardButton(this.bottomRow, true);
+		}
 
 		this.createChapterBackButton(this.bottomRow, true);
 
@@ -596,7 +598,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 			menuContent.classList.remove('sub-menu-open');
 
 			setTimeout(() => {
-				([...this.mainMenu.children].find(el =>
+				(Array.from(this.mainMenu.children).find(el =>
 					(el as HTMLButtonElement).style.display != 'none' && el.id != 'menu-header') as HTMLButtonElement).focus();
 			}, 200);
 
@@ -622,7 +624,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 				menuFrame.style.display = 'flex';
 
 				setTimeout(() => {
-					([...this.mainMenu.children].find(el =>
+					(Array.from(this.mainMenu.children).find(el =>
 						(el as HTMLButtonElement).style.display != 'none' && el.id != 'menu-header') as HTMLButtonElement).focus();
 				}, 200);
 			}

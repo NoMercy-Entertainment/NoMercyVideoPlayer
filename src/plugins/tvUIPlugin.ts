@@ -235,8 +235,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 						});
 					}
 
-				}
-				else if (e.key == 'ArrowRight') {
+				} else if (e.key == 'ArrowRight') {
 					// eslint-disable-next-line max-len
 					if ([backButton, restartButton, nextButton, this.nextUp.firstChild, this.nextUp.lastChild].includes(e.target as HTMLButtonElement)) {
 						return;
@@ -256,8 +255,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 							currentTime: newScrubTime,
 						});
 					}
-				}
-				else if (e.key == 'Enter') {
+				} else if (e.key == 'Enter') {
 					if (Math.abs(this.currentScrubTime - this.player.getCurrentTime()) > 5 && didSlide) {
 						console.log('seeking to', this.currentScrubTime);
 						this.player.seek(this.currentScrubTime);
@@ -642,7 +640,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			.appendTo(leftSide);
 
 		scrollContainer.addEventListener('focus', () => {
-				scrollContainer.querySelector('button')?.focus();
+			scrollContainer.querySelector('button')?.focus();
 		});
 
 		const audioTitle = this.player.createElement('div', 'language-button-container')
@@ -850,7 +848,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 	getClosestElement(element: HTMLButtonElement, selector: string) {
 
-		const arr = [...document.querySelectorAll<HTMLButtonElement>(selector)].filter(el => getComputedStyle(el).display == 'flex');
+		const arr = Array.from(document.querySelectorAll<HTMLButtonElement>(selector)).filter(el => getComputedStyle(el).display == 'flex');
 		const originEl = element!.getBoundingClientRect();
 
 		return arr.find(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2))
@@ -1092,7 +1090,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		});
 
 		this.player.on('active', () => {
-				progressBar.style.transform = `translateX(${this.player.getTimeData().percentage}%)`;
+			progressBar.style.transform = `translateX(${this.player.getTimeData().percentage}%)`;
 		});
 
 		this.player.on('time', (data) => {
@@ -1185,15 +1183,14 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		button.addEventListener('keyup', (e) => {
 			if (e.key == 'ArrowLeft') {
-			}
-			else if (e.key == 'ArrowRight') {
+			} else if (e.key == 'ArrowRight') {
 				if (data.season == this.player.playlistItem()?.season) {
-					[...document.querySelectorAll<HTMLButtonElement>('[id^=playlist-]')]
+					Array.from(document.querySelectorAll<HTMLButtonElement>('[id^=playlist-]'))
 						.filter(el => getComputedStyle(el).display == 'flex')
 						.at((this.player.playlistItem()?.episode ?? 0) - 1)
 						?.focus();
 				} else {
-					[...document.querySelectorAll<HTMLButtonElement>('[id^=playlist-]')]
+					Array.from(document.querySelectorAll<HTMLButtonElement>('[id^=playlist-]'))
 						.filter(el => getComputedStyle(el).display == 'flex')
 						.at(0)
 						?.focus();
@@ -1344,8 +1341,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				event.stopPropagation();
 				this.player.setCurrentAudioTrack(data.id);
 			});
-		}
-		else if (data.buttonType == 'subtitle') {
+		} else if (data.buttonType == 'subtitle') {
 			if (data.id === this.player.getCaptionIndex()) {
 				chevron.classList.remove('opacity-0');
 			} else {
@@ -1401,7 +1397,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		const buttons = container?.querySelectorAll<HTMLButtonElement>('button');
 		if (!buttons || buttons?.length == 0) return;
 
-		const visibleButtons = [...buttons].filter(el => el.style.display != 'none');
+		const visibleButtons = Array.from(buttons).filter(el => el.style.display != 'none');
 
 		const currentButtonIndex = visibleButtons.findIndex(el => el == element);
 
