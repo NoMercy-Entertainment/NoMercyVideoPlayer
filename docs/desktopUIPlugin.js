@@ -1,4 +1,4 @@
-import { h as E, u as e1, b as a1, a as n1, l as o1, d as p1 } from "./helpers.js";
+import { h as E, u as e1, b as a1, a as n1, l as o1, c as p1 } from "./helpers.js";
 import { P as c1 } from "./plugin.js";
 import { p as d1 } from "./index2.js";
 const Y = {

@@ -1127,7 +1127,7 @@ export class NMPlayer extends Base {
 				}
 
 				setTimeout(() => {
-					if (playlistItem.progress && playlistItem.progress.percentage > 90) {
+					if (playlistItem.progress && 100 * (playlistItem.progress?.time ?? 0) / (this.getDuration() ?? 0) > 90) {
 						this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
 					}
 					else {
@@ -1140,7 +1140,7 @@ export class NMPlayer extends Base {
 
 					// setTimeout(() => {
 					// 	if (!playlistItem.progress) return;
-						this.seek(convertToSeconds(playlistItem.duration!) / 100 * playlistItem.progress.percentage);
+						this.seek(playlistItem.progress.time);
 					// }, 50);
 				});
 			}

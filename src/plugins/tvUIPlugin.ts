@@ -1003,8 +1003,8 @@ export class TVUIPlugin extends BaseUIPlugin {
 			])
 			.appendTo(sliderContainer);
 
-		if (item.progress?.percentage) {
-			progressBar.style.transform = `translateX(${item.progress.percentage > 98 ? 100 : item.progress}%)`;
+		if (item.progress?.time) {
+			progressBar.style.transform = `translateX(${100 * (item.progress.time ?? 0) / (this.player.getDuration() ?? 0) > 98 ? 100 : 100 * (item.progress.time ?? 0) / (this.player.getDuration() ?? 0)}%)`;
 		}
 
 		const episodeMenuButtonRightSide = this.player.createElement('div', `episode-${item.id}-right-side`)
