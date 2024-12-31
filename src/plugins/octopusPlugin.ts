@@ -1,5 +1,5 @@
 // @ts-nocheck
-import subtitlesOctopus from '../../public/js/octopus/subtitles-octopus';
+import SubtitlesOctopus from '../../public/js/octopus/subtitles-octopus';
 
 import Plugin from '../plugin';
 import { NMPlayer } from '../index';
@@ -30,8 +30,7 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	async opus() {
-		this.player.octopusInstance?.dispose();
-		this.player.octopusInstance = null;
+		this.destroy();
 
 		const subtitleURL = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ''}${this.player.getSubtitleFile()}` : null;
 		if (!subtitleURL) return;
@@ -49,22 +48,17 @@ export class OctopusPlugin extends Plugin {
 			await this.player.fetchFontFile();
 
 			const fontFiles: string[] = this.player.fonts
-				?.map((f: any) => `${this.player.options.basePath ?? ''}${f.file}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ''}`);
+				?.map((f: any) => `${this.player.options.basePath ?? ''}${f.file}`);
 
 			(this.player.getElement()
 				.querySelectorAll('.libassjs-canvas-parent') as NodeListOf<HTMLDivElement>)
 				.forEach(el => el.remove());
 
-			try {
-				this.player.octopusInstance.dispose();
-			} catch (error) {
-				//
-			}
-
 			const options = {
 				video: this.player.getVideoElement(),
 				lossyRender: true,
-				subUrl: `${subtitleURL}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ''}`,
+				accessToken: this.player.options.accessToken,
+				subUrl: subtitleURL,
 				debug: this.player.options.debug,
 				blendRender: true,
 				lazyFileLoading: true,
@@ -81,7 +75,7 @@ export class OctopusPlugin extends Plugin {
 			};
 
 			if (subtitleURL && subtitleURL.includes('.ass')) {
-				this.player.octopusInstance = new subtitlesOctopus(options);
+				this.player.octopusInstance = new SubtitlesOctopus(options);
 			}
 		}
 	};

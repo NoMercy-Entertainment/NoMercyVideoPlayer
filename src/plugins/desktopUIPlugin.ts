@@ -16,39 +16,33 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 	tooltip: HTMLDivElement = <HTMLDivElement>{};
 
-	menuButtonTextStyles =  [
-		'menu-button-text',
-		'cursor-pointer',
-		'font-semibold',
-		'pl-2',
+	scrollContainerStyles = [
+		'scroll-container',
 		'flex',
-		'gap-2',
-		'leading-[normal]',
-		'line-clamp-1',
+		'flex-col',
+		'gap-1',
+		'language-scroll-container',
+		'overflow-x-hidden',
+		'overflow-y-auto',
+		'p-2',
+		'transition-all',
+		'duration-300',
+		'w-available',
+		'scroll-p-4',
+		'scroll-snap-align-center',
+		'scroll-smooth',
+		'scroll-p-4',
 	];
 
-	languageMenuStyles = [
-		'language-button',
-		'w-available',
-		'mr-auto',
-		'h-8',
-		'px-1',
-		'py-2',
+	subMenuContentStyles = [
+		'sub-menu-content',
 		'flex',
-		'items-center',
-		'rounded',
-		'snap-center',
-		'outline-transparent',
-		'outline',
-		'whitespace-nowrap',
-		'hover:bg-neutral-600/50',
-		'transition-all',
-		'duration-200',
-		'outline-1',
-		'outline-solid',
-		'focus-visible:outline-2',
-		'focus-visible:outline-white',
-		'active:outline-white',
+		'flex-col',
+		'gap-1',
+		'max-h-available',
+		'w-available',
+		'overflow-auto',
+		'min-w-52',
 	];
 
 	use() {
@@ -122,8 +116,6 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		this.createToolTip(this.overlay);
 
 		this.createEpisodeTip(this.overlay);
-
-		this.createNextUp(this.overlay);
 
 		this.modifySpinner(this.overlay);
 
@@ -355,6 +347,9 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		});
 
 		this.player.on('play', () => {
+			playButton.style.display = 'none';
+		});
+		this.player.on('time', () => {
 			playButton.style.display = 'none';
 		});
 		this.player.on('firstFrame', () => {
@@ -730,13 +725,16 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 	}
 
 	sizeMenuFrame() {
+		const rect = this.player?.getElement()?.getBoundingClientRect();
+		if (!rect) return;
+
 		const {
 			width,
 			height,
 			top,
 			bottom,
 			left,
-		} = this.player.getElement().getBoundingClientRect();
+		} = rect;
 
 		(this.menuFrame.firstChild as HTMLDivElement).style.width = `${width}px`;
 		(this.menuFrame.firstChild as HTMLDivElement).style.height = `${height}px`;
@@ -909,13 +907,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		}
 
 		const menuButtonText = this.player.createElement('span', 'menu-button-text')
-			.addClasses([
-				'menu-header-button-text',
-				'font-semibold',
-				'leading-[normal]',
-				'line-clamp-1',
-				'pl-2',
-			])
+			.addClasses(this.menuButtonTextStyles)
 			.appendTo(menuHeader);
 
 		menuButtonText.innerText = this.player.localize(title).toTitleCase();
@@ -1025,13 +1017,13 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 	createLanguageMenu(parent: HTMLDivElement) {
 		const languageMenu = this.player.createElement('div', 'language-menu')
-			.addClasses(this.makeStyles('subMenuContentStyles'))
+			.addClasses(this.subMenuContentStyles)
 			.appendTo(parent);
 
 		this.createMenuHeader(languageMenu, 'Language');
 
 		const scrollContainer = this.player.createElement('div', 'language-scroll-container')
-			.addClasses(this.makeStyles('scrollContainerStyles'))
+			.addClasses(this.scrollContainerStyles)
 			.appendTo(languageMenu);
 
 		scrollContainer.style.transform = 'translateX(0)';
@@ -1071,13 +1063,13 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 	createSubtitleMenu(parent: HTMLDivElement) {
 		const subtitleMenu = this.player.createElement('div', 'subtitle-menu')
-			.addClasses(this.makeStyles('subMenuContentStyles'))
+			.addClasses(this.subMenuContentStyles)
 			.appendTo(parent);
 
 		this.createMenuHeader(subtitleMenu, 'subtitles');
 
 		const scrollContainer = this.player.createElement('div', 'subtitle-scroll-container')
-			.addClasses(this.makeStyles('scrollContainerStyles'))
+			.addClasses(this.scrollContainerStyles)
 			.appendTo(subtitleMenu);
 
 		scrollContainer.style.transform = 'translateX(0)';
@@ -1117,13 +1109,13 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 	createSpeedMenu(parent: HTMLDivElement, hovered = false) {
 		const speedMenu = this.player.createElement('div', 'speed-menu')
-			.addClasses(this.makeStyles('subMenuContentStyles'))
+			.addClasses(this.subMenuContentStyles)
 			.appendTo(parent);
 
 		this.createMenuHeader(speedMenu, 'speed');
 
 		const scrollContainer = this.player.createElement('div', 'speed-scroll-container')
-			.addClasses(this.makeStyles('scrollContainerStyles'))
+			.addClasses(this.scrollContainerStyles)
 			.appendTo(speedMenu);
 
 		scrollContainer.style.transform = 'translateX(0)';
@@ -1137,7 +1129,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 				.appendTo(speedButton);
 
 			const speedButtonText = this.player.createElement('span', `menu-button-text-${speed}`)
-				.addClasses(this.makeStyles('speedButtonTextStyles'))
+				.addClasses(this.menuButtonTextStyles)
 				.appendTo(speedButtonSpan);
 
 			speedButtonText.innerText = speed == 1 ? this.player.localize('Normal') : speed.toString();
@@ -1179,13 +1171,13 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 	createQualityMenu(parent: HTMLDivElement) {
 		const qualityMenu = this.player.createElement('div', 'quality-menu')
-			.addClasses(this.makeStyles('subMenuContentStyles'))
+			.addClasses(this.subMenuContentStyles)
 			.appendTo(parent);
 
 		this.createMenuHeader(qualityMenu, 'quality');
 
 		const scrollContainer = this.player.createElement('div', 'quality-scroll-container')
-			.addClasses(this.makeStyles('scrollContainerStyles'))
+			.addClasses(this.scrollContainerStyles)
 			.appendTo(qualityMenu);
 
 		scrollContainer.style.transform = 'translateX(0)';
@@ -1320,27 +1312,94 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 	createProgressBar(parent: HTMLDivElement) {
 
 		this.sliderBar = this.player.createElement('div', 'slider-bar')
-			.addClasses(this.makeStyles('sliderBarStyles'))
+			.addClasses([
+				'slider-bar',
+				'group/slider',
+				'flex',
+				'rounded-full',
+				'bg-white/20',
+				'h-2',
+				'mx-4',
+				'relative',
+				'w-available',
+			])
 			.appendTo(parent);
 
 		const sliderBuffer = this.player.createElement('div', 'slider-buffer')
-			.addClasses(this.makeStyles('sliderBufferStyles'))
+			.addClasses([
+				'slider-buffer',
+				'absolute',
+				'flex',
+				'h-full',
+				'pointer-events-none',
+				'rounded-full',
+				'bg-white/20',
+				'z-0',
+				'overflow-hidden',
+				'overflow-clip',
+			])
 			.appendTo(this.sliderBar);
 
 		const sliderHover = this.player.createElement('div', 'slider-hover')
-			.addClasses(this.makeStyles('sliderHoverStyles'))
+			.addClasses([
+				'slider-hover',
+				'absolute',
+				'opacity-1',
+				'flex',
+				'h-full',
+				'pointer-events-none',
+				'rounded-full',
+				'bg-white/30',
+				'z-0',
+				'overflow-hidden',
+				'overflow-clip',
+			])
 			.appendTo(this.sliderBar);
 
 		const sliderProgress = this.player.createElement('div', 'slider-progress')
-			.addClasses(this.makeStyles('sliderProgressStyles'))
+			.addClasses([
+				'slider-progress',
+				'absolute',
+				'flex',
+				'h-full',
+				'pointer-events-none',
+				'rounded-full',
+				'bg-white',
+				'z-10',
+				'overflow-hidden',
+				'overflow-clip',
+			])
 			.appendTo(this.sliderBar);
 
 		this.chapterBar = this.player.createElement('div', 'chapter-progress')
-			.addClasses(this.makeStyles('chapterBarStyles'))
+			.addClasses([
+				'chapter-bar',
+				'bg-transparent',
+				'flex',
+				'h-2',
+				'relative',
+				'rounded-full',
+				'overflow-clip',
+				'w-available',
+			])
 			.appendTo(this.sliderBar);
 
 		const sliderNipple = document.createElement('div');
-		this.player.addClasses(sliderNipple, this.makeStyles('sliderNippleStyles'));
+		this.player.addClasses(sliderNipple, [
+			'slider-nipple',
+			'!-translate-x-1/2',
+			'!-translate-y-1/4',
+			'absolute',
+			'hidden',
+			'group-hover/slider:flex',
+			'bg-white',
+			'h-4',
+			'left-0',
+			'rounded-full',
+			'top-0',
+			'w-4',
+			'z-20',
+		]);
 		sliderNipple.id = 'slider-nipple';
 
 		if (this.player.options.nipple != false) {
@@ -1348,22 +1407,42 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		}
 
 		const sliderPop = this.player.createElement('div', 'slider-pop')
-			.addClasses(this.makeStyles('sliderPopStyles'))
+			.addClasses([
+				'slider-pop',
+				'-translate-x-1/2',
+				'absolute',
+				'bg-neutral-900/95',
+				'bottom-4',
+				'flex',
+				'flex-col',
+				'font-semibold',
+				'gap-1',
+				'hover:scale-110',
+				'overflow-clip',
+				'pb-1',
+				'pointer-events-none',
+				'rounded-md',
+				'text-center',
+				'z-20',
+			])
 			.appendTo(this.sliderBar);
 
 		sliderPop.style.setProperty('--visibility', '0');
 		sliderPop.style.opacity = 'var(--visibility)';
 
 		this.sliderPopImage = this.player.createElement('div', 'slider-pop-image')
-			.addClasses(this.makeStyles('sliderPopImageStyles'))
+			.addClasses(['slider-pop-image'])
 			.appendTo(sliderPop);
 
 		const sliderText = this.player.createElement('div', 'slider-text')
-			.addClasses(this.makeStyles('sliderTextStyles'))
+			.addClasses([
+				'slider-pop-text',
+				'font-mono',
+			])
 			.appendTo(sliderPop);
 
 		this.chapterText = this.player.createElement('div', 'chapter-text')
-			.addClasses(this.makeStyles('chapterTextStyles'))
+			.addClasses(['chapter-text'])
 			.appendTo(sliderPop);
 
 		if (this.player.options.chapters && !this.player.isTv() && this.player.getChapters()?.length > 0) {
@@ -1508,25 +1587,76 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 	createChapterMarker(chapter: Chapter) {
 		const chapterMarker = this.player.createElement('div', `chapter-marker-${chapter.id.replace(/\s/gu, '-')}`)
-			.addClasses(this.makeStyles('chapterMarkersStyles'))
+			.addClasses([
+				'chapter-marker',
+				'min-w-[2px]',
+				'absolute',
+				'h-available',
+				'last:translate-x-[1.5px]',
+				'[&:last-child(2):.5px]',
+				'rounded-sm',
+				'overflow-hidden',
+			])
 			.appendTo(this.chapterBar);
 		chapterMarker.style.left = `${chapter.left}%`;
 		chapterMarker.style.width = `calc(${chapter.width}% - 2px)`;
 
 		this.player.createElement('div', `chapter-marker-bg-${chapter.id.replace(/\s/gu, '-')}`)
-			.addClasses(this.makeStyles('chapterMarkerBGStyles'))
+			.addClasses([
+				'chapter-marker-bg',
+				'bg-white/20',
+				'absolute',
+				'h-available',
+				'left-0',
+				'w-available',
+				'z-0',
+				'rounded-sm',
+			])
 			.appendTo(chapterMarker);
 
 		const chapterMarkerBuffer = this.player.createElement('div', `chapter-marker-buffer-${chapter.id.replace(/\s/gu, '-')}`)
-			.addClasses(this.makeStyles('chapterMarkerBufferStyles'))
+			.addClasses([
+				'chapter-marker-buffer',
+				'absolute',
+				'bg-gray-300/30',
+				'h-available',
+				'left-0',
+				'origin-left',
+				'scale-x-0',
+				'w-available',
+				'z-10',
+				'rounded-sm',
+			])
 			.appendTo(chapterMarker);
 
 		const chapterMarkerHover = this.player.createElement('div', `chapter-marker-hover-${chapter.id.replace(/\s/gu, '-')}`)
-			.addClasses(this.makeStyles('chapterMarkerHoverStyles'))
+			.addClasses([
+				'chapter-marker-hover',
+				'absolute',
+				'bg-gray-200',
+				'h-available',
+				'left-0',
+				'origin-left',
+				'scale-x-0',
+				'w-available',
+				'z-10',
+				'rounded-sm',
+			])
 			.appendTo(chapterMarker);
 
 		const chapterMarkerProgress = this.player.createElement('div', `chapter-marker-progress-${chapter.id.replace(/\s/gu, '-')}`)
-			.addClasses(this.makeStyles('chapterMarkerProgressStyles'))
+			.addClasses([
+				'chapter-marker-progress',
+				'absolute',
+				'bg-white',
+				'h-available',
+				'left-0',
+				'origin-left',
+				'scale-x-0',
+				'w-available',
+				'z-20',
+				'rounded-sm',
+			])
 			.appendTo(chapterMarker);
 
 		const left = chapter.left;
@@ -1610,7 +1740,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 		const playlistMenu = this.player.createElement('div', 'playlist-menu')
 			.addClasses([
-				...this.makeStyles('subMenuContentStyles'),
+				...this.subMenuContentStyles,
 				'!flex-row',
 				'!gap-0',
 			])
@@ -1624,8 +1754,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 		const subMenu = this.player.createElement('div', 'sub-menu-content')
 			.addClasses([
-				...this.makeStyles('subMenuContentStyles'),
-				'!flex',
+				...this.subMenuContentStyles,
 				'!w-1/3',
 				'border-r-2',
 				'border-gray-500/20',
@@ -1635,7 +1764,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		this.createMenuHeader(subMenu, 'Seasons');
 
 		const seasonScrollContainer = this.player.createElement('div', 'playlist-scroll-container')
-			.addClasses(this.makeStyles('scrollContainerStyles'))
+			.addClasses(this.scrollContainerStyles)
 			.appendTo(subMenu);
 		seasonScrollContainer.style.transform = 'translateX(0)';
 
@@ -1646,8 +1775,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 		const episodeMenu = this.player.createElement('div', 'episode-menu')
 			.addClasses([
-				...this.makeStyles('subMenuContentStyles'),
-				'!flex',
+				...this.subMenuContentStyles,
 				'!w-[63rem]',
 			])
 			.appendTo(playlistMenu);
@@ -1655,7 +1783,7 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		this.createMainMenuHeader(episodeMenu, '');
 
 		const scrollContainer = this.player.createElement('div', 'playlist-scroll-container')
-			.addClasses(this.makeStyles('scrollContainerStyles'))
+			.addClasses(this.scrollContainerStyles)
 			.appendTo(episodeMenu);
 
 		scrollContainer.innerHTML = '';
@@ -1722,7 +1850,26 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 	createEpisodeMenuButton(parent: HTMLDivElement, item: PlaylistItem, index: number) {
 
 		const button = this.player.createElement('button', `playlist-${item.id}`)
-			.addClasses(this.makeStyles('playlistMenuButtonStyles'))
+			.addClasses([
+				'playlist-menu-button',
+				'relative',
+				'flex',
+				'w-available',
+				'p-2',
+				'gap-2',
+				'rounded-lg',
+				'snap-center',
+				'outline-transparent',
+				'outline',
+				'outline-1',
+				'outline-solid',
+				'text-white',
+				'focus-visible:outline-2',
+				'focus-visible:outline-white',
+				'transition-all',
+				'duration-300',
+				'hover:bg-neutral-600/20',
+			])
 			.appendTo(parent);
 
 		if (this.player.playlistItem()?.season !== 1) {
@@ -1730,30 +1877,73 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		}
 
 		const leftSide = this.player.createElement('div', `playlist-${item.id}-left`)
-			.addClasses(this.makeStyles('episodeMenuButtonLeftStyles'))
+			.addClasses([
+				'episode-menu-button-left',
+				'relative',
+				'rounded-md',
+				'w-[30%]',
+				'h-available',
+				'overflow-clip',
+				'self-center',
+				'pointer-events-none',
+			])
 			.appendTo(button);
 
 		this.player.createElement('div', `episode-${item.id}-shadow`)
-			.addClasses(this.makeStyles('episodeMenuButtonShadowStyles'))
+			.addClasses([
+				'episode-menu-button-shadow',
+				'bg-[linear-gradient(0deg,rgba(0,0,0,0.87)_0%,rgba(0,0,0,0.7)_25%,rgba(0,0,0,0)_50%,rgba(0,0,0,0)_100%)]',
+				'shadow-[inset_0px_1px_0px_rgba(255,255,255,0.24),inset_0px_-1px_0px_rgba(0,0,0,0.24),inset_0px_-2px_0px_rgba(0,0,0,0.24)]',
+				'bottom-0',
+				'left-0',
+				'absolute',
+				'!h-available',
+				'w-available',
+			])
 			.appendTo(leftSide);
 
 		const image = this.player.createElement('img', `episode-${item.id}-image`)
-			.addClasses(this.makeStyles('episodeMenuButtonImageStyles'))
+			.addClasses([
+				'episode-menu-button-image',
+				'w-available',
+				'h-auto',
+				'aspect-video',
+				'object-cover',
+			])
 			.appendTo(leftSide);
 		image.setAttribute('loading', 'lazy');
 		image.src = item.image && item.image != '' ? `${this.imageBaseUrl.includes('https') ? '' : this.imageBaseUrl}${item.image}` : '';
 
 		const progressContainer = this.player.createElement('div', `episode-${item.id}-progress-container`)
-			.addClasses(this.makeStyles('episodeMenuProgressContainerStyles'))
+			.addClasses([
+				'episode-menu-progress-container',
+				'absolute',
+				'bottom-0',
+				'w-available',
+				'flex',
+				'flex-col',
+				'px-3',
+			])
 			.appendTo(leftSide);
 
 		const progressContainerItemBox = this.player.createElement('div', `episode-${item.id}-progress-box`)
-			.addClasses(this.makeStyles('episodeMenuProgressBoxStyles'))
+			.addClasses([
+				'episode-menu-progress-box',
+				'flex',
+				'justify-between',
+				'h-available',
+				'sm:mx-2',
+				'mb-1',
+				'px-1',
+			])
 			.appendTo(progressContainer);
 
 
 		const progressContainerItemText = this.player.createElement('div', `episode-${item.id}-progress-item`)
-			.addClasses(this.makeStyles('progressContainerItemTextStyles'))
+			.addClasses([
+				'progress-item-text',
+				'text-[0.7rem]',
+			])
 			.appendTo(progressContainerItemBox);
 
 		if (item.episode) {
@@ -1761,16 +1951,32 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		}
 
 		const progressContainerDurationText = this.player.createElement('div', `episode-${item.id}-progress-duration`)
-			.addClasses(this.makeStyles('progressContainerDurationTextStyles'))
+			.addClasses([
+				'progress-duration',
+				'text-[0.7rem]',
+			])
 			.appendTo(progressContainerItemBox);
 		progressContainerDurationText.innerText = item.duration?.replace(/^00:/u, '') ?? '';
 
 		const sliderContainer = this.player.createElement('div', `episode-${item.id}-slider-container`)
-			.addClasses(this.makeStyles('sliderContainerStyles'))
+			.addClasses([
+				'slider-container',
+				'hidden',
+				'rounded-md',
+				'overflow-clip',
+				'bg-gray-500/80',
+				'h-1',
+				'mb-2',
+				'mx-1',
+				'sm:mx-2',
+			])
 			.appendTo(progressContainer);
 
 		const progressBar = this.player.createElement('div', `episode-${item.id}-progress-bar`)
-			.addClasses(this.makeStyles('progressBarStyles'))
+			.addClasses([
+				'progress-bar',
+				'bg-white',
+			])
 			.appendTo(sliderContainer);
 
 		if (item.progress?.percentage) {
@@ -1781,11 +1987,24 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		}
 
 		const episodeMenuButtonRightSide = this.player.createElement('div', `episode-${item.id}-right-side`)
-			.addClasses(this.makeStyles('episodeMenuButtonRightSideStyles'))
+			.addClasses([
+				'playlist-card-right',
+				'w-3/4',
+				'flex',
+				'flex-col',
+				'text-left',
+				'gap-1',
+				'pointer-events-none',
+			])
 			.appendTo(button);
 
 		const episodeMenuButtonTitle = this.player.createElement('span', `episode-${item.id}-title`)
-			.addClasses(this.makeStyles('episodeMenuButtonTitleStyles'))
+			.addClasses([
+				'playlist-menu-button-title',
+				'font-bold',
+				'line-clamp-2',
+				'text-white',
+			])
 			.appendTo(episodeMenuButtonRightSide);
 
 		if (item.episode) {
@@ -1794,7 +2013,14 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 		}
 
 		const episodeMenuButtonOverview = this.player.createElement('span', `episode-${item.id}-overview`)
-			.addClasses(this.makeStyles('episodeMenuButtonOverviewStyles'))
+			.addClasses([
+				'playlist-menu-button-overview',
+				'text-[0.7rem]',
+				'leading-[1rem]',
+				'line-clamp-4',
+				'overflow-hidden',
+				'text-white',
+			])
 			.appendTo(episodeMenuButtonRightSide);
 		episodeMenuButtonOverview.innerText = limitSentenceByCharacters(item.description, 600);
 
@@ -1860,7 +2086,22 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 
 	createToolTip(parent: HTMLDivElement) {
 		this.tooltip = this.player.createElement('div', 'tooltip')
-			.addClasses(this.makeStyles('tooltipStyles'))
+			.addClasses([
+				'tooltip',
+				'hidden',
+				'absolute',
+				'left-0',
+				'bottom-0',
+				'z-50',
+				'px-3',
+				'py-2',
+				'text-xs',
+				'text-white',
+				'rounded-lg',
+				'font-medium',
+				'bg-neutral-900/95',
+				'pointer-events-none',
+			])
 			.appendTo(parent);
 
 		this.tooltip.style.transform = 'translateX(10px)';
@@ -1889,30 +2130,72 @@ export class DesktopUIPlugin extends BaseUIPlugin {
 	createEpisodeTip(parent: HTMLDivElement) {
 
 		const nextTip = this.player.createElement('div', 'episode-tip')
-			.addClasses(this.makeStyles('nextTipStyles'))
+			.addClasses([
+				'episode-tip',
+				'hidden',
+				'absolute',
+				'left-0',
+				'-bottom-10',
+				'z-50',
+				'!w-96',
+				'h-24',
+				'px-2',
+				'gap-2',
+				'py-2',
+				'text-xs',
+				'text-white',
+				'rounded-lg',
+				'font-medium',
+				'bg-neutral-900/95',
+			])
 			.appendTo(parent);
 
-		// this.player.addClasses(nextTip, this.makeStyles('playlistMenuButtonStyles'));
-
 		const leftSide = this.player.createElement('div', 'next-tip-left')
-			.addClasses(this.makeStyles('nextTipLeftSideStyles'))
+			.addClasses([
+				'next-tip-left',
+				'relative',
+				'rounded-sm',
+				'w-[40%]',
+				'overflow-clip',
+				'self-center',
+			])
 			.appendTo(nextTip);
 
 		const image = this.player.createElement('img', 'next-tip-image')
-			.addClasses(this.makeStyles('nextTipImageStyles'))
+			.addClasses([
+				'playlist-card-image',
+				'w-available',
+				'h-auto',
+				'aspect-video',
+				'object-cover',
+				'rounded-md',
+			])
 			.appendTo(leftSide);
 		image.setAttribute('loading', 'eager');
 
 		const rightSide = this.player.createElement('div', 'next-tip-right-side')
-			.addClasses(this.makeStyles('nextTipRightSideStyles'))
+			.addClasses([
+				'next-tip-right',
+				'w-[60%]',
+				'flex',
+				'flex-col',
+				'text-left',
+				'gap-1',
+			])
 			.appendTo(nextTip);
 
 		const header = this.player.createElement('span', 'next-tip-header')
-			.addClasses(this.makeStyles('nextTipHeaderStyles'))
+			.addClasses([
+				'next-tip-header',
+				'font-bold',
+			])
 			.appendTo(rightSide);
 
 		const title = this.player.createElement('span', 'next-tip-title')
-			.addClasses(this.makeStyles('nextTipTitleStyles'))
+			.addClasses([
+				'next-tip-header',
+				'font-bold',
+			])
 			.appendTo(rightSide);
 
 		this.player.on('show-episode-tip', (data) => {

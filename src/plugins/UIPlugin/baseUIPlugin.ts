@@ -2,8 +2,7 @@ import Plugin from '../../plugin';
 import type { NMPlayer, PreviewTime, VolumeState } from '../../index.d';
 import { buttons, Icon } from './buttons';
 import { twMerge } from 'tailwind-merge';
-import * as styles from './styles';
-import { breakEpisodeTitle, breakLogoTitle, humanTime, unique } from '../../helpers';
+import { breakEpisodeTitle, breakLogoTitle, humanTime, nearestValue, unique } from '../../helpers';
 import { WebVTTParser } from 'webvtt-parser';
 
 export class BaseUIPlugin extends Plugin {
@@ -56,6 +55,40 @@ export class BaseUIPlugin extends Plugin {
 		el: HTMLDivElement
 	}[] = [];
 
+	languageMenuStyles = [
+		'language-button',
+		'w-available',
+		'mr-auto',
+		'h-8',
+		'px-1',
+		'py-2',
+		'flex',
+		'items-center',
+		'rounded',
+		'snap-center',
+		'outline-transparent',
+		'outline',
+		'whitespace-nowrap',
+		'hover:bg-neutral-600/50',
+		'transition-all',
+		'duration-200',
+		'outline-1',
+		'outline-solid',
+		'focus-visible:outline-2',
+		'focus-visible:outline-white',
+		'active:outline-white',
+	];
+
+	menuButtonTextStyles =  [
+		'menu-button-text',
+		'cursor-pointer',
+		'font-semibold',
+		'pl-2',
+		'flex',
+		'gap-2',
+		'leading-[normal]',
+		'line-clamp-1',
+	];
 
 	initialize(player: NMPlayer) {
 		this.player = player;
@@ -84,7 +117,6 @@ export class BaseUIPlugin extends Plugin {
 		}
 	}
 
-
 	scrollIntoView(element: HTMLElement) {
 
 		const scrollDuration = 200;
@@ -106,26 +138,6 @@ export class BaseUIPlugin extends Plugin {
 		requestAnimationFrame(scrollStep);
 	}
 
-	/**
-	 * Merges the default styles with the styles for a specific style name.
-	 * @param styleName - The name of the style to merge.
-	 * @param defaultStyles - The default styles to merge.
-	 * @returns An array containing the merged styles.
-	 */
-	mergeStyles(styleName: string, defaultStyles: string[]) {
-		const styles = this.player.options.styles?.[styleName] || [];
-		return [...defaultStyles, ...styles];
-	}
-
-	/**
-	 * Returns a merged style object for the given style name.
-	 * @param name - The name of the style to merge.
-	 * @returns The merged style object.
-	 */
-	makeStyles = (name: string) => {
-		return this.mergeStyles(`${name}`, (styles as any)[name]);
-	};
-
 	createSVGElement(parent: HTMLElement, id: string, icon: Icon['path'], hidden = false, hovered = false) {
 
 		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -134,8 +146,13 @@ export class BaseUIPlugin extends Plugin {
 		svg.id = id;
 		this.player.addClasses(svg, twMerge([
 			`${id}-icon`,
-			...this.makeStyles('svgSizeStyles'),
-			...this.makeStyles('iconStyles'),
+			'svg-size',
+			'h-5',
+			'w-5',
+			'pointer-events-none',
+			'group-hover/button:scale-110',
+			'duration-700',
+			'text-white',
 			hidden ? 'hidden' : 'flex',
 			...icon.classes,
 		]).split(' '));
@@ -222,8 +239,17 @@ export class BaseUIPlugin extends Plugin {
 	createSpinnerContainer(parent: HTMLDivElement) {
 
 		const spinnerContainer = this.player.createElement('div', 'spinner-container')
-			.addClasses(this.makeStyles('spinnerContainerStyles'))
 			.addClasses([
+				'spinner-container',
+				'absolute',
+				'inset-0',
+				'hidden',
+				'w-available',
+				'h-available',
+				'z-50',
+				'grid',
+				'pointer-events-none',
+				'place-content-center',
 				'bg-transparent',
 				'group-[&.nomercyplayer.buffering]:bg-gradient-circle-c',
 				'group-[&.nomercyplayer.error]:bg-gradient-circle-c',
@@ -238,7 +264,13 @@ export class BaseUIPlugin extends Plugin {
 			.appendTo(parent);
 
 		const role = this.player.createElement('div', 'spinner-role')
-			.addClasses(this.makeStyles('roleStyles'))
+			.addClasses([
+				'flex',
+				'flex-col',
+				'items-center',
+				'gap-4',
+				'mt-11',
+			])
 			.appendTo(spinnerContainer);
 
 		role.setAttribute('role', 'status');
@@ -246,7 +278,11 @@ export class BaseUIPlugin extends Plugin {
 		this.createSpinner(role);
 
 		const status = this.player.createElement('span', 'status-text')
-			.addClasses(this.makeStyles('statusTextStyles'))
+			.addClasses([
+				'text-white',
+				'text-lg',
+				'font-bold',
+			])
 			.appendTo(role);
 
 		status.innerText = this.player.localize('Loading...');
@@ -298,7 +334,13 @@ export class BaseUIPlugin extends Plugin {
 
 		this.player.addClasses(spinner, [
 			'spinner-icon',
-			...this.makeStyles('spinnerStyles'),
+			'inline',
+			'w-12',
+			'h-12',
+			'mr-2',
+			'animate-spin',
+			'text-white/20',
+			'fill-white',
 		]);
 
 		parent.appendChild(spinner);
@@ -462,7 +504,26 @@ export class BaseUIPlugin extends Plugin {
 	createUiButton(parent: HTMLElement, icon: string) {
 
 		const button = this.player.createElement('button', icon)
-			.addClasses(this.makeStyles('buttonStyles'))
+			.addClasses([
+				'cursor-pointer',
+				'fill-white',
+				'tv:fill-white/30',
+				'focus-visible:fill-white',
+				'flex',
+				'-outline-offset-2',
+				'focus-visible:outline',
+				'focus-visible:outline-2',
+				'focus-visible:outline-white/20',
+				'group/button',
+				'h-10',
+				'items-center',
+				'justify-center',
+				'p-2',
+				'relative',
+				'rounded-full',
+				'w-10',
+				'min-w-[40px]',
+			])
 			.appendTo(parent);
 
 		button.ariaLabel = this.buttons[icon]?.title;
@@ -763,7 +824,14 @@ export class BaseUIPlugin extends Plugin {
 		const time = this.player.createElement('div', `${type}-time`)
 			.addClasses([
 				...classes,
-				...this.makeStyles('timeStyles'),
+				'time',
+				'flex',
+				'font-mono',
+				'items-center',
+				'pointer-events-none',
+				'select-none',
+				'text-sm',
+				'justify-center',
 				`${type}-time`,
 			])
 			.appendTo(parent);
@@ -773,7 +841,7 @@ export class BaseUIPlugin extends Plugin {
 		switch (type) {
 		case 'current':
 
-			this.player.on('active', (data) => {
+			this.player.on('active', () => {
 				time.innerText = humanTime(this.player.getCurrentTime());
 			});
 
@@ -837,7 +905,12 @@ export class BaseUIPlugin extends Plugin {
 		if (this.player.isMobile()) return;
 
 		const volumeContainer = this.player.createElement('div', 'volume-container')
-			.addClasses(this.makeStyles('volumeContainerStyles'))
+			.addClasses([
+				'volume-container',
+				'group/volume',
+				'flex',
+				'overflow-clip',
+			])
 			.appendTo(parent);
 
 		const volumeButton = this.createUiButton(
@@ -847,7 +920,42 @@ export class BaseUIPlugin extends Plugin {
 		volumeButton.ariaLabel = this.buttons.volumeHigh?.title;
 
 		const volumeSlider = this.player.createElement('input', 'volume-slider')
-			.addClasses(this.makeStyles('volumeSliderStyles'))
+			.addClasses([
+				'volume-slider',
+				'w-0',
+				'rounded-full',
+				'opacity-0',
+				'duration-300',
+				'group-hover/volume:w-20',
+				'group-hover/volume:mx-2',
+				'group-hover/volume:opacity-100',
+				'group-focus-within/volume:w-20',
+				'group-focus-within/volume:mx-2',
+				'group-focus-within/volume:opacity-100',
+				'appearance-none',
+				'volume-slider',
+				'bg-white/70',
+				'bg-gradient-to-r',
+				'from-white',
+				'to-white',
+				'self-center',
+				'h-1',
+				'bg-no-repeat',
+				'rounded-full',
+				'shadow-sm',
+				'transition-all',
+				'range-track:appearance-none',
+				'range-track:border-none',
+				'range-track:bg-transparent',
+				'range-track:shadow-none',
+				'range-thumb:h-3',
+				'range-thumb:w-3',
+				'range-thumb:appearance-none',
+				'range-thumb:rounded-full',
+				'range-thumb:bg-white',
+				'range-thumb:shadow-sm',
+				'range-thumb:border-none',
+			])
 			.appendTo(volumeContainer);
 
 		volumeSlider.type = 'range';
@@ -1383,25 +1491,61 @@ export class BaseUIPlugin extends Plugin {
 
 	createBottomBar(parent: HTMLElement) {
 		const bottomBar = this.player.createElement('div', 'bottom-bar')
-			.addClasses(this.makeStyles('bottomBarStyles'))
+			.addClasses([
+				'bottom-bar',
+				'absolute',
+				'bottom-0',
+				'flex',
+				'flex-col',
+				'gap-2',
+				'items-center',
+				'mt-auto',
+				'px-6',
+				'py-4',
+				'text-center',
+				'translate-y-full',
+				'w-available',
+				'z-10',
+				'group-[&.nomercyplayer.active]:translate-y-0',
+				'group-[&.nomercyplayer.paused]:translate-y-0',
+				'group-[&.nomercyplayer:has(.open)]:translate-y-0',
+				// 'group-[&.nomercyplayer:has(:focus)]:translate-y-0',
+				'group-[&.nomercyplayer:has(:focus)]:duration-0',
+				'transition-all',
+				'duration-300',
+			])
 			.appendTo(parent);
 
 		this.player.createElement('div', 'bottom-bar-shadow')
-			.addClasses(this.makeStyles('bottomBarShadowStyles'))
+			.addClasses([
+				'absolute',
+				'pointer-events-none',
+				'bottom-0',
+				'bg-gradient-to-t',
+				'via-black/20',
+				'from-black/90',
+				'pt-[10%]',
+				'w-available',
+			])
 			.appendTo(bottomBar);
 
 		return bottomBar;
 	}
 
 	createDivider(parent: HTMLElement, content?: any) {
+		const dividerStyles = [
+			'divider',
+			'flex',
+			'flex-1',
+		];
 		const divider = this.player.createElement('div', 'divider')
-			.addClasses(this.makeStyles('dividerStyles'))
+			.addClasses(dividerStyles)
 			.appendTo(parent);
 
 		if (content) {
 			divider.innerHTML = content;
 		} else {
-			this.player.addClasses(divider, this.makeStyles('dividerStyles'));
+			this.player.addClasses(divider, dividerStyles);
 		}
 
 		return divider;
@@ -1409,7 +1553,21 @@ export class BaseUIPlugin extends Plugin {
 
 	createOverlayCenterMessage(parent: HTMLDivElement) {
 		const playerMessage = this.player.createElement('button', 'player-message')
-			.addClasses(this.makeStyles('playerMessageStyles'))
+			.addClasses([
+				'player-message',
+				'hidden',
+				'absolute',
+				'rounded-md',
+				'bg-neutral-900/95',
+				'left-1/2',
+				'px-4',
+				'py-2',
+				'pointer-events-none',
+				'text-center',
+				'top-12',
+				'-translate-x-1/2',
+				'z-50',
+			])
 			.appendTo(parent);
 
 		this.player.on('display-message', (val: string | null) => {
@@ -1427,19 +1585,53 @@ export class BaseUIPlugin extends Plugin {
 	createSeekContainer(parent: HTMLElement) {
 
 		const seekContainer = this.player.createElement('div', 'seek-container')
-			.addClasses(this.makeStyles('seekContainerStyles'))
+			.addClasses([
+				'relative',
+				'h-auto',
+				'-mb-28',
+				'w-available',
+				'translate-y-[80vh]',
+				'z-40',
+				'w-available',
+			])
 			.appendTo(parent);
 
 		const seekScrollCloneContainer = this.player.createElement('div', 'seek-scroll-clone-container')
-			.addClasses(this.makeStyles('seekScrollCloneStyles'))
+			.addClasses([
+				'[--gap:1.5rem]',
+				'absolute',
+				'flex',
+				'h-available',
+				'w-available',
+				'gap-[var(--gap)]',
+				'z-10',
+				'pointer-events-none',
+			])
 			.appendTo(seekContainer);
 
 		this.player.createElement('div', `thumbnail-clone-${1}`)
-			.addClasses(this.makeStyles('thumbnailCloneStyles'))
+			.addClasses([
+				'w-[calc(23%+(var(--gap)/2))]',
+				'h-auto',
+				'object-cover',
+				'aspect-video',
+				'border-4',
+				'mx-auto',
+				'',
+			])
 			.appendTo(seekScrollCloneContainer);
 
 		const seekScrollContainer = this.player.createElement('div', 'seek-scroll-container')
-			.addClasses(this.makeStyles('seekScrollContainerStyles'))
+			.addClasses([
+				'relative',
+				'flex',
+				'h-available',
+				'w-available',
+				'overflow-auto',
+				'px-[calc(100%/2.14)]',
+				'gap-1.5',
+				'scrollbar-none',
+			])
 			.appendTo(seekContainer);
 
 		this.player.once('item', () => {
@@ -1507,77 +1699,35 @@ export class BaseUIPlugin extends Plugin {
 		return seekContainer;
 	}
 
-	createNextUp(parent: HTMLDivElement) {
-
-		this.nextUp = this.player.createElement('div', 'episode-tip')
-			.addClasses(this.makeStyles('nextUpStyles'))
-			.appendTo(parent) as HTMLDivElement & { firstChild: HTMLButtonElement; lastChild: HTMLButtonElement; };
-
-		this.nextUp.style.display = 'none';
-
-		const creditsButton = this.player.createElement('button', 'next-up-credits')
-			.addClasses(this.makeStyles('nextUpCreditsButtonStyles'))
-			.appendTo(this.nextUp);
-
-		creditsButton.innerText = this.player.localize('Watch credits');
-
-		const nextButton = this.player.createElement('button', 'next-up-next')
-			.addClasses(this.makeStyles('nextUpNextButtonStyles'))
-			.appendTo(this.nextUp);
-
-		nextButton.setAttribute('data-label', this.player.localize('Next'));
-		nextButton.setAttribute('data-icon', '▶︎');
-
-		this.player.on('show-next-up', () => {
-			this.nextUp.style.display = 'flex';
-			this.timeout = setTimeout(() => {
-				this.nextUp.style.display = 'none';
-				if (this.player.isPlaying) {
-					this.player.next();
-				}
-			}, 4200);
-
-			setTimeout(() => {
-				nextButton.focus();
-			}, 100);
-
-		});
-
-		creditsButton.addEventListener('click', () => {
-			clearTimeout(this.timeout);
-			this.nextUp.style.display = 'none';
-		});
-
-		nextButton.addEventListener('click', () => {
-			clearTimeout(this.timeout);
-			this.nextUp.style.display = 'none';
-			this.player.next();
-		});
-
-		let enabled = false;
-		this.player.on('item', () => {
-			clearTimeout(this.timeout);
-			this.nextUp.style.display = 'none';
-			enabled = false;
-		});
-
-		this.player.once('playing', () => {
-			this.player.on('time', (data) => {
-				if (this.player.getDuration() > 0 && data.currentTime > (this.player.getDuration() - 5)
-					&& !enabled && !this.player.isLastPlaylistItem()) {
-					this.player.emit('show-next-up');
-					enabled = true;
-				}
-			});
-		});
-
-		return this.nextUp;
-	}
-
 	createTopBar(parent: HTMLElement) {
 
 		return this.player.createElement('div', 'top-bar')
-			.addClasses(this.makeStyles('topBarStyles'))
+			.addClasses([
+				'top-bar',
+				'-translate-y-full',
+				'absolute',
+				'flex',
+				'gap-2',
+				'items-start',
+				'justify-between',
+				'mb-auto',
+				'pb-[10%]',
+				'px-6',
+				'py-4',
+				'top-0',
+				'w-available',
+				'z-10',
+				'group-[&.nomercyplayer.active]:translate-y-0',
+				'group-[&.nomercyplayer.paused]:translate-y-0',
+				'group-[&.nomercyplayer:has(.open)]:translate-y-0',
+				'group-[&.nomercyplayer:has(:focus)]:duration-0',
+				'transition-all',
+				'duration-300',
+
+				'bg-gradient-to-b',
+				'from-black/90',
+				'via-black/50',
+			])
 			.appendTo(parent);
 	}
 
@@ -1651,29 +1801,7 @@ export class BaseUIPlugin extends Plugin {
 	}, hovered = false) {
 
 		const languageButton = this.player.createElement('button', `${data.type}-button-${data.language}`)
-			.addClasses([
-				'language-button',
-				'w-available',
-				'mr-auto',
-				'h-8',
-				'px-1',
-				'py-2',
-				'flex',
-				'items-center',
-				'rounded',
-				'snap-center',
-				'outline-transparent',
-				'outline',
-				'whitespace-nowrap',
-				'hover:bg-neutral-600/50',
-				'transition-all',
-				'duration-100',
-				'outline-1',
-				'outline-solid',
-				'focus-visible:outline-2',
-				'focus-visible:outline-white',
-				'active:outline-white',
-			])
+			.addClasses(this.languageMenuStyles)
 			.appendTo(parent);
 
 		const languageButtonText = this.player.createElement('span', 'menu-button-text')
@@ -1697,7 +1825,8 @@ export class BaseUIPlugin extends Plugin {
 			} else {
 				languageButtonText.innerText = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
 			}
-		} else {
+		}
+		else {
 			languageButtonText.innerText = this.player.localize(data.language);
 		}
 
@@ -1722,7 +1851,8 @@ export class BaseUIPlugin extends Plugin {
 				this.player.setCurrentAudioTrack(data.id);
 				this.player.emit('show-menu', false);
 			});
-		} else if (data.buttonType == 'subtitle') {
+		}
+		else if (data.buttonType == 'subtitle') {
 			if (data.id === this.player.getCaptionIndex()) {
 				chevron.classList.remove('hidden');
 			} else {
@@ -1744,11 +1874,27 @@ export class BaseUIPlugin extends Plugin {
 			});
 		}
 
-		languageButton.addEventListener('keypress', (e) => {
+		this.addKeyEventsToLanguageButton(languageButton, parent);
+
+		return languageButton;
+	}
+
+	getClosestElement(element: HTMLButtonElement, selector: string) {
+
+		const arr = Array.from(document.querySelectorAll<HTMLButtonElement>(selector)).filter(el => getComputedStyle(el).display == 'flex');
+		const originEl = element!.getBoundingClientRect();
+
+		return arr.find(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2))
+			== nearestValue(arr.map(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2)))
+				, originEl.top + (originEl.height / 2)));
+	}
+
+	addKeyEventsToLanguageButton(languageButton: HTMLButtonElement, parent: HTMLDivElement) {
+		languageButton.addEventListener('keypress', (e: KeyboardEvent) => {
 			if (e.key == 'ArrowLeft') {
-				this.player.getClosestElement(languageButton, '[id^="audio-button-"]')?.focus();
+				this.getClosestElement(languageButton, '[id^="audio-button-"]')?.focus();
 			} else if (e.key == 'ArrowRight') {
-				this.player.getClosestElement(languageButton, '[id^="subtitle-button-"]')?.focus();
+				this.getClosestElement(languageButton, '[id^="subtitle-button-"]')?.focus();
 			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				(languageButton.previousElementSibling as HTMLButtonElement)?.focus();
 			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
@@ -1760,48 +1906,10 @@ export class BaseUIPlugin extends Plugin {
 			setTimeout(() => {
 				this.scrollCenter(languageButton, parent.parentElement as HTMLDivElement, {
 					margin: 1,
-					duration: 100,
+					duration: 100
 				});
 			}, 50);
 		});
-
-		return languageButton;
-	}
-
-	getLanguageButtonText(languageButton: HTMLButtonElement, data: {
-		language: string,
-		label: string,
-		type: string,
-		id: number,
-		styled?: boolean;
-		buttonType: string;
-	}) {
-		const languageButtonText = this.player.createElement('span', 'menu-button-text')
-			.addClasses([
-				'menu-button-text',
-				'cursor-pointer',
-				'font-semibold',
-				'pl-2',
-				'flex',
-				'gap-2',
-				'leading-[normal]',
-				'line-clamp-1',
-			])
-			.appendTo(languageButton);
-
-		if (data.buttonType == 'subtitle') {
-			if (data.styled) {
-				languageButtonText.innerText = `${this.player.localize(data.language ?? '')} ${this.player.localize(data.label)} ${this.player.localize('styled')}`;
-			} else if (data.language == '') {
-				languageButtonText.innerText = this.player.localize(data.label);
-			} else {
-				languageButtonText.innerText = `${this.player.localize(data.language ?? '')} (${this.player.localize(data.type)})`;
-			}
-		} else {
-			languageButtonText.innerText = this.player.localize(data.language);
-		}
-
-		return languageButtonText;
 	}
 
 	createThumbnail(time: PreviewTime) {

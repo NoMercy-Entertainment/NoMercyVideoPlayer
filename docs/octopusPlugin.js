@@ -1,37 +1,34 @@
-import { P as v } from "./plugin.js";
-const g = function(i) {
-  let c = !1;
+import { P as g } from "./plugin.js";
+const f = function(i) {
+  let o = !1;
   try {
     if (typeof WebAssembly == "object" && typeof WebAssembly.instantiate == "function") {
-      const s = new WebAssembly.Module(Uint8Array.of(0, 97, 115, 109, 1, 0, 0, 0));
-      s instanceof WebAssembly.Module && (c = new WebAssembly.Instance(s) instanceof WebAssembly.Instance);
+      const t = new WebAssembly.Module(Uint8Array.of(0, 97, 115, 109, 1, 0, 0, 0));
+      t instanceof WebAssembly.Module && (o = new WebAssembly.Instance(t) instanceof WebAssembly.Instance);
     }
   } catch {
   }
+  console.log(`WebAssembly support detected: ${o ? "yes" : "no"}`);
   const e = this;
-  e.canvas = i.canvas, e.lossyRender = i.lossyRender, e.isOurCanvas = !1, e.video = i.video, e.canvasParent = null, e.fonts = i.fonts || [], e.availableFonts = i.availableFonts || [], e.defaultFont = i.defaultFont, e.onReadyEvent = i.onReady, c ? e.workerUrl = i.workerUrl || "subtitles-octopus-worker.js" : e.workerUrl = i.legacyWorkerUrl || "subtitles-octopus-worker-legacy.js", e.subUrl = i.subUrl, e.subContent = i.subContent || null, e.onErrorEvent = i.onError, e.debug = i.debug || !1, e.lastRenderTime = 0, e.pixelRatio = window.devicePixelRatio || 1, e.timeOffset = i.timeOffset || 0, e.hasAlphaBug = !1, function() {
+  e.canvas = i.canvas, e.lossyRender = i.lossyRender, e.isOurCanvas = !1, e.video = i.video, e.canvasParent = null, e.fonts = i.fonts || [], e.availableFonts = i.availableFonts || [], e.onReadyEvent = i.onReady, o ? e.workerUrl = i.workerUrl || "subtitles-octopus-worker.ts" : e.workerUrl = i.legacyWorkerUrl || "subtitles-octopus-worker-legacy.ts", e.subUrl = i.subUrl, e.subContent = i.subContent || null, e.onErrorEvent = i.onError, e.debug = i.debug || !1, e.lastRenderTime = 0, e.pixelRatio = window.devicePixelRatio || 1, e.timeOffset = i.timeOffset || 0, e.accessToken = i.accessToken || null, e.hasAlphaBug = !1, function() {
     if (typeof ImageData.prototype.constructor == "function")
       try {
-        new window.ImageData(new Uint8ClampedArray([
-          0,
-          0,
-          0,
-          0
-        ]), 1, 1);
+        new window.ImageData(new Uint8ClampedArray([0, 0, 0, 0]), 1, 1);
         return;
       } catch {
         console.log("detected that ImageData is not constructable despite browser saying so");
       }
-    const t = document.createElement("canvas").getContext("2d", { willReadFrequently: !0 });
+    const s = document.createElement("canvas").getContext("2d", { willReadFrequently: !0 });
     window.ImageData = function() {
-      let r = 0;
+      let a = 0;
       if (arguments[0] instanceof Uint8ClampedArray)
-        var o = arguments[r++];
-      const a = arguments[r++], n = arguments[r], l = t.createImageData(a, n);
-      return o && l.data.set(o), l;
+        var r = arguments[a++];
+      const n = arguments[a++], l = arguments[a], c = s.createImageData(n, l);
+      return r && c.data.set(r), c;
     };
-  }(), e.workerError = function(s) {
-    console.error("Worker error: ", s), e.onErrorEvent && e.onErrorEvent(s), e.debug || e.dispose();
+  }(), e.workerError = function(t) {
+    if (console.error("Worker error: ", t), e.onErrorEvent && e.onErrorEvent(t), !e.debug)
+      throw e.dispose(), new Error(`Worker error: ${t}`);
   }, e.init = function() {
     if (!window.Worker) {
       e.workerError("worker not supported");
@@ -49,161 +46,185 @@ const g = function(i) {
       subContent: e.subContent,
       fonts: e.fonts,
       availableFonts: e.availableFonts,
-      defaultFont: e.defaultFont,
-      debug: e.debug
+      debug: e.debug,
+      token: e.accessToken
     });
   }, e.createCanvas = function() {
     e.canvas || (e.video ? (e.isOurCanvas = !0, e.canvas = document.createElement("canvas"), e.canvas.className = "libassjs-canvas", e.canvas.style.display = "none", e.canvasParent = document.createElement("div"), e.canvasParent.className = "libassjs-canvas-parent", e.canvasParent.appendChild(e.canvas), e.video.nextSibling ? e.video.parentNode.insertBefore(e.canvasParent, e.video.nextSibling) : e.video.parentNode.appendChild(e.canvasParent)) : e.canvas || e.workerError("Don't know where to render: you should give video or canvas in options.")), e.ctx = e.canvas.getContext("2d", { willReadFrequently: !0 }), e.bufferCanvas = document.createElement("canvas"), e.bufferCanvasCtx = e.bufferCanvas.getContext("2d", { willReadFrequently: !0 }), e.bufferCanvas.width = 1, e.bufferCanvas.height = 1;
-    const s = new Uint8ClampedArray([
-      0,
-      255,
-      0,
-      0
-    ]), t = new ImageData(s, 1, 1);
+    const t = new Uint8ClampedArray([0, 255, 0, 0]), s = new ImageData(t, 1, 1);
     e.bufferCanvasCtx.clearRect(0, 0, 1, 1), e.ctx.clearRect(0, 0, 1, 1);
-    const r = e.ctx.getImageData(0, 0, 1, 1, { willReadFrequently: !0 }).data;
-    e.bufferCanvasCtx.putImageData(t, 0, 0), e.ctx.drawImage(e.bufferCanvas, 0, 0);
-    const o = e.ctx.getImageData(0, 0, 1, 1, { willReadFrequently: !0 }).data;
-    e.hasAlphaBug = r[1] !== o[1], e.hasAlphaBug && console.log("Detected a browser having issue with transparent pixels, applying workaround");
-  }, e.setVideo = function(s) {
-    if (e.video = s, e.video) {
-      const t = function() {
-        e.setCurrentTime(s.currentTime + e.timeOffset);
+    const a = e.ctx.getImageData(0, 0, 1, 1).data;
+    e.bufferCanvasCtx.putImageData(s, 0, 0), e.ctx.drawImage(e.bufferCanvas, 0, 0);
+    const r = e.ctx.getImageData(0, 0, 1, 1).data;
+    e.hasAlphaBug = a[1] != r[1], e.hasAlphaBug && console.log("Detected a browser having issue with transparent pixels, applying workaround");
+  }, e.setVideo = function(t) {
+    if (e.video = t, e.video) {
+      const s = function() {
+        e.setCurrentTime(t.currentTime + e.timeOffset);
       };
-      e.video.addEventListener("timeupdate", t, !1), e.video.addEventListener("playing", () => {
-        e.setIsPaused(!1, s.currentTime + e.timeOffset);
-      }, !1), e.video.addEventListener("pause", () => {
-        e.setIsPaused(!0, s.currentTime + e.timeOffset);
-      }, !1), e.video.addEventListener("seeking", () => {
-        e.video.removeEventListener("timeupdate", t);
-      }, !1), e.video.addEventListener("seeked", () => {
-        e.video.addEventListener("timeupdate", t, !1), e.setCurrentTime(s.currentTime + e.timeOffset);
-      }, !1), e.video.addEventListener("ratechange", () => {
-        e.setRate(s.playbackRate);
-      }, !1), e.video.addEventListener("timeupdate", () => {
-        e.setCurrentTime(s.currentTime + e.timeOffset);
-      }, !1), e.video.addEventListener("waiting", () => {
-        e.setIsPaused(!0, s.currentTime + e.timeOffset);
-      }, !1), document.addEventListener("fullscreenchange", e.resizeWithTimeout, !1), document.addEventListener("mozfullscreenchange", e.resizeWithTimeout, !1), document.addEventListener("webkitfullscreenchange", e.resizeWithTimeout, !1), document.addEventListener("msfullscreenchange", e.resizeWithTimeout, !1), window.addEventListener("resize", e.resizeWithTimeout, !1), typeof ResizeObserver < "u" && (e.ro = new ResizeObserver(e.resizeWithTimeout), e.ro.observe(e.video)), e.video.videoWidth > 0 ? e.resize() : e.video.addEventListener("loadedmetadata", () => {
-        e.resize();
-      }, !1);
+      e.video.addEventListener("timeupdate", s, !1), e.video.addEventListener(
+        "playing",
+        () => {
+          e.setIsPaused(!1, t.currentTime + e.timeOffset);
+        },
+        !1
+      ), e.video.addEventListener(
+        "pause",
+        () => {
+          e.setIsPaused(!0, t.currentTime + e.timeOffset);
+        },
+        !1
+      ), e.video.addEventListener(
+        "seeking",
+        () => {
+          e.video.removeEventListener("timeupdate", s);
+        },
+        !1
+      ), e.video.addEventListener(
+        "seeked",
+        () => {
+          e.video.addEventListener("timeupdate", s, !1), e.setCurrentTime(t.currentTime + e.timeOffset);
+        },
+        !1
+      ), e.video.addEventListener(
+        "ratechange",
+        () => {
+          e.setRate(t.playbackRate);
+        },
+        !1
+      ), e.video.addEventListener(
+        "timeupdate",
+        () => {
+          e.setCurrentTime(t.currentTime + e.timeOffset);
+        },
+        !1
+      ), e.video.addEventListener(
+        "waiting",
+        () => {
+          e.setIsPaused(!0, t.currentTime + e.timeOffset);
+        },
+        !1
+      ), document.addEventListener("fullscreenchange", e.resizeWithTimeout, !1), document.addEventListener("mozfullscreenchange", e.resizeWithTimeout, !1), document.addEventListener("webkitfullscreenchange", e.resizeWithTimeout, !1), document.addEventListener("msfullscreenchange", e.resizeWithTimeout, !1), window.addEventListener("resize", e.resizeWithTimeout, !1), typeof ResizeObserver < "u" && (e.ro = new ResizeObserver(e.resizeWithTimeout), e.ro.observe(e.video)), e.video.videoWidth > 0 ? e.resize() : e.video.addEventListener(
+        "loadedmetadata",
+        function a(r) {
+          r.target.removeEventListener(r.type, a), e.resize();
+        },
+        !1
+      );
     }
   }, e.getVideoPosition = function() {
-    const s = e.video.videoWidth / e.video.videoHeight, t = e.video.offsetWidth, r = e.video.offsetHeight, o = t / r;
-    let a = t, n = r;
-    o > s ? a = Math.floor(r * s) : n = Math.floor(t / s);
-    const l = (t - a) / 2, m = (r - n) / 2;
+    const t = e.video.videoWidth / e.video.videoHeight, s = e.video.offsetWidth, a = e.video.offsetHeight, r = s / a;
+    let n = s, l = a;
+    r > t ? n = Math.floor(a * t) : l = Math.floor(s / t);
+    const c = (s - n) / 2, m = (a - l) / 2;
     return {
-      width: a,
-      height: n,
-      x: l,
+      width: n,
+      height: l,
+      x: c,
       y: m
     };
-  }, e.setSubUrl = function(s) {
-    e.subUrl = s;
+  }, e.setSubUrl = function(t) {
+    e.subUrl = t;
   }, e.renderFrameData = null;
   function d() {
-    var s, t;
-    const r = e.renderFramesData, o = performance.now();
+    const t = e.renderFramesData, s = performance.now();
     e.ctx.clearRect(0, 0, e.canvas.width, e.canvas.height);
-    for (let a = 0; a < r.canvases.length; a++) {
-      const n = r.canvases[a];
-      e.bufferCanvas.width = n.w, e.bufferCanvas.height = n.h;
-      const l = new Uint8ClampedArray(n.buffer);
+    for (let a = 0; a < t.canvases.length; a++) {
+      const r = t.canvases[a];
+      e.bufferCanvas.width = r.w, e.bufferCanvas.height = r.h;
+      const n = new Uint8ClampedArray(r.buffer);
       if (e.hasAlphaBug)
-        for (let u = 3; u < l.length; u += 4)
-          l[u] = l[u] >= 1 ? l[u] : 1;
-      const m = new ImageData(l, n.w, n.h);
-      e.bufferCanvasCtx.putImageData(m, 0, 0), e.ctx.drawImage(e.bufferCanvas, n.x, n.y);
+        for (let c = 3; c < n.length; c += 4)
+          n[c] = n[c] >= 1 ? n[c] : 1;
+      const l = new ImageData(n, r.w, r.h);
+      e.bufferCanvasCtx.putImageData(l, 0, 0), e.ctx.drawImage(e.bufferCanvas, r.x, r.y);
     }
     if (e.debug) {
-      const a = Math.round(performance.now() - o);
-      (t = (s = window.socket) === null || s === void 0 ? void 0 : s.emit) === null || t === void 0 || t.call(s, "log", `${Math.round(r.spentTime)} ms (+ ${a} ms draw)`), console.log(`${Math.round(r.spentTime)} ms (+ ${a} ms draw)`), e.renderStart = performance.now();
+      const a = Math.round(performance.now() - s);
+      console.log(`${Math.round(t.spentTime)} ms (+ ${a} ms draw)`), e.renderStart = performance.now();
     }
   }
-  function f() {
-    var s, t;
-    const r = e.renderFramesData, o = performance.now();
+  function u() {
+    const t = e.renderFramesData, s = performance.now();
     e.ctx.clearRect(0, 0, e.canvas.width, e.canvas.height);
-    for (let a = 0; a < r.bitmaps.length; a++) {
-      const n = r.bitmaps[a];
-      e.ctx.drawImage(n.bitmap, n.x, n.y);
+    for (let a = 0; a < t.bitmaps.length; a++) {
+      const r = t.bitmaps[a];
+      e.ctx.drawImage(r.bitmap, r.x, r.y);
     }
     if (e.debug) {
-      const a = Math.round(performance.now() - o);
-      (t = (s = window.socket) === null || s === void 0 ? void 0 : s.emit) === null || t === void 0 || t.call(s, `${r.bitmaps.length} bitmaps, libass: ${Math.round(r.libassTime)}ms, decode: ${Math.round(r.decodeTime)}ms, draw: ${a}ms`), console.log(`${r.bitmaps.length} bitmaps, libass: ${Math.round(r.libassTime)}ms, decode: ${Math.round(r.decodeTime)}ms, draw: ${a}ms`), e.renderStart = performance.now();
+      const a = Math.round(performance.now() - s);
+      console.log(`${t.bitmaps.length} bitmaps, libass: ${Math.round(t.libassTime)}ms, decode: ${Math.round(t.decodeTime)}ms, draw: ${a}ms`), e.renderStart = performance.now();
     }
   }
-  e.workerActive = !1, e.frameId = 0, e.onWorkerMessage = function(s) {
+  e.workerActive = !1, e.frameId = 0, e.onWorkerMessage = function(t) {
     e.workerActive || (e.workerActive = !0, e.onReadyEvent && e.onReadyEvent());
-    const { data: t } = s;
-    switch (t.target) {
+    const s = t.data;
+    switch (s.target) {
       case "stdout": {
-        console.log(t.content);
+        console.log(s.content);
         break;
       }
       case "console-log": {
-        console.log.apply(console, JSON.parse(t.content));
+        console.log.apply(console, JSON.parse(s.content));
         break;
       }
       case "console-debug": {
-        console.debug.apply(console, JSON.parse(t.content));
+        console.debug.apply(console, JSON.parse(s.content));
         break;
       }
       case "console-info": {
-        console.info.apply(console, JSON.parse(t.content));
+        console.info.apply(console, JSON.parse(s.content));
         break;
       }
       case "console-warn": {
-        console.warn.apply(console, JSON.parse(t.content));
+        console.warn.apply(console, JSON.parse(s.content));
         break;
       }
       case "console-error": {
-        console.error.apply(console, JSON.parse(t.content));
+        console.error.apply(console, JSON.parse(s.content));
         break;
       }
       case "stderr": {
-        console.error(t.content);
+        console.error(s.content);
         break;
       }
       case "window": {
-        window[t.method]();
+        window[s.method]();
         break;
       }
       case "canvas": {
-        switch (t.op) {
+        switch (s.op) {
           case "getContext": {
-            e.ctx = e.canvas.getContext(t.type, t.attributes);
+            e.ctx = e.canvas.getContext(s.type, s.attributes);
             break;
           }
           case "resize": {
-            e.resize(t.width, t.height);
+            e.resize(s.width, s.height);
             break;
           }
           case "renderCanvas": {
-            e.lastRenderTime < t.time && (e.lastRenderTime = t.time, e.renderFramesData = t, window.requestAnimationFrame(d));
+            e.lastRenderTime < s.time && (e.lastRenderTime = s.time, e.renderFramesData = s, window.requestAnimationFrame(d));
             break;
           }
           case "renderMultiple": {
-            e.lastRenderTime < t.time && (e.lastRenderTime = t.time, e.renderFramesData = t, window.requestAnimationFrame(d));
+            e.lastRenderTime < s.time && (e.lastRenderTime = s.time, e.renderFramesData = s, window.requestAnimationFrame(d));
             break;
           }
           case "renderFastCanvas": {
-            e.lastRenderTime < t.time && (e.lastRenderTime = t.time, e.renderFramesData = t, window.requestAnimationFrame(f));
+            e.lastRenderTime < s.time && (e.lastRenderTime = s.time, e.renderFramesData = s, window.requestAnimationFrame(u));
             break;
           }
           case "setObjectProperty": {
-            e.canvas[t.object][t.property] = t.value;
+            e.canvas[s.object][s.property] = s.value;
             break;
           }
           default:
-            console.error(t);
-            break;
+            throw console.error(s), "eh?";
         }
         break;
       }
       case "tick": {
-        e.frameId = t.id, e.worker.postMessage({
+        e.frameId = s.id, e.worker.postMessage({
           target: "tock",
           id: e.frameId
         });
@@ -211,9 +232,9 @@ const g = function(i) {
       }
       case "custom": {
         if (e.onCustomMessage)
-          e.onCustomMessage(s);
+          e.onCustomMessage(t);
         else
-          throw Error("Custom message received but client onCustomMessage not implemented.");
+          throw "Custom message received but client onCustomMessage not implemented.";
         break;
       }
       case "setimmediate": {
@@ -223,30 +244,28 @@ const g = function(i) {
         break;
       }
       case "get-events": {
-        console.log(t.target), console.log(t.events);
+        console.log(s.target), console.log(s.events);
         break;
       }
       case "get-styles": {
-        console.log(t.target), console.log(t.styles);
+        console.log(s.target), console.log(s.styles);
         break;
       }
-      case "ready":
-        break;
       default:
-        throw Error("what? ", t.target);
+        throw `what? ${s.target}`;
     }
-  }, e.resize = function(s, t, r, o) {
-    let a = null;
-    if (r = r || 0, o = o || 0, (!s || !t) && e.video) {
-      a = e.getVideoPosition(), s = a.width * e.pixelRatio, t = a.height * e.pixelRatio;
-      const n = e.canvasParent.getBoundingClientRect().top - e.video.getBoundingClientRect().top;
-      r = a.y - n, o = a.x;
+  }, e.resize = function(t, s, a, r) {
+    let n = null;
+    if (a = a || 0, r = r || 0, (!t || !s) && e.video) {
+      n = e.getVideoPosition(), t = n.width * e.pixelRatio, s = n.height * e.pixelRatio;
+      const l = e.canvasParent.getBoundingClientRect().top - e.video.getBoundingClientRect().top;
+      a = n.y - l, r = n.x;
     }
-    if (!s || !t) {
+    if (!t || !s) {
       e.video || console.error("width or height is 0. You should specify width & height for resize.");
       return;
     }
-    (e.canvas.width !== s || e.canvas.height !== t || e.canvas.style.top !== r || e.canvas.style.left !== o) && (e.canvas.width = s, e.canvas.height = t, a !== null && (e.canvasParent.style.position = "relative", e.canvas.style.display = "block", e.canvas.style.position = "absolute", e.canvas.style.width = `${a.width}px`, e.canvas.style.height = `${a.height}px`, e.canvas.style.top = `${r}px`, e.canvas.style.left = `${o}px`, e.canvas.style.pointerEvents = "none"), e.worker.postMessage({
+    (e.canvas.width != t || e.canvas.height != s || e.canvas.style.top != a || e.canvas.style.left != r) && (e.canvas.width = t, e.canvas.height = s, n != null && (e.canvasParent.style.position = "relative", e.canvas.style.display = "block", e.canvas.style.position = "absolute", e.canvas.style.width = `${n.width}px`, e.canvas.style.height = `${n.height}px`, e.canvas.style.top = `${a}px`, e.canvas.style.left = `${r}px`, e.canvas.style.pointerEvents = "none"), e.worker.postMessage({
       target: "canvas",
       width: e.canvas.width,
       height: e.canvas.height
@@ -257,91 +276,93 @@ const g = function(i) {
     e.worker.postMessage({
       target: "runBenchmark"
     });
-  }, e.customMessage = function(s, t) {
-    t = t || {}, e.worker.postMessage({
+  }, e.customMessage = function(t, s) {
+    s = s || {}, e.worker.postMessage({
       target: "custom",
-      userData: s,
-      preMain: t.preMain
+      userData: t,
+      preMain: s.preMain
     });
-  }, e.setCurrentTime = function(s) {
+  }, e.setCurrentTime = function(t) {
     e.worker.postMessage({
       target: "video",
-      currentTime: s
+      currentTime: t
     });
-  }, e.setTrackByUrl = function(s) {
+  }, e.setTrackByUrl = function(t) {
     e.worker.postMessage({
       target: "set-track-by-url",
-      url: s
+      url: t
     });
-  }, e.setTrack = function(s) {
+  }, e.setTrack = function(t) {
     e.worker.postMessage({
       target: "set-track",
-      content: s
+      content: t
     });
-  }, e.freeTrack = function() {
+  }, e.freeTrack = function(t) {
     e.worker.postMessage({
       target: "free-track"
     });
-  }, e.render = e.setCurrentTime, e.setIsPaused = function(s, t) {
+  }, e.render = e.setCurrentTime, e.setIsPaused = function(t, s) {
     e.worker.postMessage({
       target: "video",
-      isPaused: s,
-      currentTime: t
+      isPaused: t,
+      currentTime: s
     });
-  }, e.setRate = function(s) {
+  }, e.setRate = function(t) {
     e.worker.postMessage({
       target: "video",
-      rate: s
+      rate: t
     });
   }, e.dispose = function() {
     e.worker.postMessage({
       target: "destroy"
-    }), e.worker.terminate(), e.workerActive = !1, e.video && document.body.contains(e.canvasParent) && e.video.parentNode.removeChild(e.canvasParent);
-  }, e.createEvent = function(s) {
+    }), e.worker.terminate(), e.workerActive = !1, e.video && e.video.parentNode.removeChild(e.canvasParent);
+  }, e.createEvent = function(t) {
     e.worker.postMessage({
       target: "create-event",
-      event: s
+      event: t
     });
   }, e.getEvents = function() {
     e.worker.postMessage({
       target: "get-events"
     });
-  }, e.setEvent = function(s, t) {
+  }, e.setEvent = function(t, s) {
     e.worker.postMessage({
       target: "set-event",
-      event: s,
-      index: t
-    });
-  }, e.removeEvent = function(s) {
-    e.worker.postMessage({
-      target: "remove-event",
+      event: t,
       index: s
     });
-  }, e.createStyle = function(s) {
+  }, e.removeEvent = function(t) {
+    e.worker.postMessage({
+      target: "remove-event",
+      index: t
+    });
+  }, e.createStyle = function(t) {
     e.worker.postMessage({
       target: "create-style",
-      style: s
+      style: t
     });
   }, e.getStyles = function() {
     e.worker.postMessage({
       target: "get-styles"
     });
-  }, e.setStyle = function(s, t) {
+  }, e.setStyle = function(t, s) {
     e.worker.postMessage({
       target: "set-style",
-      style: s,
-      index: t
+      style: t,
+      index: s
     });
-  }, e.removeStyle = function(s) {
+  }, e.removeStyle = function(t) {
     e.worker.postMessage({
       target: "remove-style",
-      index: s
+      index: t
     });
   }, e.init();
 };
-class h extends v {
-  initialize(c) {
-    this.player = c;
+typeof SubtitlesOctopusOnLoad == "function" && SubtitlesOctopusOnLoad();
+typeof exports < "u" && typeof module < "u" && module.exports && (exports = module.exports = f);
+class p extends g {
+  initialize(o) {
+    this.player = o;
   }
   use() {
     this.player.on("item", this.destroy.bind(this)), this.player.on("captionsChanged", this.opus.bind(this));
@@ -350,46 +371,43 @@ class h extends v {
     this.player.off("item", this.destroy.bind(this)), this.player.off("captionsChanged", this.opus.bind(this)), this.destroy();
   }
   destroy() {
-    var c;
-    (c = this.player.octopusInstance) == null || c.dispose(), this.player.octopusInstance = null;
+    var o;
+    (o = this.player.octopusInstance) == null || o.dispose(), this.player.octopusInstance = null;
   }
   async opus() {
-    var f, s, t;
-    (f = this.player.octopusInstance) == null || f.dispose(), this.player.octopusInstance = null;
-    const c = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ""}${this.player.getSubtitleFile()}` : null;
-    if (!c)
+    var u, t;
+    this.destroy();
+    const o = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ""}${this.player.getSubtitleFile()}` : null;
+    if (!o)
       return;
-    const e = (s = c == null ? void 0 : c.match(/\w+\.\w+\.\w+$/u)) == null ? void 0 : s[0];
+    const e = (u = o == null ? void 0 : o.match(/\w+\.\w+\.\w+$/u)) == null ? void 0 : u[0];
     let [, , d] = e ? e.split(".") : [];
-    if (d || (d = c.split(".").at(-1) || ""), !(d != "ass" && d != "ssa") && c) {
+    if (d || (d = o.split(".").at(-1) || ""), !(d != "ass" && d != "ssa") && o) {
       await this.player.fetchFontFile();
-      const r = (t = this.player.fonts) == null ? void 0 : t.map((a) => `${this.player.options.basePath ?? ""}${a.file}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ""}`);
-      this.player.getElement().querySelectorAll(".libassjs-canvas-parent").forEach((a) => a.remove());
-      try {
-        this.player.octopusInstance.dispose();
-      } catch {
-      }
-      const o = {
+      const s = (t = this.player.fonts) == null ? void 0 : t.map((r) => `${this.player.options.basePath ?? ""}${r.file}`);
+      this.player.getElement().querySelectorAll(".libassjs-canvas-parent").forEach((r) => r.remove());
+      const a = {
         video: this.player.getVideoElement(),
         lossyRender: !0,
-        subUrl: `${c}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ""}`,
+        accessToken: this.player.options.accessToken,
+        subUrl: o,
         debug: this.player.options.debug,
         blendRender: !0,
         lazyFileLoading: !0,
         targetFps: 24,
-        fonts: r,
+        fonts: s,
         workerUrl: "/js/octopus/subtitles-octopus-worker.js",
         legacyWorkerUrl: "/js/octopus/subtitles-octopus-worker-legacy.js",
         onReady: async () => {
         },
-        onError: (a) => {
-          console.error("opus error", a);
+        onError: (r) => {
+          console.error("opus error", r);
         }
       };
-      c && c.includes(".ass") && (this.player.octopusInstance = new g(o));
+      o && o.includes(".ass") && (this.player.octopusInstance = new f(a));
     }
   }
 }
 export {
-  h as O
+  p as O
 };

@@ -561,7 +561,6 @@ export interface NMPlayer {
 	emit(arg0: string, arg1?: any): void;
 	forwardVideo(): void;
 	getChapters(): Chapter[];
-	getClosestElement(languageButton: any, arg1: string): HTMLElement;
 	getCurrentSrc(): string;
 	getElement(): HTMLDivElement;
     getTimeData(): TimeData;

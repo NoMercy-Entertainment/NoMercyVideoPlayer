@@ -7,6 +7,7 @@ export declare class TVUIPlugin extends BaseUIPlugin {
     episodeScreen: HTMLDialogElement;
     languageScreen: HTMLDialogElement;
     selectedSeason: number | undefined;
+    hasPlayed: boolean;
     tvDialogStyles: string[];
     use(): void;
     backMenu(): void;
@@ -21,21 +22,12 @@ export declare class TVUIPlugin extends BaseUIPlugin {
     closeLanguageScreen(): void;
     createLanguageScreen(parent: HTMLElement): void;
     createTvProgressBar(parent: HTMLDivElement): HTMLDivElement;
-    getClosestElement(element: HTMLButtonElement, selector: string): HTMLButtonElement | undefined;
     createTvEpisodeMenuButton(parent: HTMLDivElement, item: PlaylistItem, index: number): HTMLButtonElement;
     createTvSeasonButton(parent: HTMLElement, id: string, data: {
         season: any;
         seasonName: any;
         episodes: number;
     }, action: () => void, icon?: Icon['path']): HTMLButtonElement;
-    createTvLanguageMenuButton(parent: HTMLDivElement, data: {
-        language: string;
-        label: string;
-        type: string;
-        id: number;
-        styled?: boolean;
-        buttonType: string;
-    }, hovered?: boolean): HTMLButtonElement;
     getVisibleButtons(element: HTMLButtonElement): {
         visibleButtons: HTMLButtonElement[];
         currentButtonIndex: number;
@@ -43,5 +35,5 @@ export declare class TVUIPlugin extends BaseUIPlugin {
     findPreviousVisibleButton(element: HTMLButtonElement): HTMLButtonElement | undefined;
     findNextVisibleButton(element: HTMLButtonElement): HTMLButtonElement | undefined;
     createImageContainer(parent: HTMLElement): HTMLDivElement;
-    createTvButton(parent: HTMLElement, id: string, text: string, action: () => void, icon?: Icon['path']): HTMLButtonElement;
+    createTvButton(parent: HTMLElement, id: string, text: string | null, action: () => void, icon?: Icon['path']): HTMLButtonElement;
 }

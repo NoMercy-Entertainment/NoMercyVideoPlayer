@@ -525,7 +525,7 @@ function yr(a) {
 function ai(a) {
   return Uint8Array.from(unescape(encodeURIComponent(a)), (e) => e.charCodeAt(0));
 }
-const ze = typeof self < "u" ? self : void 0;
+const je = typeof self < "u" ? self : void 0;
 var ee = {
   CLEARKEY: "org.w3.clearkey",
   FAIRPLAY: "com.apple.fps",
@@ -576,7 +576,7 @@ function Bt(a) {
   return !i[ee.WIDEVINE] && t && i.push(ee.WIDEVINE), i;
 }
 const Ys = function(a) {
-  return ze != null && (a = ze.navigator) != null && a.requestMediaKeySystemAccess ? self.navigator.requestMediaKeySystemAccess.bind(self.navigator) : null;
+  return je != null && (a = je.navigator) != null && a.requestMediaKeySystemAccess ? self.navigator.requestMediaKeySystemAccess.bind(self.navigator) : null;
 }();
 function vr(a, e, t, i) {
   let s;
@@ -631,20 +631,20 @@ const Ai = (a, e) => e + 10 <= a.length && a[e] === 73 && a[e + 1] === 68 && a[e
   let t = 0;
   return t = (a[e] & 127) << 21, t |= (a[e + 1] & 127) << 14, t |= (a[e + 2] & 127) << 7, t |= a[e + 3] & 127, t;
 }, Sr = (a, e) => Ai(a, e) && Mt(a, e + 6) + 10 <= a.length - e, Li = (a) => {
-  const e = zs(a);
+  const e = js(a);
   for (let t = 0; t < e.length; t++) {
     const i = e[t];
-    if (js(i))
+    if (zs(i))
       return Cr(i);
   }
-}, js = (a) => a && a.key === "PRIV" && a.info === "com.apple.streaming.transportStreamTimestamp", Ar = (a) => {
+}, zs = (a) => a && a.key === "PRIV" && a.info === "com.apple.streaming.transportStreamTimestamp", Ar = (a) => {
   const e = String.fromCharCode(a[0], a[1], a[2], a[3]), t = Mt(a, 4), i = 10;
   return {
     type: e,
     size: t,
     data: a.subarray(i, i + t)
   };
-}, zs = (a) => {
+}, js = (a) => {
   let e = 0;
   const t = [];
   for (; Ai(a, e); ) {
@@ -1153,20 +1153,20 @@ function Wi(a, e) {
           let q = 0;
           const Q = (w & 1024) !== 0, B = (w & 2048) !== 0;
           let F = 0;
-          const j = $(I, 4);
+          const z = $(I, 4);
           let W = 8;
           _ && (O = $(I, W), W += 4), P && (W += 4);
-          let z = O + h;
-          for (let ie = 0; ie < j; ie++) {
+          let j = O + h;
+          for (let ie = 0; ie < z; ie++) {
             if (K ? (N = $(I, W), W += 4) : N = x, U ? (q = $(I, W), W += 4) : q = S, Q && (W += 4), B && (D === 0 ? F = $(I, W) : F = Js(I, W), W += 4), e.type === X.VIDEO) {
               let re = 0;
               for (; re < q; ) {
-                const he = $(i, z);
-                if (z += 4, Gr(r, i[z])) {
-                  const ge = i.subarray(z, z + he);
+                const he = $(i, j);
+                if (j += 4, Gr(r, i[j])) {
+                  const ge = i.subarray(j, j + he);
                   tn(ge, r ? 2 : 1, a + F / s, t);
                 }
-                z += he, re += he + 4;
+                j += he, re += he + 4;
               }
             }
             a += N / s;
@@ -1501,7 +1501,7 @@ function qr(a, e, t) {
 function Be(a = !0) {
   return typeof self > "u" ? void 0 : (a || !self.MediaSource) && self.ManagedMediaSource || self.MediaSource || self.WebKitMediaSource;
 }
-function jr(a) {
+function zr(a) {
   return typeof self < "u" && a === self.ManagedMediaSource;
 }
 const bt = {
@@ -1582,7 +1582,7 @@ const bt = {
     wvtt: 1
   }
 };
-function zr(a, e) {
+function jr(a, e) {
   const t = bt[e];
   return !!t && !!t[a.slice(0, 4)];
 }
@@ -1597,7 +1597,7 @@ function rn(a, e, t = !0) {
 function nt(a, e) {
   return `${e}/mp4;codecs="${a}"`;
 }
-function ji(a) {
+function zi(a) {
   if (a) {
     const e = a.substring(0, 4);
     return bt.video[e];
@@ -1627,7 +1627,7 @@ const Qr = /flac|opus/i;
 function It(a, e = !0) {
   return a.replace(Qr, (t) => Xr(t.toLowerCase(), e));
 }
-function zi(a, e) {
+function ji(a, e) {
   return a && a !== "mp4a" ? a : e && e.split(",")[0];
 }
 function Jr(a) {
@@ -1958,7 +1958,7 @@ function es(a) {
 function ta(a, e) {
   let t = (a || "").split(/[ ,]+/).filter((i) => i);
   ["video", "audio", "text"].forEach((i) => {
-    const s = t.filter((n) => zr(n, i));
+    const s = t.filter((n) => jr(n, i));
     s.length && (e[`${i}Codec`] = s.join(","), t = t.filter((n) => s.indexOf(n) === -1));
   }), e.unknownCodecs = t;
 }
@@ -2575,14 +2575,14 @@ class la {
         const l = n[o].type;
         if (l === ve.emsg && !i || !s)
           continue;
-        const h = zs(n[o].data);
+        const h = js(n[o].data);
         if (h) {
           const c = n[o].pts;
           let u = c + n[o].duration;
           u > ot && (u = ot), u - c <= 0 && (u = c + aa);
           for (let f = 0; f < h.length; f++) {
             const g = h[f];
-            if (!js(g)) {
+            if (!zs(g)) {
               this.updateId3CueEnds(c, l);
               const m = as(r, c, u, g, l);
               m && this.id3Track.addCue(m);
@@ -4146,9 +4146,9 @@ class Oa {
         videoRanges: Q,
         minFramerate: B,
         minBitrate: F,
-        preferHDR: j
+        preferHDR: z
       } = U;
-      S = q, C = j ? Q[Q.length - 1] : Q[0], b = B, e = Math.max(e, F), A.log(`[abr] picked start tier ${JSON.stringify(U)}`);
+      S = q, C = z ? Q[Q.length - 1] : Q[0], b = B, e = Math.max(e, F), A.log(`[abr] picked start tier ${JSON.stringify(U)}`);
     } else
       S = E == null ? void 0 : E.codecSet, C = E == null ? void 0 : E.videoRange;
     const _ = f ? f.duration : d ? d.duration : 0, O = this.bwEstimator.getEstimateTTFB() / 1e3, P = [];
@@ -4174,17 +4174,17 @@ class Oa {
       const Q = U.details, B = (f ? Q == null ? void 0 : Q.partTarget : Q == null ? void 0 : Q.averagetargetduration) || _;
       let F;
       q ? F = o * e : F = r * e;
-      const j = _ && s >= _ * 2 && n === 0 ? g[N].averageBitrate : g[N].maxBitrate, W = this.getTimeToLoadFrag(O, F, j * B, Q === void 0);
+      const z = _ && s >= _ * 2 && n === 0 ? g[N].averageBitrate : g[N].maxBitrate, W = this.getTimeToLoadFrag(O, F, z * B, Q === void 0);
       if (
         // if adjusted bw is greater than level bitrate AND
-        F >= j && // no level change, or new level has no error history
+        F >= z && // no level change, or new level has no error history
         (N === c || U.loadError === 0 && U.fragmentError === 0) && // fragment fetchDuration unknown OR live stream OR fragment fetchDuration less than max allowed fetch duration, then this level matches
         // we don't account for max Fetch Duration for live streams, this is to avoid switching down when near the edge of live sliding window ...
         // special case to support startLevel = -1 (bitrateTest) on live streams : in that case we should not exit loop so that findBestLevel will return -1
         (W <= O || !M(W) || x && !this.bitrateTestDelay || W < h)
       ) {
         const ie = this.forcedAutoLevel;
-        return N !== T && (ie === -1 || ie !== T) && (P.length && A.trace(`[abr] Skipped level(s) ${P.join(",")} of ${i} max with CODECS and VIDEO-RANGE:"${g[P[0]].codecs}" ${g[P[0]].videoRange}; not compatible with "${E.codecs}" ${C}`), A.info(`[abr] switch candidate:${u}->${N} adjustedbw(${Math.round(F)})-bitrate=${Math.round(F - j)} ttfb:${O.toFixed(1)} avgDuration:${B.toFixed(1)} maxFetchDuration:${h.toFixed(1)} fetchDuration:${W.toFixed(1)} firstSelection:${v} codecSet:${S} videoRange:${C} hls.loadLevel:${T}`)), v && (this.firstSelection = N), N;
+        return N !== T && (ie === -1 || ie !== T) && (P.length && A.trace(`[abr] Skipped level(s) ${P.join(",")} of ${i} max with CODECS and VIDEO-RANGE:"${g[P[0]].codecs}" ${g[P[0]].videoRange}; not compatible with "${E.codecs}" ${C}`), A.info(`[abr] switch candidate:${u}->${N} adjustedbw(${Math.round(F)})-bitrate=${Math.round(F - z)} ttfb:${O.toFixed(1)} avgDuration:${B.toFixed(1)} maxFetchDuration:${h.toFixed(1)} fetchDuration:${W.toFixed(1)} firstSelection:${v} codecSet:${S} videoRange:${C} hls.loadLevel:${T}`)), v && (this.firstSelection = N), N;
       }
     }
     return -1;
@@ -4983,7 +4983,7 @@ class qa {
     return E.buffer;
   }
 }
-const ja = 16;
+const za = 16;
 class Ci {
   constructor(e, {
     removePKCS7Padding: t = !0
@@ -5057,14 +5057,14 @@ class Ci {
   }
   getValidChunk(e) {
     let t = e;
-    const i = e.length - e.length % ja;
+    const i = e.length - e.length % za;
     return i !== e.length && (t = Ue(e, 0, i), this.remainderData = Ue(e, i)), t;
   }
   logOnce(e) {
     this.logEnabled && (A.log(`[decrypter]: ${e}`), this.logEnabled = !1);
   }
 }
-const za = {
+const ja = {
   toString: function(a) {
     let e = "";
     const t = a.length;
@@ -5280,7 +5280,7 @@ class Di extends Ma {
   fragBufferedComplete(e, t) {
     var i, s, n, r;
     const o = this.mediaBuffer ? this.mediaBuffer : this.media;
-    if (this.log(`Buffered ${e.type} sn: ${e.sn}${t ? " part: " + t.index : ""} of ${this.playlistType === G.MAIN ? "level" : "track"} ${e.level} (frag:[${((i = e.startPTS) != null ? i : NaN).toFixed(3)}-${((s = e.endPTS) != null ? s : NaN).toFixed(3)}] > buffer:${o ? za.toString(Z.getBuffered(o)) : "(detached)"})`), e.sn !== "initSegment") {
+    if (this.log(`Buffered ${e.type} sn: ${e.sn}${t ? " part: " + t.index : ""} of ${this.playlistType === G.MAIN ? "level" : "track"} ${e.level} (frag:[${((i = e.startPTS) != null ? i : NaN).toFixed(3)}-${((s = e.endPTS) != null ? s : NaN).toFixed(3)}] > buffer:${o ? ja.toString(Z.getBuffered(o)) : "(detached)"})`), e.sn !== "initSegment") {
       var l;
       if (e.type !== G.SUBTITLE) {
         const c = e.elementaryStreams;
@@ -7043,7 +7043,7 @@ function vo(a, e, t, i, s) {
     switch (a[e]) {
       case 207:
         if (!i) {
-          jt("ADTS AAC");
+          zt("ADTS AAC");
           break;
         }
       case 15:
@@ -7054,7 +7054,7 @@ function vo(a, e, t, i, s) {
         break;
       case 219:
         if (!i) {
-          jt("H.264");
+          zt("H.264");
           break;
         }
       case 27:
@@ -7066,7 +7066,7 @@ function vo(a, e, t, i, s) {
         break;
       case 193:
         if (!i) {
-          jt("AC-3");
+          zt("AC-3");
           break;
         }
       case 129:
@@ -7106,7 +7106,7 @@ function Ft(a, e, t) {
     reason: e.message
   });
 }
-function jt(a) {
+function zt(a) {
   A.log(`${a} with AES-128-CBC encryption found in unencrypted stream`);
 }
 function He(a) {
@@ -8236,16 +8236,16 @@ function Ao(a, e = 1) {
   return Pi(a, In, 1 / e);
 }
 const Lo = 10 * 1e3, xs = 1024, bo = 1152, Ro = 1536;
-let We = null, zt = null;
+let We = null, jt = null;
 class Et {
   constructor(e, t, i, s = "") {
     if (this.observer = void 0, this.config = void 0, this.typeSupported = void 0, this.ISGenerated = !1, this._initPTS = null, this._initDTS = null, this.nextAvcDts = null, this.nextAudioPts = null, this.videoSampleDuration = null, this.isAudioContiguous = !1, this.isVideoContiguous = !1, this.videoTrackConfig = void 0, this.observer = e, this.config = t, this.typeSupported = i, this.ISGenerated = !1, We === null) {
       const r = (navigator.userAgent || "").match(/Chrome\/(\d+)/i);
       We = r ? parseInt(r[1]) : 0;
     }
-    if (zt === null) {
+    if (jt === null) {
       const n = navigator.userAgent.match(/Safari\/(\d+)/i);
-      zt = n ? parseInt(n[1]) : 0;
+      jt = n ? parseInt(n[1]) : 0;
     }
   }
   destroy() {
@@ -8381,31 +8381,31 @@ class Et {
       F.pts = pe(F.pts - E, c), F.dts = pe(F.dts - E, c), F.dts < r[B > 0 ? B - 1 : B].dts && (y = !0);
     }
     y && r.sort(function(B, F) {
-      const j = B.dts - F.dts, W = B.pts - F.pts;
-      return j || W;
+      const z = B.dts - F.dts, W = B.pts - F.pts;
+      return z || W;
     }), f = r[0].dts, g = r[r.length - 1].dts;
     const x = g - f, v = x ? Math.round(x / (l - 1)) : d || e.inputTimeScale / 30;
     if (i) {
-      const B = f - c, F = B > v, j = B < -1;
-      if ((F || j) && (F ? A.warn(`AVC: ${et(B, !0)} ms (${B}dts) hole between fragments detected at ${t.toFixed(3)}`) : A.warn(`AVC: ${et(-B, !0)} ms (${B}dts) overlapping between fragments detected at ${t.toFixed(3)}`), !j || c >= r[0].pts || We)) {
+      const B = f - c, F = B > v, z = B < -1;
+      if ((F || z) && (F ? A.warn(`AVC: ${et(B, !0)} ms (${B}dts) hole between fragments detected at ${t.toFixed(3)}`) : A.warn(`AVC: ${et(-B, !0)} ms (${B}dts) overlapping between fragments detected at ${t.toFixed(3)}`), !z || c >= r[0].pts || We)) {
         f = c;
         const W = r[0].pts - B;
         if (F)
           r[0].dts = f, r[0].pts = W;
         else
-          for (let z = 0; z < r.length && !(r[z].dts > W); z++)
-            r[z].dts -= B, r[z].pts -= B;
+          for (let j = 0; j < r.length && !(r[j].dts > W); j++)
+            r[j].dts -= B, r[j].pts -= B;
         A.log(`Video: Initial PTS/DTS adjusted: ${et(W, !0)}/${et(f, !0)}, delta: ${et(B, !0)} ms`);
       }
     }
     f = Math.max(0, f);
     let S = 0, C = 0, b = f;
     for (let B = 0; B < l; B++) {
-      const F = r[B], j = F.units, W = j.length;
-      let z = 0;
+      const F = r[B], z = F.units, W = z.length;
+      let j = 0;
       for (let ie = 0; ie < W; ie++)
-        z += j[ie].data.length;
-      C += z, S += W, F.length = z, F.dts < b ? (F.dts = b, b += v / 4 | 0 || 1) : b = F.dts, m = Math.min(F.pts, m), T = Math.max(F.pts, T);
+        j += z[ie].data.length;
+      C += j, S += W, F.length = j, F.dts < b ? (F.dts = b, b += v / 4 | 0 || 1) : b = F.dts, m = Math.min(F.pts, m), T = Math.max(F.pts, T);
     }
     g = r[l - 1].dts;
     const I = C + 4 * S + 8;
@@ -8427,25 +8427,25 @@ class Et {
     w.setUint32(0, I), D.set(L.types.mdat, 4);
     let _ = !1, O = Number.POSITIVE_INFINITY, P = Number.POSITIVE_INFINITY, K = Number.NEGATIVE_INFINITY, N = Number.NEGATIVE_INFINITY;
     for (let B = 0; B < l; B++) {
-      const F = r[B], j = F.units;
+      const F = r[B], z = F.units;
       let W = 0;
-      for (let re = 0, he = j.length; re < he; re++) {
-        const ge = j[re], Ze = ge.data, Nt = ge.data.byteLength;
+      for (let re = 0, he = z.length; re < he; re++) {
+        const ge = z[re], Ze = ge.data, Nt = ge.data.byteLength;
         w.setUint32(u, Nt), u += 4, D.set(Ze, u), u += Nt, W += 4 + Nt;
       }
-      let z;
+      let j;
       if (B < l - 1)
-        d = r[B + 1].dts - F.dts, z = r[B + 1].pts - F.pts;
+        d = r[B + 1].dts - F.dts, j = r[B + 1].pts - F.pts;
       else {
         const re = this.config, he = B > 0 ? F.dts - r[B - 1].dts : v;
-        if (z = B > 0 ? F.pts - r[B - 1].pts : v, re.stretchShortVideoTrack && this.nextAudioPts !== null) {
+        if (j = B > 0 ? F.pts - r[B - 1].pts : v, re.stretchShortVideoTrack && this.nextAudioPts !== null) {
           const ge = Math.floor(re.maxBufferHole * n), Ze = (s ? m + s * n : this.nextAudioPts) - F.pts;
           Ze > ge ? (d = Ze - he, d < 0 ? d = he : _ = !0, A.log(`[mp4-remuxer]: It is approximately ${Ze / 90} ms to the next segment; using duration ${d / 90} ms for the last video frame.`)) : d = he;
         } else
           d = he;
       }
       const ie = Math.round(F.pts - F.dts);
-      O = Math.min(O, d), K = Math.max(K, d), P = Math.min(P, z), N = Math.max(N, z), o.push(new Ss(F.key, d, W, ie));
+      O = Math.min(O, d), K = Math.max(K, d), P = Math.min(P, j), N = Math.max(N, j), o.push(new Ss(F.key, d, W, ie));
     }
     if (o.length) {
       if (We) {
@@ -8453,14 +8453,14 @@ class Et {
           const B = o[0].flags;
           B.dependsOn = 2, B.isNonSync = 0;
         }
-      } else if (zt && N - P < K - O && v / K < 0.025 && o[0].cts === 0) {
+      } else if (jt && N - P < K - O && v / K < 0.025 && o[0].cts === 0) {
         A.warn("Found irregular gaps in sample duration. Using PTS instead of DTS to determine MP4 sample duration.");
         let B = f;
-        for (let F = 0, j = o.length; F < j; F++) {
-          const W = B + o[F].duration, z = B + o[F].cts;
-          if (F < j - 1) {
+        for (let F = 0, z = o.length; F < z; F++) {
+          const W = B + o[F].duration, j = B + o[F].cts;
+          if (F < z - 1) {
             const ie = W + o[F + 1].cts;
-            o[F].duration = ie - z;
+            o[F].duration = ie - j;
           } else
             o[F].duration = F ? o[F - 1].duration : v;
           o[F].cts = 0, B = W;
@@ -8509,13 +8509,13 @@ class Et {
     if (e.segmentCodec === "aac") {
       const U = this.config.maxAudioFramesDrift;
       for (let q = 0, Q = y; q < m.length; q++) {
-        const B = m[q], F = B.pts, j = F - Q, W = Math.abs(1e3 * j / r);
-        if (j <= -U * c && g)
-          q === 0 && (A.warn(`Audio frame @ ${(F / r).toFixed(3)}s overlaps nextAudioPts by ${Math.round(1e3 * j / r)} ms.`), this.nextAudioPts = y = Q = F);
-        else if (j >= U * c && W < Lo && g) {
-          let z = Math.round(j / c);
-          Q = F - z * c, Q < 0 && (z--, Q += c), q === 0 && (this.nextAudioPts = y = Q), A.warn(`[mp4-remuxer]: Injecting ${z} audio frame @ ${(Q / r).toFixed(3)}s due to ${Math.round(1e3 * j / r)} ms gap.`);
-          for (let ie = 0; ie < z; ie++) {
+        const B = m[q], F = B.pts, z = F - Q, W = Math.abs(1e3 * z / r);
+        if (z <= -U * c && g)
+          q === 0 && (A.warn(`Audio frame @ ${(F / r).toFixed(3)}s overlaps nextAudioPts by ${Math.round(1e3 * z / r)} ms.`), this.nextAudioPts = y = Q = F);
+        else if (z >= U * c && W < Lo && g) {
+          let j = Math.round(z / c);
+          Q = F - j * c, Q < 0 && (j--, Q += c), q === 0 && (this.nextAudioPts = y = Q), A.warn(`[mp4-remuxer]: Injecting ${j} audio frame @ ${(Q / r).toFixed(3)}s due to ${Math.round(1e3 * z / r)} ms gap.`);
+          for (let ie = 0; ie < j; ie++) {
             const re = Math.max(Q, 0);
             let he = vs.getSilentFrame(e.manifestCodec || e.codec, e.channelCount);
             he || (A.log("[mp4-remuxer]: Unable to get silent frame for given audio codec; duplicating last frame instead."), he = B.unit.subarray()), m.splice(q, 0, {
@@ -8555,8 +8555,8 @@ class Et {
       } else
         return;
       C.set(B, T);
-      const j = B.byteLength;
-      T += j, f.push(new Ss(!0, h, j, 0)), S = F;
+      const z = B.byteLength;
+      T += z, f.push(new Ss(!0, h, z, 0)), S = F;
     }
     const D = f.length;
     if (!D)
@@ -8772,7 +8772,7 @@ let ke;
 try {
   ke = self.performance.now.bind(self.performance);
 } catch {
-  A.debug("Unable to use Performance API on this environment"), ke = ze == null ? void 0 : ze.Date.now;
+  A.debug("Unable to use Performance API on this environment"), ke = je == null ? void 0 : je.Date.now;
 }
 const vt = [{
   demux: go,
@@ -10584,7 +10584,7 @@ class $o {
       i !== s && A.error(`Media element src was set while attaching MediaSource (${s} > ${i})`);
     }, this.hls = e;
     const t = "[buffer-controller]";
-    this.appendSource = jr(Be(e.config.preferManagedMediaSource)), this.log = A.log.bind(A, t), this.warn = A.warn.bind(A, t), this.error = A.error.bind(A, t), this._initSourceBuffer(), this.registerListeners();
+    this.appendSource = zr(Be(e.config.preferManagedMediaSource)), this.log = A.log.bind(A, t), this.warn = A.warn.bind(A, t), this.error = A.error.bind(A, t), this._initSourceBuffer(), this.registerListeners();
   }
   hasSourceTypes() {
     return this.getSourceBufferTypes().length > 0 || Object.keys(this.pendingTracks).length > 0;
@@ -10688,8 +10688,8 @@ class $o {
             levelCodec: u,
             container: d,
             metadata: f
-          } = t[r], g = zi(l.codec, l.levelCodec), m = g == null ? void 0 : g.replace(Is, "$1");
-          let T = zi(c, u);
+          } = t[r], g = ji(l.codec, l.levelCodec), m = g == null ? void 0 : g.replace(Is, "$1");
+          let T = ji(c, u);
           const y = (o = T) == null ? void 0 : o.replace(Is, "$1");
           if (T && m !== y) {
             r.slice(0, 5) === "audio" && (T = It(T, this.appendSource));
@@ -11366,7 +11366,7 @@ const Ko = {
   27: 13,
   28: 15
 }, qo = ["white", "green", "blue", "cyan", "red", "yellow", "magenta", "black", "transparent"];
-class jo {
+class zo {
   constructor() {
     this.time = null, this.verboseLevel = 0;
   }
@@ -11410,7 +11410,7 @@ class Fn {
     return "color=" + this.foreground + ", underline=" + this.underline + ", italics=" + this.italics + ", background=" + this.background + ", flash=" + this.flash;
   }
 }
-class zo {
+class jo {
   constructor() {
     this.uchar = " ", this.penState = new Fn();
   }
@@ -11437,7 +11437,7 @@ class Xo {
   constructor(e) {
     this.chars = [], this.pos = 0, this.currPenState = new Fn(), this.cueStartTime = null, this.logger = void 0;
     for (let t = 0; t < De; t++)
-      this.chars.push(new zo());
+      this.chars.push(new jo());
     this.logger = e;
   }
   equals(e) {
@@ -11734,7 +11734,7 @@ class Ds {
 class ws {
   constructor(e, t, i) {
     this.channels = void 0, this.currentChannel = 0, this.cmdHistory = Jo(), this.logger = void 0;
-    const s = this.logger = new jo();
+    const s = this.logger = new zo();
     this.channels = [null, new Ds(e, t, s), new Ds(e + 1, i, s)];
   }
   getHandler(e) {
@@ -11897,7 +11897,7 @@ class dt {
   }
 }
 var Oi = function() {
-  if (ze != null && ze.VTTCue)
+  if (je != null && je.VTTCue)
     return self.VTTCue;
   const a = ["", "lr", "rl"], e = ["start", "middle", "end", "left", "right"];
   function t(o, l) {
@@ -13066,9 +13066,9 @@ class gl {
   }
 }
 const gt = "[eme]";
-class je {
+class ze {
   constructor(e) {
-    this.hls = void 0, this.config = void 0, this.media = null, this.keyFormatPromise = null, this.keySystemAccessPromises = {}, this._requestLicenseFailureCount = 0, this.mediaKeySessions = [], this.keyIdToKeySessionPromise = {}, this.setMediaKeysQueue = je.CDMCleanupPromise ? [je.CDMCleanupPromise] : [], this.onMediaEncrypted = this._onMediaEncrypted.bind(this), this.onWaitingForKey = this._onWaitingForKey.bind(this), this.debug = A.debug.bind(A, gt), this.log = A.log.bind(A, gt), this.warn = A.warn.bind(A, gt), this.error = A.error.bind(A, gt), this.hls = e, this.config = e.config, this.registerListeners();
+    this.hls = void 0, this.config = void 0, this.media = null, this.keyFormatPromise = null, this.keySystemAccessPromises = {}, this._requestLicenseFailureCount = 0, this.mediaKeySessions = [], this.keyIdToKeySessionPromise = {}, this.setMediaKeysQueue = ze.CDMCleanupPromise ? [ze.CDMCleanupPromise] : [], this.onMediaEncrypted = this._onMediaEncrypted.bind(this), this.onWaitingForKey = this._onWaitingForKey.bind(this), this.debug = A.debug.bind(A, gt), this.log = A.log.bind(A, gt), this.warn = A.warn.bind(A, gt), this.error = A.error.bind(A, gt), this.hls = e, this.config = e.config, this.registerListeners();
   }
   destroy() {
     this.unregisterListeners(), this.onMediaDetached();
@@ -13566,7 +13566,7 @@ class je {
     const e = this.media, t = this.mediaKeySessions;
     e && (e.removeEventListener("encrypted", this.onMediaEncrypted), e.removeEventListener("waitingforkey", this.onWaitingForKey), this.media = null), this._requestLicenseFailureCount = 0, this.setMediaKeysQueue = [], this.mediaKeySessions = [], this.keyIdToKeySessionPromise = {}, st.clearKeyUriToKeyIdMap();
     const i = t.length;
-    je.CDMCleanupPromise = Promise.all(t.map((s) => this.removeSession(s)).concat(e == null ? void 0 : e.setMediaKeys(null).catch((s) => {
+    ze.CDMCleanupPromise = Promise.all(t.map((s) => this.removeSession(s)).concat(e == null ? void 0 : e.setMediaKeys(null).catch((s) => {
       this.log(`Could not clear media keys: ${s}`);
     }))).then(() => {
       i && (this.log("finished closing key sessions and clearing media keys"), t.length = 0);
@@ -13601,7 +13601,7 @@ class je {
     }
   }
 }
-je.CDMCleanupPromise = void 0;
+ze.CDMCleanupPromise = void 0;
 class me extends Error {
   constructor(e, t) {
     super(t), this.data = void 0, e.error || (e.error = new Error(t)), this.data = e, e.err = e.error;
@@ -13851,15 +13851,15 @@ function Yl(a, e, t) {
   return se(a, Wl(e, t));
 }
 const ql = "CMCD";
-function jl(a, e = {}) {
+function zl(a, e = {}) {
   if (!a)
     return "";
   const t = Yn(a, e);
   return `${ql}=${encodeURIComponent(t)}`;
 }
 const Us = /CMCD=[^&#]+/;
-function zl(a, e, t) {
-  const i = jl(e, t);
+function jl(a, e, t) {
+  const i = zl(e, t);
   if (!i)
     return a;
   if (Us.test(a))
@@ -13944,7 +13944,7 @@ class Xl {
     const {
       includeKeys: s
     } = this;
-    s && (t = Object.keys(t).reduce((n, r) => (s.includes(r) && (n[r] = t[r]), n), {})), this.useHeaders ? (e.headers || (e.headers = {}), Yl(e.headers, t)) : e.url = zl(e.url, t);
+    s && (t = Object.keys(t).reduce((n, r) => (s.includes(r) && (n[r] = t[r]), n), {})), this.useHeaders ? (e.headers || (e.headers = {}), Yl(e.headers, t)) : e.url = jl(e.url, t);
   }
   /**
    * The CMCD object type.
@@ -14301,7 +14301,7 @@ function qn(a, e, t, i) {
   }), l.href;
 }
 const Zl = /^age:\s*[\d.]+\s*$/im;
-class jn {
+class zn {
   constructor(e) {
     this.xhrSetup = void 0, this.requestTimeout = void 0, this.retryTimeout = void 0, this.retryDelay = void 0, this.config = null, this.callbacks = null, this.context = null, this.loader = null, this.stats = void 0, this.xhrSetup = e && e.xhrSetup || null, this.stats = new Ot(), this.retryDelay = 0;
   }
@@ -14581,7 +14581,7 @@ const oh = /\s/, lh = {
   maxLoadTimeMs: 2e4,
   timeoutRetry: null,
   errorRetry: null
-}, zn = le(le({
+}, jn = le(le({
   autoStartLoad: !0,
   // used by stream-controller
   startPosition: -1,
@@ -14651,7 +14651,7 @@ const oh = /\s/, lh = {
   // used by fps-controller
   appendErrorMaxRetry: 3,
   // used by buffer-controller
-  loader: jn,
+  loader: zn,
   // loader: FetchLoader,
   fLoader: void 0,
   // used by fragment-loader
@@ -14821,7 +14821,7 @@ const oh = /\s/, lh = {
   timelineController: dl,
   audioStreamController: Fo,
   audioTrackController: Oo,
-  emeController: je,
+  emeController: ze,
   cmcdController: Xl,
   contentSteeringController: Jl
 });
@@ -14894,7 +14894,7 @@ function Ei(a) {
 }
 function dh(a) {
   const e = a.loader;
-  e !== $s && e !== jn ? (A.log("[config]: Custom loader detected, cannot enable progressive streaming"), a.progressive = !1) : eh() && (a.loader = $s, a.progressive = !0, a.enableSoftwareAES = !0, A.log("[config]: Progressive streaming enabled, using FetchLoader"));
+  e !== $s && e !== zn ? (A.log("[config]: Custom loader detected, cannot enable progressive streaming"), a.progressive = !1) : eh() && (a.loader = $s, a.progressive = !0, a.enableSoftwareAES = !0, A.log("[config]: Progressive streaming enabled, using FetchLoader"));
 }
 let ni;
 class fh extends Ri {
@@ -15009,7 +15009,7 @@ class fh extends Ri {
       if (g.videoRange !== m.videoRange)
         return Ct.indexOf(g.videoRange) - Ct.indexOf(m.videoRange);
       if (g.videoCodec !== m.videoCodec) {
-        const T = ji(g.videoCodec), y = ji(m.videoCodec);
+        const T = zi(g.videoCodec), y = zi(m.videoCodec);
         if (T !== y)
           return y - T;
       }
@@ -15036,7 +15036,7 @@ class fh extends Ri {
         const m = c.bitrate, T = this.hls.bandwidthEstimate;
         if (this.log(`manifest loaded, ${l.length} level(s) found, first bitrate: ${m}`), ((u = this.hls.userConfig) == null ? void 0 : u.abrEwmaDefaultEstimate) === void 0) {
           const y = Math.min(m, this.hls.config.abrEwmaDefaultEstimateMax);
-          y > T && T === zn.abrEwmaDefaultEstimate && (this.hls.bandwidthEstimate = y);
+          y > T && T === jn.abrEwmaDefaultEstimate && (this.hls.bandwidthEstimate = y);
         }
         break;
       }
@@ -16307,7 +16307,7 @@ class J {
    * Get the default configuration applied to new instances.
    */
   static get DefaultConfig() {
-    return J.defaultConfig ? J.defaultConfig : zn;
+    return J.defaultConfig ? J.defaultConfig : jn;
   }
   /**
    * Replace the default configuration applied to new instances.
@@ -17502,9 +17502,9 @@ class Ah extends Jn {
     this.container.classList.add("nomercyplayer"), this.container.style.overflow = "hidden", this.container.style.position = "relative", this.container.style.display = "flex", this.container.style.width = "100%", this.container.style.height = "auto", this.container.style.aspectRatio = "16/9", this.container.style.zIndex = "0", this.container.style.alignItems = "center", this.container.style.justifyContent = "center";
   }
   createVideoElement() {
-    this.videoElement = this.createElement("video", `${this.playerId}_video`, !0).appendTo(this.container), this.videoElement.style.width = "100%", this.videoElement.style.height = "100%", this.videoElement.style.objectFit = "contain", this.videoElement.style.zIndex = "0", this.videoElement.style.backgroundColor = "black", this.videoElement.style.display = "block", this.videoElement.style.position = "absolute", this.videoElement.autoplay = this.options.autoPlay ?? !1, this.videoElement.controls = this.options.controls ?? !1, this.videoElement.preload = this.options.preload ?? "auto", this.videoElement.muted = this.options.muted ?? localStorage.getItem("nmplayer-muted") === "true", this.videoElement.volume = localStorage.getItem("nmplayer-volume") ? parseFloat(localStorage.getItem("nmplayer-volume")) / 100 : 0.4, this.videoElement.addEventListener("scroll", () => {
+    this.videoElement = this.createElement("video", `${this.playerId}_video`, !0).appendTo(this.container), this.videoElement.style.width = "100%", this.videoElement.style.height = "100%", this.videoElement.style.objectFit = "contain", this.videoElement.style.zIndex = "0", this.videoElement.style.backgroundColor = "black", this.videoElement.style.display = "block", this.videoElement.style.position = "absolute", this.videoElement.poster = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==", this.videoElement.autoplay = this.options.autoPlay ?? !1, this.videoElement.controls = this.options.controls ?? !1, this.videoElement.preload = this.options.preload ?? "auto", this.videoElement.muted = this.options.muted ?? localStorage.getItem("nmplayer-muted") === "true", this.videoElement.volume = localStorage.getItem("nmplayer-volume") ? parseFloat(localStorage.getItem("nmplayer-volume")) / 100 : 1, this.videoElement.addEventListener("scroll", () => {
       this.videoElement.scrollIntoView();
-    }), this.ui_setPauseClass();
+    }), this.emitPausedEvent();
   }
   createOverlayElement() {
     this.overlay = this.createElement("div", `${this.playerId}_overlay`, !0).addClasses(["overlay"]).appendTo(this.container), this.overlay.style.width = "100%", this.overlay.style.height = "100%", this.overlay.style.position = "absolute", this.overlay.style.zIndex = "10", this.overlay.style.display = "flex", this.overlay.style.flexDirection = "column", this.overlay.style.justifyContent = "center", this.overlay.style.alignItems = "center";
@@ -17576,11 +17576,10 @@ class Ah extends Jn {
     this.videoElement.pause(), this.videoElement.removeAttribute("src"), e.endsWith(".m3u8") ? J.isSupported() ? (this.playlistItem(), this.hls ?? (this.hls = new J({
       debug: this.options.debug ?? !1,
       enableWorker: !0,
-      lowLatencyMode: !0,
-      backBufferLength: 0,
-      maxBufferHole: 0.5,
-      maxBufferLength: 60,
-      maxMaxBufferLength: 60,
+      lowLatencyMode: !1,
+      maxBufferHole: 0,
+      maxBufferLength: 30,
+      maxBufferSize: 0,
       autoStartLoad: !0,
       testBandwidth: !0,
       // startPosition: item.progress
@@ -17619,10 +17618,10 @@ class Ah extends Jn {
       defaultValue: this.gainNode.gain.defaultValue
     };
   }
-  videoPlayer_playEvent(e) {
+  videoPlayer_playEvent() {
     this.emit("beforePlay"), this.container.classList.remove("paused"), this.container.classList.add("playing"), this.emit("play");
   }
-  videoPlayer_onPlayingEvent(e) {
+  videoPlayer_onPlayingEvent() {
     this.videoElement.removeEventListener("playing", this.videoPlayer_onPlayingEvent), this.firstFrame || (this.emit("firstFrame"), this.firstFrame = !0), this.setMediaAPI(), this.on("item", () => {
       this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent), this.firstFrame = !1;
     });
@@ -17639,26 +17638,26 @@ class Ah extends Jn {
       this.options.debug && console.log("Setting caption from storage", e), this.setCurrentCaption(e);
     }
   }
-  videoPlayer_pauseEvent(e) {
+  videoPlayer_pauseEvent() {
     this.container.classList.remove("playing"), this.container.classList.add("paused"), this.emit("pause", this.videoElement);
   }
-  videoPlayer_endedEvent(e) {
+  videoPlayer_endedEvent() {
     this.currentIndex < this.playlist.length - 1 ? this.playVideo(this.currentIndex + 1) : (this.options.debug && console.log("Playlist completed."), this.isPlaying = !1, this.emit("playlistComplete"));
   }
-  videoPlayer_errorEvent(e) {
+  videoPlayer_errorEvent() {
     this.emit("error", this.videoElement);
   }
-  videoPlayer_waitingEvent(e) {
+  videoPlayer_waitingEvent() {
     this.emit("waiting", this.videoElement);
   }
-  videoPlayer_canplayEvent(e) {
+  videoPlayer_canplayEvent() {
     this.emit("canplay", this.videoElement);
   }
   videoPlayer_loadedmetadataEvent(e) {
     const t = e;
     this.emit("loadedmetadata", this.videoElement), this.emit("duration", this.videoPlayer_getTimeData(t));
   }
-  videoPlayer_loadstartEvent(e) {
+  videoPlayer_loadstartEvent() {
     this.emit("loadstart", this.videoElement);
   }
   videoPlayer_timeupdateEvent(e) {
@@ -17669,7 +17668,7 @@ class Ah extends Jn {
     const t = e;
     this.emit("duration", this.videoPlayer_getTimeData(t)), this.emit("ready");
   }
-  videoPlayer_volumechangeEvent(e) {
+  videoPlayer_volumechangeEvent() {
     this.volume != Math.round(this.videoElement.volume * 100) && this.emit("volume", {
       volume: Math.round(this.videoElement.volume * 100),
       muted: this.videoElement.muted
@@ -17717,11 +17716,11 @@ class Ah extends Jn {
       this.ui_removeActiveClass();
     }, this.inactivityTime));
   }
-  ui_setPlayClass() {
-    this.container.classList.remove("paused"), this.container.classList.add("playing"), this.emit("playing", !0);
+  emitPlayEvent() {
+    this.emit("playing", !0);
   }
-  ui_setPauseClass() {
-    this.container.classList.remove("playing"), this.container.classList.add("paused"), this.emit("playing", !1);
+  emitPausedEvent() {
+    this.emit("playing", !1);
   }
   handleMouseLeave(e) {
     if (this.lockActive)
@@ -17734,7 +17733,7 @@ class Ah extends Jn {
     t && (t.tagName === "BUTTON" || t.tagName === "INPUT") && this.ui_addActiveClass();
   }
   _addEvents() {
-    this.videoElement.addEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.addEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.addEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.addEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.addEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.addEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.addEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.addEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.addEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.addEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.addEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.addEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.container.addEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.videoElement.addEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.on("play", this.ui_setPlayClass.bind(this)), this.on("pause", this.ui_setPauseClass.bind(this)), this.on("showControls", this.ui_addActiveClass.bind(this)), this.on("hideControls", this.ui_removeActiveClass.bind(this)), this.on("dynamicControls", this.ui_resetInactivityTimer.bind(this)), this.on("item", () => {
+    this.videoElement.addEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.addEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.addEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.addEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.addEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.addEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.addEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.addEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.addEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.addEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.addEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.addEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.addEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.addEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.container.addEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.videoElement.addEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.on("play", this.emitPlayEvent.bind(this)), this.on("pause", this.emitPausedEvent.bind(this)), this.on("showControls", this.ui_addActiveClass.bind(this)), this.on("hideControls", this.ui_removeActiveClass.bind(this)), this.on("dynamicControls", this.ui_resetInactivityTimer.bind(this)), this.on("item", () => {
       this.lastTime = 0, setTimeout(() => {
         var e, t;
         this.emit("captionsList", this.getCaptionsList()), this.emit("levels", this.getQualityLevels()), this.emit("levelsChanging", {
@@ -17758,11 +17757,7 @@ class Ah extends Jn {
       this.hls && (this.hls.on(J.Events.AUDIO_TRACK_LOADING, (e, t) => {
         this.options.debug && console.log("Audio track loading", t);
       }), this.hls.on(J.Events.AUDIO_TRACK_LOADED, (e, t) => {
-        var i;
-        this.options.debug && console.log("Audio track loaded", t), this.emit("audioTracks", this.getAudioTracks()), this.emit("audioTrackChanging", {
-          id: t.id,
-          name: (i = this.getAudioTracks().find((s) => s.id === t.id)) == null ? void 0 : i.name
-        });
+        this.options.debug && console.log("Audio track loaded", t);
       }), this.hls.on(J.Events.AUDIO_TRACK_SWITCHING, (e, t) => {
         var i;
         this.options.debug && console.log("Audio track switching", t), this.emit("audioTrackChanging", {
@@ -17828,17 +17823,21 @@ class Ah extends Jn {
     }), this.once("item", () => {
       this.on("captionsList", () => {
         this.setCaptionFromStorage();
-      }), this.emit("speed", this.videoElement.playbackRate), this.once("audio", () => {
+      }), this.emit("speed", this.videoElement.playbackRate), this.on("audioTracks", () => {
         this.getAudioTracks().length < 2 || (localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0), this.once("play", () => {
-          localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0);
+          var o, l;
+          localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0), this.emit("audioTrackChanged", {
+            id: (o = this.getAudioTracks().find((h) => h.lang === localStorage.getItem("nmplayer-audio-language"))) == null ? void 0 : o.id,
+            name: (l = this.getAudioTracks().find((h) => h.lang === localStorage.getItem("nmplayer-audio-language"))) == null ? void 0 : l.name
+          });
         }));
       }), this.options.disableControls || this.getVideoElement().focus();
       const e = this.getParameterByName("item"), t = e ? parseInt(e, 10) : null, i = this.getParameterByName("season"), s = i ? parseInt(i, 10) : null, n = this.getParameterByName("episode"), r = n ? parseInt(n, 10) : null;
-      if (t)
+      if (t != null)
         setTimeout(() => {
           this.setEpisode(0, t);
         }, 0);
-      else if (s && r)
+      else if (s != null && r != null)
         setTimeout(() => {
           this.setEpisode(s, r);
         }, 0);
@@ -17872,17 +17871,21 @@ class Ah extends Jn {
     }), this.on("ended", () => {
       this.container.classList.remove("buffering"), this.container.classList.remove("error");
     }), this.on("time", (e) => {
-      this.container.classList.remove("buffering"), this.container.classList.remove("error"), e.currentTime > this.lastTime + 5 && (this.emit("lastTimeTrigger", e), this.lastTime = e.currentTime);
+      e.currentTime > this.lastTime + 5 && (this.emit("lastTimeTrigger", e), this.lastTime = e.currentTime);
     }), this.on("bufferedEnd", () => {
       this.container.classList.remove("buffering");
     }), this.on("stalled", () => {
       this.container.classList.add("buffering");
     }), this.on("item", () => {
-      this.container.classList.remove("buffering"), this.container.classList.remove("error"), this.setCaptionFromStorage(), this.fetchChapterFile();
+      this.once("audioTracks", () => {
+        this.getAudioTracks().length < 2 || (localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0), this.once("play", () => {
+          localStorage.getItem("nmplayer-audio-language") ? this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem("nmplayer-audio-language"))) : this.setCurrentAudioTrack(0);
+        }));
+      }), this.container.classList.remove("buffering"), this.container.classList.remove("error"), this.setCaptionFromStorage(), this.fetchChapterFile();
     });
   }
   _removeEvents() {
-    this.videoElement.removeEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.removeEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.removeEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.removeEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.removeEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.removeEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.removeEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.removeEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.removeEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.removeEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.removeEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.removeEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.removeEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.removeEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.removeEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.container.removeEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.videoElement.removeEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.off("play", this.ui_setPlayClass.bind(this)), this.off("pause", this.ui_setPauseClass.bind(this)), this.off("showControls", this.ui_addActiveClass.bind(this)), this.off("hideControls", this.ui_removeActiveClass.bind(this)), this.off("dynamicControls", this.ui_resetInactivityTimer.bind(this));
+    this.videoElement.removeEventListener("play", this.videoPlayer_playEvent.bind(this)), this.videoElement.removeEventListener("playing", this.videoPlayer_onPlayingEvent.bind(this)), this.videoElement.removeEventListener("pause", this.videoPlayer_pauseEvent.bind(this)), this.videoElement.removeEventListener("ended", this.videoPlayer_endedEvent.bind(this)), this.videoElement.removeEventListener("error", this.videoPlayer_errorEvent.bind(this)), this.videoElement.removeEventListener("waiting", this.videoPlayer_waitingEvent.bind(this)), this.videoElement.removeEventListener("canplay", this.videoPlayer_canplayEvent.bind(this)), this.videoElement.removeEventListener("loadedmetadata", this.videoPlayer_loadedmetadataEvent.bind(this)), this.videoElement.removeEventListener("loadstart", this.videoPlayer_loadstartEvent.bind(this)), this.videoElement.removeEventListener("timeupdate", this.videoPlayer_timeupdateEvent.bind(this)), this.videoElement.removeEventListener("durationchange", this.videoPlayer_durationchangeEvent.bind(this)), this.videoElement.removeEventListener("volumechange", this.videoPlayer_volumechangeEvent.bind(this)), this.container.removeEventListener("mousemove", this.ui_resetInactivityTimer.bind(this)), this.container.removeEventListener("click", this.ui_resetInactivityTimer.bind(this)), this.container.removeEventListener("mouseleave", this.handleMouseLeave.bind(this)), this.container.removeEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.videoElement.removeEventListener("keydown", this.ui_resetInactivityTimer.bind(this)), this.off("play", this.emitPlayEvent.bind(this)), this.off("pause", this.emitPausedEvent.bind(this)), this.off("showControls", this.ui_addActiveClass.bind(this)), this.off("hideControls", this.ui_removeActiveClass.bind(this)), this.off("dynamicControls", this.ui_resetInactivityTimer.bind(this));
   }
   getParameterByName(e, t = window.location.href) {
     e = e.replace(/[[\]]/gu, "\\$&");
@@ -17913,7 +17916,7 @@ class Ah extends Jn {
             type: `image/${e.image.split(".").at(-1)}`
           }
         ] : []
-      }), typeof navigator.mediaSession.setActionHandler == "function" && (navigator.mediaSession.setActionHandler("previoustrack", this.previous.bind(this)), navigator.mediaSession.setActionHandler("nexttrack", this.next.bind(this)), navigator.mediaSession.setActionHandler("seekbackward", (i) => this.rewindVideo.bind(this)(i.seekTime)), navigator.mediaSession.setActionHandler("seekforward", (i) => this.forwardVideo.bind(this)(i.seekTime)), navigator.mediaSession.setActionHandler("seekto", (i) => this.seek(i.seekTime)), navigator.mediaSession.setActionHandler("play", this.play.bind(this)), navigator.mediaSession.setActionHandler("pause", this.pause.bind(this)));
+      }), typeof navigator.mediaSession.setActionHandler == "function" && (navigator.mediaSession.setActionHandler("play", () => this.play()), navigator.mediaSession.setActionHandler("pause", () => this.pause()), navigator.mediaSession.setActionHandler("previoustrack", () => this.previous()), navigator.mediaSession.setActionHandler("nexttrack", () => this.next()), navigator.mediaSession.setActionHandler("seekbackward", (i) => this.rewindVideo(i.seekTime)), navigator.mediaSession.setActionHandler("seekforward", (i) => this.forwardVideo(i.seekTime)), navigator.mediaSession.setActionHandler("seekto", (i) => this.seek(i.seekTime)));
     }
   }
   /**
@@ -18182,7 +18185,7 @@ class Ah extends Jn {
   }
   fetchSubtitleFile() {
     const e = this.getSubtitleFile();
-    e && this.currentSubtitleFile !== e ? (this.currentSubtitleFile = e, this.emit("captionsChanged", this.getCurrentCaptions()), this.getFileContents({
+    e && this.currentSubtitleFile !== e ? (this.currentSubtitleFile = e, this.getFileContents({
       url: e,
       options: {
         anonymous: !1
@@ -18197,13 +18200,13 @@ class Ah extends Jn {
           this.emit("subtitles", this.subtitles);
         });
       }
-    }).then()) : this.emit("captionsChanged", this.getCurrentCaptions());
+    }).then(() => this.emit("captionsChanged", this.getCurrentCaptions()))) : (this.emit("captionsChanged", this.getCurrentCaptions()), this.storeSubtitleChoice());
   }
   // Method to load and play a video from the playlist
   playVideo(e) {
-    e >= 0 && e < this.playlist.length ? (this.subtitles = {}, this.subtitleText.textContent = "", this.subtitleOverlay.style.display = "none", this.currentIndex !== e && setTimeout(() => {
+    e >= 0 && e < this.playlist.length ? (this.subtitles = {}, this.subtitleText.textContent = "", this.subtitleOverlay.style.display = "none", this.currentPlaylistItem = this.playlist[e], this.videoElement.poster = this.currentPlaylistItem.image ?? "", this.currentIndex !== e && setTimeout(() => {
       this.emit("item", this.currentPlaylistItem);
-    }, 0), this.currentIndex = e, this.currentPlaylistItem = this.playlist[e], this.videoElement.poster = this.currentPlaylistItem.image ?? "", this.loadSource((this.options.basePath ?? "") + this.currentPlaylistItem.file)) : this.options.debug && console.log("No more videos in the playlist.");
+    }, 0), this.currentIndex = e, this.loadSource((this.options.basePath ?? "") + this.currentPlaylistItem.file)) : this.options.debug && console.log("No more videos in the playlist.");
   }
   /**
    * Fetches a playlist from the specified URL and returns it as a converted playlist for the current player.
@@ -18604,13 +18607,7 @@ class Ah extends Jn {
     return s === -1 ? ((r = this.getCaptionsList()) == null ? void 0 : r.findIndex((o) => o.language === e && o.type === t && o.ext === i)) - 1 : s - 1;
   }
   setCurrentCaption(e) {
-    if (!(!e && e != 0)) {
-      if (this.currentSubtitleFile = "", this.currentSubtitleIndex = e, this.subtitles = {}, this.subtitleText.textContent = "", this.subtitleOverlay.style.display = "none", e == -1) {
-        this.emit("captionsChanged", this.getCurrentCaptions()), this.storeSubtitleChoice();
-        return;
-      }
-      this.fetchSubtitleFile();
-    }
+    !e && e != 0 || (this.currentSubtitleFile = "", this.currentSubtitleIndex = e, this.subtitles = {}, this.subtitleText.textContent = "", this.subtitleOverlay.style.display = "none", this.emit("captionsChanged", this.getCurrentCaptions()), this.storeSubtitleChoice(), e != -1 && this.fetchSubtitleFile());
   }
   getCaptionLanguage() {
     var e;
@@ -18625,8 +18622,10 @@ class Ah extends Jn {
    */
   storeSubtitleChoice() {
     const e = this.getCurrentCaptions();
-    if (!e)
+    if (!e) {
+      localStorage.removeItem("nmplayer-subtitle-language"), localStorage.removeItem("nmplayer-subtitle-type"), localStorage.removeItem("nmplayer-subtitle-ext");
       return;
+    }
     const { language: t, type: i, ext: s } = e;
     !t || !i || !s || (localStorage.setItem("nmplayer-subtitle-language", t), localStorage.setItem("nmplayer-subtitle-type", i), localStorage.setItem("nmplayer-subtitle-ext", s));
   }

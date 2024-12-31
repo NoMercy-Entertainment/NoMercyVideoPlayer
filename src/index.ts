@@ -7,7 +7,7 @@ import { type VTTData, WebVTTParser } from 'webvtt-parser';
 import translations from './translations';
 
 import type { PlaylistItem, SetupConfig, Stretching, Track, TimeData, TypeMappings, PreviewTime } from './index.d';
-import {convertToSeconds, humanTime, pad, unique} from './helpers';
+import {humanTime, pad, unique} from './helpers';
 
 const instances = new Map<string, NMPlayer>();
 
@@ -401,19 +401,22 @@ export class NMPlayer extends Base {
 		this.videoElement.style.backgroundColor = 'black';
 		this.videoElement.style.display = 'block';
 		this.videoElement.style.position = 'absolute';
+		this.videoElement.poster = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
 		this.videoElement.autoplay = this.options.autoPlay ?? false;
 		this.videoElement.controls = this.options.controls ?? false;
 		this.videoElement.preload = this.options.preload ?? 'auto';
 
 		this.videoElement.muted = this.options.muted ?? localStorage.getItem('nmplayer-muted') === 'true';
-		this.videoElement.volume = localStorage.getItem('nmplayer-volume') ? parseFloat(localStorage.getItem('nmplayer-volume') as string) / 100 : 0.4;
+		this.videoElement.volume = localStorage.getItem('nmplayer-volume')
+			? parseFloat(localStorage.getItem('nmplayer-volume') as string) / 100
+			: 1;
 
 		this.videoElement.addEventListener('scroll', () => {
 			this.videoElement.scrollIntoView();
 		});
 
-		this.ui_setPauseClass();
+		this.emitPausedEvent();
 	}
 
 	createOverlayElement(): void {
@@ -568,11 +571,10 @@ export class NMPlayer extends Base {
 			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
 				enableWorker: true,
-				lowLatencyMode: true,
-				backBufferLength: 0,
-				maxBufferHole: 0.5,
-				maxBufferLength: 60,
-				maxMaxBufferLength: 60,
+				lowLatencyMode: false,
+				maxBufferHole: 0,
+				maxBufferLength: 30,
+				maxBufferSize: 0,
 				autoStartLoad: true,
 				testBandwidth: true,
 				// startPosition: item.progress
@@ -650,19 +652,16 @@ export class NMPlayer extends Base {
 		};
 	}
 
-	videoPlayer_playEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const _e = e as Event & {target: HTMLVideoElement};
+	videoPlayer_playEvent(): void {
 		this.emit('beforePlay');
 
 		this.container.classList.remove('paused');
 		this.container.classList.add('playing');
+
 		this.emit('play');
 	}
 
-	videoPlayer_onPlayingEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const _e = e as Event & {target: HTMLVideoElement};
+	videoPlayer_onPlayingEvent(): void {
 		this.videoElement.removeEventListener('playing', this.videoPlayer_onPlayingEvent);
 
 		if (!this.firstFrame) {
@@ -695,17 +694,13 @@ export class NMPlayer extends Base {
 		}
 	}
 
-	videoPlayer_pauseEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const _e = e as Event & {target: HTMLVideoElement};
+	videoPlayer_pauseEvent(): void {
 		this.container.classList.remove('playing');
 		this.container.classList.add('paused');
 		this.emit('pause', this.videoElement);
 	}
 
-	videoPlayer_endedEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const _e = e as Event & {target: HTMLVideoElement};
+	videoPlayer_endedEvent(): void {
 		if (this.currentIndex < this.playlist.length - 1) {
 			this.playVideo(this.currentIndex + 1);
 		} else {
@@ -715,21 +710,15 @@ export class NMPlayer extends Base {
 		}
 	}
 
-	videoPlayer_errorEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const _e = e as Event & {target: HTMLVideoElement};
+	videoPlayer_errorEvent(): void {
 		this.emit('error', this.videoElement);
 	}
 
-	videoPlayer_waitingEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const _e = e as Event & {target: HTMLVideoElement};
+	videoPlayer_waitingEvent(): void {
 		this.emit('waiting', this.videoElement);
 	}
 
-	videoPlayer_canplayEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const _e = e as Event & {target: HTMLVideoElement};
+	videoPlayer_canplayEvent(): void {
 		this.emit('canplay', this.videoElement);
 	}
 
@@ -739,9 +728,7 @@ export class NMPlayer extends Base {
 		this.emit('duration', this.videoPlayer_getTimeData(_e));
 	}
 
-	videoPlayer_loadstartEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const _e = e as Event & {target: HTMLVideoElement};
+	videoPlayer_loadstartEvent(): void {
 		this.emit('loadstart', this.videoElement);
 	}
 
@@ -759,9 +746,7 @@ export class NMPlayer extends Base {
 		this.emit('ready');
 	}
 
-	videoPlayer_volumechangeEvent(e: Event): void {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const _e = e as Event & {target: HTMLVideoElement};
+	videoPlayer_volumechangeEvent(): void {
 		if (this.volume != Math.round(this.videoElement.volume * 100)) {
 			this.emit('volume', {
 				volume: Math.round(this.videoElement.volume * 100),
@@ -845,17 +830,11 @@ export class NMPlayer extends Base {
 		}, this.inactivityTime);
 	}
 
-	ui_setPlayClass(): void {
-		this.container.classList.remove('paused');
-		this.container.classList.add('playing');
-
+	emitPlayEvent(): void {
 		this.emit('playing', true);
 	}
 
-	ui_setPauseClass(): void {
-		this.container.classList.remove('playing');
-		this.container.classList.add('paused');
-
+	emitPausedEvent(): void {
 		this.emit('playing', false);
 	}
 
@@ -898,8 +877,8 @@ export class NMPlayer extends Base {
 		this.container.addEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
 		this.videoElement.addEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
 
-		this.on('play', this.ui_setPlayClass.bind(this));
-		this.on('pause', this.ui_setPauseClass.bind(this));
+		this.on('play', this.emitPlayEvent.bind(this));
+		this.on('pause', this.emitPausedEvent.bind(this));
 
 		this.on('showControls', this.ui_addActiveClass.bind(this));
 		this.on('hideControls', this.ui_removeActiveClass.bind(this));
@@ -938,11 +917,6 @@ export class NMPlayer extends Base {
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADED, (event, data) => {
 				this.options.debug && console.log('Audio track loaded', data);
-				this.emit('audioTracks', this.getAudioTracks());
-				this.emit('audioTrackChanging', {
-					id: data.id,
-					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
-				});
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHING, (event, data) => {
@@ -1068,7 +1042,7 @@ export class NMPlayer extends Base {
 				this.setCaptionFromStorage();
 			});
 			this.emit('speed', this.videoElement.playbackRate);
-			this.once('audio', () => {
+			this.on('audioTracks', () => {
 				if (this.getAudioTracks().length < 2) return;
 				if (localStorage.getItem('nmplayer-audio-language')) {
 					this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language') as string));
@@ -1081,6 +1055,11 @@ export class NMPlayer extends Base {
 					} else {
 						this.setCurrentAudioTrack(0);
 					}
+
+					this.emit('audioTrackChanged', {
+						id: this.getAudioTracks().find(l => l.lang === localStorage.getItem('nmplayer-audio-language'))?.id,
+						name: this.getAudioTracks().find(l => l.lang === localStorage.getItem('nmplayer-audio-language'))?.name,
+					});
 				});
 			});
 
@@ -1095,12 +1074,12 @@ export class NMPlayer extends Base {
 			const episode = this.getParameterByName('episode');
 			const episodeNumber = episode ? parseInt(episode, 10) : null;
 
-			if (itemNumber) {
+			if (itemNumber != null) {
 				setTimeout(() => {
 					this.setEpisode(0, itemNumber);
 				}, 0);
 			}
-			else if (seasonNumber && episodeNumber) {
+			else if (seasonNumber != null && episodeNumber != null) {
 				setTimeout(() => {
 					this.setEpisode(seasonNumber, episodeNumber);
 				}, 0);
@@ -1140,7 +1119,7 @@ export class NMPlayer extends Base {
 
 					// setTimeout(() => {
 					// 	if (!playlistItem.progress) return;
-						this.seek(playlistItem.progress.time);
+					this.seek(playlistItem.progress.time);
 					// }, 50);
 				});
 			}
@@ -1165,9 +1144,6 @@ export class NMPlayer extends Base {
 		});
 
 		this.on('time', (data) => {
-			this.container.classList.remove('buffering');
-			this.container.classList.remove('error');
-
 			if (data.currentTime > this.lastTime + 5) {
 				this.emit('lastTimeTrigger', data);
 				this.lastTime = data.currentTime;
@@ -1183,6 +1159,21 @@ export class NMPlayer extends Base {
 		});
 
 		this.on('item', () => {
+			this.once('audioTracks', () => {
+				if (this.getAudioTracks().length < 2) return;
+				if (localStorage.getItem('nmplayer-audio-language')) {
+					this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language') as string));
+				} else {
+					this.setCurrentAudioTrack(0);
+				}
+				this.once('play', () => {
+					if (localStorage.getItem('nmplayer-audio-language')) {
+						this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language') as string));
+					} else {
+						this.setCurrentAudioTrack(0);
+					}
+				});
+			});
 			this.container.classList.remove('buffering');
 			this.container.classList.remove('error');
 			this.setCaptionFromStorage();
@@ -1212,8 +1203,8 @@ export class NMPlayer extends Base {
 		this.container.removeEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
 		this.videoElement.removeEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
 
-		this.off('play', this.ui_setPlayClass.bind(this));
-		this.off('pause', this.ui_setPauseClass.bind(this));
+		this.off('play', this.emitPlayEvent.bind(this));
+		this.off('pause', this.emitPausedEvent.bind(this));
 
 		this.off('showControls', this.ui_addActiveClass.bind(this));
 		this.off('hideControls', this.ui_removeActiveClass.bind(this));
@@ -1267,13 +1258,13 @@ export class NMPlayer extends Base {
 			});
 
 			if (typeof navigator.mediaSession.setActionHandler == 'function') {
-				navigator.mediaSession.setActionHandler('previoustrack', this.previous.bind(this));
-				navigator.mediaSession.setActionHandler('nexttrack', this.next.bind(this));
-				navigator.mediaSession.setActionHandler('seekbackward', time => this.rewindVideo.bind(this)(time.seekTime));
-				navigator.mediaSession.setActionHandler('seekforward', time => this.forwardVideo.bind(this)(time.seekTime));
+				navigator.mediaSession.setActionHandler('play', () => this.play());
+				navigator.mediaSession.setActionHandler('pause', () => this.pause());
+				navigator.mediaSession.setActionHandler('previoustrack', () => this.previous());
+				navigator.mediaSession.setActionHandler('nexttrack', () => this.next());
+				navigator.mediaSession.setActionHandler('seekbackward', time => this.rewindVideo(time.seekTime));
+				navigator.mediaSession.setActionHandler('seekforward', time => this.forwardVideo(time.seekTime));
 				navigator.mediaSession.setActionHandler('seekto', time => this.seek(time.seekTime as number));
-				navigator.mediaSession.setActionHandler('play', this.play.bind(this));
-				navigator.mediaSession.setActionHandler('pause', this.pause.bind(this));
 			}
 		}
 	}
@@ -1607,7 +1598,6 @@ export class NMPlayer extends Base {
 		const file = this.getSubtitleFile();
 		if (file && this.currentSubtitleFile !== file) {
 			this.currentSubtitleFile = file;
-			this.emit('captionsChanged', this.getCurrentCaptions());
 			this.getFileContents<string>({
 				url: file,
 				options: {
@@ -1627,9 +1617,10 @@ export class NMPlayer extends Base {
 						this.emit('subtitles', this.subtitles);
 					});
 				},
-			}).then();
+			}).then(()=> this.emit('captionsChanged', this.getCurrentCaptions()));
 		} else {
 			this.emit('captionsChanged', this.getCurrentCaptions());
+			this.storeSubtitleChoice();
 		}
 	}
 
@@ -1640,6 +1631,10 @@ export class NMPlayer extends Base {
 			this.subtitleText.textContent = '';
 			this.subtitleOverlay.style.display = 'none';
 
+			this.currentPlaylistItem = this.playlist[index];
+
+			this.videoElement.poster = this.currentPlaylistItem.image ?? '';
+
 			if (this.currentIndex !== index) {
 				setTimeout(() => {
 					this.emit('item', this.currentPlaylistItem);
@@ -1647,9 +1642,7 @@ export class NMPlayer extends Base {
 			}
 
 			this.currentIndex = index;
-			this.currentPlaylistItem = this.playlist[index];
 
-			this.videoElement.poster = this.currentPlaylistItem.image ?? '';
 			this.loadSource((this.options.basePath ?? '') + this.currentPlaylistItem.file);
 
 		}
@@ -1858,7 +1851,8 @@ export class NMPlayer extends Base {
 	 * @param episode - The episode number to play.
 	 */
 	setEpisode(season: number, episode: number) {
-		const item = this.getPlaylist().findIndex((l: any) => l.season == season && l.episode == episode);
+		const item = this.getPlaylist()
+			.findIndex((l: any) => l.season == season && l.episode == episode);
 		if (item == -1) {
 			this.playlistItem(0);
 		} else {
@@ -2278,10 +2272,10 @@ export class NMPlayer extends Base {
 		this.subtitleText.textContent = '';
 		this.subtitleOverlay.style.display = 'none';
 
-		if (index == -1) {
-			this.emit('captionsChanged', this.getCurrentCaptions());
-			this.storeSubtitleChoice();
+		this.emit('captionsChanged', this.getCurrentCaptions());
+		this.storeSubtitleChoice();
 
+		if (index == -1) {
 			return;
 		}
 
@@ -2300,10 +2294,15 @@ export class NMPlayer extends Base {
 	 * Triggers the styled subtitles based on the provided file.
 	 */
 	storeSubtitleChoice() {
-		const currentCaotpion = this.getCurrentCaptions();
-		if (!currentCaotpion) return;
+		const currentCapitation = this.getCurrentCaptions();
+		if (!currentCapitation) {
+			localStorage.removeItem('nmplayer-subtitle-language');
+			localStorage.removeItem('nmplayer-subtitle-type');
+			localStorage.removeItem('nmplayer-subtitle-ext');
+			return;
+		}
 
-		const { language, type, ext } = currentCaotpion;
+		const { language, type, ext } = currentCapitation;
 		if (!language || !type || !ext) return;
 
 		localStorage.setItem('nmplayer-subtitle-language', language);

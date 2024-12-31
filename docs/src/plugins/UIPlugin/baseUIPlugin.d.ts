@@ -43,22 +43,11 @@ export declare class BaseUIPlugin extends Plugin {
         time: PreviewTime;
         el: HTMLDivElement;
     }[];
+    languageMenuStyles: string[];
+    menuButtonTextStyles: string[];
     initialize(player: NMPlayer): void;
     dispose(): void;
     scrollIntoView(element: HTMLElement): void;
-    /**
-     * Merges the default styles with the styles for a specific style name.
-     * @param styleName - The name of the style to merge.
-     * @param defaultStyles - The default styles to merge.
-     * @returns An array containing the merged styles.
-     */
-    mergeStyles(styleName: string, defaultStyles: string[]): any[];
-    /**
-     * Returns a merged style object for the given style name.
-     * @param name - The name of the style to merge.
-     * @returns The merged style object.
-     */
-    makeStyles: (name: string) => any[];
     createSVGElement(parent: HTMLElement, id: string, icon: Icon['path'], hidden?: boolean, hovered?: boolean): SVGSVGElement;
     modifySpinner(parent: HTMLDivElement): void;
     createSpinnerContainer(parent: HTMLDivElement): HTMLDivElement;
@@ -91,10 +80,6 @@ export declare class BaseUIPlugin extends Plugin {
     createDivider(parent: HTMLElement, content?: any): HTMLDivElement;
     createOverlayCenterMessage(parent: HTMLDivElement): HTMLButtonElement;
     createSeekContainer(parent: HTMLElement): HTMLDivElement;
-    createNextUp(parent: HTMLDivElement): HTMLDivElement & {
-        firstChild: HTMLButtonElement;
-        lastChild: HTMLButtonElement;
-    };
     createTopBar(parent: HTMLElement): HTMLDivElement;
     createTvCurrentItem(parent: HTMLElement): HTMLDivElement;
     createLanguageMenuButton(parent: HTMLDivElement, data: {
@@ -105,14 +90,8 @@ export declare class BaseUIPlugin extends Plugin {
         styled?: boolean;
         buttonType: string;
     }, hovered?: boolean): HTMLButtonElement;
-    getLanguageButtonText(languageButton: HTMLButtonElement, data: {
-        language: string;
-        label: string;
-        type: string;
-        id: number;
-        styled?: boolean;
-        buttonType: string;
-    }): HTMLSpanElement;
+    getClosestElement(element: HTMLButtonElement, selector: string): HTMLButtonElement | undefined;
+    addKeyEventsToLanguageButton(languageButton: HTMLButtonElement, parent: HTMLDivElement): void;
     createThumbnail(time: PreviewTime): HTMLDivElement;
     getSliderPopImage(scrubTime: any): void;
     adjustScaling(imgDimension: number, thumbnailDimension: number): number;

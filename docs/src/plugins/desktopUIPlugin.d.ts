@@ -11,8 +11,8 @@ export declare class DesktopUIPlugin extends BaseUIPlugin {
     bottomBar: HTMLDivElement;
     topRow: HTMLDivElement;
     tooltip: HTMLDivElement;
-    menuButtonTextStyles: string[];
-    languageMenuStyles: string[];
+    scrollContainerStyles: string[];
+    subMenuContentStyles: string[];
     use(): void;
     createTopRow(parent: HTMLDivElement): HTMLDivElement;
     createBottomRow(parent: HTMLDivElement): HTMLDivElement;

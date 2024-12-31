@@ -10,6 +10,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 	languageScreen: HTMLDialogElement = <HTMLDialogElement>{};
 
 	selectedSeason: number | undefined;
+	hasPlayed: boolean = false;
 
 	tvDialogStyles = [
 		'w-available',
@@ -34,6 +35,10 @@ export class TVUIPlugin extends BaseUIPlugin {
 			this.showPreScreen();
 		}
 
+		this.player.once('firstFrame', () => {
+			this.hasPlayed = true;
+		});
+
 		this.player.on('play', () => {
 			this.player.emit('show-seek-container', false);
 			this.player.getVideoElement().scrollIntoView();
@@ -44,7 +49,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		this.player.on('back-button', this.backMenu.bind(this));
 
-		document.addEventListener('keypress', (e: KeyboardEvent) => {
+		document.addEventListener('keydown', (e: KeyboardEvent) => {
 			// back button
 			if (e.key == 'Backspace') {
 				this.backMenu();
@@ -65,6 +70,12 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 		this.player.on('pause', () => {
 			// this.showPreScreen();
+			// this.player.pause();
+		});
+
+		this.player.once('ready', () => {
+			this.showPreScreen();
+			this.player.pause();
 		});
 	}
 
@@ -148,8 +159,6 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.createTvProgressBar(bottomRow);
 		this.createTime(bottomRow, 'remaining', ['mr-14']);
 
-		this.createNextUp(tvOverlay);
-
 		// this.player.on('active', (value) => {
 		// 	if (value && this.currentMenu !== 'seek' && !this.controlsVisible) {
 		// 		playbackButton.focus();
@@ -166,7 +175,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		let activeButton = backButton ?? restartButton ?? nextButton;
 
 		[backButton, restartButton, nextButton].forEach((button) => {
-			button?.addEventListener('keypress', (e) => {
+			button?.addEventListener('keydown', (e) => {
 				if (e.key == 'ArrowDown') {
 					if (this.nextUp.style.display == 'none') {
 						this.playbackButton?.focus();
@@ -185,7 +194,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		});
 
 		[this.nextUp.firstChild, this.nextUp.lastChild].forEach((button) => {
-			button?.addEventListener('keypress', (e: KeyboardEvent) => {
+			button?.addEventListener('keydown', (e: KeyboardEvent) => {
 				if (e.key == 'ArrowUp') {
 					(activeButton || restartButton)?.focus();
 				} else if (e.key == 'ArrowDown') {
@@ -199,7 +208,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 		});
 
 		[this.playbackButton].forEach((button) => {
-			button?.addEventListener('keypress', (e) => {
+			button?.addEventListener('keydown', (e) => {
 				if (e.key == 'ArrowUp') {
 					e.preventDefault();
 					if (this.nextUp.style.display == 'none') {
@@ -383,7 +392,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			])
 			.appendTo(leftSide);
 
-		this.createTvButton(buttonContainer, 'play', 'Resume', this.player.play, this.buttons.play);
+		this.createTvButton(buttonContainer, 'play', null, this.player.play, this.buttons.play);
 
 		this.createTvButton(buttonContainer, 'restart', 'Play from beginning', this.player.restart, this.buttons.restart);
 
@@ -496,7 +505,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'flex-col',
 				'gap-3',
 				'w-available',
-				'h-1/2',
+				'h-available',
 				'mt-7',
 				'mb-3',
 				'overflow-auto',
@@ -507,34 +516,6 @@ export class TVUIPlugin extends BaseUIPlugin {
 			.appendTo(leftSide);
 
 		this.player.once('playlist', () => {
-
-			let lastSeasonButton: HTMLButtonElement = <HTMLButtonElement>{};
-			for (const season of this.player.getSeasons()) {
-				lastSeasonButton = this.createTvSeasonButton(
-					seasonButtonContainer,
-					`season-${season.season}`,
-					season,
-					() => this.player.emit('switch-season', season.season)
-				);
-			}
-
-			lastSeasonButton.addEventListener?.('keypress', (e) => {
-				if (e.key == 'ArrowLeft') {
-					//
-				} else if (e.key == 'ArrowRight') {
-					//
-				} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
-					//
-				} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
-					(lastSeasonButton.nextElementSibling as HTMLButtonElement)?.focus();
-					const el = (lastSeasonButton.nextElementSibling as HTMLButtonElement);
-					if (el?.nodeName == 'BUTTON') {
-						el?.focus();
-					} else {
-						((lastSeasonButton.parentElement as HTMLButtonElement).nextElementSibling as HTMLButtonElement)?.focus();
-					}
-				}
-			});
 
 			const rightSide = this.player.createElement('div', 'episode-screen-right-side')
 				.addClasses([
@@ -561,6 +542,37 @@ export class TVUIPlugin extends BaseUIPlugin {
 					'scroll-smooth',
 				])
 				.appendTo(rightSide);
+
+			let lastSeasonButton: HTMLButtonElement = <HTMLButtonElement>{};
+			for (const season of this.player.getSeasons()) {
+				lastSeasonButton = this.createTvSeasonButton(
+					seasonButtonContainer,
+					`season-${season.season}`,
+					season,
+					() => this.player.emit('switch-season', season.season)
+				);
+			}
+
+			lastSeasonButton.addEventListener?.('keydown', (e) => {
+				if (e.key == 'ArrowLeft') {
+					//
+				}
+				else if (e.key == 'ArrowRight') {
+					//
+				}
+				else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
+					//
+				}
+				else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+					(lastSeasonButton.nextElementSibling as HTMLButtonElement)?.focus();
+					const el = (lastSeasonButton.nextElementSibling as HTMLButtonElement);
+					if (el?.nodeName == 'BUTTON') {
+						el?.focus();
+					} else {
+						((lastSeasonButton.parentElement as HTMLButtonElement).nextElementSibling as HTMLButtonElement)?.focus();
+					}
+				}
+			});
 
 			for (const [index, item] of this.player.getPlaylist().entries() ?? []) {
 				this.createTvEpisodeMenuButton(this.episodeScrollContainer, item, index);
@@ -691,13 +703,13 @@ export class TVUIPlugin extends BaseUIPlugin {
 			}
 		};
 
-		lastAudioButton.removeEventListener?.('keypress', eventHandler);
+		lastAudioButton.removeEventListener?.('keydown', eventHandler);
 
 		this.player.on('audioTracks', (event) => {
 
 			audioButtonContainer.innerHTML = '';
 			for (const [index, track] of event?.entries() ?? []) {
-				lastAudioButton = this.createTvLanguageMenuButton(audioButtonContainer, {
+				lastAudioButton = this.createLanguageMenuButton(audioButtonContainer, {
 					language: track.language ?? '',
 					label: track.label ?? '',
 					type: track.type ?? '',
@@ -742,7 +754,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 			subtitleButtonContainer.innerHTML = '';
 			for (const [index, track] of event.entries() ?? []) {
-				this.createTvLanguageMenuButton(subtitleButtonContainer, {
+				this.createLanguageMenuButton(subtitleButtonContainer, {
 					language: track.language ?? '',
 					label: track.label ?? '',
 					type: track.type ?? '',
@@ -846,16 +858,6 @@ export class TVUIPlugin extends BaseUIPlugin {
 		return this.sliderBar;
 	}
 
-	getClosestElement(element: HTMLButtonElement, selector: string) {
-
-		const arr = Array.from(document.querySelectorAll<HTMLButtonElement>(selector)).filter(el => getComputedStyle(el).display == 'flex');
-		const originEl = element!.getBoundingClientRect();
-
-		return arr.find(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2))
-			== nearestValue(arr.map(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2)))
-				, originEl.top + (originEl.height / 2)));
-	}
-
 	createTvEpisodeMenuButton(parent: HTMLDivElement, item: PlaylistItem, index: number) {
 
 		const episodeMenuButton = this.player.createElement('button', `playlist-${item.id}`)
@@ -877,7 +879,6 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'focus-visible:outline-white',
 				'transition-all',
 				'duration-300',
-				'hover:bg-neutral-600/20',
 			])
 			.appendTo(parent);
 
@@ -931,7 +932,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			.addClasses([
 				'episode-menu-progress-container',
 				'absolute',
-				'bottom-0',
+				'bottom-1',
 				'w-available',
 				'flex',
 				'flex-col',
@@ -980,7 +981,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 				'hidden',
 				'rounded-full',
 				'bg-white/20',
-				'h-2',
+				'h-1',
 				'mx-4',
 				'relative',
 				'w-available',
@@ -1057,13 +1058,15 @@ export class TVUIPlugin extends BaseUIPlugin {
 		this.player.on('item', () => {
 			if (this.player.playlistItem().season == item.season) {
 				episodeMenuButton.style.display = 'flex';
-			} else {
+			}
+			else {
 				episodeMenuButton.style.display = 'none';
 			}
 
 			if (this.player.playlistItem().season == item.season && this.player.playlistItem().episode == item.episode) {
 				episodeMenuButton.style.background = 'rgba(255,255,255,.1)';
-			} else {
+			}
+			else {
 				episodeMenuButton.style.background = 'transparent';
 			}
 		});
@@ -1078,13 +1081,15 @@ export class TVUIPlugin extends BaseUIPlugin {
 						duration: 100,
 					});
 				}, 50);
-			} else if (this.player.playlistItem().season !== season) {
+			}
+			else if (this.player.playlistItem().season !== season) {
 				this.episodeScrollContainer.scrollTo(0, 0);
 			}
 
 			if (season == item.season) {
 				episodeMenuButton.style.display = 'flex';
-			} else {
+			}
+			else {
 				episodeMenuButton.style.display = 'none';
 			}
 		});
@@ -1107,14 +1112,17 @@ export class TVUIPlugin extends BaseUIPlugin {
 				= item.season == undefined ? `${item.episode}` : `${this.player.localize('S')}${item.season}: ${this.player.localize('E')}${item.episode}`;
 		}
 
-		episodeMenuButton.addEventListener('keypress', (e) => {
+		episodeMenuButton.addEventListener('keydown', (e) => {
 			if (e.key == 'ArrowLeft') {
 				document.querySelector<HTMLButtonElement>(`#season-${this.player.playlistItem().season}`)?.focus();
-			} else if (e.key == 'ArrowRight') {
+			}
+			else if (e.key == 'ArrowRight') {
 				//
-			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
+			}
+			else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				(episodeMenuButton.previousElementSibling as HTMLButtonElement)?.focus();
-			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+			}
+			else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				(episodeMenuButton.nextElementSibling as HTMLButtonElement)?.focus();
 			}
 		});
@@ -1198,10 +1206,11 @@ export class TVUIPlugin extends BaseUIPlugin {
 			}
 		});
 
-		button.addEventListener('keypress', (e) => {
+		button.addEventListener('keydown', (e) => {
 			if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				(button.previousElementSibling as HTMLButtonElement)?.focus();
-			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
+			}
+			else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
 				(button.nextElementSibling as HTMLButtonElement)?.focus();
 			}
 		});
@@ -1232,164 +1241,48 @@ export class TVUIPlugin extends BaseUIPlugin {
 			button.appendChild(svg);
 		}
 
-		const buttonText = this.player.createElement('span', `${id}-buttonText`)
+		const buttonText = this.player.createElement('div', `${id}-button-text`)
+			.addClasses(this.menuButtonTextStyles)
 			.addClasses([
-				'w-available',
-				'text-white',
-				'text-sm',
-				'font-bold',
-				'mx-2',
 				'flex',
 				'justify-between',
+				'items-center',
+				'w-available',
+				'gap-1',
 				'flex-nowrap',
 			])
 			.appendTo(button);
 
+		const buttonTextSpan1 = this.player.createElement('span', `${id}-button-text-span-1`)
+			.addClasses([
+				'line-clamp-1',
+				'text-nowrap',
+				'text-sm',
+				'w-auto',
+			])
+			.appendTo(buttonText);
+
+		const buttonTextSpan2 = this.player.createElement('span', `${id}-button-text-span-2`)
+			.addClasses([
+				'line-clamp-1',
+				'text-nowrap',
+				'text-xs',
+				'w-min',
+			])
+			.appendTo(buttonText);
+
 		if (data.seasonName) {
-			buttonText.innerHTML = `
-				<span>
-					${data.seasonName ?? ''}  
-				</span>
-				<span>
-					${data.episodes} ${this.player.localize('episodes')}
-				</span>
-			`;
+			buttonTextSpan1.innerText = data.seasonName;
+			buttonTextSpan2.innerText = `${data.episodes} ${this.player.localize('ep')}`;
 		} else if (data.season) {
-			buttonText.innerHTML = `
-				<span>
-					${this.player.localize('Season')} ${data.season}
-				</span>
-				<span>
-					${data.episodes} ${this.player.localize('episodes')}
-				</span>
-			`;
+			buttonTextSpan1.innerText = `${this.player.localize('Season')} ${data.season}`;
+			buttonTextSpan2.innerText = `${data.episodes} ${this.player.localize('ep')}`;
 		} else {
-			buttonText.innerHTML = `
-				<span>
-					
-				</span>
-				<span>
-					${data.episodes} ${this.player.localize('episodes')}
-				</span>
-			`;
+			buttonTextSpan2.innerText = `${data.episodes} ${this.player.localize('ep')}`;
 		}
 
 		return button;
 
-	}
-
-	createTvLanguageMenuButton(parent: HTMLDivElement, data: {
-								   language: string,
-								   label: string,
-								   type: string,
-								   id: number,
-								   styled?: boolean;
-								   buttonType: string;
-							   }, hovered = false) {
-
-		const languageButton = this.player.createElement('button', `${data.type}-button-${data.language}`)
-			.addClasses([
-				'language-button',
-				'w-available',
-				'mr-auto',
-				'h-8',
-				'px-1',
-				'py-2',
-				'flex',
-				'items-center',
-				'rounded',
-				'snap-center',
-				'outline-transparent',
-				'outline',
-				'whitespace-nowrap',
-				'transition-all',
-				'duration-100',
-				'outline-1',
-				'outline-solid',
-				'focus-visible:outline-2',
-				'focus-visible:outline-white',
-				'active:outline-white',
-			])
-			.appendTo(parent);
-
-		const chevron = this.createSVGElement(languageButton, 'checkmark', this.buttons.checkmark, false,  hovered);
-		this.player.addClasses(chevron, [
-			'w-10',
-			'opacity-0',
-		]);
-
-		this.getLanguageButtonText(languageButton, data);
-
-		if (data.id > 0 && data.buttonType == 'audio') {
-			chevron.classList.add('opacity-0');
-		} else if (data.id > 1 && data.buttonType == 'subtitle') {
-			chevron.classList.add('opacity-0');
-		} else {
-			chevron.classList.remove('opacity-0');
-		}
-
-		if (data.buttonType == 'audio') {
-			this.player.on('audioTrackChanging', (audio) => {
-				if (data.id === audio.id) {
-					chevron.classList.remove('opacity-0');
-				} else {
-					chevron.classList.add('opacity-0');
-				}
-			});
-
-			languageButton.addEventListener('click', (event) => {
-				event.stopPropagation();
-				this.player.setCurrentAudioTrack(data.id);
-			});
-		} else if (data.buttonType == 'subtitle') {
-			if (data.id === this.player.getCaptionIndex()) {
-				chevron.classList.remove('opacity-0');
-			} else {
-				chevron.classList.add('opacity-0');
-			}
-
-			this.player.on('captionsChanged', (track) => {
-				if (data.id === track.id) {
-					chevron.classList.remove('opacity-0');
-				} else {
-					chevron.classList.add('opacity-0');
-				}
-			});
-
-			languageButton.addEventListener('click', (event) => {
-				event.stopPropagation();
-				this.player.setCurrentCaption(data.id);
-			});
-		}
-
-		languageButton.addEventListener('keypress', (e) => {
-			if (e.key == 'ArrowLeft') {
-				this.player.getClosestElement(languageButton, '[id^="audio-button-"]')?.focus();
-			} else if (e.key == 'ArrowRight') {
-				this.player.getClosestElement(languageButton, '[id^="subtitle-button-"]')?.focus();
-			} else if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
-				(languageButton.previousElementSibling as HTMLButtonElement)?.focus();
-			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
-				(languageButton.nextElementSibling as HTMLButtonElement)?.focus();
-			}
-		});
-
-		languageButton.addEventListener('focus', () => {
-			setTimeout(() => {
-				this.scrollCenter(languageButton, parent.parentElement as HTMLDivElement, {
-					margin: 1,
-					duration: 100,
-				});
-			}, 50);
-		});
-
-		this.player.on('audioTrackChanged', (audio) => {
-			if (data.id === audio.id) {
-				languageButton.focus();
-			}
-		});
-
-		return languageButton;
 	}
 
 	getVisibleButtons(element: HTMLButtonElement) {
@@ -1583,7 +1476,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 
 	}
 
-	createTvButton(parent: HTMLElement, id: string, text: string, action: () => void, icon?: Icon['path']) {
+	createTvButton(parent: HTMLElement, id: string, text: string|null, action: () => void, icon?: Icon['path']) {
 
 		const tvButton = this.player.createElement('button', id)
 			.addClasses([
@@ -1617,7 +1510,7 @@ export class TVUIPlugin extends BaseUIPlugin {
 			}, 50);
 		});
 
-		tvButton.addEventListener('keypress', (e) => {
+		tvButton.addEventListener('keydown', (e) => {
 			if (e.key == 'ArrowUp' && !this.player.options.disableTouchControls) {
 				this.findPreviousVisibleButton(tvButton)?.focus();
 			} else if (e.key == 'ArrowDown' && !this.player.options.disableTouchControls) {
@@ -1655,15 +1548,20 @@ export class TVUIPlugin extends BaseUIPlugin {
 		}
 
 		const buttonText = this.player.createElement('span', `${id}-buttonText`)
-			.addClasses([
-				'text-white',
-				'text-sm',
-				'font-bold',
-				'mx-2',
-				'flex',
-				'justify-between',
-			])
+			.addClasses(this.menuButtonTextStyles)
 			.appendTo(tvButton);
+
+		if (!text) {
+			text = 'Play';
+
+			setTimeout(() => {
+				this.player.once('firstFrame', () => {
+					text = 'Resume';
+					buttonText.innerHTML = this.player.localize('Resume');
+				});
+			}, 500);
+		}
+
 		buttonText.innerHTML = this.player.localize(text);
 
 		return tvButton;
