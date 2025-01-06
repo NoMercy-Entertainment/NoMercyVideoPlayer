@@ -77,18 +77,6 @@ const config = {
 
 const player = nmplayer('player').setup(config);
 
-const desktopUIPlugin = new DesktopUIPlugin();
-player.registerPlugin('desktopUI', desktopUIPlugin);
-player.usePlugin('desktopUI');
-
-const mobileUIPlugin = new MobileUIPlugin();
-player.registerPlugin('mobileUI', mobileUIPlugin);
-player.usePlugin('mobileUI');
-
-const tvUIPlugin = new TVUIPlugin();
-player.registerPlugin('tvUI', tvUIPlugin);
-player.usePlugin('tvUI');
-
 const octopusPlugin = new OctopusPlugin();
 player.registerPlugin('octopus', octopusPlugin);
 player.usePlugin('octopus');
@@ -219,6 +207,9 @@ export class CustomUIPlugin extends Plugin {
 
 export default CustomUIPlugin;
 ```
+
+## License
+[Apache 2.0](./LICENSE)
 
 ## Contact
 

@@ -1,6 +1,6 @@
 
 import Plugin from '../plugin';
-import { NMPlayer } from '../index';
+import { NMPlayer } from '../index.d';
 
 export class SabrePlugin extends Plugin {
 	player: NMPlayer = <NMPlayer>{};

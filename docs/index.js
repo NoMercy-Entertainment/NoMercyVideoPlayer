@@ -1,12 +1,5 @@
 import "./index2.js";
 import "./setup.js";
-import "./base.js";
-import "./translations.js";
-import "./helpers.js";
-import "./octopusPlugin.js";
-import "./plugin.js";
-import "./desktopUIPlugin.js";
-import "./keyHandlerPlugin.js";
 (function() {
   const t = document.createElement("link").relList;
   if (t && t.supports && t.supports("modulepreload"))

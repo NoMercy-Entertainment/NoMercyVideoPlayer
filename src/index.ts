@@ -6,10 +6,23 @@ import HLS, { type MediaPlaylist } from 'hls.js';
 import { type VTTData, WebVTTParser } from 'webvtt-parser';
 import translations from './translations';
 
-import type { PlaylistItem, SetupConfig, Stretching, Track, TimeData, TypeMappings, PreviewTime } from './index.d';
+import type Plugin from './plugin';
+import type {
+	AddClasses,	CreateElement, PlaylistItem,
+	PreviewTime, SetupConfig, Stretching,
+ 	TimeData, Track, TypeMappings,
+} from './index.d';
+
 import {humanTime, pad, unique} from './helpers';
+import BBCReithSansBold from './fonts/ReithSans/ReithSansBold';
+import NotoSansJPBold from './fonts/NotoSansJPFonts/NotoSansJPBold';
 
 const instances = new Map<string, NMPlayer>();
+
+const DEFAULT_LEEWAY = 300;
+const DEFAULT_SEEK_INTERVAL = 10;
+const DEFAULT_MESSAGE_TIME = 2000;
+const EMPTY_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
 export class NMPlayer extends Base {
 	// Setup
@@ -22,8 +35,8 @@ export class NMPlayer extends Base {
 	message: NodeJS.Timeout = <NodeJS.Timeout>{};
 	leftTap: NodeJS.Timeout = <NodeJS.Timeout>{};
 	rightTap: NodeJS.Timeout = <NodeJS.Timeout>{};
-	leeway = 300;
-	seekInterval = 10;
+	leeway = DEFAULT_LEEWAY;
+	seekInterval = DEFAULT_SEEK_INTERVAL;
 	tapCount = 0;
 
 	// Store
@@ -56,7 +69,7 @@ export class NMPlayer extends Base {
 
 	lockActive: boolean = false;
 
-	plugins: {[key: string]: any} = {};
+	plugins: Map<string, Plugin> = new Map<string, Plugin>();
 
 	/**
 	 * The available options for stretching the video to fit the player dimensions.
@@ -122,8 +135,9 @@ export class NMPlayer extends Base {
 
 		this.playerId = id as string;
 		this.container = container;
-		this.plugins = {};
 
+		this.createBaseStyles();
+		this.createSubtitleFontFamily();
 		this.fetchTranslationsFile().then();
 
 		this.styleContainer();
@@ -141,14 +155,15 @@ export class NMPlayer extends Base {
 	}
 
 	registerPlugin(name: string, plugin: any): void {
-		this.plugins[name] = plugin;
+		this.plugins.set(name, plugin);
 		plugin.initialize(this);
 		this.options.debug && console.log(`Plugin ${name} registered.`);
 	}
 
 	usePlugin(name: string): void {
-		if (this.plugins[name]) {
-			this.plugins[name].use();
+		const plugin = this.plugins.get(name);
+		if (plugin) {
+			plugin.use();
 		} else {
 			console.error(`Plugin ${name} is not registered.`);
 		}
@@ -184,11 +199,11 @@ export class NMPlayer extends Base {
 
 			file.addEventListener('load', () => {
 				resolve();
-			});
+			}, { passive: true });
 
 			file.addEventListener('error', (err) => {
 				reject(err);
-			});
+			}, { passive: true });
 
 			document.head.appendChild(file);
 		}));
@@ -201,7 +216,7 @@ export class NMPlayer extends Base {
 	 * @param data The message to display.
 	 * @param time The amount of time to display the message for, in milliseconds. Defaults to 2000.
 	 */
-	displayMessage(data: string, time = 2000): void {
+	displayMessage(data: string, time = DEFAULT_MESSAGE_TIME): void {
 		clearTimeout(this.message);
 		this.emit('display-message', data);
 		this.message = setTimeout(() => {
@@ -214,7 +229,7 @@ export class NMPlayer extends Base {
 	 * @returns The HTMLDivElement element with the specified player ID.
 	 */
 	getElement(): HTMLDivElement {
-		return document.getElementById(this.playerId) as HTMLDivElement;
+		return this.container;
 	}
 
 	/**
@@ -222,7 +237,7 @@ export class NMPlayer extends Base {
 	 * @returns The HTMLVideoElement contained within the base element.
 	 */
 	getVideoElement(): HTMLVideoElement {
-		return this.getElement().querySelector<HTMLVideoElement>('video')!;
+		return this.videoElement;
 	}
 
 	/**
@@ -230,7 +245,7 @@ export class NMPlayer extends Base {
 	 * @returns {boolean} True if the player is in the viewport, false otherwise.
 	 */
 	isInViewport(): boolean {
-		const rect = this.getVideoElement().getBoundingClientRect();
+		const rect = this.videoElement.getBoundingClientRect();
 		const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
 		const windowWidth = (window.innerWidth || document.documentElement.clientWidth);
 
@@ -309,21 +324,7 @@ export class NMPlayer extends Base {
 	 *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
 	 *   - `get`: A function that returns the element.
 	 */
-	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): {
-		prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-		get: () => HTMLElementTagNameMap[K];
-		appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-		addClasses: (names: string[]) => {
-			prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-			get: () => HTMLElementTagNameMap[K];
-			appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-			addClasses: (names: string[]) => {
-				prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-				get: () => HTMLElementTagNameMap[K];
-				appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K]
-			}
-		}
-	} {
+	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<K> {
 		let el: HTMLElementTagNameMap[K];
 
 		if (unique) {
@@ -358,7 +359,7 @@ export class NMPlayer extends Base {
 	 *   - `get`: A function that returns the element.
 	 * @template T - The type of the element to add the classes to.
 	 */
-	addClasses<T extends Element>(el: T, names: string[]) {
+	addClasses<T extends Element>(el: T, names: string[]): AddClasses<T> {
 		for (const name of names.filter(Boolean)) {
 			el.classList?.add(name.trim());
 		}
@@ -390,68 +391,42 @@ export class NMPlayer extends Base {
 	}
 
 	createVideoElement(): void {
-
 		this.videoElement = this.createElement('video', `${this.playerId}_video`, true)
 			.appendTo(this.container);
 
-		this.videoElement.style.width = '100%';
-		this.videoElement.style.height = '100%';
-		this.videoElement.style.objectFit = 'contain';
-		this.videoElement.style.zIndex = '0';
-		this.videoElement.style.backgroundColor = 'black';
-		this.videoElement.style.display = 'block';
-		this.videoElement.style.position = 'absolute';
-		this.videoElement.poster = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+		this.setupVideoElementAttributes();
+		this.setupVideoElementEventListeners();
+		this.emitPausedEvent();
+	}
 
+	setupVideoElementAttributes(): void {
+		this.videoElement.poster = EMPTY_IMAGE;
 		this.videoElement.autoplay = this.options.autoPlay ?? false;
 		this.videoElement.controls = this.options.controls ?? false;
 		this.videoElement.preload = this.options.preload ?? 'auto';
-
 		this.videoElement.muted = this.options.muted ?? localStorage.getItem('nmplayer-muted') === 'true';
 		this.videoElement.volume = localStorage.getItem('nmplayer-volume')
 			? parseFloat(localStorage.getItem('nmplayer-volume') as string) / 100
 			: 1;
+	}
 
+	setupVideoElementEventListeners(): void {
 		this.videoElement.addEventListener('scroll', () => {
 			this.videoElement.scrollIntoView();
-		});
-
-		this.emitPausedEvent();
+		}, { passive: true });
 	}
 
 	createOverlayElement(): void {
 
-		this.overlay = this.createElement('div', `${this.playerId}_overlay`, true)
-			.addClasses(['overlay'])
+		this.overlay = this.createElement('div', `${this.playerId}-ui-overlay`, true)
+			.addClasses(['ui-overlay'])
 			.appendTo(this.container);
-		this.overlay.style.width = '100%';
-		this.overlay.style.height = '100%';
-		this.overlay.style.position = 'absolute';
-		this.overlay.style.zIndex = '10';
-		this.overlay.style.display = 'flex';
-		this.overlay.style.flexDirection = 'column';
-		this.overlay.style.justifyContent = 'center';
-		this.overlay.style.alignItems = 'center';
 	}
 
 	createOverlayCenterMessage(): HTMLButtonElement {
-		const playerMessage = this.createElement('button', 'player-message')
-			.addClasses([
-				'player-message',
-				'hidden',
-				'absolute',
-				'rounded-md',
-				'bg-neutral-900/95',
-				'left-1/2',
-				'px-4',
-				'py-2',
-				'pointer-events-none',
-				'text-center',
-				'top-12',
-				'-translate-x-1/2',
-				'z-50',
-			])
-			.appendTo(this.overlay);
+		const playerMessage = this.createElement('button', `${this.playerId}-player-message`)
+			.addClasses(['player-message'])
+			.prependTo(this.overlay);
 
 		this.on('display-message', (val: string) => {
 			playerMessage.style.display = 'flex';
@@ -466,31 +441,151 @@ export class NMPlayer extends Base {
 		return playerMessage;
 	};
 
+	createBaseStyles(): void {
+		const styleSheet = this.createElement('style', `${this.playerId}-styles`, true)
+			.prependTo(this.container);
+
+		styleSheet.textContent = `
+			.nomercyplayer * {
+				user-select: none;
+				scrollbar-width: thin;
+				scrollbar-color: transparent transparent;
+			}
+			
+			.nomercyplayer.inactive {
+				cursor: none;
+			}
+			
+			.nomercyplayer *:focus,
+			.nomercyplayer *:focus-visible,
+			.nomercyplayer *:focus-within {
+				outline-color: transparent;
+				border-color: transparent;
+			}
+			
+			.nomercyplayer .font-mono {
+				font-family: 'Source Code Pro', monospace;
+			}
+			
+			.nomercyplayer video {
+				background-color: black;
+				border-color: transparent;
+				display: block;
+				height: 100%;
+				margin: 0 auto;
+				object-fit: contain;
+				outline-color: transparent;
+				position: absolute;
+				width: 100%;
+				z-index: 0;
+			}
+			
+			.nomercyplayer .subtitle-overlay {
+				bottom: 5%;
+				color: rgb(255 255 255);
+				display: none;
+				font-size: 1.25rem;
+				line-height: 1.75rem;
+				padding: 0.5rem;
+				position: absolute;
+				text-align: center;
+				transition-duration: 150ms;
+				transition-property: all;
+				transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+				width: 100%;
+				z-index: 0;
+			}
+			
+			.nomercyplayer .subtitle-overlay .subtitle-text {
+				font-size: clamp(1.5rem, 6.667%, 2.5rem);
+				line-height: 1.5;
+				text-align: center;
+				text-shadow: black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px;
+				white-space: pre-line;
+			}
+			
+			.nomercyplayer .subtitle-text,
+			.nomercyplayer .subtitle-text[data-language="eng"] {
+				font-family: ReithSans, sans-serif;
+			}
+			
+			.nomercyplayer .subtitle-text[data-language="jpn"] {
+				font-family: 'Noto Sans JP', sans-serif;
+			}
+			
+			.nomercyplayer .ui-overlay {
+				align-items: center;
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+				inset: 0px;
+				justify-content: center;
+				position: absolute;
+				width: 100%;
+				z-index: 10;
+			}
+			
+			.nomercyplayer .player-message {
+				background-color: var(--nomercyplayer-message-bg, rgb(23 23 23 / 0.95));
+				border-radius: 0.375rem;
+				color: var(--nomercyplayer-message-color, white);
+				display: none;
+				left: 50%;
+				padding: 0.5rem 1rem;
+				pointer-events: none;
+				position: absolute;
+				text-align: center;
+				top: 3rem;
+				transform: translateX(-50%);
+				z-index: 50;
+			}
+			
+			.nomercyplayer .libassjs-canvas-parent {
+				position: absolute !important;
+				left:0 !important;
+				width: 100% !important;
+				height: 100% !important;
+			}
+			
+			.nomercyplayer .libassjs-canvas {
+				top:0 !important;
+			}
+		`;
+	}
+
+	createSubtitleFontFamily(): void {
+		const styleSheet = this.createElement('style', `${this.playerId}-fonts`, true)
+			.appendTo(this.container);
+
+		styleSheet.textContent = `
+			@font-face {
+			  font-family: 'Noto Sans JP';
+			  font-style: normal;
+			  font-weight: 100 900;
+			  font-display: swap;
+			  src: url("data:font/woff2;base64,${NotoSansJPBold}") format("woff2");
+			}
+		`;
+		styleSheet.textContent = `
+			  @font-face {
+				font-family: 'ReithSans';
+				font-style: bold;
+				font-weight: 800;
+				font-display: swap;
+        		src: url("data:font/woff2;base64,${BBCReithSansBold}") format("woff2");
+			  }
+		`;
+	}
+
 	createSubtitleOverlay(): void {
 
-		this.subtitleOverlay = this.createElement('div',  'subtitle-overlay', true)
-			.addClasses([
-				'absolute',
-				'w-full',
-				'text-center',
-				'text-white',
-				'text-xl',
-				'p-2',
-				'z-0',
-				'transition-all',
-				'duration-300',
-			])
+		this.subtitleOverlay = this.createElement('div',  `${this.playerId}-subtitle-overlay`, true)
+			.addClasses(['subtitle-overlay'])
 			.appendTo(this.container);
-		this.subtitleOverlay.style.bottom = '5%';
-		this.subtitleOverlay.style.display = 'none';
-		this.container.appendChild(this.subtitleOverlay);
 
-		this.subtitleText = this.createElement('span', 'subtitle-text', true)
-			.addClasses(['subtitle-text', 'text-center', 'whitespace-pre-line', 'font-bolder', 'leading-normal'])
+		this.subtitleText = this.createElement('span', `${this.playerId}-subtitle-text`, true)
+			.addClasses(['subtitle-text'])
 			.appendTo(this.subtitleOverlay);
-
-		this.subtitleText.style.fontSize = 'clamp(1.5rem, 2vw, 2.5rem)';
-		this.subtitleText.style.textShadow = 'black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px, black 0 0 4px';
 
 		this.on('time', this.checkSubtitles.bind(this));
 	}
@@ -577,9 +672,9 @@ export class NMPlayer extends Base {
 				maxBufferSize: 0,
 				autoStartLoad: true,
 				testBandwidth: true,
-				// startPosition: item.progress
-				// 	? convertToSeconds(item.duration!) / 100 * item.progress.percentage
-				// 	: 0,
+				startPosition: item.progress
+					?  item.progress.time
+					: 0,
 				videoPreference: {
 					preferHDR: this.hdrSupported(),
 				},
@@ -591,18 +686,13 @@ export class NMPlayer extends Base {
 				},
 			});
 
-			// this.once('lastTimeTrigger', () => {
-			// 	this.hls!.config.maxBufferLength = 60;
-			// 	this.hls!.config.maxMaxBufferLength = 60;
-			// });
-
 			this.emit('hls');
 
 			this.hls?.loadSource(url);
 			this.hls?.attachMedia(this.videoElement);
 		}
 		else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-			this.videoElement.src = url;
+			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
 		}
 
 		if (this.options.autoPlay) {
@@ -658,6 +748,8 @@ export class NMPlayer extends Base {
 		this.container.classList.remove('paused');
 		this.container.classList.add('playing');
 
+		this.container.classList.remove('buffering');
+
 		this.emit('play');
 	}
 
@@ -672,7 +764,7 @@ export class NMPlayer extends Base {
 		this.setMediaAPI();
 
 		this.on('item', () => {
-			this.videoElement.addEventListener('playing', this.videoPlayer_onPlayingEvent);
+			this.videoElement.addEventListener('playing', this.videoPlayer_onPlayingEvent, { passive: true });
 			this.firstFrame = false;
 		});
 	}
@@ -810,7 +902,7 @@ export class NMPlayer extends Base {
 		this.emit('active', false);
 	}
 
-	ui_resetInactivityTimer(event?: MouseEvent | KeyboardEvent): void {
+	ui_resetInactivityTimer(event?: Event): void {
 		if (this.inactivityTimeout) {
 			clearTimeout(this.inactivityTimeout);
 		}
@@ -855,27 +947,44 @@ export class NMPlayer extends Base {
 		}
 	}
 
+	debounce(func: Function, wait: number) {
+		let timeout: NodeJS.Timeout;
+		return (...args: any[]) => {
+			clearTimeout(timeout);
+			timeout = setTimeout(() => func.apply(this as NMPlayer, args), wait);
+		};
+	}
+
 	_addEvents(): void {
-		this.videoElement.addEventListener('play', this.videoPlayer_playEvent.bind(this));
-		this.videoElement.addEventListener('playing', this.videoPlayer_onPlayingEvent.bind(this));
-		this.videoElement.addEventListener('pause', this.videoPlayer_pauseEvent.bind(this));
-		this.videoElement.addEventListener('ended', this.videoPlayer_endedEvent.bind(this));
-		this.videoElement.addEventListener('error', this.videoPlayer_errorEvent.bind(this));
-		this.videoElement.addEventListener('waiting', this.videoPlayer_waitingEvent.bind(this));
-		this.videoElement.addEventListener('canplay', this.videoPlayer_canplayEvent.bind(this));
-		this.videoElement.addEventListener('loadedmetadata', this.videoPlayer_loadedmetadataEvent.bind(this));
-		this.videoElement.addEventListener('loadstart', this.videoPlayer_loadstartEvent.bind(this));
-		this.videoElement.addEventListener('timeupdate', this.videoPlayer_timeupdateEvent.bind(this));
-		this.videoElement.addEventListener('durationchange', this.videoPlayer_durationchangeEvent.bind(this));
-		this.videoElement.addEventListener('volumechange', this.videoPlayer_volumechangeEvent.bind(this));
 
-		// UI events
-		this.container.addEventListener('mousemove', this.ui_resetInactivityTimer.bind(this));
-		this.container.addEventListener('click', this.ui_resetInactivityTimer.bind(this));
-		this.container.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
+		const playerEvents = [
+			{ type: 'play', handler: this.videoPlayer_playEvent.bind(this) },
+			{ type: 'playing', handler: this.videoPlayer_onPlayingEvent.bind(this) },
+			{ type: 'pause', handler: this.videoPlayer_pauseEvent.bind(this) },
+			{ type: 'ended', handler: this.videoPlayer_endedEvent.bind(this) },
+			{ type: 'error', handler: this.videoPlayer_errorEvent.bind(this) },
+			{ type: 'waiting', handler: this.videoPlayer_waitingEvent.bind(this) },
+			{ type: 'canplay', handler: this.videoPlayer_canplayEvent.bind(this) },
+			{ type: 'loadedmetadata', handler: this.videoPlayer_loadedmetadataEvent.bind(this) },
+			{ type: 'loadstart', handler: this.videoPlayer_loadstartEvent.bind(this) },
+			{ type: 'timeupdate', handler: this.videoPlayer_timeupdateEvent.bind(this) },
+			{ type: 'durationchange', handler: this.videoPlayer_durationchangeEvent.bind(this) },
+			{ type: 'volumechange', handler: this.videoPlayer_volumechangeEvent.bind(this) },
+			{ type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
+		];
+		playerEvents.forEach(event => {
+			this.videoElement.addEventListener(event.type, event.handler, { passive: true });
+		});
 
-		this.container.addEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
-		this.videoElement.addEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
+		const containerEvents = [
+			{ type: 'click', handler: this.ui_resetInactivityTimer.bind(this) },
+			{ type: 'mousemove', handler: this.ui_resetInactivityTimer.bind(this) },
+			{ type: 'mouseleave', handler: this.handleMouseLeave.bind(this) },
+			{ type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
+		];
+		containerEvents.forEach(event => {
+			this.container.addEventListener(event.type, event.handler, { passive: true });
+		});
 
 		this.on('play', this.emitPlayEvent.bind(this));
 		this.on('pause', this.emitPausedEvent.bind(this));
@@ -895,6 +1004,10 @@ export class NMPlayer extends Base {
 				});
 				this.emit('audioTracks', this.getAudioTracks());
 			}, 250);
+		});
+
+		this.on('seeked', () => {
+			this.lastTime = 0;
 		});
 
 		this.on('firstFrame', () => {
@@ -1064,7 +1177,7 @@ export class NMPlayer extends Base {
 			});
 
 			if (!this.options.disableControls) {
-				this.getVideoElement().focus();
+				this.videoElement.focus();
 			}
 
 			const item = this.getParameterByName('item');
@@ -1096,7 +1209,9 @@ export class NMPlayer extends Base {
 				}
 
 				const playlistItem = progressItem
-					.sort((a, b) => b.progress!.date?.localeCompare(a.progress!.date)).at(0);
+					.filter(i => i.progress)
+					.sort((a,b) => new Date(b.progress!.date).getTime() - new Date(a.progress!.date).getTime())
+					.at(0);
 
 				if (!playlistItem?.progress) {
 					if (this.options.autoPlay) {
@@ -1493,19 +1608,21 @@ export class NMPlayer extends Base {
 	 */
 	async fetchTranslationsFile(): Promise<void> {
 		const language = this.options.language ?? navigator.language;
-
 		const file = `https://storage.nomercy.tv/laravel/player/translations/${language}.json`;
 
-		await this.getFileContents({
-			url: file,
-			options: {},
-			callback: (data) => {
-				this.translations = JSON.parse(data as string);
+		try {
+			await this.getFileContents({
+				url: file,
+				options: {},
+				callback: (data) => {
+					this.translations = JSON.parse(data as string);
 
-				this.emit('translations', this.translations);
-			},
-		});
-
+					this.emit('translations', this.translations);
+				}
+			});
+		} catch (error) {
+			console.error('Failed to fetch translations file:', error);
+		}
 	}
 
 	/**
@@ -1916,7 +2033,15 @@ export class NMPlayer extends Base {
 	}
 
 	seek(arg: number): number {
-		return this.videoElement.currentTime = arg;
+		this.lastTime = 0;
+
+		this.emit('seek');
+
+		this.videoElement.currentTime = arg;
+
+		this.emit('seeked');
+
+		return arg;
 	}
 
 	restart(): void {
@@ -1924,7 +2049,7 @@ export class NMPlayer extends Base {
 	}
 
 	seekByPercentage(arg: number): number {
-		return this.videoElement.currentTime = this.videoElement.duration * arg / 100;
+		return this.seek(this.videoElement.duration * arg / 100);
 	}
 
 	/**
@@ -2450,7 +2575,7 @@ export class NMPlayer extends Base {
 			plugin.dispose();
 		}
 
-		this.plugins = {};
+		this.plugins = new Map<string, Plugin>();
 
 		// Dispose HLS instance if exists
 		if (this.hls) {

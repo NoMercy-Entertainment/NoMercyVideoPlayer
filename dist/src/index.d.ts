@@ -101,7 +101,10 @@ export interface PlaylistItem {
     id: string | number;
 	uuid?: string;
     seasonName?: string;
-    progress?: any;
+    progress?: {
+        time: number;
+        date: string;
+    },
     duration: string;
     file: string;
     image: string;
@@ -423,6 +426,20 @@ export interface SetupConfig {
     [key: string]: any;
 }
 
+export interface CreateElement<K extends keyof HTMLElementTagNameMap> {
+    prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
+    get: () => HTMLElementTagNameMap[K];
+    appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
+    addClasses: (names: string[]) => AddClasses<string>
+}
+
+export interface AddClasses<T> {
+    prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
+    get: () => HTMLElementTagNameMap[K];
+    appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K]
+    addClasses: (names: string[]) => any, get: () => AddClasses<T>
+}
+
 export interface NMPlayer {
 
     // off(event: NoParamEvent, callback: () => void): void;
@@ -535,31 +552,21 @@ export interface NMPlayer {
 	uuid: any;
     plugins: {[key: string]: any};
     chapters: VTTData;
+	fonts: Font[];
 
+	appendScriptFilesToDocument(files: string[]): void;
+	fetchFontFile(): Promise<void>;
+	getSubtitleFile(): string;
 	addClasses(currentItem: any, arg1: string[]): HTMLDivElement;
 	createChapterMarker(chapter: Chapter): HTMLDivElement;
-	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): {
-        addClasses: (names: string[]) => {
-            appendTo: <T>(parent: T) => HTMLElementTagNameMap[K];
-            prependTo: <T>(parent: T) => HTMLElementTagNameMap[K];
-            get: () => HTMLElementTagNameMap[K];
-            addClasses: (names: string[]) => {
-                appendTo: <T>(parent: T) => HTMLElementTagNameMap[K];
-                prependTo: <T>(parent: T) => HTMLElementTagNameMap[K];
-                get: () => HTMLElementTagNameMap[K];
-            };
-        };
-        appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-        prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-        get: () => HTMLElementTagNameMap[K];
-    }
+	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<K>
 	createLanguageMenuButton(scrollContainer: any, arg1: { language: any; label: any; type: string; index: any; }): HTMLButtonElement;
 	createQualityMenuButton(scrollContainer: any, arg1: { index: number; width: any; height: any; label: any; bitrate: any; }): HTMLButtonElement;
 	createTopBar(tvOverlay: any): HTMLDivElement;
     getCurrentTime(): number;
 	displayMessage(arg0: string): void;
 	emit(arg0: string, arg1?: any): void;
-	forwardVideo(): void;
+	forwardVideo(arg?: number): void;
 	getChapters(): Chapter[];
 	getCurrentSrc(): string;
 	getElement(): HTMLDivElement;
@@ -609,6 +616,9 @@ export interface NMPlayer {
 	videoPlayer_getTimeData(): TimeData;
 	volumeDown(): void;
 	volumeUp(): void;
+	cycleSubtitles(): void;
+	cycleAudioTracks(): void;
+	cycleAspectRatio(): void;
     addButton(icon: string, label: string, handler: () => void, id: string, className?: string): void;
     dispose(): void;
 
@@ -651,7 +661,7 @@ export interface NMPlayer {
 
 	// Seek
 	emit(event: 'seek', data?: any): void;
-	emit(event: 'time', data: PlaybackState): void;
+	emit(event: 'time', data: TimeData): void;
 	emit(event: 'seeked', data?: any): void;
 
 	// Volume
@@ -718,7 +728,7 @@ export interface NMPlayer {
 	emit(event: 'chapters', data: VTTData): void;
 	emit(event: 'skippers', data: Chapter[]): void;
 	emit(event: 'display-message', value: string): void;
-	emit(event: 'duration', data: PlaybackState): void;
+	emit(event: 'duration', data: TimeData): void;
 	emit(event: 'error', data: any): void;
 	emit(event: 'forward', amount: number): void;
 	emit(event: 'hide-tooltip', data?: any): void;
@@ -747,8 +757,8 @@ export interface NMPlayer {
 	emit(event: 'speed', enabled: number): void;
 	emit(event: 'switch-season', season: number): void;
 	emit(event: 'theaterMode', enabled: boolean): void;
-	emit(event: 'currentScrubTime', data: PlaybackState): void;
-	emit(event: 'lastTimeTrigger', data: PlaybackState): void;
+	emit(event: 'currentScrubTime', data: TimeData): void;
+	emit(event: 'lastTimeTrigger', data: TimeData): void;
 	emit(event: 'waiting', data?: any): void;
 	emit(event: 'stalled', data?: any): void;
 	emit(event: 'playlist', data?: any): void;
@@ -807,7 +817,7 @@ export interface NMPlayer {
 	// Seek
 	on(event: 'seek', callback: () => void): void;
 	on(event: 'seeked', callback: () => void): void;
-	on(event: 'time', callback: (data: PlaybackState) => void): void;
+	on(event: 'time', callback: (data: TimeData) => void): void;
 	on(event: 'absolutePositionReady', callback: () => void): void;
 
 	// Volume
@@ -880,8 +890,8 @@ export interface NMPlayer {
 	on(event: 'chapters', callback: (data: VTTData) => void): void;
 	on(event: 'skippers', callback: (data: Chapter[]) => void): void;
 	on(event: 'display-message', callback: (value: string) => void): void;
-	on(event: 'duration', callback: (data: PlaybackState) => void): void;
-	on(event: 'duringplaylistchange', callback: (data: PlaybackState) => void): void;
+	on(event: 'duration', callback: (data: TimeData) => void): void;
+	on(event: 'duringplaylistchange', callback: (data: TimeData) => void): void;
 	on(event: 'preview-time', callback: (data: PreviewTime[]) => void): void;
 	on(event: 'forward', callback: (amount: number) => void): void;
 	on(event: 'hide-tooltip', callback: () => void): void;
@@ -910,8 +920,8 @@ export interface NMPlayer {
 	on(event: 'speed', callback: (enabled: number) => void): void;
 	on(event: 'switch-season', callback: (season: number) => void): void;
 	on(event: 'theaterMode', callback: (enabled: boolean) => void): void;
-	on(event: 'currentScrubTime', callback: (data: PlaybackState) => void): void;
-	on(event: 'lastTimeTrigger', callback: (data: PlaybackState) => void): void;
+	on(event: 'currentScrubTime', callback: (data: TimeData) => void): void;
+	on(event: 'lastTimeTrigger', callback: (data: TimeData) => void): void;
 	on(event: 'waiting', callback: (data: any) => void): void;
 	on(event: 'stalled', callback: (data: any) => void): void;
 	on(event: 'playlistchange', callback: (data: any) => void): void;
@@ -1126,7 +1136,7 @@ export interface NMPlayer {
 	// Seek
 	once(event: 'seek', callback: () => void): void;
 	once(event: 'seeked', callback: () => void): void;
-	once(event: 'time', callback: (data: PlaybackState) => void): void;
+	once(event: 'time', callback: (data: TimeData) => void): void;
 	once(event: 'absolutePositionReady', callback: () => void): void;
 
 	// Volume
@@ -1199,8 +1209,8 @@ export interface NMPlayer {
 	once(event: 'chapters', callback: (data: VTTData) => void): void;
 	once(event: 'skippers', callback: (data: Chapter[]) => void): void;
 	once(event: 'display-message', callback: (value: string) => void): void;
-	once(event: 'duration', callback: (data: PlaybackState) => void): void;
-	once(event: 'duringplaylistchange', callback: (data: PlaybackState) => void): void;
+	once(event: 'duration', callback: (data: TimeData) => void): void;
+	once(event: 'duringplaylistchange', callback: (data: TimeData) => void): void;
 	once(event: 'preview-time', callback: (data: PreviewTime[]) => void): void;
 	once(event: 'forward', callback: (amount: number) => void): void;
 	once(event: 'hide-tooltip', callback: () => void): void;
@@ -1229,8 +1239,8 @@ export interface NMPlayer {
 	once(event: 'speed', callback: (enabled: number) => void): void;
 	once(event: 'switch-season', callback: (season: number) => void): void;
 	once(event: 'theaterMode', callback: (enabled: boolean) => void): void;
-	once(event: 'currentScrubTime', callback: (data: PlaybackState) => void): void;
-	once(event: 'lastTimeTrigger', callback: (data: PlaybackState) => void): void;
+	once(event: 'currentScrubTime', callback: (data: TimeData) => void): void;
+	once(event: 'lastTimeTrigger', callback: (data: TimeData) => void): void;
 	once(event: 'waiting', callback: (data: any) => void): void;
 	once(event: 'stalled', callback: (data: any) => void): void;
 	once(event: 'playlistchange', callback: (data: any) => void): void;

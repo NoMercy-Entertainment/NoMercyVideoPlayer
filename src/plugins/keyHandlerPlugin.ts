@@ -1,8 +1,8 @@
 import Plugin from '../plugin';
-import { NMPlayer } from '../index';
+import { NMPlayer } from '../index.d';
 
 export class KeyHandlerPlugin extends Plugin {
-	player: any;
+	player: NMPlayer = <NMPlayer>{};
 
 	initialize(player: NMPlayer) {
 		this.player = player;

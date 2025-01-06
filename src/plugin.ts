@@ -1,15 +1,16 @@
+import type { NMPlayer } from './index.d';
 
 class Plugin {
-	// @ts-ignore
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	initialize(player) {
+	player: NMPlayer = <NMPlayer>{};
+
+	initialize(player: NMPlayer) {
+		this.player = player;
 		// This method should be overridden by subclasses
 	}
 
 	use() {
 		// This method should be overridden by subclasses
 	}
-	
 }
 
 export default Plugin;

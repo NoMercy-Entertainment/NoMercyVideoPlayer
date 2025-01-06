@@ -30,7 +30,7 @@ class a {
     this.eventHooks(e, !0), (t = this.eventElement) == null || t.addEventListener(e, (i) => s(i.detail)), this.events.push({ type: e, fn: s });
   }
   off(e, s) {
-    if (this.eventHooks(e, !1), s && this.eventElement.removeEventListener(e, () => s()), e === "all") {
+    if (this.eventHooks(e, !1), s && this.eventElement.removeEventListener(e, s), e === "all") {
       this.events.forEach((t) => {
         this.eventElement.removeEventListener(t.type, t.fn);
       });

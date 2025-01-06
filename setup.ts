@@ -1,29 +1,7 @@
 import nmplayer from './src/index';
 import { OctopusPlugin } from './src/plugins/octopusPlugin';
-import { DesktopUIPlugin } from './src/plugins/desktopUIPlugin';
-import { MobileUIPlugin } from './src/plugins/mobileUIPlugin';
-import { TVUIPlugin } from './src/plugins/tvUIPlugin';
 import { KeyHandlerPlugin } from './src/plugins/keyHandlerPlugin';
-import type { SetupConfig, PlaylistItem } from './src/index.d';
-
-// const gain = document.querySelector('#gain');
-// const gainSlider = document.querySelector('#gainSlider');
-// const enableGain = document.querySelector('#enableGain');
-
-// gainSlider.addEventListener('change', (e) => {
-// 	if (!player.gainNode) {
-// 		gainSlider.value = 1;
-// 		return;
-// 	}
-//
-// 	player.setGain(e.target.value);
-// });
-
-// enableGain.addEventListener('click', (e) => {
-// 	player.addGainNode();
-// 	enableGain.style.display = 'none';
-// 	gainSlider.style.display = '';
-// });
+import type { SetupConfig } from './src/index.d';
 
 const config: SetupConfig = {
 	muted: false,
@@ -45,10 +23,6 @@ const config: SetupConfig = {
 			rating: {
 				rating: 6,
 				image: 'NL/NL_6.svg',
-			},
-			progress: {
-				percentage: 10,
-				date: '2021-05-01T00:00:00Z',
 			},
 			tracks: [
 				{
@@ -417,7 +391,6 @@ const config: SetupConfig = {
 			],
 		},
 	],
-
 	controlsTimeout: 3000,
 	doubleClickDelay: 500,
 	playbackRates: [
@@ -429,94 +402,86 @@ const config: SetupConfig = {
 		1.5,
 		1.75,
 		2,
-	],
-	// NoMercy test account
-	// accessToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJkNWE1YTAwNS05ZWE2LTRlODMtYmZmNy05ZTQ0MjY5OTg4OWMiLCJqdGkiOiJiNDAyZWU0YThjNGYxYzJjN2RhNmE0ODZjNjY2NDI4YWYyMzMwNGI2MzIyNzRmZjZjNThkODI2YTdjYTEzYTFhYmM2NTA2YjIyOWVmNWE3YiIsImlhdCI6MTY5MzI0NTIwNi42Mjk3NTUsIm5iZiI6MTY5MzI0NTIwNi42Mjk3NTYsImV4cCI6MTcyNDc4MTIwNi42MjM2NjcsInN1YiI6ImQ5OWE1NzQxLTM2ZTgtNGU1ZC1iYzUzLTg1MzAyNmIzZjRhYSIsInNjb3BlcyI6WyJvcGVuaWQiLCJwcm9maWxlIiwiZW1haWwiXSwibmFtZSI6IlRlc3QgVXNlciIsImVtYWlsIjoidGVzdEBub21lcmN5LnR2In0.GV7HlmRAVDL3Bb1MdWltS1AX8dR1LHRMF_vtvM01abLu2983djSKSUvtB26KV5MCpOSuOX-ZwlBlqbMJ5JUX55fSonUE0oiz0ujn8QIk0-G0ptB1-hqn6qIRtxncwZaT0TGNpF7TFejjMC_VcqwjtzmRA58JC940u7QL7k5304cbHJXv-_Op1FpAR3dRA0g3BVR8uJ5ckp1hO-KAj83NOetnviglQf6130WQKtx2AWC1qT55NW3Xx1YFAZZUptjgRZ5mhvDd0_OmTNnFvsQZYaHr5H2WFAzKfW7GEvlu7xFIiMxfhpfowyvV3u4VqoDU-wIfkod-U0lL9JlwnsufFAvE_dfXjMhDXZG80oFPifYLanj7DsL4lIfbaVJO92W1K4bYW0t8Jfi8U3ZdqXtvPSpjPmx5dyz9Z2Na16GtH0_sZu5oMPgbGRMk0pZLi0uGWb_Wxyg3MFMEE4f0zA3gRSc1yt3gCI-AIaiCeMKAbC_uPauV3QcNzbCV2JVxOzW-tKlexALBPYe53DKkODPVcQHhv_d1sqXZxqwS8OfkZzqNCg2MpN2DodgSAVM8b1xZMG_6Ym-hEtDYw0ZCghda7v0pZSAo67jFDv5kEk9MF4j7OGfvk3sFT-mi7gFogKLByrMfQMfs4-qnHrsoKOVZRU6S1JHkRJFSxkwcamv_AYI',
+	]
 };
 
+/*
+	@type {player} 
+*/
 const player = nmplayer('player')
 	.setup(config);
 
-const desktopUIPlugin = new DesktopUIPlugin();
-player.registerPlugin('desktopUI', desktopUIPlugin);
-player.usePlugin('desktopUI');
-
-// const mobileUIPlugin = new MobileUIPlugin();
-// player.registerPlugin('mobileUI', mobileUIPlugin);
-// player.usePlugin('mobileUI');
+const keyHandlerPlugin = new KeyHandlerPlugin();
+player.registerPlugin('keyHandler', keyHandlerPlugin);
+player.usePlugin('keyHandler');
 //
-// const tvUIPlugin = new TVUIPlugin();
-// player.registerPlugin('tvUI', tvUIPlugin);
-// player.usePlugin('tvUI');
-
-// const sabrePlugin = new SabrePlugin();
-// player.registerPlugin('sabre', sabrePlugin);
-// player.usePlugin('sabre');
+// const desktopUIPlugin = new DesktopUIPlugin();
+// player.registerPlugin('desktopUI', desktopUIPlugin);
+// player.usePlugin('desktopUI');
 
 const octopusPlugin = new OctopusPlugin();
 player.registerPlugin('octopus', octopusPlugin);
 player.usePlugin('octopus');
 
-const keyHandlerPlugin = new KeyHandlerPlugin();
-player.registerPlugin('keyHandler', keyHandlerPlugin);
-player.usePlugin('keyHandler');
+// const sabrePlugin = new SabrePlugin();
+// player.registerPlugin('sabre', sabrePlugin);
+// player.usePlugin('sabre');
 
-// @ts-ignore
-player.on('ready', (data) => {
-	console.log('ready', data);
+player.on('ready', () => {
+	console.log('ready');
 });
-// @ts-ignore
+
 player.on('setupError', (data) => {
 	console.log('setupError', data);
 });
 
 // Playlist
-// @ts-ignore
+
 player.on('playlist', (data) => {
 	console.log('playlist', data);
 });
-// @ts-ignore
+
 player.on('item', (data) => {
 	console.log('item', data);
 });
-// @ts-ignore
-player.on('playlistComplete', (data) => {
-	console.log('playlistComplete', data);
+
+player.on('playlistComplete', () => {
+	console.log('playlistComplete');
 });
 
 // Buffer
-// @ts-ignore
-player.on('bufferChange', (data) => {
-	console.log('bufferChange', data);
+
+player.on('bufferChange', () => {
+	console.log('bufferChange');
 });
 
 // Playback
 player.on('firstFramce', () => {
 	console.log('firstFrame');
 });
-// @ts-ignore
-player.on('play', (data) => {
-	console.log('play', data);
+
+player.on('play', () => {
+	console.log('play');
 });
-// @ts-ignore
-player.on('pause', (data) => {
-	console.log('pause', data);
+
+player.on('pause', () => {
+	console.log('pause');
 });
-// @ts-ignore
-player.on('buffer', (data) => {
-	console.log('buffer', data);
+
+player.on('buffer', () => {
+	console.log('buffer');
 });
-// @ts-ignore
-player.on('idle', (data) => {
-	console.log('idle', data);
+
+player.on('idle', () => {
+	console.log('idle');
 });
-// @ts-ignore
-player.on('complete', (data) => {
-	console.log('complete', data);
+
+player.on('complete', () => {
+	console.log('complete');
 });
-// @ts-ignore
-player.on('error', (data) => {
-	console.log('error', data);
+
+player.on('error', () => {
+	console.log('error');
 });
 // Seek
 player.on('seek', (data) => {
@@ -525,9 +490,9 @@ player.on('seek', (data) => {
 player.on('seeked', (data) => {
 	console.log('seeked', data);
 });
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 player.on('time', (data) => {
-	// console.log('time', data);
+	console.log('time', data);
 });
 
 // Volume
@@ -538,20 +503,13 @@ player.on('volume', (data) => {
 	console.log('volume', data);
 });
 
-// @ts-ignore
-player.on('gain', (data) => {
-	console.log('gain', data);
-	// gain.innerHTML = data.value;
-	// gainSlider.value = data.value;
-});
-
 // Resize
 player.on('fullscreen', (data) => {
 	console.log('fullscreen', data);
 });
-// @ts-ignore
-player.on('resize', (data) => {
-	console.log('resize', data);
+
+player.on('resize', () => {
+	console.log('resize');
 });
 
 // Quality
@@ -573,80 +531,35 @@ player.on('audioTrackChanged', (data) => {
 });
 
 // Captions
-// @ts-ignore
 player.on('captionsList', (data) => {
 	console.log('captionsList', data);
 });
-// @ts-ignore
+
 player.on('captionsChanged', (data) => {
-	console.log('captionsChanged', data.label);
+	console.log('captionsChanged', data.id);
 });
 
 // Controls
-// @ts-ignore
-player.on('controls', (data) => {
-	console.log('controls', data);
-});
-// @ts-ignore
-player.on('displayClick', (data) => {
-	console.log('displayClick', data);
+player.on('controls', (showing) => {
+	console.log('controls', showing);
 });
 
-// Advertising
-// @ts-ignore
-player.on('adClick', (data) => {
-	console.log('adClick', data);
+
+player.on('beforePlay', () => {
+	console.log('beforePlay');
 });
-// @ts-ignore
-player.on('adCompanions', (data) => {
-	console.log('adCompanions', data);
-});
-// @ts-ignore
-player.on('adComplete', (data) => {
-	console.log('adComplete', data);
-});
-// @ts-ignore
-player.on('adError', (data) => {
-	console.log('adError', data);
-});
-// @ts-ignore
-player.on('adImpression', (data) => {
-	console.log('adImpression', data);
-});
-// @ts-ignore
-player.on('adTime', (data) => {
-	console.log('adTime', data);
-});
-// @ts-ignore
-player.on('adSkipped', (data) => {
-	console.log('adSkipped', data);
-});
-// @ts-ignore
-player.on('beforePlay', (data) => {
-	console.log('beforePlay', data);
-});
-// @ts-ignore
-player.on('beforeComplete', (data) => {
-	console.log('beforeComplete', data);
+
+player.on('beforeComplete', () => {
+	console.log('beforeComplete');
 });
 
 // Metadata
-// @ts-ignore
-player.on('meta', (data) => {
-	console.log('meta', data);
+
+player.on('meta', () => {
+	console.log('meta');
 });
 
-// @ts-ignore
+
 player.on('lastTimeTrigger', (data) => {
-	console.log('lastTimeTrigger', data);
-});
-
-// @ts-ignore
-player.on('theaterMode', (data) => {
-	// handle resize container
-	console.log('theaterMode', data);
-});
-// @ts-ignore
-player.on('pip', (data) => {
-	console.log('pip', data);
+	console.log('lastTimeTrigger');
 });

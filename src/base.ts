@@ -1,5 +1,6 @@
+// noinspection JSUnusedGlobalSymbols
 
-import type { SetupConfig, TimeData, Track, CurrentTrack, VolumeState } from './index.d';
+import type { SetupConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './index.d';
 import { NMPlayer } from './index';
 
 export class Base {
@@ -106,15 +107,15 @@ export class Base {
 	emit(event: 'visualQuality', data?: any): void;
 
 	// Captions
-	emit(event: 'captionsList', data?: any): void;
-	emit(event: 'captionsChanged', data?: any): void;
+	emit(event: 'captionsList', data?: Track[]): void;
+	emit(event: 'captionsChanged', data?: Track): void;
 
 	// Audio
 	emit(event: 'audioTracks', data?: Track[]): void;
 	emit(event: 'audioTrackChanged', data?: CurrentTrack): void;
 
 	// Controls
-	emit(event: 'controls', data?: any): void;
+	emit(event: 'controls', data: boolean): void;
 	emit(event: 'displayClick', data?: any): void;
 
 	// Controls
@@ -124,17 +125,6 @@ export class Base {
 	emit(event: 'containerViewable', data?: any): void;
 	emit(event: 'viewable', data?: any): void;
 
-	// Advertising
-	emit(event: 'adClick', data?: any): void;
-	emit(event: 'adCompanions', data?: any): void;
-	emit(event: 'adComplete', data?: any): void;
-	emit(event: 'adError', data?: any): void;
-	emit(event: 'adImpression', data?: any): void;
-	emit(event: 'adTime', data?: any): void;
-	emit(event: 'adSkipped', data?: any): void;
-	emit(event: 'beforePlay', data?: any): void;
-	emit(event: 'beforeComplete', data?: any): void;
-
 	// Metadata
 	emit(event: 'meta', data?: any): void;
 
@@ -143,6 +133,20 @@ export class Base {
 	emit(event: 'castIntercepted', data?: any): void;
 
 	emit(eventType: 'display-message', value: string): void;
+
+	emit(event: 'lastTimeTrigger', data: TimeData): void;
+	emit(event: 'waiting', data?: any): void;
+	emit(event: 'stalled', data?: any): void;
+	emit(event: 'playlist', data?: any): void;
+	emit(event: 'playlistchange', data?: any): void;
+	emit(event: 'beforeplaylistitem', data?: any): void;
+	emit(event: 'bufferedEnd', data?: any): void;
+	emit(event: 'duringplaylistchange', data?: any): void;
+	emit(event: 'preview-time', data: PreviewTime[]): void;
+	emit(event: 'ended', data?: any): void;
+	emit(event: 'finished'): void;
+	emit(event: 'dispose'): void;
+	emit(event: 'remove'): void;
 
 	emit(event: string, data?: any): void;
 	emit(event: any, data?: any): void {
@@ -161,11 +165,11 @@ export class Base {
 
 	// Setup
 	on(event: 'ready', callback: () => void): void;
-	on(event: 'setupError', callback: () => void): void;
+	on(event: 'setupError', callback: (data: any) => void): void;
 
 	// Playlist
-	on(event: 'playlist', callback: () => void): void;
-	on(event: 'item', callback: () => void): void;
+	on(event: 'playlist', callback: (data: PlaylistItem[]) => void): void;
+	on(event: 'item', callback: (data: PlaylistItem) => void): void;
 	on(event: 'playlistComplete', callback: () => void): void;
 	on(event: 'nextClick', callback: () => void): void;
 
@@ -200,40 +204,30 @@ export class Base {
 	on(event: 'resize', callback: () => void): void;
 
 	// Quality
-	on(event: 'levels', callback: (data: ReturnType<NMPlayer['getQualityLevels']>) => void): void;
+	on(event: 'levels', callback: (data: Level[]) => void): void;
 	on(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
 	on(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
-	on(event: 'visualQuality', callback: () => void): void;
 
 	// Captions
-	on(event: 'captionsList', callback: () => void): void;
-	on(event: 'captionsChanged', callback: () => void): void;
+	on(event: 'captionsList', callback: (data: Track[]) => void): void;
+	on(event: 'captionsChanged', callback: (data: CurrentTrack) => void): void;
+	on(event: 'captionsChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Audio
 	on(event: 'audioTracks', callback: (data: Track[]) => void): void;
 	on(event: 'audioTrackChanged', callback: (data: CurrentTrack) => void): void;
+	on(event: 'audioTrackChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Controls
-	on(event: 'controls', callback: () => void): void;
+	on(event: 'controls', callback: (showing: boolean) => void): void;
+    on(event: 'showControls', callback: () => void): void;
+    on(event: 'hideControls', callback: () => void): void;
+    on(event: 'dynamicControls', callback: () => void): void;
 	on(event: 'displayClick', callback: () => void): void;
-
-	// Controls
-	on(event: 'float', callback: () => void): void;
 
 	// View
 	on(event: 'containerViewable', callback: () => void): void;
 	on(event: 'viewable', callback: () => void): void;
-
-	// Advertising
-	on(event: 'adClick', callback: () => void): void;
-	on(event: 'adCompanions', callback: () => void): void;
-	on(event: 'adComplete', callback: () => void): void;
-	on(event: 'adError', callback: () => void): void;
-	on(event: 'adImpression', callback: () => void): void;
-	on(event: 'adTime', callback: () => void): void;
-	on(event: 'adSkipped', callback: () => void): void;
-	on(event: 'beforePlay', callback: () => void): void;
-	on(event: 'beforeComplete', callback: () => void): void;
 
 	// Metadata
 	on(event: 'meta', callback: () => void): void;
@@ -245,10 +239,20 @@ export class Base {
 	// Floating player
 	on(event: 'float', callback: () => void): void;
 
-	// Floating player
-	on(event: 'float', callback: () => void): void;
-
 	on(event: 'display-message', callback: (value: string) => void): void;
+
+	on(event: 'lastTimeTrigger', callback: (data: TimeData) => void): void;
+	on(event: 'waiting', callback: (data: any) => void): void;
+	on(event: 'stalled', callback: (data: any) => void): void;
+	on(event: 'playlistchange', callback: (data: any) => void): void;
+	on(event: 'beforeplaylistitem', callback: (data: any) => void): void;
+	on(event: 'bufferedEnd', callback: (data: any) => void): void;
+	on(event: 'ended', callback: (data: any) => void): void;
+	on(event: 'finished', callback: () => void): void;
+	on(event: 'dispose', callback: () => void): void;
+	on(event: 'remove', callback: () => void): void;
+	on(event: 'back-button', callback: () => void): void;
+	on(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
 
 	on(event: string, callback: () => void): void;
 	on(event: any, callback: (arg0: any) => any) {
@@ -324,25 +328,14 @@ export class Base {
 
 	// Controls
 	off(event: 'controls', callback: () => void): void;
+    off(event: 'showControls', callback: () => void): void;
+    off(event: 'hideControls', callback: () => void): void;
+    off(event: 'dynamicControls', callback: () => void): void;
 	off(event: 'displayClick', callback: () => void): void;
-
-	// Controls
-	off(event: 'float', callback: () => void): void;
 
 	// View
 	off(event: 'containerViewable', callback: () => void): void;
 	off(event: 'viewable', callback: () => void): void;
-
-	// Advertising
-	off(event: 'adClick', callback: () => void): void;
-	off(event: 'adCompanions', callback: () => void): void;
-	off(event: 'adComplete', callback: () => void): void;
-	off(event: 'adError', callback: () => void): void;
-	off(event: 'adImpression', callback: () => void): void;
-	off(event: 'adTime', callback: () => void): void;
-	off(event: 'adSkipped', callback: () => void): void;
-	off(event: 'beforePlay', callback: () => void): void;
-	off(event: 'beforeComplete', callback: () => void): void;
 
 	// Metadata
 	off(event: 'meta', callback: () => void): void;
@@ -354,17 +347,28 @@ export class Base {
 	// Floating player
 	off(event: 'float', callback: () => void): void;
 
-	// Floating player
-	off(event: 'float', callback: () => void): void;
-
-
 	off(event: 'display-message', callback: () => void): void;
+
+	off(event: 'lastTimeTrigger', callback: () => void): void;
+	off(event: 'waiting', callback: () => void): void;
+	off(event: 'stalled', callback: () => void): void;
+	off(event: 'playlistchange', callback: () => void): void;
+	off(event: 'beforeplaylistitem', callback: () => void): void;
+	off(event: 'bufferedEnd', callback: () => void): void;
+	off(event: 'ended', callback: () => void): void;
+	off(event: 'finished', callback: () => void): void;
+	off(event: 'dispose', callback: () => void): void;
+	off(event: 'remove', callback: () => void): void;
+	off(event: 'back-button', callback: () => void): void;
+	off(event: 'translations', callback: () => void): void;
 
 	off(event: string, callback: () => void): void;
 	off(event: any, callback?: () => void) {
 		this.eventHooks(event, false);
 
-		callback && this.eventElement.removeEventListener(event, () => callback());
+		if (callback) {
+			this.eventElement.removeEventListener(event, callback);
+		}
 
 		if (event === 'all') {
 			this.events.forEach((e) => {
@@ -428,40 +432,30 @@ export class Base {
 	once(event: 'resize', callback: () => void): void;
 
 	// Quality
-	once(event: 'levels', callback: (data: ReturnType<NMPlayer['getQualityLevels']>) => void): void;
+	once(event: 'levels', callback: (data: Level[]) => void): void;
 	once(event: 'levelsChanged', callback: (data: CurrentTrack) => void): void;
 	once(event: 'levelsChanging', callback: (data: CurrentTrack) => void): void;
-	once(event: 'visualQuality', callback: () => void): void;
 
 	// Captions
-	once(event: 'captionsList', callback: () => void): void;
-	once(event: 'captionsChanged', callback: () => void): void;
+	once(event: 'captionsList', callback: (data: Track[]) => void): void;
+	once(event: 'captionsChanged', callback: (data: CurrentTrack) => void): void;
+	once(event: 'captionsChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Audio
 	once(event: 'audioTracks', callback: (data: Track[]) => void): void;
 	once(event: 'audioTrackChanged', callback: (data: CurrentTrack) => void): void;
+	once(event: 'audioTrackChanging', callback: (data: CurrentTrack) => void): void;
 
 	// Controls
-	once(event: 'controls', callback: () => void): void;
+	once(event: 'controls', callback: (showing: boolean) => void): void;
+    once(event: 'showControls', callback: () => void): void;
+    once(event: 'hideControls', callback: () => void): void;
+    once(event: 'dynamicControls', callback: () => void): void;
 	once(event: 'displayClick', callback: () => void): void;
-
-	// Controls
-	once(event: 'float', callback: () => void): void;
 
 	// View
 	once(event: 'containerViewable', callback: () => void): void;
 	once(event: 'viewable', callback: () => void): void;
-
-	// Advertising
-	once(event: 'adClick', callback: () => void): void;
-	once(event: 'adCompanions', callback: () => void): void;
-	once(event: 'adComplete', callback: () => void): void;
-	once(event: 'adError', callback: () => void): void;
-	once(event: 'adImpression', callback: () => void): void;
-	once(event: 'adTime', callback: () => void): void;
-	once(event: 'adSkipped', callback: () => void): void;
-	once(event: 'beforePlay', callback: () => void): void;
-	once(event: 'beforeComplete', callback: () => void): void;
 
 	// Metadata
 	once(event: 'meta', callback: () => void): void;
@@ -473,11 +467,20 @@ export class Base {
 	// Floating player
 	once(event: 'float', callback: () => void): void;
 
-	// Floating player
-	once(event: 'float', callback: () => void): void;
-
-
 	once(event: 'display-message', callback: (value: string) => void): void;
+
+	once(event: 'lastTimeTrigger', callback: (data: TimeData) => void): void;
+	once(event: 'waiting', callback: (data: any) => void): void;
+	once(event: 'stalled', callback: (data: any) => void): void;
+	once(event: 'playlistchange', callback: (data: any) => void): void;
+	once(event: 'beforeplaylistitem', callback: (data: any) => void): void;
+	once(event: 'bufferedEnd', callback: (data: any) => void): void;
+	once(event: 'ended', callback: (data: any) => void): void;
+	once(event: 'finished', callback: () => void): void;
+	once(event: 'dispose', callback: () => void): void;
+	once(event: 'remove', callback: () => void): void;
+	once(event: 'back-button', callback: () => void): void;
+	once(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
 
 	once(event: string, callback: () => void): void;
 	once(event: any, callback: (arg0: any) => any) {

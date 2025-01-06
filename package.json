@@ -1,12 +1,20 @@
 {
-  "name": "nomercyplayer",
-  "version": "1.0.1",
+  "name": "@nomercy-entertainment/nomercy-video-player",
+  "version": "0.1.0",
   "description": "Full event-driven video player without a UI.",
-  "type": "module",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
-    "docs"
+    "docs",
+    "dist",
+    "src",
+    "./*"
   ],
-  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "dev": "vite",
     "build": "npm run clean-dist && tsc && vite build && npm run clean-docs && npm run copy-docs",
@@ -17,23 +25,21 @@
     "clean-docs": "shx mv docs/CNAME CNAME.tmp && shx rm -rf docs/* && shx mkdir -p docs && shx mv CNAME.tmp docs/CNAME",
     "copy-docs": "shx cp -r dist/* docs/"
   },
+  "author": "NoMercy Entertainment",
   "repository": {
     "type": "git",
-    "url": "https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer.git"
+    "url": "git+https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer.git"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "video",
     "player",
     "NoMercy"
   ],
-  "author": "Stoney_Eagle",
-  "license": "ISC",
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/jest": "^29.5.5",
     "@types/node": "^18.14.2",
-    "@types/opentype.js": "^1.3.8",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
     "autoprefixer": "^10.4.14",
@@ -54,15 +60,14 @@
     "sass": "^1.65.1",
     "sass-loader": "^13.3.2",
     "shx": "^0.3.4",
-    "style-loader": "^3.3.3",
     "tailwindcss": "^3.2.7",
     "tailwindcss-children": "^2.1.0",
     "ts-loader": "^9.4.4",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6",
-    "vite": "^4.5.2",
+    "vite": "5.4.6",
     "vite-plugin-dts": "^3.6.0",
-    "webpack": "^5.88.2",
+    "webpack": "5.94.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
   },
@@ -70,64 +75,8 @@
     "@sabre-js/sabre": "^0.5.1-pre.21da9b6",
     "@types/webvtt-parser": "^2.2.0",
     "hls.js": "^1.5.13",
-    "libass-wasm": "^4.1.0",
-    "tailwind-merge": "^2.5.2",
+    "tailwind-merge": "^2.6.0",
     "webvtt-parser": "^2.2.0"
-  },
-  "exports": {
-    "./src": {
-      "import": "./src/index.ts",
-      "require": "./dist/index.js",
-      "types": "./dist/src/index.d.ts"
-    },
-    "./src/index": {
-      "import": "./src/index.ts",
-      "require": "./dist/index.js",
-      "types": "./dist/src/index.d.ts"
-    },
-    "./src/plugin": {
-      "import": "./src/plugin.ts",
-      "require": "./dist/plugin.js",
-      "types": "./dist/src/plugin.d.ts"
-    },
-    "./src/index.css": {
-      "import": "./src/index.css",
-      "require": "./dist/index.css"
-    },
-    "./dist/style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css"
-    },
-    "./src/plugins/octopusPlugin": {
-      "import": "./src/plugins/octopusPlugin.ts",
-      "require": "./dist/octopusPlugin.js",
-      "types": "./dist/src/plugins/octopusPlugin.d.ts"
-    },
-    "./src/plugins/desktopUIPlugin": {
-      "import": "./src/plugins/desktopUIPlugin.ts",
-      "require": "./dist/desktopUIPlugin.js",
-      "types": "./dist/src/plugins/desktopUIPlugin.d.ts"
-    },
-    "./src/plugins/mobileUIPlugin": {
-      "import": "./src/plugins/mobileUIPlugin.ts",
-      "require": "./dist/mobileUIPlugin.js",
-      "types": "./dist/src/plugins/mobileUIPlugin.d.ts"
-    },
-    "./src/plugins/tvUIPlugin": {
-      "import": "./src/plugins/tvUIPlugin.ts",
-      "require": "./dist/tvUIPlugin.js",
-      "types": "./dist/src/plugins/tvUIPlugin.d.ts"
-    },
-    "./src/plugins/keyHandlerPlugin": {
-      "import": "./src/plugins/keyHandlerPlugin.ts",
-      "require": "./dist/keyHandlerPlugin.js",
-      "types": "./dist/src/plugins/keyHandlerPlugin.d.ts"
-    },
-    "./src/plugins/sabrePlugin": {
-      "import": "./src/plugins/sabrePlugin.ts",
-      "require": "./dist/sabrePlugin.js",
-      "types": "./dist/src/plugins/sabrePlugin.d.ts"
-    }
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

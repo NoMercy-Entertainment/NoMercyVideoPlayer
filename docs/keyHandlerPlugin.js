@@ -1,5 +1,8 @@
 import { P as l } from "./plugin.js";
 class c extends l {
+  constructor() {
+    super(...arguments), this.player = {};
+  }
   initialize(e) {
     this.player = e;
   }
@@ -15,8 +18,7 @@ class c extends l {
       */
   keyHandler(e) {
     var n, i;
-    if (((n = document.activeElement) == null ? void 0 : n.nodeName) == "INPUT")
-      return;
+    if (((n = document.activeElement) == null ? void 0 : n.nodeName) == "INPUT") return;
     const t = this.keyBindings();
     let a = !1;
     this.player.getVideoElement().getBoundingClientRect().width != 0 && (!a && this.player && (a = !0, t.some((o) => o.key === e.key && o.control === e.ctrlKey) && (e.preventDefault(), (i = t.find((o) => o.key === e.key && o.control === e.ctrlKey)) == null || i.function())), setTimeout(() => {

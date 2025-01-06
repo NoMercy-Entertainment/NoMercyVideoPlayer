@@ -1,8 +1,7 @@
 import { n as s } from "./index2.js";
 import { O as l } from "./octopusPlugin.js";
-import { D as i } from "./desktopUIPlugin.js";
-import { K as a } from "./keyHandlerPlugin.js";
-const n = {
+import { K as i } from "./keyHandlerPlugin.js";
+const a = {
   muted: !1,
   controls: !1,
   preload: "auto",
@@ -24,10 +23,6 @@ www.sintel.org`,
       rating: {
         rating: 6,
         image: "NL/NL_6.svg"
-      },
-      progress: {
-        percentage: 10,
-        date: "2021-05-01T00:00:00Z"
       },
       tracks: [
         {
@@ -408,139 +403,102 @@ www.sintel.org`,
     1.75,
     2
   ]
-  // NoMercy test account
-  // accessToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJkNWE1YTAwNS05ZWE2LTRlODMtYmZmNy05ZTQ0MjY5OTg4OWMiLCJqdGkiOiJiNDAyZWU0YThjNGYxYzJjN2RhNmE0ODZjNjY2NDI4YWYyMzMwNGI2MzIyNzRmZjZjNThkODI2YTdjYTEzYTFhYmM2NTA2YjIyOWVmNWE3YiIsImlhdCI6MTY5MzI0NTIwNi42Mjk3NTUsIm5iZiI6MTY5MzI0NTIwNi42Mjk3NTYsImV4cCI6MTcyNDc4MTIwNi42MjM2NjcsInN1YiI6ImQ5OWE1NzQxLTM2ZTgtNGU1ZC1iYzUzLTg1MzAyNmIzZjRhYSIsInNjb3BlcyI6WyJvcGVuaWQiLCJwcm9maWxlIiwiZW1haWwiXSwibmFtZSI6IlRlc3QgVXNlciIsImVtYWlsIjoidGVzdEBub21lcmN5LnR2In0.GV7HlmRAVDL3Bb1MdWltS1AX8dR1LHRMF_vtvM01abLu2983djSKSUvtB26KV5MCpOSuOX-ZwlBlqbMJ5JUX55fSonUE0oiz0ujn8QIk0-G0ptB1-hqn6qIRtxncwZaT0TGNpF7TFejjMC_VcqwjtzmRA58JC940u7QL7k5304cbHJXv-_Op1FpAR3dRA0g3BVR8uJ5ckp1hO-KAj83NOetnviglQf6130WQKtx2AWC1qT55NW3Xx1YFAZZUptjgRZ5mhvDd0_OmTNnFvsQZYaHr5H2WFAzKfW7GEvlu7xFIiMxfhpfowyvV3u4VqoDU-wIfkod-U0lL9JlwnsufFAvE_dfXjMhDXZG80oFPifYLanj7DsL4lIfbaVJO92W1K4bYW0t8Jfi8U3ZdqXtvPSpjPmx5dyz9Z2Na16GtH0_sZu5oMPgbGRMk0pZLi0uGWb_Wxyg3MFMEE4f0zA3gRSc1yt3gCI-AIaiCeMKAbC_uPauV3QcNzbCV2JVxOzW-tKlexALBPYe53DKkODPVcQHhv_d1sqXZxqwS8OfkZzqNCg2MpN2DodgSAVM8b1xZMG_6Ym-hEtDYw0ZCghda7v0pZSAo67jFDv5kEk9MF4j7OGfvk3sFT-mi7gFogKLByrMfQMfs4-qnHrsoKOVZRU6S1JHkRJFSxkwcamv_AYI',
-}, t = s("player").setup(n), o = new i();
-t.registerPlugin("desktopUI", o);
-t.usePlugin("desktopUI");
-const r = new l();
-t.registerPlugin("octopus", r);
-t.usePlugin("octopus");
-const m = new a();
-t.registerPlugin("keyHandler", m);
-t.usePlugin("keyHandler");
-t.on("ready", (e) => {
-  console.log("ready", e);
+}, e = s("player").setup(a), n = new i();
+e.registerPlugin("keyHandler", n);
+e.usePlugin("keyHandler");
+const o = new l();
+e.registerPlugin("octopus", o);
+e.usePlugin("octopus");
+e.on("ready", () => {
+  console.log("ready");
 });
-t.on("setupError", (e) => {
-  console.log("setupError", e);
+e.on("setupError", (t) => {
+  console.log("setupError", t);
 });
-t.on("playlist", (e) => {
-  console.log("playlist", e);
+e.on("playlist", (t) => {
+  console.log("playlist", t);
 });
-t.on("item", (e) => {
-  console.log("item", e);
+e.on("item", (t) => {
+  console.log("item", t);
 });
-t.on("playlistComplete", (e) => {
-  console.log("playlistComplete", e);
+e.on("playlistComplete", () => {
+  console.log("playlistComplete");
 });
-t.on("bufferChange", (e) => {
-  console.log("bufferChange", e);
+e.on("bufferChange", () => {
+  console.log("bufferChange");
 });
-t.on("firstFramce", () => {
+e.on("firstFramce", () => {
   console.log("firstFrame");
 });
-t.on("play", (e) => {
-  console.log("play", e);
+e.on("play", () => {
+  console.log("play");
 });
-t.on("pause", (e) => {
-  console.log("pause", e);
+e.on("pause", () => {
+  console.log("pause");
 });
-t.on("buffer", (e) => {
-  console.log("buffer", e);
+e.on("buffer", () => {
+  console.log("buffer");
 });
-t.on("idle", (e) => {
-  console.log("idle", e);
+e.on("idle", () => {
+  console.log("idle");
 });
-t.on("complete", (e) => {
-  console.log("complete", e);
+e.on("complete", () => {
+  console.log("complete");
 });
-t.on("error", (e) => {
-  console.log("error", e);
+e.on("error", () => {
+  console.log("error");
 });
-t.on("seek", (e) => {
-  console.log("seek", e);
+e.on("seek", (t) => {
+  console.log("seek", t);
 });
-t.on("seeked", (e) => {
-  console.log("seeked", e);
+e.on("seeked", (t) => {
+  console.log("seeked", t);
 });
-t.on("time", (e) => {
+e.on("time", (t) => {
+  console.log("time", t);
 });
-t.on("mute", (e) => {
-  console.log("mute", e);
+e.on("mute", (t) => {
+  console.log("mute", t);
 });
-t.on("volume", (e) => {
-  console.log("volume", e);
+e.on("volume", (t) => {
+  console.log("volume", t);
 });
-t.on("gain", (e) => {
-  console.log("gain", e);
+e.on("fullscreen", (t) => {
+  console.log("fullscreen", t);
 });
-t.on("fullscreen", (e) => {
-  console.log("fullscreen", e);
+e.on("resize", () => {
+  console.log("resize");
 });
-t.on("resize", (e) => {
-  console.log("resize", e);
+e.on("levels", (t) => {
+  console.log("levels", t);
 });
-t.on("levels", (e) => {
-  console.log("levels", e);
+e.on("levelsChanged", (t) => {
+  console.log("levelsChanged", t);
 });
-t.on("levelsChanged", (e) => {
-  console.log("levelsChanged", e);
+e.on("audioTracks", (t) => {
+  console.log("audioTracks", t);
 });
-t.on("audioTracks", (e) => {
-  console.log("audioTracks", e);
+e.on("audioTrackChanged", (t) => {
+  console.log("audioTrackChanged", t);
 });
-t.on("audioTrackChanged", (e) => {
-  console.log("audioTrackChanged", e);
+e.on("captionsList", (t) => {
+  console.log("captionsList", t);
 });
-t.on("captionsList", (e) => {
-  console.log("captionsList", e);
+e.on("captionsChanged", (t) => {
+  console.log("captionsChanged", t.id);
 });
-t.on("captionsChanged", (e) => {
-  console.log("captionsChanged", e.label);
+e.on("controls", (t) => {
+  console.log("controls", t);
 });
-t.on("controls", (e) => {
-  console.log("controls", e);
+e.on("beforePlay", () => {
+  console.log("beforePlay");
 });
-t.on("displayClick", (e) => {
-  console.log("displayClick", e);
+e.on("beforeComplete", () => {
+  console.log("beforeComplete");
 });
-t.on("adClick", (e) => {
-  console.log("adClick", e);
+e.on("meta", () => {
+  console.log("meta");
 });
-t.on("adCompanions", (e) => {
-  console.log("adCompanions", e);
-});
-t.on("adComplete", (e) => {
-  console.log("adComplete", e);
-});
-t.on("adError", (e) => {
-  console.log("adError", e);
-});
-t.on("adImpression", (e) => {
-  console.log("adImpression", e);
-});
-t.on("adTime", (e) => {
-  console.log("adTime", e);
-});
-t.on("adSkipped", (e) => {
-  console.log("adSkipped", e);
-});
-t.on("beforePlay", (e) => {
-  console.log("beforePlay", e);
-});
-t.on("beforeComplete", (e) => {
-  console.log("beforeComplete", e);
-});
-t.on("meta", (e) => {
-  console.log("meta", e);
-});
-t.on("lastTimeTrigger", (e) => {
-  console.log("lastTimeTrigger", e);
-});
-t.on("theaterMode", (e) => {
-  console.log("theaterMode", e);
-});
-t.on("pip", (e) => {
-  console.log("pip", e);
+e.on("lastTimeTrigger", (t) => {
+  console.log("lastTimeTrigger");
 });

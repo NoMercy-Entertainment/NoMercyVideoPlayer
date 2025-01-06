@@ -1,8 +1,8 @@
 import { default as Plugin } from '../plugin';
-import { NMPlayer } from '../index';
+import { NMPlayer } from '../index.d';
 
 export declare class KeyHandlerPlugin extends Plugin {
-    player: any;
+    player: NMPlayer;
     initialize(player: NMPlayer): void;
     use(): void;
     dispose(): void;
@@ -16,6 +16,6 @@ export declare class KeyHandlerPlugin extends Plugin {
         name: string;
         key: string;
         control: boolean;
-        function: () => any;
+        function: () => false | void;
     }[];
 }

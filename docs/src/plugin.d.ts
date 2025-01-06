@@ -1,5 +1,8 @@
+import { NMPlayer } from './index.d';
+
 declare class Plugin {
-    initialize(player: any): void;
+    player: NMPlayer;
+    initialize(player: NMPlayer): void;
     use(): void;
 }
 export default Plugin;

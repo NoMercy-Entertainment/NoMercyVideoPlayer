@@ -2,7 +2,7 @@
 import SubtitlesOctopus from '../../public/js/octopus/subtitles-octopus';
 
 import Plugin from '../plugin';
-import { NMPlayer } from '../index';
+import { NMPlayer } from '../index.d';
 
 export class OctopusPlugin extends Plugin {
 	player: any;

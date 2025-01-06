@@ -3,3 +3,15 @@ static/*
 
 .idea
 CNAME
+
+**/NotoSansJPFonts/*.ts
+**/NotoSansJPFonts/*.ttf
+!**/NotoSansJPFonts/NotoSansJPBold.ts
+!**/NotoSansJPFonts/*.md
+
+**/ReithSans/*.ts
+**/ReithSans/*.woff2
+!**/ReithSans/ReithSansBold.ts
+!**/ReithSans/*.md
+
+**/ReithSerif/
