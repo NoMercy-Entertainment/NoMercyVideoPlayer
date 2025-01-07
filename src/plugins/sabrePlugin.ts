@@ -1,3 +1,4 @@
+// @ts-ignore
 
 import Plugin from '../plugin';
 import { NMPlayer } from '../types';
@@ -173,7 +174,7 @@ export class SabrePlugin extends Plugin {
 declare global {
 	interface Window {
 		// @ts-ignore
-		opentype: typeof import('opentype.js/dist/opentype.min.js');
+		opentype: import('opentype.js/dist/opentype.min.js');
 		// @ts-ignore
 		sabre: sabre.SABRERenderer;
 	}

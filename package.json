@@ -37,6 +37,7 @@
     "NoMercy"
   ],
   "devDependencies": {
+    "@nomercy-entertainment/media-session": "^0.1.11",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/jest": "^29.5.5",
     "@types/node": "^18.14.2",

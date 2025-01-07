@@ -15,14 +15,14 @@ import {humanTime, pad, unique} from './helpers';
 import BBCReithSansBold from './fonts/ReithSans/ReithSansBold';
 import NotoSansJPBold from './fonts/NotoSansJPFonts/NotoSansJPBold';
 
-const instances = new Map<string, NMPlayer>();
+const instances = new Map();
 
 const DEFAULT_LEEWAY = 300;
 const DEFAULT_SEEK_INTERVAL = 10;
 const DEFAULT_MESSAGE_TIME = 2000;
 const EMPTY_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
-export class NMPlayer extends Base {
+export class NMPlayer<T> extends Base<T> {
 	// Setup
 	hls: HLS | undefined;
 	gainNode: GainNode | undefined;
@@ -120,6 +120,7 @@ export class NMPlayer extends Base {
 	}
 
 	init(id: string): this {
+		this.mediaSession?.setPlaybackState('none');
 
 		const container = document.querySelector<HTMLDivElement>(`#${id}` as string);
 
@@ -457,14 +458,7 @@ export class NMPlayer extends Base {
 			.nomercyplayer.inactive {
 				cursor: none;
 			}
-			
-			.nomercyplayer *:focus,
-			.nomercyplayer *:focus-visible,
-			.nomercyplayer *:focus-within {
-				outline-color: transparent;
-				border-color: transparent;
-			}
-			
+						
 			.nomercyplayer .font-mono {
 				font-family: 'Source Code Pro', monospace;
 			}
@@ -670,9 +664,9 @@ export class NMPlayer extends Base {
 				maxBufferSize: 0,
 				autoStartLoad: true,
 				testBandwidth: true,
-				startPosition: item.progress
-					?  item.progress.time
-					: 0,
+				// startPosition: item.progress
+				// 	?  item.progress.time
+				// 	: 0,
 				videoPreference: {
 					preferHDR: this.hdrSupported(),
 				},
@@ -748,6 +742,8 @@ export class NMPlayer extends Base {
 
 		this.container.classList.remove('buffering');
 
+		this.mediaSession.setPlaybackState('playing');
+
 		this.emit('play');
 	}
 
@@ -764,6 +760,26 @@ export class NMPlayer extends Base {
 		this.on('item', () => {
 			this.videoElement.addEventListener('playing', this.videoPlayer_onPlayingEvent, { passive: true });
 			this.firstFrame = false;
+		});
+
+		this.emit('audioTracks', this.getAudioTracks());
+
+		this.mediaSession.setPlaybackState('playing');
+	}
+
+	setMediaAPI(): void {
+		const data = this.playlistItem();
+		const parsedTitle = data.title
+			.replace('%S', this.localize('S'))
+			.replace('%E', this.localize('E'));
+
+		this.setTitle(`${data.season ? `${data.show} -` : ''} ${parsedTitle}`);
+
+		this.mediaSession.setMetadata({
+			title: parsedTitle,
+			artist: data.show,
+			album: data.season ? `S${pad(data.season, 2)}E${pad(data.episode ?? 0, 2)}` : '',
+			artwork: data.image ? data.image : undefined,
 		});
 	}
 
@@ -787,7 +803,10 @@ export class NMPlayer extends Base {
 	videoPlayer_pauseEvent(): void {
 		this.container.classList.remove('playing');
 		this.container.classList.add('paused');
+
 		this.emit('pause', this.videoElement);
+
+		this.mediaSession.setPlaybackState('paused');
 	}
 
 	videoPlayer_endedEvent(): void {
@@ -797,11 +816,15 @@ export class NMPlayer extends Base {
 			this.options.debug && console.log('Playlist completed.');
 			this.isPlaying = false;
 			this.emit('playlistComplete');
+
+			this.mediaSession.setPlaybackState('none');
 		}
 	}
 
 	videoPlayer_errorEvent(): void {
 		this.emit('error', this.videoElement);
+
+		this.mediaSession.setPlaybackState('none');
 	}
 
 	videoPlayer_waitingEvent(): void {
@@ -949,7 +972,7 @@ export class NMPlayer extends Base {
 		let timeout: NodeJS.Timeout;
 		return (...args: any[]) => {
 			clearTimeout(timeout);
-			timeout = setTimeout(() => func.apply(this as NMPlayer, args), wait);
+			timeout = setTimeout(() => func.apply(this as NMPlayer<T>, args), wait);
 		};
 	}
 
@@ -991,6 +1014,16 @@ export class NMPlayer extends Base {
 		this.on('hideControls', this.ui_removeActiveClass.bind(this));
 		this.on('dynamicControls', this.ui_resetInactivityTimer.bind(this));
 
+		this.mediaSession?.setActionHandler({
+			play: this.play.bind(this),
+			pause: this.pause.bind(this),
+			stop: this.stop.bind(this),
+			previous: this.previous.bind(this),
+			next: this.next.bind(this),
+			seek: this.seek.bind(this),
+			getPosition: this.getCurrentTime.bind(this),
+		});
+
 		this.on('item', () => {
 			this.lastTime = 0;
 			setTimeout(() => {
@@ -1000,7 +1033,6 @@ export class NMPlayer extends Base {
 					id: this.hls?.loadLevel,
 					name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
 				});
-				this.emit('audioTracks', this.getAudioTracks());
 			}, 250);
 		});
 
@@ -1286,50 +1318,6 @@ export class NMPlayer extends Base {
 	};
 
 	/**
-	 * Sets up the media session API for the player.
-	 *
-	 * @remarks
-	 * This method sets up the media session API for the player, which allows the user to control media playback
-	 * using the media session controls on their device. It sets the metadata for the current media item, as well
-	 * as the action handlers for the media session controls.
-	 */
-	setMediaAPI(): void {
-
-		if ('mediaSession' in navigator) {
-			const playlistItem = this.playlistItem();
-			if (!playlistItem?.title) return;
-
-			const parsedTitle = playlistItem.title
-				.replace('%S', this.localize('S'))
-				.replace('%E', this.localize('E'));
-
-			this.setTitle(`${playlistItem.season ? `${playlistItem.show} -` : ''} ${parsedTitle}`);
-
-			navigator.mediaSession.metadata = new MediaMetadata({
-				title: parsedTitle,
-				artist: playlistItem.show,
-				album: playlistItem.season ? `S${pad(playlistItem.season, 2)}E${pad(playlistItem.episode ?? 0, 2)}` : '',
-				artwork: playlistItem.image ? [
-					{
-						src: playlistItem.image,
-						type: `image/${playlistItem.image.split('.').at(-1)}`,
-					} as MediaImage,
-				] : [],
-			});
-
-			if (typeof navigator.mediaSession.setActionHandler == 'function') {
-				navigator.mediaSession.setActionHandler('play', () => this.play());
-				navigator.mediaSession.setActionHandler('pause', () => this.pause());
-				navigator.mediaSession.setActionHandler('previoustrack', () => this.previous());
-				navigator.mediaSession.setActionHandler('nexttrack', () => this.next());
-				navigator.mediaSession.setActionHandler('seekbackward', time => this.rewindVideo(time.seekTime));
-				navigator.mediaSession.setActionHandler('seekforward', time => this.forwardVideo(time.seekTime));
-				navigator.mediaSession.setActionHandler('seekto', time => this.seek(time.seekTime as number));
-			}
-		}
-	}
-
-	/**
 	 * Returns the localized string for the given value, if available.
 	 * If the value is not found in the translations, it returns the original value.
 	 * @param value - The string value to be localized.
@@ -1409,7 +1397,6 @@ export class NMPlayer extends Base {
 	getSkipFile(): string | undefined {
 		return this.playlistItem().tracks?.find((t: { kind: string }) => t.kind === 'skippers')?.file;
 	}
-
 
 	/**
 	 * Fetches the skip file and parses it to get the skippers.
@@ -1670,7 +1657,7 @@ export class NMPlayer extends Base {
 				callback: (data) => {
 					if (!data.startsWith('WEBVTT\n')) return;
 
-					data = data.replace(/Kind: captions\nLanguage: \w+/gm,"");
+					data = data.replace(/Kind: captions\nLanguage: \w+/gm, "");
 					data = data.replace(/<\d{2}:\d{2}:\d{2}.\d{3}>|<c>|<\/c>/gui, "");
 
 					const parser = new WebVTTParser();
@@ -1681,9 +1668,8 @@ export class NMPlayer extends Base {
 						this.emit('subtitles', this.subtitles);
 					});
 				},
-			}).then(()=> this.emit('captionsChanged', this.getCurrentCaptions()));
+			}).then();
 		} else {
-			this.emit('captionsChanged', this.getCurrentCaptions());
 			this.storeSubtitleChoice();
 		}
 	}
@@ -1840,7 +1826,7 @@ export class NMPlayer extends Base {
 	}
 
 	// Setup
-	setup(options: PlayerConfig) {
+	setup<T = Partial<PlayerConfig>>(options: T & Partial<PlayerConfig>): NMPlayer<T> {
 		this.options = {
 			...this.options,
 			...options,
@@ -1852,10 +1838,10 @@ export class NMPlayer extends Base {
 
 		this.loadPlaylist();
 
-		return this;
+		return this as unknown as NMPlayer<T>;
 	}
 
-	setConfig(options: Partial<PlayerConfig>) {
+	setConfig<T>(options: Partial<T & PlayerConfig>) {
 		this.options = { ...this.options, ...options };
 	}
 
@@ -1937,10 +1923,14 @@ export class NMPlayer extends Base {
 
 	play(): Promise<void> {
 		this.options.autoPlay = true;
+		this.mediaSession?.setPlaybackState('playing');
+
 		return this.videoElement.play();
 	}
 
 	pause(): void {
+		this.mediaSession?.setPlaybackState('paused');
+
 		return this.videoElement.pause();
 	}
 
@@ -1955,6 +1945,7 @@ export class NMPlayer extends Base {
 	stop(): void {
 		this.videoElement.pause();
 		this.videoElement.currentTime = 0;
+		this.mediaSession?.setPlaybackState('none');
 	}
 
 	// Seek
@@ -2346,7 +2337,9 @@ export class NMPlayer extends Base {
 	}
 
 	getCaptionLabel(): any {
-		return this.getCurrentCaptions()?.label ?? '';
+		const currentCapitation = this.getCurrentCaptions();
+		if (!currentCapitation) return '';
+		return `${this.localize(currentCapitation.language!)} ${currentCapitation.label}`;
 	}
 
 	/**
@@ -2377,18 +2370,20 @@ export class NMPlayer extends Base {
 	 * Finally, it displays a message indicating the current subtitle track.
 	 */
 	cycleSubtitles(): void {
-
 		if (!this.hasCaptions()) {
 			return;
 		}
 
-		if (this.getCaptionIndex() === this.getCaptionsList()!.length - 1) {
-			this.setCurrentCaption(-1);
+		const captionsList = this.getCaptionsList();
+		const currentIndex = this.getCaptionIndex();
+
+		if (currentIndex === captionsList.length - 1) {
+			this.setCurrentCaption(0);
 		} else {
-			this.setCurrentCaption(this.getCaptionIndex() + 1);
+			this.setCurrentCaption(currentIndex + 1);
 		}
 
-		this.displayMessage(`${this.localize('Subtitle')}: ${this.getCaptionLabel() || this.localize('Off')}`);
+		this.displayMessage(`${this.localize('Subtitles')}: ${this.getCaptionLabel() || this.localize('Off')}`);
 	};
 
 
@@ -2510,6 +2505,8 @@ export class NMPlayer extends Base {
 		// Remove instance from the map
 		instances.delete(this.playerId);
 
+		this.mediaSession?.setPlaybackState('none');
+
 		// Emit dispose event
 		this.emit('dispose');
 
@@ -2596,7 +2593,7 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 	return string;
 };
 
-export const nmplayer = (id?: string) => new NMPlayer(id);
+export const nmplayer = <T>(id?: string) => new NMPlayer<T>(id);
 export default nmplayer;
 
 window.nmplayer = nmplayer;

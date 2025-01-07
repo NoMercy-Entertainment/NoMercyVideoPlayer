@@ -97,10 +97,12 @@ export interface PlaylistItem {
 	};
 }
 
+export type TrackType = 'subtitles' | 'chapters' | 'thumbnails' | 'sprite' | 'fonts';
+
 export interface Track {
 	default?: boolean;
 	file: string;
-	kind: 'subtitles' | 'chapters' | 'thumbnails' | 'sprite' | 'fonts';
+	kind: TrackType;
 	label?: string;
 	language?: string;
 	type?: string;
@@ -110,7 +112,7 @@ export interface Track {
 
 export interface CurrentTrack {
 	id: number;
-	kind: string;
+	kind: TrackType;
 }
 
 export type PlayState = 'buffering' | 'idle' | 'paused' | 'playing';
@@ -154,7 +156,7 @@ export interface TimeData {
 
 export type StretchOptions = 'exactfit' | 'fill' | 'none' | 'uniform';
 
-export interface PlayerConfig {
+export interface PlayerConfig extends Record<string, any> {
 	nipple?: boolean;
 	styles?: any;
 	chapters?: boolean;
@@ -179,8 +181,7 @@ export interface PlayerConfig {
 	disableTouchControls?: boolean;
 	forceTvMode?: boolean;
 	seekButtons?: boolean;
-
-	[key: string]: any;
+	disableMediaControls?: boolean;
 }
 
 export interface CreateElement<K extends keyof HTMLElementTagNameMap> {
@@ -197,7 +198,7 @@ export interface AddClasses<K extends keyof HTMLElementTagNameMap> {
 	get: () => HTMLElementTagNameMap[K];
 }
 
-export interface NMPlayer {
+export interface NMPlayer<T extends Partial<PlayerConfig>> {
 	currentTimeFile: any;
 	episode: any;
 	fonts: string[];
@@ -212,7 +213,7 @@ export interface NMPlayer {
 	title: any;
 	chapters: VTTData;
 	container: HTMLDivElement;
-	options: PlayerConfig;
+	options: T & PlayerConfig;
 	overlay: HTMLDivElement;
 	plugins: { [key: string]: any };
 
@@ -303,7 +304,7 @@ export interface NMPlayer {
 	seek(position: number): void;
 	setAllowFullscreen(allowFullscreen?: boolean): void;
 	setCaptions(styles: CaptionsConfig): void;
-	setConfig(config: PlayerConfig): void;
+	// setConfig(config: PlayerConfig): void;
 	setCurrentAudioTrack(index: number): void;
 	setCurrentCaption(arg0: number): void;
 	setCurrentCaptions(index: number): void;
@@ -317,7 +318,7 @@ export interface NMPlayer {
 	setPlaylistItemCallback(callback: null | ((item: PlaylistItem, index: number) => void | Promise<PlaylistItem>)): void;
 	setSpeed(speed: any): void;
 	setVolume(volume: number): void;
-	setup(options: PlayerConfig): void;
+	setup<T extends PlayerConfig>(options: T & PlayerConfig): void;
 	stop(): void;
 	toggleFullscreen(): void;
 	toggleMute(): void;
@@ -760,6 +761,6 @@ declare global {
 		octopusInstance: any;
 		Hls: typeof import('hls.js');
 		gainNode: GainNode;
-		nmplayer: (id?: string) => import('./index').NMPlayer;
+		nmplayer: <T extends PlayerConfig>(id?: string) => import('./index').NMPlayer<T>;
 	}
 }

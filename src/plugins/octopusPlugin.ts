@@ -2,23 +2,32 @@
 import SubtitlesOctopus from '../../public/js/octopus/subtitles-octopus';
 
 import Plugin from '../plugin';
-import { NMPlayer } from '../index.d';
+import type { NMPlayer } from '../types';
+
+export interface OctopusPluginArgs {
+	accessToken: string;
+	debug: boolean;
+	targetFps: number,
+	blendRender: boolean,
+	lazyFileLoading: boolean,
+	renderAhead: boolean,
+}
 
 export class OctopusPlugin extends Plugin {
-	player: any;
+	player: NMPlayer<OctopusPluginArgs>;
 
-	initialize(player: NMPlayer): void {
+	initialize(player: NMPlayer<OctopusPluginArgs>): void {
 		this.player = player;
 		// Initialize the plugin with the player
 	}
 
 	use(): void {
-		this.player.on('item', this.destroy.bind(this));
+		// this.player.on('item', this.destroy.bind(this));
 		this.player.on('captionsChanged', this.opus.bind(this));
 	}
 
 	dispose(): void {
-		this.player.off('item', this.destroy.bind(this));
+		// this.player.off('item', this.destroy.bind(this));
 		this.player.off('captionsChanged', this.opus.bind(this));
 
 		this.destroy();
@@ -56,16 +65,18 @@ export class OctopusPlugin extends Plugin {
 
 			const options = {
 				video: this.player.getVideoElement(),
-				lossyRender: true,
-				accessToken: this.player.options.accessToken,
 				subUrl: subtitleURL,
-				debug: this.player.options.debug,
-				blendRender: true,
-				lazyFileLoading: true,
-				targetFps: 24,
 				fonts: fontFiles,
+				lossyRender: this.player.options.lossyRender,
+				accessToken: this.player.options.accessToken,
+				targetFps: this.player.options.targetFps,
+				debug: this.player.options.debug,
+				blendRender: this.player.options.blendRender,
+				lazyFileLoading: this.player.options.lazyFileLoading,
+				renderAhead: this.player.options.renderAhead,
 				workerUrl: '/js/octopus/subtitles-octopus-worker.js',
 				legacyWorkerUrl: '/js/octopus/subtitles-octopus-worker-legacy.js',
+				fallbackFont: '/js/octopus/default.ttf',
 				onReady: async () => {
 					// this.player.play();
 				},
@@ -73,6 +84,8 @@ export class OctopusPlugin extends Plugin {
 					console.error('opus error', event);
 				},
 			};
+
+			console.log(options);
 
 			if (subtitleURL && subtitleURL.includes('.ass')) {
 				this.player.octopusInstance = new SubtitlesOctopus(options);

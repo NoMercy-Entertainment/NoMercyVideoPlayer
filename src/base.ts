@@ -2,14 +2,17 @@
 
 import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './types';
 import { NMPlayer } from './index';
+import MediaSession from '@nomercy-entertainment/media-session';
 
-export class Base {
+export class Base<T> {
 	eventElement: HTMLDivElement = <HTMLDivElement>{};
 	container: HTMLDivElement = <HTMLDivElement>{};
 	videoElement: HTMLVideoElement = <HTMLVideoElement>{};
 	overlay: HTMLDivElement = <HTMLDivElement>{};
 	subtitleOverlay: HTMLDivElement = <HTMLDivElement>{};
 	subtitleText: HTMLSpanElement = <HTMLSpanElement>{};
+
+	mediaSession: MediaSession;
 
 	translations: { [key: string]: string } = {};
 
@@ -20,7 +23,7 @@ export class Base {
 	message: NodeJS.Timeout = <NodeJS.Timeout>{};
 
 	// Options
-	options: Partial<PlayerConfig> = {
+	options: T & PlayerConfig = {
 		muted: false,
 		autoPlay: false,
 		controls: false,
@@ -37,7 +40,7 @@ export class Base {
 		disableControls: false,
 		disableTouchControls: false,
 		doubleClickDelay: 300,
-	};
+	} as T & PlayerConfig;
 
 	hasPipEventHandler = false;
 	hasTheaterEventHandler = false;
@@ -51,6 +54,8 @@ export class Base {
 
 	constructor() {
 		this.eventElement = document.createElement('div');
+
+		this.mediaSession = new MediaSession();
 	}
 
 	/**
@@ -101,7 +106,7 @@ export class Base {
 	emit(event: 'resize', data?: any): void;
 
 	// Quality
-	emit(event: 'levels', data: ReturnType<NMPlayer['getQualityLevels']>): void;
+	emit(event: 'levels', data: Level[]): void;
 	emit(event: 'levelsChanged', data: CurrentTrack): void;
 	emit(event: 'levelsChanging', data: CurrentTrack): void;
 	emit(event: 'visualQuality', data?: any): void;

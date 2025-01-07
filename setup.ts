@@ -5,7 +5,7 @@ import { OctopusPlugin } from './src/plugins/octopusPlugin';
 import { KeyHandlerPlugin } from './src/plugins/keyHandlerPlugin';
 import type { PlayerConfig } from './src/types';
 
-const config: PlayerConfig = {
+const config = {
 	muted: false,
 	controls: false,
 	preload: 'auto',
@@ -404,19 +404,17 @@ const config: PlayerConfig = {
 		1.5,
 		1.75,
 		2,
-	]
-};
+	],
+	renderAhead: 10,
+} satisfies Partial<PlayerConfig>;
 
-/*
-	@type {player} 
-*/
 const player = nmplayer('player')
 	.setup(config);
 
 const keyHandlerPlugin = new KeyHandlerPlugin();
 player.registerPlugin('keyHandler', keyHandlerPlugin);
 player.usePlugin('keyHandler');
-//
+
 // const desktopUIPlugin = new DesktopUIPlugin();
 // player.registerPlugin('desktopUI', desktopUIPlugin);
 // player.usePlugin('desktopUI');
