@@ -1,4 +1,4 @@
-import { SetupConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './index.d';
+import { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './types';
 import { NMPlayer } from './index';
 
 export declare class Base {
@@ -14,7 +14,7 @@ export declare class Base {
     playerId: string;
     setupTime: number;
     message: NodeJS.Timeout;
-    options: Partial<SetupConfig>;
+    options: Partial<PlayerConfig>;
     hasPipEventHandler: boolean;
     hasTheaterEventHandler: boolean;
     hasBackEventHandler: boolean;

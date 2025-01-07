@@ -1,5 +1,5 @@
 import { default as Plugin } from '../plugin';
-import { NMPlayer } from '../index.d';
+import { NMPlayer } from '../types';
 
 export declare class SabrePlugin extends Plugin {
     player: NMPlayer;
@@ -12,8 +12,8 @@ export declare class SabrePlugin extends Plugin {
 }
 declare global {
     interface Window {
-        opentype: 'module:opentype.js';
-        sabre: 'module:@sabre-js/sabre';
+        opentype: typeof import('opentype.js/dist/opentype.min.js');
+        sabre: sabre.SABRERenderer;
     }
 }
 export default SabrePlugin;

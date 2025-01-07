@@ -1,9 +1,11 @@
+import './src/index.css';
+
 import nmplayer from './src/index';
 import { OctopusPlugin } from './src/plugins/octopusPlugin';
 import { KeyHandlerPlugin } from './src/plugins/keyHandlerPlugin';
-import type { SetupConfig } from './src/index.d';
+import type { PlayerConfig } from './src/types';
 
-const config: SetupConfig = {
+const config: PlayerConfig = {
 	muted: false,
 	controls: false,
 	preload: 'auto',

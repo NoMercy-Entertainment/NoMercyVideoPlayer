@@ -1,6 +1,6 @@
 
 import Plugin from '../plugin';
-import { NMPlayer } from '../index.d';
+import { NMPlayer } from '../types';
 
 export class SabrePlugin extends Plugin {
 	player: NMPlayer = <NMPlayer>{};
@@ -29,7 +29,7 @@ export class SabrePlugin extends Plugin {
 		this.destroy();
 	}
 
-	destroy() {
+	destroy(): void {
 		if (this.frameCallbackHandle) {
 			this.player.getVideoElement().cancelVideoFrameCallback(this.frameCallbackHandle);
 			this.frameCallbackHandle = null;
@@ -172,8 +172,10 @@ export class SabrePlugin extends Plugin {
 
 declare global {
 	interface Window {
-		opentype: 'module:opentype.js';
-		sabre: 'module:@sabre-js/sabre';
+		// @ts-ignore
+		opentype: typeof import('opentype.js/dist/opentype.min.js');
+		// @ts-ignore
+		sabre: sabre.SABRERenderer;
 	}
 }
 

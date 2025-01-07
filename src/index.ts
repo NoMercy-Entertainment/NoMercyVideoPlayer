@@ -1,17 +1,15 @@
 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 
-import './index.css';
 import { Base } from './base';
 import HLS, { type MediaPlaylist } from 'hls.js';
-import { type VTTData, WebVTTParser } from 'webvtt-parser';
+import { Cue, type VTTData, WebVTTParser } from 'webvtt-parser';
 import translations from './translations';
 
 import type Plugin from './plugin';
-import type {
-	AddClasses,	CreateElement, PlaylistItem,
-	PreviewTime, SetupConfig, Stretching,
- 	TimeData, Track, TypeMappings,
-} from './index.d';
+import {
+	PlaylistItem, PreviewTime, PlayerConfig,
+	Stretching, TimeData, Track, TypeMappings, Chapter, Level
+} from './types';
 
 import {humanTime, pad, unique} from './helpers';
 import BBCReithSansBold from './fonts/ReithSans/ReithSansBold';
@@ -169,6 +167,10 @@ export class NMPlayer extends Base {
 		}
 	}
 
+	getPlugin(name: string): Plugin | undefined {
+		return this.plugins.get(name);
+	}
+
 	/**
 	 * Appends script and stylesheet files to the document head.
 	 * @param {string | any[]} filePaths - The file paths to append to the document head.
@@ -324,7 +326,7 @@ export class NMPlayer extends Base {
 	 *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
 	 *   - `get`: A function that returns the element.
 	 */
-	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<K> {
+	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean) {
 		let el: HTMLElementTagNameMap[K];
 
 		if (unique) {
@@ -359,7 +361,7 @@ export class NMPlayer extends Base {
 	 *   - `get`: A function that returns the element.
 	 * @template T - The type of the element to add the classes to.
 	 */
-	addClasses<T extends Element>(el: T, names: string[]): AddClasses<T> {
+	addClasses<T extends Element>(el: T, names: string[]) {
 		for (const name of names.filter(Boolean)) {
 			el.classList?.add(name.trim());
 		}
@@ -497,7 +499,7 @@ export class NMPlayer extends Base {
 			}
 			
 			.nomercyplayer .subtitle-overlay .subtitle-text {
-				font-size: clamp(1.5rem, 6.667%, 2.5rem);
+				font-size: clamp(1.5rem, 1.75vw, 2.5rem);
 				line-height: 1.5;
 				text-align: center;
 				text-shadow: black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px;
@@ -545,10 +547,6 @@ export class NMPlayer extends Base {
 				left:0 !important;
 				width: 100% !important;
 				height: 100% !important;
-			}
-			
-			.nomercyplayer .libassjs-canvas {
-				top:0 !important;
 			}
 		`;
 	}
@@ -955,34 +953,34 @@ export class NMPlayer extends Base {
 		};
 	}
 
-	_addEvents(): void {
+	_playerEvents = [
+		{ type: 'play', handler: this.videoPlayer_playEvent.bind(this) },
+		{ type: 'playing', handler: this.videoPlayer_onPlayingEvent.bind(this) },
+		{ type: 'pause', handler: this.videoPlayer_pauseEvent.bind(this) },
+		{ type: 'ended', handler: this.videoPlayer_endedEvent.bind(this) },
+		{ type: 'error', handler: this.videoPlayer_errorEvent.bind(this) },
+		{ type: 'waiting', handler: this.videoPlayer_waitingEvent.bind(this) },
+		{ type: 'canplay', handler: this.videoPlayer_canplayEvent.bind(this) },
+		{ type: 'loadedmetadata', handler: this.videoPlayer_loadedmetadataEvent.bind(this) },
+		{ type: 'loadstart', handler: this.videoPlayer_loadstartEvent.bind(this) },
+		{ type: 'timeupdate', handler: this.videoPlayer_timeupdateEvent.bind(this) },
+		{ type: 'durationchange', handler: this.videoPlayer_durationchangeEvent.bind(this) },
+		{ type: 'volumechange', handler: this.videoPlayer_volumechangeEvent.bind(this) },
+		{ type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
+	];
 
-		const playerEvents = [
-			{ type: 'play', handler: this.videoPlayer_playEvent.bind(this) },
-			{ type: 'playing', handler: this.videoPlayer_onPlayingEvent.bind(this) },
-			{ type: 'pause', handler: this.videoPlayer_pauseEvent.bind(this) },
-			{ type: 'ended', handler: this.videoPlayer_endedEvent.bind(this) },
-			{ type: 'error', handler: this.videoPlayer_errorEvent.bind(this) },
-			{ type: 'waiting', handler: this.videoPlayer_waitingEvent.bind(this) },
-			{ type: 'canplay', handler: this.videoPlayer_canplayEvent.bind(this) },
-			{ type: 'loadedmetadata', handler: this.videoPlayer_loadedmetadataEvent.bind(this) },
-			{ type: 'loadstart', handler: this.videoPlayer_loadstartEvent.bind(this) },
-			{ type: 'timeupdate', handler: this.videoPlayer_timeupdateEvent.bind(this) },
-			{ type: 'durationchange', handler: this.videoPlayer_durationchangeEvent.bind(this) },
-			{ type: 'volumechange', handler: this.videoPlayer_volumechangeEvent.bind(this) },
-			{ type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
-		];
-		playerEvents.forEach(event => {
+	_containerEvents = [
+		{ type: 'click', handler: this.ui_resetInactivityTimer.bind(this) },
+		{ type: 'mousemove', handler: this.ui_resetInactivityTimer.bind(this) },
+		{ type: 'mouseleave', handler: this.handleMouseLeave.bind(this) },
+		{ type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
+	];
+
+	_addEvents(): void {
+		this._playerEvents.forEach(event => {
 			this.videoElement.addEventListener(event.type, event.handler, { passive: true });
 		});
-
-		const containerEvents = [
-			{ type: 'click', handler: this.ui_resetInactivityTimer.bind(this) },
-			{ type: 'mousemove', handler: this.ui_resetInactivityTimer.bind(this) },
-			{ type: 'mouseleave', handler: this.handleMouseLeave.bind(this) },
-			{ type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
-		];
-		containerEvents.forEach(event => {
+		this._containerEvents.forEach(event => {
 			this.container.addEventListener(event.type, event.handler, { passive: true });
 		});
 
@@ -1023,131 +1021,88 @@ export class NMPlayer extends Base {
 
 			if (!this.hls) return;
 
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADING, (event, data) => {
-				this.options.debug && console.log('Audio track loading', data);
+				this.options.debug && console.log(event, data);
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADED, (event, data) => {
-				this.options.debug && console.log('Audio track loaded', data);
+				this.options.debug && console.log(event, data);
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHING, (event, data) => {
-				this.options.debug && console.log('Audio track switching', data);
+				this.options.debug && console.log(event, data);
 				this.emit('audioTrackChanging', {
 					id: data.id,
 					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
 				});
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHED, (event, data) => {
-				this.options.debug && console.log('Audio track switched', data);
+				this.options.debug && console.log(event, data);
 				this.emit('audioTrackChanged', {
 					id: data.id,
 					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
 				});
 			});
 
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			this.hls.on(HLS.Events.ERROR, (event, data) => {
-				console.error('HLS error', data);
+			this.hls.on(HLS.Events.ERROR, (error, errorData) => {
+				console.error('HLS error', error, errorData);
 			});
 
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
-				this.options.debug && console.log('Level loaded', data);
+				this.options.debug && console.log(event, data);
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			this.hls.on(HLS.Events.LEVEL_LOADING, (event, data) => {
+			this.hls.on(HLS.Events.LEVEL_LOADING, () => {
 				this.emit('levels', this.getQualityLevels());
 				this.emit('levelsChanging', {
 					id: this.hls?.loadLevel,
 					name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
 				});
 			});
-			this.hls.on(HLS.Events.LEVEL_SWITCHED, (event, data) => {
+			this.hls.on(HLS.Events.LEVEL_SWITCHED, (_, data) => {
 				this.emit('levelsChanged', {
 					id: data.level,
 					name: this.getQualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
-			this.hls.on(HLS.Events.LEVEL_SWITCHING, (event, data) => {
+			this.hls.on(HLS.Events.LEVEL_SWITCHING, (_, data) => {
 				this.emit('levelsChanging', {
 					id: data.level,
 					name: this.getQualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
-			this.hls.on(HLS.Events.LEVEL_UPDATED, (event, data) => {
+			this.hls.on(HLS.Events.LEVEL_UPDATED, (_, data) => {
 				this.emit('levelsChanged', {
 					id: data.level,
 					name: this.getQualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVELS_UPDATED, (event, data) => {
-				this.options.debug && console.log('Levels updated', data);
+				this.options.debug && console.log(event, data);
 			});
-			// this.hls.on(HLS.Events.LEVEL_PTS_UPDATED, (event, data) => {
-			// 	this.options.debug && console.log('Level PTS updated', data);
-			// });
 
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MANIFEST_LOADED, (event, data) => {
-				this.options.debug && console.log('Manifest loaded', data);
+				this.options.debug && console.log(event, data);
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MANIFEST_PARSED, (event, data) => {
-				this.options.debug && console.log('Manifest parsed', data);
+				this.options.debug && console.log(event, data);
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MANIFEST_LOADING, (event, data) => {
-				this.options.debug && console.log('Manifest loading', data);
+				this.options.debug && console.log(event, data);
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.STEERING_MANIFEST_LOADED, (event, data) => {
-				this.options.debug && console.log('Steering manifest loaded', data);
+				this.options.debug && console.log(event, data);
 			});
 
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_ATTACHED, (event, data) => {
-				this.options.debug && console.log('Media attached', data);
+				this.options.debug && console.log(event, data);
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_ATTACHING, (event, data) => {
-				this.options.debug && console.log('Media attaching', data);
+				this.options.debug && console.log(event, data);
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_DETACHED, (event) => {
-				this.options.debug && console.log('Media detached', event);
+				this.options.debug && console.log(event, event);
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			this.hls.on(HLS.Events.MEDIA_DETACHING, (event) => {
-				this.options.debug && console.log('Media detaching', event);
+				this.options.debug && console.log(event, event);
 			});
-
-			// this.hls.on(HLS.Events.BUFFER_APPENDING, (event, data) => {
-			// 	this.options.debug && console.log('Buffer appending', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_APPENDED, (event, data) => {
-			// 	this.options.debug && console.log('Buffer appended', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_FLUSHING, (event, data) => {
-			// 	this.options.debug && console.log('Buffer flushing', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_FLUSHED, (event, data) => {
-			// 	this.options.debug && console.log('Buffer flushed', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_CODECS, (event, data) => {
-			// 	this.options.debug && console.log('Buffer codecs', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_CREATED, (event, data) => {
-			// 	this.options.debug && console.log('Buffer created', data);
-			// });
-			// this.hls.on(HLS.Events.BUFFER_EOS, (event, data) => {
-			// 	this.options.debug && console.log('Buffer EOS', data);
-			// });
-			// this.hls.on(HLS.Events.FRAG_BUFFERED, (event, data) => {
-			// 	this.options.debug && console.log('Fragment buffered', data);
-			// });
 		});
 
 		this.once('item', () => {
@@ -1180,21 +1135,18 @@ export class NMPlayer extends Base {
 				this.videoElement.focus();
 			}
 
-			const item = this.getParameterByName('item');
-			const itemNumber = item ? parseInt(item, 10) : null;
-			const season = this.getParameterByName('season');
-			const seasonNumber = season ? parseInt(season, 10) : null;
-			const episode = this.getParameterByName('episode');
-			const episodeNumber = episode ? parseInt(episode, 10) : null;
+			const item = this.getParameterByName<number>('item');
+			const season = this.getParameterByName<number>('season');
+			const episode = this.getParameterByName<number>('episode');
 
-			if (itemNumber != null) {
+			if (item != null) {
 				setTimeout(() => {
-					this.setEpisode(0, itemNumber);
+					this.setEpisode(0, item);
 				}, 0);
 			}
-			else if (seasonNumber != null && episodeNumber != null) {
+			else if (season != null && episode != null) {
 				setTimeout(() => {
-					this.setEpisode(seasonNumber, episodeNumber);
+					this.setEpisode(season, episode);
 				}, 0);
 			}
 			else {
@@ -1297,26 +1249,14 @@ export class NMPlayer extends Base {
 	}
 
 	_removeEvents(): void {
-		this.videoElement.removeEventListener('play', this.videoPlayer_playEvent.bind(this));
-		this.videoElement.removeEventListener('playing', this.videoPlayer_onPlayingEvent.bind(this));
-		this.videoElement.removeEventListener('pause', this.videoPlayer_pauseEvent.bind(this));
-		this.videoElement.removeEventListener('ended', this.videoPlayer_endedEvent.bind(this));
-		this.videoElement.removeEventListener('error', this.videoPlayer_errorEvent.bind(this));
-		this.videoElement.removeEventListener('waiting', this.videoPlayer_waitingEvent.bind(this));
-		this.videoElement.removeEventListener('canplay', this.videoPlayer_canplayEvent.bind(this));
-		this.videoElement.removeEventListener('loadedmetadata', this.videoPlayer_loadedmetadataEvent.bind(this));
-		this.videoElement.removeEventListener('loadstart', this.videoPlayer_loadstartEvent.bind(this));
-		this.videoElement.removeEventListener('timeupdate', this.videoPlayer_timeupdateEvent.bind(this));
-		this.videoElement.removeEventListener('durationchange', this.videoPlayer_durationchangeEvent.bind(this));
-		this.videoElement.removeEventListener('volumechange', this.videoPlayer_volumechangeEvent.bind(this));
 
-		// UI events
-		this.container.removeEventListener('mousemove', this.ui_resetInactivityTimer.bind(this));
-		this.container.removeEventListener('click', this.ui_resetInactivityTimer.bind(this));
-		this.container.removeEventListener('mouseleave', this.handleMouseLeave.bind(this));
+		this._playerEvents.forEach(event => {
+			this.videoElement.removeEventListener(event.type, event.handler);
+		});
 
-		this.container.removeEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
-		this.videoElement.removeEventListener('keydown', this.ui_resetInactivityTimer.bind(this));
+		this._containerEvents.forEach(event => {
+			this.container.removeEventListener(event.type, event.handler);
+		});
 
 		this.off('play', this.emitPlayEvent.bind(this));
 		this.off('pause', this.emitPausedEvent.bind(this));
@@ -1327,17 +1267,22 @@ export class NMPlayer extends Base {
 
 	}
 
-	getParameterByName(name: string, url = window.location.href): string | null {
+	getParameterByName<T extends number|string>(name: string, url = window.location.href): T|null {
 		name = name.replace(/[[\]]/gu, '\\$&');
+
 		const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`, 'u');
 		const results = regex.exec(url);
-		if (!results) {
+
+		if (!results || !results[2]) {
 			return null;
 		}
-		if (!results[2]) {
-			return '';
+
+		const value = decodeURIComponent(results[2].replace(/\+/gu, ' '));
+
+		if (!isNaN(Number(value))) {
+			return Number(value) as T;
 		}
-		return decodeURIComponent(results[2].replace(/\+/gu, ' '));
+		return value as T;
 	};
 
 	/**
@@ -1528,7 +1473,7 @@ export class NMPlayer extends Base {
 	 * Otherwise, it returns the playbackRates from the player object.
 	 * @returns An array of available playback speeds.
 	 */
-	getSpeeds(): any {
+	getSpeeds(): number[] {
 		return this.options.playbackRates ?? [];
 	}
 
@@ -1653,18 +1598,20 @@ export class NMPlayer extends Base {
 	 * Returns an array of chapter objects, each containing information about the chapter's ID, title, start and end times, and position within the video.
 	 * @returns {Array} An array of chapter objects.
 	 */
-	getChapters(): Array<any> {
-		return this.chapters?.cues?.map((chapter: { id: any; text: any; startTime: any; }, index: number) => {
-			const endTime = this.chapters?.cues[index + 1]?.startTime ?? this.getDuration();
-			return {
-				id: `Chapter ${index}`,
-				title: chapter.text,
-				left: chapter.startTime / this.getDuration() * 100,
-				width: (endTime - chapter.startTime) / this.getDuration() * 100,
-				startTime: chapter.startTime,
-				endTime: endTime,
-			};
-		}) ?? [];
+	getChapters(): Chapter[] {
+		return this.chapters?.cues
+			?.map((chapter: { id: any; text: any; startTime: any; }, index: number): Chapter => {
+				const endTime = this.chapters?.cues[index + 1]?.startTime ?? this.getDuration();
+				return {
+					id: `Chapter ${index}`,
+					title: chapter.text,
+					left: chapter.startTime / this.getDuration() * 100,
+					width: (endTime - chapter.startTime) / this.getDuration() * 100,
+					startTime: chapter.startTime,
+					endTime: endTime,
+					time: 0,
+				};
+			}) ?? [];
 	}
 
 	/**
@@ -1672,20 +1619,20 @@ export class NMPlayer extends Base {
 	 * @returns The current chapter object or undefined if no chapter is found.
 	 */
 	getChapter(): any {
-		return this.getChapters()?.find((chapter: { startTime: number; endTime: number; }) => {
+		return this.getChapters()?.find((chapter) => {
 			return this.getCurrentTime() >= chapter.startTime && this.getCurrentTime() <= chapter.endTime;
 		});
 	}
 
-	getPreviousChapter(currentStartTime: number): VTTData['cues'][number] | undefined {
+	getPreviousChapter(currentStartTime: number): Cue | undefined {
 		return this.chapters.cues.filter(chapter => chapter.endTime <= currentStartTime).at(-1);
 	}
 
-	getCurrentChapter(currentTime: number): VTTData['cues'][number] | undefined {
+	getCurrentChapter(currentTime: number): Cue | undefined {
 		return this.chapters.cues.find(chapter => currentTime >= chapter.startTime && currentTime <= chapter.endTime);
 	}
 
-	getNextChapter(currentEndTime: number): VTTData['cues'][number] | undefined {
+	getNextChapter(currentEndTime: number): Cue | undefined {
 		return this.chapters.cues.find(chapter => chapter.startTime >= currentEndTime);
 	}
 
@@ -1815,19 +1762,21 @@ export class NMPlayer extends Base {
 
 					this.playVideo(0);
 				});
-		} else if (Array.isArray(this.options.playlist)) {
-			this.playlist = this.options.playlist.map((item: PlaylistItem, index: number) => ({
-				...item,
-				season: item.season,
-				episode: item.episode,
-			}));
+		}
+		else if (Array.isArray(this.options.playlist)) {
+			this.playlist = this.options.playlist
+				.map((item: PlaylistItem) => ({
+					...item,
+					season: item.season,
+					episode: item.episode,
+				}));
+
 			setTimeout(() => {
 				this.emit('playlist', this.playlist);
 			}, 0);
 
 			this.playVideo(0);
 		}
-
 	}
 
 	setPlaylist(playlist: string | PlaylistItem[]) {
@@ -1849,7 +1798,7 @@ export class NMPlayer extends Base {
 	 * Otherwise, it returns the URL of the first source in the current playlist item.
 	 * @returns The current source URL of the player, or undefined if there is no current source.
 	 */
-	getCurrentSrc(): any {
+	getCurrentSrc(): string {
 		return this.playlistItem()?.file;
 	}
 
@@ -1879,7 +1828,6 @@ export class NMPlayer extends Base {
 	 */
 	isMobile(): boolean {
 		return matchMedia('(max-width: 520px) and (orientation: portrait), (max-height: 520px) and (orientation: landscape)').matches;
-		// return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu.test(navigator.userAgent) && !this.options.disableTouchControls;
 	}
 
 	/**
@@ -1887,13 +1835,12 @@ export class NMPlayer extends Base {
 	 * @returns {boolean} True if the current device is a TV, false otherwise.
 	 */
 	isTv(): boolean {
+		// Android TV
 		return matchMedia('(width: 960px) and (height: 540px)').matches;
-		// return /Playstation|webOS|AppleTV|AndroidTV|NetCast|NetTV|SmartTV|Tizen|TV/u.test(navigator.userAgent)
-		//     || window.innerHeight == 540 && window.innerWidth == 960 || this.options.forceTvMode == true;
 	}
 
 	// Setup
-	setup(options: SetupConfig) {
+	setup(options: PlayerConfig) {
 		this.options = {
 			...this.options,
 			...options,
@@ -1908,32 +1855,12 @@ export class NMPlayer extends Base {
 		return this;
 	}
 
-	remove(): void {
-		//
-	}
-
-	setConfig(options: Partial<SetupConfig>) {
+	setConfig(options: Partial<PlayerConfig>) {
 		this.options = { ...this.options, ...options };
-	}
-
-	getProvider(): void {
-		//
 	}
 
 	getContainer(): HTMLDivElement {
 		return this.container;
-	}
-
-	getEnvironment(): void {
-		//
-	}
-
-	getPlugin(): void {
-		//
-	}
-
-	getRenderingMode(): void {
-		//
 	}
 
 	// Playlist
@@ -1941,7 +1868,14 @@ export class NMPlayer extends Base {
 		return this.playlist;
 	}
 
-	getPlaylistIndex() {
+	getPlaylistItem(index?: number): PlaylistItem {
+		if (index === undefined) {
+			return this.currentPlaylistItem as PlaylistItem;
+		}
+		return this.playlist[index];
+	}
+
+	getPlaylistIndex(): number {
 		return this.playlist.indexOf(this.currentPlaylistItem);
 	}
 
@@ -2162,12 +2096,12 @@ export class NMPlayer extends Base {
 	}
 
 	// Resize
-	getWidth(): void {
-		this.videoElement.getBoundingClientRect().width;
+	getWidth(): number {
+		return this.videoElement.getBoundingClientRect().width;
 	}
 
-	getHeight(): void {
-		this.videoElement.getBoundingClientRect().height;
+	getHeight(): number {
+		return this.videoElement.getBoundingClientRect().height;
 	}
 
 	getFullscreen(): boolean {
@@ -2289,7 +2223,7 @@ export class NMPlayer extends Base {
 	};
 
 	// Quality
-	getQualityLevels() {
+	getQualityLevels(): Level[] {
 		if (!this.hls) return [];
 		return this.hls.levels
 			.map((level, index: number) => ({
@@ -2305,7 +2239,7 @@ export class NMPlayer extends Base {
 			});
 	}
 
-	getCurrentQuality(): any[] | number {
+	getCurrentQuality(): number {
 		if (!this.hls) return -1;
 		return this.hls.currentLevel;
 	}
@@ -2502,27 +2436,6 @@ export class NMPlayer extends Base {
 		} else {
 			this.setAspect(this.stretchOptions[index + 1]);
 		}
-	}
-
-	// Controls
-	getControls(): void {
-		//
-	}
-
-	getSafeRegion(): void {
-		//
-	}
-
-	addButton(): void {
-		//
-	}
-
-	removeButton(): void {
-		//
-	}
-
-	setControls(): void {
-		//
 	}
 
 	setAllowFullscreen(allowFullscreen: boolean): void {

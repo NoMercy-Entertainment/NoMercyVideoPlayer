@@ -1,4 +1,4 @@
-import { NMPlayer } from './index.d';
+import { NMPlayer } from './types';
 
 declare class Plugin {
     player: NMPlayer;

@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
-import type { SetupConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './index.d';
+import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './types';
 import { NMPlayer } from './index';
 
 export class Base {
@@ -20,7 +20,7 @@ export class Base {
 	message: NodeJS.Timeout = <NodeJS.Timeout>{};
 
 	// Options
-	options: Partial<SetupConfig> = {
+	options: Partial<PlayerConfig> = {
 		muted: false,
 		autoPlay: false,
 		controls: false,

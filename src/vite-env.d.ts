@@ -8,6 +8,8 @@ declare module '*.webp';
 declare module '*.svg';
 declare module '*.png';
 declare module '*.gif';
+declare module '@sabre-js/sabre';
+declare module 'opentype.js/dist/opentype.min.js';
 
 declare global {
 	interface Window {

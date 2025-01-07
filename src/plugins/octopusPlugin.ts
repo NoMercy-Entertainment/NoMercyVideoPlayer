@@ -7,29 +7,29 @@ import { NMPlayer } from '../index.d';
 export class OctopusPlugin extends Plugin {
 	player: any;
 
-	initialize(player: NMPlayer) {
+	initialize(player: NMPlayer): void {
 		this.player = player;
 		// Initialize the plugin with the player
 	}
 
-	use() {
+	use(): void {
 		this.player.on('item', this.destroy.bind(this));
 		this.player.on('captionsChanged', this.opus.bind(this));
 	}
 
-	dispose() {
+	dispose(): void {
 		this.player.off('item', this.destroy.bind(this));
 		this.player.off('captionsChanged', this.opus.bind(this));
 
 		this.destroy();
 	}
 
-	destroy() {
+	destroy(): void {
 		this.player.octopusInstance?.dispose();
 		this.player.octopusInstance = null;
 	}
 
-	async opus() {
+	async opus(): void {
 		this.destroy();
 
 		const subtitleURL = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ''}${this.player.getSubtitleFile()}` : null;

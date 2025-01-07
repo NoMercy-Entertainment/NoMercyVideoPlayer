@@ -1,5 +1,5 @@
 import Plugin from '../plugin';
-import { NMPlayer } from '../index.d';
+import { NMPlayer } from '../types';
 
 export class TemplatePlugin extends Plugin {
 	player: NMPlayer = <NMPlayer>{};
