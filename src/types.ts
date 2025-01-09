@@ -154,6 +154,17 @@ export interface TimeData {
 	playbackRate: number;
 }
 
+export interface Position {
+	x: {
+		start: number;
+		end: number;
+	};
+	y: {
+		start: number;
+		end: number;
+	};
+}
+
 export type StretchOptions = 'exactfit' | 'fill' | 'none' | 'uniform';
 
 export interface PlayerConfig extends Record<string, any> {
@@ -185,20 +196,20 @@ export interface PlayerConfig extends Record<string, any> {
 }
 
 export interface CreateElement<K extends keyof HTMLElementTagNameMap> {
-	prependTo: <T extends Element>(parent: T) => T;
-	appendTo: <T extends Element>(parent: T) => T;
+	prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
+	appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
 	addClasses: (names: string[]) => AddClasses<K>;
 	get: () => HTMLElementTagNameMap[K];
 }
 
 export interface AddClasses<K extends keyof HTMLElementTagNameMap> {
-	prependTo: <T extends Element>(parent: T) => T;
-	appendTo: <T extends Element>(parent: T) => T;
+	prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
+	appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
 	addClasses: (names: string[]) => AddClasses<K>;
 	get: () => HTMLElementTagNameMap[K];
 }
 
-export interface NMPlayer<T extends Partial<PlayerConfig>> {
+export interface NMPlayer<T extends Partial<PlayerConfig> = {}> {
 	currentTimeFile: any;
 	episode: any;
 	fonts: string[];
@@ -243,7 +254,9 @@ export interface NMPlayer<T extends Partial<PlayerConfig>> {
 	getBuffer(): TimeRanges;
 	getCaptionIndex(): number;
 	getCaptionsList(): Track[];
-	getChapters(): Cue[];
+	getChapters(): (Cue & {
+		title: string;
+	})[];
 	getContainer(): HTMLDivElement;
 	getCurrentAudioTrack(): number;
 	getCurrentCaptions(): Track | undefined;
@@ -441,6 +454,7 @@ export interface NMPlayer<T extends Partial<PlayerConfig>> {
 	emit(event: 'hideQualityScreen'): void;
 	emit(event: 'back-button'): void;
 	emit(event: 'translations', data: { [key: string]: string }): void;
+	emit(event: string, data: any): void;
 
 	// All
 	on(event: 'all', callback: () => void): void;
@@ -544,6 +558,7 @@ export interface NMPlayer<T extends Partial<PlayerConfig>> {
 	on(event: 'dispose', callback: () => void): void;
 	on(event: 'remove', callback: () => void): void;
 	on(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
+	on(event: string, callback: (data: any) => void): void;
 
 	// All
 	off(event: 'all', callback: () => void): void;
@@ -649,6 +664,7 @@ export interface NMPlayer<T extends Partial<PlayerConfig>> {
 	off(event: 'dispose', callback: () => void): void;
 	off(event: 'remove', callback: () => void): void;
 	off(event: 'translations', callback: () => void): void;
+	off(event: string, callback: () => void): void;
 
 	// All
 	once(event: 'all', callback: () => void): void;
@@ -754,6 +770,7 @@ export interface NMPlayer<T extends Partial<PlayerConfig>> {
 	once(event: 'remove', callback: () => void): void;
 	once(event: 'back-button', callback: () => void): void;
 	once(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
+	once(event: string, callback: (data: any) => void): void;
 }
 
 declare global {
@@ -762,5 +779,13 @@ declare global {
 		Hls: typeof import('hls.js');
 		gainNode: GainNode;
 		nmplayer: <T extends PlayerConfig>(id?: string) => import('./index').NMPlayer<T>;
+	}
+
+	interface String {
+		capitalize: () => string;
+		toPascalCase: (string) => string;
+		titleCase: (lang: string, withLowers: boolean) => string;
+		toTitleCase: (lang?: string) => string;
+
 	}
 }
