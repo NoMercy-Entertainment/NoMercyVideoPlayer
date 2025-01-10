@@ -1540,7 +1540,7 @@ export class NMPlayer<T> extends Base<T> {
 	 */
 	async fetchTranslationsFile(): Promise<void> {
 		const language = this.options.language ?? navigator.language;
-		const file = `https://storage.nomercy.tv/laravel/player/translations/${language}.json`;
+		const file = `https://raw.githubusercontent.com/NoMercy-Entertainment/NoMercyVideoPlayer/refs/heads/master/public/locales/${language}.json`;
 
 		try {
 			await this.getFileContents({
