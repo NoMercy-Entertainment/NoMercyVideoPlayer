@@ -11,10 +11,6 @@
     "src",
     "./*"
   ],
-  "exports": {
-    ".": "./dist/index.js",
-    "./package.json": "./package.json"
-  },
   "scripts": {
     "dev": "vite",
     "build": "npm run clean-dist && tsc && vite build && npm run clean-docs && npm run copy-docs",
