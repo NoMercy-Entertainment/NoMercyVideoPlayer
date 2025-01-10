@@ -6,20 +6,15 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "docs",
     "dist",
     "src",
     "./*"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "npm run clean-dist && tsc && vite build && npm run clean-docs && npm run copy-docs",
-    "serve": "vite preview",
+    "build": "tsc",
+    "lint": "eslint --fix .",
     "test": "jest",
-    "lint": "eslint ./src --ext .js,.ts,.d.ts --fix",
-    "clean-dist": "shx rm -rf dist",
-    "clean-docs": "shx mv docs/CNAME CNAME.tmp && shx rm -rf docs/* && shx mkdir -p docs && shx mv CNAME.tmp docs/CNAME",
-    "copy-docs": "shx cp -r dist/* docs/"
+    "prepublishOnly": "npm run build"
   },
   "author": "NoMercy Entertainment",
   "repository": {
@@ -32,8 +27,16 @@
     "player",
     "NoMercy"
   ],
-  "devDependencies": {
+  "dependencies": {
     "@nomercy-entertainment/media-session": "^0.1.11",
+    "@sabre-js/sabre": "^0.5.1-pre.21da9b6",
+    "@types/webvtt-parser": "^2.2.0",
+    "hls.js": "^1.5.13",
+    "opentype.js": "^1.3.4",
+    "tailwind-merge": "^2.6.0",
+    "webvtt-parser": "^2.2.0"
+  },
+  "devDependencies": {
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/jest": "^29.5.5",
     "@types/node": "^18.14.2",
@@ -63,18 +66,13 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6",
     "vite": "5.4.6",
-    "vite-plugin-dts": "^3.6.0",
+    "vite-plugin-dts": "^4.5.0",
     "webpack": "5.94.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
   },
-  "dependencies": {
-    "@sabre-js/sabre": "^0.5.1-pre.21da9b6",
-    "@types/webvtt-parser": "^2.2.0",
-    "hls.js": "^1.5.13",
-    "opentype.js": "^1.3.4",
-    "tailwind-merge": "^2.6.0",
-    "webvtt-parser": "^2.2.0"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
+  "publishConfig": {
+    "access": "public"
+  }
 }
