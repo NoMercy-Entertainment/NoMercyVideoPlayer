@@ -38,7 +38,7 @@ export class OctopusPlugin extends Plugin {
 		this.player.octopusInstance = null;
 	}
 
-	async opus(): void {
+	async opus(): Promise<void> {
 		this.destroy();
 
 		const subtitleURL = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ''}${this.player.getSubtitleFile()}` : null;

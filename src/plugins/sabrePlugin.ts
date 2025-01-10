@@ -1,15 +1,20 @@
 // @ts-ignore
 
 import Plugin from '../plugin';
-import { NMPlayer } from '../types';
+import type { NMPlayer } from '../types';
+
+export interface SabrePluginArgs {
+	accessToken: string;
+	debug: boolean;
+}
 
 export class SabrePlugin extends Plugin {
-	player: NMPlayer = <NMPlayer>{};
+	player: NMPlayer<SabrePluginArgs> = <NMPlayer<SabrePluginArgs>>{};
 	frameCallbackHandle: number | null = null;
 
-	initialize(player: NMPlayer) {
+	initialize(player: NMPlayer<SabrePluginArgs>): void {
 		this.player = player;
-		// Initialize the plugin with the player
+
 		this.player.appendScriptFilesToDocument([
 			'https://storage.nomercy.tv/laravel/player/js/sabre/cptable.js',
 			'https://storage.nomercy.tv/laravel/player/js/sabre/cputils.js',
@@ -18,12 +23,12 @@ export class SabrePlugin extends Plugin {
 		]);
 	}
 
-	use() {
+	use(): void {
 		this.player.on('item', this.sabre.bind(this));
 		this.player.on('captionsChanged', this.sabre.bind(this));
 	}
 
-	dispose() {
+	dispose(): void {
 		this.player.off('item', this.sabre.bind(this));
 		this.player.off('captionsChanged', this.sabre.bind(this));
 
@@ -41,7 +46,7 @@ export class SabrePlugin extends Plugin {
 		}
 	}
 
-	async sabre() {
+	async sabre(): Promise<void> {
 		if (this.frameCallbackHandle) {
 			this.player.getVideoElement().cancelVideoFrameCallback(this.frameCallbackHandle);
 			this.frameCallbackHandle = null;
@@ -136,7 +141,7 @@ export class SabrePlugin extends Plugin {
 		const fontFiles: string[] = this.player.fonts
 			?.map((f: any) => `${this.player.options.basePath ?? ''}${f.file}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ''}`);
 
-		fontFiles.push('https://storage.nomercy.tv/laravel/player/fonts/Arial.ttf');
+		fontFiles.push('https://github.com/NoMercy-Entertainment/media/raw/refs/heads/master/Anime/Anime/No-Rin.(2014)/No-Rin.S00E00/fonts/ARIAL.TTF');
 
 		await Promise.all(fontFiles.map(font => this.player.getFileContents<ArrayBuffer>({
 			url: font,

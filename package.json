@@ -76,6 +76,7 @@
     "@sabre-js/sabre": "^0.5.1-pre.21da9b6",
     "@types/webvtt-parser": "^2.2.0",
     "hls.js": "^1.5.13",
+    "opentype.js": "^1.3.4",
     "tailwind-merge": "^2.6.0",
     "webvtt-parser": "^2.2.0"
   },
