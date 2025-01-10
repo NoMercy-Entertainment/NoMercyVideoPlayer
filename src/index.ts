@@ -137,13 +137,16 @@ export class NMPlayer<T> extends Base<T> {
 
 		this.createBaseStyles();
 		this.createSubtitleFontFamily();
-		this.fetchTranslationsFile().then();
+
+		this.fetchTranslationsFile()
+			.then(() => this.emit('translationsLoaded'));
+
+		this.createOverlayElement();
+		this.createOverlayCenterMessage();
 
 		this.styleContainer();
 		this.createVideoElement();
 		this.createSubtitleOverlay();
-		this.createOverlayElement();
-		this.createOverlayCenterMessage();
 
 		instances.set(id as string, this);
 
@@ -1555,6 +1558,24 @@ export class NMPlayer<T> extends Base<T> {
 		} catch (error) {
 			console.error('Failed to fetch translations file:', error);
 		}
+	}
+
+	addTranslation(key: string, value: string): void {
+		if (!this.translations) {
+			this.translations = {};
+		}
+
+		this.translations[key] = value;
+	}
+
+	addTranslations(translations: {key: string, value: string}[]): void {
+		if (!this.translations) {
+			this.translations = {};
+		}
+
+		translations.forEach(translation => {
+			this.translations[translation.key] = translation.value;
+		});
 	}
 
 	/**
