@@ -3,26 +3,26 @@ import { NMPlayer } from '../types';
 
 export class KeyHandlerPlugin extends Plugin {
 	player: NMPlayer = <NMPlayer>{};
+	private boundKeyHandler: (event: KeyboardEvent) => void = () => { };
 
 	initialize(player: NMPlayer) {
 		this.player = player;
-		// Initialize the plugin with the player
+		this.boundKeyHandler = this.keyHandler.bind(this)
 	}
 
 	use() {
 		if (this.player.options.disableControls) return;
-
-		document.addEventListener('keyup', this.keyHandler.bind(this), false);
+		document.addEventListener('keyup', this.boundKeyHandler, false);
 	}
 
 	dispose() {
-		document.removeEventListener('keyup', this.keyHandler.bind(this), false);
+		document.removeEventListener('keyup', this.boundKeyHandler);
 	}
 
 	/**
-     * Handles keyboard events and executes the corresponding function based on the key binding.
-     * @param {KeyboardEvent} event - The keyboard event to handle.
-     */
+	 * Handles keyboard events and executes the corresponding function based on the key binding.
+	 * @param {KeyboardEvent} event - The keyboard event to handle.
+	 */
 	keyHandler(event: KeyboardEvent) {
 		if (document.activeElement?.nodeName == 'INPUT') return;
 

@@ -100,6 +100,7 @@ export interface PlaylistItem {
 export type TrackType = 'subtitles' | 'chapters' | 'thumbnails' | 'sprite' | 'fonts';
 
 export interface Track {
+	id: number;
 	default?: boolean;
 	file: string;
 	kind: TrackType;
@@ -107,12 +108,11 @@ export interface Track {
 	language?: string;
 	type?: string;
 	ext?: string;
-	id?: number;
 }
 
 export interface CurrentTrack {
 	id: number;
-	kind: TrackType;
+	name: string;
 }
 
 export type PlayState = 'buffering' | 'idle' | 'paused' | 'playing';
@@ -250,13 +250,11 @@ export interface NMPlayer<T extends Partial<PlayerConfig> = {}> {
 	enterFullscreen(): void;
 	fetchFontFile(): Promise<void>;
 	forwardVideo(arg?: number): void;
-	getAudioTracks(): MediaPlaylist[];
+	getAudioTracks(): Track[];
 	getBuffer(): TimeRanges;
 	getCaptionIndex(): number;
 	getCaptionsList(): Track[];
-	getChapters(): (Cue & {
-		title: string;
-	})[];
+	getChapters(): Chapter[];
 	getContainer(): HTMLDivElement;
 	getCurrentAudioTrack(): number;
 	getCurrentCaptions(): Track | undefined;
@@ -783,7 +781,7 @@ declare global {
 
 	interface String {
 		capitalize: () => string;
-		toPascalCase: (string) => string;
+		toPascalCase: (arg: string) => string;
 		titleCase: (lang: string, withLowers: boolean) => string;
 		toTitleCase: (lang?: string) => string;
 

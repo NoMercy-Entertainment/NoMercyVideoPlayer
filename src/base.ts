@@ -59,10 +59,10 @@ export class Base<T> {
 	}
 
 	/**
-     * Trigger an event on the player.
-     * @param event type of event to trigger
-     * @param data  data to pass with the event
-     */
+	 * Trigger an event on the player.
+	 * @param event type of event to trigger
+	 * @param data  data to pass with the event
+	 */
 	// All
 	emit(event: 'all', data?: any): void;
 
@@ -161,10 +161,10 @@ export class Base<T> {
 	}
 
 	/**
-     * Adds an event listener to the player.
-     * @param event - The event to listen for.
-     * @param callback - The function to execute when the event occurs.
-     */
+	 * Adds an event listener to the player.
+	 * @param event - The event to listen for.
+	 * @param callback - The function to execute when the event occurs.
+	 */
 	// All
 	on(event: 'all', callback: () => void): void;
 
@@ -225,9 +225,9 @@ export class Base<T> {
 
 	// Controls
 	on(event: 'controls', callback: (showing: boolean) => void): void;
-    on(event: 'showControls', callback: () => void): void;
-    on(event: 'hideControls', callback: () => void): void;
-    on(event: 'dynamicControls', callback: () => void): void;
+	on(event: 'showControls', callback: () => void): void;
+	on(event: 'hideControls', callback: () => void): void;
+	on(event: 'dynamicControls', callback: () => void): void;
 	on(event: 'displayClick', callback: () => void): void;
 
 	// View
@@ -270,10 +270,10 @@ export class Base<T> {
 	}
 
 	/**
-     * Removes an event listener from the player.
-     * @param event - The event to remove.
-     * @param callback - The function to remove.
-     */
+	 * Removes an event listener from the player.
+	 * @param event - The event to remove.
+	 * @param callback - The function to remove.
+	 */
 	// All
 	off(event: 'all', callback?: () => void): void;
 
@@ -333,9 +333,9 @@ export class Base<T> {
 
 	// Controls
 	off(event: 'controls', callback: () => void): void;
-    off(event: 'showControls', callback: () => void): void;
-    off(event: 'hideControls', callback: () => void): void;
-    off(event: 'dynamicControls', callback: () => void): void;
+	off(event: 'showControls', callback: () => void): void;
+	off(event: 'hideControls', callback: () => void): void;
+	off(event: 'dynamicControls', callback: () => void): void;
 	off(event: 'displayClick', callback: () => void): void;
 
 	// View
@@ -388,10 +388,10 @@ export class Base<T> {
 	}
 
 	/**
-     * Adds an event listener to the player that will only be called once.
-     * @param event - The event to listen for.
-     * @param callback - The function to execute when the event occurs.
-     */
+	 * Adds an event listener to the player that will only be called once.
+	 * @param event - The event to listen for.
+	 * @param callback - The function to execute when the event occurs.
+	 */
 	// All
 	once(event: 'all', callback: () => void): void;
 	once(event: 'hls', callback: () => void): void;
@@ -453,9 +453,9 @@ export class Base<T> {
 
 	// Controls
 	once(event: 'controls', callback: (showing: boolean) => void): void;
-    once(event: 'showControls', callback: () => void): void;
-    once(event: 'hideControls', callback: () => void): void;
-    once(event: 'dynamicControls', callback: () => void): void;
+	once(event: 'showControls', callback: () => void): void;
+	once(event: 'hideControls', callback: () => void): void;
+	once(event: 'dynamicControls', callback: () => void): void;
 	once(event: 'displayClick', callback: () => void): void;
 
 	// View
@@ -494,10 +494,10 @@ export class Base<T> {
 	}
 
 	/**
-     * Sets the enabled state of various event hooks.
-     * @param event - The event to enable/disable.
-     * @param enabled - Whether the event should be enabled or disabled.
-     */
+	 * Sets the enabled state of various event hooks.
+	 * @param event - The event to enable/disable.
+	 * @param enabled - Whether the event should be enabled or disabled.
+	 */
 	eventHooks(event: any, enabled: boolean) {
 		if (event == 'pip') {
 			this.hasPipEventHandler = enabled;
