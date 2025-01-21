@@ -1,11 +1,14 @@
 import Plugin from '../plugin';
 import { NMPlayer } from '../types';
 
+export interface KeyHandlerPluginArgs {
+}
+
 export class KeyHandlerPlugin extends Plugin {
-	player: NMPlayer = <NMPlayer>{};
+	player: NMPlayer<KeyHandlerPluginArgs> = <NMPlayer<KeyHandlerPluginArgs>>{};
 	private boundKeyHandler: (event: KeyboardEvent) => void = () => { };
 
-	initialize(player: NMPlayer) {
+	initialize(player: NMPlayer<KeyHandlerPluginArgs>) {
 		this.player = player;
 		this.boundKeyHandler = this.keyHandler.bind(this)
 	}

@@ -1,7 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
 import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './types';
-import { NMPlayer } from './index';
 import MediaSession from '@nomercy-entertainment/media-session';
 
 export class Base<T> {

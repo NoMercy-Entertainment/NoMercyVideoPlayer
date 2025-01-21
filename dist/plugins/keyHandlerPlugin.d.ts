@@ -1,9 +1,11 @@
 import Plugin from '../plugin';
 import { NMPlayer } from '../types';
+export interface KeyHandlerPluginArgs {
+}
 export declare class KeyHandlerPlugin extends Plugin {
-    player: NMPlayer;
+    player: NMPlayer<KeyHandlerPluginArgs>;
     private boundKeyHandler;
-    initialize(player: NMPlayer): void;
+    initialize(player: NMPlayer<KeyHandlerPluginArgs>): void;
     use(): void;
     dispose(): void;
     /**

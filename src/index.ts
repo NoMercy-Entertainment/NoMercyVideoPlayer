@@ -22,7 +22,7 @@ const DEFAULT_SEEK_INTERVAL = 10;
 const DEFAULT_MESSAGE_TIME = 2000;
 const EMPTY_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
-export class NMPlayer<T> extends Base<T> {
+class NMPlayer<T> extends Base<T> {
 	// Setup
 	hls: HLS | undefined;
 	gainNode: GainNode | undefined;
@@ -152,7 +152,7 @@ export class NMPlayer<T> extends Base<T> {
 
 		this._removeEvents();
 		this._addEvents();
-
+		
 		return this;
 	}
 
@@ -748,6 +748,8 @@ export class NMPlayer<T> extends Base<T> {
 		this.mediaSession.setPlaybackState('playing');
 
 		this.emit('play');
+
+		this.isPlaying = true;
 	}
 
 	videoPlayer_onPlayingEvent(): void {
@@ -810,6 +812,8 @@ export class NMPlayer<T> extends Base<T> {
 		this.emit('pause', this.videoElement);
 
 		this.mediaSession.setPlaybackState('paused');
+
+		this.isPlaying = false;
 	}
 
 	videoPlayer_endedEvent(): void {
@@ -821,6 +825,8 @@ export class NMPlayer<T> extends Base<T> {
 			this.emit('playlistComplete');
 
 			this.mediaSession.setPlaybackState('none');
+
+			this.isPlaying = false;
 		}
 	}
 
@@ -828,6 +834,8 @@ export class NMPlayer<T> extends Base<T> {
 		this.emit('error', this.videoElement);
 
 		this.mediaSession.setPlaybackState('none');
+
+		this.isPlaying = false;
 	}
 
 	videoPlayer_waitingEvent(): void {
@@ -1893,11 +1901,13 @@ export class NMPlayer<T> extends Base<T> {
 	playlistItem(): PlaylistItem;
 	playlistItem(index: number): void;
 	playlistItem(index?: number): PlaylistItem | void {
-		if (index === undefined) {
+		if (!index) {
 			return this.currentPlaylistItem as PlaylistItem;
 		}
 
-		if (index == this.currentIndex) return;
+		if (index == this.currentIndex) {
+			return this.currentPlaylistItem;
+		}
 
 		this.playVideo(index);
 	}
@@ -2547,7 +2557,6 @@ export class NMPlayer<T> extends Base<T> {
 			};
 		});
 	}
-
 }
 
 String.prototype.toTitleCase = function (): string {
@@ -2614,7 +2623,8 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 	return string;
 };
 
-export const nmplayer = <T>(id?: string) => new NMPlayer<T>(id);
-export default nmplayer;
+const nmplayer = <Conf extends Partial<PlayerConfig> = {}>(id?: string) => new NMPlayer<Conf>(id);
 
-window.nmplayer = nmplayer;
+window.nmplayer = nmplayer as unknown as any;
+
+export default nmplayer;

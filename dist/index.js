@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.nmplayer = exports.NMPlayer = void 0;
 const base_1 = require("./base");
 const hls_js_1 = __importDefault(require("hls.js"));
 const webvtt_parser_1 = require("webvtt-parser");
@@ -183,6 +182,7 @@ class NMPlayer extends base_1.Base {
         instances.set(id, this);
         this._removeEvents();
         this._addEvents();
+        window.nmplayer = this;
         return this;
     }
     registerPlugin(name, plugin) {
@@ -660,6 +660,7 @@ class NMPlayer extends base_1.Base {
         this.container.classList.remove('buffering');
         this.mediaSession.setPlaybackState('playing');
         this.emit('play');
+        this.isPlaying = true;
     }
     videoPlayer_onPlayingEvent() {
         this.videoElement.removeEventListener('playing', this.videoPlayer_onPlayingEvent);
@@ -704,6 +705,7 @@ class NMPlayer extends base_1.Base {
         this.container.classList.add('paused');
         this.emit('pause', this.videoElement);
         this.mediaSession.setPlaybackState('paused');
+        this.isPlaying = false;
     }
     videoPlayer_endedEvent() {
         if (this.currentIndex < this.playlist.length - 1) {
@@ -714,11 +716,13 @@ class NMPlayer extends base_1.Base {
             this.isPlaying = false;
             this.emit('playlistComplete');
             this.mediaSession.setPlaybackState('none');
+            this.isPlaying = false;
         }
     }
     videoPlayer_errorEvent() {
         this.emit('error', this.videoElement);
         this.mediaSession.setPlaybackState('none');
+        this.isPlaying = false;
     }
     videoPlayer_waitingEvent() {
         this.emit('waiting', this.videoElement);
@@ -1619,11 +1623,12 @@ class NMPlayer extends base_1.Base {
         this.playlist = playlist;
     }
     playlistItem(index) {
-        if (index === undefined) {
+        if (!index) {
             return this.currentPlaylistItem;
         }
-        if (index == this.currentIndex)
-            return;
+        if (index == this.currentIndex) {
+            return this.currentPlaylistItem;
+        }
         this.playVideo(index);
     }
     /**
@@ -2188,7 +2193,6 @@ class NMPlayer extends base_1.Base {
         });
     }
 }
-exports.NMPlayer = NMPlayer;
 String.prototype.toTitleCase = function () {
     let i;
     let j;
@@ -2246,7 +2250,4 @@ String.prototype.titleCase = function (lang = navigator.language.split('-')[0], 
     }
     return string;
 };
-const nmplayer = (id) => new NMPlayer(id);
-exports.nmplayer = nmplayer;
-exports.default = exports.nmplayer;
-window.nmplayer = exports.nmplayer;
+exports.default = (id) => new NMPlayer(id);

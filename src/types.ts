@@ -1,4 +1,4 @@
-import { LevelAttributes, LevelDetails, MediaDecodingInfo, type MediaPlaylist } from 'hls.js';
+import { LevelAttributes, LevelDetails, MediaDecodingInfo } from 'hls.js';
 import Plugin from './plugin';
 import { Cue, VTTData } from 'webvtt-parser';
 
@@ -171,7 +171,7 @@ export interface PlayerConfig extends Record<string, any> {
 	nipple?: boolean;
 	styles?: any;
 	chapters?: boolean;
-	playlist: string | PlaylistItem[];
+	playlist?: string | PlaylistItem[];
 	debug?: boolean;
 	muted?: boolean;
 	controls?: boolean;
@@ -209,7 +209,7 @@ export interface AddClasses<K extends keyof HTMLElementTagNameMap> {
 	get: () => HTMLElementTagNameMap[K];
 }
 
-export interface NMPlayer<T extends Partial<PlayerConfig> = {}> {
+export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	currentTimeFile: any;
 	episode: any;
 	fonts: string[];
@@ -224,7 +224,7 @@ export interface NMPlayer<T extends Partial<PlayerConfig> = {}> {
 	title: any;
 	chapters: VTTData;
 	container: HTMLDivElement;
-	options: T & PlayerConfig;
+	options: Conf & PlayerConfig;
 	overlay: HTMLDivElement;
 	plugins: { [key: string]: any };
 
@@ -238,6 +238,7 @@ export interface NMPlayer<T extends Partial<PlayerConfig> = {}> {
 		callback: (arg: T) => void;
 	}) => Promise<void>;
 
+	prototype: NMPlayer<any>;
 	addClasses(currentItem: any, arg1: string[]): HTMLDivElement;
 	appendScriptFilesToDocument(files: string[]): void;
 	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<K>;
@@ -329,7 +330,7 @@ export interface NMPlayer<T extends Partial<PlayerConfig> = {}> {
 	setPlaylistItemCallback(callback: null | ((item: PlaylistItem, index: number) => void | Promise<PlaylistItem>)): void;
 	setSpeed(speed: any): void;
 	setVolume(volume: number): void;
-	setup<T extends PlayerConfig>(options: T & PlayerConfig): void;
+	setup<Conf extends PlayerConfig>(options: Conf & PlayerConfig): NMPlayer<Conf>;
 	stop(): void;
 	toggleFullscreen(): void;
 	toggleMute(): void;
@@ -776,7 +777,15 @@ declare global {
 		octopusInstance: any;
 		Hls: typeof import('hls.js');
 		gainNode: GainNode;
-		nmplayer: <T extends PlayerConfig>(id?: string) => import('./index').NMPlayer<T>;
+		nmplayer: <Conf extends Partial<PlayerConfig>>(id?: string) => NMPlayer<Conf>;
+	}
+
+	interface Navigator {
+		deviceMemory: number;
+	}
+
+	interface Date {
+		format: any;
 	}
 
 	interface String {

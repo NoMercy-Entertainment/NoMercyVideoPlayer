@@ -3,7 +3,7 @@ import HLS, { type MediaPlaylist } from 'hls.js';
 import { Cue, type VTTData } from 'webvtt-parser';
 import type Plugin from './plugin';
 import { PlaylistItem, PreviewTime, PlayerConfig, Stretching, TimeData, Track, TypeMappings, Chapter, Level } from './types';
-export declare class NMPlayer<T> extends Base<T> {
+declare class NMPlayer<T> extends Base<T> {
     hls: HLS | undefined;
     gainNode: GainNode | undefined;
     translations: {
@@ -542,5 +542,5 @@ export declare class NMPlayer<T> extends Base<T> {
         episodes: number;
     }>;
 }
-export declare const nmplayer: <T>(id?: string) => NMPlayer<T>;
-export default nmplayer;
+declare const _default: <T>(id?: string) => NMPlayer<T>;
+export default _default;

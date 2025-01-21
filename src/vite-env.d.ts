@@ -1,6 +1,6 @@
 // / <reference types="vite/client" />
 
-import {NMPlayer} from "./index";
+import nmplayer from "./index";
 
 declare module '*.scss';
 declare module '*.jpg';
@@ -16,7 +16,7 @@ declare global {
 		octopusInstance: any;
 		Hls: import('hls.js');
 		gainNode: GainNode;
-		nmplayer: (id?: string) => import('./index').NMPlayer;
+		nmplayer: <Conf extends Partial<PlayerConfig>>(id?: string) => NMPlayer<Conf>;
 	}
 
 	interface Navigator {
