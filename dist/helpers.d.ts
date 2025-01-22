@@ -3,7 +3,7 @@
  * @param time - The time to convert, in seconds or string format.
  * @returns A string representing the time in the format "DD:HH:MM:SS".
  */
-export declare const humanTime: (time: string | number) => any;
+export declare const humanTime: (time: string | number) => string;
 /**
  * Converts a time string in the format "hh:mm:ss" to seconds.
  * @param hms The time string to convert.

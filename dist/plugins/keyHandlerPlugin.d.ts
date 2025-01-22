@@ -2,7 +2,7 @@ import Plugin from '../plugin';
 import { NMPlayer } from '../types';
 export interface KeyHandlerPluginArgs {
 }
-export declare class KeyHandlerPlugin extends Plugin {
+declare class KeyHandlerPlugin extends Plugin {
     player: NMPlayer<KeyHandlerPluginArgs>;
     private boundKeyHandler;
     initialize(player: NMPlayer<KeyHandlerPluginArgs>): void;
@@ -27,3 +27,4 @@ export declare class KeyHandlerPlugin extends Plugin {
         function: () => false | void;
     })[];
 }
+export default KeyHandlerPlugin;

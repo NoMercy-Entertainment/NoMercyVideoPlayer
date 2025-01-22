@@ -130,9 +130,9 @@ export interface TimeData {
     duration: number;
     percentage: number;
     remaining: number;
-    currentTimeHuman: number;
-    durationHuman: number;
-    remainingHuman: number;
+    currentTimeHuman: string;
+    durationHuman: string;
+    remainingHuman: string;
     playbackRate: number;
 }
 export interface Position {
@@ -150,7 +150,7 @@ export interface PlayerConfig extends Record<string, any> {
     nipple?: boolean;
     styles?: any;
     chapters?: boolean;
-    playlist: string | PlaylistItem[];
+    playlist?: string | PlaylistItem[];
     debug?: boolean;
     muted?: boolean;
     controls?: boolean;
@@ -636,7 +636,7 @@ declare global {
         octopusInstance: any;
         Hls: typeof import('hls.js');
         gainNode: GainNode;
-        nmplayer: <Conf extends Partial<PlayerConfig> = {}>(id?: string) => NMPlayer<Conf>;
+        nmplayer: <Conf extends Partial<PlayerConfig>>(id?: string) => NMPlayer<Conf>;
     }
     interface Navigator {
         deviceMemory: number;

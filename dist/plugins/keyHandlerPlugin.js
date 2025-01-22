@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.KeyHandlerPlugin = void 0;
 const plugin_1 = __importDefault(require("../plugin"));
 class KeyHandlerPlugin extends plugin_1.default {
     constructor() {
@@ -250,4 +249,4 @@ class KeyHandlerPlugin extends plugin_1.default {
         }));
     }
 }
-exports.KeyHandlerPlugin = KeyHandlerPlugin;
+exports.default = KeyHandlerPlugin;

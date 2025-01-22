@@ -542,5 +542,5 @@ declare class NMPlayer<T> extends Base<T> {
         episodes: number;
     }>;
 }
-declare const _default: <T>(id?: string) => NMPlayer<T>;
-export default _default;
+declare const nmplayer: <Conf extends Partial<PlayerConfig> = {}>(id?: string) => NMPlayer<Conf>;
+export default nmplayer;

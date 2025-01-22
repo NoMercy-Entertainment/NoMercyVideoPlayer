@@ -5,7 +5,7 @@
  * @param time - The time to convert, in seconds or string format.
  * @returns A string representing the time in the format "DD:HH:MM:SS".
  */
-export const humanTime = (time: string | number) => {
+export const humanTime = (time: string | number): string => {
 	time = parseInt(time as string, 10);
 
 	let days: any = parseInt(`${(time / (3600 * 24))}`, 10);

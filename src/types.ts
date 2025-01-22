@@ -148,9 +148,9 @@ export interface TimeData {
 	duration: number;
 	percentage: number;
 	remaining: number;
-	currentTimeHuman: number;
-	durationHuman: number;
-	remainingHuman: number;
+	currentTimeHuman: string;
+	durationHuman: string;
+	remainingHuman: string;
 	playbackRate: number;
 }
 

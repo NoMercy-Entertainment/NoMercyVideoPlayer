@@ -182,7 +182,6 @@ class NMPlayer extends base_1.Base {
         instances.set(id, this);
         this._removeEvents();
         this._addEvents();
-        window.nmplayer = this;
         return this;
     }
     registerPlugin(name, plugin) {
@@ -2250,4 +2249,6 @@ String.prototype.titleCase = function (lang = navigator.language.split('-')[0], 
     }
     return string;
 };
-exports.default = (id) => new NMPlayer(id);
+const nmplayer = (id) => new NMPlayer(id);
+window.nmplayer = nmplayer;
+exports.default = nmplayer;
