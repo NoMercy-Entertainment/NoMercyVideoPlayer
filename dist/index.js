@@ -1047,7 +1047,11 @@ class NMPlayer extends base_1.Base {
                 });
             }
         });
-        this.on('playing', () => {
+        this.on('play', () => {
+            this.container.classList.remove('buffering');
+            this.container.classList.remove('error');
+        });
+        this.on('time', () => {
             this.container.classList.remove('buffering');
             this.container.classList.remove('error');
         });
