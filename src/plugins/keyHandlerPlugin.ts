@@ -154,6 +154,12 @@ class KeyHandlerPlugin extends Plugin {
 				function: () => this.player.cycleAudioTracks(),
 			},
 			{
+				name: 'Cycle audio tracks',
+				key: '2',
+				control: false,
+				function: () => this.player.cycleAudioTracks(),
+			},
+			{
 				name: 'Cycle audio',
 				key: 'b',
 				control: false,
