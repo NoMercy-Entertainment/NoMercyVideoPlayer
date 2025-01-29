@@ -1689,7 +1689,7 @@ class NMPlayer<T> extends Base<T> {
 					anonymous: false,
 				},
 				callback: (data) => {
-					if (!data.startsWith('WEBVTT\n')) return;
+					if (!data.startsWith('WEBVTT\n') && !data.startsWith('WEBVTT\r')) return;
 
 					data = data.replace(/Kind: captions\nLanguage: \w+/gm, "");
 					data = data.replace(/<\d{2}:\d{2}:\d{2}.\d{3}>|<c>|<\/c>/gui, "");
