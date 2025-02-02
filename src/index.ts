@@ -945,10 +945,6 @@ class NMPlayer<T> extends Base<T> {
 
 		const target = event?.target as HTMLElement;
 
-		if (target && (target.tagName === 'BUTTON' || target.tagName === 'INPUT') && !this.isTv()) {
-			return;
-		}
-
 		this.inactivityTimeout = setTimeout(() => {
 			this.ui_removeActiveClass();
 		}, this.inactivityTime);
