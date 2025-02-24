@@ -835,7 +835,7 @@ class NMPlayer<T> extends Base<T> {
 		const safeZoneHeight = subtitleSafeZone.clientHeight;
 		const subtitleHeight = subtitleArea.clientHeight;
 
-		let insetTop: number;
+		let insetTop: number = 0;
 
 		if (typeof cue.linePosition === "number") {
 			if (cue.linePosition === 50) {
@@ -843,19 +843,6 @@ class NMPlayer<T> extends Base<T> {
 				insetTop = videoHeight / 2 - subtitleHeight / 2;
 			} else {
 				insetTop = (videoHeight * (cue.linePosition / 100)) - (subtitleHeight * (cue.linePosition / 100));
-			}
-		} else {
-			switch (cue.linePosition) {
-				case "start":
-					insetTop = 0;
-					break;
-				case "center":
-					insetTop = videoHeight / 2 - subtitleHeight / 2;
-					break;
-				case "end":
-				default:
-					insetTop = videoHeight - subtitleHeight;
-					break;
 			}
 		}
 

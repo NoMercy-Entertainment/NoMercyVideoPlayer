@@ -1,7 +1,7 @@
 import { LevelAttributes, LevelDetails, MediaDecodingInfo } from 'hls.js';
 import Plugin from './plugin';
 import { Cue, VTTData } from 'webvtt-parser';
-import PlayerStorage from './PlayerStorage';
+import PlayerStorage from './playerStorage';
 import { SubtitleRenderer } from './subtitleRenderer';
 
 export { type VTTData, WebVTTParser } from 'webvtt-parser';

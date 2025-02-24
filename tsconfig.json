@@ -10,6 +10,6 @@
     "skipLibCheck": true,
     "lib": ["ES2020", "DOM"],
   },
-  "include": ["src"],
+  "include": ["src/*"],
   "exclude": ["node_modules", "dist"]
 }
