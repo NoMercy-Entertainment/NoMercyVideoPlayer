@@ -1,6 +1,6 @@
 {
   "name": "@nomercy-entertainment/nomercy-video-player",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Full event-driven video player without a UI.",
   "type": "commonjs",
   "main": "./dist/index.js",
@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "dev": "vite --port 5502 --host",
     "lint": "eslint --fix .",
     "test": "jest",
     "prepublishOnly": "npm run build"

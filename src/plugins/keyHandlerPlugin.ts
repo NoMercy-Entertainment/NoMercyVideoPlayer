@@ -244,6 +244,12 @@ class KeyHandlerPlugin extends Plugin {
 				function: () => this.player.cycleAspectRatio(),
 			},
 			{
+				name: 'Cycle aspect ratio',
+				key: 'a',
+				control: false,
+				function: () => this.player.cycleAspectRatio(),
+			},
+			{
 				name: 'Show info',
 				key: 'Info',
 				control: false,

@@ -1,6 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
-import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './types';
+import PlayerStorage from './PlayerStorage';
+import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime, SubtitleStyle } from './types';
 import MediaSession from '@nomercy-entertainment/media-session';
 
 export class Base<T> {
@@ -9,7 +10,13 @@ export class Base<T> {
 	videoElement: HTMLVideoElement = <HTMLVideoElement>{};
 	overlay: HTMLDivElement = <HTMLDivElement>{};
 	subtitleOverlay: HTMLDivElement = <HTMLDivElement>{};
+	subtitleSafeZone: HTMLDivElement = <HTMLDivElement>{};
+	subtitleArea: HTMLDivElement = <HTMLDivElement>{};
 	subtitleText: HTMLSpanElement = <HTMLSpanElement>{};
+	storage: PlayerStorage = new PlayerStorage();
+	subtitleStyle: SubtitleStyle = {
+		
+	}
 
 	mediaSession: MediaSession;
 
@@ -39,6 +46,7 @@ export class Base<T> {
 		disableControls: false,
 		disableTouchControls: false,
 		doubleClickDelay: 300,
+		customStorage: PlayerStorage.prototype.storage,
 	} as T & PlayerConfig;
 
 	hasPipEventHandler = false;

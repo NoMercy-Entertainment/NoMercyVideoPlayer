@@ -1,6 +1,8 @@
 import { LevelAttributes, LevelDetails, MediaDecodingInfo } from 'hls.js';
 import Plugin from './plugin';
 import { Cue, VTTData } from 'webvtt-parser';
+import PlayerStorage from './PlayerStorage';
+import { SubtitleRenderer } from './subtitleRenderer';
 
 export { type VTTData, WebVTTParser } from 'webvtt-parser';
 
@@ -41,6 +43,17 @@ export interface CaptionsConfig {
 	backgroundOpacity?: number;
 	edgeStyle?: 'none' | 'depressed' | 'dropshadow' | 'raised' | 'uniform';
 	windowColor?: string;
+	windowOpacity?: number;
+}
+
+export interface SubtitleStyle {
+	fontSize?: string;
+	fontFamily?: string;
+	textColor?: string;
+	backgroundColor?: string;
+	backgroundOpacity?: number;
+	edgeStyle?: EdgeStyle;
+	areaColor?: string;
 	windowOpacity?: number;
 }
 
@@ -117,7 +130,9 @@ export interface CurrentTrack {
 
 export type PlayState = 'buffering' | 'idle' | 'paused' | 'playing';
 
-export type Stretching = 'exactfit' | 'fill' | 'none' | 'uniform';
+export type Stretching = 'exactfit' | 'fill' | 'none' | 'uniform' | '16:9' | '4:3';
+
+export type EdgeStyle = 'none' | 'depressed' | 'dropshadow'| 'textShadow' | 'raised' | 'uniform';
 
 export interface PreviewTime {
 	start: number;
@@ -193,6 +208,13 @@ export interface PlayerConfig extends Record<string, any> {
 	forceTvMode?: boolean;
 	seekButtons?: boolean;
 	disableMediaControls?: boolean;
+	customStorage: StorageInterface;
+}
+
+export interface StorageInterface {
+    get: (key: string) => Promise<string | null>;
+    set: (key: string, value: string) => Promise<void>;
+    remove: (key: string) => Promise<void>;
 }
 
 export interface CreateElement<K extends keyof HTMLElementTagNameMap> {
@@ -226,7 +248,13 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	container: HTMLDivElement;
 	options: Conf & PlayerConfig;
 	overlay: HTMLDivElement;
+	subtitleArea: HTMLDivElement;
+	subtitleText: HTMLDivElement;
 	plugins: { [key: string]: any };
+	subtitleStyle: SubtitleStyle;
+	subtitleRenderer: SubtitleRenderer;
+	storage: PlayerStorage;
+	translations: { [key: string]: string };
 
 	getFileContents: <T extends TypeMappings>({ url, options, callback }: {
 		url: string;
@@ -340,6 +368,9 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	usePlugin(id: string): void;
 	volumeDown(): void;
 	volumeUp(): void;
+
+	setSubtitleStyle(style: SubtitleStyle): void;
+	getSubtitleStyle(): SubtitleStyle;
 
 	emit(event: 'all', data?: any): void;
 
