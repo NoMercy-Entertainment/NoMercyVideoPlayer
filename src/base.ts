@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
-import PlayerStorage from './PlayerStorage';
+import PlayerStorage from './playerStorage';
 import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime, SubtitleStyle } from './types';
 import MediaSession from '@nomercy-entertainment/media-session';
 
