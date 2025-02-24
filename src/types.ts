@@ -116,7 +116,7 @@ export interface Track {
 	id: number;
 	default?: boolean;
 	file: string;
-	kind: TrackType;
+	kind: string;
 	label?: string;
 	language?: string;
 	type?: string;

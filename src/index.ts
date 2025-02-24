@@ -835,7 +835,7 @@ class NMPlayer<T> extends Base<T> {
 		const safeZoneHeight = subtitleSafeZone.clientHeight;
 		const subtitleHeight = subtitleArea.clientHeight;
 
-		let insetTop: number = 0;
+		let insetTop: number = videoHeight;
 
 		if (typeof cue.linePosition === "number") {
 			if (cue.linePosition === 50) {
