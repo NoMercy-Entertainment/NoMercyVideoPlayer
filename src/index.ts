@@ -1,18 +1,15 @@
 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
-
-import { Base } from './base';
 import HLS, { type MediaPlaylist } from 'hls.js';
 import { Cue, type VTTData, WebVTTParser } from 'webvtt-parser';
+
+import { Base } from './base';
 import translations from './translations';
-import { SubtitleRenderer } from './subtitleRenderer';
 import type Plugin from './plugin';
 
-import { humanTime, pad, parseColorToHex, unique } from './helpers';
+import { defaultSubtitleStyles, getEdgeStyle, humanTime, pad, parseColorToHex, unique } from './helpers';
 import {
-	PlaylistItem, PreviewTime, PlayerConfig,
-	Stretching, TimeData, Track, TypeMappings, Chapter, Level,
-	SubtitleStyle,
-	EdgeStyle
+	PlaylistItem, PreviewTime, PlayerConfig, Stretching, 
+	TimeData, Track, TypeMappings, Chapter, Level, SubtitleStyle,
 } from './types';
 
 import BBCReithSansExtraBold from './fonts/ReithSans/ReithSansExtraBold';
@@ -93,22 +90,11 @@ class NMPlayer<T> extends Base<T> {
 		'4:3',
 	];
 
-	defaultSubtitleStyles: SubtitleStyle = {
-		fontSize: '26px',
-		fontFamily: 'ReithSans, sans-serif',
-		textColor: 'rgb(255, 255, 255)',
-		backgroundColor: 'transparent',
-		backgroundOpacity: 1,
-		edgeStyle: 'textShadow',
-		areaColor: 'transparent',
-		windowOpacity: 1
-	}
-
 	currentAspectRatio: typeof this.stretchOptions[number] = this.options.stretching ?? 'uniform';
 	allowFullscreen: boolean = true;
 	shouldFloat: boolean = false;
 	firstFrame: boolean = false;
-	subtitleRenderer: SubtitleRenderer = <SubtitleRenderer>{};
+	subtitleStyle: SubtitleStyle = defaultSubtitleStyles;
 
 	constructor(id?: string | number) {
 		super();
@@ -174,9 +160,7 @@ class NMPlayer<T> extends Base<T> {
 
 		this._removeEvents();
 		this._addEvents();
-		
-		this.subtitleRenderer = new SubtitleRenderer(this as any);
-		
+
 		return this;
 	}
 
@@ -528,6 +512,7 @@ class NMPlayer<T> extends Base<T> {
 				white-space: pre-line;
 				position: absolute;
 				height: fit-content;
+    			font-size: 28px;
 			}
 
 			.nomercyplayer .subtitle-overlay .subtitle-area.aligned-start {
@@ -693,7 +678,7 @@ class NMPlayer<T> extends Base<T> {
 
 		this.updateDisplayOverlay();
 
-		this.storage.get<SubtitleStyle>('subtitle-style', this.defaultSubtitleStyles)
+		this.storage.get<SubtitleStyle>('subtitle-style', defaultSubtitleStyles)
 			.then((val) => {
 				this.subtitleStyle = val; 
 				this.updateDisplayOverlay();
@@ -711,119 +696,32 @@ class NMPlayer<T> extends Base<T> {
 		return this.subtitleStyle;
 	}
 
+
 	private applySubtitleStyle(): void {
 		this.storage.set('subtitle-style', this.subtitleStyle).then();
 
-		const { fontSize, fontFamily, textColor: fontColor, backgroundColor, backgroundOpacity, edgeStyle, areaColor: windowColor, windowOpacity } = this.subtitleStyle;
+		const { fontSize, fontFamily, textColor,
+			textOpacity, backgroundColor, backgroundOpacity,
+			edgeStyle, areaColor, windowOpacity
+		} = this.subtitleStyle;
 
 		const areaElement = this.subtitleArea.style;
 		const textElement = this.subtitleText.style;
 
 		console.log('Applying subtitle style', this.subtitleStyle);
 
-		if (fontSize) textElement.fontSize = fontSize;
+		if (fontSize) textElement.fontSize = `calc(26px * ${fontSize / 100})`;
 		if (fontFamily) textElement.fontFamily = fontFamily;
-		if (fontColor) textElement.color = fontColor;
-		
-		if (edgeStyle) textElement.textShadow = this.getEdgeStyle(edgeStyle);
+		if (textColor) textElement.color = parseColorToHex(textColor, textOpacity / 100);
+
+		if (edgeStyle) textElement.textShadow = getEdgeStyle(edgeStyle, textOpacity / 100);
 
 		if (backgroundColor) {
-			console.log('Setting background color', parseColorToHex(backgroundColor, backgroundOpacity ?? 1));
-			textElement.backgroundColor = parseColorToHex(backgroundColor, backgroundOpacity ?? 1)!;
+			textElement.backgroundColor = parseColorToHex(backgroundColor, backgroundOpacity / 100);
 		}
-		if (windowColor) {
-			console.log('Setting window color', parseColorToHex(windowColor, windowOpacity ?? 1));
-			areaElement.backgroundColor = parseColorToHex(windowColor, windowOpacity ?? 1)!;
+		if (areaColor) {
+			areaElement.backgroundColor = parseColorToHex(areaColor, windowOpacity / 100);
 		}
-	}
-
-	private getEdgeStyle(edgeStyle: EdgeStyle): string {
-		switch (edgeStyle) {
-			case 'depressed':
-				return '1px 1px 2px black';
-			case 'dropshadow':
-				return '2px 2px 4px black';
-			case 'raised':
-				return '-1px -1px 2px black';
-			case 'uniform':
-				return '0px 0px 4px black';
-			case 'textShadow':
-				return 'black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px';
-			default:
-				return '';
-		}
-	}
-
-	setSubtitleFontSize(fontSize: string): void {
-		this.subtitleStyle.fontSize = fontSize;
-		this.applySubtitleStyle();
-	}
-
-	getSubtitleFontSize(): string | undefined {
-		return this.subtitleStyle.fontSize;
-	}
-
-	setSubtitleFontFamily(fontFamily: string): void {
-		this.subtitleStyle.fontFamily = fontFamily;
-		this.applySubtitleStyle();
-	}
-
-	getSubtitleFontFamily(): string | undefined {
-		return this.subtitleStyle.fontFamily;
-	}
-
-	setSubtitleTextColor(fontColor: string): void {
-		this.subtitleStyle.textColor = fontColor;
-		this.applySubtitleStyle();
-	}
-
-	getSubtitleTextColor(): string | undefined {
-		return this.subtitleStyle.textColor;
-	}
-
-	setSubtitleBackgroundColor(backgroundColor: string): void {
-		this.subtitleStyle.backgroundColor = backgroundColor;
-		this.applySubtitleStyle();
-	}
-
-	getSubtitleBackgroundColor(): string | undefined {
-		return this.subtitleStyle.backgroundColor;
-	}
-
-	setSubtitleBackgroundOpacity(backgroundOpacity: number): void {
-		this.subtitleStyle.backgroundOpacity = backgroundOpacity;
-		this.applySubtitleStyle();
-	}
-
-	getSubtitleBackgroundOpacity(): number | undefined {
-		return this.subtitleStyle.backgroundOpacity;
-	}
-
-	setSubtitleAreaColor(areaColor: string): void {
-		this.subtitleStyle.areaColor = areaColor;
-		this.applySubtitleStyle();
-	}
-
-	getSubtitleAreaColor(): string | undefined {
-		return this.subtitleStyle.areaColor;
-	}
-
-	setSubtitleAreaOpacity(windowOpacity: number): void {
-		this.subtitleStyle.windowOpacity = windowOpacity;
-		this.applySubtitleStyle();
-	}
-
-	setSubtitleTextEdgeStyle(edgeStyle: EdgeStyle): void {
-		this.subtitleStyle.edgeStyle = edgeStyle;
-		this.applySubtitleStyle();
-	}
-
-	getSubtitleTextEdgeStyle(): EdgeStyle | undefined {
-		return this.subtitleStyle.edgeStyle;
-	}
-
-	getSubtitleTextWindowOpacity(): number | undefined {
-		return this.subtitleStyle.windowOpacity;
 	}
 
 	computeSubtitlePosition = (cue: Cue, videoElement: HTMLVideoElement, subtitleSafeZone: HTMLElement, subtitleArea: HTMLElement, subtitleText: HTMLElement) => {

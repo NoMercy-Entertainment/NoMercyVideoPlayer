@@ -14,9 +14,6 @@ export class Base<T> {
 	subtitleArea: HTMLDivElement = <HTMLDivElement>{};
 	subtitleText: HTMLSpanElement = <HTMLSpanElement>{};
 	storage: PlayerStorage = new PlayerStorage();
-	subtitleStyle: SubtitleStyle = {
-		
-	}
 
 	mediaSession: MediaSession;
 

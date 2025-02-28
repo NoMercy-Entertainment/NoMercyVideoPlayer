@@ -47,14 +47,15 @@ export interface CaptionsConfig {
 }
 
 export interface SubtitleStyle {
-	fontSize?: string;
-	fontFamily?: string;
-	textColor?: string;
-	backgroundColor?: string;
-	backgroundOpacity?: number;
-	edgeStyle?: EdgeStyle;
-	areaColor?: string;
-	windowOpacity?: number;
+	textOpacity: number;
+	fontFamily: string;
+	fontSize: number;
+	textColor: string;
+	edgeStyle: EdgeStyle;
+	backgroundColor: string;
+	backgroundOpacity: number;
+	areaColor: string;
+	windowOpacity: number;
 }
 
 export interface Level {
@@ -132,7 +133,7 @@ export type PlayState = 'buffering' | 'idle' | 'paused' | 'playing';
 
 export type Stretching = 'exactfit' | 'fill' | 'none' | 'uniform' | '16:9' | '4:3';
 
-export type EdgeStyle = 'none' | 'depressed' | 'dropshadow'| 'textShadow' | 'raised' | 'uniform';
+export type EdgeStyle = 'none' | 'depressed' | 'dropShadow'| 'textShadow' | 'raised' | 'uniform';
 
 export interface PreviewTime {
 	start: number;

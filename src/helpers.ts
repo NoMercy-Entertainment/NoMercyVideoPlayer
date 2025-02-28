@@ -1,3 +1,4 @@
+import { EdgeStyle, SubtitleStyle } from "./types";
 
 
 /**
@@ -160,7 +161,53 @@ export const lineBreakShowTitle = (str: string, removeShow = false) =>{
 	return str;
 };
 
-const namedColors: Record<string, string> = {
+export const getEdgeStyle = (edgeStyle: EdgeStyle, opacity: number): string => {
+	switch (edgeStyle) {
+		case 'depressed':
+			return `1px 1px 2px ${parseColorToHex('black', opacity)}`;
+		case 'dropShadow':
+			return `2px 2px 4px ${parseColorToHex('black', opacity)}`;
+		case 'raised':
+			return `-1px -1px 2px ${parseColorToHex('black', opacity)}`;
+		case 'uniform':
+			return `0px 0px 4px ${parseColorToHex('black', opacity)}`;
+		case 'textShadow':
+			return `${parseColorToHex('black', opacity)} 0px 0px 4px, ${parseColorToHex('black', opacity)} 0px 0px 4px, ${parseColorToHex('black', opacity)} 0px 0px 4px, ${parseColorToHex('black', opacity)} 0px 0px 4px, ${parseColorToHex('black', opacity)} 0px 0px 4px, ${parseColorToHex('black', opacity)} 0px 0px 4px, ${parseColorToHex('black', opacity)} 0px 0px 4px`;
+		default:
+			return '';
+	}
+}
+
+export const edgeStyles: readonly { name: string, value: EdgeStyle }[] = [
+	{ name: 'None', value: 'none' },
+	{ name: 'Depressed', value: 'depressed' },
+	{ name: 'Drop Shadow', value: 'dropShadow' },
+	{ name: 'Text Shadow', value: 'textShadow' },
+	{ name: 'Raised', value: 'raised' },
+	{ name: 'Uniform', value: 'uniform' }
+];
+
+export const fontFamilies: readonly { name: string, value: string }[] = [
+	{ name: 'ReithSans', value: 'ReithSans, sans-serif' },
+	{ name: 'Arial', value: 'Arial, sans-serif' },
+	{ name: 'Courier New', value: 'Courier New, monospace' },
+	{ name: 'Georgia', value: 'Georgia, sans-serif' },
+	{ name: 'Verdana', value: 'Verdana, sans-serif' },
+];
+
+export const defaultSubtitleStyles: SubtitleStyle = {
+	fontSize: 100,
+	fontFamily: 'ReithSans, sans-serif',
+	textColor: 'white',
+	textOpacity: 100,
+	backgroundColor: 'black',
+	backgroundOpacity: 0,
+	edgeStyle: 'textShadow',
+	areaColor: 'black',
+	windowOpacity: 0
+};
+
+export const namedColors: Record<string, string> = {
 	"aliceblue": "#F0F8FF",
 	"antiquewhite": "#FAEBD7",
 	"aquamarine": "#7FFFD4",
@@ -303,7 +350,7 @@ const namedColors: Record<string, string> = {
 	"yellowgreen": "#9ACD32"
 };
 
-export const parseColorToHex = (color: string, opacity: number = 1): string | null => {
+export const parseColorToHex = (color: string, opacity: number = 1): string => {
 	const ctx = document.createElement("canvas").getContext("2d");
 	if (!ctx) return null;
 
