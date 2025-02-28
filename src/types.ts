@@ -2,7 +2,6 @@ import { LevelAttributes, LevelDetails, MediaDecodingInfo } from 'hls.js';
 import Plugin from './plugin';
 import { Cue, VTTData } from 'webvtt-parser';
 import PlayerStorage from './playerStorage';
-import { SubtitleRenderer } from './subtitleRenderer';
 
 export { type VTTData, WebVTTParser } from 'webvtt-parser';
 
@@ -253,7 +252,6 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	subtitleText: HTMLDivElement;
 	plugins: { [key: string]: any };
 	subtitleStyle: SubtitleStyle;
-	subtitleRenderer: SubtitleRenderer;
 	storage: PlayerStorage;
 	translations: { [key: string]: string };
 

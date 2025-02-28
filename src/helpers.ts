@@ -352,7 +352,7 @@ export const namedColors: Record<string, string> = {
 
 export const parseColorToHex = (color: string, opacity: number = 1): string => {
 	const ctx = document.createElement("canvas").getContext("2d");
-	if (!ctx) return null;
+	if (!ctx) return "#00000000";
 
 	if (color.toLowerCase() === "transparent") {
 		return "#00000000";
