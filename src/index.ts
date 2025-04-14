@@ -8,7 +8,7 @@ import type Plugin from './plugin';
 
 import { defaultSubtitleStyles, getEdgeStyle, humanTime, pad, parseColorToHex, unique } from './helpers';
 import {
-	PlaylistItem, PreviewTime, PlayerConfig, Stretching, 
+	PlaylistItem, PreviewTime, PlayerConfig, Stretching,
 	TimeData, Track, TypeMappings, Chapter, Level, SubtitleStyle,
 } from './types';
 
@@ -419,7 +419,7 @@ class NMPlayer<T> extends Base<T> {
 		this.videoElement.controls = this.options.controls ?? false;
 		this.videoElement.preload = this.options.preload ?? 'auto';
 		this.storage.get('muted', this.options.muted).then((val) => {
-			this.videoElement.muted = val == true;	
+			this.videoElement.muted = val == true;
 		});
 		this.storage.get('volume', 100).then((val) => {
 			this.videoElement.volume = val ? val / 100 : 1;
@@ -510,9 +510,14 @@ class NMPlayer<T> extends Base<T> {
 				writing-mode: horizontal-tb;
 				unicode-bidi: plaintext;
 				white-space: pre-line;
+				padding: 0.5rem 0;
 				position: absolute;
 				height: fit-content;
     			font-size: 28px;
+			}
+
+			.nomercyplayer:has(.subtitle-text:empty) .subtitle-overlay .subtitle-area {
+				display: none;
 			}
 
 			.nomercyplayer .subtitle-overlay .subtitle-area.aligned-start {
@@ -539,9 +544,15 @@ class NMPlayer<T> extends Base<T> {
 			
 			.nomercyplayer .subtitle-overlay .subtitle-text {
 				white-space: pre-line;
-				display: inline;
+				padding: 0 0.5rem;
+				display: inline-flex;
+				line-height: 1.2;
 				writing-mode: horizontal-tb;
 				unicode-bidi: plaintext;
+			}
+			
+			.nomercyplayer .subtitle-overlay .subtitle-text:empty {
+				display: none;
 			}
 			
 			.nomercyplayer .subtitle-text,
@@ -656,18 +667,13 @@ class NMPlayer<T> extends Base<T> {
 
 	createSubtitleOverlay(): void {
 
-		this.subtitleOverlay = this.createElement('div',  `${this.playerId}-subtitle-overlay`, true)
+		this.subtitleOverlay = this.createElement('div', `${this.playerId}-subtitle-overlay`, true)
 			.addClasses(['subtitle-overlay'])
 			.appendTo(this.container);
 
-		this.subtitleSafeZone = this.createElement('div', `${this.playerId}-subtitle-safezone`, true)
-			.addClasses(['subtitle-safezone'])
-			.appendTo(this.subtitleOverlay);
-
-
 		this.subtitleArea = this.createElement('div', `${this.playerId}-subtitle-area`, true)
 			.addClasses(['subtitle-area'])
-			.appendTo(this.subtitleSafeZone);
+			.appendTo(this.subtitleOverlay);
 
 		this.subtitleText = this.createElement('span', `${this.playerId}-subtitle-text`, true)
 			.addClasses(['subtitle-text'])
@@ -675,13 +681,9 @@ class NMPlayer<T> extends Base<T> {
 
 		this.on('time', this.checkSubtitles.bind(this));
 
-
-		this.updateDisplayOverlay();
-
 		this.storage.get<SubtitleStyle>('subtitle-style', defaultSubtitleStyles)
 			.then((val) => {
-				this.subtitleStyle = val; 
-				this.updateDisplayOverlay();
+				this.subtitleStyle = val;
 				this.applySubtitleStyle();
 			});
 	}
@@ -699,6 +701,13 @@ class NMPlayer<T> extends Base<T> {
 
 	private applySubtitleStyle(): void {
 		this.storage.set('subtitle-style', this.subtitleStyle).then();
+
+		Object.entries(this.subtitleStyle).forEach(([key, value]) => {
+			this.emit('set-subtitle-style', {
+				property: key,
+				value: value,
+			});
+		});
 
 		const { fontSize, fontFamily, textColor,
 			textOpacity, backgroundColor, backgroundOpacity,
@@ -724,33 +733,26 @@ class NMPlayer<T> extends Base<T> {
 		}
 	}
 
-	computeSubtitlePosition = (cue: Cue, videoElement: HTMLVideoElement, subtitleSafeZone: HTMLElement, subtitleArea: HTMLElement, subtitleText: HTMLElement) => {
-		if (!videoElement || !subtitleSafeZone || !subtitleArea || !subtitleText) {
+	computeSubtitlePosition = (cue: Cue, videoElement: HTMLVideoElement, subtitleArea: HTMLElement, subtitleText: HTMLElement) => {
+		if (!videoElement || !subtitleArea || !subtitleText) {
 			return;
 		}
 
 		const videoHeight = videoElement.clientHeight;
-		const safeZoneHeight = subtitleSafeZone.clientHeight;
 		const subtitleHeight = subtitleArea.clientHeight;
 
-		let insetTop: number = videoHeight;
-
+		// Handle vertical positioning
 		if (typeof cue.linePosition === "number") {
-			if (cue.linePosition === 50) {
-				// Calculate the exact offset for centering.
-				insetTop = videoHeight / 2 - subtitleHeight / 2;
-			} else {
-				insetTop = (videoHeight * (cue.linePosition / 100)) - (subtitleHeight * (cue.linePosition / 100));
-			}
+			const verticalPos = cue.linePosition === 50
+				? `${50 - (subtitleHeight / videoHeight * 50)}%`  // Center
+				: `${cue.linePosition}%`;                         // Specified position
+
+			subtitleArea.style.bottom = '';
+			subtitleArea.style.top = verticalPos;
+		} else {
+			subtitleArea.style.top = '';
+			subtitleArea.style.bottom = '3%';
 		}
-
-		const safeZoneTop = subtitleSafeZone.getBoundingClientRect().top - videoElement.getBoundingClientRect().top;
-		const safeZoneBottom = safeZoneTop + safeZoneHeight;
-		const buffer = 10;
-
-		insetTop = Math.max(safeZoneTop + buffer, Math.min(insetTop, safeZoneBottom - subtitleHeight - buffer));
-
-		subtitleArea.style.inset = `${insetTop}px 0px 0px`;
 
 		// Handle alignment
 		subtitleArea.classList.remove("aligned-start", "aligned-center", "aligned-end");
@@ -762,15 +764,15 @@ class NMPlayer<T> extends Base<T> {
 			subtitleArea.classList.add("aligned-end");
 		}
 
-		// Handle size (width percentage)
+		// Handle width
 		if (cue.size >= 0 && cue.size <= 100) {
-			subtitleArea.classList.add("sized");
-			subtitleArea.style.width = `${cue.size}%`;
-			subtitleArea.style.left = `${(100 - cue.size) / 2}%`;
+			subtitleArea.style.width = `calc(${cue.size}% - 6%)`;
+			subtitleArea.style.left = `calc(${(100 - cue.size) / 2}% + 3%)`;
+			subtitleArea.style.right = `calc(${(100 - cue.size) / 2}% + 3%)`;
 		} else {
-			subtitleArea.classList.remove("sized");
-			subtitleArea.style.width = `100%`;
-			subtitleArea.style.left = `0%`;
+			subtitleArea.style.width = '100%';
+			subtitleArea.style.left = '3%';
+			subtitleArea.style.right = '3%';
 		}
 	};
 
@@ -811,7 +813,7 @@ class NMPlayer<T> extends Base<T> {
 			this.subtitleText.appendChild(fragment);
 			this.subtitleText.setAttribute('data-language', this.getCaptionLanguage());
 			requestAnimationFrame(() => {
-				this.computeSubtitlePosition(subtitleCue, this.videoElement, this.subtitleSafeZone, this.subtitleArea, this.subtitleText);
+				this.computeSubtitlePosition(subtitleCue, this.videoElement, this.subtitleArea, this.subtitleText);
 			});
 		}
 
@@ -1092,7 +1094,7 @@ class NMPlayer<T> extends Base<T> {
 	}
 
 	videoPlayer_loadedmetadataEvent(e: Event): void {
-		const _e = e as Event & {target: HTMLVideoElement};
+		const _e = e as Event & { target: HTMLVideoElement };
 		this.emit('loadedmetadata', this.videoElement);
 		this.emit('duration', this.videoPlayer_getTimeData(_e));
 	}
@@ -1102,14 +1104,14 @@ class NMPlayer<T> extends Base<T> {
 	}
 
 	videoPlayer_timeupdateEvent(e: Event): void {
-		const _e = e as Event & {target: HTMLVideoElement};
+		const _e = e as Event & { target: HTMLVideoElement };
 		if (Number.isNaN(_e.target.duration) || Number.isNaN(_e.target.currentTime)) return;
 
 		this.emit('time', this.videoPlayer_getTimeData(_e));
 	}
 
 	videoPlayer_durationchangeEvent(e: Event): void {
-		const _e = e as Event & {target: HTMLVideoElement};
+		const _e = e as Event & { target: HTMLVideoElement };
 		this.emit('duration', this.videoPlayer_getTimeData(_e));
 
 		this.emit('ready');
@@ -1134,7 +1136,7 @@ class NMPlayer<T> extends Base<T> {
 		this.volume = Math.round(this.videoElement.volume * 100);
 	}
 
-	videoPlayer_getTimeData(_e: {target: HTMLVideoElement}): TimeData {
+	videoPlayer_getTimeData(_e: { target: HTMLVideoElement }): TimeData {
 		return {
 			currentTime: _e.target.currentTime,
 			duration: _e.target.duration,
@@ -1438,7 +1440,7 @@ class NMPlayer<T> extends Base<T> {
 
 				const playlistItem = progressItem
 					.filter(i => i.progress)
-					.sort((a,b) => new Date(b.progress!.date).getTime() - new Date(a.progress!.date).getTime())
+					.sort((a, b) => new Date(b.progress!.date).getTime() - new Date(a.progress!.date).getTime())
 					.at(0);
 
 				if (!playlistItem?.progress) {
@@ -1540,7 +1542,7 @@ class NMPlayer<T> extends Base<T> {
 
 	}
 
-	getParameterByName<T extends number|string>(name: string, url = window.location.href): T|null {
+	getParameterByName<T extends number | string>(name: string, url = window.location.href): T | null {
 		name = name.replace(/[[\]]/gu, '\\$&');
 
 		const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`, 'u');
@@ -1803,7 +1805,7 @@ class NMPlayer<T> extends Base<T> {
 		this.translations[key] = value;
 	}
 
-	addTranslations(translations: {key: string, value: string}[]): void {
+	addTranslations(translations: { key: string, value: string }[]): void {
 		if (!this.translations) {
 			this.translations = {};
 		}
