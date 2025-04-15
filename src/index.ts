@@ -689,7 +689,7 @@ class NMPlayer<T> extends Base<T> {
 	}
 
 
-	setSubtitleStyle(style: SubtitleStyle): void {
+	setSubtitleStyle(style: Partial<SubtitleStyle>): void {
 		this.subtitleStyle = { ...this.subtitleStyle, ...style };
 		this.applySubtitleStyle();
 	}

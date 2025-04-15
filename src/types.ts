@@ -368,7 +368,7 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	volumeDown(): void;
 	volumeUp(): void;
 
-	setSubtitleStyle(style: SubtitleStyle): void;
+	setSubtitleStyle(style: Partial<SubtitleStyle>): void;
 	getSubtitleStyle(): SubtitleStyle;
 
 	emit(event: 'all', data?: any): void;
