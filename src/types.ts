@@ -306,6 +306,7 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	getQualityLevels(): Level[];
 	getSeasons(): Array<{ season: number; seasonName: string; episodes: number; }>;
 	getSpeeds(): number[];
+	getSpeed(): number;
 	getSpriteFile(): string | undefined;
 	getState(): PlayState;
 	getSubtitleFile(): string | undefined;
