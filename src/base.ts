@@ -53,7 +53,7 @@ export class Base<T = Record<string, any>> {
 
 	events: {
 		type: string;
-		fn: (arg?: any) => void;
+		fn: ((arg?: any) => void) & { original?: (arg?: any) => void };
 	}[] = [];
 
 	constructor() {
@@ -267,6 +267,7 @@ export class Base<T = Record<string, any>> {
 	on(event: any, callback: (arg: any) => any) {
 		this.eventHooks(event, true);
 		const cb = (e: Event) => callback((e as CustomEvent).detail);
+		cb.original = callback; // Store original callback reference
 		this.eventTarget.addEventListener(event, cb);
 		this.events.push({ type: event, fn: cb });
 	}
@@ -374,10 +375,14 @@ export class Base<T = Record<string, any>> {
 		this.eventHooks(event, false);
 
 		if (callback) {
-			this.eventTarget.removeEventListener(event, callback);
-			const index = this.events.findIndex(e => e.type === event && e.fn === callback);
-			if (index > -1) {
-				this.events.splice(index, 1);
+			// Find event with matching original callback
+			const eventObj = this.events.find(e => e.type === event && e.fn.original === callback);
+			if (eventObj) {
+				this.eventTarget.removeEventListener(event, eventObj.fn);
+				const index = this.events.findIndex(e => e === eventObj);
+				if (index > -1) {
+					this.events.splice(index, 1);
+				}
 			}
 			return;
 		}
