@@ -379,6 +379,7 @@ export class Base<T = Record<string, any>> {
 			if (index > -1) {
 				this.events.splice(index, 1);
 			}
+			return;
 		}
 
 		if (event === 'all') {
