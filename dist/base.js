@@ -59,17 +59,23 @@ class Base {
     on(event, callback) {
         this.eventHooks(event, true);
         const cb = (e) => callback(e.detail);
+        cb.original = callback; // Store original callback reference
         this.eventTarget.addEventListener(event, cb);
         this.events.push({ type: event, fn: cb });
     }
     off(event, callback) {
         this.eventHooks(event, false);
         if (callback) {
-            this.eventTarget.removeEventListener(event, callback);
-            const index = this.events.findIndex(e => e.type === event && e.fn === callback);
-            if (index > -1) {
-                this.events.splice(index, 1);
+            // Find event with matching original callback
+            const eventObj = this.events.find(e => e.type === event && e.fn.original === callback);
+            if (eventObj) {
+                this.eventTarget.removeEventListener(event, eventObj.fn);
+                const index = this.events.findIndex(e => e === eventObj);
+                if (index > -1) {
+                    this.events.splice(index, 1);
+                }
             }
+            return;
         }
         if (event === 'all') {
             this.events.forEach((e) => {

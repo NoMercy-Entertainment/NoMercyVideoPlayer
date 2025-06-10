@@ -25,7 +25,9 @@ export declare class Base<T = Record<string, any>> {
     hasCloseEventHandler: boolean;
     events: {
         type: string;
-        fn: (arg?: any) => void;
+        fn: ((arg?: any) => void) & {
+            original?: (arg?: any) => void;
+        };
     }[];
     constructor();
     /**

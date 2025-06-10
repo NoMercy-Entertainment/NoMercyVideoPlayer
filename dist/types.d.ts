@@ -160,7 +160,7 @@ export interface Position {
     };
 }
 export type StretchOptions = 'exactfit' | 'fill' | 'none' | 'uniform';
-export interface PlayerConfig<T> extends Record<string, any> {
+export interface PlayerConfig<T = Record<string, any>> {
     nipple?: boolean;
     styles?: any;
     chapters?: boolean;
@@ -274,9 +274,9 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     getMute(): boolean;
     getNextChapter(currentEndTime: number): Cue | undefined;
     getParameterByName(value: string): string | number | null;
-    getPlaylist(): (PlaylistItem & T)[];
+    getPlaylist(): PlaylistItem & T['playlist'][number][];
     getPlaylistIndex(): number;
-    getPlaylistItem(index?: number): (PlaylistItem & T);
+    getPlaylistItem(index?: number): PlaylistItem & T['playlist'][number];
     getPlugin(name: string): Plugin | undefined;
     getPreviousChapter(currentStartTime: number): Cue | undefined;
     getQualityLevels(): Level[];
@@ -305,16 +305,15 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     isMobile(): boolean;
     isMuted(): boolean;
     isTv(): boolean;
-    load(playlist: (PlaylistItem & T)[] | string): void;
+    load(playlist: PlayerConfig<T>['playlist'] | string): void;
     localize(value: string): string;
     next(): void;
     nextChapter(): void;
     pause(state?: boolean): void;
     pauseAd(toggle: boolean): void;
     play(state?: boolean): Promise<void>;
-    playlistItem(): (PlaylistItem & T);
+    playlistItem(): PlaylistItem & T['playlist'][number];
     playlistItem(index: number): void;
-    playlistItem(index?: number): (PlaylistItem & T) | void;
     previous(): void;
     previousChapter(): void;
     registerPlugin(id: string, plugin: Plugin): void;
@@ -333,8 +332,8 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     setMute(state?: boolean): void;
     setPip(state?: boolean): void;
     setPlaybackRate(rate?: number): void;
-    setPlaylist(playlist: (PlaylistItem & T)[]): void;
-    setPlaylistItemCallback(callback: null | ((item: (PlaylistItem & T), index: number) => void | Promise<(PlaylistItem & T)>)): void;
+    setPlaylist(playlist: PlayerConfig<T>['playlist']): void;
+    setPlaylistItemCallback(callback: null | ((item: PlaylistItem & T['playlist'][number], index: number) => void | Promise<PlayerConfig<T>['playlist']>)): void;
     setSpeed(speed: any): void;
     setVolume(volume: number): void;
     setup<Conf extends PlayerConfig<T>>(options: Conf & PlayerConfig<T>): NMPlayer<Conf>;
@@ -353,7 +352,7 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     emit(event: 'ready', data?: any): void;
     emit(event: 'setupError', data?: any): void;
     emit(event: 'playlist', data?: any): void;
-    emit(event: 'item', data: (PlaylistItem & T)): void;
+    emit(event: 'item', data: PlaylistItem & T['playlist'][number]): void;
     emit(event: 'playlistComplete', data?: any): void;
     emit(event: 'nextClick', data?: any): void;
     emit(event: 'bufferChange', data?: any): void;
@@ -438,8 +437,8 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     on(event: 'all', callback: () => void): void;
     on(event: 'ready', callback: () => void): void;
     on(event: 'setupError', callback: () => void): void;
-    on(event: 'playlist', callback: (data: (PlaylistItem & T)[]) => void): void;
-    on(event: 'item', callback: (data: (PlaylistItem & T)) => void): void;
+    on(event: 'playlist', callback: (data: PlayerConfig<T>['playlist']) => void): void;
+    on(event: 'item', callback: (data: PlaylistItem & T['playlist'][number]) => void): void;
     on(event: 'playlistComplete', callback: () => void): void;
     on(event: 'nextClick', callback: () => void): void;
     on(event: 'bufferChange', callback: () => void): void;
@@ -586,8 +585,8 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     once(event: 'all', callback: () => void): void;
     once(event: 'ready', callback: () => void): void;
     once(event: 'setupError', callback: () => void): void;
-    once(event: 'playlist', callback: (data: (PlaylistItem & T)[]) => void): void;
-    once(event: 'item', callback: (data: (PlaylistItem & T)) => void): void;
+    once(event: 'playlist', callback: (data: PlayerConfig<T>['playlist']) => void): void;
+    once(event: 'item', callback: (data: PlaylistItem & T['playlist'][number]) => void): void;
     once(event: 'playlistComplete', callback: () => void): void;
     once(event: 'nextClick', callback: () => void): void;
     once(event: 'bufferChange', callback: () => void): void;
