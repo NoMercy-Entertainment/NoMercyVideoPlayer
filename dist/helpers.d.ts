@@ -1,3 +1,4 @@
+import { EdgeStyle, SubtitleStyle } from "./types";
 /**
  * Converts a given time in seconds or string format to a human-readable time format.
  * @param time - The time to convert, in seconds or string format.
@@ -47,3 +48,18 @@ export declare const limitSentenceByCharacters: (str: string, characters?: numbe
  * @returns The modified TV show string.
  */
 export declare const lineBreakShowTitle: (str: string, removeShow?: boolean) => string;
+export declare const getEdgeStyle: (edgeStyle: EdgeStyle, opacity: number) => string;
+export declare const edgeStyles: readonly {
+    name: string;
+    value: EdgeStyle;
+}[];
+export declare const fontFamilies: readonly {
+    name: string;
+    value: string;
+}[];
+export declare const defaultSubtitleStyles: SubtitleStyle;
+export declare const namedColors: Record<string, string>;
+export declare const parseColorToHex: (color: string, opacity?: number) => string;
+export declare const rgbToHex: (rgb: string, opacity: number) => string;
+export declare const hslToHex: (hsl: string, opacity: number) => string;
+export declare const normalizeHex: (hex: string, opacity: number) => string;

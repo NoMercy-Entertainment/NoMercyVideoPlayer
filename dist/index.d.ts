@@ -1,9 +1,9 @@
-import { Base } from './base';
 import HLS, { type MediaPlaylist } from 'hls.js';
 import { Cue, type VTTData } from 'webvtt-parser';
+import { Base } from './base';
 import type Plugin from './plugin';
-import { PlaylistItem, PreviewTime, PlayerConfig, Stretching, TimeData, Track, TypeMappings, Chapter, Level } from './types';
-declare class NMPlayer<T> extends Base<T> {
+import { PlaylistItem, PreviewTime, PlayerConfig, Stretching, TimeData, Track, TypeMappings, Chapter, Level, SubtitleStyle } from './types';
+declare class NMPlayer<T = Record<string, any>> extends Base<T> {
     hls: HLS | undefined;
     gainNode: GainNode | undefined;
     translations: {
@@ -30,8 +30,8 @@ declare class NMPlayer<T> extends Base<T> {
     subtitles: VTTData;
     currentSubtitleFile: string;
     currentSpriteFile: string;
-    playlist: PlaylistItem[];
-    currentPlaylistItem: PlaylistItem;
+    playlist: (PlaylistItem & T)[];
+    currentPlaylistItem: (PlaylistItem & T);
     currentIndex: number;
     isPlaying: boolean;
     muted: boolean;
@@ -45,12 +45,15 @@ declare class NMPlayer<T> extends Base<T> {
      * - `fill`: Zooms and crops video to fill dimensions, maintaining aspect ratio.
      * - `exactfit`: Fits Player dimensions without maintaining aspect ratio.
      * - `none`: Displays the actual size of the video file (Black borders).
+     * - `16:9`: Stretches the video to a 16:9 aspect ratio.
+     * - `4:3`: Stretches the video to a 4:3 aspect ratio.
      */
     stretchOptions: Array<Stretching>;
     currentAspectRatio: typeof this.stretchOptions[number];
     allowFullscreen: boolean;
     shouldFloat: boolean;
     firstFrame: boolean;
+    subtitleStyle: SubtitleStyle;
     constructor(id?: string | number);
     init(id: string): this;
     registerPlugin(name: string, plugin: any): void;
@@ -91,7 +94,7 @@ declare class NMPlayer<T> extends Base<T> {
      * @param callback - The callback function to invoke with the fetched file contents.
      * @returns A Promise that resolves with the fetched file contents.
      */
-    getFileContents: <T_1 = TypeMappings>({ url, options, callback }: {
+    getFileContents: <T = TypeMappings>({ url, options, callback }: {
         url: string;
         options: {
             type?: TypeMappings;
@@ -148,7 +151,18 @@ declare class NMPlayer<T> extends Base<T> {
     createBaseStyles(): void;
     createSubtitleFontFamily(): void;
     createSubtitleOverlay(): void;
+    setSubtitleStyle(style: Partial<SubtitleStyle>): void;
+    getSubtitleStyle(): SubtitleStyle;
+    private applySubtitleStyle;
+    computeSubtitlePosition: (cue: Cue, videoElement: HTMLVideoElement, subtitleArea: HTMLElement, subtitleText: HTMLElement) => void;
+    /**
+     * This method is called every time event of the video element.
+     * It will generate the content of the subtitle overlay.
+     */
     checkSubtitles(): void;
+    buildSubtitleFragment(text: string): DocumentFragment;
+    updateDisplayOverlay(): void;
+    getCSSPositionValue(position: number): string;
     hdrSupported(): boolean;
     loadSource(url: string): void;
     addGainNode(): void;
@@ -163,7 +177,8 @@ declare class NMPlayer<T> extends Base<T> {
     videoPlayer_playEvent(): void;
     videoPlayer_onPlayingEvent(): void;
     setMediaAPI(): void;
-    setCaptionFromStorage(): void;
+    setCurrentCaptionFromStorage(): Promise<void>;
+    setCurrentAudioTrackFromStorage(): void;
     videoPlayer_pauseEvent(): void;
     videoPlayer_endedEvent(): void;
     videoPlayer_errorEvent(): void;
@@ -258,9 +273,6 @@ declare class NMPlayer<T> extends Base<T> {
      */
     getSkip(): any;
     /**
-     * Returns an array of available playback speeds.
-     * If the player is a JWPlayer, it returns the playbackRates from the options object.
-     * Otherwise, it returns the playbackRates from the player object.
      * @returns An array of available playback speeds.
      */
     getSpeeds(): number[];
@@ -372,14 +384,14 @@ declare class NMPlayer<T> extends Base<T> {
      * @returns {boolean} True if the current device is a TV, false otherwise.
      */
     isTv(): boolean;
-    setup<T = Partial<PlayerConfig>>(options: T & Partial<PlayerConfig>): NMPlayer<T>;
-    setConfig<T>(options: Partial<T & PlayerConfig>): void;
+    setup<T = Partial<PlayerConfig<Record<string, any>>>>(options: Partial<PlayerConfig<T>>): NMPlayer<T>;
+    setConfig<T>(options: Partial<T & PlayerConfig<any>>): void;
     getContainer(): HTMLDivElement;
-    getPlaylist(): PlaylistItem[];
-    getPlaylistItem(index?: number): PlaylistItem;
+    getPlaylist(): (PlaylistItem & T)[];
+    getPlaylistItem(index?: number): (PlaylistItem & T);
     getPlaylistIndex(): number;
-    load(playlist: PlaylistItem[]): void;
-    playlistItem(): PlaylistItem;
+    load(playlist: (PlaylistItem & T)[]): void;
+    playlistItem(): (PlaylistItem & T);
     playlistItem(index: number): void;
     /**
      * Sets the current episode to play based on the given season and episode numbers.
@@ -520,7 +532,7 @@ declare class NMPlayer<T> extends Base<T> {
      * Sets the aspect ratio of the player.
      * @param aspect - The aspect ratio to set.
      */
-    setAspect(aspect: 'exactfit' | 'fill' | 'none' | 'uniform'): void;
+    setAspect(aspect: 'exactfit' | 'fill' | 'none' | 'uniform' | '16:9' | '4:3'): void;
     /**
      * Cycles through the available aspect ratio options and sets the current aspect ratio to the next one.
      */
@@ -542,5 +554,5 @@ declare class NMPlayer<T> extends Base<T> {
         episodes: number;
     }>;
 }
-declare const nmplayer: <Conf extends Partial<PlayerConfig> = {}>(id?: string) => NMPlayer<Conf>;
+declare const nmplayer: <Conf extends Partial<PlayerConfig<Record<string, any>>> = {}>(id?: string) => NMPlayer<Conf>;
 export default nmplayer;

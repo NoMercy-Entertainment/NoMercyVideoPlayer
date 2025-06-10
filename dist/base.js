@@ -5,15 +5,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Base = void 0;
+const playerStorage_1 = __importDefault(require("./playerStorage"));
 const media_session_1 = __importDefault(require("@nomercy-entertainment/media-session"));
 class Base {
     constructor() {
-        this.eventElement = {};
+        this.eventTarget = {};
         this.container = {};
         this.videoElement = {};
         this.overlay = {};
         this.subtitleOverlay = {};
+        this.subtitleSafeZone = {};
+        this.subtitleArea = {};
         this.subtitleText = {};
+        this.storage = new playerStorage_1.default();
         this.translations = {};
         this.playerId = '';
         this.setupTime = 0;
@@ -37,43 +41,57 @@ class Base {
             disableControls: false,
             disableTouchControls: false,
             doubleClickDelay: 300,
+            customStorage: playerStorage_1.default.prototype.storage,
         };
         this.hasPipEventHandler = false;
         this.hasTheaterEventHandler = false;
         this.hasBackEventHandler = false;
         this.hasCloseEventHandler = false;
         this.events = [];
-        this.eventElement = document.createElement('div');
+        this.eventTarget = new EventTarget();
         this.mediaSession = new media_session_1.default();
     }
     emit(event, data) {
-        this.eventElement?.dispatchEvent?.(new CustomEvent(event, {
+        this.eventTarget?.dispatchEvent?.(new CustomEvent(event, {
             detail: data,
         }));
     }
     on(event, callback) {
         this.eventHooks(event, true);
-        this.eventElement?.addEventListener(event, (e) => callback(e.detail));
-        this.events.push({ type: event, fn: callback });
+        const cb = (e) => callback(e.detail);
+        this.eventTarget.addEventListener(event, cb);
+        this.events.push({ type: event, fn: cb });
     }
     off(event, callback) {
         this.eventHooks(event, false);
         if (callback) {
-            this.eventElement.removeEventListener(event, callback);
+            this.eventTarget.removeEventListener(event, callback);
+            const index = this.events.findIndex(e => e.type === event && e.fn === callback);
+            if (index > -1) {
+                this.events.splice(index, 1);
+            }
         }
         if (event === 'all') {
             this.events.forEach((e) => {
-                this.eventElement.removeEventListener(e.type, e.fn);
+                this.eventTarget.removeEventListener(e.type, e.fn);
             });
+            this.events = []; // Clear all events
             return;
         }
-        this.events.filter(e => e.type === event).forEach((e) => {
-            this.eventElement.removeEventListener(e.type, e.fn);
+        // Remove all events of specific type
+        const eventsToRemove = this.events.filter(e => e.type === event);
+        eventsToRemove.forEach((e) => {
+            this.eventTarget.removeEventListener(e.type, e.fn);
+            const index = this.events.findIndex(event => event === e);
+            if (index > -1) {
+                this.events.splice(index, 1);
+            }
         });
     }
     once(event, callback) {
         this.eventHooks(event, true);
-        this.eventElement?.addEventListener(event, e => callback(e.detail), { once: true });
+        const cb = (e) => callback(e.detail);
+        this.eventTarget.addEventListener(event, cb, { once: true });
     }
     /**
      * Sets the enabled state of various event hooks.

@@ -4,8 +4,8 @@ import PlayerStorage from './playerStorage';
 import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime, SubtitleStyle } from './types';
 import MediaSession from '@nomercy-entertainment/media-session';
 
-export class Base<T> {
-	eventElement: HTMLDivElement = <HTMLDivElement>{};
+export class Base<T = Record<string, any>> {
+	eventTarget: EventTarget = <EventTarget>{};
 	container: HTMLDivElement = <HTMLDivElement>{};
 	videoElement: HTMLVideoElement = <HTMLVideoElement>{};
 	overlay: HTMLDivElement = <HTMLDivElement>{};
@@ -26,7 +26,7 @@ export class Base<T> {
 	message: NodeJS.Timeout = <NodeJS.Timeout>{};
 
 	// Options
-	options: T & PlayerConfig = {
+	options: T & PlayerConfig<Record<string, any>> = {
 		muted: false,
 		autoPlay: false,
 		controls: false,
@@ -44,7 +44,7 @@ export class Base<T> {
 		disableTouchControls: false,
 		doubleClickDelay: 300,
 		customStorage: PlayerStorage.prototype.storage,
-	} as T & PlayerConfig;
+	} as T & PlayerConfig<Record<string, any>>;
 
 	hasPipEventHandler = false;
 	hasTheaterEventHandler = false;
@@ -57,7 +57,7 @@ export class Base<T> {
 	}[] = [];
 
 	constructor() {
-		this.eventElement = document.createElement('div');
+		this.eventTarget = new EventTarget();
 
 		this.mediaSession = new MediaSession();
 	}
@@ -159,7 +159,7 @@ export class Base<T> {
 
 	emit(event: string, data?: any): void;
 	emit(event: any, data?: any): void {
-		this.eventElement?.dispatchEvent?.(new CustomEvent(event, {
+		this.eventTarget?.dispatchEvent?.(new CustomEvent(event, {
 			detail: data,
 		}));
 	}
@@ -264,13 +264,11 @@ export class Base<T> {
 	on(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
 
 	on(event: string, callback: () => void): void;
-	on(event: any, callback: (arg0: any) => any) {
+	on(event: any, callback: (arg: any) => any) {
 		this.eventHooks(event, true);
-		this.eventElement?.addEventListener(event, (e: {
-			detail: any;
-		}) => callback(e.detail));
-
-		this.events.push({ type: event, fn: callback });
+		const cb = (e: Event) => callback((e as CustomEvent).detail);
+		this.eventTarget.addEventListener(event, cb);
+		this.events.push({ type: event, fn: cb });
 	}
 
 	/**
@@ -376,18 +374,29 @@ export class Base<T> {
 		this.eventHooks(event, false);
 
 		if (callback) {
-			this.eventElement.removeEventListener(event, callback);
+			this.eventTarget.removeEventListener(event, callback);
+			const index = this.events.findIndex(e => e.type === event && e.fn === callback);
+			if (index > -1) {
+				this.events.splice(index, 1);
+			}
 		}
 
 		if (event === 'all') {
 			this.events.forEach((e) => {
-				this.eventElement.removeEventListener(e.type, e.fn);
+				this.eventTarget.removeEventListener(e.type, e.fn);
 			});
+			this.events = []; // Clear all events
 			return;
 		}
 
-		this.events.filter(e => e.type === event).forEach((e) => {
-			this.eventElement.removeEventListener(e.type, e.fn);
+		// Remove all events of specific type
+		const eventsToRemove = this.events.filter(e => e.type === event);
+		eventsToRemove.forEach((e) => {
+			this.eventTarget.removeEventListener(e.type, e.fn);
+			const index = this.events.findIndex(event => event === e);
+			if (index > -1) {
+				this.events.splice(index, 1);
+			}
 		});
 	}
 
@@ -492,9 +501,10 @@ export class Base<T> {
 	once(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
 
 	once(event: string, callback: () => void): void;
-	once(event: any, callback: (arg0: any) => any) {
+	once(event: any, callback: (arg: any) => any) {
 		this.eventHooks(event, true);
-		this.eventElement?.addEventListener(event, e => callback((e as any).detail), { once: true });
+		const cb = (e: Event) => callback((e as CustomEvent).detail);
+		this.eventTarget.addEventListener(event, cb, { once: true });
 	}
 
 	/**

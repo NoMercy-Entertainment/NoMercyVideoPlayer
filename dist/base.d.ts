@@ -1,12 +1,16 @@
+import PlayerStorage from './playerStorage';
 import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './types';
 import MediaSession from '@nomercy-entertainment/media-session';
-export declare class Base<T> {
-    eventElement: HTMLDivElement;
+export declare class Base<T = Record<string, any>> {
+    eventTarget: EventTarget;
     container: HTMLDivElement;
     videoElement: HTMLVideoElement;
     overlay: HTMLDivElement;
     subtitleOverlay: HTMLDivElement;
+    subtitleSafeZone: HTMLDivElement;
+    subtitleArea: HTMLDivElement;
     subtitleText: HTMLSpanElement;
+    storage: PlayerStorage;
     mediaSession: MediaSession;
     translations: {
         [key: string]: string;
@@ -14,7 +18,7 @@ export declare class Base<T> {
     playerId: string;
     setupTime: number;
     message: NodeJS.Timeout;
-    options: T & PlayerConfig;
+    options: T & PlayerConfig<Record<string, any>>;
     hasPipEventHandler: boolean;
     hasTheaterEventHandler: boolean;
     hasBackEventHandler: boolean;

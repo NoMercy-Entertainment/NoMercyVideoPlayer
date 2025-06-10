@@ -6,10 +6,13 @@ class Plugin {
     }
     initialize(player) {
         this.player = player;
-        // This method should be overridden by subclasses
+        // Setup any necessary initial state or configuration here
     }
     use() {
-        // This method should be overridden by subclasses
+        // Your plugin logic goes here
+    }
+    dispose() {
+        // Clean up any resources or listeners here
     }
 }
 exports.default = Plugin;

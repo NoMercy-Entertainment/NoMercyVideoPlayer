@@ -1,15 +1,23 @@
 import type { NMPlayer } from './types';
 
-class Plugin {
-	player: NMPlayer = <NMPlayer>{};
+interface PluginConfig {
 
-	initialize(player: NMPlayer) {
+}
+
+class Plugin {
+	player: NMPlayer<PluginConfig> = <NMPlayer<PluginConfig>>{};
+
+	initialize(player: NMPlayer<PluginConfig>) {
 		this.player = player;
-		// This method should be overridden by subclasses
+		// Setup any necessary initial state or configuration here
 	}
 
 	use() {
-		// This method should be overridden by subclasses
+		// Your plugin logic goes here
+	}
+
+	dispose() {
+		// Clean up any resources or listeners here
 	}
 }
 

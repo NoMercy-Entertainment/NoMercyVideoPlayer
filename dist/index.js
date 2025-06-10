@@ -1,15 +1,18 @@
 "use strict";
-// noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const base_1 = require("./base");
+// noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 const hls_js_1 = __importDefault(require("hls.js"));
 const webvtt_parser_1 = require("webvtt-parser");
+const base_1 = require("./base");
 const translations_1 = __importDefault(require("./translations"));
 const helpers_1 = require("./helpers");
-const ReithSansBold_1 = __importDefault(require("./fonts/ReithSans/ReithSansBold"));
+const ReithSansExtraBold_1 = __importDefault(require("./fonts/ReithSans/ReithSansExtraBold"));
+const ReithSansExtraBoldItalic_1 = __importDefault(require("./fonts/ReithSans/ReithSansExtraBoldItalic"));
+const ReithSansMedium_1 = __importDefault(require("./fonts/ReithSans/ReithSansMedium"));
+const ReithSansMediumItalic_1 = __importDefault(require("./fonts/ReithSans/ReithSansMediumItalic"));
 const NotoSansJPBold_1 = __importDefault(require("./fonts/NotoSansJPFonts/NotoSansJPBold"));
 const instances = new Map();
 const DEFAULT_LEEWAY = 300;
@@ -56,17 +59,22 @@ class NMPlayer extends base_1.Base {
          * - `fill`: Zooms and crops video to fill dimensions, maintaining aspect ratio.
          * - `exactfit`: Fits Player dimensions without maintaining aspect ratio.
          * - `none`: Displays the actual size of the video file (Black borders).
+         * - `16:9`: Stretches the video to a 16:9 aspect ratio.
+         * - `4:3`: Stretches the video to a 4:3 aspect ratio.
          */
         this.stretchOptions = [
             'uniform',
             'fill',
             'exactfit',
             'none',
+            '16:9',
+            '4:3',
         ];
         this.currentAspectRatio = this.options.stretching ?? 'uniform';
         this.allowFullscreen = true;
         this.shouldFloat = false;
         this.firstFrame = false;
+        this.subtitleStyle = helpers_1.defaultSubtitleStyles;
         /**
          * Fetches the contents of a file from the specified URL using the provided options and callback function.
          * @param url - The URL of the file to fetch.
@@ -113,6 +121,47 @@ class NMPlayer extends base_1.Base {
                 .catch((reason) => {
                 console.error('Failed to fetch file contents', reason);
             });
+        };
+        this.computeSubtitlePosition = (cue, videoElement, subtitleArea, subtitleText) => {
+            if (!videoElement || !subtitleArea || !subtitleText) {
+                return;
+            }
+            const videoHeight = videoElement.clientHeight;
+            const subtitleHeight = subtitleArea.clientHeight;
+            // Handle vertical positioning
+            if (typeof cue.linePosition === "number") {
+                const verticalPos = cue.linePosition === 50
+                    ? `${50 - (subtitleHeight / videoHeight * 50)}%` // Center
+                    : `${cue.linePosition}%`; // Specified position
+                subtitleArea.style.bottom = '';
+                subtitleArea.style.top = verticalPos;
+            }
+            else {
+                subtitleArea.style.top = '';
+                subtitleArea.style.bottom = '3%';
+            }
+            // Handle alignment
+            subtitleArea.classList.remove("aligned-start", "aligned-center", "aligned-end");
+            if (cue.alignment === "start" || cue.alignment === "left") {
+                subtitleArea.classList.add("aligned-start");
+            }
+            else if (cue.alignment === "center") {
+                subtitleArea.classList.add("aligned-center");
+            }
+            else if (cue.alignment === "end" || cue.alignment === "right") {
+                subtitleArea.classList.add("aligned-end");
+            }
+            // Handle width
+            if (cue.size >= 0 && cue.size <= 100) {
+                subtitleArea.style.width = `calc(${cue.size}% - 6%)`;
+                subtitleArea.style.left = `calc(${(100 - cue.size) / 2}% + 3%)`;
+                subtitleArea.style.right = `calc(${(100 - cue.size) / 2}% + 3%)`;
+            }
+            else {
+                subtitleArea.style.width = '100%';
+                subtitleArea.style.left = '3%';
+                subtitleArea.style.right = '3%';
+            }
         };
         this.inactivityTimeout = null;
         this.inactivityTime = 5000; // 5 seconds of inactivity
@@ -360,10 +409,12 @@ class NMPlayer extends base_1.Base {
         this.videoElement.autoplay = this.options.autoPlay ?? false;
         this.videoElement.controls = this.options.controls ?? false;
         this.videoElement.preload = this.options.preload ?? 'auto';
-        this.videoElement.muted = this.options.muted ?? localStorage.getItem('nmplayer-muted') === 'true';
-        this.videoElement.volume = localStorage.getItem('nmplayer-volume')
-            ? parseFloat(localStorage.getItem('nmplayer-volume')) / 100
-            : 1;
+        this.storage.get('muted', this.options.muted).then((val) => {
+            this.videoElement.muted = val == true;
+        });
+        this.storage.get('volume', 100).then((val) => {
+            this.videoElement.volume = val ? val / 100 : 1;
+        });
     }
     setupVideoElementEventListeners() {
         this.videoElement.addEventListener('scroll', () => {
@@ -422,36 +473,100 @@ class NMPlayer extends base_1.Base {
 			}
 			
 			.nomercyplayer .subtitle-overlay {
-				bottom: 5%;
-				color: rgb(255 255 255);
-				display: none;
-				font-size: 1.25rem;
-				line-height: 1.75rem;
-				padding: 0.5rem;
+				bottom: 3em;
+				left: 0;
+				pointer-events: none;
 				position: absolute;
-				text-align: center;
-				transition-duration: 150ms;
-				transition-property: all;
-				transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-				width: 100%;
+				right: 0;
+				top: 0;
 				z-index: 0;
+			}
+
+			.nomercyplayer .subtitle-overlay .subtitle-safezone {
+				position: absolute;
+				inset: 0px;
+				margin: 1.5%;
+			}
+
+			.nomercyplayer .subtitle-overlay .subtitle-area {
+				direction: ltr;
+				writing-mode: horizontal-tb;
+				unicode-bidi: plaintext;
+				white-space: pre-line;
+				padding: 0.5rem 0;
+				position: absolute;
+				height: fit-content;
+    			font-size: 28px;
+			}
+
+			.nomercyplayer:has(.subtitle-text:empty) .subtitle-overlay .subtitle-area {
+				display: none;
+			}
+
+			.nomercyplayer .subtitle-overlay .subtitle-area.aligned-start {
+				text-align: left;
+			}
+
+			.nomercyplayer .subtitle-overlay .subtitle-area.aligned-center {
+				text-align: center;
+			}
+
+			.nomercyplayer .subtitle-overlay .subtitle-area.aligned-end {
+				text-align: right;
+			}
+
+			.nomercyplayer .subtitle-overlay .subtitle-area.sized {
+				left: 0;
+				width: 100%;
+			}
+
+			.nomercyplayer.active .subtitle-overlay,
+			.nomercyplayer.paused .subtitle-overlay {
+				// bottom: 5rem;
 			}
 			
 			.nomercyplayer .subtitle-overlay .subtitle-text {
-				font-size: clamp(1.5rem, 1.75vw, 2.5rem);
-				line-height: 1.5;
-				text-align: center;
-				text-shadow: black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px, black 0px 0px 4px;
 				white-space: pre-line;
+				padding: 0 0.5rem;
+				display: inline-flex;
+				line-height: 1.2;
+				writing-mode: horizontal-tb;
+				unicode-bidi: plaintext;
+			}
+			
+			.nomercyplayer .subtitle-overlay .subtitle-text:empty {
+				display: none;
 			}
 			
 			.nomercyplayer .subtitle-text,
 			.nomercyplayer .subtitle-text[data-language="eng"] {
-				font-family: ReithSans, sans-serif;
+				font-family: 'ReithSans', sans-serif;
+				font-weight: 500; /* Default to Regular */
+				font-style: normal;
 			}
-			
+
+			.nomercyplayer .subtitle-text i {
+				font-style: italic;
+			}
+
+			.nomercyplayer .subtitle-text b {
+				font-weight: 800; /* Bold */
+			}
+
+			.nomercyplayer .subtitle-text u {
+				text-decoration: underline;
+			}
+
+			.nomercyplayer .subtitle-text b i,
+			.nomercyplayer .subtitle-text i b {
+				font-weight: 800;
+				font-style: italic;
+			}
+
 			.nomercyplayer .subtitle-text[data-language="jpn"] {
 				font-family: 'Noto Sans JP', sans-serif;
+				font-weight: 500;
+				font-style: normal;
 			}
 			
 			.nomercyplayer .ui-overlay {
@@ -500,52 +615,128 @@ class NMPlayer extends base_1.Base {
 			  font-display: swap;
 			  src: url("data:font/woff2;base64,${NotoSansJPBold_1.default}") format("woff2");
 			}
-		`;
-        styleSheet.textContent = `
-			  @font-face {
+			@font-face {
 				font-family: 'ReithSans';
-				font-style: bold;
+				font-style: normal;
+				font-weight: 500; /* Medium */
+				font-display: swap;
+				src: url("data:font/woff2;base64,${ReithSansMedium_1.default}") format("woff2");
+			}
+			@font-face {
+				font-family: 'ReithSans';
+				font-style: italic;
+				font-weight: 500;
+				font-display: swap;
+				src: url("data:font/woff2;base64,${ReithSansMediumItalic_1.default}") format("woff2");
+			}
+			@font-face {
+				font-family: 'ReithSans';
+				font-style: normal;
+				font-weight: 800; /* ExtraBold, assuming close to 800 */
+				font-display: swap;
+				src: url("data:font/woff2;base64,${ReithSansExtraBold_1.default}") format("woff2");
+			}
+			@font-face {
+				font-family: 'ReithSans';
+				font-style: italic;
 				font-weight: 800;
 				font-display: swap;
-        		src: url("data:font/woff2;base64,${ReithSansBold_1.default}") format("woff2");
-			  }
+				src: url("data:font/woff2;base64,${ReithSansExtraBoldItalic_1.default}") format("woff2");
+			}
 		`;
     }
     createSubtitleOverlay() {
         this.subtitleOverlay = this.createElement('div', `${this.playerId}-subtitle-overlay`, true)
             .addClasses(['subtitle-overlay'])
             .appendTo(this.container);
+        this.subtitleArea = this.createElement('div', `${this.playerId}-subtitle-area`, true)
+            .addClasses(['subtitle-area'])
+            .appendTo(this.subtitleOverlay);
         this.subtitleText = this.createElement('span', `${this.playerId}-subtitle-text`, true)
             .addClasses(['subtitle-text'])
-            .appendTo(this.subtitleOverlay);
+            .appendTo(this.subtitleArea);
         this.on('time', this.checkSubtitles.bind(this));
+        this.storage.get('subtitle-style', helpers_1.defaultSubtitleStyles)
+            .then((val) => {
+            this.subtitleStyle = val;
+            this.applySubtitleStyle();
+        });
     }
+    setSubtitleStyle(style) {
+        this.subtitleStyle = { ...this.subtitleStyle, ...style };
+        this.applySubtitleStyle();
+    }
+    getSubtitleStyle() {
+        return this.subtitleStyle;
+    }
+    applySubtitleStyle() {
+        this.storage.set('subtitle-style', this.subtitleStyle).then();
+        Object.entries(this.subtitleStyle).forEach(([key, value]) => {
+            this.emit('set-subtitle-style', {
+                property: key,
+                value: value,
+            });
+        });
+        const { fontSize, fontFamily, textColor, textOpacity, backgroundColor, backgroundOpacity, edgeStyle, areaColor, windowOpacity } = this.subtitleStyle;
+        const areaElement = this.subtitleArea.style;
+        const textElement = this.subtitleText.style;
+        console.log('Applying subtitle style', this.subtitleStyle);
+        if (fontSize)
+            textElement.fontSize = `calc(26px * ${fontSize / 100})`;
+        if (fontFamily)
+            textElement.fontFamily = fontFamily;
+        if (textColor)
+            textElement.color = (0, helpers_1.parseColorToHex)(textColor, textOpacity / 100);
+        if (edgeStyle)
+            textElement.textShadow = (0, helpers_1.getEdgeStyle)(edgeStyle, textOpacity / 100);
+        if (backgroundColor) {
+            textElement.backgroundColor = (0, helpers_1.parseColorToHex)(backgroundColor, backgroundOpacity / 100);
+        }
+        if (areaColor) {
+            areaElement.backgroundColor = (0, helpers_1.parseColorToHex)(areaColor, windowOpacity / 100);
+        }
+    }
+    /**
+     * This method is called every time event of the video element.
+     * It will generate the content of the subtitle overlay.
+     */
     checkSubtitles() {
-        if (!this.subtitles || !this.subtitles.cues || this.subtitles.cues.length === 0) {
-            return;
-        }
-        if (this.subtitles.errors.length > 0) {
-            console.error('Error parsing subtitles:', this.subtitles.errors);
-            return;
-        }
+        // ... (error checks)
         const currentTime = this.videoElement.currentTime;
-        let newSubtitleText = '';
-        // Loop through the subtitles to check which one should be displayed
-        this.subtitles.cues.forEach((subtitle) => {
-            if (currentTime >= subtitle.startTime && currentTime <= subtitle.endTime) {
-                if (subtitle.text === newSubtitleText) {
+        let subtitleCue = {};
+        this.subtitles.cues?.forEach((sub) => {
+            if (currentTime >= sub.startTime && currentTime <= sub.endTime) {
+                if (subtitleCue && sub.text === subtitleCue.text) {
                     return;
                 }
-                newSubtitleText = subtitle.text;
+                subtitleCue = sub;
             }
         });
-        // Display the new subtitle
+        this.subtitleText.innerHTML = '';
+        if (subtitleCue) {
+            // Apply size before rendering.
+            if (subtitleCue.size >= 0 && subtitleCue.size <= 100) {
+                this.subtitleArea.classList.add("sized");
+                this.subtitleArea.style.width = `${subtitleCue.size}%`;
+                this.subtitleArea.style.left = `${(100 - subtitleCue.size) / 2}%`;
+            }
+            else {
+                this.subtitleArea.classList.remove("sized");
+                this.subtitleArea.style.width = `100%`;
+                this.subtitleArea.style.left = `0%`;
+            }
+            const fragment = this.buildSubtitleFragment(subtitleCue.text);
+            this.subtitleText.appendChild(fragment);
+            this.subtitleText.setAttribute('data-language', this.getCaptionLanguage());
+            requestAnimationFrame(() => {
+                this.computeSubtitlePosition(subtitleCue, this.videoElement, this.subtitleArea, this.subtitleText);
+            });
+        }
         this.subtitleOverlay.style.display = 'block';
-        this.subtitleText.innerHTML = ''; // Clear previous content
+    }
+    buildSubtitleFragment(text) {
         const fragment = document.createDocumentFragment();
-        const parts = newSubtitleText.split(/(<\/?i>|<\/?b>)/gu);
-        if (parts.length == 1 && parts[0] == '')
-            return;
+        const parts = text?.split(/(<\/?i>|<\/?b>|<\/?u>)/gu) ?? [];
         let currentElement = null;
         parts.forEach((part) => {
             if (part === '<i>') {
@@ -554,7 +745,10 @@ class NMPlayer extends base_1.Base {
             else if (part === '<b>') {
                 currentElement = document.createElement('b');
             }
-            else if (part === '</i>' || part === '</b>') {
+            else if (part === '<u>') {
+                currentElement = document.createElement('u');
+            }
+            else if (part === '</i>' || part === '</b>' || part === '</u>') {
                 if (currentElement) {
                     fragment.appendChild(currentElement);
                     currentElement = null;
@@ -567,8 +761,28 @@ class NMPlayer extends base_1.Base {
                 fragment.appendChild(document.createTextNode(part));
             }
         });
-        this.subtitleText.appendChild(fragment);
-        this.subtitleText.setAttribute('data-language', this.getCaptionLanguage());
+        return fragment;
+    }
+    updateDisplayOverlay() {
+        const playerWidth = this.videoElement.videoWidth;
+        const playerHeight = this.videoElement.videoHeight;
+        const playerAspectRatio = playerWidth / playerHeight;
+        const videoAspectRatio = this.videoElement.videoWidth / this.videoElement.videoHeight;
+        let insetInlineMatch = 0;
+        let insetBlockMatch = 0;
+        if (Math.abs(playerAspectRatio - videoAspectRatio) > 0.1) {
+            if (playerAspectRatio > videoAspectRatio) {
+                insetInlineMatch = Math.round((playerWidth - playerHeight * videoAspectRatio) / 2);
+            }
+            else {
+                insetBlockMatch = Math.round((playerHeight - playerWidth / videoAspectRatio) / 2);
+            }
+        }
+        this.subtitleSafeZone.style.insetInline = this.getCSSPositionValue(insetInlineMatch);
+        this.subtitleSafeZone.style.insetBlock = this.getCSSPositionValue(insetBlockMatch);
+    }
+    getCSSPositionValue(position) {
+        return position ? `${position}px` : '';
     }
     hdrSupported() {
         // noinspection JSDeprecatedSymbols
@@ -688,16 +902,27 @@ class NMPlayer extends base_1.Base {
             artwork: data.image ? data.image : undefined,
         });
     }
-    setCaptionFromStorage() {
-        if (localStorage.getItem('nmplayer-subtitle-language')
-            && localStorage.getItem('nmplayer-subtitle-type')
-            && localStorage.getItem('nmplayer-subtitle-ext')) {
-            const track = this.getTextTrackIndexBy(localStorage.getItem('nmplayer-subtitle-language'), localStorage.getItem('nmplayer-subtitle-type'), localStorage.getItem('nmplayer-subtitle-ext'));
+    async setCurrentCaptionFromStorage() {
+        const subtitleLanguage = await this.storage.get('subtitle-language', null);
+        const subtitleType = await this.storage.get('subtitle-type', null);
+        const subtitleExt = await this.storage.get('subtitle-ext', null);
+        if (subtitleLanguage && subtitleType && subtitleExt) {
+            const track = this.getTextTrackIndexBy(subtitleLanguage, subtitleType, subtitleExt);
             if (track == null || track == -1)
                 return;
             this.options.debug && console.log('Setting caption from storage', track);
             this.setCurrentCaption(track);
         }
+    }
+    setCurrentAudioTrackFromStorage() {
+        this.storage.get('audio-language', null).then((val) => {
+            if (val) {
+                this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(val));
+            }
+            else {
+                this.setCurrentAudioTrack(0);
+            }
+        });
     }
     videoPlayer_pauseEvent() {
         this.container.classList.remove('playing');
@@ -791,13 +1016,11 @@ class NMPlayer extends base_1.Base {
     ui_addActiveClass() {
         this.container.classList.remove('inactive');
         this.container.classList.add('active');
-        this.subtitleOverlay.style.bottom = '5rem';
         this.emit('active', true);
     }
     ui_removeActiveClass() {
         this.container.classList.remove('active');
         this.container.classList.add('inactive');
-        this.subtitleOverlay.style.bottom = '2rem';
         this.emit('active', false);
     }
     ui_resetInactivityTimer(event) {
@@ -807,10 +1030,6 @@ class NMPlayer extends base_1.Base {
         this.ui_addActiveClass();
         if (this.lockActive)
             return;
-        const target = event?.target;
-        if (target && (target.tagName === 'BUTTON' || target.tagName === 'INPUT') && !this.isTv()) {
-            return;
-        }
         this.inactivityTimeout = setTimeout(() => {
             this.ui_removeActiveClass();
         }, this.inactivityTime);
@@ -970,28 +1189,19 @@ class NMPlayer extends base_1.Base {
         });
         this.once('item', () => {
             this.on('captionsList', () => {
-                this.setCaptionFromStorage();
+                this.setCurrentCaptionFromStorage();
             });
             this.emit('speed', this.videoElement.playbackRate);
             this.on('audioTracks', () => {
                 if (this.getAudioTracks().length < 2)
                     return;
-                if (localStorage.getItem('nmplayer-audio-language')) {
-                    this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language')));
-                }
-                else {
-                    this.setCurrentAudioTrack(0);
-                }
-                this.once('play', () => {
-                    if (localStorage.getItem('nmplayer-audio-language')) {
-                        this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language')));
-                    }
-                    else {
-                        this.setCurrentAudioTrack(0);
-                    }
+                this.setCurrentAudioTrackFromStorage();
+                this.once('play', async () => {
+                    this.setCurrentAudioTrackFromStorage();
+                    const audioLanguage = await this.storage.get('audio-language', null);
                     this.emit('audioTrackChanged', {
-                        id: this.getAudioTracks().find(l => l.lang === localStorage.getItem('nmplayer-audio-language'))?.id,
-                        name: this.getAudioTracks().find(l => l.lang === localStorage.getItem('nmplayer-audio-language'))?.name,
+                        id: this.getAudioTracks().find(l => l.lang === audioLanguage)?.id,
+                        name: this.getAudioTracks().find(l => l.lang === audioLanguage)?.name,
                     });
                 });
             });
@@ -1081,24 +1291,14 @@ class NMPlayer extends base_1.Base {
             this.once('audioTracks', () => {
                 if (this.getAudioTracks().length < 2)
                     return;
-                if (localStorage.getItem('nmplayer-audio-language')) {
-                    this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language')));
-                }
-                else {
-                    this.setCurrentAudioTrack(0);
-                }
+                this.setCurrentAudioTrackFromStorage();
                 this.once('play', () => {
-                    if (localStorage.getItem('nmplayer-audio-language')) {
-                        this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(localStorage.getItem('nmplayer-audio-language')));
-                    }
-                    else {
-                        this.setCurrentAudioTrack(0);
-                    }
+                    this.setCurrentAudioTrackFromStorage();
                 });
             });
             this.container.classList.remove('buffering');
             this.container.classList.remove('error');
-            this.setCaptionFromStorage();
+            this.setCurrentCaptionFromStorage();
             this.fetchChapterFile();
         });
     }
@@ -1254,9 +1454,6 @@ class NMPlayer extends base_1.Base {
         });
     }
     /**
-     * Returns an array of available playback speeds.
-     * If the player is a JWPlayer, it returns the playbackRates from the options object.
-     * Otherwise, it returns the playbackRates from the player object.
      * @returns An array of available playback speeds.
      */
     getSpeeds() {
@@ -1448,9 +1645,10 @@ class NMPlayer extends base_1.Base {
                     anonymous: false,
                 },
                 callback: (data) => {
-                    if (!data.startsWith('WEBVTT\n'))
+                    if (!data.startsWith('WEBVTT\n') && !data.startsWith('WEBVTT\r'))
                         return;
                     data = data.replace(/Kind: captions\nLanguage: \w+/gm, "");
+                    data = data.replace(/align:middle/gm, "align:center");
                     data = data.replace(/<\d{2}:\d{2}:\d{2}.\d{3}>|<c>|<\/c>/gui, "");
                     const parser = new webvtt_parser_1.WebVTTParser();
                     this.subtitles = parser.parse(data, 'captions');
@@ -1491,8 +1689,9 @@ class NMPlayer extends base_1.Base {
      * @returns The converted playlist for the current player.
      */
     async fetchPlaylist(url) {
+        const language = await this.storage.get('NoMercy-displayLanguage', navigator.language);
         const headers = {
-            'Accept-Language': localStorage.getItem('nmplayer-NoMercy-displayLanguage') ?? navigator.language,
+            'Accept-Language': language,
             'Content-Type': 'application/json',
         };
         if (this.options.accessToken) {
@@ -1756,7 +1955,7 @@ class NMPlayer extends base_1.Base {
     }
     toggleMute() {
         this.setMute(!this.videoElement.muted);
-        localStorage.setItem('nmplayer-muted', this.videoElement.muted.toString());
+        this.storage.set('muted', this.videoElement.muted).then();
         if (this.videoElement.muted) {
             this.displayMessage(this.localize('Muted'));
         }
@@ -1808,7 +2007,7 @@ class NMPlayer extends base_1.Base {
             vol = 0;
         this.videoElement.volume = vol;
         this.setMute(false);
-        localStorage.setItem('nmplayer-volume', `${this.videoElement.volume * 100}`);
+        this.storage.set('volume', this.videoElement.volume * 100).then();
     }
     // Resize
     getWidth() {
@@ -1886,7 +2085,7 @@ class NMPlayer extends base_1.Base {
         if ((!index && index != 0) || !this.hls)
             return;
         this.hls.audioTrack = index;
-        localStorage.setItem('nmplayer-audio-language', this.getAudioTracks()[index]?.lang ?? '');
+        this.storage.set('audio-language', this.getAudioTracks()[index]?.lang ?? '').then();
     }
     /**
      * Returns the index of the audio track with the specified language.
@@ -2051,9 +2250,9 @@ class NMPlayer extends base_1.Base {
         const { language, type, ext } = currentCapitation;
         if (!language || !type || !ext)
             return;
-        localStorage.setItem('nmplayer-subtitle-language', language);
-        localStorage.setItem('nmplayer-subtitle-type', type);
-        localStorage.setItem('nmplayer-subtitle-ext', ext);
+        this.storage.set('subtitle-language', language).then();
+        this.storage.set('subtitle-type', type).then();
+        this.storage.set('subtitle-ext', ext).then();
     }
     /**
      * Cycles through the available subtitle tracks and sets the active track to the next one.
@@ -2091,19 +2290,44 @@ class NMPlayer extends base_1.Base {
      * @param aspect - The aspect ratio to set.
      */
     setAspect(aspect) {
+        const videoPlayerContainer = this.container.style;
+        const videoOverlay = this.overlay.style;
+        const videoElementStyle = this.videoElement.style;
+        const subtitleOverlayStyle = this.subtitleOverlay.style;
         this.currentAspectRatio = aspect;
+        videoPlayerContainer.paddingTop = '';
+        videoPlayerContainer.position = '';
+        videoElementStyle.position = '';
+        videoElementStyle.top = '';
+        videoElementStyle.left = '';
+        videoElementStyle.width = '';
+        videoElementStyle.transform = '';
+        videoOverlay.height = '';
+        subtitleOverlayStyle.height = '';
         switch (aspect) {
             case 'fill':
-                this.videoElement.style.objectFit = 'fill';
+                videoElementStyle.objectFit = 'fill';
                 break;
             case 'uniform':
-                this.videoElement.style.objectFit = 'contain';
+                videoElementStyle.objectFit = 'contain';
                 break;
             case 'exactfit':
-                this.videoElement.style.objectFit = 'cover';
+                videoElementStyle.objectFit = 'cover';
+                break;
+            case '16:9':
+                videoPlayerContainer.paddingTop = '56.25%';
+                videoPlayerContainer.position = 'relative';
+                videoElementStyle.objectFit = '';
+                videoElementStyle.position = 'absolute';
+                videoElementStyle.top = '50%';
+                videoElementStyle.left = '50%';
+                videoElementStyle.width = '100%';
+                videoElementStyle.transform = 'translate(-50%, -50%)';
+                videoOverlay.height = '100vh';
+                subtitleOverlayStyle.height = '22%';
                 break;
             case 'none':
-                this.videoElement.style.objectFit = 'none';
+                videoElementStyle.objectFit = 'none';
                 break;
         }
         this.displayMessage(`${this.localize('Aspect ratio')}: ${this.localize(aspect)}`);

@@ -2,6 +2,7 @@ import { LevelAttributes, LevelDetails, MediaDecodingInfo } from 'hls.js';
 import Plugin from './plugin';
 import { Cue, VTTData } from 'webvtt-parser';
 import PlayerStorage from './playerStorage';
+import { Base } from './base';
 
 export { type VTTData, WebVTTParser } from 'webvtt-parser';
 
@@ -182,11 +183,11 @@ export interface Position {
 
 export type StretchOptions = 'exactfit' | 'fill' | 'none' | 'uniform';
 
-export interface PlayerConfig extends Record<string, any> {
+export interface PlayerConfig<T> extends Record<string, any> {
 	nipple?: boolean;
 	styles?: any;
 	chapters?: boolean;
-	playlist?: string | PlaylistItem[];
+	playlist?: string | (PlaylistItem & T)[];
 	debug?: boolean;
 	muted?: boolean;
 	controls?: boolean;
@@ -208,13 +209,13 @@ export interface PlayerConfig extends Record<string, any> {
 	forceTvMode?: boolean;
 	seekButtons?: boolean;
 	disableMediaControls?: boolean;
-	customStorage: StorageInterface;
+	customStorage?: StorageInterface;
 }
 
 export interface StorageInterface {
-    get: (key: string) => Promise<string | null>;
-    set: (key: string, value: string) => Promise<void>;
-    remove: (key: string) => Promise<void>;
+	get: (key: string) => Promise<string | null>;
+	set: (key: string, value: string) => Promise<void>;
+	remove: (key: string) => Promise<void>;
 }
 
 export interface CreateElement<K extends keyof HTMLElementTagNameMap> {
@@ -231,7 +232,7 @@ export interface AddClasses<K extends keyof HTMLElementTagNameMap> {
 	get: () => HTMLElementTagNameMap[K];
 }
 
-export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
+export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
 	currentTimeFile: any;
 	episode: any;
 	fonts: string[];
@@ -246,7 +247,7 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	title: any;
 	chapters: VTTData;
 	container: HTMLDivElement;
-	options: Conf & PlayerConfig;
+	options: T & PlayerConfig<T>;
 	overlay: HTMLDivElement;
 	subtitleArea: HTMLDivElement;
 	subtitleText: HTMLDivElement;
@@ -298,9 +299,9 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	getMute(): boolean;
 	getNextChapter(currentEndTime: number): Cue | undefined;
 	getParameterByName(value: string): string | number | null;
-	getPlaylist(): PlaylistItem[];
+	getPlaylist(): (PlaylistItem & T)[];
 	getPlaylistIndex(): number;
-	getPlaylistItem(index?: number): PlaylistItem;
+	getPlaylistItem(index?: number): (PlaylistItem & T);
 	getPlugin(name: string): Plugin | undefined;
 	getPreviousChapter(currentStartTime: number): Cue | undefined;
 	getQualityLevels(): Level[];
@@ -325,16 +326,16 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	isMobile(): boolean;
 	isMuted(): boolean;
 	isTv(): boolean;
-	load(playlist: PlaylistItem[] | string): void;
+	load(playlist: (PlaylistItem & T)[] | string): void;
 	localize(value: string): string;
 	next(): void;
 	nextChapter(): void;
 	pause(state?: boolean): void;
 	pauseAd(toggle: boolean): void;
 	play(state?: boolean): Promise<void>;
-	playlistItem(): PlaylistItem;
+	playlistItem(): (PlaylistItem & T);
 	playlistItem(index: number): void;
-	playlistItem(index?: number): PlaylistItem | void;
+	playlistItem(index?: number): (PlaylistItem & T) | void;
 	previous(): void;
 	previousChapter(): void;
 	registerPlugin(id: string, plugin: Plugin): void;
@@ -354,11 +355,11 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	setMute(state?: boolean): void;
 	setPip(state?: boolean): void;
 	setPlaybackRate(rate?: number): void;
-	setPlaylist(playlist: PlaylistItem[]): void;
-	setPlaylistItemCallback(callback: null | ((item: PlaylistItem, index: number) => void | Promise<PlaylistItem>)): void;
+	setPlaylist(playlist: (PlaylistItem & T)[]): void;
+	setPlaylistItemCallback(callback: null | ((item: (PlaylistItem & T), index: number) => void | Promise<(PlaylistItem & T)>)): void;
 	setSpeed(speed: any): void;
 	setVolume(volume: number): void;
-	setup<Conf extends PlayerConfig>(options: Conf & PlayerConfig): NMPlayer<Conf>;
+	setup<Conf extends PlayerConfig<T>>(options: Conf & PlayerConfig<T>): NMPlayer<Conf>;
 	stop(): void;
 	toggleFullscreen(): void;
 	toggleMute(): void;
@@ -380,7 +381,7 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 
 	// Playlist
 	emit(event: 'playlist', data?: any): void;
-	emit(event: 'item', data: PlaylistItem): void;
+	emit(event: 'item', data: (PlaylistItem & T)): void;
 	emit(event: 'playlistComplete', data?: any): void;
 	emit(event: 'nextClick', data?: any): void;
 
@@ -494,8 +495,8 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	on(event: 'setupError', callback: () => void): void;
 
 	// Playlist
-	on(event: 'playlist', callback: (data: PlaylistItem[]) => void): void;
-	on(event: 'item', callback: (data: PlaylistItem) => void): void;
+	on(event: 'playlist', callback: (data: (PlaylistItem & T)[]) => void): void;
+	on(event: 'item', callback: (data: (PlaylistItem & T)) => void): void;
 	on(event: 'playlistComplete', callback: () => void): void;
 	on(event: 'nextClick', callback: () => void): void;
 
@@ -704,8 +705,8 @@ export interface NMPlayer<Conf extends Partial<PlayerConfig> = {}> {
 	once(event: 'setupError', callback: () => void): void;
 
 	// Playlist
-	once(event: 'playlist', callback: (data: PlaylistItem[]) => void): void;
-	once(event: 'item', callback: (data: PlaylistItem) => void): void;
+	once(event: 'playlist', callback: (data: (PlaylistItem & T)[]) => void): void;
+	once(event: 'item', callback: (data: (PlaylistItem & T)) => void): void;
 	once(event: 'playlistComplete', callback: () => void): void;
 	once(event: 'nextClick', callback: () => void): void;
 
@@ -808,7 +809,7 @@ declare global {
 		octopusInstance: any;
 		Hls: typeof import('hls.js');
 		gainNode: GainNode;
-		nmplayer: <Conf extends Partial<PlayerConfig>>(id?: string) => NMPlayer<Conf>;
+		nmplayer: <Conf extends Partial<PlayerConfig<any>>>(id?: string) => NMPlayer<Conf>;
 	}
 
 	interface Navigator {

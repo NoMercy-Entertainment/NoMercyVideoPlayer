@@ -25,7 +25,7 @@ const DEFAULT_SEEK_INTERVAL = 10;
 const DEFAULT_MESSAGE_TIME = 2000;
 const EMPTY_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
-class NMPlayer<T> extends Base<T> {
+class NMPlayer<T = Record<string, any>> extends Base<T> {
 	// Setup
 	hls: HLS | undefined;
 	gainNode: GainNode | undefined;
@@ -60,8 +60,8 @@ class NMPlayer<T> extends Base<T> {
 	currentSpriteFile = '';
 
 	// Playlist functionality
-	playlist: PlaylistItem[] = [];
-	currentPlaylistItem: PlaylistItem = <PlaylistItem>{} as PlaylistItem;
+	playlist: (PlaylistItem & T)[] = [];
+	currentPlaylistItem: (PlaylistItem & T) = <(PlaylistItem & T)>{} as (PlaylistItem & T);
 	currentIndex = -1;
 	isPlaying = false;
 	muted: boolean = false;
@@ -1941,7 +1941,7 @@ class NMPlayer<T> extends Base<T> {
 			this.subtitleText.textContent = '';
 			this.subtitleOverlay.style.display = 'none';
 
-			this.currentPlaylistItem = this.playlist[index];
+			this.currentPlaylistItem = this.playlist[index] as PlaylistItem & T;
 
 			this.videoElement.poster = this.currentPlaylistItem.image ?? '';
 
@@ -1993,7 +1993,7 @@ class NMPlayer<T> extends Base<T> {
 	loadPlaylist(): void {
 		if (typeof this.options.playlist === 'string') {
 			this.fetchPlaylist(this.options.playlist)
-				.then((json: PlaylistItem[]) => {
+				.then((json: (PlaylistItem & T)[]) => {
 					this.options.debug && console.log('Playlist fetched', json);
 
 					this.playlist = json
@@ -2013,11 +2013,11 @@ class NMPlayer<T> extends Base<T> {
 		}
 		else if (Array.isArray(this.options.playlist)) {
 			this.playlist = this.options.playlist
-				.map((item: PlaylistItem) => ({
+				.map((item) => ({
 					...item,
 					season: item.season,
 					episode: item.episode,
-				}));
+				})) as (PlaylistItem & T)[];
 
 			setTimeout(() => {
 				this.emit('playlist', this.playlist);
@@ -2088,7 +2088,7 @@ class NMPlayer<T> extends Base<T> {
 	}
 
 	// Setup
-	setup<T = Partial<PlayerConfig>>(options: T & Partial<PlayerConfig>): NMPlayer<T> {
+	setup<T = Partial<PlayerConfig<Record<string, any>>>>(options: Partial<PlayerConfig<T>>): NMPlayer<T> {
 		this.options = {
 			...this.options,
 			...options,
@@ -2103,7 +2103,7 @@ class NMPlayer<T> extends Base<T> {
 		return this as unknown as NMPlayer<T>;
 	}
 
-	setConfig<T>(options: Partial<T & PlayerConfig>) {
+	setConfig<T>(options: Partial<T & PlayerConfig<any>>) {
 		this.options = { ...this.options, ...options };
 	}
 
@@ -2112,13 +2112,13 @@ class NMPlayer<T> extends Base<T> {
 	}
 
 	// Playlist
-	getPlaylist(): PlaylistItem[] {
+	getPlaylist(): (PlaylistItem & T)[] {
 		return this.playlist;
 	}
 
-	getPlaylistItem(index?: number): PlaylistItem {
+	getPlaylistItem(index?: number): (PlaylistItem & T) {
 		if (index === undefined) {
-			return this.currentPlaylistItem as PlaylistItem;
+			return this.currentPlaylistItem as (PlaylistItem & T);
 		}
 		return this.playlist[index];
 	}
@@ -2127,15 +2127,15 @@ class NMPlayer<T> extends Base<T> {
 		return this.playlist.indexOf(this.currentPlaylistItem);
 	}
 
-	load(playlist: PlaylistItem[]) {
+	load(playlist: (PlaylistItem & T)[]) {
 		this.playlist = playlist;
 	}
 
-	playlistItem(): PlaylistItem;
+	playlistItem(): (PlaylistItem & T);
 	playlistItem(index: number): void;
-	playlistItem(index?: number): PlaylistItem | void {
+	playlistItem(index?: number): (PlaylistItem & T) | void {
 		if (!index) {
-			return this.currentPlaylistItem as PlaylistItem;
+			return this.currentPlaylistItem as (PlaylistItem & T);
 		}
 
 		if (index == this.currentIndex) {
@@ -2884,7 +2884,7 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 	return string;
 };
 
-const nmplayer = <Conf extends Partial<PlayerConfig> = {}>(id?: string) => new NMPlayer<Conf>(id);
+const nmplayer = <Conf extends Partial<PlayerConfig<Record<string, any>>> = {}>(id?: string) => new NMPlayer<Conf>(id);
 
 window.nmplayer = nmplayer as unknown as any;
 
