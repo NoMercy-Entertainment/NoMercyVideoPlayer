@@ -187,7 +187,7 @@ export interface PlayerConfig<T = Record<string, any>> {
 	nipple?: boolean;
 	styles?: any;
 	chapters?: boolean;
-	playlist?: string | (PlaylistItem & T)[];
+	playlist: string | (PlaylistItem & T)[];
 	debug?: boolean;
 	muted?: boolean;
 	controls?: boolean;
@@ -218,18 +218,32 @@ export interface StorageInterface {
 	remove: (key: string) => Promise<void>;
 }
 
-export interface CreateElement<K extends keyof HTMLElementTagNameMap> {
-	prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-	appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-	addClasses: (names: string[]) => AddClasses<K>;
-	get: () => HTMLElementTagNameMap[K];
+export interface CreateElement<T extends Element> {
+	addClasses: (names: string[]) => AddClasses<T>;
+	appendTo: <P extends Element>(parent: P) => AddClassesReturn<T>;
+	prependTo: <P extends Element>(parent: P) => AddClassesReturn<T>;
+	get: () => T;
 }
 
-export interface AddClasses<K extends keyof HTMLElementTagNameMap> {
-	prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-	appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-	addClasses: (names: string[]) => AddClasses<K>;
-	get: () => HTMLElementTagNameMap[K];
+export interface AddClasses<T extends Element> {
+	appendTo: <P extends Element>(parent: P) => AddClassesReturn<T>;
+	prependTo: <P extends Element>(parent: P) => AddClassesReturn<T>;
+	addClasses: (names: string[]) => AddClasses<T>;
+	get: () => T;
+}
+
+export interface AddClassesReturn<T extends Element> {
+	addClasses: (names: string[]) => AddClasses<T>;
+	get: () => T;
+}
+
+export interface Icon {
+	[key: string]: {
+		classes: string[];
+		hover: string;
+		normal: string;
+		title: string;
+	};
 }
 
 export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
@@ -267,9 +281,28 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
 	}) => Promise<void>;
 
 	prototype: NMPlayer<any>;
-	addClasses(currentItem: any, arg1: string[]): HTMLDivElement;
+
+	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<HTMLElementTagNameMap[K]>;
+	addClasses<T extends Element>(parent: T, names: string[]): AddClasses<T>;
+
+	createSVGElement(parent: Element, id: string, icon: Icon['path'], hidden?: boolean, hovered?: boolean): SVGElement;
+	createUiButton(parent: Element, id: string, name?: string): CreateElement<HTMLButtonElement>;
 	appendScriptFilesToDocument(files: string[]): void;
-	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<K>;
+	createButton(match: string, id: string, insert: 'before' | 'after', icon: Icon['path'], click?: (e?: MouseEvent) => void, rightClick?: (e?: MouseEvent) => void): CreateElement<HTMLButtonElement>;
+	getClosestElement(element: HTMLButtonElement, selector: string): HTMLElement | null;
+	scrollCenter(el: HTMLElement, container: HTMLElement, options?: { duration?: number; margin?: number;}): void;
+	getClosestSeekableInterval(): number;
+	spaceToCamel(str: string): string;
+	snakeToCamel(str: string): string;
+	nearestValue(arr: any[], val: number): any;
+	isNumber(value: any): value is number;
+	doubleTap(doubleTap: (event: Event) => void, singleTap?: (event2: Event) => void): (event: Event, event2?: Event) => void;
+	getChapterText(scrubTimePlayer: number): string | null;
+	setEpisode(season: number, episode: number): void;
+	getButtonKeyCode(id: string): string;
+	scrollIntoView(element: HTMLElement): void;
+	doubleTap(doubleTap: (event: Event) => void, singleTap?: (event2: Event) => void): void;
+	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<K extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[K] : HTMLElement>;
 	cycleAspectRatio(): void;
 	cycleAudioTracks(): void;
 	cycleSubtitles(): void;

@@ -6,7 +6,6 @@ export class TemplatePlugin extends Plugin {
 
 	initialize(player: NMPlayer) {
 		this.player = player;
-		// Initialize the plugin with the player
 	}
 
 	use() {

@@ -5,7 +5,6 @@
     "contain": "Bevatten",
     "cover": "Bedekken",
     "fill": "Vullen",
-
     "aar": "Afar",
     "abk": "Abchazisch",
     "afr": "Afrikaans",
@@ -195,8 +194,8 @@
     "yor": "Yoruba",
     "zha": "Zhuang",
     "zul": "Zulu",
-
     "none": "geen",
+    
     "Audio and subtitles": "Audio en ondertiteling",
     "Audio": "Audio",
     "AudioTracks": "Audio Sporen",
@@ -241,5 +240,15 @@
     "Subtitle": "Ondertiteling",
     "Subtitles": "Ondertiteling",
     "Video": "Video",
-    "Watch credits": "Bekijk credits"
+    "Watch credits": "Bekijk credits",
+    "Skip intro": "Intro overslaan",
+    "Skip recap": "Recap overslaan",
+    "Skip credits": "Credits overslaan",
+    "Skip outro": "Outro overslaan",
+    "Skip ahead": "Vooruit springen",
+    "Skip": "Overslaan",
+    "Unmute": "Dempen opheffen",
+    "Volume": "Volume",
+    "Volume up": "Volume omhoog",
+    "Volume down": "Volume omlaag"
 }

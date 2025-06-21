@@ -18,16 +18,13 @@ export class OctopusPlugin extends Plugin {
 
 	initialize(player: NMPlayer<OctopusPluginArgs>): void {
 		this.player = player;
-		// Initialize the plugin with the player
 	}
 
 	use(): void {
-		// this.player.on('item', this.destroy.bind(this));
 		this.player.on('captionsChanged', this.opus.bind(this));
 	}
 
 	dispose(): void {
-		// this.player.off('item', this.destroy.bind(this));
 		this.player.off('captionsChanged', this.opus.bind(this));
 
 		this.destroy();

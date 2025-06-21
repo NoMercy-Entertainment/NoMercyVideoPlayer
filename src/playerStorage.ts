@@ -31,7 +31,7 @@ export class PlayerStorage {
         if (typeof value === "number") {
             await this.storage.set(key, Math.round(value).toString());
         } else {
-            await this.storage.set(key, JSON.stringify(value));
+            await this.storage.set(key, value instanceof Object ? JSON.stringify(value) : String(value));
         }
     }
 

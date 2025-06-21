@@ -1,5 +1,3 @@
-// @ts-ignore
-
 import Plugin from '../plugin';
 import type { NMPlayer } from '../types';
 
@@ -75,7 +73,8 @@ export class SabrePlugin extends Plugin {
 				'h-full',
 				'z-10',
 			])
-			.prependTo(this.player.getVideoElement().parentElement as HTMLElement);
+			.prependTo(this.player.getVideoElement().parentElement as HTMLElement)
+			.get();
 
 		const video = this.player.getVideoElement();
 

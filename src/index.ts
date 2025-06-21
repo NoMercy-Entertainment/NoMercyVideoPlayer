@@ -10,13 +10,17 @@ import { defaultSubtitleStyles, getEdgeStyle, humanTime, pad, parseColorToHex, u
 import {
 	PlaylistItem, PreviewTime, PlayerConfig, Stretching,
 	TimeData, Track, TypeMappings, Chapter, Level, SubtitleStyle,
+	CreateElement,
+	AddClasses,
+	Icon,
+	AddClassesReturn,
 } from './types';
 
 import BBCReithSansExtraBold from './fonts/ReithSans/ReithSansExtraBold';
 import BBCReithSansExtraBoldItalic from './fonts/ReithSans/ReithSansExtraBoldItalic';
 import BBCReithSansMedium from './fonts/ReithSans/ReithSansMedium';
 import BBCReithSansMediumItalic from './fonts/ReithSans/ReithSansMediumItalic';
-import NotoSansJPBold from './fonts/NotoSansJPFonts/NotoSansJPBold';
+import { twMerge } from 'tailwind-merge';
 
 const instances = new Map();
 
@@ -327,70 +331,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			});
 	};
 
-	/**
-	 * Creates a new HTML element of the specified type and assigns the given ID to it.
-	 * @param type - The type of the HTML element to create.
-	 * @param id - The ID to assign to the new element.
-	 * @param unique - Whether to use an existing element with the specified ID if it already exists.
-	 * @returns An object with four methods:
-	 *   - `addClasses`: A function that adds the specified CSS class names to the element's class list and returns the next 3 functions.
-	 *   - `appendTo`: A function that appends the element to a parent element and returns the element.
-	 *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
-	 *   - `get`: A function that returns the element.
-	 */
-	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean) {
-		let el: HTMLElementTagNameMap[K];
-
-		if (unique) {
-			el = (document.getElementById(id) ?? document.createElement(type)) as HTMLElementTagNameMap[K];
-		} else {
-			el = document.createElement(type);
-		}
-		el.id = id;
-
-		return {
-			addClasses: (names: string[]) => this.addClasses(el, names),
-			appendTo: <T extends Element>(parent: T) => {
-				parent.appendChild(el);
-				return el;
-			},
-			prependTo: <T extends Element>(parent: T) => {
-				parent.prepend(el);
-				return el;
-			},
-			get: () => el,
-		};
-	}
-
-	/**
-	 * Adds the specified CSS class names to the given element's class list.
-	 *
-	 * @param el - The element to add the classes to.
-	 * @param names - An array of CSS class names to add.
-	 * @returns An object with three methods:
-	 *   - `appendTo`: A function that appends the element to a parent element and returns the element.
-	 *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
-	 *   - `get`: A function that returns the element.
-	 * @template T - The type of the element to add the classes to.
-	 */
-	addClasses<T extends Element>(el: T, names: string[]) {
-		for (const name of names.filter(Boolean)) {
-			el.classList?.add(name.trim());
-		}
-		return {
-			appendTo: <T extends Element>(parent: T) => {
-				parent.appendChild(el);
-				return el;
-			},
-			prependTo: <T extends Element>(parent: T) => {
-				parent.prepend(el);
-				return el;
-			},
-			addClasses: (names: string[]) => this.addClasses(el, names),
-			get: () => el,
-		};
-	}
-
 	styleContainer(): void {
 		this.container.classList.add('nomercyplayer');
 		this.container.style.overflow = 'hidden';
@@ -406,7 +346,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	createVideoElement(): void {
 		this.videoElement = this.createElement('video', `${this.playerId}_video`, true)
-			.appendTo(this.container);
+			.appendTo(this.container).get();
 
 		this.setupVideoElementAttributes();
 		this.setupVideoElementEventListeners();
@@ -436,13 +376,13 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.overlay = this.createElement('div', `${this.playerId}-ui-overlay`, true)
 			.addClasses(['ui-overlay'])
-			.appendTo(this.container);
+			.appendTo(this.container).get();
 	}
 
 	createOverlayCenterMessage(): HTMLButtonElement {
 		const playerMessage = this.createElement('button', `${this.playerId}-player-message`)
 			.addClasses(['player-message'])
-			.prependTo(this.overlay);
+			.prependTo(this.overlay).get();
 
 		this.on('display-message', (val: string) => {
 			playerMessage.style.display = 'flex';
@@ -459,7 +399,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	createBaseStyles(): void {
 		const styleSheet = this.createElement('style', `${this.playerId}-styles`, true)
-			.prependTo(this.container);
+			.prependTo(this.container).get();
 
 		styleSheet.textContent = `
 			.nomercyplayer * {
@@ -624,16 +564,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	createSubtitleFontFamily(): void {
 		const styleSheet = this.createElement('style', `${this.playerId}-fonts`, true)
-			.appendTo(this.container);
+			.appendTo(this.container).get();
 
 		styleSheet.textContent = `
-			@font-face {
-			  font-family: 'Noto Sans JP';
-			  font-style: normal;
-			  font-weight: 100 900;
-			  font-display: swap;
-			  src: url("data:font/woff2;base64,${NotoSansJPBold}") format("woff2");
-			}
+			@import url(https://fonts.bunny.net/css?family=noto-sans-jp:500);
 			@font-face {
 				font-family: 'ReithSans';
 				font-style: normal;
@@ -669,15 +603,15 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.subtitleOverlay = this.createElement('div', `${this.playerId}-subtitle-overlay`, true)
 			.addClasses(['subtitle-overlay'])
-			.appendTo(this.container);
+			.appendTo(this.container).get();
 
 		this.subtitleArea = this.createElement('div', `${this.playerId}-subtitle-area`, true)
 			.addClasses(['subtitle-area'])
-			.appendTo(this.subtitleOverlay);
+			.appendTo(this.subtitleOverlay).get();
 
 		this.subtitleText = this.createElement('span', `${this.playerId}-subtitle-text`, true)
 			.addClasses(['subtitle-text'])
-			.appendTo(this.subtitleArea);
+			.appendTo(this.subtitleArea).get();
 
 		this.on('time', this.checkSubtitles.bind(this));
 
@@ -2151,7 +2085,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @param season - The season number of the episode to play.
 	 * @param episode - The episode number to play.
 	 */
-	setEpisode(season: number, episode: number) {
+	setEpisode(season: number, episode: number): void {
 		const item = this.getPlaylist()
 			.findIndex((l: any) => l.season == season && l.episode == episode);
 		if (item == -1) {
@@ -2612,9 +2546,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	storeSubtitleChoice() {
 		const currentCapitation = this.getCurrentCaptions();
 		if (!currentCapitation) {
-			localStorage.removeItem('nmplayer-subtitle-language');
-			localStorage.removeItem('nmplayer-subtitle-type');
-			localStorage.removeItem('nmplayer-subtitle-ext');
+			this.storage.remove('subtitle-language');
+			this.storage.remove('subtitle-type');
+			this.storage.remove('subtitle-ext');
 			return;
 		}
 
@@ -2817,6 +2751,464 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				episodes: this.getPlaylist().filter((e: any) => e.season == s.season).length,
 			};
 		});
+	}
+
+	/**
+	 * Creates a new HTML element of the specified type and assigns the given ID to it.
+	 * @param type - The type of the HTML element to create.
+	 * @param id - The ID to assign to the new element.
+	 * @param unique - Whether to use an existing element with the specified ID if it already exists.
+	 * @returns An object with four methods:
+	 *   - `addClasses`: adds the specified CSS class names to the element's class list and returns the functions recursively.
+	 *   - `appendTo`: appends the element to a parent element and and returns addClasses and get methods.
+	 *   - `prependTo`: prepends the element to a parent element and returns addClasses and get methods.
+	 *   - `get`: returns the created element.
+	 */
+	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<HTMLElementTagNameMap[K]> {
+		let el: HTMLElementTagNameMap[K];
+
+		if (unique) {
+			el = (document.getElementById(id) ?? document.createElement(type)) as HTMLElementTagNameMap[K];
+		} else {
+			el = document.createElement(type);
+		}
+		el.id = id;
+
+		return {
+			addClasses: (names: string[]) => this.addClasses(el, names),
+			appendTo: <T extends Element>(parent: T) => {
+				parent.appendChild(el);
+				return {
+					addClasses: (names: string[]) => this.addClasses(el, names),
+					get: () => el,
+				};
+			},
+			prependTo: <T extends Element>(parent: T) => {
+				parent.prepend(el);
+				return {
+					addClasses: (names: string[]) => this.addClasses(el, names),
+					get: () => el,
+				};
+			},
+			get: () => el,
+		};
+	}
+
+	/**
+	 * Adds the specified CSS class names to the given element's class list.
+	 *
+	 * @param el - The element to add the classes to.
+	 * @param names - An array of CSS class names to add.
+	 * @returns An object with three methods:
+	 *   - `appendTo`: appends the element to a parent element and returns addClasses and get methods.
+	 *   - `prependTo`: prepends the element to a parent element and returns addClasses and get methods.
+	 *   - `get`: returns the created element.
+	 * @template T - The type of the element to add the classes to.
+	 */
+	addClasses<T extends Element>(el: T, names: string[]): AddClasses<T> {
+		for (const name of names.filter(Boolean)) {
+			el.classList?.add(name.trim());
+		}
+		return {
+			appendTo: <T extends Element>(parent: T) => {
+				parent.appendChild(el);
+				return {
+					addClasses: (names: string[]) => this.addClasses(el, names),
+					get: () => el,
+				};
+			},
+			prependTo: <T extends Element>(parent: T) => {
+				parent.prepend(el);
+				return {
+					addClasses: (names: string[]) => this.addClasses(el, names),
+					get: () => el,
+				};
+			},
+			addClasses: (names: string[]) => this.addClasses(el, names),
+			get: () => el,
+		};
+	}
+
+	createUiButton(parent: HTMLElement, id: string, title?: string): AddClassesReturn<HTMLButtonElement> {
+
+		const button = this.createElement('button', id)
+			.addClasses([
+				'cursor-pointer',
+				'-outline-offset-2',
+				'fill-white',
+				'flex',
+				'focus-visible:fill-white',
+				'focus-visible:outline',
+				'focus-visible:outline-2',
+				'focus-visible:outline-white/20',
+				'group/button',
+				'h-10',
+				'items-center',
+				'justify-center',
+				'min-w-[40px]',
+				'p-2',
+				'pointer-events-auto',
+				'relative',
+				'rounded-full',
+				'tv:fill-white/30',
+				'w-10',
+			])
+			.appendTo(parent);
+
+		const el = button.get();
+
+		el.ariaLabel = title ?? this.localize(id.replace(/-/g, ' ').toTitleCase());
+
+		el.addEventListener('keypress', (event) => {
+			if (event.key === 'Backspace') {
+				el.blur();
+				this.emit('show-menu', false);
+			}
+			if (event.key === 'Escape') {
+				el.blur();
+				this.emit('show-menu', false);
+			}
+		});
+
+		return button;
+	}
+
+	getClosestSeekableInterval() {
+		const scrubTime = this.getCurrentTime();
+		const interval = this.previewTime.find((interval) => {
+			return scrubTime >= interval.start && scrubTime < interval.end;
+		})!;
+		return interval?.start;
+	}
+
+	/**
+	 * Converts a snake_case string to camelCase.
+	 * @param str - The snake_case string to convert.
+	 * @returns The camelCase version of the string.
+	 */
+	snakeToCamel(str: string): string {
+		return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+	}
+
+	spaceToCamel(str: string): string {
+		return str.replace(/\s([a-z])/g, (_, letter) => letter.toUpperCase());
+	}
+
+	nearestValue = (arr: any[], val: number) => {
+		return arr.reduce((p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p), Infinity) + val;
+	}
+
+	getClosestElement(element: HTMLButtonElement, selector: string) {
+
+		const arr = Array.from(document.querySelectorAll<HTMLButtonElement>(selector)).filter(el => getComputedStyle(el).display == 'flex');
+		const originEl = element!.getBoundingClientRect();
+
+		return arr.find(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2))
+			== this.nearestValue(arr.map(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2)))
+				, originEl.top + (originEl.height / 2)));
+	}
+
+	isNumber(value: any): value is number {
+		return !isNaN(parseInt(value, 10))
+	}
+
+	scrollCenter(el: HTMLElement, container: HTMLElement, options?: {
+		duration?: number;
+		margin?: number;
+	}) {
+		if (!el) return;
+		const scrollDuration = options?.duration || 60;
+		const margin = options?.margin || 1.5;
+
+		const elementTop = (el.getBoundingClientRect().top) + (el!.getBoundingClientRect().height / 2) - (container.getBoundingClientRect().height / margin);
+
+		const startingY = container.scrollTop;
+		const startTime = performance.now();
+
+		function scrollStep(timestamp: number) {
+			const currentTime = timestamp - startTime;
+			const progress = Math.min(currentTime / scrollDuration, 1);
+
+			container.scrollTo(0, Math.floor(startingY + (elementTop * progress)));
+
+			if (currentTime < scrollDuration) {
+				requestAnimationFrame(scrollStep);
+			}
+		}
+
+		requestAnimationFrame(scrollStep);
+	}
+
+	scrollIntoView(element: HTMLElement) {
+
+		const scrollDuration = 200;
+		const parentElement = element.parentElement as HTMLElement;
+		const elementLeft = element.getBoundingClientRect().left + (element.offsetWidth / 2) - (parentElement.offsetWidth / 2);
+		const startingX = parentElement.scrollLeft;
+		const startTime = performance.now();
+
+		function scrollStep(timestamp: number) {
+			const currentTime = timestamp - startTime;
+			const progress = Math.min(currentTime / scrollDuration, 1);
+
+			parentElement.scrollTo(startingX + elementLeft * progress, 0);
+
+			if (currentTime < scrollDuration) {
+				requestAnimationFrame(scrollStep);
+			}
+		}
+
+		requestAnimationFrame(scrollStep);
+	}
+
+	createSVGElement(parent: HTMLElement, id: string, icon: Icon['path'], hidden = false, hovered = false) {
+
+		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+		svg.setAttribute('viewBox', '0 0 24 24');
+
+		svg.id = id;
+		this.addClasses(svg, twMerge([
+			`${id}-icon`,
+			'svg-size',
+			'h-5',
+			'w-5',
+			'fill-current',
+			'pointer-events-none',
+			'group-hover/button:scale-110',
+			'duration-700',
+			hidden ? 'hidden' : 'flex',
+			...icon.classes,
+		]).split(' '));
+
+		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+		path.setAttribute('d', hovered ? icon.normal : icon.hover);
+
+		this.addClasses(path, [
+			'group-hover/button:hidden',
+			'group-hover/volume:hidden',
+		]);
+		svg.appendChild(path);
+
+		const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+		path2.setAttribute('d', hovered ? icon.hover : icon.normal);
+		this.addClasses(path2, [
+			'hidden',
+			'group-hover/button:flex',
+			'group-hover/volume:flex',
+		]);
+		svg.appendChild(path2);
+
+		if (!parent.classList.contains('menu-button') && hovered) {
+			parent.addEventListener('mouseenter', () => {
+				if (icon.title.length == 0 || ['Next', 'Previous'].includes(icon.title)) return;
+
+				if (icon.title == 'Fullscreen' && this.getFullscreen()) {
+					return;
+				}
+				if (icon.title == 'Exit fullscreen' && !this.getFullscreen()) {
+					return;
+				}
+				if (icon.title == 'Play' && this.isPlaying) {
+					return;
+				}
+				if (icon.title == 'Pause' && !this.isPlaying) {
+					return;
+				}
+				if (icon.title == 'Mute' && this.isMuted()) {
+					return;
+				}
+				if (icon.title == 'Unmute' && !this.isMuted()) {
+					return;
+				}
+
+				const text = `${this.localize(icon.title)} ${this.getButtonKeyCode(id)}`;
+
+				const playerRect = this.getElement().getBoundingClientRect();
+				const menuTipRect = parent.getBoundingClientRect();
+
+				let x = Math.abs(playerRect.left - (menuTipRect.left + (menuTipRect.width * 0.5)) - (text.length * 0.5));
+				const y = Math.abs(playerRect.bottom - (menuTipRect.bottom + (menuTipRect.height * 1.2)));
+
+				if (x < 35) {
+					x = 35;
+				}
+
+				if (x > (playerRect.right - playerRect.left) - 75) {
+					x = (playerRect.right - playerRect.left) - 75;
+				}
+
+				this.emit('show-tooltip', {
+					text: text,
+					currentTime: 'bottom',
+					x: `${x}px`,
+					y: `-${y}px`,
+				});
+
+			});
+
+			parent.addEventListener('mouseleave', () => {
+				this.emit('hide-tooltip');
+			});
+		}
+
+		parent.appendChild(svg);
+		return svg;
+	}
+
+	getButtonKeyCode(id: string) {
+
+		switch (id) {
+			case 'play':
+			case 'pause':
+				return `(${this.localize('SPACE')})`;
+			case 'volumeMuted':
+			case 'volumeLow':
+			case 'volumeMedium':
+			case 'volumeHigh':
+				return '(m)';
+			case 'seekBack':
+				return '(<)';
+			case 'seekForward':
+				return '(>)';
+			case 'next':
+				return '(n)';
+			case 'theater':
+				return '(t)';
+			case 'theater-enabled':
+				return '(t)';
+			case 'pip-enter':
+			case 'pip-exit':
+				return '(i)';
+			case 'playlist':
+				return '';
+			case 'previous':
+				return '(p)';
+			case 'speed':
+				return '';
+			case 'subtitle':
+			case 'subtitled':
+				return '(v)';
+			case 'audio':
+				return '(b)';
+			case 'settings':
+				return '';
+			case 'fullscreen-enable':
+			case 'fullscreen':
+				return '(f)';
+			default:
+				return '';
+		}
+
+	}
+
+	createButton(match: string, id: string, insert: 'before' | 'after' = 'after', icon: Icon['path'], click?: (e?: MouseEvent) => void, rightClick?: (e?: MouseEvent) => void) {
+
+		const element = document.querySelector<HTMLButtonElement>(match);
+		if (!element) {
+			throw new Error('Element not found');
+		}
+
+		const button = this.createElement('button', id)
+			.addClasses([
+				'cursor-pointer',
+				'-outline-offset-2',
+				'fill-white',
+				'flex',
+				'focus-visible:fill-white',
+				'focus-visible:outline',
+				'focus-visible:outline-2',
+				'focus-visible:outline-white/20',
+				'group/button',
+				'h-10',
+				'items-center',
+				'justify-center',
+				'min-w-[40px]',
+				'p-2',
+				'pointer-events-auto',
+				'relative',
+				'rounded-full',
+				'tv:fill-white/30',
+				'w-10',
+			]);
+
+		const el = button.get();
+
+		el.ariaLabel = icon.title ?? this.localize(id.replace(/-/g, ' ').toTitleCase());
+
+		el.addEventListener('keypress', (event) => {
+			if (event.key === 'Backspace') {
+				el.blur();
+				this.emit('show-menu', false);
+			}
+			if (event.key === 'Escape') {
+				el.blur();
+				this.emit('show-menu', false);
+			}
+		});
+
+		if (insert === 'before') {
+			element.prepend(el);
+		} else {
+			element.appendChild(el);
+		}
+
+		this.createSVGElement(el, `${id.replace(/\s/gu, '_')}-enabled`, icon, true, false);
+		this.createSVGElement(el, id.replace(/\s/gu, '_'), icon, false);
+
+		el.addEventListener('click', (event: MouseEvent) => {
+			event.stopPropagation();
+			click?.();
+			this.emit('hide-tooltip');
+		});
+		el.addEventListener('contextmenu', (event: MouseEvent) => {
+			event.stopPropagation();
+			rightClick?.();
+			this.emit('hide-tooltip');
+		});
+
+		return button;
+	}
+
+	/**
+	 * Attaches a double tap event listener to the element.
+	 * @param doubleTap - The function to execute when a double tap event occurs.
+	 * @param singleTap - An optional function to execute when a second double tap event occurs.
+	 * @returns A function that detects double tap events.
+	 */
+	doubleTap(doubleTap: (event: Event) => void, singleTap?: (event2: Event) => void) {
+		const delay = this.options.doubleClickDelay ?? 300;
+		let lastTap = 0;
+		let timeout: NodeJS.Timeout;
+		let timeout2: NodeJS.Timeout;
+		return function (event: Event, event2?: Event) {
+			const curTime = new Date().getTime();
+			const tapLen = curTime - lastTap;
+			if (tapLen > 0 && tapLen < delay) {
+				event.preventDefault();
+				doubleTap(event);
+				clearTimeout(timeout2);
+			} else {
+				timeout = setTimeout(() => {
+					clearTimeout(timeout);
+				}, delay);
+				timeout2 = setTimeout(() => {
+					singleTap?.(event2!);
+				}, delay);
+			}
+			lastTap = curTime;
+		};
+	}
+
+	getChapterText(scrubTimePlayer: number): string | null {
+		if (this.getChapters().length == 0) return null;
+
+		const index = this.getChapters()?.findIndex((chapter: Chapter) => {
+			return chapter.startTime > scrubTimePlayer;
+		});
+
+		return this.getChapters()[index - 1]?.title
+			?? this.getChapters()[this.getChapters()?.length - 1]?.title
+			?? null;
 	}
 }
 
