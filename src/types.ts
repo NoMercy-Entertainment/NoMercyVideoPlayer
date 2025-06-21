@@ -209,7 +209,9 @@ export interface PlayerConfig<T = Record<string, any>> {
 	forceTvMode?: boolean;
 	seekButtons?: boolean;
 	disableMediaControls?: boolean;
+	renderAhead?: number;
 	customStorage?: StorageInterface;
+	disableAutoPlayback?: boolean;
 }
 
 export interface StorageInterface {

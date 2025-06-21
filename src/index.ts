@@ -355,7 +355,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	setupVideoElementAttributes(): void {
 		this.videoElement.poster = EMPTY_IMAGE;
-		this.videoElement.autoplay = this.options.autoPlay ?? false;
+		this.videoElement.autoplay = (!!this.options.disableAutoPlayback && this.options.autoPlay) ?? false;
 		this.videoElement.controls = this.options.controls ?? false;
 		this.videoElement.preload = this.options.preload ?? 'auto';
 		this.storage.get('muted', this.options.muted).then((val) => {
@@ -858,9 +858,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
 		}
 
-		if (this.options.autoPlay) {
-			this.play().then();
-		}
+		if (this.options.disableAutoPlayback) return;
+		this.play().then();
 	}
 
 	addGainNode(): void {
@@ -999,6 +998,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	videoPlayer_endedEvent(): void {
 		if (this.currentIndex < this.playlist.length - 1) {
+			if (this.options.disableAutoPlayback) return;
 			this.playVideo(this.currentIndex + 1);
 		} else {
 			this.options.debug && console.log('Playlist completed.');
@@ -1367,7 +1367,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				const progressItem = this.getPlaylist()
 					.filter(i => i.progress);
 
-				if (progressItem.length == 0 && this.options.autoPlay) {
+				if (progressItem.length == 0 && this.options.autoPlay && !this.options.disableAutoPlayback) {
 					this.play().then();
 					return;
 				}
@@ -1378,13 +1378,14 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 					.at(0);
 
 				if (!playlistItem?.progress) {
-					if (this.options.autoPlay) {
+					if (this.options.autoPlay && !this.options.disableAutoPlayback) {
 						this.play().then();
 					}
 					return;
 				}
 
 				setTimeout(() => {
+					if (this.options.disableAutoPlayback) return;
 					if (playlistItem.progress && 100 * (playlistItem.progress?.time ?? 0) / (this.getDuration() ?? 0) > 90) {
 						this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
 					}
@@ -1394,12 +1395,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				}, 0);
 
 				this.once('play', () => {
-					if (!playlistItem.progress) return;
+					if (!playlistItem.progress || this.options.disableAutoPlayback) return;
 
-					// setTimeout(() => {
-					// 	if (!playlistItem.progress) return;
 					this.seek(playlistItem.progress.time);
-					// }, 50);
 				});
 			}
 		});
@@ -1942,6 +1940,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 						this.emit('playlist', this.playlist);
 					}, 0);
 
+					if (this.options.disableAutoPlayback) return;
 					this.playVideo(0);
 				});
 		}
@@ -1957,6 +1956,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				this.emit('playlist', this.playlist);
 			}, 0);
 
+			if (this.options.disableAutoPlayback) return;
 			this.playVideo(0);
 		}
 	}
@@ -2093,6 +2093,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		} else {
 			this.playlistItem(item);
 		}
+
+		if (this.options.disableAutoPlayback) return;
 		this.play().then();
 	};
 

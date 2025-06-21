@@ -44,6 +44,7 @@ export class Base<T = Record<string, any>> {
 		disableTouchControls: false,
 		doubleClickDelay: 300,
 		customStorage: PlayerStorage.prototype.storage,
+		disableAutoPlayback: false,
 	} as T & PlayerConfig<Record<string, any>>;
 
 	hasPipEventHandler = false;
