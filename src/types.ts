@@ -1,4 +1,4 @@
-import {LevelAttributes, LevelDetails, MediaDecodingInfo, type MediaPlaylist} from 'hls.js';
+import {LevelAttributes, LevelDetails, MediaDecodingInfo} from 'hls.js';
 import Plugin from './plugin';
 import { Cue, VTTData } from 'webvtt-parser';
 import PlayerStorage from './playerStorage';
@@ -117,7 +117,7 @@ export interface Track {
 	id: number;
 	default?: boolean;
 	file: string;
-	// kind: string;
+	kind: string;
 	channel_layout?: string;
 	label?: string;
 	language?: string;
@@ -249,15 +249,15 @@ export interface Icon {
 	};
 }
 
-export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
+export interface NMPlayer<T extends Record<string, any> = Record<string, any>> extends Base<T> {
 	currentTimeFile: any;
 	episode: any;
 	fonts: string[];
-	hasBackEventHandler: any;
-	hasCloseEventHandler: any;
+	hasBackEventHandler: boolean;
+	hasCloseEventHandler: boolean;
 	hasNextTip: boolean;
-	hasPipEventHandler: any;
-	hasTheaterEventHandler: any;
+	hasPipEventHandler: boolean;
+	hasTheaterEventHandler: boolean;
 	id: any;
 	isPlaying: boolean;
 	season: any;
@@ -283,7 +283,7 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
 		callback: (arg: T) => void;
 	}) => Promise<void>;
 
-	prototype: NMPlayer<any>;
+	prototype: NMPlayer<Record<string, any> & T>;
 
 	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<HTMLElementTagNameMap[K]>;
 	addClasses<T extends Element>(parent: T, names: string[]): AddClasses<T>;
@@ -398,7 +398,7 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
 	setPlaylistItemCallback(callback: null | ((item: PlaylistItem & T['playlist'][number], index: number) => void | Promise<PlayerConfig<T>['playlist']>)): void;
 	setSpeed(speed: any): void;
 	setVolume(volume: number): void;
-	setup<Conf extends PlayerConfig<T>>(options: Conf & PlayerConfig<T>): NMPlayer<Conf>;
+	setup<Conf extends PlayerConfig<T>>(options: Conf & PlayerConfig<T>): NMPlayer<Conf & T>;
 	stop(): void;
 	toggleFullscreen(): void;
 	toggleMute(): void;
@@ -419,7 +419,7 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
 	emit(event: 'setupError', data?: any): void;
 
 	// Playlist
-	emit(event: 'playlist', data?: any): void;
+	emit(event: 'playlist', data?: PlaylistItem & T['playlist'][number]): void;
 	emit(event: 'item', data: PlaylistItem & T['playlist'][number]): void;
 	emit(event: 'playlistComplete', data?: any): void;
 	emit(event: 'nextClick', data?: any): void;
@@ -849,6 +849,7 @@ declare global {
 		Hls: typeof import('hls.js');
 		gainNode: GainNode;
 		nmplayer: <Conf extends Partial<PlayerConfig<any>>>(id?: string) => NMPlayer<Conf>;
+		WebVTTParser: typeof import('webvtt-parser').WebVTTParser;
 	}
 
 	interface Navigator {

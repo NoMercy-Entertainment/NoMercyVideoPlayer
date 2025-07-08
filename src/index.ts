@@ -313,21 +313,17 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			.then(async (body) => {
 				switch (options.type) {
 					case 'blob':
-						// @ts-ignore
-						callback(await body.blob() as ReturnType<T>);
+						callback(await body.blob() as T);
 						break;
 					case 'json':
-						// @ts-ignore
-						callback(await body.json() as ReturnType<T>);
+						callback(await body.json() as T);
 						break;
 					case 'arrayBuffer':
-						// @ts-ignore
-						callback(await body.arrayBuffer() as ReturnType<T>);
+						callback(await body.arrayBuffer() as T);
 						break;
 					case 'text':
 					default:
-						// @ts-ignore
-						callback(await body.text() as ReturnType<T>);
+						callback(await body.text() as T);
 						break;
 				}
 			})
@@ -400,7 +396,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		});
 
 		return playerMessage;
-	};
+	}
 
 	createBaseStyles(): void {
 		const styleSheet = this.createElement('style', `${this.playerId}-styles`, true)
@@ -829,7 +825,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
 		}
 		else if (HLS.isSupported()) {
-			const item = this.playlistItem();
 
 			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
@@ -840,13 +835,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				maxBufferSize: 0,
 				autoStartLoad: true,
 				testBandwidth: true,
-				// startPosition: item.progress
-				// 	?  item.progress.time
-				// 	: 0,
 				videoPreference: {
 					preferHDR: this.hdrSupported(),
 				},
-
 				xhrSetup: (xhr) => {
 					if (this.options.accessToken) {
 						xhr.setRequestHeader('authorization', `Bearer ${this.options.accessToken}`);
@@ -868,8 +859,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	addGainNode(): void {
-		// @ts-ignore
-		const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+		const audioCtx = new window.AudioContext();
 		const source = audioCtx.createMediaElementSource(this.videoElement);
 
 		const gainNode = audioCtx.createGain();
@@ -885,7 +875,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	removeGainNode(): void {
-		// @ts-ignore
 		this.gainNode?.disconnect();
 	}
 
@@ -1160,11 +1149,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}
 	}
 
-	debounce(func: Function, wait: number) {
+	debounce<T extends (...args: unknown[]) => unknown>(func: T, wait: number) {
 		let timeout: NodeJS.Timeout;
-		return (...args: any[]) => {
+		return (...args: Parameters<T>) => {
 			clearTimeout(timeout);
-			timeout = setTimeout(() => func.apply(this as NMPlayer<T>, args), wait);
+			timeout = setTimeout(() => func.apply(this, args), wait);
 		};
 	}
 
@@ -1196,7 +1185,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.videoElement.addEventListener(event.type, event.handler, { passive: true });
 		});
 		this._containerEvents.forEach(event => {
-			this.container.addEventListener(event.type, event.handler, { passive: true });
+			this.container.addEventListener(event.type, event.handler as EventListener, { passive: true });
 		});
 
 		this.on('play', this.emitPlayEvent.bind(this));
@@ -1470,7 +1459,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		});
 
 		this._containerEvents.forEach(event => {
-			this.container.removeEventListener(event.type, event.handler);
+			this.container.removeEventListener(event.type, event.handler as EventListener);
 		});
 
 		this.off('play', this.emitPlayEvent.bind(this));
@@ -1498,7 +1487,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			return Number(value) as T;
 		}
 		return value as T;
-	};
+	}
 
 	/**
 	 * Returns the localized string for the given value, if available.
@@ -1591,11 +1580,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const file = this.getSkipFile();
 		if (file && this.currentSkipFile !== file) {
 			this.currentSkipFile = file;
-			this.getFileContents({
+			this.getFileContents<string>({
 				url: file,
 				options: {},
 				callback: (data) => {
-					// @ts-ignore
 					const parser = new window.WebVTTParser();
 					this.skippers = parser.parse(data, 'metadata');
 
@@ -1692,12 +1680,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		if (file && this.currentFontFile !== file) {
 			this.currentFontFile = file;
 
-			await this.getFileContents<'json'>({
+			await this.getFileContents<string>({
 				url: file,
 				options: {},
 				callback: (data) => {
 					try {
-						this.fonts = JSON.parse(data as string).map((f: { file: string; mimeType: string }) => {
+						this.fonts = JSON.parse(data).map((f: { file: string; mimeType: string }) => {
 							const baseFolder = file.replace(/\/[^/]*$/u, '');
 							return {
 								...f,
@@ -1723,11 +1711,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const file = `https://raw.githubusercontent.com/NoMercy-Entertainment/NoMercyVideoPlayer/refs/heads/master/public/locales/${language}.json`;
 
 		try {
-			await this.getFileContents({
+			await this.getFileContents<string>({
 				url: file,
 				options: {},
 				callback: (data) => {
-					this.translations = JSON.parse(data as string);
+					this.translations = JSON.parse(data);
 
 					this.emit('translations', this.translations);
 				}
@@ -2105,7 +2093,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		if (this.options.disableAutoPlayback) return;
 		this.play().then();
-	};
+	}
 
 
 	next(): void {
@@ -2206,7 +2194,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			}
 			this.tapCount = 0;
 		}, this.leeway);
-	};
+	}
 
 	/**
 	 * Forwards the video by the specified time interval.
@@ -2226,7 +2214,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			}
 			this.tapCount = 0;
 		}, this.leeway);
-	};
+	}
 
 	// Volume
 	getMute(): boolean {
@@ -2374,8 +2362,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			}));
 	}
 
-	getCurrentAudioTrack(): MediaPlaylist {
-		if (!this.hls) return -1;
+	getCurrentAudioTrack(): MediaPlaylist|null {
+		if (!this.hls) return null;
 		return this.hls.audioTracks[this.hls.audioTrack];
 	}
 
@@ -2386,7 +2374,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	getCurrentAudioTrackName(): string {
 		if (!this.hls) return '';
-		return this.getCurrentAudioTrack().name;
+		return this.getCurrentAudioTrack()?.name ?? '';
 	}
 
 	setCurrentAudioTrack(index: number): void {
@@ -2426,14 +2414,14 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			return;
 		}
 
-		if (this.getCurrentAudioTrack() === this.getAudioTracks().length - 1) {
+		if (this.getAudioTrackIndex() === this.getAudioTracks().length - 1) {
 			this.setCurrentAudioTrack(0);
 		} else {
-			this.setCurrentAudioTrack(this.getCurrentAudioTrack() + 1);
+			this.setCurrentAudioTrack(this.getAudioTrackIndex() + 1);
 		}
 
 		this.displayMessage(`${this.localize('Audio')}: ${this.localize(this.getCurrentAudioTrackName()) || this.localize('Unknown')}`);
-	};
+	}
 
 	// Quality
 	getQualityLevels(): Level[] {
@@ -2612,7 +2600,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}
 
 		this.displayMessage(`${this.localize('Subtitles')}: ${this.getCaptionLabel() || this.localize('Off')}`);
-	};
+	}
 
 
 	/**

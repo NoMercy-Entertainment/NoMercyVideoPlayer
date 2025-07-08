@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 import PlayerStorage from './playerStorage';
-import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime, SubtitleStyle } from './types';
+import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './types';
 import MediaSession from '@nomercy-entertainment/media-session';
 
 export class Base<T = Record<string, any>> {

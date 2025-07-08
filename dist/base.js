@@ -42,6 +42,7 @@ class Base {
             disableTouchControls: false,
             doubleClickDelay: 300,
             customStorage: playerStorage_1.default.prototype.storage,
+            disableAutoPlayback: false,
         };
         this.hasPipEventHandler = false;
         this.hasTheaterEventHandler = false;

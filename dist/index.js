@@ -13,7 +13,7 @@ const ReithSansExtraBold_1 = __importDefault(require("./fonts/ReithSans/ReithSan
 const ReithSansExtraBoldItalic_1 = __importDefault(require("./fonts/ReithSans/ReithSansExtraBoldItalic"));
 const ReithSansMedium_1 = __importDefault(require("./fonts/ReithSans/ReithSansMedium"));
 const ReithSansMediumItalic_1 = __importDefault(require("./fonts/ReithSans/ReithSansMediumItalic"));
-const NotoSansJPBold_1 = __importDefault(require("./fonts/NotoSansJPFonts/NotoSansJPBold"));
+const tailwind_merge_1 = require("tailwind-merge");
 const instances = new Map();
 const DEFAULT_LEEWAY = 300;
 const DEFAULT_SEEK_INTERVAL = 10;
@@ -39,7 +39,7 @@ class NMPlayer extends base_1.Base {
         this.fonts = [];
         this.currentFontFile = '';
         this.currentSkipFile = '';
-        this.currentSubtitleIndex = 0;
+        this.currentSubtitleIndex = -1;
         this.subtitles = {};
         this.currentSubtitleFile = '';
         this.currentSpriteFile = '';
@@ -100,20 +100,16 @@ class NMPlayer extends base_1.Base {
                 .then(async (body) => {
                 switch (options.type) {
                     case 'blob':
-                        // @ts-ignore
                         callback(await body.blob());
                         break;
                     case 'json':
-                        // @ts-ignore
                         callback(await body.json());
                         break;
                     case 'arrayBuffer':
-                        // @ts-ignore
                         callback(await body.arrayBuffer());
                         break;
                     case 'text':
                     default:
-                        // @ts-ignore
                         callback(await body.text());
                         break;
                 }
@@ -186,6 +182,9 @@ class NMPlayer extends base_1.Base {
             { type: 'mouseleave', handler: this.handleMouseLeave.bind(this) },
             { type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
         ];
+        this.nearestValue = (arr, val) => {
+            return arr.reduce((p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p), Infinity) + val;
+        };
         if (!id && instances.size == 0) {
             throw new Error('No player element found');
         }
@@ -231,6 +230,11 @@ class NMPlayer extends base_1.Base {
         instances.set(id, this);
         this._removeEvents();
         this._addEvents();
+        setTimeout(() => {
+            if (!this.options.disableAutoPlayback)
+                return;
+            this.emit('ready');
+        }, 500);
         return this;
     }
     registerPlugin(name, plugin) {
@@ -324,67 +328,6 @@ class NMPlayer extends base_1.Base {
         const horInView = (rect.left <= windowWidth) && ((rect.left + rect.width) >= 0);
         return (vertInView && horInView);
     }
-    /**
-     * Creates a new HTML element of the specified type and assigns the given ID to it.
-     * @param type - The type of the HTML element to create.
-     * @param id - The ID to assign to the new element.
-     * @param unique - Whether to use an existing element with the specified ID if it already exists.
-     * @returns An object with four methods:
-     *   - `addClasses`: A function that adds the specified CSS class names to the element's class list and returns the next 3 functions.
-     *   - `appendTo`: A function that appends the element to a parent element and returns the element.
-     *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
-     *   - `get`: A function that returns the element.
-     */
-    createElement(type, id, unique) {
-        let el;
-        if (unique) {
-            el = (document.getElementById(id) ?? document.createElement(type));
-        }
-        else {
-            el = document.createElement(type);
-        }
-        el.id = id;
-        return {
-            addClasses: (names) => this.addClasses(el, names),
-            appendTo: (parent) => {
-                parent.appendChild(el);
-                return el;
-            },
-            prependTo: (parent) => {
-                parent.prepend(el);
-                return el;
-            },
-            get: () => el,
-        };
-    }
-    /**
-     * Adds the specified CSS class names to the given element's class list.
-     *
-     * @param el - The element to add the classes to.
-     * @param names - An array of CSS class names to add.
-     * @returns An object with three methods:
-     *   - `appendTo`: A function that appends the element to a parent element and returns the element.
-     *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
-     *   - `get`: A function that returns the element.
-     * @template T - The type of the element to add the classes to.
-     */
-    addClasses(el, names) {
-        for (const name of names.filter(Boolean)) {
-            el.classList?.add(name.trim());
-        }
-        return {
-            appendTo: (parent) => {
-                parent.appendChild(el);
-                return el;
-            },
-            prependTo: (parent) => {
-                parent.prepend(el);
-                return el;
-            },
-            addClasses: (names) => this.addClasses(el, names),
-            get: () => el,
-        };
-    }
     styleContainer() {
         this.container.classList.add('nomercyplayer');
         this.container.style.overflow = 'hidden';
@@ -399,14 +342,14 @@ class NMPlayer extends base_1.Base {
     }
     createVideoElement() {
         this.videoElement = this.createElement('video', `${this.playerId}_video`, true)
-            .appendTo(this.container);
+            .appendTo(this.container).get();
         this.setupVideoElementAttributes();
         this.setupVideoElementEventListeners();
         this.emitPausedEvent();
     }
     setupVideoElementAttributes() {
         this.videoElement.poster = EMPTY_IMAGE;
-        this.videoElement.autoplay = this.options.autoPlay ?? false;
+        this.videoElement.autoplay = (!!this.options.disableAutoPlayback && this.options.autoPlay) ?? false;
         this.videoElement.controls = this.options.controls ?? false;
         this.videoElement.preload = this.options.preload ?? 'auto';
         this.storage.get('muted', this.options.muted).then((val) => {
@@ -424,12 +367,12 @@ class NMPlayer extends base_1.Base {
     createOverlayElement() {
         this.overlay = this.createElement('div', `${this.playerId}-ui-overlay`, true)
             .addClasses(['ui-overlay'])
-            .appendTo(this.container);
+            .appendTo(this.container).get();
     }
     createOverlayCenterMessage() {
         const playerMessage = this.createElement('button', `${this.playerId}-player-message`)
             .addClasses(['player-message'])
-            .prependTo(this.overlay);
+            .prependTo(this.overlay).get();
         this.on('display-message', (val) => {
             playerMessage.style.display = 'flex';
             playerMessage.textContent = val;
@@ -440,10 +383,9 @@ class NMPlayer extends base_1.Base {
         });
         return playerMessage;
     }
-    ;
     createBaseStyles() {
         const styleSheet = this.createElement('style', `${this.playerId}-styles`, true)
-            .prependTo(this.container);
+            .prependTo(this.container).get();
         styleSheet.textContent = `
 			.nomercyplayer * {
 				user-select: none;
@@ -606,15 +548,9 @@ class NMPlayer extends base_1.Base {
     }
     createSubtitleFontFamily() {
         const styleSheet = this.createElement('style', `${this.playerId}-fonts`, true)
-            .appendTo(this.container);
+            .appendTo(this.container).get();
         styleSheet.textContent = `
-			@font-face {
-			  font-family: 'Noto Sans JP';
-			  font-style: normal;
-			  font-weight: 100 900;
-			  font-display: swap;
-			  src: url("data:font/woff2;base64,${NotoSansJPBold_1.default}") format("woff2");
-			}
+			@import url(https://fonts.bunny.net/css?family=noto-sans-jp:500);
 			@font-face {
 				font-family: 'ReithSans';
 				font-style: normal;
@@ -648,13 +584,13 @@ class NMPlayer extends base_1.Base {
     createSubtitleOverlay() {
         this.subtitleOverlay = this.createElement('div', `${this.playerId}-subtitle-overlay`, true)
             .addClasses(['subtitle-overlay'])
-            .appendTo(this.container);
+            .appendTo(this.container).get();
         this.subtitleArea = this.createElement('div', `${this.playerId}-subtitle-area`, true)
             .addClasses(['subtitle-area'])
-            .appendTo(this.subtitleOverlay);
+            .appendTo(this.subtitleOverlay).get();
         this.subtitleText = this.createElement('span', `${this.playerId}-subtitle-text`, true)
             .addClasses(['subtitle-text'])
-            .appendTo(this.subtitleArea);
+            .appendTo(this.subtitleArea).get();
         this.on('time', this.checkSubtitles.bind(this));
         this.storage.get('subtitle-style', helpers_1.defaultSubtitleStyles)
             .then((val) => {
@@ -798,7 +734,6 @@ class NMPlayer extends base_1.Base {
             this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
         }
         else if (hls_js_1.default.isSupported()) {
-            const item = this.playlistItem();
             this.hls ?? (this.hls = new hls_js_1.default({
                 debug: this.options.debug ?? false,
                 enableWorker: true,
@@ -808,9 +743,6 @@ class NMPlayer extends base_1.Base {
                 maxBufferSize: 0,
                 autoStartLoad: true,
                 testBandwidth: true,
-                // startPosition: item.progress
-                // 	?  item.progress.time
-                // 	: 0,
                 videoPreference: {
                     preferHDR: this.hdrSupported(),
                 },
@@ -827,13 +759,12 @@ class NMPlayer extends base_1.Base {
         else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
             this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
         }
-        if (this.options.autoPlay) {
-            this.play().then();
-        }
+        if (this.options.disableAutoPlayback)
+            return;
+        this.play().then();
     }
     addGainNode() {
-        // @ts-ignore
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const audioCtx = new window.AudioContext();
         const source = audioCtx.createMediaElementSource(this.videoElement);
         const gainNode = audioCtx.createGain();
         this.gainNode = gainNode;
@@ -845,7 +776,6 @@ class NMPlayer extends base_1.Base {
         }, 0);
     }
     removeGainNode() {
-        // @ts-ignore
         this.gainNode?.disconnect();
     }
     setGain(value) {
@@ -903,11 +833,13 @@ class NMPlayer extends base_1.Base {
         });
     }
     async setCurrentCaptionFromStorage() {
+        if (this.options.disableAutoPlayback)
+            return;
         const subtitleLanguage = await this.storage.get('subtitle-language', null);
         const subtitleType = await this.storage.get('subtitle-type', null);
         const subtitleExt = await this.storage.get('subtitle-ext', null);
         if (subtitleLanguage && subtitleType && subtitleExt) {
-            const track = this.getTextTrackIndexBy(subtitleLanguage, subtitleType, subtitleExt);
+            const track = this.getCaptionIndexBy(subtitleLanguage, subtitleType, subtitleExt);
             if (track == null || track == -1)
                 return;
             this.options.debug && console.log('Setting caption from storage', track);
@@ -915,6 +847,8 @@ class NMPlayer extends base_1.Base {
         }
     }
     setCurrentAudioTrackFromStorage() {
+        if (this.options.disableAutoPlayback)
+            return;
         this.storage.get('audio-language', null).then((val) => {
             if (val) {
                 this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(val));
@@ -933,6 +867,8 @@ class NMPlayer extends base_1.Base {
     }
     videoPlayer_endedEvent() {
         if (this.currentIndex < this.playlist.length - 1) {
+            if (this.options.disableAutoPlayback)
+                return;
             this.playVideo(this.currentIndex + 1);
         }
         else {
@@ -971,6 +907,8 @@ class NMPlayer extends base_1.Base {
     videoPlayer_durationchangeEvent(e) {
         const _e = e;
         this.emit('duration', this.videoPlayer_getTimeData(_e));
+        if (this.options.disableAutoPlayback)
+            return;
         this.emit('ready');
     }
     videoPlayer_volumechangeEvent() {
@@ -1023,7 +961,7 @@ class NMPlayer extends base_1.Base {
         this.container.classList.add('inactive');
         this.emit('active', false);
     }
-    ui_resetInactivityTimer(event) {
+    ui_resetInactivityTimer() {
         if (this.inactivityTimeout) {
             clearTimeout(this.inactivityTimeout);
         }
@@ -1225,7 +1163,7 @@ class NMPlayer extends base_1.Base {
                 // Get item with the latest progress timer
                 const progressItem = this.getPlaylist()
                     .filter(i => i.progress);
-                if (progressItem.length == 0 && this.options.autoPlay) {
+                if (progressItem.length == 0 && this.options.autoPlay && !this.options.disableAutoPlayback) {
                     this.play().then();
                     return;
                 }
@@ -1234,12 +1172,14 @@ class NMPlayer extends base_1.Base {
                     .sort((a, b) => new Date(b.progress.date).getTime() - new Date(a.progress.date).getTime())
                     .at(0);
                 if (!playlistItem?.progress) {
-                    if (this.options.autoPlay) {
+                    if (this.options.autoPlay && !this.options.disableAutoPlayback) {
                         this.play().then();
                     }
                     return;
                 }
                 setTimeout(() => {
+                    if (this.options.disableAutoPlayback)
+                        return;
                     if (playlistItem.progress && 100 * (playlistItem.progress?.time ?? 0) / (this.getDuration() ?? 0) > 90) {
                         this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
                     }
@@ -1248,12 +1188,9 @@ class NMPlayer extends base_1.Base {
                     }
                 }, 0);
                 this.once('play', () => {
-                    if (!playlistItem.progress)
+                    if (!playlistItem.progress || this.options.disableAutoPlayback)
                         return;
-                    // setTimeout(() => {
-                    // 	if (!playlistItem.progress) return;
                     this.seek(playlistItem.progress.time);
-                    // }, 50);
                 });
             }
         });
@@ -1328,7 +1265,6 @@ class NMPlayer extends base_1.Base {
         }
         return value;
     }
-    ;
     /**
      * Returns the localized string for the given value, if available.
      * If the value is not found in the translations, it returns the original value.
@@ -1370,7 +1306,7 @@ class NMPlayer extends base_1.Base {
      * @returns {Array} An array of audio tracks for the current playlist item.
      */
     getSubtitleFile() {
-        return this.getCurrentCaptions()?.file;
+        return this.getCurrentCaption()?.file;
     }
     /**
      * Returns the file associated with the thumbnail of the current playlist item.
@@ -1414,7 +1350,6 @@ class NMPlayer extends base_1.Base {
                 url: file,
                 options: {},
                 callback: (data) => {
-                    // @ts-ignore
                     const parser = new window.WebVTTParser();
                     this.skippers = parser.parse(data, 'metadata');
                     if (this.getDuration()) { // VideoJs doesn't have duration yet
@@ -1723,6 +1658,8 @@ class NMPlayer extends base_1.Base {
                 setTimeout(() => {
                     this.emit('playlist', this.playlist);
                 }, 0);
+                if (this.options.disableAutoPlayback)
+                    return;
                 this.playVideo(0);
             });
         }
@@ -1736,6 +1673,8 @@ class NMPlayer extends base_1.Base {
             setTimeout(() => {
                 this.emit('playlist', this.playlist);
             }, 0);
+            if (this.options.disableAutoPlayback)
+                return;
             this.playVideo(0);
         }
     }
@@ -1848,9 +1787,10 @@ class NMPlayer extends base_1.Base {
         else {
             this.playlistItem(item);
         }
+        if (this.options.disableAutoPlayback)
+            return;
         this.play().then();
     }
-    ;
     next() {
         if (this.getPlaylistIndex() < this.playlist.length - 1) {
             this.playlistItem(this.getPlaylistIndex() + 1);
@@ -1902,7 +1842,9 @@ class NMPlayer extends base_1.Base {
         this.lastTime = 0;
         this.emit('seek');
         this.videoElement.currentTime = arg;
-        this.emit('seeked');
+        setTimeout(() => {
+            this.emit('seeked');
+        }, 10);
         return arg;
     }
     restart() {
@@ -1922,11 +1864,12 @@ class NMPlayer extends base_1.Base {
         this.emit('rewind', this.tapCount);
         this.leftTap = setTimeout(() => {
             this.emit('remove-rewind');
-            this.seek(this.getCurrentTime() - this.tapCount);
+            if (!this.options.disableAutoPlayback) {
+                this.seek(this.getCurrentTime() - this.tapCount);
+            }
             this.tapCount = 0;
         }, this.leeway);
     }
-    ;
     /**
      * Forwards the video by the specified time interval.
      * @param time - The time interval to forward the video by, in seconds. Defaults to 10 seconds if not provided.
@@ -1938,11 +1881,12 @@ class NMPlayer extends base_1.Base {
         this.emit('forward', this.tapCount);
         this.rightTap = setTimeout(() => {
             this.emit('remove-forward');
-            this.seek(this.getCurrentTime() + this.tapCount);
+            if (!this.options.disableAutoPlayback) {
+                this.seek(this.getCurrentTime() + this.tapCount);
+            }
             this.tapCount = 0;
         }, this.leeway);
     }
-    ;
     // Volume
     getMute() {
         return this.videoElement.muted;
@@ -1999,8 +1943,12 @@ class NMPlayer extends base_1.Base {
             this.displayMessage(`${this.localize('Volume')}: ${this.getVolume()}%`);
         }
     }
-    setVolume(arg) {
-        let vol = arg / 100;
+    setVolume(value) {
+        if (value < 0)
+            value = 0;
+        if (value > 100)
+            value = 100;
+        let vol = value / 100;
         if (vol > 1)
             vol = 1;
         if (vol < 0)
@@ -2073,16 +2021,21 @@ class NMPlayer extends base_1.Base {
     }
     getCurrentAudioTrack() {
         if (!this.hls)
+            return null;
+        return this.hls.audioTracks[this.hls.audioTrack];
+    }
+    getAudioTrackIndex() {
+        if (!this.hls)
             return -1;
         return this.hls.audioTrack;
     }
     getCurrentAudioTrackName() {
         if (!this.hls)
             return '';
-        return this.hls.audioTracks[this.hls.audioTrack].name;
+        return this.getCurrentAudioTrack()?.name ?? '';
     }
     setCurrentAudioTrack(index) {
-        if ((!index && index != 0) || !this.hls)
+        if (index === null || !this.hls)
             return;
         this.hls.audioTrack = index;
         this.storage.set('audio-language', this.getAudioTracks()[index]?.lang ?? '').then();
@@ -2113,15 +2066,14 @@ class NMPlayer extends base_1.Base {
         if (!this.hasAudioTracks()) {
             return;
         }
-        if (this.getCurrentAudioTrack() === this.getAudioTracks().length - 1) {
+        if (this.getAudioTrackIndex() === this.getAudioTracks().length - 1) {
             this.setCurrentAudioTrack(0);
         }
         else {
-            this.setCurrentAudioTrack(this.getCurrentAudioTrack() + 1);
+            this.setCurrentAudioTrack(this.getAudioTrackIndex() + 1);
         }
         this.displayMessage(`${this.localize('Audio')}: ${this.localize(this.getCurrentAudioTrackName()) || this.localize('Unknown')}`);
     }
-    ;
     // Quality
     getQualityLevels() {
         if (!this.hls)
@@ -2155,6 +2107,11 @@ class NMPlayer extends base_1.Base {
             return;
         this.hls.nextLevel = index;
     }
+    getCurrentQualityByFileName(name) {
+        if (!this.hls)
+            return;
+        return this.getQualityLevels().findIndex((level) => level.url.some(u => u.endsWith(name)));
+    }
     /**
      * Returns a boolean indicating whether the player has more than one quality.
      * @returns {boolean} True if the player has more than one quality, false otherwise.
@@ -2179,7 +2136,7 @@ class NMPlayer extends base_1.Base {
     hasCaptions() {
         return (this.getSubtitles()?.length ?? 0) > 0;
     }
-    getCurrentCaptions() {
+    getCurrentCaption() {
         return this.getSubtitles()?.[this.currentSubtitleIndex] ?? {
             id: -1,
             label: 'Off',
@@ -2192,7 +2149,7 @@ class NMPlayer extends base_1.Base {
         };
     }
     getCurrentCaptionsName() {
-        return this.getCurrentCaptions()?.label ?? '';
+        return this.getCurrentCaption()?.label ?? '';
     }
     getCaptionIndex() {
         return this.currentSubtitleIndex;
@@ -2204,7 +2161,7 @@ class NMPlayer extends base_1.Base {
      * @param ext The extension of the text track.
      * @returns The index of the matching text track, or -1 if no match is found.
      */
-    getTextTrackIndexBy(language, type, ext) {
+    getCaptionIndexBy(language, type, ext) {
         const index = this.getCaptionsList()
             ?.findIndex((t) => (t.file ?? t.id).endsWith(`${language}.${type}.${ext}`));
         if (index === -1) {
@@ -2220,7 +2177,7 @@ class NMPlayer extends base_1.Base {
         this.subtitles = {};
         this.subtitleText.textContent = '';
         this.subtitleOverlay.style.display = 'none';
-        this.emit('captionsChanged', this.getCurrentCaptions());
+        this.emit('captionsChanged', this.getCurrentCaption());
         this.storeSubtitleChoice();
         if (index == -1) {
             return;
@@ -2228,10 +2185,10 @@ class NMPlayer extends base_1.Base {
         this.fetchSubtitleFile();
     }
     getCaptionLanguage() {
-        return this.getCurrentCaptions()?.language ?? '';
+        return this.getCurrentCaption()?.language ?? '';
     }
     getCaptionLabel() {
-        const currentCapitation = this.getCurrentCaptions();
+        const currentCapitation = this.getCurrentCaption();
         if (!currentCapitation)
             return '';
         return `${this.localize(currentCapitation.language)} ${currentCapitation.label}`;
@@ -2240,11 +2197,11 @@ class NMPlayer extends base_1.Base {
      * Triggers the styled subtitles based on the provided file.
      */
     storeSubtitleChoice() {
-        const currentCapitation = this.getCurrentCaptions();
+        const currentCapitation = this.getCurrentCaption();
         if (!currentCapitation) {
-            localStorage.removeItem('nmplayer-subtitle-language');
-            localStorage.removeItem('nmplayer-subtitle-type');
-            localStorage.removeItem('nmplayer-subtitle-ext');
+            this.storage.remove('subtitle-language');
+            this.storage.remove('subtitle-type');
+            this.storage.remove('subtitle-ext');
             return;
         }
         const { language, type, ext } = currentCapitation;
@@ -2275,7 +2232,6 @@ class NMPlayer extends base_1.Base {
         }
         this.displayMessage(`${this.localize('Subtitles')}: ${this.getCaptionLabel() || this.localize('Off')}`);
     }
-    ;
     /**
      * Returns the current aspect ratio of the player.
      * If the player is a JWPlayer, it returns the current stretching mode.
@@ -2418,6 +2374,398 @@ class NMPlayer extends base_1.Base {
                 episodes: this.getPlaylist().filter((e) => e.season == s.season).length,
             };
         });
+    }
+    /**
+     * Creates a new HTML element of the specified type and assigns the given ID to it.
+     * @param type - The type of the HTML element to create.
+     * @param id - The ID to assign to the new element.
+     * @param unique - Whether to use an existing element with the specified ID if it already exists.
+     * @returns An object with four methods:
+     *   - `addClasses`: adds the specified CSS class names to the element's class list and returns the functions recursively.
+     *   - `appendTo`: appends the element to a parent element and and returns addClasses and get methods.
+     *   - `prependTo`: prepends the element to a parent element and returns addClasses and get methods.
+     *   - `get`: returns the created element.
+     */
+    createElement(type, id, unique) {
+        let el;
+        if (unique) {
+            el = (document.getElementById(id) ?? document.createElement(type));
+        }
+        else {
+            el = document.createElement(type);
+        }
+        el.id = id;
+        return {
+            addClasses: (names) => this.addClasses(el, names),
+            appendTo: (parent) => {
+                parent.appendChild(el);
+                return {
+                    addClasses: (names) => this.addClasses(el, names),
+                    get: () => el,
+                };
+            },
+            prependTo: (parent) => {
+                parent.prepend(el);
+                return {
+                    addClasses: (names) => this.addClasses(el, names),
+                    get: () => el,
+                };
+            },
+            get: () => el,
+        };
+    }
+    /**
+     * Adds the specified CSS class names to the given element's class list.
+     *
+     * @param el - The element to add the classes to.
+     * @param names - An array of CSS class names to add.
+     * @returns An object with three methods:
+     *   - `appendTo`: appends the element to a parent element and returns addClasses and get methods.
+     *   - `prependTo`: prepends the element to a parent element and returns addClasses and get methods.
+     *   - `get`: returns the created element.
+     * @template T - The type of the element to add the classes to.
+     */
+    addClasses(el, names) {
+        for (const name of names.filter(Boolean)) {
+            el.classList?.add(name.trim());
+        }
+        return {
+            appendTo: (parent) => {
+                parent.appendChild(el);
+                return {
+                    addClasses: (names) => this.addClasses(el, names),
+                    get: () => el,
+                };
+            },
+            prependTo: (parent) => {
+                parent.prepend(el);
+                return {
+                    addClasses: (names) => this.addClasses(el, names),
+                    get: () => el,
+                };
+            },
+            addClasses: (names) => this.addClasses(el, names),
+            get: () => el,
+        };
+    }
+    createUiButton(parent, id, title) {
+        const button = this.createElement('button', id)
+            .addClasses([
+            'cursor-pointer',
+            '-outline-offset-2',
+            'fill-white',
+            'flex',
+            'focus-visible:fill-white',
+            'focus-visible:outline',
+            'focus-visible:outline-2',
+            'focus-visible:outline-white/20',
+            'group/button',
+            'h-10',
+            'items-center',
+            'justify-center',
+            'min-w-[40px]',
+            'p-2',
+            'pointer-events-auto',
+            'relative',
+            'rounded-full',
+            'tv:fill-white/30',
+            'w-10',
+        ])
+            .appendTo(parent);
+        const el = button.get();
+        el.ariaLabel = title ?? this.localize(id.replace(/-/g, ' ').toTitleCase());
+        el.addEventListener('keypress', (event) => {
+            if (event.key === 'Backspace') {
+                el.blur();
+                this.emit('show-menu', false);
+            }
+            if (event.key === 'Escape') {
+                el.blur();
+                this.emit('show-menu', false);
+            }
+        });
+        return button;
+    }
+    getClosestSeekableInterval() {
+        const scrubTime = this.getCurrentTime();
+        const interval = this.previewTime.find((interval) => {
+            return scrubTime >= interval.start && scrubTime < interval.end;
+        });
+        return interval?.start;
+    }
+    /**
+     * Converts a snake_case string to camelCase.
+     * @param str - The snake_case string to convert.
+     * @returns The camelCase version of the string.
+     */
+    snakeToCamel(str) {
+        return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+    }
+    spaceToCamel(str) {
+        return str.replace(/\s([a-z])/g, (_, letter) => letter.toUpperCase());
+    }
+    getClosestElement(element, selector) {
+        const arr = Array.from(document.querySelectorAll(selector)).filter(el => getComputedStyle(el).display == 'flex');
+        const originEl = element.getBoundingClientRect();
+        return arr.find(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2))
+            == this.nearestValue(arr.map(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2))), originEl.top + (originEl.height / 2)));
+    }
+    isNumber(value) {
+        return !isNaN(parseInt(value, 10));
+    }
+    scrollCenter(el, container, options) {
+        if (!el)
+            return;
+        const scrollDuration = options?.duration || 60;
+        const margin = options?.margin || 1.5;
+        const elementTop = (el.getBoundingClientRect().top) + (el.getBoundingClientRect().height / 2) - (container.getBoundingClientRect().height / margin);
+        const startingY = container.scrollTop;
+        const startTime = performance.now();
+        function scrollStep(timestamp) {
+            const currentTime = timestamp - startTime;
+            const progress = Math.min(currentTime / scrollDuration, 1);
+            container.scrollTo(0, Math.floor(startingY + (elementTop * progress)));
+            if (currentTime < scrollDuration) {
+                requestAnimationFrame(scrollStep);
+            }
+        }
+        requestAnimationFrame(scrollStep);
+    }
+    scrollIntoView(element) {
+        const scrollDuration = 200;
+        const parentElement = element.parentElement;
+        const elementLeft = element.getBoundingClientRect().left + (element.offsetWidth / 2) - (parentElement.offsetWidth / 2);
+        const startingX = parentElement.scrollLeft;
+        const startTime = performance.now();
+        function scrollStep(timestamp) {
+            const currentTime = timestamp - startTime;
+            const progress = Math.min(currentTime / scrollDuration, 1);
+            parentElement.scrollTo(startingX + elementLeft * progress, 0);
+            if (currentTime < scrollDuration) {
+                requestAnimationFrame(scrollStep);
+            }
+        }
+        requestAnimationFrame(scrollStep);
+    }
+    createSVGElement(parent, id, icon, hidden = false, hovered = false) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.id = id;
+        this.addClasses(svg, (0, tailwind_merge_1.twMerge)([
+            `${id}-icon`,
+            'svg-size',
+            'h-5',
+            'w-5',
+            'fill-current',
+            'pointer-events-none',
+            'group-hover/button:scale-110',
+            'duration-700',
+            hidden ? 'hidden' : 'flex',
+            ...icon.classes,
+        ]).split(' '));
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', hovered ? icon.normal : icon.hover);
+        this.addClasses(path, [
+            'group-hover/button:hidden',
+            'group-hover/volume:hidden',
+        ]);
+        svg.appendChild(path);
+        const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path2.setAttribute('d', hovered ? icon.hover : icon.normal);
+        this.addClasses(path2, [
+            'hidden',
+            'group-hover/button:flex',
+            'group-hover/volume:flex',
+        ]);
+        svg.appendChild(path2);
+        if (!parent.classList.contains('menu-button') && hovered) {
+            parent.addEventListener('mouseenter', () => {
+                if (icon.title.length == 0 || ['Next', 'Previous'].includes(icon.title))
+                    return;
+                if (icon.title == 'Fullscreen' && this.getFullscreen()) {
+                    return;
+                }
+                if (icon.title == 'Exit fullscreen' && !this.getFullscreen()) {
+                    return;
+                }
+                if (icon.title == 'Play' && this.isPlaying) {
+                    return;
+                }
+                if (icon.title == 'Pause' && !this.isPlaying) {
+                    return;
+                }
+                if (icon.title == 'Mute' && this.isMuted()) {
+                    return;
+                }
+                if (icon.title == 'Unmute' && !this.isMuted()) {
+                    return;
+                }
+                const text = `${this.localize(icon.title)} ${this.getButtonKeyCode(id)}`;
+                const playerRect = this.getElement().getBoundingClientRect();
+                const menuTipRect = parent.getBoundingClientRect();
+                let x = Math.abs(playerRect.left - (menuTipRect.left + (menuTipRect.width * 0.5)) - (text.length * 0.5));
+                const y = Math.abs(playerRect.bottom - (menuTipRect.bottom + (menuTipRect.height * 1.2)));
+                if (x < 35) {
+                    x = 35;
+                }
+                if (x > (playerRect.right - playerRect.left) - 75) {
+                    x = (playerRect.right - playerRect.left) - 75;
+                }
+                this.emit('show-tooltip', {
+                    text: text,
+                    currentTime: 'bottom',
+                    x: `${x}px`,
+                    y: `-${y}px`,
+                });
+            });
+            parent.addEventListener('mouseleave', () => {
+                this.emit('hide-tooltip');
+            });
+        }
+        parent.appendChild(svg);
+        return svg;
+    }
+    getButtonKeyCode(id) {
+        switch (id) {
+            case 'play':
+            case 'pause':
+                return `(${this.localize('SPACE')})`;
+            case 'volumeMuted':
+            case 'volumeLow':
+            case 'volumeMedium':
+            case 'volumeHigh':
+                return '(m)';
+            case 'seekBack':
+                return '(<)';
+            case 'seekForward':
+                return '(>)';
+            case 'next':
+                return '(n)';
+            case 'theater':
+                return '(t)';
+            case 'theater-enabled':
+                return '(t)';
+            case 'pip-enter':
+            case 'pip-exit':
+                return '(i)';
+            case 'playlist':
+                return '';
+            case 'previous':
+                return '(p)';
+            case 'speed':
+                return '';
+            case 'subtitle':
+            case 'subtitled':
+                return '(v)';
+            case 'audio':
+                return '(b)';
+            case 'settings':
+                return '';
+            case 'fullscreen-enable':
+            case 'fullscreen':
+                return '(f)';
+            default:
+                return '';
+        }
+    }
+    createButton(match, id, insert = 'after', icon, click, rightClick) {
+        const element = document.querySelector(match);
+        if (!element) {
+            throw new Error('Element not found');
+        }
+        const button = this.createElement('button', id)
+            .addClasses([
+            'cursor-pointer',
+            '-outline-offset-2',
+            'fill-white',
+            'flex',
+            'focus-visible:fill-white',
+            'focus-visible:outline',
+            'focus-visible:outline-2',
+            'focus-visible:outline-white/20',
+            'group/button',
+            'h-10',
+            'items-center',
+            'justify-center',
+            'min-w-[40px]',
+            'p-2',
+            'pointer-events-auto',
+            'relative',
+            'rounded-full',
+            'tv:fill-white/30',
+            'w-10',
+        ]);
+        const el = button.get();
+        el.ariaLabel = icon.title ?? this.localize(id.replace(/-/g, ' ').toTitleCase());
+        el.addEventListener('keypress', (event) => {
+            if (event.key === 'Backspace') {
+                el.blur();
+                this.emit('show-menu', false);
+            }
+            if (event.key === 'Escape') {
+                el.blur();
+                this.emit('show-menu', false);
+            }
+        });
+        if (insert === 'before') {
+            element.prepend(el);
+        }
+        else {
+            element.appendChild(el);
+        }
+        this.createSVGElement(el, `${id.replace(/\s/gu, '_')}-enabled`, icon, true, false);
+        this.createSVGElement(el, id.replace(/\s/gu, '_'), icon, false);
+        el.addEventListener('click', (event) => {
+            event.stopPropagation();
+            click?.();
+            this.emit('hide-tooltip');
+        });
+        el.addEventListener('contextmenu', (event) => {
+            event.stopPropagation();
+            rightClick?.();
+            this.emit('hide-tooltip');
+        });
+        return button;
+    }
+    /**
+     * Attaches a double tap event listener to the element.
+     * @param doubleTap - The function to execute when a double tap event occurs.
+     * @param singleTap - An optional function to execute when a second double tap event occurs.
+     * @returns A function that detects double tap events.
+     */
+    doubleTap(doubleTap, singleTap) {
+        const delay = this.options.doubleClickDelay ?? 300;
+        let lastTap = 0;
+        let timeout;
+        let timeout2;
+        return function (event, event2) {
+            const curTime = new Date().getTime();
+            const tapLen = curTime - lastTap;
+            if (tapLen > 0 && tapLen < delay) {
+                event.preventDefault();
+                doubleTap(event);
+                clearTimeout(timeout2);
+            }
+            else {
+                timeout = setTimeout(() => {
+                    clearTimeout(timeout);
+                }, delay);
+                timeout2 = setTimeout(() => {
+                    singleTap?.(event2);
+                }, delay);
+            }
+            lastTap = curTime;
+        };
+    }
+    getChapterText(scrubTimePlayer) {
+        if (this.getChapters().length == 0)
+            return null;
+        const index = this.getChapters()?.findIndex((chapter) => {
+            return chapter.startTime > scrubTimePlayer;
+        });
+        return this.getChapters()[index - 1]?.title
+            ?? this.getChapters()[this.getChapters()?.length - 1]?.title
+            ?? null;
     }
 }
 String.prototype.toTitleCase = function () {

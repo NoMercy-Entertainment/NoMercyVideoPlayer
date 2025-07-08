@@ -2,7 +2,7 @@ import HLS, { type MediaPlaylist } from 'hls.js';
 import { Cue, type VTTData } from 'webvtt-parser';
 import { Base } from './base';
 import type Plugin from './plugin';
-import { PlaylistItem, PreviewTime, PlayerConfig, Stretching, TimeData, Track, TypeMappings, Chapter, Level, SubtitleStyle } from './types';
+import { PlaylistItem, PreviewTime, PlayerConfig, Stretching, TimeData, Track, TypeMappings, Chapter, Level, SubtitleStyle, CreateElement, AddClasses, Icon, AddClassesReturn } from './types';
 declare class NMPlayer<T = Record<string, any>> extends Base<T> {
     hls: HLS | undefined;
     gainNode: GainNode | undefined;
@@ -103,45 +103,6 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
         };
         callback: (arg: T_1) => void;
     }) => Promise<void>;
-    /**
-     * Creates a new HTML element of the specified type and assigns the given ID to it.
-     * @param type - The type of the HTML element to create.
-     * @param id - The ID to assign to the new element.
-     * @param unique - Whether to use an existing element with the specified ID if it already exists.
-     * @returns An object with four methods:
-     *   - `addClasses`: A function that adds the specified CSS class names to the element's class list and returns the next 3 functions.
-     *   - `appendTo`: A function that appends the element to a parent element and returns the element.
-     *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
-     *   - `get`: A function that returns the element.
-     */
-    createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): {
-        addClasses: (names: string[]) => {
-            appendTo: <T_1 extends Element>(parent: T_1) => HTMLElementTagNameMap[K];
-            prependTo: <T_1 extends Element>(parent: T_1) => HTMLElementTagNameMap[K];
-            addClasses: (names: string[]) => /*elided*/ any;
-            get: () => HTMLElementTagNameMap[K];
-        };
-        appendTo: <T_1 extends Element>(parent: T_1) => HTMLElementTagNameMap[K];
-        prependTo: <T_1 extends Element>(parent: T_1) => HTMLElementTagNameMap[K];
-        get: () => HTMLElementTagNameMap[K];
-    };
-    /**
-     * Adds the specified CSS class names to the given element's class list.
-     *
-     * @param el - The element to add the classes to.
-     * @param names - An array of CSS class names to add.
-     * @returns An object with three methods:
-     *   - `appendTo`: A function that appends the element to a parent element and returns the element.
-     *   - `prependTo`: A function that prepends the element to a parent element and returns the element.
-     *   - `get`: A function that returns the element.
-     * @template T - The type of the element to add the classes to.
-     */
-    addClasses<T extends Element>(el: T, names: string[]): {
-        appendTo: <T_1 extends Element>(parent: T_1) => T;
-        prependTo: <T_1 extends Element>(parent: T_1) => T;
-        addClasses: (names: string[]) => /*elided*/ any;
-        get: () => T;
-    };
     styleContainer(): void;
     createVideoElement(): void;
     setupVideoElementAttributes(): void;
@@ -197,19 +158,19 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
     inactivityTime: number;
     ui_addActiveClass(): void;
     ui_removeActiveClass(): void;
-    ui_resetInactivityTimer(event?: Event): void;
+    ui_resetInactivityTimer(): void;
     emitPlayEvent(): void;
     emitPausedEvent(): void;
     handleMouseLeave(event: MouseEvent): void;
     handleMouseEnter(event: MouseEvent): void;
-    debounce(func: Function, wait: number): (...args: any[]) => void;
+    debounce<T extends (...args: unknown[]) => unknown>(func: T, wait: number): (...args: Parameters<T>) => void;
     _playerEvents: {
         type: string;
         handler: (e: Event) => void;
     }[];
     _containerEvents: {
         type: string;
-        handler: (event?: Event) => void;
+        handler: (event: MouseEvent) => void;
     }[];
     _addEvents(): void;
     _removeEvents(): void;
@@ -442,7 +403,7 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
      * Decreases the volume of the player by 10 units. If the volume is already at 0, the player is muted.
      */
     volumeDown(): void;
-    setVolume(arg: number): void;
+    setVolume(value: number): void;
     getWidth(): number;
     getHeight(): number;
     getFullscreen(): boolean;
@@ -462,7 +423,8 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
      */
     toggleFullscreen(): void;
     getAudioTracks(): MediaPlaylist[];
-    getCurrentAudioTrack(): number;
+    getCurrentAudioTrack(): MediaPlaylist | null;
+    getAudioTrackIndex(): number;
     getCurrentAudioTrackName(): string;
     setCurrentAudioTrack(index: number): void;
     /**
@@ -488,6 +450,7 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
     getCurrentQuality(): number;
     getCurrentQualityName(): any[] | string | undefined;
     setCurrentQuality(index: number): void;
+    getCurrentQualityByFileName(name: string): number | undefined;
     /**
      * Returns a boolean indicating whether the player has more than one quality.
      * @returns {boolean} True if the player has more than one quality, false otherwise.
@@ -495,7 +458,7 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
     hasQualities(): boolean;
     getCaptionsList(): Track[];
     hasCaptions(): boolean;
-    getCurrentCaptions(): Track | undefined;
+    getCurrentCaption(): Track | undefined;
     getCurrentCaptionsName(): any;
     getCaptionIndex(): number;
     /**
@@ -505,7 +468,7 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
      * @param ext The extension of the text track.
      * @returns The index of the matching text track, or -1 if no match is found.
      */
-    getTextTrackIndexBy(language: string, type: string, ext: string): number | undefined;
+    getCaptionIndexBy(language: string, type: string, ext: string): number | undefined;
     setCurrentCaption(index?: number): void;
     getCaptionLanguage(): any;
     getCaptionLabel(): any;
@@ -553,6 +516,58 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
         seasonName: string;
         episodes: number;
     }>;
+    /**
+     * Creates a new HTML element of the specified type and assigns the given ID to it.
+     * @param type - The type of the HTML element to create.
+     * @param id - The ID to assign to the new element.
+     * @param unique - Whether to use an existing element with the specified ID if it already exists.
+     * @returns An object with four methods:
+     *   - `addClasses`: adds the specified CSS class names to the element's class list and returns the functions recursively.
+     *   - `appendTo`: appends the element to a parent element and and returns addClasses and get methods.
+     *   - `prependTo`: prepends the element to a parent element and returns addClasses and get methods.
+     *   - `get`: returns the created element.
+     */
+    createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<HTMLElementTagNameMap[K]>;
+    /**
+     * Adds the specified CSS class names to the given element's class list.
+     *
+     * @param el - The element to add the classes to.
+     * @param names - An array of CSS class names to add.
+     * @returns An object with three methods:
+     *   - `appendTo`: appends the element to a parent element and returns addClasses and get methods.
+     *   - `prependTo`: prepends the element to a parent element and returns addClasses and get methods.
+     *   - `get`: returns the created element.
+     * @template T - The type of the element to add the classes to.
+     */
+    addClasses<T extends Element>(el: T, names: string[]): AddClasses<T>;
+    createUiButton(parent: HTMLElement, id: string, title?: string): AddClassesReturn<HTMLButtonElement>;
+    getClosestSeekableInterval(): number;
+    /**
+     * Converts a snake_case string to camelCase.
+     * @param str - The snake_case string to convert.
+     * @returns The camelCase version of the string.
+     */
+    snakeToCamel(str: string): string;
+    spaceToCamel(str: string): string;
+    nearestValue: (arr: any[], val: number) => any;
+    getClosestElement(element: HTMLButtonElement, selector: string): HTMLButtonElement | undefined;
+    isNumber(value: any): value is number;
+    scrollCenter(el: HTMLElement, container: HTMLElement, options?: {
+        duration?: number;
+        margin?: number;
+    }): void;
+    scrollIntoView(element: HTMLElement): void;
+    createSVGElement(parent: HTMLElement, id: string, icon: Icon['path'], hidden?: boolean, hovered?: boolean): SVGSVGElement;
+    getButtonKeyCode(id: string): string;
+    createButton(match: string, id: string, insert: "before" | "after" | undefined, icon: Icon['path'], click?: (e?: MouseEvent) => void, rightClick?: (e?: MouseEvent) => void): AddClasses<HTMLButtonElement>;
+    /**
+     * Attaches a double tap event listener to the element.
+     * @param doubleTap - The function to execute when a double tap event occurs.
+     * @param singleTap - An optional function to execute when a second double tap event occurs.
+     * @returns A function that detects double tap events.
+     */
+    doubleTap(doubleTap: (event: Event) => void, singleTap?: (event2: Event) => void): (event: Event, event2?: Event) => void;
+    getChapterText(scrubTimePlayer: number): string | null;
 }
-declare const nmplayer: <Conf extends Partial<PlayerConfig<Record<string, any>>> = {}>(id?: string) => NMPlayer<Conf>;
+declare const nmplayer: <Conf extends Partial<PlayerConfig<Record<string, any>>> = Record<string, any>>(id?: string) => NMPlayer<Conf>;
 export default nmplayer;

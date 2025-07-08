@@ -106,6 +106,7 @@ export interface Track {
     default?: boolean;
     file: string;
     kind: string;
+    channel_layout?: string;
     label?: string;
     language?: string;
     type?: string;
@@ -164,7 +165,7 @@ export interface PlayerConfig<T = Record<string, any>> {
     nipple?: boolean;
     styles?: any;
     chapters?: boolean;
-    playlist?: string | (PlaylistItem & T)[];
+    playlist: string | (PlaylistItem & T)[];
     debug?: boolean;
     muted?: boolean;
     controls?: boolean;
@@ -186,34 +187,48 @@ export interface PlayerConfig<T = Record<string, any>> {
     forceTvMode?: boolean;
     seekButtons?: boolean;
     disableMediaControls?: boolean;
+    renderAhead?: number;
     customStorage?: StorageInterface;
+    disableAutoPlayback?: boolean;
 }
 export interface StorageInterface {
     get: (key: string) => Promise<string | null>;
     set: (key: string, value: string) => Promise<void>;
     remove: (key: string) => Promise<void>;
 }
-export interface CreateElement<K extends keyof HTMLElementTagNameMap> {
-    prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-    appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-    addClasses: (names: string[]) => AddClasses<K>;
-    get: () => HTMLElementTagNameMap[K];
+export interface CreateElement<T extends Element> {
+    addClasses: (names: string[]) => AddClasses<T>;
+    appendTo: <P extends Element>(parent: P) => AddClassesReturn<T>;
+    prependTo: <P extends Element>(parent: P) => AddClassesReturn<T>;
+    get: () => T;
 }
-export interface AddClasses<K extends keyof HTMLElementTagNameMap> {
-    prependTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-    appendTo: <T extends Element>(parent: T) => HTMLElementTagNameMap[K];
-    addClasses: (names: string[]) => AddClasses<K>;
-    get: () => HTMLElementTagNameMap[K];
+export interface AddClasses<T extends Element> {
+    appendTo: <P extends Element>(parent: P) => AddClassesReturn<T>;
+    prependTo: <P extends Element>(parent: P) => AddClassesReturn<T>;
+    addClasses: (names: string[]) => AddClasses<T>;
+    get: () => T;
 }
-export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
+export interface AddClassesReturn<T extends Element> {
+    addClasses: (names: string[]) => AddClasses<T>;
+    get: () => T;
+}
+export interface Icon {
+    [key: string]: {
+        classes: string[];
+        hover: string;
+        normal: string;
+        title: string;
+    };
+}
+export interface NMPlayer<T extends Record<string, any> = Record<string, any>> extends Base<T> {
     currentTimeFile: any;
     episode: any;
     fonts: string[];
-    hasBackEventHandler: any;
-    hasCloseEventHandler: any;
+    hasBackEventHandler: boolean;
+    hasCloseEventHandler: boolean;
     hasNextTip: boolean;
-    hasPipEventHandler: any;
-    hasTheaterEventHandler: any;
+    hasPipEventHandler: boolean;
+    hasTheaterEventHandler: boolean;
     id: any;
     isPlaying: boolean;
     season: any;
@@ -241,15 +256,38 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
         };
         callback: (arg: T) => void;
     }) => Promise<void>;
-    prototype: NMPlayer<any>;
-    addClasses(currentItem: any, arg1: string[]): HTMLDivElement;
+    prototype: NMPlayer<Record<string, any> & T>;
+    createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<HTMLElementTagNameMap[K]>;
+    addClasses<T extends Element>(parent: T, names: string[]): AddClasses<T>;
+    createSVGElement(parent: Element, id: string, icon: Icon['path'], hidden?: boolean, hovered?: boolean): SVGElement;
+    createUiButton(parent: Element, id: string, name?: string): CreateElement<HTMLButtonElement>;
     appendScriptFilesToDocument(files: string[]): void;
-    createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<K>;
+    createButton(match: string, id: string, insert: 'before' | 'after', icon: Icon['path'], click?: (e?: MouseEvent) => void, rightClick?: (e?: MouseEvent) => void): CreateElement<HTMLButtonElement>;
+    getClosestElement(element: HTMLButtonElement, selector: string): HTMLElement | null;
+    scrollCenter(el: HTMLElement, container: HTMLElement, options?: {
+        duration?: number;
+        margin?: number;
+    }): void;
+    getClosestSeekableInterval(): number;
+    spaceToCamel(str: string): string;
+    snakeToCamel(str: string): string;
+    nearestValue(arr: any[], val: number): any;
+    isNumber(value: any): value is number;
+    doubleTap(doubleTap: (event: Event) => void, singleTap?: (event2: Event) => void): (event: Event, event2?: Event) => void;
+    getChapterText(scrubTimePlayer: number): string | null;
+    setEpisode(season: number, episode: number): void;
+    getButtonKeyCode(id: string): string;
+    scrollIntoView(element: HTMLElement): void;
+    doubleTap(doubleTap: (event: Event) => void, singleTap?: (event2: Event) => void): void;
+    createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<K extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[K] : HTMLElement>;
     cycleAspectRatio(): void;
     cycleAudioTracks(): void;
     cycleSubtitles(): void;
+    getCaptionIndexBy(language: string, type: string, ext: string): number | undefined;
     displayMessage(value: string): void;
+    getCurrentQualityByFileName(name: string): number | undefined;
     dispose(): void;
+    playVideo(value: number): void;
     emit(value: string, arg1?: any): void;
     enterFullscreen(): void;
     fetchFontFile(): Promise<void>;
@@ -260,7 +298,9 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     getCaptionsList(): Track[];
     getChapters(): Chapter[];
     getContainer(): HTMLDivElement;
-    getCurrentAudioTrack(): number;
+    getCurrentAudioTrack(): Track;
+    getAudioTrackIndex(): number;
+    getAudioTrackIndexByLanguage(language: string): number | undefined;
     getCurrentCaptions(): Track | undefined;
     getCurrentChapter(currentTime: number): Cue | undefined;
     getCurrentQuality(): number;
@@ -324,8 +364,7 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     setAllowFullscreen(allowFullscreen?: boolean): void;
     setCaptions(styles: CaptionsConfig): void;
     setCurrentAudioTrack(index: number): void;
-    setCurrentCaption(arg0: number): void;
-    setCurrentCaptions(index: number): void;
+    setCurrentCaption(index: number): void;
     setCurrentQuality(index: number): void;
     setFloatingPlayer(shouldFloat: boolean): void;
     setFullscreen(state: boolean): void;
@@ -336,7 +375,7 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     setPlaylistItemCallback(callback: null | ((item: PlaylistItem & T['playlist'][number], index: number) => void | Promise<PlayerConfig<T>['playlist']>)): void;
     setSpeed(speed: any): void;
     setVolume(volume: number): void;
-    setup<Conf extends PlayerConfig<T>>(options: Conf & PlayerConfig<T>): NMPlayer<Conf>;
+    setup<Conf extends PlayerConfig<T>>(options: Conf & PlayerConfig<T>): NMPlayer<Conf & T>;
     stop(): void;
     toggleFullscreen(): void;
     toggleMute(): void;
@@ -351,7 +390,7 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
     emit(event: 'all', data?: any): void;
     emit(event: 'ready', data?: any): void;
     emit(event: 'setupError', data?: any): void;
-    emit(event: 'playlist', data?: any): void;
+    emit(event: 'playlist', data?: PlaylistItem & T['playlist'][number]): void;
     emit(event: 'item', data: PlaylistItem & T['playlist'][number]): void;
     emit(event: 'playlistComplete', data?: any): void;
     emit(event: 'nextClick', data?: any): void;
@@ -666,6 +705,7 @@ declare global {
         Hls: typeof import('hls.js');
         gainNode: GainNode;
         nmplayer: <Conf extends Partial<PlayerConfig<any>>>(id?: string) => NMPlayer<Conf>;
+        WebVTTParser: typeof import('webvtt-parser').WebVTTParser;
     }
     interface Navigator {
         deviceMemory: number;
