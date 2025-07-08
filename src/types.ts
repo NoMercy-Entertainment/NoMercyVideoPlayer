@@ -1,4 +1,4 @@
-import { LevelAttributes, LevelDetails, MediaDecodingInfo } from 'hls.js';
+import {LevelAttributes, LevelDetails, MediaDecodingInfo, type MediaPlaylist} from 'hls.js';
 import Plugin from './plugin';
 import { Cue, VTTData } from 'webvtt-parser';
 import PlayerStorage from './playerStorage';
@@ -117,7 +117,8 @@ export interface Track {
 	id: number;
 	default?: boolean;
 	file: string;
-	kind: string;
+	// kind: string;
+	channel_layout?: string;
 	label?: string;
 	language?: string;
 	type?: string;
@@ -308,8 +309,11 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
 	cycleAspectRatio(): void;
 	cycleAudioTracks(): void;
 	cycleSubtitles(): void;
+	getCaptionIndexBy(language: string, type: string, ext: string): number | undefined;
 	displayMessage(value: string): void;
+	getCurrentQualityByFileName(name: string): number| undefined;
 	dispose(): void;
+	playVideo(value: number): void;
 	emit(value: string, arg1?: any): void;
 	enterFullscreen(): void;
 	fetchFontFile(): Promise<void>;
@@ -320,7 +324,9 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
 	getCaptionsList(): Track[];
 	getChapters(): Chapter[];
 	getContainer(): HTMLDivElement;
-	getCurrentAudioTrack(): number;
+	getCurrentAudioTrack(): Track;
+	getAudioTrackIndex(): number;
+	getAudioTrackIndexByLanguage(language: string): number | undefined;
 	getCurrentCaptions(): Track | undefined;
 	getCurrentChapter(currentTime: number): Cue | undefined;
 	getCurrentQuality(): number;
@@ -381,8 +387,7 @@ export interface NMPlayer<T extends Record<string, any> = {}> extends Base<T> {
 	setCaptions(styles: CaptionsConfig): void;
 	// setConfig(config: PlayerConfig): void;
 	setCurrentAudioTrack(index: number): void;
-	setCurrentCaption(arg0: number): void;
-	setCurrentCaptions(index: number): void;
+	setCurrentCaption(index: number): void;
 	setCurrentQuality(index: number): void;
 	setFloatingPlayer(shouldFloat: boolean): void;
 	setFullscreen(state: boolean): void;

@@ -57,7 +57,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	skippers: any;
 	currentSkipFile = '';
 
-	currentSubtitleIndex = 0;
+	currentSubtitleIndex = -1;
 	subtitles: VTTData = <VTTData>{};
 	currentSubtitleFile = '';
 
@@ -164,6 +164,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this._removeEvents();
 		this._addEvents();
+
+		setTimeout(() => {
+			if(!this.options.disableAutoPlayback) return;
+			this.emit('ready');
+		}, 500);
 
 		return this;
 	}
@@ -956,13 +961,14 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	async setCurrentCaptionFromStorage(): Promise<void> {
+		if (this.options.disableAutoPlayback) return;
 
 		const subtitleLanguage = await this.storage.get('subtitle-language', null);
 		const subtitleType = await this.storage.get('subtitle-type', null);
 		const subtitleExt = await this.storage.get('subtitle-ext', null);
 
 		if (subtitleLanguage && subtitleType && subtitleExt) {
-			const track = this.getTextTrackIndexBy(
+			const track = this.getCaptionIndexBy(
 				subtitleLanguage as string,
 				subtitleType as string,
 				subtitleExt as string
@@ -976,6 +982,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	setCurrentAudioTrackFromStorage(): void {
+		if (this.options.disableAutoPlayback) return;
 		this.storage.get('audio-language', null).then((val) => {
 			if (val) {
 				this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(val));
@@ -1048,6 +1055,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const _e = e as Event & { target: HTMLVideoElement };
 		this.emit('duration', this.videoPlayer_getTimeData(_e));
 
+		if(this.options.disableAutoPlayback) return;
 		this.emit('ready');
 	}
 
@@ -1113,7 +1121,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.emit('active', false);
 	}
 
-	ui_resetInactivityTimer(event?: Event): void {
+	ui_resetInactivityTimer(): void {
 		if (this.inactivityTimeout) {
 			clearTimeout(this.inactivityTimeout);
 		}
@@ -1538,7 +1546,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns {Array} An array of audio tracks for the current playlist item.
 	 */
 	getSubtitleFile(): string | undefined {
-		return this.getCurrentCaptions()?.file;
+		return this.getCurrentCaption()?.file;
 	}
 
 	/**
@@ -1861,7 +1869,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 					});
 				},
 			}).then();
-		} else {
+		}
+		else {
 			this.storeSubtitleChoice();
 		}
 	}
@@ -2164,7 +2173,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.videoElement.currentTime = arg;
 
-		this.emit('seeked');
+		setTimeout(() => {
+			this.emit('seeked');
+		}, 10);
 
 		return arg;
 	}
@@ -2190,7 +2201,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.leftTap = setTimeout(() => {
 			this.emit('remove-rewind');
-			this.seek(this.getCurrentTime() - this.tapCount);
+			if(!this.options.disableAutoPlayback) {
+				this.seek(this.getCurrentTime() - this.tapCount);
+			}
 			this.tapCount = 0;
 		}, this.leeway);
 	};
@@ -2208,7 +2221,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.rightTap = setTimeout(() => {
 			this.emit('remove-forward');
-			this.seek(this.getCurrentTime() + this.tapCount);
+			if(!this.options.disableAutoPlayback) {
+				this.seek(this.getCurrentTime() + this.tapCount);
+			}
 			this.tapCount = 0;
 		}, this.leeway);
 	};
@@ -2276,8 +2291,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}
 	}
 
-	setVolume(arg: number) {
-		let vol = arg / 100;
+	setVolume(value: number) {
+		if (value < 0) value = 0;
+		if (value > 100) value = 100;
+		let vol = value / 100;
 		if (vol > 1) vol = 1;
 		if (vol < 0) vol = 0;
 
@@ -2357,18 +2374,23 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			}));
 	}
 
-	getCurrentAudioTrack(): number {
+	getCurrentAudioTrack(): MediaPlaylist {
+		if (!this.hls) return -1;
+		return this.hls.audioTracks[this.hls.audioTrack];
+	}
+
+	getAudioTrackIndex(): number {
 		if (!this.hls) return -1;
 		return this.hls.audioTrack;
 	}
 
 	getCurrentAudioTrackName(): string {
 		if (!this.hls) return '';
-		return this.hls.audioTracks[this.hls.audioTrack].name;
+		return this.getCurrentAudioTrack().name;
 	}
 
 	setCurrentAudioTrack(index: number): void {
-		if ((!index && index != 0) || !this.hls) return;
+		if (index === null || !this.hls) return;
 		this.hls.audioTrack = index;
 
 		this.storage.set('audio-language', this.getAudioTracks()[index]?.lang ?? '').then();
@@ -2445,6 +2467,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.hls.nextLevel = index;
 	}
 
+	getCurrentQualityByFileName(name: string): number| undefined {
+		if (!this.hls) return;
+
+		return this.getQualityLevels().findIndex((level) => level.url.some(u => u.endsWith(name)));
+	}
+
 	/**
 	 * Returns a boolean indicating whether the player has more than one quality.
 	 * @returns {boolean} True if the player has more than one quality, false otherwise.
@@ -2473,7 +2501,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		return (this.getSubtitles()?.length ?? 0) > 0;
 	}
 
-	getCurrentCaptions(): Track | undefined {
+	getCurrentCaption(): Track | undefined {
 		return this.getSubtitles()?.[this.currentSubtitleIndex] ?? {
 			id: -1,
 			label: 'Off',
@@ -2487,7 +2515,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	getCurrentCaptionsName(): any {
-		return this.getCurrentCaptions()?.label ?? '';
+		return this.getCurrentCaption()?.label ?? '';
 	}
 
 	getCaptionIndex(): number {
@@ -2501,7 +2529,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @param ext The extension of the text track.
 	 * @returns The index of the matching text track, or -1 if no match is found.
 	 */
-	getTextTrackIndexBy(language: string, type: string, ext: string): number | undefined {
+	getCaptionIndexBy(language: string, type: string, ext: string): number | undefined {
 		const index = this.getCaptionsList()
 			?.findIndex((t: any) => (t.file ?? t.id).endsWith(`${language}.${type}.${ext}`));
 
@@ -2522,7 +2550,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.subtitleText.textContent = '';
 		this.subtitleOverlay.style.display = 'none';
 
-		this.emit('captionsChanged', this.getCurrentCaptions());
+		this.emit('captionsChanged', this.getCurrentCaption());
 		this.storeSubtitleChoice();
 
 		if (index == -1) {
@@ -2533,11 +2561,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	getCaptionLanguage(): any {
-		return this.getCurrentCaptions()?.language ?? '';
+		return this.getCurrentCaption()?.language ?? '';
 	}
 
 	getCaptionLabel(): any {
-		const currentCapitation = this.getCurrentCaptions();
+		const currentCapitation = this.getCurrentCaption();
 		if (!currentCapitation) return '';
 		return `${this.localize(currentCapitation.language!)} ${currentCapitation.label}`;
 	}
@@ -2546,7 +2574,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * Triggers the styled subtitles based on the provided file.
 	 */
 	storeSubtitleChoice() {
-		const currentCapitation = this.getCurrentCaptions();
+		const currentCapitation = this.getCurrentCaption();
 		if (!currentCapitation) {
 			this.storage.remove('subtitle-language');
 			this.storage.remove('subtitle-type');
@@ -3278,7 +3306,7 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 	return string;
 };
 
-const nmplayer = <Conf extends Partial<PlayerConfig<Record<string, any>>> = {}>(id?: string) => new NMPlayer<Conf>(id);
+const nmplayer = <Conf extends Partial<PlayerConfig<Record<string, any>>> = Record<string, any>>(id?: string) => new NMPlayer<Conf>(id);
 
 window.nmplayer = nmplayer as unknown as any;
 
