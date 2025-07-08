@@ -343,6 +343,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.container.style.zIndex = '0';
 		this.container.style.alignItems = 'center';
 		this.container.style.justifyContent = 'center';
+		this.container.style.maxHeight = '100%';
+		this.container.style.maxWidth = '100%';
 	}
 
 	createVideoElement(): void {
@@ -428,6 +430,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				position: absolute;
 				width: 100%;
 				z-index: 0;
+    			align-self: anchor-center;
 			}
 			
 			.nomercyplayer .subtitle-overlay {
