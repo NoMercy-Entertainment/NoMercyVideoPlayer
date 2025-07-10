@@ -1692,7 +1692,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 							const baseFolder = file.replace(/\/[^/]*$/u, '');
 							return {
 								...f,
-								file: `${baseFolder}/fonts/${f.file}`,
+								file: `${baseFolder}/${f.file}`,
 							};
 						});
 					} catch (e) {
