@@ -2173,6 +2173,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	restart(): void {
 		this.seek(0);
+		this.play().then();
 	}
 
 	seekByPercentage(arg: number): number {
