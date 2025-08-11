@@ -181,6 +181,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	usePlugin(name: string): void {
 		const plugin = this.plugins.get(name);
+		this.options.debug && console.log(`Using plugin: ${name}`, plugin);
 		if (plugin) {
 			plugin.use();
 		} else {
@@ -405,6 +406,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			.prependTo(this.container).get();
 
 		styleSheet.textContent = `
+			.nomercyplayer {
+				position: relative;
+				width: 100%;
+				height: 100%;
+				background-color: black;
+			}
 			.nomercyplayer * {
 				user-select: none;
 				scrollbar-width: thin;
@@ -425,12 +432,13 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				display: block;
 				height: 100%;
 				margin: 0 auto;
-				object-fit: contain;
+				object-fit: unset;
 				outline-color: transparent;
 				position: absolute;
-				width: 100%;
+				width: auto;
 				z-index: 0;
     			align-self: anchor-center;
+    			aspect-ratio: var(--aspect-ratio, 16 / 9);
 			}
 			
 			.nomercyplayer .subtitle-overlay {
@@ -821,13 +829,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.videoElement.pause();
 		this.videoElement.removeAttribute('src');
 
-		if (!url.endsWith('.m3u8')) {
-			this.hls?.destroy();
-			this.hls = undefined;
-
-			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
-		}
-		else if (HLS.isSupported()) {
+		if (HLS.isSupported()) {
 
 			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
@@ -853,8 +855,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.hls?.loadSource(url);
 			this.hls?.attachMedia(this.videoElement);
 		}
-		else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+		else if (!url.endsWith('.m3u8') || this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+			this.hls?.destroy();
+			this.hls = undefined;
 			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
+			this.videoElement.style.setProperty('--aspect-ratio', `${this.videoElement.videoWidth / this.videoElement.videoHeight}`);
 		}
 
 		if (this.options.disableAutoPlayback) return;
@@ -1260,10 +1265,16 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 			this.hls.on(HLS.Events.ERROR, (error, errorData) => {
 				console.error('HLS error', error, errorData);
+				if (errorData.details == "bufferNudgeOnStall") {
+					this.seek(this.videoElement.currentTime + 1);
+				}
 			});
 
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
 				this.options.debug && console.log(event, data);
+
+				// @ts-expect-error levelInfo does exist but it typed wrong
+				this.videoElement.style.setProperty('--aspect-ratio', `${data.levelInfo.width / data.levelInfo.height}`);
 			});
 			this.hls.on(HLS.Events.LEVEL_LOADING, () => {
 				this.emit('levels', this.getQualityLevels());
@@ -1319,6 +1330,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.hls.on(HLS.Events.MEDIA_DETACHING, (event) => {
 				this.options.debug && console.log(event, event);
 			});
+
 		});
 
 		this.once('item', () => {
