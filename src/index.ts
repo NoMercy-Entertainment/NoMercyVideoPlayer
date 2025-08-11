@@ -442,13 +442,14 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			}
 			
 			.nomercyplayer .subtitle-overlay {
-				bottom: 3em;
-				left: 0;
 				pointer-events: none;
 				position: absolute;
+				bottom: 0;
+				left: 0;
 				right: 0;
 				top: 0;
 				z-index: 0;
+				transition: bottom 0.3s ease-in-out;
 			}
 
 			.nomercyplayer .subtitle-overlay .subtitle-safezone {
@@ -491,7 +492,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 			.nomercyplayer.active .subtitle-overlay,
 			.nomercyplayer.paused .subtitle-overlay {
-				// bottom: 5rem;
+				bottom: 3em;
 			}
 			
 			.nomercyplayer .subtitle-overlay .subtitle-text {
