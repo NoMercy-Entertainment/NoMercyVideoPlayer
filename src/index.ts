@@ -430,12 +430,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				background-color: black;
 				border-color: transparent;
 				display: block;
-				height: 100%;
+				height: auto
+				width: auto;
 				margin: 0 auto;
 				object-fit: unset;
 				outline-color: transparent;
 				position: absolute;
-				width: auto;
 				z-index: 0;
     			align-self: anchor-center;
     			aspect-ratio: var(--aspect-ratio, 16 / 9);
@@ -860,7 +860,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.hls?.destroy();
 			this.hls = undefined;
 			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
-			this.videoElement.style.setProperty('--aspect-ratio', `${this.videoElement.videoWidth / this.videoElement.videoHeight}`);
+			const ratio = this.videoElement.videoWidth / this.videoElement.videoHeight;
+			this.videoElement.style.setProperty('--aspect-ratio', `${Number.isNaN(ratio) ? 'auto' : ratio}`);
 		}
 
 		if (this.options.disableAutoPlayback) return;
