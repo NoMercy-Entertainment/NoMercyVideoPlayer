@@ -830,7 +830,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.videoElement.pause();
 		this.videoElement.removeAttribute('src');
 
-		if (HLS.isSupported()) {
+		if (HLS.isSupported() && !url.endsWith('.mp4')) {
 
 			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
