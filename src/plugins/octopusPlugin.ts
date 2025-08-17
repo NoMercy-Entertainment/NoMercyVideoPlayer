@@ -15,6 +15,7 @@ export interface OctopusPluginArgs {
 
 export class OctopusPlugin extends Plugin {
 	player: NMPlayer<OctopusPluginArgs>;
+	resizeObserver: ResizeObserver;
 
 	initialize(player: NMPlayer<OctopusPluginArgs>): void {
 		this.player = player;
@@ -22,10 +23,16 @@ export class OctopusPlugin extends Plugin {
 
 	use(): void {
 		this.player.on('captionsChanged', this.opus.bind(this));
+
+		this.resizeObserver = new ResizeObserver(() => {
+			this.resize();
+		});
+		this.resizeObserver.observe(this.player.container);
 	}
 
 	dispose(): void {
 		this.player.off('captionsChanged', this.opus.bind(this));
+		this.resizeObserver?.disconnect();
 
 		this.destroy();
 	}
@@ -76,19 +83,28 @@ export class OctopusPlugin extends Plugin {
 				fallbackFont: '/js/octopus/default.ttf',
 				onReady: async () => {
 					// this.player.play();
+					this.resize();
 				},
 				onError: (event: any) => {
 					console.error('opus error', event);
 				},
 			};
 
-			console.log(options);
-
 			if (subtitleURL && subtitleURL.includes('.ass')) {
 				this.player.octopusInstance = new SubtitlesOctopus(options);
 			}
 		}
 	};
+
+	resize() {
+		if(!this.player?.octopusInstance?.canvasParent) return;
+		this.player.octopusInstance.canvasParent.style.width = this.subtitleOverlay.style.width;
+		this.player.octopusInstance.canvasParent.style.height = this.subtitleOverlay.style.height;
+		this.player.octopusInstance.canvasParent.style.position = this.subtitleOverlay.style.position;
+		this.player.octopusInstance.canvasParent.style.top = this.subtitleOverlay.style.top;
+		this.player.octopusInstance.canvasParent.style.left = this.subtitleOverlay.style.left;
+		this.player.octopusInstance.canvasParent.style.transform = this.subtitleOverlay.style.transform;
+	}
 }
 
 export default OctopusPlugin;

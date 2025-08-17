@@ -99,6 +99,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	shouldFloat: boolean = false;
 	firstFrame: boolean = false;
 	subtitleStyle: SubtitleStyle = defaultSubtitleStyles;
+	resizeObserver: ResizeObserver;
 
 	constructor(id?: string | number) {
 		super();
@@ -160,6 +161,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.createVideoElement();
 		this.createSubtitleOverlay();
 
+		this.resizeObserver = new ResizeObserver(() => {
+			this.resize();
+		});
+		this.resizeObserver.observe(this.container);
+
 		instances.set(id as string, this);
 
 		this._removeEvents();
@@ -168,7 +174,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		setTimeout(() => {
 			if(!this.options.disableAutoPlayback) return;
 			this.emit('ready');
-		}, 500);
+		}, 0);
 
 		return this;
 	}
@@ -339,7 +345,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.container.style.position = 'relative';
 		this.container.style.display = 'flex';
 		this.container.style.width = '100%';
-		this.container.style.height = 'auto';
+		this.container.style.height = '100%';
 		this.container.style.aspectRatio = '16/9';
 		this.container.style.zIndex = '0';
 		this.container.style.alignItems = 'center';
@@ -427,21 +433,25 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			}
 			
 			.nomercyplayer video {
-				background-color: black;
-				border-color: transparent;
-				display: block;
-				height: auto
-				width: auto;
-				margin: 0 auto;
-				object-fit: unset;
-				outline-color: transparent;
-				position: absolute;
+				position: relative;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
 				z-index: 0;
-    			align-self: anchor-center;
+				outline: 0;
+				color: #eee;
+				text-align: left;
+				direction: ltr;
+				font-size: 11px;
+				line-height: 1.3;
+				-webkit-font-smoothing: antialiased;
+				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+				touch-action: manipulation;
     			aspect-ratio: var(--aspect-ratio, 16 / 9);
 			}
 			
-			.nomercyplayer .subtitle-overlay {
+			.nomercyplayer .subtitle-overlay,
+			.nomercyplayer .libassjs-canvas-parent {
 				pointer-events: none;
 				position: absolute;
 				bottom: 0;
@@ -450,6 +460,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				top: 0;
 				z-index: 0;
 				transition: bottom 0.3s ease-in-out;
+			}
+			
+			.nomercyplayer .libassjs-canvas {
+				position: unset !important;
 			}
 
 			.nomercyplayer .subtitle-overlay .subtitle-safezone {
@@ -467,6 +481,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				position: absolute;
 				height: fit-content;
     			font-size: 28px;
+    			transition: margin 0.3s ease-in-out;
 			}
 
 			.nomercyplayer:has(.subtitle-text:empty) .subtitle-overlay .subtitle-area {
@@ -490,15 +505,18 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				width: 100%;
 			}
 
-			.nomercyplayer.active .subtitle-overlay,
-			.nomercyplayer.paused .subtitle-overlay {
-				bottom: 3em;
+			.nomercyplayer.active .subtitle-area,
+			.nomercyplayer.paused .subtitle-area {
+				margin-bottom: 3rem;
+			}
+			
+			.nomercyplayer:has(.open) .subtitle-area {
+				margin-bottom: 0rem;
 			}
 			
 			.nomercyplayer .subtitle-overlay .subtitle-text {
 				white-space: pre-line;
 				padding: 0 0.5rem;
-				display: inline-flex;
 				line-height: 1.2;
 				writing-mode: horizontal-tb;
 				unicode-bidi: plaintext;
@@ -564,13 +582,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				top: 3rem;
 				transform: translateX(-50%);
 				z-index: 50;
-			}
-			
-			.nomercyplayer .libassjs-canvas-parent {
-				position: absolute !important;
-				left:0 !important;
-				width: 100% !important;
-				height: 100% !important;
 			}
 		`;
 	}
@@ -666,7 +677,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		console.log('Applying subtitle style', this.subtitleStyle);
 
-		if (fontSize) textElement.fontSize = `calc(26px * ${fontSize / 100})`;
+		if (fontSize) textElement.fontSize = `calc(3.5rem * ${fontSize / 100})`;
 		if (fontFamily) textElement.fontFamily = fontFamily;
 		if (textColor) textElement.color = parseColorToHex(textColor, textOpacity / 100);
 
@@ -860,8 +871,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.hls?.destroy();
 			this.hls = undefined;
 			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
-			const ratio = this.videoElement.videoWidth / this.videoElement.videoHeight;
-			this.videoElement.style.setProperty('--aspect-ratio', `${Number.isNaN(ratio) ? 'auto' : ratio}`);
 		}
 
 		if (this.options.disableAutoPlayback) return;
@@ -1034,9 +1043,13 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	videoPlayer_loadedmetadataEvent(e: Event): void {
-		const _e = e as Event & { target: HTMLVideoElement };
+		const video = e.target as HTMLVideoElement;
+
+		this.resize();
+
+		// Emit your existing events
 		this.emit('loadedmetadata', this.videoElement);
-		this.emit('duration', this.videoPlayer_getTimeData(_e));
+		this.emit('duration', this.videoPlayer_getTimeData({ target: video }));
 	}
 
 	videoPlayer_loadstartEvent(): void {
@@ -2323,9 +2336,77 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	resize(): void {
-		//
+		// Get video's natural dimensions
+		const videoWidth = this.videoElement.videoWidth;
+		const videoHeight = this.videoElement.videoHeight;
+		const videoAspectRatio = videoWidth / videoHeight;
+
+		this.setResponsiveAspectRatio(videoAspectRatio);
+
+		// Get container dimensions
+		const containerWidth = this.container.clientWidth;
+		const containerHeight = this.container.clientHeight;
+		const containerAspectRatio = containerWidth / containerHeight;
+
+		let newWidth: number;
+		let newHeight: number;
+
+		// Calculate new dimensions maintaining aspect ratio
+		if (videoAspectRatio > containerAspectRatio) {
+			// Video is wider than container - fit to width
+			newWidth = containerWidth;
+			newHeight = containerWidth / videoAspectRatio;
+		} else {
+			// Video is taller than container - fit to height
+			newHeight = containerHeight;
+			newWidth = containerHeight * videoAspectRatio;
+		}
+
+		// Apply the calculated dimensions
+		this.videoElement.style.width = `${newWidth}px`;
+		this.videoElement.style.height = `${newHeight}px`;
+
+		// Center the video within the container
+		this.videoElement.style.position = 'absolute';
+		this.videoElement.style.top = '50%';
+		this.videoElement.style.left = '50%';
+		this.videoElement.style.transform = 'translate(-50%, -50%)';
+
+		// Update subtitle overlay to match video dimensions
+		if (this.subtitleOverlay) {
+			this.subtitleOverlay.style.width = `${newWidth}px`;
+			this.subtitleOverlay.style.height = `${newHeight}px`;
+			this.subtitleOverlay.style.position = 'absolute';
+			this.subtitleOverlay.style.top = '50%';
+			this.subtitleOverlay.style.left = '50%';
+			this.subtitleOverlay.style.transform = 'translate(-50%, -50%)';
+		}
+
+		const ratio = videoAspectRatio;
+		this.videoElement.width = videoWidth;
+		this.videoElement.height = videoHeight;
+		this.videoElement.style.setProperty('--aspect-ratio', `${Number.isNaN(ratio) ? 'auto' : ratio}`);
 	}
 
+	private setResponsiveAspectRatio(videoAspectRatio: number): void {
+		let containerAspectRatio: string;
+
+		if (videoAspectRatio <= 1.4) {
+			// Close to 4:3 (1.33)
+			containerAspectRatio = '4/3';
+		} else if (videoAspectRatio <= 1.9) {
+			// Close to 16:9 (1.78)
+			containerAspectRatio = '16/9';
+		} else if (videoAspectRatio <= 2.5) {
+			// Close to 21:9 (2.33)
+			containerAspectRatio = '21/9';
+		} else {
+			// Ultra-wide 32:9 (3.56) or wider
+			containerAspectRatio = '32/9';
+		}
+
+		this.container.style.aspectRatio = containerAspectRatio;
+	}
 
 	/**
 	 * Enters fullscreen mode for the player.
@@ -2768,6 +2849,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		instances.delete(this.playerId);
 
 		this.mediaSession?.setPlaybackState('none');
+
+		this.resizeObserver.disconnect()
 
 		// Emit dispose event
 		this.emit('dispose');
