@@ -99,7 +99,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	shouldFloat: boolean = false;
 	firstFrame: boolean = false;
 	subtitleStyle: SubtitleStyle = defaultSubtitleStyles;
-	resizeObserver: ResizeObserver;
+	resizeObserver: ResizeObserver = <ResizeObserver>{};
 
 	constructor(id?: string | number) {
 		super();
