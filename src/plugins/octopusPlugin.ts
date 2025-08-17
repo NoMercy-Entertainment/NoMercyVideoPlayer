@@ -97,7 +97,7 @@ export class OctopusPlugin extends Plugin {
 	};
 
 	resize() {
-		if(!this.player?.octopusInstance?.canvasParent) return;
+		if(!this.player?.octopusInstance?.canvasParent || !this.subtitleOverlay) return;
 		this.player.octopusInstance.canvasParent.style.width = this.subtitleOverlay.style.width;
 		this.player.octopusInstance.canvasParent.style.height = this.subtitleOverlay.style.height;
 		this.player.octopusInstance.canvasParent.style.position = this.subtitleOverlay.style.position;
