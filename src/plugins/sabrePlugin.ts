@@ -138,7 +138,7 @@ export class SabrePlugin extends Plugin {
 		const fonts: Array<object> = [];
 
 		const fontFiles: string[] = this.player.fonts
-			?.map((f: any) => `${this.player.options.basePath ?? ''}${f.file}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ''}`);
+			?.map((f: any) => encodeURIComponent(`${this.player.options.basePath ?? ''}${f.file}${this.player.options.accessToken ? `?token=${this.player.options.accessToken}` : ''}`));
 
 		fontFiles.push('https://github.com/NoMercy-Entertainment/media/raw/refs/heads/master/Anime/Anime/No-Rin.(2014)/No-Rin.S00E00/fonts/ARIAL.TTF');
 

@@ -61,7 +61,7 @@ export class OctopusPlugin extends Plugin {
 			await this.player.fetchFontFile();
 
 			const fontFiles: string[] = this.player.fonts
-				?.map((f: any) => `${this.player.options.basePath ?? ''}${f.file}`);
+				?.map((f: any) => encodeURIComponent(`${this.player.options.basePath ?? ''}${f.file}`));
 
 			(this.player.getElement()
 				.querySelectorAll('.libassjs-canvas-parent') as NodeListOf<HTMLDivElement>)
@@ -69,7 +69,7 @@ export class OctopusPlugin extends Plugin {
 
 			const options = {
 				video: this.player.getVideoElement(),
-				subUrl: subtitleURL,
+				subUrl: encodeURIComponent(subtitleURL),
 				fonts: fontFiles,
 				lossyRender: this.player.options.lossyRender,
 				accessToken: this.player.options.accessToken,

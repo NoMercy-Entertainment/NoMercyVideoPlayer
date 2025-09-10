@@ -133,8 +133,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	init(id: string): this {
-		this.mediaSession?.setPlaybackState('none');
-
 		const container = document.querySelector<HTMLDivElement>(`#${id}` as string);
 
 		if (!container) {
@@ -313,7 +311,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			basePath = this.options.basePath;
 		}
 
-		return await fetch(basePath + url, {
+		return await fetch(encodeURI(basePath + url), {
 			...options,
 			headers,
 		})
@@ -517,7 +515,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			.nomercyplayer .subtitle-overlay .subtitle-text {
 				white-space: pre-line;
 				padding: 0 0.5rem;
-				line-height: 1.2;
+				line-height: 1.5;
+                display: block;
 				writing-mode: horizontal-tb;
 				unicode-bidi: plaintext;
 			}
@@ -675,9 +674,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const areaElement = this.subtitleArea.style;
 		const textElement = this.subtitleText.style;
 
-		console.log('Applying subtitle style', this.subtitleStyle);
+		this.options.debug && console.log('Applying subtitle style', this.subtitleStyle);
 
-		if (fontSize) textElement.fontSize = `calc(3.5rem * ${fontSize / 100})`;
+		if (fontSize) textElement.fontSize = `calc(100% * ${fontSize / 100})`;
 		if (fontFamily) textElement.fontFamily = fontFamily;
 		if (textColor) textElement.color = parseColorToHex(textColor, textOpacity / 100);
 
@@ -864,13 +863,13 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 			this.emit('hls');
 
-			this.hls?.loadSource(url);
+			this.hls?.loadSource(encodeURI(url));
 			this.hls?.attachMedia(this.videoElement);
 		}
 		else if (!url.endsWith('.m3u8') || this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
 			this.hls?.destroy();
 			this.hls = undefined;
-			this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
+			this.videoElement.src = `${encodeURI(url)}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
 		}
 
 		if (this.options.disableAutoPlayback) return;
@@ -1020,16 +1019,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.isPlaying = false;
 			this.emit('playlistComplete');
 
-			this.mediaSession.setPlaybackState('none');
-
 			this.isPlaying = false;
 		}
 	}
 
 	videoPlayer_errorEvent(): void {
 		this.emit('error', this.videoElement);
-
-		this.mediaSession.setPlaybackState('none');
 
 		this.isPlaying = false;
 	}
@@ -1937,7 +1932,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		if (this.options.accessToken) {
 			headers.Authorization = `Bearer ${this.options.accessToken}`;
 		}
-		const response = await fetch(url, {
+		const response = await fetch(encodeURI(url), {
 			headers,
 			method: 'GET',
 		});
@@ -2348,8 +2343,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const containerHeight = this.container.clientHeight;
 		const containerAspectRatio = containerWidth / containerHeight;
 
-		let newWidth: number;
-		let newHeight: number;
+		let newWidth: number|string;
+		let newHeight: number|string;
 
 		// Calculate new dimensions maintaining aspect ratio
 		if (videoAspectRatio > containerAspectRatio) {
@@ -2361,6 +2356,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			newHeight = containerHeight;
 			newWidth = containerHeight * videoAspectRatio;
 		}
+
+        if(isNaN(newWidth) || isNaN(newHeight) || newWidth === 0 || newHeight === 0) {
+            newWidth = '100%';
+            newHeight = '100%';
+        }
 
 		// Apply the calculated dimensions
 		this.videoElement.style.width = `${newWidth}px`;
@@ -2377,9 +2377,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.subtitleOverlay.style.width = `${newWidth}px`;
 			this.subtitleOverlay.style.height = `${newHeight}px`;
 			this.subtitleOverlay.style.position = 'absolute';
-			this.subtitleOverlay.style.top = '50%';
-			this.subtitleOverlay.style.left = '50%';
-			this.subtitleOverlay.style.transform = 'translate(-50%, -50%)';
+			// this.subtitleOverlay.style.top = '50%';
+			// this.subtitleOverlay.style.left = '50%';
+			// this.subtitleOverlay.style.transform = 'translate(-50%, -50%)';
 		}
 
 		const ratio = videoAspectRatio;
