@@ -10,6 +10,9 @@
     "skipLibCheck": true,
     "lib": ["ES2020", "DOM"],
   },
-  "include": ["src/*"],
+  "include": [
+    "src/*",
+    "src/plugins/octopusPlugin.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
