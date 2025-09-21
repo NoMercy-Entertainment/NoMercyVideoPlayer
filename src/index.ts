@@ -434,6 +434,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				position: relative;
 				width: 100%;
 				height: 100%;
+				max-width: 100%;
+				max-height: 100%;
 				overflow: hidden;
 				z-index: 0;
 				outline: 0;
@@ -448,7 +450,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
     			aspect-ratio: var(--aspect-ratio, 16 / 9);
 			}
 			
-			.nomercyplayer .subtitle-overlay,
 			.nomercyplayer .libassjs-canvas-parent {
 				pointer-events: none;
 				position: absolute;
@@ -458,6 +459,16 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				top: 0;
 				z-index: 0;
 				transition: bottom 0.3s ease-in-out;
+			}
+
+			.nomercyplayer .subtitle-overlay {
+				pointer-events: none;
+				position: absolute;
+				z-index: 0;
+				transition: bottom 0.3s ease-in-out;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
 			}
 			
 			.nomercyplayer .libassjs-canvas {
@@ -501,15 +512,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			.nomercyplayer .subtitle-overlay .subtitle-area.sized {
 				left: 0;
 				width: 100%;
-			}
-
-			.nomercyplayer.active .subtitle-area,
-			.nomercyplayer.paused .subtitle-area {
-				margin-bottom: 3rem;
-			}
-			
-			.nomercyplayer:has(.open) .subtitle-area {
-				margin-bottom: 0rem;
 			}
 			
 			.nomercyplayer .subtitle-overlay .subtitle-text {

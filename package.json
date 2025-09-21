@@ -1,6 +1,6 @@
 {
   "name": "@nomercy-entertainment/nomercy-video-player",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "Full event-driven video player without a UI.",
   "type": "commonjs",
   "main": "./dist/index.js",
