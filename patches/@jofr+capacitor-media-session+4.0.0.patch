@@ -1,0 +1,632 @@
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/.transforms/e5ad4157772ab35e32d6566e5ac525b5/results.bin b/node_modules/@jofr/capacitor-media-session/android/build/.transforms/e5ad4157772ab35e32d6566e5ac525b5/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/.transforms/e5ad4157772ab35e32d6566e5ac525b5/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/.transforms/e5ad4157772ab35e32d6566e5ac525b5/transformed/classes/classes_dex/classes.dex b/node_modules/@jofr/capacitor-media-session/android/build/.transforms/e5ad4157772ab35e32d6566e5ac525b5/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..4ac0d76
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/.transforms/e5ad4157772ab35e32d6566e5ac525b5/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..a8797e3
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+@@ -0,0 +1,29 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="io.github.jofr.capacitor.mediasessionplugin" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
++
++    <application>
++        <service
++            android:name="io.github.jofr.capacitor.mediasessionplugin.MediaSessionService"
++            android:enabled="true"
++            android:exported="true"
++            android:foregroundServiceType="mediaPlayback" >
++            <intent-filter>
++                <action android:name="android.intent.action.MEDIA_BUTTON" />
++            </intent-filter>
++        </service>
++
++        <receiver
++            android:name="androidx.media.session.MediaButtonReceiver"
++            android:exported="true" >
++            <intent-filter>
++                <action android:name="android.intent.action.MEDIA_BUTTON" />
++            </intent-filter>
++        </receiver>
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+new file mode 100644
+index 0000000..14f2b14
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "io.github.jofr.capacitor.mediasessionplugin",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar
+new file mode 100644
+index 0000000..371bb8c
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/annotations_typedef_file/debug/extractDebugAnnotations/typedefs.txt b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/annotations_typedef_file/debug/extractDebugAnnotations/typedefs.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+new file mode 100644
+index 0000000..4f56d88
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+new file mode 100644
+index 0000000..8deea0d
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+new file mode 100644
+index 0000000..87e3a2d
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+@@ -0,0 +1,8 @@
++int drawable ic_baseline_forward_30_24 0x0
++int drawable ic_baseline_pause_24 0x0
++int drawable ic_baseline_play_arrow_24 0x0
++int drawable ic_baseline_replay_30_24 0x0
++int drawable ic_baseline_skip_next_24 0x0
++int drawable ic_baseline_skip_previous_24 0x0
++int drawable ic_baseline_stop_24 0x0
++int drawable ic_baseline_volume_up_24 0x0
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_forward_30_24.xml.flat b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_forward_30_24.xml.flat
+new file mode 100644
+index 0000000..66eb4e3
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_forward_30_24.xml.flat differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_pause_24.xml.flat b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_pause_24.xml.flat
+new file mode 100644
+index 0000000..0e8cfd8
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_pause_24.xml.flat differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_play_arrow_24.xml.flat b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_play_arrow_24.xml.flat
+new file mode 100644
+index 0000000..0480940
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_play_arrow_24.xml.flat differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_replay_30_24.xml.flat b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_replay_30_24.xml.flat
+new file mode 100644
+index 0000000..04a824f
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_replay_30_24.xml.flat differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_skip_next_24.xml.flat b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_skip_next_24.xml.flat
+new file mode 100644
+index 0000000..909a4be
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_skip_next_24.xml.flat differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_skip_previous_24.xml.flat b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_skip_previous_24.xml.flat
+new file mode 100644
+index 0000000..3c64d3c
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_skip_previous_24.xml.flat differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_stop_24.xml.flat b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_stop_24.xml.flat
+new file mode 100644
+index 0000000..1d468a4
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_stop_24.xml.flat differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_volume_up_24.xml.flat b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_volume_up_24.xml.flat
+new file mode 100644
+index 0000000..afa62f8
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_baseline_volume_up_24.xml.flat differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state
+new file mode 100644
+index 0000000..1c983fc
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..2d8f93e
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1,9 @@
++#Mon Sep 22 23:07:38 CEST 2025
++io.github.jofr.capacitor.mediasessionplugin.jofr-capacitor-media-session-main-6\:/drawable/ic_baseline_forward_30_24.xml=C\:\\Projects\\NoMercy\\NoMercy.App\\node_modules\\@jofr\\capacitor-media-session\\android\\build\\intermediates\\packaged_res\\debug\\packageDebugResources\\drawable\\ic_baseline_forward_30_24.xml
++io.github.jofr.capacitor.mediasessionplugin.jofr-capacitor-media-session-main-6\:/drawable/ic_baseline_pause_24.xml=C\:\\Projects\\NoMercy\\NoMercy.App\\node_modules\\@jofr\\capacitor-media-session\\android\\build\\intermediates\\packaged_res\\debug\\packageDebugResources\\drawable\\ic_baseline_pause_24.xml
++io.github.jofr.capacitor.mediasessionplugin.jofr-capacitor-media-session-main-6\:/drawable/ic_baseline_play_arrow_24.xml=C\:\\Projects\\NoMercy\\NoMercy.App\\node_modules\\@jofr\\capacitor-media-session\\android\\build\\intermediates\\packaged_res\\debug\\packageDebugResources\\drawable\\ic_baseline_play_arrow_24.xml
++io.github.jofr.capacitor.mediasessionplugin.jofr-capacitor-media-session-main-6\:/drawable/ic_baseline_replay_30_24.xml=C\:\\Projects\\NoMercy\\NoMercy.App\\node_modules\\@jofr\\capacitor-media-session\\android\\build\\intermediates\\packaged_res\\debug\\packageDebugResources\\drawable\\ic_baseline_replay_30_24.xml
++io.github.jofr.capacitor.mediasessionplugin.jofr-capacitor-media-session-main-6\:/drawable/ic_baseline_skip_next_24.xml=C\:\\Projects\\NoMercy\\NoMercy.App\\node_modules\\@jofr\\capacitor-media-session\\android\\build\\intermediates\\packaged_res\\debug\\packageDebugResources\\drawable\\ic_baseline_skip_next_24.xml
++io.github.jofr.capacitor.mediasessionplugin.jofr-capacitor-media-session-main-6\:/drawable/ic_baseline_skip_previous_24.xml=C\:\\Projects\\NoMercy\\NoMercy.App\\node_modules\\@jofr\\capacitor-media-session\\android\\build\\intermediates\\packaged_res\\debug\\packageDebugResources\\drawable\\ic_baseline_skip_previous_24.xml
++io.github.jofr.capacitor.mediasessionplugin.jofr-capacitor-media-session-main-6\:/drawable/ic_baseline_stop_24.xml=C\:\\Projects\\NoMercy\\NoMercy.App\\node_modules\\@jofr\\capacitor-media-session\\android\\build\\intermediates\\packaged_res\\debug\\packageDebugResources\\drawable\\ic_baseline_stop_24.xml
++io.github.jofr.capacitor.mediasessionplugin.jofr-capacitor-media-session-main-6\:/drawable/ic_baseline_volume_up_24.xml=C\:\\Projects\\NoMercy\\NoMercy.App\\node_modules\\@jofr\\capacitor-media-session\\android\\build\\intermediates\\packaged_res\\debug\\packageDebugResources\\drawable\\ic_baseline_volume_up_24.xml
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..cc13756
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res"><file name="ic_baseline_forward_30_24" path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res\drawable\ic_baseline_forward_30_24.xml" qualifiers="" type="drawable"/><file name="ic_baseline_pause_24" path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res\drawable\ic_baseline_pause_24.xml" qualifiers="" type="drawable"/><file name="ic_baseline_play_arrow_24" path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res\drawable\ic_baseline_play_arrow_24.xml" qualifiers="" type="drawable"/><file name="ic_baseline_replay_30_24" path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res\drawable\ic_baseline_replay_30_24.xml" qualifiers="" type="drawable"/><file name="ic_baseline_skip_next_24" path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res\drawable\ic_baseline_skip_next_24.xml" qualifiers="" type="drawable"/><file name="ic_baseline_skip_previous_24" path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res\drawable\ic_baseline_skip_previous_24.xml" qualifiers="" type="drawable"/><file name="ic_baseline_stop_24" path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res\drawable\ic_baseline_stop_24.xml" qualifiers="" type="drawable"/><file name="ic_baseline_volume_up_24" path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\res\drawable\ic_baseline_volume_up_24.xml" qualifiers="" type="drawable"/></source></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\build\generated\res\resValues\debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\build\generated\res\resValues\debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/mergeDebugAssets/merger.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/mergeDebugAssets/merger.xml
+new file mode 100644
+index 0000000..fcbbaa8
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/mergeDebugAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\debug\assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\build\intermediates\shader_assets\debug\compileDebugShaders\out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..7dfad34
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\debug\jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+new file mode 100644
+index 0000000..81245a7
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\debug\shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionCallback.class b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionCallback.class
+new file mode 100644
+index 0000000..3132741
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionCallback.class differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin$1.class b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin$1.class
+new file mode 100644
+index 0000000..3a3af1d
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin$1.class differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin.class b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin.class
+new file mode 100644
+index 0000000..63e06f3
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin.class differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionService$LocalBinder.class b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionService$LocalBinder.class
+new file mode 100644
+index 0000000..aa3c2a1
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionService$LocalBinder.class differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionService.class b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionService.class
+new file mode 100644
+index 0000000..a725216
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/io/github/jofr/capacitor/mediasessionplugin/MediaSessionService.class differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+new file mode 100644
+index 0000000..54aba4c
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+@@ -0,0 +1,10 @@
++R_DEF: Internal format may change without notice
++local
++drawable ic_baseline_forward_30_24
++drawable ic_baseline_pause_24
++drawable ic_baseline_play_arrow_24
++drawable ic_baseline_replay_30_24
++drawable ic_baseline_skip_next_24
++drawable ic_baseline_skip_previous_24
++drawable ic_baseline_stop_24
++drawable ic_baseline_volume_up_24
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..3589211
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,46 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="io.github.jofr.capacitor.mediasessionplugin" >
++4
++5    <uses-sdk android:minSdkVersion="23" />
++6
++7    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
++7-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:4:5-77
++7-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:4:22-74
++8
++9    <application>
++9-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:6:5-24:19
++10        <service
++10-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:7:9-15:19
++11            android:name="io.github.jofr.capacitor.mediasessionplugin.MediaSessionService"
++11-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:8:13-48
++12            android:enabled="true"
++12-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:9:13-35
++13            android:exported="true"
++13-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:10:13-36
++14            android:foregroundServiceType="mediaPlayback" >
++14-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:11:13-58
++15            <intent-filter>
++15-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:12:13-14:29
++16                <action android:name="android.intent.action.MEDIA_BUTTON" />
++16-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:13:17-77
++16-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:13:25-74
++17            </intent-filter>
++18        </service>
++19
++20        <receiver
++20-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:17:9-23:20
++21            android:name="androidx.media.session.MediaButtonReceiver"
++21-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:18:13-70
++22            android:exported="true" >
++22-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:19:13-36
++23            <intent-filter>
++23-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:12:13-14:29
++24                <action android:name="android.intent.action.MEDIA_BUTTON" />
++24-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:13:17-77
++24-->C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:13:25-74
++25            </intent-filter>
++26        </receiver>
++27    </application>
++28
++29</manifest>
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-jofr-capacitor-media-session.jar b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-jofr-capacitor-media-session.jar
+new file mode 100644
+index 0000000..15cb0ec
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-jofr-capacitor-media-session.jar differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+new file mode 100644
+index 0000000..a8797e3
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+@@ -0,0 +1,29 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="io.github.jofr.capacitor.mediasessionplugin" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
++
++    <application>
++        <service
++            android:name="io.github.jofr.capacitor.mediasessionplugin.MediaSessionService"
++            android:enabled="true"
++            android:exported="true"
++            android:foregroundServiceType="mediaPlayback" >
++            <intent-filter>
++                <action android:name="android.intent.action.MEDIA_BUTTON" />
++            </intent-filter>
++        </service>
++
++        <receiver
++            android:name="androidx.media.session.MediaButtonReceiver"
++            android:exported="true" >
++            <intent-filter>
++                <action android:name="android.intent.action.MEDIA_BUTTON" />
++            </intent-filter>
++        </receiver>
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+new file mode 100644
+index 0000000..08f4ebe
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+@@ -0,0 +1 @@
++0 Warning/Error
+\ No newline at end of file
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_forward_30_24.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_forward_30_24.xml
+new file mode 100644
+index 0000000..f2f3216
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_forward_30_24.xml
+@@ -0,0 +1,7 @@
++<vector android:height="24dp" android:tint="#000000"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M18,13c0,3.31 -2.69,6 -6,6s-6,-2.69 -6,-6s2.69,-6 6,-6v4l5,-5l-5,-5v4c-4.42,0 -8,3.58 -8,8c0,4.42 3.58,8 8,8s8,-3.58 8,-8H18z"/>
++    <path android:fillColor="@android:color/white" android:pathData="M10.06,15.38c-0.29,0 -0.62,-0.17 -0.62,-0.54H8.59c0,0.97 0.9,1.23 1.45,1.23c0.87,0 1.51,-0.46 1.51,-1.25c0,-0.66 -0.45,-0.9 -0.71,-1c0.11,-0.05 0.65,-0.32 0.65,-0.92c0,-0.21 -0.05,-1.22 -1.44,-1.22c-0.62,0 -1.4,0.35 -1.4,1.16h0.85c0,-0.34 0.31,-0.48 0.57,-0.48c0.59,0 0.58,0.5 0.58,0.54c0,0.52 -0.41,0.59 -0.63,0.59H9.56v0.66h0.45c0.65,0 0.7,0.42 0.7,0.64C10.71,15.11 10.5,15.38 10.06,15.38z"/>
++    <path android:fillColor="@android:color/white" android:pathData="M13.85,11.68c-0.14,0 -1.44,-0.08 -1.44,1.82v0.74c0,1.9 1.31,1.82 1.44,1.82c0.14,0 1.44,0.09 1.44,-1.82V13.5C15.3,11.59 13.99,11.68 13.85,11.68zM14.45,14.35c0,0.77 -0.21,1.03 -0.59,1.03c-0.38,0 -0.6,-0.26 -0.6,-1.03v-0.97c0,-0.75 0.22,-1.01 0.59,-1.01c0.38,0 0.6,0.26 0.6,1.01V14.35z"/>
++</vector>
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_pause_24.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_pause_24.xml
+new file mode 100644
+index 0000000..938bd7f
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_pause_24.xml
+@@ -0,0 +1,5 @@
++<vector android:height="24dp" android:tint="#000000"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M6,19h4L10,5L6,5v14zM14,5v14h4L18,5h-4z"/>
++</vector>
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_play_arrow_24.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_play_arrow_24.xml
+new file mode 100644
+index 0000000..e3fd2e9
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_play_arrow_24.xml
+@@ -0,0 +1,5 @@
++<vector android:height="24dp" android:tint="#000000"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M8,5v14l11,-7z"/>
++</vector>
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_replay_30_24.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_replay_30_24.xml
+new file mode 100644
+index 0000000..5183020
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_replay_30_24.xml
+@@ -0,0 +1,7 @@
++<vector android:height="24dp" android:tint="#000000"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M12,5V1L7,6l5,5V7c3.31,0 6,2.69 6,6s-2.69,6 -6,6s-6,-2.69 -6,-6H4c0,4.42 3.58,8 8,8s8,-3.58 8,-8S16.42,5 12,5z"/>
++    <path android:fillColor="@android:color/white" android:pathData="M9.56,13.49h0.45c0.21,0 0.37,-0.05 0.48,-0.16s0.16,-0.25 0.16,-0.43c0,-0.08 -0.01,-0.15 -0.04,-0.22s-0.06,-0.12 -0.11,-0.17s-0.11,-0.09 -0.18,-0.11s-0.16,-0.04 -0.25,-0.04c-0.08,0 -0.15,0.01 -0.22,0.03s-0.13,0.05 -0.18,0.1s-0.09,0.09 -0.12,0.15s-0.05,0.13 -0.05,0.2H8.65c0,-0.18 0.04,-0.34 0.11,-0.48s0.17,-0.27 0.3,-0.37s0.27,-0.18 0.44,-0.23s0.35,-0.08 0.54,-0.08c0.21,0 0.41,0.03 0.59,0.08s0.33,0.13 0.46,0.23s0.23,0.23 0.3,0.38s0.11,0.33 0.11,0.53c0,0.09 -0.01,0.18 -0.04,0.27s-0.07,0.17 -0.13,0.25s-0.12,0.15 -0.2,0.22s-0.17,0.12 -0.28,0.17c0.24,0.09 0.42,0.21 0.54,0.39s0.18,0.38 0.18,0.61c0,0.2 -0.04,0.38 -0.12,0.53s-0.18,0.29 -0.32,0.39s-0.29,0.19 -0.48,0.24s-0.38,0.08 -0.6,0.08c-0.18,0 -0.36,-0.02 -0.53,-0.07s-0.33,-0.12 -0.46,-0.23s-0.25,-0.23 -0.33,-0.38s-0.12,-0.34 -0.12,-0.55h0.85c0,0.08 0.02,0.15 0.05,0.22s0.07,0.12 0.13,0.17s0.12,0.09 0.2,0.11s0.16,0.04 0.25,0.04c0.1,0 0.19,-0.01 0.27,-0.04s0.15,-0.07 0.2,-0.12s0.1,-0.11 0.13,-0.18s0.04,-0.15 0.04,-0.24c0,-0.11 -0.02,-0.21 -0.05,-0.29s-0.08,-0.15 -0.14,-0.2s-0.13,-0.09 -0.22,-0.11s-0.18,-0.04 -0.29,-0.04H9.56V13.49z"/>
++    <path android:fillColor="@android:color/white" android:pathData="M15.3,14.24c0,0.32 -0.03,0.6 -0.1,0.82s-0.17,0.42 -0.29,0.57s-0.28,0.26 -0.45,0.33s-0.37,0.1 -0.59,0.1s-0.41,-0.03 -0.59,-0.1s-0.33,-0.18 -0.46,-0.33s-0.23,-0.34 -0.3,-0.57s-0.11,-0.5 -0.11,-0.82V13.5c0,-0.32 0.03,-0.6 0.1,-0.82s0.17,-0.42 0.29,-0.57s0.28,-0.26 0.45,-0.33s0.37,-0.1 0.59,-0.1s0.41,0.03 0.59,0.1s0.33,0.18 0.46,0.33s0.23,0.34 0.3,0.57s0.11,0.5 0.11,0.82V14.24zM14.45,13.38c0,-0.19 -0.01,-0.35 -0.04,-0.48c-0.03,-0.13 -0.07,-0.23 -0.12,-0.31s-0.11,-0.14 -0.19,-0.17s-0.16,-0.05 -0.25,-0.05s-0.18,0.02 -0.25,0.05s-0.14,0.09 -0.19,0.17s-0.09,0.18 -0.12,0.31s-0.04,0.29 -0.04,0.48v0.97c0,0.19 0.01,0.35 0.04,0.48s0.07,0.24 0.12,0.32s0.11,0.14 0.19,0.17s0.16,0.05 0.25,0.05s0.18,-0.02 0.25,-0.05s0.14,-0.09 0.19,-0.17s0.09,-0.19 0.11,-0.32c0.03,-0.13 0.04,-0.29 0.04,-0.48V13.38z"/>
++</vector>
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_skip_next_24.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_skip_next_24.xml
+new file mode 100644
+index 0000000..47b1405
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_skip_next_24.xml
+@@ -0,0 +1,5 @@
++<vector android:height="24dp" android:tint="#000000"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M6,18l8.5,-6L6,6v12zM16,6v12h2V6h-2z"/>
++</vector>
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_skip_previous_24.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_skip_previous_24.xml
+new file mode 100644
+index 0000000..d915ce0
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_skip_previous_24.xml
+@@ -0,0 +1,5 @@
++<vector android:height="24dp" android:tint="#000000"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M6,6h2v12L6,18zM9.5,12l8.5,6L18,6z"/>
++</vector>
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_stop_24.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_stop_24.xml
+new file mode 100644
+index 0000000..19bcbee
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_stop_24.xml
+@@ -0,0 +1,5 @@
++<vector android:height="24dp" android:tint="#000000"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M6,6h12v12H6z"/>
++</vector>
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_volume_up_24.xml b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_volume_up_24.xml
+new file mode 100644
+index 0000000..30dff4b
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_baseline_volume_up_24.xml
+@@ -0,0 +1,5 @@
++<vector android:height="24dp" android:tint="#000000"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M3,9v6h4l5,5L12,4L7,9L3,9zM16.5,12c0,-1.77 -1.02,-3.29 -2.5,-4.03v8.05c1.48,-0.73 2.5,-2.25 2.5,-4.02zM14,3.23v2.06c2.89,0.86 5,3.54 5,6.71s-2.11,5.85 -5,6.71v2.06c4.01,-0.91 7,-4.49 7,-8.77s-2.99,-7.86 -7,-8.77z"/>
++</vector>
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+new file mode 100644
+index 0000000..8aeb20f
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+new file mode 100644
+index 0000000..3d1e3a0
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+@@ -0,0 +1,9 @@
++io.github.jofr.capacitor.mediasessionplugin
++drawable ic_baseline_forward_30_24
++drawable ic_baseline_pause_24
++drawable ic_baseline_play_arrow_24
++drawable ic_baseline_replay_30_24
++drawable ic_baseline_skip_next_24
++drawable ic_baseline_skip_previous_24
++drawable ic_baseline_stop_24
++drawable ic_baseline_volume_up_24
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/outputs/aar/jofr-capacitor-media-session-debug.aar b/node_modules/@jofr/capacitor-media-session/android/build/outputs/aar/jofr-capacitor-media-session-debug.aar
+new file mode 100644
+index 0000000..ef1c2df
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/outputs/aar/jofr-capacitor-media-session-debug.aar differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@jofr/capacitor-media-session/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..f4d8e33
+--- /dev/null
++++ b/node_modules/@jofr/capacitor-media-session/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,44 @@
++-- Merging decision tree log ---
++manifest
++ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:2:1-26:12
++INJECTED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:2:1-26:12
++	package
++		INJECTED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml
++	xmlns:android
++		ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:2:11-69
++uses-permission#android.permission.FOREGROUND_SERVICE
++ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:4:5-77
++	android:name
++		ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:4:22-74
++application
++ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:6:5-24:19
++service#io.github.jofr.capacitor.mediasessionplugin.MediaSessionService
++ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:7:9-15:19
++	android:enabled
++		ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:9:13-35
++	android:exported
++		ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:10:13-36
++	android:foregroundServiceType
++		ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:11:13-58
++	android:name
++		ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:8:13-48
++intent-filter#action:name:android.intent.action.MEDIA_BUTTON
++ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:12:13-14:29
++action#android.intent.action.MEDIA_BUTTON
++ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:13:17-77
++	android:name
++		ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:13:25-74
++receiver#androidx.media.session.MediaButtonReceiver
++ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:17:9-23:20
++	android:exported
++		ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:19:13-36
++	android:name
++		ADDED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml:18:13-70
++uses-sdk
++INJECTED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml
++INJECTED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from C:\Projects\NoMercy\NoMercy.App\node_modules\@jofr\capacitor-media-session\android\src\main\AndroidManifest.xml
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionCallback.class.uniqueId0 b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionCallback.class.uniqueId0
+new file mode 100644
+index 0000000..3132741
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionCallback.class.uniqueId0 differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionPlugin$1.class.uniqueId3 b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionPlugin$1.class.uniqueId3
+new file mode 100644
+index 0000000..3a3af1d
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionPlugin$1.class.uniqueId3 differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionPlugin.class.uniqueId1 b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionPlugin.class.uniqueId1
+new file mode 100644
+index 0000000..04532fd
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionPlugin.class.uniqueId1 differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionService$LocalBinder.class.uniqueId2 b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionService$LocalBinder.class.uniqueId2
+new file mode 100644
+index 0000000..aa3c2a1
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionService$LocalBinder.class.uniqueId2 differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionService.class.uniqueId4 b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionService.class.uniqueId4
+new file mode 100644
+index 0000000..a725216
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/MediaSessionService.class.uniqueId4 differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..d0597ab
+Binary files /dev/null and b/node_modules/@jofr/capacitor-media-session/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/@jofr/capacitor-media-session/android/src/main/java/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin.java b/node_modules/@jofr/capacitor-media-session/android/src/main/java/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin.java
+index 6f54b7f..3b97346 100644
+--- a/node_modules/@jofr/capacitor-media-session/android/src/main/java/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin.java
++++ b/node_modules/@jofr/capacitor-media-session/android/src/main/java/io/github/jofr/capacitor/mediasessionplugin/MediaSessionPlugin.java
+@@ -82,17 +82,26 @@ public class MediaSessionPlugin extends Plugin {
+     }
+ 
+     public void startMediaService() {
+-        Intent intent = new Intent(getActivity(), MediaSessionService.class);
+-        ContextCompat.startForegroundService(getContext(), intent);
+-        getContext().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
++        try {
++            Intent intent = new Intent(getActivity(), MediaSessionService.class);
++            ContextCompat.startForegroundService(getContext(), intent);
++            getContext().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
++        } catch (Exception e) {
++            Log.e(TAG, "Error starting MediaSessionService: " + e.getMessage());
++        }
+     }
+ 
+     private void updateServiceMetadata() {
+-        service.setTitle(title);
+-        service.setArtist(artist);
+-        service.setAlbum(album);
+-        service.setArtwork(artwork);
+-        service.update();
++        try {
++            service.setTitle(title);
++            service.setArtist(artist);
++            service.setAlbum(album);
++            service.setArtwork(artwork);
++            service.update();
++        }
++        catch(Exception e) {
++            Log.e(TAG, "Error updating metadata: " + e.getMessage());
++        }
+     }
+ 
+ 
+@@ -141,6 +150,7 @@ public class MediaSessionPlugin extends Plugin {
+     }
+ 
+     private void updateServicePlaybackState() {
++        try {
+         if (playbackState.equals("playing")) {
+             service.setPlaybackState(PlaybackStateCompat.STATE_PLAYING);
+             service.update();
+@@ -151,6 +161,9 @@ public class MediaSessionPlugin extends Plugin {
+             service.setPlaybackState(PlaybackStateCompat.STATE_NONE);
+             service.update();
+         }
++        } catch (Exception e) {
++            Log.e(TAG, "Error updating playback state: " + e.getMessage());
++        }
+     }
+ 
+     @PluginMethod
+@@ -170,11 +183,15 @@ public class MediaSessionPlugin extends Plugin {
+     }
+ 
+     private void updateServicePositionState() {
+-        service.setDuration(Math.round(duration * 1000));
+-        service.setPosition(Math.round(position * 1000));
+-        float playbackSpeed = playbackRate == 0.0 ? (float) 1.0 : (float) playbackRate;
+-        service.setPlaybackSpeed(playbackSpeed);
+-        service.update();
++        try {
++            service.setDuration(Math.round(duration * 1000));
++            service.setPosition(Math.round(position * 1000));
++            float playbackSpeed = playbackRate == 0.0 ? (float) 1.0 : (float) playbackRate;
++            service.setPlaybackSpeed(playbackSpeed);
++            service.update();
++        } catch (Exception e) {
++            Log.e(TAG, "Error updating position state: " + e.getMessage());
++        }
+     }
+ 
+     @PluginMethod
+diff --git a/node_modules/@jofr/capacitor-media-session/android/src/main/res/drawable/ic_baseline_volume_up_24.xml b/node_modules/@jofr/capacitor-media-session/android/src/main/res/drawable/ic_baseline_volume_up_24.xml
+index 30dff4b..453b8d2 100644
+--- a/node_modules/@jofr/capacitor-media-session/android/src/main/res/drawable/ic_baseline_volume_up_24.xml
++++ b/node_modules/@jofr/capacitor-media-session/android/src/main/res/drawable/ic_baseline_volume_up_24.xml
+@@ -1,5 +1,7 @@
+ <vector android:height="24dp" android:tint="#000000"
+     android:viewportHeight="24" android:viewportWidth="24"
+     android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+-    <path android:fillColor="@android:color/white" android:pathData="M3,9v6h4l5,5L12,4L7,9L3,9zM16.5,12c0,-1.77 -1.02,-3.29 -2.5,-4.03v8.05c1.48,-0.73 2.5,-2.25 2.5,-4.02zM14,3.23v2.06c2.89,0.86 5,3.54 5,6.71s-2.11,5.85 -5,6.71v2.06c4.01,-0.91 7,-4.49 7,-8.77s-2.99,-7.86 -7,-8.77z"/>
++    <path android:pathData="M7.25615 4.56326C6.92358 4.66269 6.6733 4.89584 6.56701 5.19412C6.48815 5.41012 6.44358 6.21241 6.45387 7.12784L6.46415 7.91641L9.40244 9.90498C11.0173 10.9987 12.3956 11.9484 12.4642 12.0135C12.8722 12.4113 12.8653 13.1347 12.4504 13.5324C12.3407 13.6353 11.463 14.2353 7.38987 16.9815L6.46415 17.6055L6.42987 7.90269L4.06415 6.30498C2.76473 5.42384 1.63673 4.67298 1.5613 4.63526C1.47901 4.59069 1.33158 4.55641 1.19787 4.54612C0.868725 4.52212 0.628725 4.60783 0.388725 4.82383C0.165868 5.02955 0.0835825 5.17698 0.0355825 5.46841C-0.0124175 5.77355 -0.0124175 19.7621 0.0390111 20.0707C0.131583 20.6433 0.621868 21.0307 1.19787 20.9895C1.33158 20.9793 1.47901 20.945 1.5613 20.9004C1.63673 20.8627 2.76473 20.1118 4.06415 19.2307L6.42987 17.633L6.45387 18.7918C6.47444 19.9815 6.49844 20.2181 6.62187 20.4718C6.81387 20.8695 7.36244 21.1095 7.79101 20.9827C8.07901 20.9004 8.49044 20.6364 11.4973 18.6033C13.0367 17.5644 14.3053 16.7107 14.3156 16.7107C14.3259 16.7107 14.3327 17.5267 14.3327 18.521L14.3499 20.5002C14.4649 20.7202 14.7695 20.8524 15 20.8524C15.6296 20.8524 16.3705 20.8524 17 20.8524C16.7492 20.8524 17.5042 20.8524 17.5 20.5002C17.4957 20.1315 17.5247 20.5815 17.5144 17.4033L17.5042 14.5473L16.2013 15.4284C15.4847 15.9118 14.775 16.3884 14.6242 16.4913L14.3499 16.6764L14.3396 12.7781C14.3362 10.6353 14.3396 8.87641 14.3464 8.86955C14.3533 8.85926 15.0664 9.33241 15.9339 9.91869L17.5042 10.985L17.5144 8.12898C17.5247 4.95412 17.5 5.01676 17.2285 4.79641C17.16 4.72784 17.1099 4.72783 17.0447 4.70726C16.9659 4.68669 16.5304 4.67641 15.8516 4.68326H15C14.522 4.70726 14.4123 4.79641 14.3327 5.20098V7.01469C14.3327 8.00898 14.3259 8.82498 14.3156 8.82498C14.3053 8.82498 12.999 7.94726 11.4082 6.87412C8.35673 4.81698 8.14758 4.67984 7.84244 4.57355C7.61615 4.49469 7.48587 4.49126 7.25615 4.56326Z" android:fillColor="@android:color/white"/>
++    <path android:pathData="M21.2068 4.70127C21.0388 4.78013 20.9017 4.9207 20.8331 5.0887C20.7851 5.20184 20.7783 6.02127 20.7783 12.779C20.7783 20.1984 20.7783 20.3458 20.8434 20.4727C20.9239 20.7744 21.1575 20.8807 21.391 20.8708C21.4801 20.8982 21.7588 20.8876 22.4617 20.8807L23.5108 20.8704C23.984 20.8696 23.9999 20.5115 23.984 20.3938V5.12984C23.9999 5.0111 23.8363 4.70127 23.5108 4.65327L22.4274 4.64298C21.4263 4.63613 21.3337 4.63955 21.2068 4.70127Z" android:fillColor="@android:color/white"/>
++    <path android:pathData="M17.5211 14.5063L17.6171 14.448C18.3714 13.9646 18.9508 13.5223 19.0777 13.3372C19.3108 12.9978 19.3177 12.528 19.0983 12.1955C18.9577 11.9829 18.4194 11.568 17.6171 11.0538L17.5211 10.9955V14.5063Z" android:fillColor="@android:color/white"/>
+ </vector>
