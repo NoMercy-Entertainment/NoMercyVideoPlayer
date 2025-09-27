@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import PlayerStorage from './playerStorage';
 import type { PlayerConfig, TimeData, Track, CurrentTrack, VolumeState, PlaylistItem, Level, PreviewTime } from './types';
 import MediaSession from '@nomercy-entertainment/media-session';

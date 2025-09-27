@@ -175,8 +175,7 @@ export interface PlayerConfig<T = Record<string, any>> {
     playbackRates?: number[];
     accessToken?: string;
     basePath?: string;
-    subtitleRenderer?: 'octopus' | 'sabre';
-    sabreVersion?: string;
+    subtitleRenderer?: 'octopus';
     language?: string;
     doubleClickDelay?: number;
     controlsTimeout?: number;

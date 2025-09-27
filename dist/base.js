@@ -8,47 +8,48 @@ exports.Base = void 0;
 const playerStorage_1 = __importDefault(require("./playerStorage"));
 const media_session_1 = __importDefault(require("@nomercy-entertainment/media-session"));
 class Base {
+    eventTarget = {};
+    container = {};
+    videoElement = {};
+    overlay = {};
+    subtitleOverlay = {};
+    subtitleSafeZone = {};
+    subtitleArea = {};
+    subtitleText = {};
+    storage = new playerStorage_1.default();
+    mediaSession;
+    translations = {};
+    playerId = '';
+    setupTime = 0;
+    // State
+    message = {};
+    // Options
+    options = {
+        muted: false,
+        autoPlay: false,
+        controls: false,
+        debug: false,
+        accessToken: '',
+        basePath: '',
+        playbackRates: [0.5, 1, 1.5, 2],
+        stretching: 'uniform',
+        controlsTimeout: 3000,
+        displayLanguage: 'en',
+        preload: 'auto',
+        playlist: [],
+        disableMediaControls: false,
+        disableControls: false,
+        disableTouchControls: false,
+        doubleClickDelay: 300,
+        customStorage: playerStorage_1.default.prototype.storage,
+        disableAutoPlayback: false,
+    };
+    hasPipEventHandler = false;
+    hasTheaterEventHandler = false;
+    hasBackEventHandler = false;
+    hasCloseEventHandler = false;
+    events = [];
     constructor() {
-        this.eventTarget = {};
-        this.container = {};
-        this.videoElement = {};
-        this.overlay = {};
-        this.subtitleOverlay = {};
-        this.subtitleSafeZone = {};
-        this.subtitleArea = {};
-        this.subtitleText = {};
-        this.storage = new playerStorage_1.default();
-        this.translations = {};
-        this.playerId = '';
-        this.setupTime = 0;
-        // State
-        this.message = {};
-        // Options
-        this.options = {
-            muted: false,
-            autoPlay: false,
-            controls: false,
-            debug: false,
-            accessToken: '',
-            basePath: '',
-            playbackRates: [0.5, 1, 1.5, 2],
-            stretching: 'uniform',
-            controlsTimeout: 3000,
-            displayLanguage: 'en',
-            preload: 'auto',
-            playlist: [],
-            disableMediaControls: false,
-            disableControls: false,
-            disableTouchControls: false,
-            doubleClickDelay: 300,
-            customStorage: playerStorage_1.default.prototype.storage,
-            disableAutoPlayback: false,
-        };
-        this.hasPipEventHandler = false;
-        this.hasTheaterEventHandler = false;
-        this.hasBackEventHandler = false;
-        this.hasCloseEventHandler = false;
-        this.events = [];
         this.eventTarget = new EventTarget();
         this.mediaSession = new media_session_1.default();
     }

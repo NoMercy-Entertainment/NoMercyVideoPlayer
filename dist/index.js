@@ -20,171 +20,66 @@ const DEFAULT_SEEK_INTERVAL = 10;
 const DEFAULT_MESSAGE_TIME = 2000;
 const EMPTY_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 class NMPlayer extends base_1.Base {
+    // Setup
+    hls;
+    gainNode;
+    translations = {};
+    defaultTranslations = translations_1.default;
+    // State
+    message = {};
+    leftTap = {};
+    rightTap = {};
+    leeway = DEFAULT_LEEWAY;
+    seekInterval = DEFAULT_SEEK_INTERVAL;
+    tapCount = 0;
+    // Store
+    chapters = {};
+    currentChapterFile = '';
+    previewTime = [];
+    currentTimeFile = '';
+    fonts = [];
+    currentFontFile = '';
+    skippers;
+    currentSkipFile = '';
+    currentSubtitleIndex = -1;
+    subtitles = {};
+    currentSubtitleFile = '';
+    currentSpriteFile = '';
+    // Playlist functionality
+    playlist = [];
+    currentPlaylistItem = {};
+    currentIndex = -1;
+    isPlaying = false;
+    muted = false;
+    volume = 100;
+    lastTime = 0;
+    lockActive = false;
+    plugins = new Map();
+    /**
+     * The available options for stretching the video to fit the player dimensions.
+     * - `uniform`: Fits Player dimensions while maintaining aspect ratio.
+     * - `fill`: Zooms and crops video to fill dimensions, maintaining aspect ratio.
+     * - `exactfit`: Fits Player dimensions without maintaining aspect ratio.
+     * - `none`: Displays the actual size of the video file (Black borders).
+     * - `16:9`: Stretches the video to a 16:9 aspect ratio.
+     * - `4:3`: Stretches the video to a 4:3 aspect ratio.
+     */
+    stretchOptions = [
+        'uniform',
+        'fill',
+        'exactfit',
+        'none',
+        '16:9',
+        '4:3',
+    ];
+    currentAspectRatio = this.options.stretching ?? 'uniform';
+    allowFullscreen = true;
+    shouldFloat = false;
+    firstFrame = false;
+    subtitleStyle = helpers_1.defaultSubtitleStyles;
+    resizeObserver = {};
     constructor(id) {
         super();
-        this.translations = {};
-        this.defaultTranslations = translations_1.default;
-        // State
-        this.message = {};
-        this.leftTap = {};
-        this.rightTap = {};
-        this.leeway = DEFAULT_LEEWAY;
-        this.seekInterval = DEFAULT_SEEK_INTERVAL;
-        this.tapCount = 0;
-        // Store
-        this.chapters = {};
-        this.currentChapterFile = '';
-        this.previewTime = [];
-        this.currentTimeFile = '';
-        this.fonts = [];
-        this.currentFontFile = '';
-        this.currentSkipFile = '';
-        this.currentSubtitleIndex = -1;
-        this.subtitles = {};
-        this.currentSubtitleFile = '';
-        this.currentSpriteFile = '';
-        // Playlist functionality
-        this.playlist = [];
-        this.currentPlaylistItem = {};
-        this.currentIndex = -1;
-        this.isPlaying = false;
-        this.muted = false;
-        this.volume = 100;
-        this.lastTime = 0;
-        this.lockActive = false;
-        this.plugins = new Map();
-        /**
-         * The available options for stretching the video to fit the player dimensions.
-         * - `uniform`: Fits Player dimensions while maintaining aspect ratio.
-         * - `fill`: Zooms and crops video to fill dimensions, maintaining aspect ratio.
-         * - `exactfit`: Fits Player dimensions without maintaining aspect ratio.
-         * - `none`: Displays the actual size of the video file (Black borders).
-         * - `16:9`: Stretches the video to a 16:9 aspect ratio.
-         * - `4:3`: Stretches the video to a 4:3 aspect ratio.
-         */
-        this.stretchOptions = [
-            'uniform',
-            'fill',
-            'exactfit',
-            'none',
-            '16:9',
-            '4:3',
-        ];
-        this.currentAspectRatio = this.options.stretching ?? 'uniform';
-        this.allowFullscreen = true;
-        this.shouldFloat = false;
-        this.firstFrame = false;
-        this.subtitleStyle = helpers_1.defaultSubtitleStyles;
-        /**
-         * Fetches the contents of a file from the specified URL using the provided options and callback function.
-         * @param url - The URL of the file to fetch.
-         * @param options - The options to use when fetching the file.
-         * @param callback - The callback function to invoke with the fetched file contents.
-         * @returns A Promise that resolves with the fetched file contents.
-         */
-        this.getFileContents = async ({ url, options, callback }) => {
-            const headers = {
-                'Accept-Language': options.language || 'en',
-            };
-            if (this.options.accessToken && !options.anonymous) {
-                headers.Authorization = `Bearer ${this.options.accessToken}`;
-            }
-            let basePath = '';
-            if (this.options.basePath && !url.startsWith('http')) {
-                basePath = this.options.basePath;
-            }
-            return await fetch(basePath + url, {
-                ...options,
-                headers,
-            })
-                .then(async (body) => {
-                switch (options.type) {
-                    case 'blob':
-                        callback(await body.blob());
-                        break;
-                    case 'json':
-                        callback(await body.json());
-                        break;
-                    case 'arrayBuffer':
-                        callback(await body.arrayBuffer());
-                        break;
-                    case 'text':
-                    default:
-                        callback(await body.text());
-                        break;
-                }
-            })
-                .catch((reason) => {
-                console.error('Failed to fetch file contents', reason);
-            });
-        };
-        this.computeSubtitlePosition = (cue, videoElement, subtitleArea, subtitleText) => {
-            if (!videoElement || !subtitleArea || !subtitleText) {
-                return;
-            }
-            const videoHeight = videoElement.clientHeight;
-            const subtitleHeight = subtitleArea.clientHeight;
-            // Handle vertical positioning
-            if (typeof cue.linePosition === "number") {
-                const verticalPos = cue.linePosition === 50
-                    ? `${50 - (subtitleHeight / videoHeight * 50)}%` // Center
-                    : `${cue.linePosition}%`; // Specified position
-                subtitleArea.style.bottom = '';
-                subtitleArea.style.top = verticalPos;
-            }
-            else {
-                subtitleArea.style.top = '';
-                subtitleArea.style.bottom = '3%';
-            }
-            // Handle alignment
-            subtitleArea.classList.remove("aligned-start", "aligned-center", "aligned-end");
-            if (cue.alignment === "start" || cue.alignment === "left") {
-                subtitleArea.classList.add("aligned-start");
-            }
-            else if (cue.alignment === "center") {
-                subtitleArea.classList.add("aligned-center");
-            }
-            else if (cue.alignment === "end" || cue.alignment === "right") {
-                subtitleArea.classList.add("aligned-end");
-            }
-            // Handle width
-            if (cue.size >= 0 && cue.size <= 100) {
-                subtitleArea.style.width = `calc(${cue.size}% - 6%)`;
-                subtitleArea.style.left = `calc(${(100 - cue.size) / 2}% + 3%)`;
-                subtitleArea.style.right = `calc(${(100 - cue.size) / 2}% + 3%)`;
-            }
-            else {
-                subtitleArea.style.width = '100%';
-                subtitleArea.style.left = '3%';
-                subtitleArea.style.right = '3%';
-            }
-        };
-        this.inactivityTimeout = null;
-        this.inactivityTime = 5000; // 5 seconds of inactivity
-        this._playerEvents = [
-            { type: 'play', handler: this.videoPlayer_playEvent.bind(this) },
-            { type: 'playing', handler: this.videoPlayer_onPlayingEvent.bind(this) },
-            { type: 'pause', handler: this.videoPlayer_pauseEvent.bind(this) },
-            { type: 'ended', handler: this.videoPlayer_endedEvent.bind(this) },
-            { type: 'error', handler: this.videoPlayer_errorEvent.bind(this) },
-            { type: 'waiting', handler: this.videoPlayer_waitingEvent.bind(this) },
-            { type: 'canplay', handler: this.videoPlayer_canplayEvent.bind(this) },
-            { type: 'loadedmetadata', handler: this.videoPlayer_loadedmetadataEvent.bind(this) },
-            { type: 'loadstart', handler: this.videoPlayer_loadstartEvent.bind(this) },
-            { type: 'timeupdate', handler: this.videoPlayer_timeupdateEvent.bind(this) },
-            { type: 'durationchange', handler: this.videoPlayer_durationchangeEvent.bind(this) },
-            { type: 'volumechange', handler: this.videoPlayer_volumechangeEvent.bind(this) },
-            { type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
-        ];
-        this._containerEvents = [
-            { type: 'click', handler: this.ui_resetInactivityTimer.bind(this) },
-            { type: 'mousemove', handler: this.ui_resetInactivityTimer.bind(this) },
-            { type: 'mouseleave', handler: this.handleMouseLeave.bind(this) },
-            { type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
-        ];
-        this.nearestValue = (arr, val) => {
-            return arr.reduce((p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p), Infinity) + val;
-        };
         if (!id && instances.size == 0) {
             throw new Error('No player element found');
         }
@@ -208,7 +103,6 @@ class NMPlayer extends base_1.Base {
         return this.init(id);
     }
     init(id) {
-        this.mediaSession?.setPlaybackState('none');
         const container = document.querySelector(`#${id}`);
         if (!container) {
             throw new Error(`Player element with ID ${id} not found`);
@@ -227,6 +121,10 @@ class NMPlayer extends base_1.Base {
         this.styleContainer();
         this.createVideoElement();
         this.createSubtitleOverlay();
+        this.resizeObserver = new ResizeObserver(() => {
+            this.resize();
+        });
+        this.resizeObserver.observe(this.container);
         instances.set(id, this);
         this._removeEvents();
         this._addEvents();
@@ -234,7 +132,7 @@ class NMPlayer extends base_1.Base {
             if (!this.options.disableAutoPlayback)
                 return;
             this.emit('ready');
-        }, 500);
+        }, 0);
         return this;
     }
     registerPlugin(name, plugin) {
@@ -244,6 +142,7 @@ class NMPlayer extends base_1.Base {
     }
     usePlugin(name) {
         const plugin = this.plugins.get(name);
+        this.options.debug && console.log(`Using plugin: ${name}`, plugin);
         if (plugin) {
             plugin.use();
         }
@@ -328,17 +227,62 @@ class NMPlayer extends base_1.Base {
         const horInView = (rect.left <= windowWidth) && ((rect.left + rect.width) >= 0);
         return (vertInView && horInView);
     }
+    /**
+     * Fetches the contents of a file from the specified URL using the provided options and callback function.
+     * @param url - The URL of the file to fetch.
+     * @param options - The options to use when fetching the file.
+     * @param callback - The callback function to invoke with the fetched file contents.
+     * @returns A Promise that resolves with the fetched file contents.
+     */
+    getFileContents = async ({ url, options, callback }) => {
+        const headers = {
+            'Accept-Language': options.language || 'en',
+        };
+        if (this.options.accessToken && !options.anonymous) {
+            headers.Authorization = `Bearer ${this.options.accessToken}`;
+        }
+        let basePath = '';
+        if (this.options.basePath && !url.startsWith('http')) {
+            basePath = this.options.basePath;
+        }
+        return await fetch(encodeURI(basePath + url), {
+            ...options,
+            headers,
+        })
+            .then(async (body) => {
+            switch (options.type) {
+                case 'blob':
+                    callback(await body.blob());
+                    break;
+                case 'json':
+                    callback(await body.json());
+                    break;
+                case 'arrayBuffer':
+                    callback(await body.arrayBuffer());
+                    break;
+                case 'text':
+                default:
+                    callback(await body.text());
+                    break;
+            }
+        })
+            .catch((reason) => {
+            console.error('Failed to fetch file contents', reason);
+        });
+    };
     styleContainer() {
         this.container.classList.add('nomercyplayer');
         this.container.style.overflow = 'hidden';
         this.container.style.position = 'relative';
         this.container.style.display = 'flex';
         this.container.style.width = '100%';
-        this.container.style.height = 'auto';
+        this.container.style.height = '100%';
         this.container.style.aspectRatio = '16/9';
         this.container.style.zIndex = '0';
         this.container.style.alignItems = 'center';
         this.container.style.justifyContent = 'center';
+        this.container.style.maxHeight = '100%';
+        this.container.style.maxWidth = '100%';
     }
     createVideoElement() {
         this.videoElement = this.createElement('video', `${this.playerId}_video`, true)
@@ -387,6 +331,12 @@ class NMPlayer extends base_1.Base {
         const styleSheet = this.createElement('style', `${this.playerId}-styles`, true)
             .prependTo(this.container).get();
         styleSheet.textContent = `
+			.nomercyplayer {
+				position: relative;
+				width: 100%;
+				height: 100%;
+				background-color: black;
+			}
 			.nomercyplayer * {
 				user-select: none;
 				scrollbar-width: thin;
@@ -402,26 +352,48 @@ class NMPlayer extends base_1.Base {
 			}
 			
 			.nomercyplayer video {
-				background-color: black;
-				border-color: transparent;
-				display: block;
-				height: 100%;
-				margin: 0 auto;
-				object-fit: contain;
-				outline-color: transparent;
-				position: absolute;
+				position: relative;
 				width: 100%;
+				height: 100%;
+				max-width: 100%;
+				max-height: 100%;
+				overflow: hidden;
 				z-index: 0;
+				outline: 0;
+				color: #eee;
+				text-align: left;
+				direction: ltr;
+				font-size: 11px;
+				line-height: 1.3;
+				-webkit-font-smoothing: antialiased;
+				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+				touch-action: manipulation;
+    			aspect-ratio: var(--aspect-ratio, 16 / 9);
 			}
 			
-			.nomercyplayer .subtitle-overlay {
-				bottom: 3em;
-				left: 0;
+			.nomercyplayer .libassjs-canvas-parent {
 				pointer-events: none;
 				position: absolute;
+				bottom: 0;
+				left: 0;
 				right: 0;
 				top: 0;
 				z-index: 0;
+				transition: bottom 0.3s ease-in-out;
+			}
+
+			.nomercyplayer .subtitle-overlay {
+				pointer-events: none;
+				position: absolute;
+				z-index: 0;
+				transition: bottom 0.3s ease-in-out;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+			}
+			
+			.nomercyplayer .libassjs-canvas {
+				position: unset !important;
 			}
 
 			.nomercyplayer .subtitle-overlay .subtitle-safezone {
@@ -439,6 +411,7 @@ class NMPlayer extends base_1.Base {
 				position: absolute;
 				height: fit-content;
     			font-size: 28px;
+    			transition: margin 0.3s ease-in-out;
 			}
 
 			.nomercyplayer:has(.subtitle-text:empty) .subtitle-overlay .subtitle-area {
@@ -461,17 +434,11 @@ class NMPlayer extends base_1.Base {
 				left: 0;
 				width: 100%;
 			}
-
-			.nomercyplayer.active .subtitle-overlay,
-			.nomercyplayer.paused .subtitle-overlay {
-				// bottom: 5rem;
-			}
 			
 			.nomercyplayer .subtitle-overlay .subtitle-text {
 				white-space: pre-line;
 				padding: 0 0.5rem;
-				display: inline-flex;
-				line-height: 1.2;
+				line-height: 1.5;
 				writing-mode: horizontal-tb;
 				unicode-bidi: plaintext;
 			}
@@ -536,13 +503,6 @@ class NMPlayer extends base_1.Base {
 				top: 3rem;
 				transform: translateX(-50%);
 				z-index: 50;
-			}
-			
-			.nomercyplayer .libassjs-canvas-parent {
-				position: absolute !important;
-				left:0 !important;
-				width: 100% !important;
-				height: 100% !important;
 			}
 		`;
     }
@@ -616,9 +576,9 @@ class NMPlayer extends base_1.Base {
         const { fontSize, fontFamily, textColor, textOpacity, backgroundColor, backgroundOpacity, edgeStyle, areaColor, windowOpacity } = this.subtitleStyle;
         const areaElement = this.subtitleArea.style;
         const textElement = this.subtitleText.style;
-        console.log('Applying subtitle style', this.subtitleStyle);
+        this.options.debug && console.log('Applying subtitle style', this.subtitleStyle);
         if (fontSize)
-            textElement.fontSize = `calc(26px * ${fontSize / 100})`;
+            textElement.fontSize = `calc(100% * ${fontSize / 100})`;
         if (fontFamily)
             textElement.fontFamily = fontFamily;
         if (textColor)
@@ -632,6 +592,47 @@ class NMPlayer extends base_1.Base {
             areaElement.backgroundColor = (0, helpers_1.parseColorToHex)(areaColor, windowOpacity / 100);
         }
     }
+    computeSubtitlePosition = (cue, videoElement, subtitleArea, subtitleText) => {
+        if (!videoElement || !subtitleArea || !subtitleText) {
+            return;
+        }
+        const videoHeight = videoElement.clientHeight;
+        const subtitleHeight = subtitleArea.clientHeight;
+        // Handle vertical positioning
+        if (typeof cue.linePosition === "number") {
+            const verticalPos = cue.linePosition === 50
+                ? `${50 - (subtitleHeight / videoHeight * 50)}%` // Center
+                : `${cue.linePosition}%`; // Specified position
+            subtitleArea.style.bottom = '';
+            subtitleArea.style.top = verticalPos;
+        }
+        else {
+            subtitleArea.style.top = '';
+            subtitleArea.style.bottom = '3%';
+        }
+        // Handle alignment
+        subtitleArea.classList.remove("aligned-start", "aligned-center", "aligned-end");
+        if (cue.alignment === "start" || cue.alignment === "left") {
+            subtitleArea.classList.add("aligned-start");
+        }
+        else if (cue.alignment === "center") {
+            subtitleArea.classList.add("aligned-center");
+        }
+        else if (cue.alignment === "end" || cue.alignment === "right") {
+            subtitleArea.classList.add("aligned-end");
+        }
+        // Handle width
+        if (cue.size >= 0 && cue.size <= 100) {
+            subtitleArea.style.width = `calc(${cue.size}% - 6%)`;
+            subtitleArea.style.left = `calc(${(100 - cue.size) / 2}% + 3%)`;
+            subtitleArea.style.right = `calc(${(100 - cue.size) / 2}% + 3%)`;
+        }
+        else {
+            subtitleArea.style.width = '100%';
+            subtitleArea.style.left = '3%';
+            subtitleArea.style.right = '3%';
+        }
+    };
     /**
      * This method is called every time event of the video element.
      * It will generate the content of the subtitle overlay.
@@ -728,13 +729,8 @@ class NMPlayer extends base_1.Base {
     loadSource(url) {
         this.videoElement.pause();
         this.videoElement.removeAttribute('src');
-        if (!url.endsWith('.m3u8')) {
-            this.hls?.destroy();
-            this.hls = undefined;
-            this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
-        }
-        else if (hls_js_1.default.isSupported()) {
-            this.hls ?? (this.hls = new hls_js_1.default({
+        if (hls_js_1.default.isSupported() && !url.endsWith('.mp4')) {
+            this.hls ??= new hls_js_1.default({
                 debug: this.options.debug ?? false,
                 enableWorker: true,
                 lowLatencyMode: false,
@@ -751,13 +747,15 @@ class NMPlayer extends base_1.Base {
                         xhr.setRequestHeader('authorization', `Bearer ${this.options.accessToken}`);
                     }
                 },
-            }));
+            });
             this.emit('hls');
-            this.hls?.loadSource(url);
+            this.hls?.loadSource(encodeURI(url));
             this.hls?.attachMedia(this.videoElement);
         }
-        else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-            this.videoElement.src = `${url}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
+        else if (!url.endsWith('.m3u8') || this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+            this.hls?.destroy();
+            this.hls = undefined;
+            this.videoElement.src = `${encodeURI(url)}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
         }
         if (this.options.disableAutoPlayback)
             return;
@@ -875,13 +873,11 @@ class NMPlayer extends base_1.Base {
             this.options.debug && console.log('Playlist completed.');
             this.isPlaying = false;
             this.emit('playlistComplete');
-            this.mediaSession.setPlaybackState('none');
             this.isPlaying = false;
         }
     }
     videoPlayer_errorEvent() {
         this.emit('error', this.videoElement);
-        this.mediaSession.setPlaybackState('none');
         this.isPlaying = false;
     }
     videoPlayer_waitingEvent() {
@@ -891,9 +887,11 @@ class NMPlayer extends base_1.Base {
         this.emit('canplay', this.videoElement);
     }
     videoPlayer_loadedmetadataEvent(e) {
-        const _e = e;
+        const video = e.target;
+        this.resize();
+        // Emit your existing events
         this.emit('loadedmetadata', this.videoElement);
-        this.emit('duration', this.videoPlayer_getTimeData(_e));
+        this.emit('duration', this.videoPlayer_getTimeData({ target: video }));
     }
     videoPlayer_loadstartEvent() {
         this.emit('loadstart', this.videoElement);
@@ -951,6 +949,8 @@ class NMPlayer extends base_1.Base {
             playbackRate: this.videoElement.playbackRate,
         };
     }
+    inactivityTimeout = null;
+    inactivityTime = 5000; // 5 seconds of inactivity
     ui_addActiveClass() {
         this.container.classList.remove('inactive');
         this.container.classList.add('active');
@@ -1000,6 +1000,27 @@ class NMPlayer extends base_1.Base {
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
     }
+    _playerEvents = [
+        { type: 'play', handler: this.videoPlayer_playEvent.bind(this) },
+        { type: 'playing', handler: this.videoPlayer_onPlayingEvent.bind(this) },
+        { type: 'pause', handler: this.videoPlayer_pauseEvent.bind(this) },
+        { type: 'ended', handler: this.videoPlayer_endedEvent.bind(this) },
+        { type: 'error', handler: this.videoPlayer_errorEvent.bind(this) },
+        { type: 'waiting', handler: this.videoPlayer_waitingEvent.bind(this) },
+        { type: 'canplay', handler: this.videoPlayer_canplayEvent.bind(this) },
+        { type: 'loadedmetadata', handler: this.videoPlayer_loadedmetadataEvent.bind(this) },
+        { type: 'loadstart', handler: this.videoPlayer_loadstartEvent.bind(this) },
+        { type: 'timeupdate', handler: this.videoPlayer_timeupdateEvent.bind(this) },
+        { type: 'durationchange', handler: this.videoPlayer_durationchangeEvent.bind(this) },
+        { type: 'volumechange', handler: this.videoPlayer_volumechangeEvent.bind(this) },
+        { type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
+    ];
+    _containerEvents = [
+        { type: 'click', handler: this.ui_resetInactivityTimer.bind(this) },
+        { type: 'mousemove', handler: this.ui_resetInactivityTimer.bind(this) },
+        { type: 'mouseleave', handler: this.handleMouseLeave.bind(this) },
+        { type: 'keydown', handler: this.ui_resetInactivityTimer.bind(this) },
+    ];
     _addEvents() {
         this._playerEvents.forEach(event => {
             this.videoElement.addEventListener(event.type, event.handler, { passive: true });
@@ -1068,9 +1089,14 @@ class NMPlayer extends base_1.Base {
             });
             this.hls.on(hls_js_1.default.Events.ERROR, (error, errorData) => {
                 console.error('HLS error', error, errorData);
+                if (errorData.details == "bufferNudgeOnStall") {
+                    this.seek(this.videoElement.currentTime + 1);
+                }
             });
             this.hls.on(hls_js_1.default.Events.LEVEL_LOADED, (event, data) => {
                 this.options.debug && console.log(event, data);
+                // @ts-expect-error levelInfo does exist but it typed wrong
+                this.videoElement.style.setProperty('--aspect-ratio', `${data.levelInfo.width / data.levelInfo.height}`);
             });
             this.hls.on(hls_js_1.default.Events.LEVEL_LOADING, () => {
                 this.emit('levels', this.getQualityLevels());
@@ -1445,7 +1471,7 @@ class NMPlayer extends base_1.Base {
                             const baseFolder = file.replace(/\/[^/]*$/u, '');
                             return {
                                 ...f,
-                                file: `${baseFolder}/fonts/${f.file}`,
+                                file: `${baseFolder}/${f.file}`,
                             };
                         });
                     }
@@ -1632,7 +1658,7 @@ class NMPlayer extends base_1.Base {
         if (this.options.accessToken) {
             headers.Authorization = `Bearer ${this.options.accessToken}`;
         }
-        const response = await fetch(url, {
+        const response = await fetch(encodeURI(url), {
             headers,
             method: 'GET',
         });
@@ -1849,6 +1875,7 @@ class NMPlayer extends base_1.Base {
     }
     restart() {
         this.seek(0);
+        this.play().then();
     }
     seekByPercentage(arg) {
         return this.seek(this.videoElement.duration * arg / 100);
@@ -1968,7 +1995,73 @@ class NMPlayer extends base_1.Base {
         return document.fullscreenElement === this.container;
     }
     resize() {
-        //
+        // Get video's natural dimensions
+        const videoWidth = this.videoElement.videoWidth;
+        const videoHeight = this.videoElement.videoHeight;
+        const videoAspectRatio = videoWidth / videoHeight;
+        this.setResponsiveAspectRatio(videoAspectRatio);
+        // Get container dimensions
+        const containerWidth = this.container.clientWidth;
+        const containerHeight = this.container.clientHeight;
+        const containerAspectRatio = containerWidth / containerHeight;
+        let newWidth;
+        let newHeight;
+        // Calculate new dimensions maintaining aspect ratio
+        if (videoAspectRatio > containerAspectRatio) {
+            // Video is wider than container - fit to width
+            newWidth = containerWidth;
+            newHeight = containerWidth / videoAspectRatio;
+        }
+        else {
+            // Video is taller than container - fit to height
+            newHeight = containerHeight;
+            newWidth = containerHeight * videoAspectRatio;
+        }
+        if (isNaN(newWidth) || isNaN(newHeight) || newWidth === 0 || newHeight === 0) {
+            newWidth = '100%';
+            newHeight = '100%';
+        }
+        // Apply the calculated dimensions
+        this.videoElement.style.width = `${newWidth}px`;
+        this.videoElement.style.height = `${newHeight}px`;
+        // Center the video within the container
+        this.videoElement.style.position = 'absolute';
+        this.videoElement.style.top = '50%';
+        this.videoElement.style.left = '50%';
+        this.videoElement.style.transform = 'translate(-50%, -50%)';
+        // Update subtitle overlay to match video dimensions
+        if (this.subtitleOverlay) {
+            this.subtitleOverlay.style.width = `${newWidth}px`;
+            this.subtitleOverlay.style.height = `${newHeight}px`;
+            this.subtitleOverlay.style.position = 'absolute';
+            // this.subtitleOverlay.style.top = '50%';
+            // this.subtitleOverlay.style.left = '50%';
+            // this.subtitleOverlay.style.transform = 'translate(-50%, -50%)';
+        }
+        const ratio = videoAspectRatio;
+        this.videoElement.width = videoWidth;
+        this.videoElement.height = videoHeight;
+        this.videoElement.style.setProperty('--aspect-ratio', `${Number.isNaN(ratio) ? 'auto' : ratio}`);
+    }
+    setResponsiveAspectRatio(videoAspectRatio) {
+        let containerAspectRatio;
+        if (videoAspectRatio <= 1.4) {
+            // Close to 4:3 (1.33)
+            containerAspectRatio = '4/3';
+        }
+        else if (videoAspectRatio <= 1.9) {
+            // Close to 16:9 (1.78)
+            containerAspectRatio = '16/9';
+        }
+        else if (videoAspectRatio <= 2.5) {
+            // Close to 21:9 (2.33)
+            containerAspectRatio = '21/9';
+        }
+        else {
+            // Ultra-wide 32:9 (3.56) or wider
+            containerAspectRatio = '32/9';
+        }
+        this.container.style.aspectRatio = containerAspectRatio;
     }
     /**
      * Enters fullscreen mode for the player.
@@ -2358,6 +2451,7 @@ class NMPlayer extends base_1.Base {
         // Remove instance from the map
         instances.delete(this.playerId);
         this.mediaSession?.setPlaybackState('none');
+        this.resizeObserver.disconnect();
         // Emit dispose event
         this.emit('dispose');
         this.off('all');
@@ -2504,6 +2598,9 @@ class NMPlayer extends base_1.Base {
     spaceToCamel(str) {
         return str.replace(/\s([a-z])/g, (_, letter) => letter.toUpperCase());
     }
+    nearestValue = (arr, val) => {
+        return arr.reduce((p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p), Infinity) + val;
+    };
     getClosestElement(element, selector) {
         const arr = Array.from(document.querySelectorAll(selector)).filter(el => getComputedStyle(el).display == 'flex');
         const originEl = element.getBoundingClientRect();

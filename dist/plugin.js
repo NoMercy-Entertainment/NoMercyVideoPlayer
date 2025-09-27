@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Plugin {
-    constructor() {
-        this.player = {};
-    }
+    player = {};
     initialize(player) {
         this.player = player;
     }

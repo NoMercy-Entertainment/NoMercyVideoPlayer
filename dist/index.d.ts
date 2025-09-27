@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import HLS, { type MediaPlaylist } from 'hls.js';
 import { Cue, type VTTData } from 'webvtt-parser';
 import { Base } from './base';
@@ -54,6 +55,7 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
     shouldFloat: boolean;
     firstFrame: boolean;
     subtitleStyle: SubtitleStyle;
+    resizeObserver: ResizeObserver;
     constructor(id?: string | number);
     init(id: string): this;
     registerPlugin(name: string, plugin: any): void;
@@ -94,7 +96,7 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
      * @param callback - The callback function to invoke with the fetched file contents.
      * @returns A Promise that resolves with the fetched file contents.
      */
-    getFileContents: <T = TypeMappings>({ url, options, callback }: {
+    getFileContents: <T_1 = TypeMappings>({ url, options, callback }: {
         url: string;
         options: {
             type?: TypeMappings;
@@ -408,6 +410,7 @@ declare class NMPlayer<T = Record<string, any>> extends Base<T> {
     getHeight(): number;
     getFullscreen(): boolean;
     resize(): void;
+    private setResponsiveAspectRatio;
     /**
      * Enters fullscreen mode for the player.
      */

@@ -8,17 +8,21 @@ exports.OctopusPlugin = void 0;
 const subtitles_octopus_1 = __importDefault(require("../../public/js/octopus/subtitles-octopus"));
 const plugin_1 = __importDefault(require("../plugin"));
 class OctopusPlugin extends plugin_1.default {
+    player;
+    resizeObserver;
     initialize(player) {
         this.player = player;
-        // Initialize the plugin with the player
     }
     use() {
-        // this.player.on('item', this.destroy.bind(this));
         this.player.on('captionsChanged', this.opus.bind(this));
+        this.resizeObserver = new ResizeObserver(() => {
+            this.resize();
+        });
+        this.resizeObserver.observe(this.player.container);
     }
     dispose() {
-        // this.player.off('item', this.destroy.bind(this));
         this.player.off('captionsChanged', this.opus.bind(this));
+        this.resizeObserver?.disconnect();
         this.destroy();
     }
     destroy() {
@@ -41,13 +45,13 @@ class OctopusPlugin extends plugin_1.default {
         if (subtitleURL) {
             await this.player.fetchFontFile();
             const fontFiles = this.player.fonts
-                ?.map((f) => `${this.player.options.basePath ?? ''}${f.file}`);
+                ?.map((f) => encodeURI(`${this.player.options.basePath ?? ''}${f.file}`));
             this.player.getElement()
                 .querySelectorAll('.libassjs-canvas-parent')
                 .forEach(el => el.remove());
             const options = {
                 video: this.player.getVideoElement(),
-                subUrl: subtitleURL,
+                subUrl: encodeURI(subtitleURL),
                 fonts: fontFiles,
                 lossyRender: this.player.options.lossyRender,
                 accessToken: this.player.options.accessToken,
@@ -61,18 +65,28 @@ class OctopusPlugin extends plugin_1.default {
                 fallbackFont: '/js/octopus/default.ttf',
                 onReady: async () => {
                     // this.player.play();
+                    this.resize();
                 },
                 onError: (event) => {
                     console.error('opus error', event);
                 },
             };
-            console.log(options);
             if (subtitleURL && subtitleURL.includes('.ass')) {
                 this.player.octopusInstance = new subtitles_octopus_1.default(options);
             }
         }
     }
     ;
+    resize() {
+        if (!this.player?.octopusInstance?.canvasParent || !this.subtitleOverlay)
+            return;
+        this.player.octopusInstance.canvasParent.style.width = this.subtitleOverlay.style.width;
+        this.player.octopusInstance.canvasParent.style.height = this.subtitleOverlay.style.height;
+        this.player.octopusInstance.canvasParent.style.position = this.subtitleOverlay.style.position;
+        this.player.octopusInstance.canvasParent.style.top = this.subtitleOverlay.style.top;
+        this.player.octopusInstance.canvasParent.style.left = this.subtitleOverlay.style.left;
+        this.player.octopusInstance.canvasParent.style.transform = this.subtitleOverlay.style.transform;
+    }
 }
 exports.OctopusPlugin = OctopusPlugin;
 exports.default = OctopusPlugin;
