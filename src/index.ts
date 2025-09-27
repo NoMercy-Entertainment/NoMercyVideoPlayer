@@ -838,7 +838,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	loadSource(url: string): void {
-		this.videoElement.pause();
+		this.pause();
 		this.videoElement.removeAttribute('src');
 
 		if (HLS.isSupported() && !url.endsWith('.mp4')) {
@@ -874,7 +874,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}
 
 		if (this.options.disableAutoPlayback) return;
-		this.play().then().catch();
+		this.play().then().catch(() => {});
 	}
 
 	addGainNode(): void {
@@ -1391,7 +1391,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 					.filter(i => i.progress);
 
 				if (progressItem.length == 0 && this.options.autoPlay && !this.options.disableAutoPlayback) {
-					this.play().then().catch();
+					this.play().then().catch(() => {});
 					return;
 				}
 
@@ -1402,7 +1402,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 				if (!playlistItem?.progress) {
 					if (this.options.autoPlay && !this.options.disableAutoPlayback) {
-						this.play().then().catch();
+						this.play().then().catch(() => {});
 					}
 					return;
 				}
@@ -2118,7 +2118,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}
 
 		if (this.options.disableAutoPlayback) return;
-		this.play().then().catch();
+		this.play().then().catch(() => {});
 	}
 
 
@@ -2159,7 +2159,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	togglePlayback(): void {
 		if (this.videoElement.paused) {
-			this.play().then().catch();
+			this.play().then().catch(() => {});
 		} else {
 			this.pause();
 		}
@@ -2196,7 +2196,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	restart(): void {
 		this.seek(0);
-		this.play().then().catch();
+		this.play().then().catch(() => {});
 	}
 
 	seekByPercentage(arg: number): number {

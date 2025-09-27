@@ -38,13 +38,19 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	destroy(): void {
-        this.player.octopusInstance?.worker?.terminate()
-		this.player.octopusInstance?.dispose();
-		this.player.octopusInstance = null;
+        try {
+            this.player.octopusInstance?.worker.terminate();
+            if (this.player.octopusInstance.canvasParent) {
+                this.player.octopusInstance?.dispose();
+            }
+            this.player.octopusInstance = null;
+        } catch (e) {
+            //
+        }
 	}
 
 	async opus(): Promise<void> {
-		this.destroy();
+        this.dispose();
 
 		const subtitleURL = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ''}${this.player.getSubtitleFile()}` : null;
 		if (!subtitleURL) return;
@@ -83,8 +89,6 @@ export class OctopusPlugin extends Plugin {
 				legacyWorkerUrl: '/js/octopus/subtitles-octopus-worker-legacy.js',
 				fallbackFont: '/js/octopus/default.ttf',
 				onReady: async () => {
-					// this.player.play();
-					this.resize();
 				},
 				onError: (event: any) => {
 					console.error('opus error', event);
@@ -92,7 +96,8 @@ export class OctopusPlugin extends Plugin {
 			};
 
 			if (subtitleURL && subtitleURL.includes('.ass')) {
-				this.player.octopusInstance = new SubtitlesOctopus(options);
+                this.player.octopusInstance?.worker.terminate();
+                this.player.octopusInstance = new SubtitlesOctopus(options);
 			}
 		}
 	};
