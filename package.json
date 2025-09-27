@@ -1,9 +1,23 @@
 {
   "name": "@nomercy-entertainment/nomercy-video-player",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "Full event-driven video player without a UI.",
   "type": "commonjs",
   "main": "./dist/index.js",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer.git"
+  },
+  "contributors": [
+    "Stoney Eagle <stoney@nomercy.tv>"
+  ],
+  "homepage": "https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer",
+  "author": {
+    "name": "NoMercy Entertainment",
+    "email": "info@nomercy.tv",
+    "url": "https://nomercy.tv"
+  },
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
@@ -17,27 +31,12 @@
     "test": "jest",
     "prepublishOnly": "npm run build"
   },
-  "contributors": [
-    "Stoney Eagle <stoney@nomercy.tv>"
-  ],
-  "homepage": "https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer",
-  "author": {
-    "name": "NoMercy Entertainment",
-    "email": "info@nomercy.tv",
-    "url": "https://nomercy.tv"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer.git"
-  },
-  "license": "Apache-2.0",
   "keywords": [
     "video",
     "player",
     "NoMercy"
   ],
   "dependencies": {
-    "@jofr/capacitor-media-session": "^4.0.0",
     "@nomercy-entertainment/media-session": "0.2.3",
     "@types/webvtt-parser": "2.2.0",
     "hls.js": "1.5.13",

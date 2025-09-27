@@ -759,7 +759,7 @@ class NMPlayer extends base_1.Base {
         }
         if (this.options.disableAutoPlayback)
             return;
-        this.play().then();
+        this.play().then().catch();
     }
     addGainNode() {
         const audioCtx = new window.AudioContext();
@@ -1096,7 +1096,7 @@ class NMPlayer extends base_1.Base {
             this.hls.on(hls_js_1.default.Events.LEVEL_LOADED, (event, data) => {
                 this.options.debug && console.log(event, data);
                 // @ts-expect-error levelInfo does exist but it typed wrong
-                this.videoElement.style.setProperty('--aspect-ratio', `${data.levelInfo.width / data.levelInfo.height}`);
+                this.videoElement.style.setProperty('--aspect-ratio', data.levelInfo ? `${data.levelInfo?.width / data.levelInfo?.height}` : '');
             });
             this.hls.on(hls_js_1.default.Events.LEVEL_LOADING, () => {
                 this.emit('levels', this.getQualityLevels());
@@ -1190,7 +1190,7 @@ class NMPlayer extends base_1.Base {
                 const progressItem = this.getPlaylist()
                     .filter(i => i.progress);
                 if (progressItem.length == 0 && this.options.autoPlay && !this.options.disableAutoPlayback) {
-                    this.play().then();
+                    this.play().then().catch();
                     return;
                 }
                 const playlistItem = progressItem
@@ -1199,7 +1199,7 @@ class NMPlayer extends base_1.Base {
                     .at(0);
                 if (!playlistItem?.progress) {
                     if (this.options.autoPlay && !this.options.disableAutoPlayback) {
-                        this.play().then();
+                        this.play().then().catch();
                     }
                     return;
                 }
@@ -1815,7 +1815,7 @@ class NMPlayer extends base_1.Base {
         }
         if (this.options.disableAutoPlayback)
             return;
-        this.play().then();
+        this.play().then().catch();
     }
     next() {
         if (this.getPlaylistIndex() < this.playlist.length - 1) {
@@ -1846,7 +1846,7 @@ class NMPlayer extends base_1.Base {
     }
     togglePlayback() {
         if (this.videoElement.paused) {
-            this.play().then();
+            this.play().then().catch();
         }
         else {
             this.pause();
@@ -1875,7 +1875,7 @@ class NMPlayer extends base_1.Base {
     }
     restart() {
         this.seek(0);
-        this.play().then();
+        this.play().then().catch();
     }
     seekByPercentage(arg) {
         return this.seek(this.videoElement.duration * arg / 100);
@@ -2429,7 +2429,7 @@ class NMPlayer extends base_1.Base {
         // Remove event listeners
         this._removeEvents();
         // Dispose plugins
-        for (const plugin of Object.values(this.plugins)) {
+        for (const plugin of this.plugins.values()) {
             this.options.debug && console.log('Disposing plugin', plugin);
             plugin.dispose();
         }

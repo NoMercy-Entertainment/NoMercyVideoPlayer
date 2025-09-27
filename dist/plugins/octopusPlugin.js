@@ -26,6 +26,7 @@ class OctopusPlugin extends plugin_1.default {
         this.destroy();
     }
     destroy() {
+        this.player.octopusInstance?.worker?.terminate();
         this.player.octopusInstance?.dispose();
         this.player.octopusInstance = null;
     }
