@@ -874,7 +874,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}
 
 		if (this.options.disableAutoPlayback) return;
-		this.play().then();
+		this.play().then().catch();
 	}
 
 	addGainNode(): void {
@@ -1285,7 +1285,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				this.options.debug && console.log(event, data);
 
 				// @ts-expect-error levelInfo does exist but it typed wrong
-				this.videoElement.style.setProperty('--aspect-ratio', `${data.levelInfo.width / data.levelInfo.height}`);
+				this.videoElement.style.setProperty('--aspect-ratio', data.levelInfo ?`${data.levelInfo?.width / data.levelInfo?.height}` : '');
 			});
 			this.hls.on(HLS.Events.LEVEL_LOADING, () => {
 				this.emit('levels', this.getQualityLevels());
@@ -1391,7 +1391,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 					.filter(i => i.progress);
 
 				if (progressItem.length == 0 && this.options.autoPlay && !this.options.disableAutoPlayback) {
-					this.play().then();
+					this.play().then().catch();
 					return;
 				}
 
@@ -1402,7 +1402,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 				if (!playlistItem?.progress) {
 					if (this.options.autoPlay && !this.options.disableAutoPlayback) {
-						this.play().then();
+						this.play().then().catch();
 					}
 					return;
 				}
@@ -2118,7 +2118,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}
 
 		if (this.options.disableAutoPlayback) return;
-		this.play().then();
+		this.play().then().catch();
 	}
 
 
@@ -2159,7 +2159,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	togglePlayback(): void {
 		if (this.videoElement.paused) {
-			this.play().then();
+			this.play().then().catch();
 		} else {
 			this.pause();
 		}
@@ -2196,7 +2196,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	restart(): void {
 		this.seek(0);
-		this.play().then();
+		this.play().then().catch();
 	}
 
 	seekByPercentage(arg: number): number {
@@ -2822,7 +2822,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this._removeEvents();
 
 		// Dispose plugins
-		for (const plugin of Object.values(this.plugins)) {
+		for (const plugin of this.plugins.values()) {
 			this.options.debug && console.log('Disposing plugin', plugin);
 			plugin.dispose();
 		}

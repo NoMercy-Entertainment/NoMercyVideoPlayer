@@ -38,6 +38,7 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	destroy(): void {
+        this.player.octopusInstance?.worker?.terminate()
 		this.player.octopusInstance?.dispose();
 		this.player.octopusInstance = null;
 	}
