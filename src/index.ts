@@ -841,7 +841,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.pause();
 		this.videoElement.removeAttribute('src');
 
-		if (HLS.isSupported() && !url.endsWith('.mp4')) {
+		const baseUrl = url.split('?').at(0);
+		const isMp4File = baseUrl?.endsWith('.mp4');
+		const isHls = baseUrl?.endsWith('.m3u8');
+
+		if (HLS.isSupported() && !isMp4File && isHls) {
 
 			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
@@ -867,7 +871,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.hls?.loadSource(encodeURI(url));
 			this.hls?.attachMedia(this.videoElement);
 		}
-		else if (!url.endsWith('.m3u8') || this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+		else if (isMp4File) {
 			this.hls?.destroy();
 			this.hls = undefined;
 			this.videoElement.src = `${encodeURI(url)}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;

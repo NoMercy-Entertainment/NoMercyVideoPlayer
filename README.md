@@ -74,7 +74,8 @@ const config: PlayerConfig = {
 	muted: false,
 	controls: false,
 	preload: 'auto',
-	basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/refs/heads/master/Films/Films', // Base URL for media files
+	accessToken: 'your bearer token', //(optional, can be passed in the file url as query manually)
+	basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/refs/heads/master/Films/Films', // Base URL for media files (optional, can use a full url for the file)
 	playlist: [
 		{
 			title: 'Cosmos Laundromat',
