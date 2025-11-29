@@ -727,9 +727,14 @@ class NMPlayer extends base_1.Base {
         return screen.colorDepth > 24 && window.matchMedia('(color-gamut: p3)').matches;
     }
     loadSource(url) {
-        this.videoElement.pause();
+        this.pause();
         this.videoElement.removeAttribute('src');
-        if (hls_js_1.default.isSupported() && !url.endsWith('.mp4')) {
+        const baseUrl = url.split('?').at(0)?.toLowerCase();
+        const isHls = baseUrl?.endsWith('.m3u8');
+        // Support common video formats for native playback
+        const nativeVideoExtensions = ['.mp4', '.mov', '.webm', '.mkv', '.avi', '.m4v', '.ogg', '.ogv', '.3gp', '.wmv', '.flv'];
+        const isNativeVideo = nativeVideoExtensions.some(ext => baseUrl?.endsWith(ext));
+        if (hls_js_1.default.isSupported() && !isNativeVideo) {
             this.hls ??= new hls_js_1.default({
                 debug: this.options.debug ?? false,
                 enableWorker: true,
@@ -752,7 +757,7 @@ class NMPlayer extends base_1.Base {
             this.hls?.loadSource(encodeURI(url));
             this.hls?.attachMedia(this.videoElement);
         }
-        else if (!url.endsWith('.m3u8') || this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+        else if (isNativeVideo) {
             this.hls?.destroy();
             this.hls = undefined;
             this.videoElement.src = `${encodeURI(url)}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
