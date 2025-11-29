@@ -841,11 +841,13 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.pause();
 		this.videoElement.removeAttribute('src');
 
-		const baseUrl = url.split('?').at(0);
-		const isMp4File = baseUrl?.endsWith('.mp4');
+		const baseUrl = url.split('?').at(0)?.toLowerCase();
 		const isHls = baseUrl?.endsWith('.m3u8');
+		// Support common video formats for native playback
+		const nativeVideoExtensions = ['.mp4', '.mov', '.webm', '.mkv', '.avi', '.m4v', '.ogg', '.ogv', '.3gp', '.wmv', '.flv'];
+		const isNativeVideo = nativeVideoExtensions.some(ext => baseUrl?.endsWith(ext));
 
-		if (HLS.isSupported() && !isMp4File && isHls) {
+		if (HLS.isSupported() && !isNativeVideo) {
 
 			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
@@ -871,7 +873,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.hls?.loadSource(encodeURI(url));
 			this.hls?.attachMedia(this.videoElement);
 		}
-		else if (isMp4File) {
+		else if (isNativeVideo) {
 			this.hls?.destroy();
 			this.hls = undefined;
 			this.videoElement.src = `${encodeURI(url)}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
