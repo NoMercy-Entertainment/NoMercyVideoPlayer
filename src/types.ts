@@ -212,6 +212,8 @@ export interface PlayerConfig<T = Record<string, any>> {
 	renderAhead?: number;
 	customStorage?: StorageInterface;
 	disableAutoPlayback?: boolean;
+	disableHls?: boolean;
+	forceHls?: boolean;
 }
 
 export interface StorageInterface {

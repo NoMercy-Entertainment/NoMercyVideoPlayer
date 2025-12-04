@@ -843,11 +843,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		const baseUrl = url.split('?').at(0)?.toLowerCase();
 		const isHls = baseUrl?.endsWith('.m3u8');
-		// Support common video formats for native playback
-		const nativeVideoExtensions = ['.mp4', '.mov', '.webm', '.mkv', '.avi', '.m4v', '.ogg', '.ogv', '.3gp', '.wmv', '.flv'];
-		const isNativeVideo = nativeVideoExtensions.some(ext => baseUrl?.endsWith(ext));
 
-		if (HLS.isSupported() && !isNativeVideo) {
+		// Determine if we should use HLS.js
+		const hlsSupported = HLS.isSupported();
+		const useHls = !this.options.disableHls && hlsSupported && (this.options.forceHls || isHls);
+
+		if (useHls) {
 
 			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
@@ -873,10 +874,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.hls?.loadSource(encodeURI(url));
 			this.hls?.attachMedia(this.videoElement);
 		}
-		else if (isNativeVideo) {
+		else {
+			// For all non-HLS sources (direct files, blob URLs, data URLs, capacitor URLs, etc.), use native playback
 			this.hls?.destroy();
 			this.hls = undefined;
-			this.videoElement.src = `${encodeURI(url)}${this.options.accessToken ? `?token=${this.options.accessToken}` : ''}`;
+			const appendToken = this.options.accessToken;
+			this.videoElement.src = appendToken ? `${url}${url.includes('?') ? '&' : '?'}token=${this.options.accessToken}` : url;
 		}
 
 		if (this.options.disableAutoPlayback) return;
