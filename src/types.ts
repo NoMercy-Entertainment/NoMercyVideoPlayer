@@ -198,6 +198,7 @@ export interface PlayerConfig<T = Record<string, any>> {
 	playbackRates?: number[];
 	accessToken?: string;
 	basePath?: string;
+	imageBasePath?: string;
 	subtitleRenderer?: 'octopus' ;
 	language?: string;
 	doubleClickDelay?: number;

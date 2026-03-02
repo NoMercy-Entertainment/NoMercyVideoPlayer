@@ -33,6 +33,7 @@ export class Base<T = Record<string, any>> {
 		debug: false,
 		accessToken: '',
 		basePath: '',
+		imageBasePath: '',
 		playbackRates: [0.5, 1, 1.5, 2],
 		stretching: 'uniform',
 		controlsTimeout: 3000,

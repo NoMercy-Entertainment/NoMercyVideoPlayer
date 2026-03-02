@@ -961,6 +961,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.mediaSession.setPlaybackState('playing');
 	}
 
+	resolveImageUrl(image: string | undefined): string | undefined {
+		if (!image) return undefined;
+		if (image.startsWith('http')) return image;
+		return (this.options.imageBasePath ?? this.options.basePath ?? '') + image;
+	}
+
 	setMediaAPI(): void {
 		const data = this.playlistItem();
 		const parsedTitle = data.title
@@ -973,7 +979,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			title: parsedTitle,
 			artist: data.show,
 			album: data.season ? `S${pad(data.season, 2)}E${pad(data.episode ?? 0, 2)}` : '',
-			artwork: data.image ? data.image : undefined,
+			artwork: this.resolveImageUrl(data.image),
 		});
 	}
 
@@ -1907,7 +1913,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 			this.currentPlaylistItem = this.playlist[index] as PlaylistItem & T;
 
-			this.videoElement.poster = this.currentPlaylistItem.image ?? '';
+			this.videoElement.poster = this.resolveImageUrl(this.currentPlaylistItem.image) ?? '';
 
 			if (this.currentIndex !== index) {
 				setTimeout(() => {
