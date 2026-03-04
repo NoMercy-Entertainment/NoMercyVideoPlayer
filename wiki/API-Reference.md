@@ -103,11 +103,6 @@ interface PlaylistItem {
   episode?: number;
   show?: string;
   year?: number;
-  logo?: string;
-  rating?: {
-    rating: number;
-    image: string;
-  };
 }
 ```
 
@@ -128,9 +123,6 @@ interface PlaylistItem {
 | `episode` | `number` | Episode number (for TV shows) |
 | `show` | `string` | Show name (for TV shows) |
 | `year` | `number` | Release year |
-| `logo` | `string` | URL to show/movie logo |
-| `rating` | `{ rating: number; image: string }` | Rating information |
-
 ### Track
 
 Represents a subtitle, audio, or other media track.

@@ -163,23 +163,6 @@ Set `progress` on a playlist item to resume from a saved position.
 }
 ```
 
-### Content Ratings and Logos
-
-Playlist items support optional `rating` and `logo` fields for overlay display.
-
-```typescript
-{
-  id: 'big-buck-bunny',
-  title: 'Big Buck Bunny',
-  description: 'A giant rabbit with a big heart.',
-  file: '/Big Buck Bunny/Big Buck Bunny.mp4',
-  image: '/Big Buck Bunny/poster.jpg',
-  duration: '596',
-  logo: '/Big Buck Bunny/logo.png',
-  rating: { rating: 7.4, image: '/Big Buck Bunny/pg.png' },
-}
-```
-
 ---
 
 ## URL Resolution

@@ -104,11 +104,6 @@ export interface PlaylistItem {
 	episode?: number;
 	show?: string;
 	year?: number;
-	logo?: string;
-	rating?: {
-		rating: number;
-		image: string;
-	};
 }
 
 export type TrackType = 'subtitles' | 'chapters' | 'thumbnails' | 'sprite' | 'fonts';
