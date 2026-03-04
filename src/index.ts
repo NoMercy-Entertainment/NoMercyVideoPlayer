@@ -43,6 +43,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	leeway = DEFAULT_LEEWAY;
 	seekInterval = DEFAULT_SEEK_INTERVAL;
 	tapCount = 0;
+	inactivityTimeout: NodeJS.Timeout | null = null;
+	inactivityTime = 3000;
 
 	// Store
 	chapters: VTTData = <VTTData>{};
@@ -300,7 +302,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}, callback: (arg: T) => void;
 	}): Promise<void> => {
 		const headers: { [arg: string]: string; } = {
-			'Accept-Language': options.language || 'en',
+			'Accept-Language': options.language || navigator.language,
 		};
 		if (this.options.accessToken && !options.anonymous) {
 			headers.Authorization = `Bearer ${this.options.accessToken}`;
@@ -1126,9 +1128,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			playbackRate: this.videoElement.playbackRate,
 		};
 	}
-
-	inactivityTimeout: NodeJS.Timeout | null = null;
-	inactivityTime = 5000; // 5 seconds of inactivity
 
 	ui_addActiveClass(): void {
 		this.container.classList.remove('inactive');
@@ -2066,6 +2065,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			...options,
 		};
 
+		this.inactivityTime = this.options.controlsTimeout ?? 3000;
 		this.videoElement.controls = options.controls ?? true;
 
 		this.setupTime = Date.now();

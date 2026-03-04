@@ -16,9 +16,9 @@ const player = nmplayer('player-container').setup(config);
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `playlist` | `string \| PlaylistItem[]` | `[]` | **Required.** Array of playlist items or a URL to a JSON playlist endpoint. |
-| `basePath` | `string` | `''` | Base URL prepended to relative `file`, subtitle, and font paths. |
-| `imageBasePath` | `string` | `''` | Base URL for images. Falls back to `basePath` when not set. |
-| `accessToken` | `string` | `''` | Bearer token sent in the `Authorization` header on fetch requests. |
+| `basePath` | `string` | `undefined` | Base URL prepended to relative `file`, subtitle, and font paths. |
+| `imageBasePath` | `string` | `undefined` | Base URL for images. Falls back to `basePath` when not set. |
+| `accessToken` | `string` | `undefined` | Bearer token sent in the `Authorization` header on fetch requests. |
 | `muted` | `boolean` | `false` | Start playback muted. |
 | `autoPlay` | `boolean` | `false` | Begin playback automatically on setup. |
 | `controls` | `boolean` | `false` | Enable the built-in control layer. |
@@ -28,13 +28,7 @@ const player = nmplayer('player-container').setup(config);
 | `chapters` | `boolean` | `undefined` | Enable chapter marker support from VTT chapter tracks. |
 | `debug` | `boolean` | `false` | Log internal events and state changes to the console. |
 | `language` | `string` | `undefined` | ISO language code for preferred audio/subtitle track selection. |
-| `displayLanguage` | `string` | `'en'` | Locale used for the player UI translations. |
-| `subtitleRenderer` | `'octopus'` | `undefined` | Use libass (via JavascriptSubtitlesOctopus) for ASS/SSA subtitle rendering. |
-| `renderAhead` | `number` | `undefined` | Seconds of subtitle frames to pre-render (Octopus renderer). |
-| `lossyRender` | `boolean` | `undefined` | Allow lossy rendering for better subtitle performance on low-end devices. |
-| `workerUrl` | `string` | `undefined` | URL to the Octopus WASM worker script. |
-| `legacyWorkerUrl` | `string` | `undefined` | URL to the legacy (asm.js) Octopus worker for older browsers. |
-| `fallbackFont` | `string` | `undefined` | URL to a fallback font file for the Octopus subtitle renderer. |
+| `displayLanguage` | `string` | `navigator.language` | Locale used for the player UI translations. |
 | `controlsTimeout` | `number` | `3000` | Milliseconds of inactivity before controls auto-hide. |
 | `doubleClickDelay` | `number` | `300` | Milliseconds to distinguish single-click from double-click. |
 | `seekButtons` | `boolean` | `undefined` | Show forward/rewind seek buttons in the control bar. |
@@ -42,11 +36,8 @@ const player = nmplayer('player-container').setup(config);
 | `disableTouchControls` | `boolean` | `false` | Disable touch gesture handling (swipe-to-seek, etc.). |
 | `disableMediaControls` | `boolean` | `false` | Disable MediaSession integration (lock screen / OS media controls). |
 | `disableAutoPlayback` | `boolean` | `false` | Prevent automatic advancement to the next playlist item. |
-| `forceTvMode` | `boolean` | `false` | Force the 10-foot / TV navigation interface. |
-| `nipple` | `boolean` | `undefined` | Enable a nipple.js virtual joystick for mobile touch navigation. |
 | `disableHls` | `boolean` | `undefined` | Disable HLS.js even when the source is an HLS manifest. |
 | `forceHls` | `boolean` | `undefined` | Force HLS.js usage regardless of native HLS support. |
-| `buttons` | `any` | `undefined` | Custom button configuration object. |
 | `styles` | `any` | `undefined` | Custom CSS property overrides for the player. |
 | `customStorage` | `StorageInterface` | built-in | Custom async storage adapter for persisting user preferences. |
 
@@ -250,43 +241,7 @@ tracks: [
 
 Set `default: true` on exactly one subtitle track to enable it automatically.
 
-### ASS/SSA Subtitles with OctopusPlugin
-
-For ASS/SSA subtitles with full typesetting support (fonts, positioning, animations), enable the Octopus renderer.
-
-```typescript
-const config: PlayerConfig = {
-  subtitleRenderer: 'octopus',
-  workerUrl: '/js/octopus/subtitles-octopus-worker.js',
-  legacyWorkerUrl: '/js/octopus/subtitles-octopus-worker-legacy.js',
-  fallbackFont: '/fonts/default.woff2',
-  renderAhead: 30,
-  lossyRender: false,
-  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
-  playlist: [
-    {
-      id: 'sintel',
-      title: 'Sintel',
-      description: 'Blender Foundation short film.',
-      file: '/Sintel/Sintel.mp4',
-      image: '/Sintel/poster.jpg',
-      duration: '888',
-      tracks: [
-        { id: 1, kind: 'subtitles', label: 'English (ASS)', language: 'en', file: '/Sintel/subs/en.ass', ext: 'ass', default: true },
-        { id: 2, kind: 'fonts', file: '/Sintel/fonts/Arial.woff2' },
-        { id: 3, kind: 'fonts', file: '/Sintel/fonts/OpenSans.woff2' },
-      ],
-    },
-  ],
-};
-```
-
-**Key points:**
-
-- Set `ext: 'ass'` on ASS subtitle tracks so the player routes them to the Octopus renderer instead of the native VTT pipeline.
-- Font tracks (`kind: 'fonts'`) are loaded and passed to the Octopus renderer for accurate typesetting.
-- `renderAhead` controls how many seconds of subtitle frames are pre-rendered. Higher values use more memory but reduce rendering stalls.
-- `lossyRender` trades visual fidelity for performance on constrained devices.
+For ASS/SSA subtitles with the OctopusPlugin, see the [Plugin Development](Plugin-Development) guide.
 
 ---
 

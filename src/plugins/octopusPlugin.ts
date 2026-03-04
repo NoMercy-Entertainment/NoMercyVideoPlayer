@@ -5,17 +5,28 @@ import type { NMPlayer } from '../types';
 
 const OCTOPUS_CDN_BASE = 'https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player@latest/public/js/octopus';
 
-export interface OctopusPluginArgs {
-	targetFps: number;
-	blendRender: boolean;
-	lazyFileLoading: boolean;
+export interface OctopusPluginOptions {
+	workerUrl?: string;
+	legacyWorkerUrl?: string;
+	fallbackFont?: string;
+	targetFps?: number;
+	blendRender?: boolean;
+	lazyFileLoading?: boolean;
+	renderAhead?: number;
+	lossyRender?: boolean;
 }
 
 export class OctopusPlugin extends Plugin {
-	declare player: NMPlayer<OctopusPluginArgs>;
+	declare player: NMPlayer;
 	resizeObserver!: ResizeObserver;
+	private pluginOptions: OctopusPluginOptions;
 
-	initialize(player: NMPlayer<OctopusPluginArgs>): void {
+	constructor(options: OctopusPluginOptions = {}) {
+		super();
+		this.pluginOptions = options;
+	}
+
+	initialize(player: NMPlayer): void {
 		this.player = player;
 	}
 
@@ -76,16 +87,16 @@ export class OctopusPlugin extends Plugin {
 				video: this.player.getVideoElement(),
 				subUrl: encodeURI(subtitleURL),
 				fonts: fontFiles,
-				lossyRender: this.player.options.lossyRender,
+				lossyRender: this.pluginOptions.lossyRender,
 				accessToken: this.player.options.accessToken,
-				targetFps: this.player.options.targetFps,
+				targetFps: this.pluginOptions.targetFps,
 				debug: this.player.options.debug,
-				blendRender: this.player.options.blendRender,
-				lazyFileLoading: this.player.options.lazyFileLoading,
-				renderAhead: this.player.options.renderAhead,
-				workerUrl: this.player.options.workerUrl ?? `${OCTOPUS_CDN_BASE}/subtitles-octopus-worker.js`,
-				legacyWorkerUrl: this.player.options.legacyWorkerUrl ?? `${OCTOPUS_CDN_BASE}/subtitles-octopus-worker-legacy.js`,
-				fallbackFont: this.player.options.fallbackFont ?? `${OCTOPUS_CDN_BASE}/default.ttf`,
+				blendRender: this.pluginOptions.blendRender,
+				lazyFileLoading: this.pluginOptions.lazyFileLoading,
+				renderAhead: this.pluginOptions.renderAhead,
+				workerUrl: this.pluginOptions.workerUrl ?? `${OCTOPUS_CDN_BASE}/subtitles-octopus-worker.js`,
+				legacyWorkerUrl: this.pluginOptions.legacyWorkerUrl ?? `${OCTOPUS_CDN_BASE}/subtitles-octopus-worker-legacy.js`,
+				fallbackFont: this.pluginOptions.fallbackFont ?? `${OCTOPUS_CDN_BASE}/default.ttf`,
 				onReady: async () => {
 				},
 				onError: (event: unknown) => {

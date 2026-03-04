@@ -21,7 +21,6 @@ The main configuration interface for initializing the player.
 
 ```typescript
 interface PlayerConfig<T = Record<string, any>> {
-  nipple?: boolean;
   styles?: any;
   chapters?: boolean;
   playlist: string | (PlaylistItem & T)[];
@@ -35,22 +34,14 @@ interface PlayerConfig<T = Record<string, any>> {
   accessToken?: string;
   basePath?: string;
   imageBasePath?: string;
-  subtitleRenderer?: 'octopus';
   language?: string;
   doubleClickDelay?: number;
   controlsTimeout?: number;
-  buttons?: any;
   displayLanguage?: string;
   disableControls?: boolean;
   disableTouchControls?: boolean;
-  forceTvMode?: boolean;
   seekButtons?: boolean;
   disableMediaControls?: boolean;
-  renderAhead?: number;
-  lossyRender?: boolean;
-  workerUrl?: string;
-  legacyWorkerUrl?: string;
-  fallbackFont?: string;
   disableHls?: boolean;
   forceHls?: boolean;
   customStorage?: StorageInterface;
@@ -62,7 +53,6 @@ interface PlayerConfig<T = Record<string, any>> {
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `nipple` | `boolean` | `false` | Enable nipple.js for touch joystick controls |
 | `styles` | `any` | `undefined` | Custom CSS styles object |
 | `chapters` | `boolean` | `false` | Enable chapter support |
 | `playlist` | `string \| PlaylistItem[]` | **Required** | Playlist items or URL to playlist |
@@ -76,22 +66,14 @@ interface PlayerConfig<T = Record<string, any>> {
 | `accessToken` | `string` | `undefined` | Access token for authenticated requests |
 | `basePath` | `string` | `undefined` | Base URL for media files |
 | `imageBasePath` | `string` | `undefined` | Base URL for images (poster, artwork) |
-| `subtitleRenderer` | `'octopus'` | `undefined` | Advanced subtitle renderer |
-| `language` | `string` | `'en'` | Player interface language |
+| `language` | `string` | `navigator.language` | Player interface language |
 | `doubleClickDelay` | `number` | `300` | Delay for double-click detection (ms) |
 | `controlsTimeout` | `number` | `3000` | Auto-hide controls timeout (ms) |
-| `buttons` | `any` | `undefined` | Custom button configuration |
-| `displayLanguage` | `string` | `'en'` | Display language for metadata |
+| `displayLanguage` | `string` | `navigator.language` | Display language for metadata |
 | `disableControls` | `boolean` | `false` | Completely disable controls |
 | `disableTouchControls` | `boolean` | `false` | Disable touch/gesture controls |
-| `forceTvMode` | `boolean` | `false` | Force TV/big screen interface |
 | `seekButtons` | `boolean` | `true` | Show seek forward/backward buttons |
 | `disableMediaControls` | `boolean` | `false` | Disable media session controls |
-| `renderAhead` | `number` | `30` | Seconds to render ahead for subtitles |
-| `lossyRender` | `boolean` | `undefined` | Enable lossy rendering for subtitles |
-| `workerUrl` | `string` | CDN default | Custom URL for subtitles-octopus worker |
-| `legacyWorkerUrl` | `string` | CDN default | Custom URL for legacy subtitles-octopus worker |
-| `fallbackFont` | `string` | CDN default | Custom URL for fallback subtitle font |
 | `disableHls` | `boolean` | `false` | Disable HLS.js (use native playback) |
 | `forceHls` | `boolean` | `false` | Force HLS.js even when native HLS is available |
 | `customStorage` | `StorageInterface` | `undefined` | Custom storage implementation |

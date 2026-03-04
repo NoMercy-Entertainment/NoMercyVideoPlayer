@@ -185,7 +185,6 @@ export interface Position {
 export type StretchOptions = 'exactfit' | 'fill' | 'none' | 'uniform';
 
 export interface PlayerConfig<T = Record<string, any>> {
-	nipple?: boolean;
 	styles?: any;
 	chapters?: boolean;
 	playlist: string | (PlaylistItem & T)[];
@@ -199,22 +198,14 @@ export interface PlayerConfig<T = Record<string, any>> {
 	accessToken?: string;
 	basePath?: string;
 	imageBasePath?: string;
-	subtitleRenderer?: 'octopus' ;
 	language?: string;
 	doubleClickDelay?: number;
 	controlsTimeout?: number;
-	buttons?: any;
 	displayLanguage?: string;
 	disableControls?: boolean;
 	disableTouchControls?: boolean;
-	forceTvMode?: boolean;
 	seekButtons?: boolean;
 	disableMediaControls?: boolean;
-	renderAhead?: number;
-	lossyRender?: boolean;
-	workerUrl?: string;
-	legacyWorkerUrl?: string;
-	fallbackFont?: string;
 	customStorage?: StorageInterface;
 	disableAutoPlayback?: boolean;
 	disableHls?: boolean;

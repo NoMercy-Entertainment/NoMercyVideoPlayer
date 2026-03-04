@@ -23,7 +23,7 @@ export class Base<T = Record<string, any>> {
 	setupTime = 0;
 
 	// State
-	message: NodeJS.Timeout = <NodeJS.Timeout>{};
+	message: ReturnType<typeof setTimeout> = <ReturnType<typeof setTimeout>>{};
 
 	// Options
 	options: T & PlayerConfig<Record<string, any>> = {
@@ -31,13 +31,13 @@ export class Base<T = Record<string, any>> {
 		autoPlay: false,
 		controls: false,
 		debug: false,
-		accessToken: '',
-		basePath: '',
-		imageBasePath: '',
+		accessToken: undefined,
+		basePath: undefined,
+		imageBasePath: undefined,
 		playbackRates: [0.5, 1, 1.5, 2],
 		stretching: 'uniform',
 		controlsTimeout: 3000,
-		displayLanguage: 'en',
+		displayLanguage: navigator.language,
 		preload: 'auto',
 		playlist: [],
 		disableMediaControls: false,

@@ -504,23 +504,26 @@ Renders ASS/SSA subtitle files using the libass WebAssembly engine (subtitles-oc
 ```typescript
 import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
 
-player.registerPlugin('octopus', new OctopusPlugin());
+const octopus = new OctopusPlugin({
+  workerUrl: '/js/octopus/subtitles-octopus-worker.js',
+  renderAhead: 30,
+});
+player.registerPlugin('octopus', octopus);
 player.usePlugin('octopus');
 ```
 
-Relevant config options passed through `player.setup()`:
+Constructor options (`OctopusPluginOptions`):
 
-| Option | Type | Description |
-|---|---|---|
-| `subtitleRenderer` | `'octopus'` | Enable the Octopus renderer. |
-| `workerUrl` | `string` | Path to `subtitles-octopus-worker.js`. Defaults to CDN. |
-| `legacyWorkerUrl` | `string` | Path to the legacy worker fallback. Defaults to CDN. |
-| `fallbackFont` | `string` | Path to a fallback `.ttf` font. Defaults to CDN. |
-| `renderAhead` | `number` | Frames to render ahead. |
-| `lossyRender` | `boolean` | Faster but lower quality rendering. |
-| `targetFps` | `number` | Target framerate for subtitle rendering. |
-| `blendRender` | `boolean` | Blend render mode. |
-| `lazyFileLoading` | `boolean` | Lazy-load font files. |
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `workerUrl` | `string` | CDN | Path to `subtitles-octopus-worker.js`. |
+| `legacyWorkerUrl` | `string` | CDN | Path to the legacy worker fallback. |
+| `fallbackFont` | `string` | CDN | Path to a fallback `.ttf` font. |
+| `renderAhead` | `number` | `undefined` | Seconds of subtitle frames to pre-render. |
+| `lossyRender` | `boolean` | `undefined` | Faster but lower quality rendering. |
+| `targetFps` | `number` | `undefined` | Target framerate for subtitle rendering. |
+| `blendRender` | `boolean` | `undefined` | Blend render mode. |
+| `lazyFileLoading` | `boolean` | `undefined` | Lazy-load font files. |
 
 ### KeyHandlerPlugin
 
