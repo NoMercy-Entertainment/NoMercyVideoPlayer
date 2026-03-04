@@ -5,7 +5,7 @@ export interface KeyHandlerPluginArgs {
 }
 
 export class KeyHandlerPlugin extends Plugin {
-	player: NMPlayer<KeyHandlerPluginArgs> = <NMPlayer<KeyHandlerPluginArgs>>{};
+	declare player: NMPlayer<KeyHandlerPluginArgs>;
 	private boundKeyHandler: (event: KeyboardEvent) => void = () => { };
 
 	initialize(player: NMPlayer<KeyHandlerPluginArgs>) {

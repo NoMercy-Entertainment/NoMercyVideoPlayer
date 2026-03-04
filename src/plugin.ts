@@ -1,13 +1,9 @@
 import type { NMPlayer } from './types';
 
-interface PluginConfig {
-
-}
-
 class Plugin {
-	player: NMPlayer<PluginConfig> = <NMPlayer<PluginConfig>>{};
+	declare player: NMPlayer<any>;
 
-	initialize(player: NMPlayer<PluginConfig>) {
+	initialize(player: NMPlayer<any>) {
 		this.player = player;
 	}
 

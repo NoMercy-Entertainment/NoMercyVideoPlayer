@@ -2,17 +2,19 @@ import Plugin from '../plugin';
 import { NMPlayer } from '../types';
 
 export class TemplatePlugin extends Plugin {
-	player: NMPlayer = <NMPlayer>{};
+	declare player: NMPlayer<any>;
 
-	initialize(player: NMPlayer) {
+	initialize(player: NMPlayer<any>) {
 		this.player = player;
 	}
 
 	use() {
-		//
+		
 	}
 
 	dispose() {
-		//
+
 	}
 }
+
+export default TemplatePlugin;

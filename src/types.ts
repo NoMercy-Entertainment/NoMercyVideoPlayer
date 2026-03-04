@@ -1,4 +1,4 @@
-import {LevelAttributes, LevelDetails, MediaDecodingInfo} from 'hls.js';
+import { LevelAttributes, LevelDetails, MediaDecodingInfo } from 'hls.js';
 import Plugin from './plugin';
 import { Cue, VTTData } from 'webvtt-parser';
 import PlayerStorage from './playerStorage';
@@ -211,6 +211,10 @@ export interface PlayerConfig<T = Record<string, any>> {
 	seekButtons?: boolean;
 	disableMediaControls?: boolean;
 	renderAhead?: number;
+	lossyRender?: boolean;
+	workerUrl?: string;
+	legacyWorkerUrl?: string;
+	fallbackFont?: string;
 	customStorage?: StorageInterface;
 	disableAutoPlayback?: boolean;
 	disableHls?: boolean;
@@ -254,7 +258,8 @@ export interface Icon {
 export interface NMPlayer<T extends Record<string, any> = Record<string, any>> extends Base<T> {
 	currentTimeFile: any;
 	episode: any;
-	fonts: string[];
+	fonts: { file: string; mimeType: string }[];
+	octopusInstance: import('../public/js/octopus/subtitles-octopus').default | null;
 	hasBackEventHandler: boolean;
 	hasCloseEventHandler: boolean;
 	hasNextTip: boolean;
@@ -268,9 +273,10 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	container: HTMLDivElement;
 	options: T & PlayerConfig<T>;
 	overlay: HTMLDivElement;
+	subtitleOverlay: HTMLDivElement;
 	subtitleArea: HTMLDivElement;
 	subtitleText: HTMLDivElement;
-	plugins: { [key: string]: any };
+	plugins: Map<string, Plugin>;
 	subtitleStyle: SubtitleStyle;
 	storage: PlayerStorage;
 	translations: { [key: string]: string };
@@ -291,7 +297,7 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	addClasses<T extends Element>(parent: T, names: string[]): AddClasses<T>;
 
 	createSVGElement(parent: Element, id: string, icon: Icon['path'], hidden?: boolean, hovered?: boolean): SVGElement;
-	createUiButton(parent: Element, id: string, name?: string): CreateElement<HTMLButtonElement>;
+	createUiButton(parent: HTMLElement, id: string, title?: string): AddClassesReturn<HTMLButtonElement>;
 	appendScriptFilesToDocument(files: string[]): void;
 	createButton(match: string, id: string, insert: 'before' | 'after', icon: Icon['path'], click?: (e?: MouseEvent) => void, rightClick?: (e?: MouseEvent) => void): CreateElement<HTMLButtonElement>;
 	getClosestElement(element: HTMLButtonElement, selector: string): HTMLElement | null;
@@ -326,14 +332,13 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	getCaptionsList(): Track[];
 	getChapters(): Chapter[];
 	getContainer(): HTMLDivElement;
-	getCurrentAudioTrack(): Track;
+	getCurrentAudioTrack(): Track | null;
 	getAudioTrackIndex(): number;
 	getAudioTrackIndexByLanguage(language: string): number | undefined;
 	getCurrentCaptions(): Track | undefined;
 	getCurrentChapter(currentTime: number): Cue | undefined;
 	getCurrentQuality(): number;
 	getCurrentSrc(): string;
-	getCurrentTime(): number;
 	getCurrentTime(): number;
 	getDuration(): number;
 	getElement(): HTMLDivElement;
@@ -373,20 +378,20 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	localize(value: string): string;
 	next(): void;
 	nextChapter(): void;
-	pause(state?: boolean): void;
-	pauseAd(toggle: boolean): void;
-	play(state?: boolean): Promise<void>;
+	pause(): void;
+	// pauseAd(toggle: boolean): void;
+	play(): Promise<void>;
 	playlistItem(): PlaylistItem & T['playlist'][number];
 	playlistItem(index: number): void;
 	previous(): void;
 	previousChapter(): void;
 	registerPlugin(id: string, plugin: Plugin): void;
-	resize(width: number | string, height: number): void;
+	resize(): void;
 	restart(): void;
 	rewindVideo(seconds?: number): void;
 	seek(position: number): void;
 	setAllowFullscreen(allowFullscreen?: boolean): void;
-	setCaptions(styles: CaptionsConfig): void;
+	// setCaptions(styles: CaptionsConfig): void;
 	// setConfig(config: PlayerConfig): void;
 	setCurrentAudioTrack(index: number): void;
 	setCurrentCaption(index: number): void;
@@ -394,13 +399,13 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	setFloatingPlayer(shouldFloat: boolean): void;
 	setFullscreen(state: boolean): void;
 	setMute(state?: boolean): void;
-	setPip(state?: boolean): void;
-	setPlaybackRate(rate?: number): void;
+	// setPip(state?: boolean): void;
+	// setPlaybackRate(rate?: number): void;
 	setPlaylist(playlist: PlayerConfig<T>['playlist']): void;
 	setPlaylistItemCallback(callback: null | ((item: PlaylistItem & T['playlist'][number], index: number) => void | Promise<PlayerConfig<T>['playlist']>)): void;
 	setSpeed(speed: any): void;
 	setVolume(volume: number): void;
-	setup<Conf extends PlayerConfig<T>>(options: Conf & PlayerConfig<T>): NMPlayer<Conf & T>;
+	setup<Conf extends Record<string, any> = Record<string, any>>(options: Partial<PlayerConfig<Conf>>): NMPlayer<Conf>;
 	stop(): void;
 	toggleFullscreen(): void;
 	toggleMute(): void;
@@ -410,6 +415,20 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	usePlugin(id: string): void;
 	volumeDown(): void;
 	volumeUp(): void;
+
+	setConfig<Conf>(options: Partial<Conf & PlayerConfig<any>>): void;
+	getCurrentAspect(): string;
+	setAspect(aspect: Stretching): void;
+	getFloat(): void;
+	addTranslation(key: string, value: string): void;
+	addTranslations(translations: { key: string; value: string }[]): void;
+	fetchTranslationsFile(): Promise<void>;
+	seekByPercentage(arg: number): number;
+	setGain(value: number): void;
+	getGain(): { min: number; max: number; defaultValue: number; value: number };
+	addGainNode(): void;
+	removeGainNode(): void;
+	isFirstPlaylistItem(): boolean;
 
 	setSubtitleStyle(style: Partial<SubtitleStyle>): void;
 	getSubtitleStyle(): SubtitleStyle;
@@ -516,14 +535,6 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	emit(event: 'finished'): void;
 	emit(event: 'dispose'): void;
 	emit(event: 'remove'): void;
-	emit(event: 'showPauseScreen'): void;
-	emit(event: 'hidePauseScreen'): void;
-	emit(event: 'showEpisodeScreen'): void;
-	emit(event: 'hideEpisodeScreen'): void;
-	emit(event: 'showLanguageScreen'): void;
-	emit(event: 'hideLanguageScreen'): void;
-	emit(event: 'showQualityScreen'): void;
-	emit(event: 'hideQualityScreen'): void;
 	emit(event: 'back-button'): void;
 	emit(event: 'translations', data: { [key: string]: string }): void;
 	emit(event: string, data: any): void;
@@ -586,9 +597,9 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 
 	// Controls
 	on(event: 'controls', callback: (showing: boolean) => void): void;
-	on(event: 'showControls'): void;
-	on(event: 'hideControls'): void;
-	on(event: 'dynamicControls'): void;
+	on(event: 'showControls', callback: () => void): void;
+	on(event: 'hideControls', callback: () => void): void;
+	on(event: 'dynamicControls', callback: () => void): void;
 	on(event: 'displayClick', callback: () => void): void;
 
 	// View
@@ -619,6 +630,7 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	on(event: 'speed', callback: (enabled: number) => void): void;
 	on(event: 'switch-season', callback: (season: number) => void): void;
 	on(event: 'theaterMode', callback: (enabled: boolean) => void): void;
+	on(event: 'currentScrubTime', callback: (data: TimeData) => void): void;
 	on(event: 'lastTimeTrigger', callback: (data: TimeData) => void): void;
 	on(event: 'waiting', callback: (data: any) => void): void;
 	on(event: 'stalled', callback: (data: any) => void): void;
@@ -626,9 +638,11 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	on(event: 'beforeplaylistitem', callback: (data: any) => void): void;
 	on(event: 'bufferedEnd', callback: (data: any) => void): void;
 	on(event: 'ended', callback: (data: any) => void): void;
+	on(event: 'preview-time', callback: (data: PreviewTime[]) => void): void;
 	on(event: 'finished', callback: () => void): void;
 	on(event: 'dispose', callback: () => void): void;
 	on(event: 'remove', callback: () => void): void;
+	on(event: 'back-button', callback: () => void): void;
 	on(event: 'translations', callback: (data: { [key: string]: string }) => void): void;
 	on(event: string, callback: (data: any) => void): void;
 
@@ -687,9 +701,9 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 
 	// Controls
 	off(event: 'controls', callback: () => void): void;
-	off(event: 'showControls'): void;
-	off(event: 'hideControls'): void;
-	off(event: 'dynamicControls'): void;
+	off(event: 'showControls', callback: () => void): void;
+	off(event: 'hideControls', callback: () => void): void;
+	off(event: 'dynamicControls', callback: () => void): void;
 	off(event: 'displayClick', callback: () => void): void;
 
 	// View
@@ -796,9 +810,9 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 
 	// Controls
 	once(event: 'controls', callback: (showing: boolean) => void): void;
-	once(event: 'showControls'): void;
-	once(event: 'hideControls'): void;
-	once(event: 'dynamicControls'): void;
+	once(event: 'showControls', callback: () => void): void;
+	once(event: 'hideControls', callback: () => void): void;
+	once(event: 'dynamicControls', callback: () => void): void;
 	once(event: 'displayClick', callback: () => void): void;
 
 	// View
