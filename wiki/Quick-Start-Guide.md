@@ -156,7 +156,11 @@ player.on('captionsChanged', (track) => {
 For anime or content with styled subtitles, the OctopusPlugin renders `.ass` files with font support:
 
 ```typescript
-const config: PlayerConfig = {
+import nmplayer from '@nomercy-entertainment/nomercy-video-player';
+import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
+
+const player = nmplayer('player').setup({
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/refs/heads/master/Anime/Anime',
   playlist: [
     {
@@ -172,10 +176,14 @@ const config: PlayerConfig = {
       ],
     },
   ],
-};
+});
+
+// Register the OctopusPlugin for ASS/SSA subtitle rendering
+player.registerPlugin('octopus', new OctopusPlugin());
+player.usePlugin('octopus');
 ```
 
-The `fonts` track points to a JSON file that lists the font files needed by the ASS subtitle. The OctopusPlugin fetches and loads them automatically.
+The `fonts` track points to a JSON file listing the font files needed by the ASS subtitle. The OctopusPlugin fetches and loads them automatically when a caption with an `.ass` or `.ssa` extension is selected.
 
 ## Vanilla HTML
 
