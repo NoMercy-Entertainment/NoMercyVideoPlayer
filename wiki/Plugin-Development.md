@@ -1,6 +1,6 @@
 # Plugin Development
 
-NoMercy Video Player is a **headless video engine**. It handles playback, HLS streaming, subtitle rendering, and state management -- but ships with zero UI. Every button, progress bar, and overlay you see is built as a plugin. This guide is the complete reference for building your own.
+Complete reference for building plugins. Plugins extend the player with UI, functionality, or both.
 
 All imports come from the package root:
 

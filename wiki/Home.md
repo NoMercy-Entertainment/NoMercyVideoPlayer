@@ -16,7 +16,7 @@ Read these in order if you're new:
 
 1. **[Getting Started](Quick-Start-Guide)** — Install, create a player, register your first plugin
 2. **[Configuration](Configuration)** — All options for `PlayerConfig`
-3. **[Plugin Development](Plugin-Development)** — How to build your own UI and functionality plugins
+3. **[Plugin Development](Plugin-Development)** — extending the player with plugins
 4. **[Framework Integration](Framework-Integration)** — Vue, React, Svelte, Angular, Vanilla JS
 
 Reference (look things up as needed):

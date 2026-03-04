@@ -99,6 +99,6 @@ export default function VideoPlayer() {
 
 ## Next Steps
 
-- [Plugin Development](Plugin-Development) — build a custom UI plugin
+- [Plugin Development](Plugin-Development) — extending the player
 - [Events](Events) — full event reference
 - [Framework Integration](Framework-Integration) — other frameworks

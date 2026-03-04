@@ -1,6 +1,6 @@
 # Configuration
 
-Reference for all `PlayerConfig` options in NoMercy Video Player. This is a headless video player engine -- it provides no built-in UI. You supply a container element and configuration; the player handles media playback, tracks, and events.
+All `PlayerConfig` options for NoMercy Video Player.
 
 ```typescript
 import nmplayer from '@nomercy-entertainment/nomercy-video-player';

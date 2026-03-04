@@ -116,7 +116,7 @@ See the [Plugin Development Guide](wiki/Plugin-Development.md) for complete exam
 |-------|-------------|
 | [Getting Started](wiki/Quick-Start-Guide.md) | Installation, setup, and first plugin |
 | [Configuration](wiki/Configuration.md) | All PlayerConfig options |
-| [Plugin Development](wiki/Plugin-Development.md) | How to build UI and functionality plugins |
+| [Plugin Development](wiki/Plugin-Development.md) | Extending the player with plugins |
 | [API Reference](wiki/API-Reference.md) | Types and interfaces |
 | [Methods](wiki/API-Reference-Methods.md) | All NMPlayer methods |
 | [Events](wiki/Events.md) | All events with data types |

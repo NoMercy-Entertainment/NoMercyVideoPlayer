@@ -70,7 +70,7 @@ const playlist: PlaylistItem[] = [
 
 ## Next Steps
 
-- [Plugin Development](Plugin-Development) — build your own UI plugin
+- [Plugin Development](Plugin-Development) — extending the player
 - [Events](Events) — full event reference
 - [Methods](API-Reference-Methods) — all player methods
 - [Configuration](Configuration) — all PlayerConfig options

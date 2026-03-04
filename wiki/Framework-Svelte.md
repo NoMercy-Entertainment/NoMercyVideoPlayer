@@ -137,6 +137,6 @@ With Svelte 5 runes, you can use `$state` and `$effect`:
 
 ## Next Steps
 
-- [Plugin Development](Plugin-Development) — build a custom UI plugin
+- [Plugin Development](Plugin-Development) — extending the player
 - [Events](Events) — full event reference
 - [Framework Integration](Framework-Integration) — other frameworks

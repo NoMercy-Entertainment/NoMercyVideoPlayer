@@ -213,13 +213,13 @@ The `fonts` track points to a JSON file that lists the font files needed by the 
 
 ## Understanding the Player State
 
-The player doesn't render any UI. Instead, it manages state and communicates through:
+The player communicates through:
 
 1. **CSS classes** on the container div — `playing`, `paused`, `buffering`, `active`, `inactive`, `error`
 2. **Events** — `play`, `pause`, `time`, `levels`, `captionsList`, etc.
 3. **Methods** — `play()`, `pause()`, `seek()`, `setVolume()`, etc.
 
-Your job is to build a plugin that listens to events and calls methods. See [Plugin Development](Plugin-Development) for how to build your own UI.
+See [Plugin Development](Plugin-Development) for building plugins that use these.
 
 ## Cleanup
 
@@ -232,7 +232,7 @@ player.dispose();
 ## Next Steps
 
 - [Configuration](Configuration) — All PlayerConfig options
-- [Plugin Development](Plugin-Development) — Build your own UI plugin
+- [Plugin Development](Plugin-Development) — extending the player
 - [Events](Events) — Full event reference
 - [Methods](API-Reference-Methods) — All player methods
 - [Framework Integration](Framework-Integration) — React, Vue, Angular, Svelte patterns
