@@ -15,7 +15,7 @@ All imports come from the package root:
 
 ```typescript
 import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { Plugin, OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import { Plugin, KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, PlaylistItem, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 ```
 

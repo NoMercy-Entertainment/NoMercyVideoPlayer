@@ -78,7 +78,7 @@ player.usePlugin('keyHandler');
 
 ```typescript
 import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const config: PlayerConfig = {
@@ -132,10 +132,10 @@ const config: PlayerConfig = {
 
 const player = nmplayer('player').setup(config);
 
-// Add ASS subtitle support
-const octopus = new OctopusPlugin();
-player.registerPlugin('octopus', octopus);
-player.usePlugin('octopus');
+// Add keyboard shortcuts (Space, arrows, F, M, etc.)
+const keyHandler = new KeyHandlerPlugin();
+player.registerPlugin('keyHandler', keyHandler);
+player.usePlugin('keyHandler');
 
 // React to events
 player.on('item', (item) => {

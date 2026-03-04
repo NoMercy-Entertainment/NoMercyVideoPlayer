@@ -8,7 +8,7 @@ Use `AfterViewInit` to initialize the player after the DOM is ready, and `OnDest
 // video-player.component.ts
 import { Component, AfterViewInit, OnDestroy, Input } from '@angular/core';
 import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 @Component({
@@ -37,8 +37,8 @@ export class VideoPlayerComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this.player = nmplayer('player').setup(this.config);
 
-    this.player.registerPlugin('octopus', new OctopusPlugin());
-    this.player.usePlugin('octopus');
+    this.player.registerPlugin('keyHandler', new KeyHandlerPlugin());
+    this.player.usePlugin('keyHandler');
 
     this.player.on('time', (data: TimeData) => {
       this.currentTime = data.currentTime;

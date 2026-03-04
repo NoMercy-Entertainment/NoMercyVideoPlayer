@@ -22,7 +22,7 @@ npm install @nomercy-entertainment/nomercy-video-player
 
 ```typescript
 import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const player = nmplayer('player').setup({
@@ -43,10 +43,10 @@ const player = nmplayer('player').setup({
   ],
 });
 
-// Add ASS subtitle support
-const octopus = new OctopusPlugin();
-player.registerPlugin('octopus', octopus);
-player.usePlugin('octopus');
+// Add keyboard shortcuts (Space, arrows, F, M, etc.)
+const keyHandler = new KeyHandlerPlugin();
+player.registerPlugin('keyHandler', keyHandler);
+player.usePlugin('keyHandler');
 
 // React to player state
 player.on('play', () => console.log('Playing'));

@@ -8,7 +8,7 @@ Vue is the primary framework used by the project maintainers. The recommended pa
 // composables/useVideoPlayer.ts
 import { ref, onMounted, onBeforeUnmount, watch, type Ref } from 'vue';
 import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 export function useVideoPlayer(containerId: string, config: Ref<PlayerConfig>) {
@@ -20,8 +20,8 @@ export function useVideoPlayer(containerId: string, config: Ref<PlayerConfig>) {
   function init() {
     const instance = nmplayer(containerId).setup(config.value);
 
-    instance.registerPlugin('octopus', new OctopusPlugin());
-    instance.usePlugin('octopus');
+    instance.registerPlugin('keyHandler', new KeyHandlerPlugin());
+    instance.usePlugin('keyHandler');
 
     instance.on('time', (data: TimeData) => {
       currentTime.value = data.currentTime;

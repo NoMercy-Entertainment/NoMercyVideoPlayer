@@ -2,7 +2,7 @@
 
 No framework needed. Initialize the player after the DOM is ready.
 
-## Basic Setup
+## CDN / Script Tag
 
 ```html
 <!DOCTYPE html>
@@ -21,11 +21,9 @@ No framework needed. Initialize the player after the DOM is ready.
     <span id="time">0s / 0s</span>
   </div>
 
-  <script type="module">
-    import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-    import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
-
-    const player = nmplayer('player').setup({
+  <script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player/dist/nomercy-video-player.cjs"></script>
+  <script>
+    var player = window.nmplayer('player').setup({
       basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
       playlist: [
         {
@@ -44,33 +42,34 @@ No framework needed. Initialize the player after the DOM is ready.
       ],
     });
 
-    player.registerPlugin('octopus', new OctopusPlugin());
-    player.usePlugin('octopus');
+    var playBtn = document.getElementById('play-btn');
+    var timeDisplay = document.getElementById('time');
 
-    const playBtn = document.getElementById('play-btn');
-    const timeDisplay = document.getElementById('time');
-
-    player.on('time', (data) => {
-      timeDisplay.textContent = `${data.currentTimeHuman} / ${data.durationHuman}`;
+    player.on('time', function(data) {
+      timeDisplay.textContent = data.currentTimeHuman + ' / ' + data.durationHuman;
     });
 
-    player.on('play', () => { playBtn.textContent = 'Pause'; });
-    player.on('pause', () => { playBtn.textContent = 'Play'; });
+    player.on('play', function() { playBtn.textContent = 'Pause'; });
+    player.on('pause', function() { playBtn.textContent = 'Play'; });
 
-    playBtn.addEventListener('click', () => player.togglePlayback());
+    playBtn.addEventListener('click', function() { player.togglePlayback(); });
   </script>
 </body>
 </html>
 ```
 
-## Without a Bundler
+## With a Bundler (Vite, Webpack, etc.)
 
-If you are not using a bundler, include the UMD build via a `<script>` tag:
+If you're using a bundler, you can use ES module imports:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player/dist/nomercy-video-player.cjs"></script>
-<script>
-  const player = window.nmplayer('player').setup({
+<div id="player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000;"></div>
+
+<script type="module">
+  import nmplayer from '@nomercy-entertainment/nomercy-video-player';
+  import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+
+  const player = nmplayer('player').setup({
     basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
     playlist: [
       {
@@ -84,6 +83,9 @@ If you are not using a bundler, include the UMD build via a `<script>` tag:
     ],
   });
 
+  player.registerPlugin('keyHandler', new KeyHandlerPlugin());
+  player.usePlugin('keyHandler');
+
   player.on('ready', () => player.play());
 </script>
 ```
@@ -93,7 +95,6 @@ If you are not using a bundler, include the UMD build via a `<script>` tag:
 Always dispose when navigating away or removing the player:
 
 ```javascript
-// When you're done with the player
 player.dispose();
 ```
 

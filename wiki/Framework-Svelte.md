@@ -8,7 +8,7 @@ Svelte's `onMount` and `onDestroy` map directly to the player lifecycle.
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-  import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+  import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
   import type { NMPlayer, PlaylistItem, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
   const basePath = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films';
@@ -41,8 +41,8 @@ Svelte's `onMount` and `onDestroy` map directly to the player lifecycle.
       autoPlay: false,
     });
 
-    player.registerPlugin('octopus', new OctopusPlugin());
-    player.usePlugin('octopus');
+    player.registerPlugin('keyHandler', new KeyHandlerPlugin());
+    player.usePlugin('keyHandler');
 
     player.on('time', (data: TimeData) => {
       currentTime = data.currentTime;
@@ -78,7 +78,7 @@ With Svelte 5 runes, you can use `$state` and `$effect`:
 ```svelte
 <script lang="ts">
   import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-  import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+  import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
   import type { NMPlayer, PlaylistItem, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
   const basePath = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films';
@@ -103,8 +103,8 @@ With Svelte 5 runes, you can use `$state` and `$effect`:
   $effect(() => {
     const instance = nmplayer('player').setup({ playlist, basePath });
 
-    instance.registerPlugin('octopus', new OctopusPlugin());
-    instance.usePlugin('octopus');
+    instance.registerPlugin('keyHandler', new KeyHandlerPlugin());
+    instance.usePlugin('keyHandler');
 
     instance.on('time', (data: TimeData) => {
       currentTime = data.currentTime;
