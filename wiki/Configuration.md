@@ -1,0 +1,403 @@
+# Configuration
+
+Reference for all `PlayerConfig` options in NoMercy Video Player. This is a headless video player engine -- it provides no built-in UI. You supply a container element and configuration; the player handles media playback, tracks, and events.
+
+```typescript
+import nmplayer from '@nomercy-entertainment/nomercy-video-player';
+import type { PlayerConfig, PlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
+
+const player = nmplayer('player-container').setup(config);
+```
+
+---
+
+## PlayerConfig Reference
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `playlist` | `string \| PlaylistItem[]` | `[]` | **Required.** Array of playlist items or a URL to a JSON playlist endpoint. |
+| `basePath` | `string` | `''` | Base URL prepended to relative `file`, subtitle, and font paths. |
+| `imageBasePath` | `string` | `''` | Base URL for images. Falls back to `basePath` when not set. |
+| `accessToken` | `string` | `''` | Bearer token sent in the `Authorization` header on fetch requests. |
+| `muted` | `boolean` | `false` | Start playback muted. |
+| `autoPlay` | `boolean` | `false` | Begin playback automatically on setup. |
+| `controls` | `boolean` | `false` | Enable the built-in control layer. |
+| `preload` | `'auto' \| 'metadata' \| 'none'` | `'auto'` | HTMLMediaElement preload attribute. |
+| `stretching` | `'uniform' \| 'fill' \| 'exactfit' \| 'none'` | `'uniform'` | Video scaling behavior within the container. |
+| `playbackRates` | `number[]` | `[0.5, 1, 1.5, 2]` | Available playback speed options. |
+| `chapters` | `boolean` | `undefined` | Enable chapter marker support from VTT chapter tracks. |
+| `debug` | `boolean` | `false` | Log internal events and state changes to the console. |
+| `language` | `string` | `undefined` | ISO language code for preferred audio/subtitle track selection. |
+| `displayLanguage` | `string` | `'en'` | Locale used for the player UI translations. |
+| `subtitleRenderer` | `'octopus'` | `undefined` | Use libass (via JavascriptSubtitlesOctopus) for ASS/SSA subtitle rendering. |
+| `renderAhead` | `number` | `undefined` | Seconds of subtitle frames to pre-render (Octopus renderer). |
+| `lossyRender` | `boolean` | `undefined` | Allow lossy rendering for better subtitle performance on low-end devices. |
+| `workerUrl` | `string` | `undefined` | URL to the Octopus WASM worker script. |
+| `legacyWorkerUrl` | `string` | `undefined` | URL to the legacy (asm.js) Octopus worker for older browsers. |
+| `fallbackFont` | `string` | `undefined` | URL to a fallback font file for the Octopus subtitle renderer. |
+| `controlsTimeout` | `number` | `3000` | Milliseconds of inactivity before controls auto-hide. |
+| `doubleClickDelay` | `number` | `300` | Milliseconds to distinguish single-click from double-click. |
+| `seekButtons` | `boolean` | `undefined` | Show forward/rewind seek buttons in the control bar. |
+| `disableControls` | `boolean` | `false` | Completely disable the control layer. |
+| `disableTouchControls` | `boolean` | `false` | Disable touch gesture handling (swipe-to-seek, etc.). |
+| `disableMediaControls` | `boolean` | `false` | Disable MediaSession integration (lock screen / OS media controls). |
+| `disableAutoPlayback` | `boolean` | `false` | Prevent automatic advancement to the next playlist item. |
+| `forceTvMode` | `boolean` | `false` | Force the 10-foot / TV navigation interface. |
+| `nipple` | `boolean` | `undefined` | Enable a nipple.js virtual joystick for mobile touch navigation. |
+| `disableHls` | `boolean` | `undefined` | Disable HLS.js even when the source is an HLS manifest. |
+| `forceHls` | `boolean` | `undefined` | Force HLS.js usage regardless of native HLS support. |
+| `buttons` | `any` | `undefined` | Custom button configuration object. |
+| `styles` | `any` | `undefined` | Custom CSS property overrides for the player. |
+| `customStorage` | `StorageInterface` | built-in | Custom async storage adapter for persisting user preferences. |
+
+---
+
+## Playlist Configuration
+
+### Single Video
+
+Every playlist item requires `id`, `title`, `description`, `file`, `image`, and `duration`.
+
+```typescript
+const config: PlayerConfig = {
+  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  playlist: [
+    {
+      id: 'big-buck-bunny',
+      title: 'Big Buck Bunny',
+      description: 'A giant rabbit defends small creatures from three bullying rodents.',
+      file: '/Big Buck Bunny/Big Buck Bunny.mp4',
+      image: '/Big Buck Bunny/poster.jpg',
+      duration: '596',
+      year: 2008,
+    },
+  ],
+};
+```
+
+### Multi-Item Playlist
+
+For TV shows, populate `show`, `season`, `episode`, and `seasonName` to enable series navigation.
+
+```typescript
+const config: PlayerConfig = {
+  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  playlist: [
+    {
+      id: 1,
+      title: 'Pilot',
+      description: 'The story begins.',
+      file: '/Big Buck Bunny/Big Buck Bunny.mp4',
+      image: '/Big Buck Bunny/poster.jpg',
+      duration: '596',
+      show: 'Big Buck Bunny',
+      season: 1,
+      episode: 1,
+      seasonName: 'Season 1',
+    },
+    {
+      id: 2,
+      title: 'The Chase',
+      description: 'The adventure continues.',
+      file: '/Sintel/Sintel.mp4',
+      image: '/Sintel/poster.jpg',
+      duration: '888',
+      show: 'Big Buck Bunny',
+      season: 1,
+      episode: 2,
+      seasonName: 'Season 1',
+    },
+  ],
+};
+```
+
+### External Playlist URL
+
+Pass a URL string instead of an array. The player fetches the JSON and expects it to return a `PlaylistItem[]`.
+
+```typescript
+const config: PlayerConfig = {
+  playlist: 'https://api.example.com/player/playlist.json',
+  basePath: 'https://cdn.example.com/media',
+};
+```
+
+### Tracks
+
+Each playlist item can carry an array of `Track` objects describing subtitles, chapters, thumbnail sprites, and fonts.
+
+```typescript
+{
+  id: 'sintel',
+  title: 'Sintel',
+  description: 'A girl searches for her lost dragon.',
+  file: '/Sintel/Sintel.mp4',
+  image: '/Sintel/poster.jpg',
+  duration: '888',
+  tracks: [
+    { id: 1, kind: 'subtitles', label: 'English', language: 'en', file: '/Sintel/subs/en.vtt', default: true },
+    { id: 2, kind: 'subtitles', label: 'Dutch', language: 'nl', file: '/Sintel/subs/nl.ass', ext: 'ass' },
+    { id: 3, kind: 'chapters', file: '/Sintel/chapters.vtt' },
+    { id: 4, kind: 'thumbnails', file: '/Sintel/thumbnails.vtt' },
+    { id: 5, kind: 'fonts', file: '/Sintel/fonts/CustomFont.woff2' },
+  ],
+}
+```
+
+**Track `kind` values:**
+
+| Kind | Purpose |
+|---|---|
+| `subtitles` | VTT or ASS/SSA subtitle file. Set `ext: 'ass'` for ASS files. |
+| `chapters` | WebVTT chapter markers. Requires `chapters: true` in the config. |
+| `thumbnails` | WebVTT file referencing thumbnail sprite images for seek preview. |
+| `sprite` | Alternative to `thumbnails` for sprite-based previews. |
+| `fonts` | Font files required by ASS subtitles (used by the Octopus renderer). |
+
+### Resume Playback
+
+Set `progress` on a playlist item to resume from a saved position.
+
+```typescript
+{
+  id: 'sintel',
+  title: 'Sintel',
+  description: 'A girl searches for her lost dragon.',
+  file: '/Sintel/Sintel.mp4',
+  image: '/Sintel/poster.jpg',
+  duration: '888',
+  progress: {
+    time: 423.7,
+    date: '2025-12-01T20:15:00Z',
+  },
+}
+```
+
+### Content Ratings and Logos
+
+Playlist items support optional `rating` and `logo` fields for overlay display.
+
+```typescript
+{
+  id: 'big-buck-bunny',
+  title: 'Big Buck Bunny',
+  description: 'A giant rabbit with a big heart.',
+  file: '/Big Buck Bunny/Big Buck Bunny.mp4',
+  image: '/Big Buck Bunny/poster.jpg',
+  duration: '596',
+  logo: '/Big Buck Bunny/logo.png',
+  rating: { rating: 7.4, image: '/Big Buck Bunny/pg.png' },
+}
+```
+
+---
+
+## URL Resolution
+
+The player resolves relative paths using `basePath` and `imageBasePath`. Absolute URLs (starting with `http`) bypass resolution entirely.
+
+**Rules:**
+
+1. If a `file`, subtitle, or font path does **not** start with `http`, `basePath` is prepended.
+2. For images, `imageBasePath` is used if set; otherwise `basePath` is used.
+3. Absolute URLs are never modified.
+
+```typescript
+const config: PlayerConfig = {
+  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  imageBasePath: 'https://cdn.example.com/images',
+  playlist: [
+    {
+      id: 1,
+      title: 'Sintel',
+      description: 'Short film by the Blender Foundation.',
+      file: '/Sintel/Sintel.mp4',
+      // Resolved: https://raw.githubusercontent.com/.../Films/Sintel/Sintel.mp4
+      image: '/Sintel/poster.jpg',
+      // Resolved: https://cdn.example.com/images/Sintel/poster.jpg
+      duration: '888',
+      tracks: [
+        {
+          id: 1,
+          kind: 'subtitles',
+          label: 'English',
+          language: 'en',
+          file: 'https://subs.example.com/sintel-en.vtt',
+          // Absolute URL -- used as-is
+        },
+      ],
+    },
+  ],
+};
+```
+
+When `accessToken` is set, the token is sent as a `Bearer` header on all fetch requests made through the player's internal `getFileContents` method. This applies to relative URLs resolved through `basePath` as well as absolute URLs (unless `anonymous: true` is set on the request).
+
+---
+
+## Subtitle Configuration
+
+### VTT Subtitles
+
+Standard WebVTT subtitles work out of the box. Add a track with `kind: 'subtitles'` and a `.vtt` file path.
+
+```typescript
+tracks: [
+  { id: 1, kind: 'subtitles', label: 'English', language: 'en', file: '/subs/en.vtt', default: true },
+  { id: 2, kind: 'subtitles', label: 'French', language: 'fr', file: '/subs/fr.vtt' },
+]
+```
+
+Set `default: true` on exactly one subtitle track to enable it automatically.
+
+### ASS/SSA Subtitles with OctopusPlugin
+
+For ASS/SSA subtitles with full typesetting support (fonts, positioning, animations), enable the Octopus renderer.
+
+```typescript
+const config: PlayerConfig = {
+  subtitleRenderer: 'octopus',
+  workerUrl: '/js/octopus/subtitles-octopus-worker.js',
+  legacyWorkerUrl: '/js/octopus/subtitles-octopus-worker-legacy.js',
+  fallbackFont: '/fonts/default.woff2',
+  renderAhead: 30,
+  lossyRender: false,
+  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  playlist: [
+    {
+      id: 'sintel',
+      title: 'Sintel',
+      description: 'Blender Foundation short film.',
+      file: '/Sintel/Sintel.mp4',
+      image: '/Sintel/poster.jpg',
+      duration: '888',
+      tracks: [
+        { id: 1, kind: 'subtitles', label: 'English (ASS)', language: 'en', file: '/Sintel/subs/en.ass', ext: 'ass', default: true },
+        { id: 2, kind: 'fonts', file: '/Sintel/fonts/Arial.woff2' },
+        { id: 3, kind: 'fonts', file: '/Sintel/fonts/OpenSans.woff2' },
+      ],
+    },
+  ],
+};
+```
+
+**Key points:**
+
+- Set `ext: 'ass'` on ASS subtitle tracks so the player routes them to the Octopus renderer instead of the native VTT pipeline.
+- Font tracks (`kind: 'fonts'`) are loaded and passed to the Octopus renderer for accurate typesetting.
+- `renderAhead` controls how many seconds of subtitle frames are pre-rendered. Higher values use more memory but reduce rendering stalls.
+- `lossyRender` trades visual fidelity for performance on constrained devices.
+
+---
+
+## Storage
+
+The player persists user preferences (volume, subtitle selection, quality level) through a storage interface. By default it uses `localStorage`. You can replace it with any async key-value store.
+
+### StorageInterface
+
+```typescript
+interface StorageInterface {
+  get: (key: string) => Promise<string | null>;
+  set: (key: string, value: string) => Promise<void>;
+  remove: (key: string) => Promise<void>;
+}
+```
+
+### Example: IndexedDB Adapter
+
+```typescript
+import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
+
+const idbStorage = {
+  async get(key: string): Promise<string | null> {
+    const db = await openDB();
+    return db.get('player', key);
+  },
+  async set(key: string, value: string): Promise<void> {
+    const db = await openDB();
+    await db.put('player', value, key);
+  },
+  async remove(key: string): Promise<void> {
+    const db = await openDB();
+    await db.delete('player', key);
+  },
+};
+
+const config: PlayerConfig = {
+  customStorage: idbStorage,
+  playlist: [/* ... */],
+};
+```
+
+### Example: Server-Synced Storage
+
+```typescript
+const serverStorage = {
+  async get(key: string) {
+    const res = await fetch(`/api/preferences/${key}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.ok ? res.text() : null;
+  },
+  async set(key: string, value: string) {
+    await fetch(`/api/preferences/${key}`, {
+      method: 'PUT',
+      body: value,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  async remove(key: string) {
+    await fetch(`/api/preferences/${key}`, { method: 'DELETE' });
+  },
+};
+```
+
+---
+
+## Authentication
+
+### Access Token
+
+Set `accessToken` to attach a `Bearer` token to all fetch requests the player makes (playlist loading, subtitle files, font files).
+
+```typescript
+const config: PlayerConfig = {
+  accessToken: 'eyJhbGciOiJIUzI1NiIs...',
+  basePath: 'https://secure-cdn.example.com/media',
+  playlist: 'https://api.example.com/playlist.json',
+};
+```
+
+The token is sent as:
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+```
+
+### Per-Item Credentials
+
+Set `withCredentials: true` on individual playlist items to include cookies and HTTP authentication on cross-origin requests for that item's media source.
+
+```typescript
+{
+  id: 1,
+  title: 'Protected Video',
+  description: 'Requires authentication cookies.',
+  file: '/protected/video.mp4',
+  image: '/protected/poster.jpg',
+  duration: '3600',
+  withCredentials: true,
+}
+```
+
+---
+
+## Related Pages
+
+- [Home](Home) -- Project overview
+- [Quick Start Guide](Quick-Start-Guide) -- Getting started
+- [API Reference](API-Reference) -- Methods and properties
+- [Events](Events) -- Event system reference
+- [Plugin Development](Plugin-Development) -- Creating custom plugins
+- [Framework Integration](Framework-Integration) -- React, Vue, Angular usage

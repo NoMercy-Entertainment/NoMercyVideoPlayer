@@ -1,235 +1,152 @@
 # NoMercy Video Player
-*Plugin-Based HTML5 Video Player Built with TypeScript*
 
-Always feel like fighting video player UI choices? This one's built for developers who want complete control over their video experience.
+A headless, plugin-based HTML5 video player engine built with TypeScript. No UI included — you build your own.
 
 [![NPM Version](https://img.shields.io/npm/v/@nomercy-entertainment/nomercy-video-player?style=flat&logo=npm&logoColor=white&color=cb3837)](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-video-player)
 [![NPM Downloads](https://img.shields.io/npm/dm/@nomercy-entertainment/nomercy-video-player?style=flat&logo=npm&logoColor=white&color=cb3837)](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-video-player)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/NoMercy-Entertainment/NoMercyVideoPlayer/release.yml?style=flat&logo=github&logoColor=white)](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/actions)
 [![License](https://img.shields.io/github/license/NoMercy-Entertainment/NoMercyVideoPlayer?style=flat&color=green)](./LICENSE)
-
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Framework Agnostic](https://img.shields.io/badge/Framework-Agnostic-orange?style=flat)](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer)
-[![GitHub Stars](https://img.shields.io/github/stars/NoMercy-Entertainment/NoMercyVideoPlayer?style=flat&logo=github&logoColor=white&color=yellow)](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/stargazers)
 
-## About
+## Why?
 
-A lightweight, plugin-based HTML5 video player built with TypeScript. Provides comprehensive video playback capabilities without imposing any UI decisions on your application.
+Most video players force their UI on you. This one doesn't. NoMercy Video Player handles video playback, HLS streaming, subtitle rendering, playlists, and state management — then gets out of the way. You control every pixel of the interface through the plugin system.
 
-Powers video playback in [NoMercyTV](https://nomercy.tv/)
-
-## Features
-
-### Core Video Features
-- **Multi-Format Support**: MP4, WebM, Ogg, and more HTML5 video formats
-- **HLS Streaming**: Adaptive streaming with seamless quality switching
-- **Cross-Platform**: Works across modern browsers and platforms
-- **Hardware Acceleration**: Uses native browser video acceleration
-
-### Advanced Features
-- **ASS/VTT Subtitles**: Full support for advanced subtitle formats via Octopus renderer
-- **Plugin Architecture**: Modular design for UI, controls, and functionality
-- **Keyboard Shortcuts**: Extendable VLC-style key bindings
-- **Quality Selection**: Manual and automatic quality level switching
-
-### Modern Integration
-- **Framework Agnostic**: Works with Vue, React, Angular, Svelte, Vanilla JS
-- **TypeScript**: Full type safety with comprehensive interfaces
-- **Event-Driven**: React to player state changes and user interactions
-- **Customizable Controls**: Build your own UI with complete control
-
-### Playlist & Media Management
-- **Playlist Support**: Multi-track playlists with metadata
-- **Chapter Support**: Video chapters with navigation
-- **Track Management**: Audio tracks, subtitles, and quality levels
-- **Progress Tracking**: Resume playback from saved positions
-
-## 🚀 Quick Start
-
-### Installation
-
-Choose your preferred package manager:
+## Install
 
 ```bash
-# npm
 npm install @nomercy-entertainment/nomercy-video-player
-
-# yarn
-yarn add @nomercy-entertainment/nomercy-video-player
-
-# pnpm
-pnpm add @nomercy-entertainment/nomercy-video-player
 ```
 
-### Basic Usage
+## Quick Example
 
 ```typescript
-import nmplayer from '@nomercy-entertainment/nomercy-video-player/src/index';
-import OctopusPlugin from '@nomercy-entertainment/nomercy-video-player/src/plugins/octopusPlugin';
-import KeyHandlerPlugin from '@nomercy-entertainment/nomercy-video-player/src/plugins/keyHandlerPlugin';
-import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player/src/types';
+import nmplayer from '@nomercy-entertainment/nomercy-video-player';
+import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
-// Create player instance
-const config: PlayerConfig = {
-	muted: false,
-	controls: false,
-	preload: 'auto',
-	accessToken: 'your bearer token', //(optional, can be passed in the file url as query manually)
-	basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/refs/heads/master/Films/Films', // Base URL for media files (optional, can use a full url for the file)
-	playlist: [
-		{
-			title: 'Cosmos Laundromat',
-			description: 'On a desolate island, a suicidal sheep named Franck meets his fate…',
-			image: 'https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
-			file: '/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
-			tracks: [
-				{ label: 'Dutch (Full)', file: '/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.dut.full.vtt', language: 'dut', kind: 'subtitles' },
-				{ label: 'English (Full)', file: '/Cosmos.Laundromat.(2015)/subtitles/Cosmos.Laundromat.(2015).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
-				// Additional subtitle tracks...
-			],
-		},
-		{
-			title: 'Sintel',
-			description: 'Sintel is an independently produced short film...',
-			image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
-			file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-			tracks: [
-				{ label: 'Dutch (Full)', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.dut.full.vtt', language: 'dut', kind: 'subtitles' },
-				{ label: 'English (Full)', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
-				// Additional subtitle tracks...
-			],
-		},
-		// Additional playlist items...
-	],
-	playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
-    // Additional configuration options...
-};
+const player = nmplayer('player').setup({
+  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  playlist: [
+    {
+      id: 'sintel',
+      title: 'Sintel',
+      description: 'A short fantasy film by the Blender Foundation',
+      file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+      image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+      duration: '14:48',
+      tracks: [
+        { id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
+        { id: 1, file: '/Sintel.(2010)/chapters.vtt', kind: 'chapters' },
+      ],
+    },
+  ],
+});
 
-const player = nmplayer('player') // 'player' is the ID of the div element, do not use a video tag
-	.setup(config);
-
-// Add keyboard controls
-const keyHandler = new KeyHandlerPlugin();
-player.registerPlugin('keyHandler', keyHandler);
-player.usePlugin('keyHandler');
-
-// Add subtitle support
+// Add ASS subtitle support
 const octopus = new OctopusPlugin();
 player.registerPlugin('octopus', octopus);
 player.usePlugin('octopus');
 
-// Listen to events
-player.on('play', () => console.log('Playback started'));
-player.on('time', (timeData) => console.log(`${timeData.currentTime}s / ${timeData.duration}s`));
+// React to player state
+player.on('play', () => console.log('Playing'));
+player.on('time', (data) => console.log(`${data.currentTimeHuman} / ${data.durationHuman}`));
 ```
 
-## 🎯 Plugin Development
+The `'player'` argument is the ID of a `<div>` element — never use a `<video>` tag. The player creates its own video element internally.
 
-Want to extend functionality? Create custom plugins using our simple API:
+## What You Get
+
+**Playback engine** — MP4, WebM, HLS adaptive streaming with automatic quality switching
+
+**Subtitle engine** — VTT subtitles built-in, ASS/SSA via the included OctopusPlugin
+
+**State management** — CSS classes on the container (`playing`, `paused`, `buffering`, `active`, `inactive`, `error`) so your UI can react with pure CSS or JavaScript
+
+**Event system** — 50+ typed events for playback, tracks, playlists, volume, quality, and more
+
+**Plugin architecture** — Build your entire UI as a plugin with full access to the player API
+
+**Playlist & tracks** — Multi-item playlists, audio track switching, quality levels, chapters, thumbnail sprites
+
+## Building Your UI
+
+The player adds CSS classes to the container div that reflect its state. Use these to drive your UI:
+
+| Class | When applied |
+|-------|-------------|
+| `nomercyplayer` | Always present |
+| `playing` | Video is playing |
+| `paused` | Video is paused |
+| `buffering` | Video is buffering |
+| `active` | User is interacting (mouse/keyboard activity) |
+| `inactive` | User stopped interacting (controls should hide) |
+| `error` | Playback error occurred |
+
+Create a plugin to build your controls:
 
 ```typescript
-import Plugin from '@nomercy-entertainment/nomercy-video-player/src/plugin';
-import { NMPlayer } from '@nomercy-entertainment/nomercy-video-player/src/types';
+import { Plugin } from '@nomercy-entertainment/nomercy-video-player';
+import type { NMPlayer } from '@nomercy-entertainment/nomercy-video-player';
 
-export interface PluginArgs {
-	// Your extra config items
+class MyUIPlugin extends Plugin {
+  declare player: NMPlayer;
+
+  initialize(player: NMPlayer) {
+    this.player = player;
+  }
+
+  use() {
+    // Build your UI using player.container, player.overlay, etc.
+    // Listen to events: this.player.on('time', ...)
+    // Call methods: this.player.play(), this.player.seek(30), etc.
+  }
+
+  dispose() {
+    // Clean up DOM elements and event listeners
+  }
 }
-
-class CustomUIPlugin extends Plugin {
-	player: NMPlayer<PluginArgs> = NMPlayer < PluginArgs > {};
-
-	initialize(player: NMPlayer<PluginArgs>) {
-		this.player = player;
-		// Setup your plugin before use is called
-	}
-	
-	dispose() {
-		// Clean up when plugin is unmounted
-	}
-
-	use() {
-		// Your plugin logic here
-	}
-}
-
-export default CustomUIPlugin;
 ```
 
-💡 **Need more examples?** Check out our built-in plugins:
-- [KeyHandlerPlugin](src/plugins/keyHandlerPlugin.ts) - VLC-style keyboard shortcuts
-- [OctopusPlugin](src/plugins/octopusPlugin.ts) - Advanced ASS subtitle rendering
-- [TemplatePlugin](src/plugins/templatePlugin.ts) - UI template system
+See the [Plugin Development Guide](wiki/Plugin-Development.md) for complete examples.
 
-## 📖 Documentation
+## Documentation
 
-| Section | Description |
-|---------|-------------|
-| 🏠 [Wiki Home](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki) | Complete documentation hub |
-| ⚡ [Quick Start](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Quick-Start-Guide) | Get running in 5 minutes |
-| 📚 [API Reference](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/API-Reference) | Complete TypeScript API docs |
-| 🔧 [Plugin Development](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Plugin-Development) | Build custom plugins |
-| 🎛️ [Configuration](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Configuration) | Player setup options |
-## 🔧 Browser Support
+| Guide | Description |
+|-------|-------------|
+| [Getting Started](wiki/Quick-Start-Guide.md) | Installation, setup, and first plugin |
+| [Configuration](wiki/Configuration.md) | All PlayerConfig options |
+| [Plugin Development](wiki/Plugin-Development.md) | How to build UI and functionality plugins |
+| [API Reference](wiki/API-Reference.md) | Types and interfaces |
+| [Methods](wiki/API-Reference-Methods.md) | All NMPlayer methods |
+| [Events](wiki/Events.md) | All events with data types |
+| [Framework Integration](wiki/Framework-Integration.md) | Vue, React, Svelte, Angular, Vanilla JS |
+
+## Browser Support
 
 | Feature | Chrome | Firefox | Safari | Edge |
 |---------|--------|---------|--------|------|
-| Core Audio | ✅ | ✅ | ✅ | ✅ |
-| Web Audio API | ✅ | ✅ | ✅ | ✅ |
-| Media Session | ✅ | ✅ | ✅ | ✅ |
-| HLS Streaming | ✅ | ✅ | ✅* | ✅ |
-| Spectrum Analyzer | ✅ | ✅ | ✅ | ✅ |
+| Core Playback | Yes | Yes | Yes | Yes |
+| HLS Streaming | Yes | Yes | Native | Yes |
+| ASS Subtitles | Yes | Yes | Yes | Yes |
+| Plugin System | Yes | Yes | Yes | Yes |
 
-*Safari has native HLS support
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/blob/master/CONTRIBUTING.md) for details.
-
-### Development Setup
+## Contributing
 
 ```bash
-# Clone the repository
 git clone https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer.git
 cd NoMercyVideoPlayer
-
-# Install dependencies
 npm install
-
-# Start development
 npm run dev
 npm run build
-npm run test
 ```
 
-## 📄 License
+## License
 
-This project is licensed under the [MIT License](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/blob/master/LICENSE) - see the LICENSE file for details.
+[MIT](LICENSE)
 
-## 🏢 About NoMercy Entertainment
+## About
 
-NoMercy Entertainment builds open-source media tools that give developers full control over their audio and video experiences.
+Built by the [NoMercy Entertainment](https://github.com/NoMercy-Entertainment) team. Powers video playback in [NoMercyTV](https://nomercy.tv/).
 
-### Our Ecosystem
-
-- **[NoMercy MediaServer](https://github.com/NoMercy-Entertainment/NoMercyMediaServer)** - Complete media server solution
-- **[NoMercy MusicPlayer](https://github.com/NoMercy-Entertainment/NoMercyMusicPlayer)** - Advanced HTML5 music player
-- **[NoMercy MusicPlayer](https://github.com/NoMercy-Entertainment/NoMercyMusicPlayer)** - Headless audio engine
-- **[NoMercy FFmpeg](https://github.com/NoMercy-Entertainment/NoMercyFFMpeg)** - Optimized FFmpeg builds
-- **[NoMercy Tesseract](https://github.com/NoMercy-Entertainment/NoMercyTesseract)** - OCR training data
-
-### Links
-
-- 🌐 Website: [nomercy.tv](https://nomercy.tv/)
-- 📧 Contact: [support@nomercy.tv](mailto:support@nomercy.tv)
-- 💼 GitHub: [@NoMercy-Entertainment](https://github.com/NoMercy-Entertainment)
-- 🎮 Demo: [examples.nomercy.tv/videoplayer](https://examples.nomercy.tv/videoplayer)
-
----
-
-
-<div align="center">
-
-**Built with ❤️ by the NoMercy Engineering Team**
-
-*Empowering developers to create extraordinary video experiences*
-
-</div>
+See also: [NoMercy MusicPlayer](https://github.com/NoMercy-Entertainment/NoMercyMusicPlayer) | [NoMercy MediaServer](https://github.com/NoMercy-Entertainment/NoMercyMediaServer)
