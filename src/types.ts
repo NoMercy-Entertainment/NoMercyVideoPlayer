@@ -98,7 +98,6 @@ export interface PlaylistItem {
 	image: string;
 	title: string;
 	tracks?: Track[];
-	withCredentials?: boolean;
 	description: string;
 	season?: number;
 	episode?: number;

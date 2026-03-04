@@ -18,7 +18,7 @@ const player = nmplayer('player-container').setup(config);
 | `playlist` | `string \| PlaylistItem[]` | `[]` | **Required.** Array of playlist items or a URL to a JSON playlist endpoint. |
 | `basePath` | `string` | `undefined` | Base URL prepended to relative `file`, subtitle, and font paths. |
 | `imageBasePath` | `string` | `undefined` | Base URL for images. Falls back to `basePath` when not set. |
-| `accessToken` | `string` | `undefined` | Bearer token sent in the `Authorization` header on fetch requests. |
+| `accessToken` | `string` | `undefined` | Auth token: sent as `Authorization: Bearer` header on fetch/XHR requests, and appended as `?token=` query param on video source URLs. |
 | `muted` | `boolean` | `false` | Start playback muted. |
 | `autoPlay` | `boolean` | `false` | Begin playback automatically on setup. |
 | `controls` | `boolean` | `false` | Enable the built-in control layer. |
@@ -204,7 +204,10 @@ const config: PlayerConfig = {
 };
 ```
 
-When `accessToken` is set, the token is sent as a `Bearer` header on all fetch requests made through the player's internal `getFileContents` method. This applies to relative URLs resolved through `basePath` as well as absolute URLs (unless `anonymous: true` is set on the request).
+When `accessToken` is set:
+- Fetch and XHR requests (subtitles, fonts, playlists) include an `Authorization: Bearer` header.
+- The video element source URL gets `?token=` appended as a query parameter (since `<video>` elements cannot send custom headers).
+- Requests marked `anonymous: true` internally skip the token.
 
 ---
 
@@ -310,22 +313,6 @@ The token is sent as:
 
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-```
-
-### Per-Item Credentials
-
-Set `withCredentials: true` on individual playlist items to include cookies and HTTP authentication on cross-origin requests for that item's media source.
-
-```typescript
-{
-  id: 1,
-  title: 'Protected Video',
-  description: 'Requires authentication cookies.',
-  file: '/protected/video.mp4',
-  image: '/protected/poster.jpg',
-  duration: '3600',
-  withCredentials: true,
-}
 ```
 
 ---

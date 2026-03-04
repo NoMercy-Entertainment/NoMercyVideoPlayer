@@ -97,7 +97,6 @@ interface PlaylistItem {
   image: string;
   title: string;
   tracks?: Track[];
-  withCredentials?: boolean;
   description: string;
   season?: number;
   episode?: number;
@@ -117,7 +116,6 @@ interface PlaylistItem {
 | `image` | `string` | **Required** URL or path to thumbnail |
 | `title` | `string` | **Required** Display title |
 | `tracks` | `Track[]` | Associated subtitle/audio tracks |
-| `withCredentials` | `boolean` | Use credentials for requests |
 | `description` | `string` | **Required** Item description |
 | `season` | `number` | Season number (for TV shows) |
 | `episode` | `number` | Episode number (for TV shows) |
