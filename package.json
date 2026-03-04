@@ -2,20 +2,27 @@
   "name": "@nomercy-entertainment/nomercy-video-player",
   "version": "0.6.13",
   "description": "Full event-driven video player without a UI.",
-  "type": "commonjs",
-  "main": "./dist/nomercy-video-player.js",
-  "module": "./dist/nomercy-video-player.mjs",
+  "type": "module",
+  "main": "./dist/nomercy-video-player.cjs",
+  "module": "./dist/nomercy-video-player.js",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/nomercy-video-player.mjs"
+        "default": "./dist/nomercy-video-player.js"
       },
       "require": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/nomercy-video-player.js"
+        "default": "./dist/nomercy-video-player.cjs"
       }
-    }
+    },
+    "./src/types": "./src/types.ts",
+    "./src/types.ts": "./src/types.ts",
+    "./src/index": "./src/index.ts",
+    "./src/helpers": "./src/helpers.ts",
+    "./src/plugin": "./src/plugin.ts",
+    "./src/plugins/*": "./src/plugins/*",
+    "./dist/*": "./dist/*"
   },
   "license": "Apache-2.0",
   "repository": {
@@ -35,6 +42,7 @@
   "files": [
     "dist",
     "src",
+    "public",
     "./*"
   ],
   "scripts": {
@@ -50,7 +58,7 @@
     "NoMercy"
   ],
   "dependencies": {
-    "@nomercy-entertainment/media-session": "0.2.5",
+    "@nomercy-entertainment/media-session": "^1.0.0",
     "@types/webvtt-parser": "2.2.0",
     "hls.js": "1.5.13",
     "tailwind-merge": "2.6.0",

@@ -17,14 +17,12 @@ export default defineConfig({
 				'hls.js',
 				'webvtt-parser',
 				'tailwind-merge',
-				'@nomercy-entertainment/media-session',
 			],
 			output: {
 				globals: {
 					'hls.js': 'Hls',
 					'webvtt-parser': 'WebVTTParser',
 					'tailwind-merge': 'tailwindMerge',
-					'@nomercy-entertainment/media-session': 'MediaSession',
 				},
 			},
 		},

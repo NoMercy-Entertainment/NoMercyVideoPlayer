@@ -12,8 +12,7 @@
     "lib": ["ES2022", "DOM"],
   },
   "include": [
-    "src/*",
-    "src/plugins/octopusPlugin.ts"
+    "src/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }
