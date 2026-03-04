@@ -167,7 +167,7 @@ const player = nmplayer('player').setup({
       id: 'rail-wars',
       title: 'Rail Wars',
       description: 'Anime with styled ASS subtitles and custom fonts',
-      file: 'https://backstore.fra1.digitaloceanspaces.com/demo/railwars/railwars.mp4',
+      file: '/Rail.Wars!.(2014)/Rail.Wars!.S00E00/Rail.Wars!.(2014).S00E00.NoMercy.m3u8',
       image: 'https://image.tmdb.org/t/p/original/vH8NqN2LMcmtBv037iHGwcPOgCZ.jpg',
       duration: '1:30',
       tracks: [
