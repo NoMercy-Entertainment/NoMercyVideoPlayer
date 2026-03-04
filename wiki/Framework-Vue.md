@@ -7,8 +7,7 @@ Vue is the primary framework used by the project maintainers. The recommended pa
 ```typescript
 // composables/useVideoPlayer.ts
 import { ref, onMounted, onBeforeUnmount, watch, type Ref } from 'vue';
-import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 export function useVideoPlayer(containerId: string, config: Ref<PlayerConfig>) {

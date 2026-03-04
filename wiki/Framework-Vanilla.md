@@ -23,7 +23,7 @@ No framework needed. Initialize the player after the DOM is ready.
 
   <script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player/dist/nomercy-video-player.cjs"></script>
   <script>
-    var player = window.nmplayer('player').setup({
+    var config = {
       basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
       playlist: [
         {
@@ -40,7 +40,9 @@ No framework needed. Initialize the player after the DOM is ready.
           ],
         },
       ],
-    });
+    };
+
+    var player = window.nmplayer('player').setup(config);
 
     var playBtn = document.getElementById('play-btn');
     var timeDisplay = document.getElementById('time');
@@ -66,10 +68,10 @@ If you're using a bundler, you can use ES module imports:
 <div id="player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000;"></div>
 
 <script type="module">
-  import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-  import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+  import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+  import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
-  const player = nmplayer('player').setup({
+  const config: PlayerConfig = {
     basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
     playlist: [
       {
@@ -81,7 +83,9 @@ If you're using a bundler, you can use ES module imports:
         duration: '14:48',
       },
     ],
-  });
+  };
+
+  const player = nmplayer('player').setup(config);
 
   player.registerPlugin('keyHandler', new KeyHandlerPlugin());
   player.usePlugin('keyHandler');

@@ -7,9 +7,8 @@ Svelte's `onMount` and `onDestroy` map directly to the player lifecycle.
 ```svelte
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-  import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
-  import type { NMPlayer, PlaylistItem, TimeData } from '@nomercy-entertainment/nomercy-video-player';
+  import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+  import type { NMPlayer, PlayerConfig, PlaylistItem, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
   const basePath = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films';
 
@@ -29,17 +28,15 @@ Svelte's `onMount` and `onDestroy` map directly to the player lifecycle.
     },
   ];
 
+  const config: PlayerConfig = { playlist, basePath, autoPlay: false };
+
   let player: NMPlayer | null = null;
   let currentTime = 0;
   let duration = 0;
   let isPlaying = false;
 
   onMount(() => {
-    player = nmplayer('player').setup({
-      playlist,
-      basePath,
-      autoPlay: false,
-    });
+    player = nmplayer('player').setup(config);
 
     player.registerPlugin('keyHandler', new KeyHandlerPlugin());
     player.usePlugin('keyHandler');
@@ -77,9 +74,8 @@ With Svelte 5 runes, you can use `$state` and `$effect`:
 
 ```svelte
 <script lang="ts">
-  import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-  import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
-  import type { NMPlayer, PlaylistItem, TimeData } from '@nomercy-entertainment/nomercy-video-player';
+  import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+  import type { NMPlayer, PlayerConfig, PlaylistItem, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
   const basePath = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films';
 
@@ -95,13 +91,15 @@ With Svelte 5 runes, you can use `$state` and `$effect`:
     },
   ];
 
+  const config: PlayerConfig = { playlist, basePath };
+
   let player = $state<NMPlayer | null>(null);
   let currentTime = $state(0);
   let duration = $state(0);
   let isPlaying = $state(false);
 
   $effect(() => {
-    const instance = nmplayer('player').setup({ playlist, basePath });
+    const instance = nmplayer('player').setup(config);
 
     instance.registerPlugin('keyHandler', new KeyHandlerPlugin());
     instance.usePlugin('keyHandler');

@@ -7,8 +7,7 @@ Use `AfterViewInit` to initialize the player after the DOM is ready, and `OnDest
 ```typescript
 // video-player.component.ts
 import { Component, AfterViewInit, OnDestroy, Input } from '@angular/core';
-import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 @Component({

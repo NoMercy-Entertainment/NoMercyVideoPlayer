@@ -7,8 +7,7 @@ The recommended pattern is a custom hook that manages the player lifecycle insid
 ```typescript
 // hooks/useVideoPlayer.ts
 import { useRef, useEffect, useState, useCallback } from 'react';
-import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 export function useVideoPlayer(containerId: string, config: PlayerConfig) {

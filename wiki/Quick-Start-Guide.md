@@ -77,8 +77,7 @@ player.usePlugin('keyHandler');
 ## Working Example with Playlist
 
 ```typescript
-import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const config: PlayerConfig = {
@@ -156,11 +155,10 @@ player.on('captionsChanged', (track) => {
 For anime or content with styled subtitles, the OctopusPlugin renders `.ass` files with font support:
 
 ```typescript
-import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import nmplayer, { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
-const player = nmplayer('player').setup({
+const config: PlayerConfig = {
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/refs/heads/master/Anime/Anime',
   playlist: [
     {
@@ -176,7 +174,9 @@ const player = nmplayer('player').setup({
       ],
     },
   ],
-});
+};
+
+const player = nmplayer('player').setup(config);
 
 // Register the OctopusPlugin for ASS/SSA subtitle rendering
 player.registerPlugin('octopus', new OctopusPlugin());
@@ -198,22 +198,25 @@ The `fonts` track points to a JSON file listing the font files needed by the ASS
 <body>
   <div id="player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000;"></div>
 
-  <script type="module">
-    import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-
-    const player = nmplayer('player').setup({
+  <script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player/dist/nomercy-video-player.cjs"></script>
+  <script>
+    var config = {
       basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
-      playlist: [{
-        id: 'sintel',
-        title: 'Sintel',
-        description: 'A short fantasy film',
-        file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-        image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
-        duration: '14:48',
-      }],
-    });
+      playlist: [
+        {
+          id: 'sintel',
+          title: 'Sintel',
+          description: 'A short fantasy film',
+          file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+          image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+          duration: '14:48',
+        },
+      ],
+    };
 
-    player.on('ready', () => player.play());
+    var player = window.nmplayer('player').setup(config);
+
+    player.on('ready', function() { player.play(); });
   </script>
 </body>
 </html>
