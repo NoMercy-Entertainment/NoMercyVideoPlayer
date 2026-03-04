@@ -1410,5 +1410,5 @@ player.on('speed', (rate) => {
 
 For more information, see:
 - [API Reference](API-Reference) - Complete API documentation
-- [Configuration](Configuration) - Player configuration options
-- [Plugin Development](Plugin-Development) - Creating custom plugins
+- [Configuration](../getting-started/Configuration) - Player configuration options
+- [Plugin Development](../guides/Plugin-Development) - Creating custom plugins

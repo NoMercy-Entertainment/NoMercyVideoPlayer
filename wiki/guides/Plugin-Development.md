@@ -29,9 +29,9 @@ The base class:
 
 ```typescript
 class Plugin {
-  declare player: NMPlayer<any>;
+  declare player: NMPlayer;
 
-  initialize(player: NMPlayer<any>) {
+  initialize(player: NMPlayer) {
     this.player = player;
   }
 
@@ -56,60 +56,46 @@ player.usePlugin('myPlugin');
 
 ---
 
-## 2. Your First Plugin
+## 2. Quick Example
 
-A play/pause overlay button that reacts to playback state:
+A minimal plugin skeleton showing the pattern:
 
 ```typescript
 import { Plugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer } from '@nomercy-entertainment/nomercy-video-player';
 
-class PlayPauseOverlay extends Plugin {
-  declare player: NMPlayer<any>;
-  private button: HTMLButtonElement | null = null;
-  private boundOnPlay = () => this.update(true);
-  private boundOnPause = () => this.update(false);
-  private boundOnClick = () => this.player.togglePlayback();
+class MyPlugin extends Plugin {
+  declare player: NMPlayer;
+  private el: HTMLDivElement | null = null;
+  private onPlay = () => { /* update UI */ };
+  private onPause = () => { /* update UI */ };
 
-  initialize(player: NMPlayer<any>) {
+  initialize(player: NMPlayer) {
     this.player = player;
   }
 
   use() {
-    // Create the button and append it to the UI overlay
-    this.button = document.createElement('button');
-    this.button.className = 'play-pause-btn';
-    this.button.textContent = this.player.isPlaying ? 'Pause' : 'Play';
-    this.button.addEventListener('click', this.boundOnClick);
-    this.player.overlay.appendChild(this.button);
-
-    // Listen for state changes
-    this.player.on('play', this.boundOnPlay);
-    this.player.on('pause', this.boundOnPause);
+    this.el = document.createElement('div');
+    this.player.overlay.appendChild(this.el);
+    this.player.on('play', this.onPlay);
+    this.player.on('pause', this.onPause);
   }
 
   dispose() {
-    this.player.off('play', this.boundOnPlay);
-    this.player.off('pause', this.boundOnPause);
-    this.button?.removeEventListener('click', this.boundOnClick);
-    this.button?.remove();
-    this.button = null;
-  }
-
-  private update(playing: boolean) {
-    if (this.button) {
-      this.button.textContent = playing ? 'Pause' : 'Play';
-    }
+    this.player.off('play', this.onPlay);
+    this.player.off('pause', this.onPause);
+    this.el?.remove();
+    this.el = null;
   }
 }
 ```
 
-Register it:
-
 ```typescript
-player.registerPlugin('playPause', new PlayPauseOverlay());
-player.usePlugin('playPause');
+player.registerPlugin('myPlugin', new MyPlugin());
+player.usePlugin('myPlugin');
 ```
+
+For a complete, real-world example that builds a full video player UI from scratch (play/pause, progress bar, volume, fullscreen, quality/subtitle/audio selectors), see **[Building a Video Player UI](Building-a-Video-Player-UI)**.
 
 ---
 
@@ -190,184 +176,24 @@ This approach keeps your JavaScript minimal. Let CSS do the work of reacting to 
 
 ---
 
-## 4. Using Player Methods
+## 4. Player API Reference
 
-These are the methods you will use most when building UI controls.
+For the full list of methods, events, and properties available inside your plugin:
 
-### Playback
+- **[Methods](API-Reference-Methods)** — `play()`, `seek()`, `setVolume()`, `toggleFullscreen()`, `setCurrentCaption()`, and more
+- **[Events](Events)** — `time`, `play`, `pause`, `volume`, `levels`, `captionsList`, `item`, and more
+- **[API Reference](API-Reference)** — TypeScript types (`TimeData`, `VolumeState`, `Level`, `Track`, `PlaylistItem`)
 
-| Method | Description |
-|---|---|
-| `play()` | Start playback. Returns a `Promise<void>`. |
-| `pause()` | Pause playback. |
-| `togglePlayback()` | Toggle between play and pause. |
-| `stop()` | Stop playback entirely. |
-| `seek(seconds)` | Seek to an absolute position in seconds. |
-| `forwardVideo(seconds?)` | Jump forward (default: 10s). |
-| `rewindVideo(seconds?)` | Jump backward (default: 10s). |
-
-### Time
-
-| Method | Returns |
-|---|---|
-| `getCurrentTime()` | Current playback position in seconds. |
-| `getDuration()` | Total duration in seconds. |
-| `getTimeData()` | A `TimeData` object with `currentTime`, `duration`, `percentage`, `remaining`, and human-readable strings. |
-
-### Volume
-
-| Method | Description |
-|---|---|
-| `setVolume(level)` | Set volume (0--100). |
-| `getVolume()` | Get current volume (0--100). |
-| `toggleMute()` | Toggle mute state. |
-| `setMute(state)` | Explicitly mute or unmute. |
-| `isMuted()` | Returns `boolean`. |
-| `volumeUp()` | Increase volume by one step. |
-| `volumeDown()` | Decrease volume by one step. |
-
-### Fullscreen
-
-| Method | Description |
-|---|---|
-| `enterFullscreen()` | Enter fullscreen. |
-| `toggleFullscreen()` | Toggle fullscreen state. |
-| `setFullscreen(state)` | Set fullscreen to a specific state. |
-| `getFullscreen()` | Returns `boolean`. |
-
-### Quality
-
-| Method | Description |
-|---|---|
-| `getQualityLevels()` | Returns `Level[]` with available quality levels. |
-| `getCurrentQuality()` | Returns the index of the current quality level. |
-| `setCurrentQuality(index)` | Switch to a specific quality level by index. |
-
-### Captions
-
-| Method | Description |
-|---|---|
-| `getCaptionsList()` | Returns `Track[]` of available subtitle tracks. |
-| `getCaptionIndex()` | Returns the index of the active caption track. |
-| `setCurrentCaption(index)` | Switch to a specific caption track by index. |
-
-### Audio tracks
-
-| Method | Description |
-|---|---|
-| `getAudioTracks()` | Returns `Track[]` of available audio tracks. |
-| `getAudioTrackIndex()` | Returns the index of the active audio track. |
-| `setCurrentAudioTrack(index)` | Switch to a specific audio track by index. |
-
-### Playback speed
-
-| Method | Description |
-|---|---|
-| `getSpeeds()` | Returns the available playback rates as `number[]`. |
-| `getSpeed()` | Returns the current playback rate. |
-| `setSpeed(rate)` | Set the playback rate. |
-
-### Playlist
-
-| Method | Description |
-|---|---|
-| `next()` | Go to the next playlist item. |
-| `previous()` | Go to the previous playlist item. |
-| `playlistItem()` | Returns the current `PlaylistItem`. |
-| `playlistItem(index)` | Jump to a specific playlist item by index. |
-| `getPlaylist()` | Returns the full playlist array. |
-| `getPlaylistIndex()` | Returns the current playlist index. |
-
----
-
-## 5. Using Player Events
-
-Subscribe with `player.on(event, callback)`, unsubscribe with `player.off(event, callback)`, or listen once with `player.once(event, callback)`.
-
-### Core events
-
-| Event | Callback signature | When it fires |
-|---|---|---|
-| `ready` | `() => void` | Player is initialized and ready. |
-| `play` | `() => void` | Playback starts. |
-| `pause` | `() => void` | Playback pauses. |
-| `time` | `(data: TimeData) => void` | Fires continuously during playback with time information. |
-| `seek` | `(data: TimeData) => void` | User initiated a seek. |
-| `seeked` | `(data: TimeData) => void` | Seek completed. |
-| `complete` | `() => void` | Current media finished playing. |
-| `error` | `() => void` | A playback error occurred. |
-| `firstFrame` | `() => void` | The first frame of video has rendered. |
-| `dispose` | `() => void` | Player is being destroyed. Clean up here. |
-
-### Volume events
-
-| Event | Callback signature | When it fires |
-|---|---|---|
-| `volume` | `(data: VolumeState) => void` | Volume level changed. `VolumeState` has `volume` (0--100) and `muted` (boolean). |
-| `mute` | `(data: VolumeState) => void` | Mute state changed. |
-
-### Fullscreen and controls
-
-| Event | Callback signature | When it fires |
-|---|---|---|
-| `fullscreen` | `(isFullscreen: boolean) => void` | Fullscreen state changed. |
-| `controls` | `(showing: boolean) => void` | Controls visibility changed. |
-
-### Track events
-
-| Event | Callback signature | When it fires |
-|---|---|---|
-| `levels` | `(data: Level[]) => void` | Quality levels became available. |
-| `levelsChanged` | `(data: CurrentTrack) => void` | Active quality level changed. `CurrentTrack` has `id` and `name`. |
-| `captionsList` | `(data: Track[]) => void` | Caption tracks became available. |
-| `captionsChanged` | `(data: CurrentTrack) => void` | Active caption track changed. |
-| `audioTracks` | `(data: Track[]) => void` | Audio tracks became available. |
-| `audioTrackChanged` | `(data: CurrentTrack) => void` | Active audio track changed. |
-
-### Playlist events
-
-| Event | Callback signature | When it fires |
-|---|---|---|
-| `item` | `(data: PlaylistItem) => void` | A new playlist item started loading. |
-| `playlist` | `(data: PlaylistItem[]) => void` | Playlist was set or changed. |
-| `playlistComplete` | `() => void` | Reached the end of the playlist. |
-
-### The TimeData type
-
-```typescript
-interface TimeData {
-  currentTime: number;       // seconds
-  duration: number;          // seconds
-  percentage: number;        // 0-100
-  remaining: number;         // seconds
-  currentTimeHuman: string;  // e.g. "1:23:45"
-  durationHuman: string;
-  remainingHuman: string;
-  playbackRate: number;
-}
-```
-
----
-
-## 6. Using Player Properties
-
-You can access these properties directly on the player instance.
+### Key properties
 
 | Property | Type | Description |
 |---|---|---|
 | `container` | `HTMLDivElement` | The root player container element (the one with CSS classes). |
 | `overlay` | `HTMLDivElement` | The UI overlay div. Append your UI elements here. |
-| `subtitleOverlay` | `HTMLDivElement` | The subtitle overlay div. |
-| `subtitleArea` | `HTMLDivElement` | The subtitle area within the overlay. |
-| `subtitleText` | `HTMLSpanElement` | The subtitle text element. |
 | `options` | `PlayerConfig & T` | The merged configuration object. |
 | `isPlaying` | `boolean` | Whether the video is currently playing. |
-| `chapters` | `VTTData` | Parsed chapter data from WebVTT. |
-| `plugins` | `Map<string, Plugin>` | All registered plugins, keyed by name. |
 
 ### DOM structure
-
-The player creates this structure inside your container `<div>`:
 
 ```
 container div (.nomercyplayer, .playing/.paused, .active/.inactive, etc.)
@@ -382,7 +208,7 @@ Always append your plugin's DOM elements to `player.overlay`. This ensures your 
 
 ---
 
-## 7. Custom Config Per Plugin
+## 5. Custom Config Per Plugin
 
 Use TypeScript generics to define custom configuration options for your plugin. These get merged into the player's `options` object via the `NMPlayer<T>` generic parameter.
 
@@ -434,9 +260,66 @@ player.registerPlugin('titleOverlay', new TitleOverlayPlugin());
 player.usePlugin('titleOverlay');
 ```
 
+### Extending PlaylistItem
+
+`PlayerConfig<T>` accepts a generic that intersects with `PlaylistItem` in the playlist array (`PlaylistItem & T`). This lets you add app-specific fields to playlist items with full type safety across the player API, events, and methods.
+
+Define an extended interface and pass it as `T`:
+
+```typescript
+import type { PlaylistItem, PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
+
+// Extend PlaylistItem with your app-specific fields
+interface AppPlaylistItem extends PlaylistItem {
+  video_id: string;
+  tmdb_id: number;
+  video_type: string;
+  audio: Track[];
+  captions: Track[];
+}
+
+// Use the extended type as the generic parameter
+const config: PlayerConfig<AppPlaylistItem> = {
+  basePath: 'https://api.example.com/media',
+  playlist: [
+    {
+      id: 'sintel',
+      title: 'Sintel',
+      description: 'A short fantasy film',
+      file: '/Sintel.m3u8',
+      image: '/poster.jpg',
+      duration: '14:48',
+      video_id: 'abc123',        // typed — required by AppPlaylistItem
+      tmdb_id: 45745,            // typed — required by AppPlaylistItem
+      video_type: 'movie',       // typed — required by AppPlaylistItem
+      audio: [],
+      captions: [],
+    },
+  ],
+};
+```
+
+The generic flows through the entire player API — `playlistItem()`, `getPlaylist()`, event callbacks, and `setPlaylistItemCallback()` all return `PlaylistItem & T`:
+
+```typescript
+import type { NMPlayer } from '@nomercy-entertainment/nomercy-video-player';
+
+const player: NMPlayer<AppPlaylistItem> = nmplayer('player').setup(config);
+
+// playlistItem() returns AppPlaylistItem
+const item = player.playlistItem();
+console.log(item.title);      // standard PlaylistItem field
+console.log(item.video_id);   // custom AppPlaylistItem field
+
+// Events carry the extended type too
+player.on('item', (item) => {
+  console.log(item.tmdb_id);  // typed as number
+});
+```
+
 ---
 
-## 8. Emitting Custom Events
+## 6. Emitting Custom Events
 
 Plugins can emit their own events through the player's event bus using `this.player.emit()`. This enables inter-plugin communication without tight coupling.
 
@@ -444,7 +327,7 @@ Plugins can emit their own events through the player's event bus using `this.pla
 
 ```typescript
 class ChapterMenuPlugin extends Plugin {
-  declare player: NMPlayer<any>;
+  declare player: NMPlayer;
 
   use() {
     // When the user selects a chapter in your menu UI:
@@ -459,7 +342,7 @@ class ChapterMenuPlugin extends Plugin {
 
 ```typescript
 class TimelinePlugin extends Plugin {
-  declare player: NMPlayer<any>;
+  declare player: NMPlayer;
   private boundOnChapter = (data: { index: number; title: string }) => {
     this.highlightChapter(data.index);
   };
@@ -493,7 +376,7 @@ Prefer events over direct references when possible. Events keep plugins decouple
 
 ---
 
-## 9. Built-in Plugins
+## 7. Built-in Plugins
 
 The package ships with two built-in plugins.
 
@@ -540,7 +423,7 @@ The key handler respects the `disableControls` config option -- if set to `true`
 
 ---
 
-## 10. Best Practices
+## 8. Best Practices
 
 - **Always clean up in `dispose()`.** Remove every DOM element, event listener, `ResizeObserver`, and timer your plugin creates. Leaked listeners cause memory leaks and ghost behavior after the player is destroyed.
 

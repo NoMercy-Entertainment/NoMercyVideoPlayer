@@ -1472,4 +1472,4 @@ player.ui_resetInactivityTimer();
 ---
 
 For event documentation, see [Events](Events).
-For configuration options, see [Configuration](Configuration).
+For configuration options, see [Configuration](../getting-started/Configuration).

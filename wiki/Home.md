@@ -14,16 +14,16 @@ A headless video player engine for the web. It handles playback, streaming, subt
 
 Read these in order if you're new:
 
-1. **[Getting Started](Quick-Start-Guide)** — Install, create a player, register your first plugin
-2. **[Configuration](Configuration)** — All options for `PlayerConfig`
-3. **[Plugin Development](Plugin-Development)** — extending the player with plugins
-4. **[Framework Integration](Framework-Integration)** — Vue, React, Svelte, Angular, Vanilla JS
+1. **[Getting Started](getting-started/Quick-Start-Guide)** — Install, create a player, register your first plugin
+2. **[Configuration](getting-started/Configuration)** — All options for `PlayerConfig`
+3. **[Plugin Development](guides/Plugin-Development)** — extending the player with plugins, includes a [step-by-step UI tutorial](guides/Building-a-Video-Player-UI)
+4. **[Framework Integration](frameworks/Framework-Integration)** — Vue, React, Svelte, Angular, Vanilla JS
 
 Reference (look things up as needed):
 
-- **[API Reference](API-Reference)** — TypeScript types and interfaces
-- **[Methods](API-Reference-Methods)** — All NMPlayer methods
-- **[Events](Events)** — All events with data types
+- **[API Reference](reference/API-Reference)** — TypeScript types and interfaces
+- **[Methods](reference/API-Reference-Methods)** — All NMPlayer methods
+- **[Events](reference/Events)** — All events with data types
 
 ## Core Concepts
 
