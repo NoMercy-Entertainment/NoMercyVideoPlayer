@@ -37,7 +37,6 @@ const player = nmplayer('player-container').setup(config);
 | `disableAutoPlayback` | `boolean` | `false` | Prevent automatic advancement to the next playlist item. |
 | `disableHls` | `boolean` | `undefined` | Disable HLS.js even when the source is an HLS manifest. |
 | `forceHls` | `boolean` | `undefined` | Force HLS.js usage regardless of native HLS support. |
-| `styles` | `any` | `undefined` | Custom CSS property overrides for the player. |
 | `customStorage` | `StorageInterface` | built-in | Custom async storage adapter for persisting user preferences. |
 
 ---

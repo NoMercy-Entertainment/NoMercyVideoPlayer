@@ -179,7 +179,6 @@ export interface Position {
 export type StretchOptions = 'exactfit' | 'fill' | 'none' | 'uniform';
 
 export interface PlayerConfig<T = Record<string, any>> {
-	styles?: any;
 	chapters?: boolean;
 	playlist: string | (PlaylistItem & T)[];
 	debug?: boolean;

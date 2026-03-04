@@ -21,7 +21,6 @@ The main configuration interface for initializing the player.
 
 ```typescript
 interface PlayerConfig<T = Record<string, any>> {
-  styles?: any;
   chapters?: boolean;
   playlist: string | (PlaylistItem & T)[];
   debug?: boolean;
@@ -52,7 +51,6 @@ interface PlayerConfig<T = Record<string, any>> {
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `styles` | `any` | `undefined` | Custom CSS styles object |
 | `chapters` | `boolean` | `false` | Enable chapter support |
 | `playlist` | `string \| PlaylistItem[]` | **Required** | Playlist items or URL to playlist |
 | `debug` | `boolean` | `false` | Enable debug logging |
