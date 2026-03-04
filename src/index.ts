@@ -8,7 +8,7 @@ import type Plugin from './plugin';
 
 import { defaultSubtitleStyles, getEdgeStyle, humanTime, pad, parseColorToHex, unique } from './helpers';
 import {
-	PlaylistItem, PreviewTime, PlayerConfig, Stretching,
+	PlaylistItem, PlayState, PreviewTime, PlayerConfig, Stretching,
 	TimeData, Track, TypeMappings, Chapter, Level, SubtitleStyle,
 	CreateElement,
 	AddClasses,
@@ -51,7 +51,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	previewTime: PreviewTime[] = [];
 	currentTimeFile = '';
 
-	fonts: string[] = [];
+	fonts: { file: string; mimeType: string }[] = [];
 	currentFontFile = '';
 
 	skippers: any;
@@ -2155,8 +2155,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	// Playback
-	getState(): 'paused' | 'playing' {
-		return this.videoElement.paused ? 'paused' : 'playing';
+	getState(): PlayState {
+		if (this.videoElement.readyState < 3 && !this.videoElement.paused) return 'buffering';
+		if (this.videoElement.paused) return 'paused';
+		if (!this.videoElement.paused) return 'playing';
+		return 'idle';
 	}
 
 	play(): Promise<void> {
@@ -3416,3 +3419,42 @@ const nmplayer = <Conf extends Partial<PlayerConfig<Record<string, any>>> = Reco
 window.nmplayer = nmplayer as unknown as any;
 
 export default nmplayer;
+
+// Re-export types for consumers
+export type {
+	TypeMapping,
+	TypeMappings,
+	Version,
+	OS,
+	CaptionsConfig,
+	SubtitleStyle,
+	Level,
+	Preload,
+	PlaylistItem,
+	TrackType,
+	Track,
+	CurrentTrack,
+	PlayState,
+	Stretching,
+	EdgeStyle,
+	PreviewTime,
+	VolumeState,
+	Chapter,
+	TimeData,
+	Position,
+	StretchOptions,
+	PlayerConfig,
+	StorageInterface,
+	CreateElement,
+	AddClasses,
+	AddClassesReturn,
+	Icon,
+	NMPlayer,
+} from './types';
+
+export type { VTTData } from 'webvtt-parser';
+export { Base } from './base';
+export { default as Plugin } from './plugin';
+export { default as PlayerStorage } from './playerStorage';
+export { default as OctopusPlugin } from './plugins/octopusPlugin';
+export { default as KeyHandlerPlugin } from './plugins/keyHandlerPlugin';
