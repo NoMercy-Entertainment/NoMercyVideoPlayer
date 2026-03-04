@@ -31,7 +31,6 @@ const player = nmplayer('player-container').setup(config);
 | `displayLanguage` | `string` | `navigator.language` | Locale used for the player UI translations. |
 | `controlsTimeout` | `number` | `3000` | Milliseconds of inactivity before controls auto-hide. |
 | `doubleClickDelay` | `number` | `300` | Milliseconds to distinguish single-click from double-click. |
-| `seekButtons` | `boolean` | `undefined` | Show forward/rewind seek buttons in the control bar. |
 | `disableControls` | `boolean` | `false` | Completely disable the control layer. |
 | `disableTouchControls` | `boolean` | `false` | Disable touch gesture handling (swipe-to-seek, etc.). |
 | `disableMediaControls` | `boolean` | `false` | Disable MediaSession integration (lock screen / OS media controls). |
@@ -141,8 +140,8 @@ Each playlist item can carry an array of `Track` objects describing subtitles, c
 |---|---|
 | `subtitles` | VTT or ASS/SSA subtitle file. Set `ext: 'ass'` for ASS files. |
 | `chapters` | WebVTT chapter markers. Requires `chapters: true` in the config. |
-| `thumbnails` | WebVTT file referencing thumbnail sprite images for seek preview. |
-| `sprite` | Alternative to `thumbnails` for sprite-based previews. |
+| `thumbnails` | WebVTT file with timestamp-to-coordinate mappings for seek preview thumbnails. |
+| `sprite` | The image sprite file containing the actual thumbnail frames. |
 | `fonts` | Font files required by ASS subtitles (used by the Octopus renderer). |
 
 ### Resume Playback

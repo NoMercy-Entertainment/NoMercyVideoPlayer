@@ -204,7 +204,6 @@ export interface PlayerConfig<T = Record<string, any>> {
 	displayLanguage?: string;
 	disableControls?: boolean;
 	disableTouchControls?: boolean;
-	seekButtons?: boolean;
 	disableMediaControls?: boolean;
 	customStorage?: StorageInterface;
 	disableAutoPlayback?: boolean;

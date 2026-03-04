@@ -40,7 +40,6 @@ interface PlayerConfig<T = Record<string, any>> {
   displayLanguage?: string;
   disableControls?: boolean;
   disableTouchControls?: boolean;
-  seekButtons?: boolean;
   disableMediaControls?: boolean;
   disableHls?: boolean;
   forceHls?: boolean;
@@ -72,7 +71,6 @@ interface PlayerConfig<T = Record<string, any>> {
 | `displayLanguage` | `string` | `navigator.language` | Display language for metadata |
 | `disableControls` | `boolean` | `false` | Completely disable controls |
 | `disableTouchControls` | `boolean` | `false` | Disable touch/gesture controls |
-| `seekButtons` | `boolean` | `true` | Show seek forward/backward buttons |
 | `disableMediaControls` | `boolean` | `false` | Disable media session controls |
 | `disableHls` | `boolean` | `false` | Disable HLS.js (use native playback) |
 | `forceHls` | `boolean` | `false` | Force HLS.js even when native HLS is available |
