@@ -1,9 +1,22 @@
 {
   "name": "@nomercy-entertainment/nomercy-video-player",
-  "version": "0.6.12",
+  "version": "0.6.13",
   "description": "Full event-driven video player without a UI.",
   "type": "commonjs",
-  "main": "./dist/index.js",
+  "main": "./dist/nomercy-video-player.js",
+  "module": "./dist/nomercy-video-player.mjs",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/nomercy-video-player.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/nomercy-video-player.js"
+      }
+    }
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -25,7 +38,7 @@
     "./*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "vite build",
     "dev": "vite --port 5502 --host",
     "lint": "eslint --fix .",
     "test": "jest",
@@ -37,10 +50,9 @@
     "NoMercy"
   ],
   "dependencies": {
-    "@nomercy-entertainment/media-session": "0.2.3",
+    "@nomercy-entertainment/media-session": "0.2.5",
     "@types/webvtt-parser": "2.2.0",
     "hls.js": "1.5.13",
-    "opentype.js": "1.3.4",
     "tailwind-merge": "2.6.0",
     "webvtt-parser": "2.2.0"
   },
@@ -64,7 +76,7 @@
     "postcss-nested": "7.0.2",
     "postcss-preset-env": "9.2.0",
     "prettier": "3.3.3",
-    "sass": "1.65.1",
+    "sass": "1.85.0",
     "sass-loader": "13.3.2",
     "shx": "0.3.4",
     "tailwindcss": "3.2.7",
@@ -78,7 +90,6 @@
     "webpack-cli": "5.1.4",
     "webpack-dev-server": "5.2.2"
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "publishConfig": {
     "access": "public"
   }

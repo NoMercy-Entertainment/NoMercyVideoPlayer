@@ -10,6 +10,7 @@ yarn-error.log*
 .idea/
 *.log
 .DS_Store
+.yarn.lock
 
 dist/
 setup.ts

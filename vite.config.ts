@@ -10,14 +10,28 @@ export default defineConfig({
 	build: {
 		sourcemap: false,
 		minify: 'terser',
-		target: 'modules',
+		target: 'es2022',
 		rollupOptions: {
 			input: ['./src/index.ts'],
+			external: [
+				'hls.js',
+				'webvtt-parser',
+				'tailwind-merge',
+				'@nomercy-entertainment/media-session',
+			],
+			output: {
+				globals: {
+					'hls.js': 'Hls',
+					'webvtt-parser': 'WebVTTParser',
+					'tailwind-merge': 'tailwindMerge',
+					'@nomercy-entertainment/media-session': 'MediaSession',
+				},
+			},
 		},
 		lib: {
 			entry: resolve(__dirname, 'src/index.ts'),
 			name: 'nmplayer',
-			formats: ['umd', 'iife'],
+			formats: ['es', 'cjs', 'umd', 'iife'],
 			fileName: 'nomercy-video-player',
 		},
 	},
