@@ -13,7 +13,7 @@ import type { NMPlayer, PlayerConfig, PlaylistItem, Track, Level, TimeData, Volu
 - [PlayerConfig](#playerconfig)
 - [Types & Interfaces](#types--interfaces)
 
-For methods, see [Methods](API-Reference-Methods.md). For events, see [Events](Events.md).
+For methods, see [Methods](API-Reference-Methods). For events, see [Events](Events).
 
 ## PlayerConfig
 
@@ -449,4 +449,4 @@ interface Icon {
 }
 ```
 
-For method documentation, see [NMPlayer Methods](API-Reference-Methods.md) and [Events](Events.md).
+For method documentation, see [NMPlayer Methods](API-Reference-Methods) and [Events](Events).

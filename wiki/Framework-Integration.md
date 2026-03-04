@@ -23,11 +23,11 @@ import type { NMPlayer, PlayerConfig, PlaylistItem, TimeData } from '@nomercy-en
 
 | Guide | Lifecycle hook |
 |-------|---------------|
-| [Vue 3](Framework-Vue.md) | `onMounted` / `onBeforeUnmount` |
-| [React](Framework-React.md) | `useEffect` cleanup |
-| [Svelte](Framework-Svelte.md) | `onMount` / `onDestroy` |
-| [Angular](Framework-Angular.md) | `ngAfterViewInit` / `ngOnDestroy` |
-| [Vanilla JS](Framework-Vanilla.md) | `DOMContentLoaded` |
+| [Vue 3](Framework-Vue) | `onMounted` / `onBeforeUnmount` |
+| [React](Framework-React) | `useEffect` cleanup |
+| [Svelte](Framework-Svelte) | `onMount` / `onDestroy` |
+| [Angular](Framework-Angular) | `ngAfterViewInit` / `ngOnDestroy` |
+| [Vanilla JS](Framework-Vanilla) | `DOMContentLoaded` |
 
 ## Shared Playlist Data
 
@@ -70,7 +70,7 @@ const playlist: PlaylistItem[] = [
 
 ## Next Steps
 
-- [Plugin Development](Plugin-Development.md) — build your own UI plugin
-- [Events](Events.md) — full event reference
-- [Methods](API-Reference-Methods.md) — all player methods
-- [Configuration](Configuration.md) — all PlayerConfig options
+- [Plugin Development](Plugin-Development) — build your own UI plugin
+- [Events](Events) — full event reference
+- [Methods](API-Reference-Methods) — all player methods
+- [Configuration](Configuration) — all PlayerConfig options

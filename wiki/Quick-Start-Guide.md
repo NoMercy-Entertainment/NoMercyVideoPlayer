@@ -219,7 +219,7 @@ The player doesn't render any UI. Instead, it manages state and communicates thr
 2. **Events** — `play`, `pause`, `time`, `levels`, `captionsList`, etc.
 3. **Methods** — `play()`, `pause()`, `seek()`, `setVolume()`, etc.
 
-Your job is to build a plugin that listens to events and calls methods. See [Plugin Development](Plugin-Development.md) for how to build your own UI.
+Your job is to build a plugin that listens to events and calls methods. See [Plugin Development](Plugin-Development) for how to build your own UI.
 
 ## Cleanup
 
@@ -231,9 +231,9 @@ player.dispose();
 
 ## Next Steps
 
-- [Configuration](Configuration.md) — All PlayerConfig options
-- [Plugin Development](Plugin-Development.md) — Build your own UI plugin
-- [Events](Events.md) — Full event reference
-- [Methods](API-Reference-Methods.md) — All player methods
-- [Framework Integration](Framework-Integration.md) — React, Vue, Angular, Svelte patterns
+- [Configuration](Configuration) — All PlayerConfig options
+- [Plugin Development](Plugin-Development) — Build your own UI plugin
+- [Events](Events) — Full event reference
+- [Methods](API-Reference-Methods) — All player methods
+- [Framework Integration](Framework-Integration) — React, Vue, Angular, Svelte patterns
 - [Live Examples](https://github.com/NoMercy-Entertainment/Examples) — Working example project

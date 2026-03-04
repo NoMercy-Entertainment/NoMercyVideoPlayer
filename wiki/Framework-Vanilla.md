@@ -99,6 +99,6 @@ player.dispose();
 
 ## Next Steps
 
-- [Plugin Development](Plugin-Development.md) — build a custom UI plugin
-- [Events](Events.md) — full event reference
-- [Framework Integration](Framework-Integration.md) — other frameworks
+- [Plugin Development](Plugin-Development) — build a custom UI plugin
+- [Events](Events) — full event reference
+- [Framework Integration](Framework-Integration) — other frameworks

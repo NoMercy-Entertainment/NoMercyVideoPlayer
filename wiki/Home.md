@@ -14,16 +14,16 @@ A headless video player engine for the web. It handles playback, streaming, subt
 
 Read these in order if you're new:
 
-1. **[Getting Started](Quick-Start-Guide.md)** — Install, create a player, register your first plugin
-2. **[Configuration](Configuration.md)** — All options for `PlayerConfig`
-3. **[Plugin Development](Plugin-Development.md)** — How to build your own UI and functionality plugins
-4. **[Framework Integration](Framework-Integration.md)** — Vue, React, Svelte, Angular, Vanilla JS
+1. **[Getting Started](Quick-Start-Guide)** — Install, create a player, register your first plugin
+2. **[Configuration](Configuration)** — All options for `PlayerConfig`
+3. **[Plugin Development](Plugin-Development)** — How to build your own UI and functionality plugins
+4. **[Framework Integration](Framework-Integration)** — Vue, React, Svelte, Angular, Vanilla JS
 
 Reference (look things up as needed):
 
-- **[API Reference](API-Reference.md)** — TypeScript types and interfaces
-- **[Methods](API-Reference-Methods.md)** — All NMPlayer methods
-- **[Events](Events.md)** — All events with data types
+- **[API Reference](API-Reference)** — TypeScript types and interfaces
+- **[Methods](API-Reference-Methods)** — All NMPlayer methods
+- **[Events](Events)** — All events with data types
 
 ## Core Concepts
 
@@ -41,7 +41,7 @@ There are no built-in play buttons, progress bars, or volume sliders. The player
 - Keyboard shortcut handling (via KeyHandlerPlugin)
 - Volume, mute, playback rate, and seeking
 - Media Session API integration
-- Progress persistence via configurable storage
+
 
 ### Everything Is a Plugin
 
