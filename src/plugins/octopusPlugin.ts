@@ -1,21 +1,19 @@
-// @ts-nocheck
 import SubtitlesOctopus from '../../public/js/octopus/subtitles-octopus';
 
 import Plugin from '../plugin';
 import type { NMPlayer } from '../types';
 
+const OCTOPUS_CDN_BASE = 'https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player@latest/public/js/octopus';
+
 export interface OctopusPluginArgs {
-	accessToken: string;
-	debug: boolean;
-	targetFps: number,
-	blendRender: boolean,
-	lazyFileLoading: boolean,
-	renderAhead: boolean,
+	targetFps: number;
+	blendRender: boolean;
+	lazyFileLoading: boolean;
 }
 
 export class OctopusPlugin extends Plugin {
-	player: NMPlayer<OctopusPluginArgs>;
-	resizeObserver: ResizeObserver;
+	declare player: NMPlayer<OctopusPluginArgs>;
+	resizeObserver!: ResizeObserver;
 
 	initialize(player: NMPlayer<OctopusPluginArgs>): void {
 		this.player = player;
@@ -38,19 +36,19 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	destroy(): void {
-        try {
-            this.player.octopusInstance?.worker.terminate();
-            if (this.player.octopusInstance.canvasParent) {
-                this.player.octopusInstance?.dispose();
-            }
-            this.player.octopusInstance = null;
-        } catch (e) {
-            //
-        }
+		try {
+			this.player.octopusInstance?.worker?.terminate();
+			if (this.player.octopusInstance?.canvasParent) {
+				this.player.octopusInstance.dispose();
+			}
+			this.player.octopusInstance = null;
+		} catch (_e) {
+			//
+		}
 	}
 
 	async opus(): Promise<void> {
-        this.dispose();
+		this.dispose();
 
 		const subtitleURL = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ''}${this.player.getSubtitleFile()}` : null;
 		if (!subtitleURL) return;
@@ -68,7 +66,7 @@ export class OctopusPlugin extends Plugin {
 			await this.player.fetchFontFile();
 
 			const fontFiles: string[] = this.player.fonts
-				?.map((f: any) => encodeURI(`${this.player.options.basePath ?? ''}${f.file}`));
+				?.map((f) => encodeURI(`${this.player.options.basePath ?? ''}${f.file}`));
 
 			(this.player.getElement()
 				.querySelectorAll('.libassjs-canvas-parent') as NodeListOf<HTMLDivElement>)
@@ -85,31 +83,31 @@ export class OctopusPlugin extends Plugin {
 				blendRender: this.player.options.blendRender,
 				lazyFileLoading: this.player.options.lazyFileLoading,
 				renderAhead: this.player.options.renderAhead,
-				workerUrl: '/js/octopus/subtitles-octopus-worker.js',
-				legacyWorkerUrl: '/js/octopus/subtitles-octopus-worker-legacy.js',
-				fallbackFont: '/js/octopus/default.ttf',
+				workerUrl: this.player.options.workerUrl ?? `${OCTOPUS_CDN_BASE}/subtitles-octopus-worker.js`,
+				legacyWorkerUrl: this.player.options.legacyWorkerUrl ?? `${OCTOPUS_CDN_BASE}/subtitles-octopus-worker-legacy.js`,
+				fallbackFont: this.player.options.fallbackFont ?? `${OCTOPUS_CDN_BASE}/default.ttf`,
 				onReady: async () => {
 				},
-				onError: (event: any) => {
+				onError: (event: unknown) => {
 					console.error('opus error', event);
 				},
 			};
 
 			if (subtitleURL && subtitleURL.includes('.ass')) {
-                this.player.octopusInstance?.worker.terminate();
-                this.player.octopusInstance = new SubtitlesOctopus(options);
+				this.player.octopusInstance?.worker?.terminate();
+				this.player.octopusInstance = new SubtitlesOctopus(options);
 			}
 		}
-	};
+	}
 
-	resize() {
-		if(!this.player?.octopusInstance?.canvasParent || !this.subtitleOverlay) return;
-		this.player.octopusInstance.canvasParent.style.width = this.subtitleOverlay.style.width;
-		this.player.octopusInstance.canvasParent.style.height = this.subtitleOverlay.style.height;
-		this.player.octopusInstance.canvasParent.style.position = this.subtitleOverlay.style.position;
-		this.player.octopusInstance.canvasParent.style.top = this.subtitleOverlay.style.top;
-		this.player.octopusInstance.canvasParent.style.left = this.subtitleOverlay.style.left;
-		this.player.octopusInstance.canvasParent.style.transform = this.subtitleOverlay.style.transform;
+	resize(): void {
+		if (!this.player?.octopusInstance?.canvasParent || !this.player.subtitleOverlay) return;
+		this.player.octopusInstance.canvasParent.style.width = this.player.subtitleOverlay.style.width;
+		this.player.octopusInstance.canvasParent.style.height = this.player.subtitleOverlay.style.height;
+		this.player.octopusInstance.canvasParent.style.position = this.player.subtitleOverlay.style.position;
+		this.player.octopusInstance.canvasParent.style.top = this.player.subtitleOverlay.style.top;
+		this.player.octopusInstance.canvasParent.style.left = this.player.subtitleOverlay.style.left;
+		this.player.octopusInstance.canvasParent.style.transform = this.player.subtitleOverlay.style.transform;
 	}
 }
 

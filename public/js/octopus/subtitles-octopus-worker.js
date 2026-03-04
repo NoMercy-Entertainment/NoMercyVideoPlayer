@@ -1796,7 +1796,7 @@ if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
 		read_ = function (url) {
 			var xhr = new XMLHttpRequest;
 			xhr.open("GET", url, false);
-			if (self.accessToken) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
+			if (self.accessToken && self.authOrigin && (typeof url !== 'string' || !url.startsWith('http') || url.startsWith(self.authOrigin))) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
 			xhr.send(null);
 			return xhr.responseText
 		};
@@ -1804,7 +1804,7 @@ if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
 			readBinary = function (url) {
 				var xhr = new XMLHttpRequest;
 				xhr.open("GET", url, false);
-				if (self.accessToken) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
+				if (self.accessToken && self.authOrigin && (typeof url !== 'string' || !url.startsWith('http') || url.startsWith(self.authOrigin))) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
 				xhr.responseType = "arraybuffer";
 				xhr.send(null);
 				return new Uint8Array(xhr.response)
@@ -1813,7 +1813,7 @@ if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
 		readAsync = function (url, onload, onerror) {
 			var xhr = new XMLHttpRequest;
 			xhr.open("GET", url, true);
-			if (self.accessToken) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
+			if (self.accessToken && self.authOrigin && (typeof url !== 'string' || !url.startsWith('http') || url.startsWith(self.authOrigin))) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
 			xhr.responseType = "arraybuffer";
 			xhr.onload = function () {
 				if (xhr.status == 200 || xhr.status == 0 && xhr.response) {
@@ -4998,7 +4998,7 @@ var FS = {
 		LazyUint8Array.prototype.cacheLength = function LazyUint8Array_cacheLength() {
 			var xhr = new XMLHttpRequest;
 			xhr.open("HEAD", url, false);
-			if (self.accessToken) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
+			if (self.accessToken && self.authOrigin && (typeof url !== 'string' || !url.startsWith('http') || url.startsWith(self.authOrigin))) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
 			xhr.send(null);
 			if (!(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304)) throw new Error("Couldn't load " + url + ". Status: " + xhr.status);
 			var datalength = Number(xhr.getResponseHeader("Content-length"));
@@ -5012,7 +5012,7 @@ var FS = {
 				if (to > datalength - 1) throw new Error("only " + datalength + " bytes available! programmer error!");
 				var xhr = new XMLHttpRequest;
 				xhr.open("GET", url, false);
-				if (self.accessToken) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
+				if (self.accessToken && self.authOrigin && (typeof url !== 'string' || !url.startsWith('http') || url.startsWith(self.authOrigin))) xhr.setRequestHeader('Authorization', `Bearer ${self.accessToken}`);
 				if (datalength !== chunkSize) xhr.setRequestHeader("Range", "bytes=" + from + "-" + to);
 				if (typeof Uint8Array != "undefined") xhr.responseType = "arraybuffer";
 				if (xhr.overrideMimeType) {
@@ -9141,6 +9141,7 @@ function onMessageFromMainEmscriptenThread(message) {
 			self.fontFiles = message.data.fonts;
 			self.renderMode = message.data.renderMode;
 			self.accessToken = message.data.accessToken;
+			try { self.authOrigin = new URL(message.data.URL || '').origin; } catch(e) { self.authOrigin = ''; }
 			if (self.renderMode == "lossy" && typeof createImageBitmap === "undefined") {
 				self.renderMode = "wasm-blend";
 				console.error("'createImageBitmap' needed for 'lossy' unsupported. Falling back to default!")

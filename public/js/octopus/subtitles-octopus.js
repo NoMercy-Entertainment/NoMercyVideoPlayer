@@ -124,10 +124,33 @@ export const SubtitlesOctopus = function (options) {
 		}
 		// Worker
 		if (!self.worker) {
+			// Check if worker URL is cross-origin; if so, use importScripts blob to bypass CORS restriction
+			try {
+				var workerOrigin = new URL(self.workerUrl, document.baseURI).origin;
+				if (workerOrigin !== location.origin) {
+					var workerBaseUrl = self.workerUrl.substring(0, self.workerUrl.lastIndexOf('/') + 1);
+					var blobContent = 'var Module = { locateFile: function(path) { return ' + JSON.stringify(workerBaseUrl) + ' + path; } };\n' +
+						'importScripts(' + JSON.stringify(self.workerUrl) + ');';
+					var blob = new Blob([blobContent], { type: 'application/javascript' });
+					var blobUrl = URL.createObjectURL(blob);
+					self.worker = new Worker(blobUrl);
+					self.worker.addEventListener('message', self.onWorkerMessage);
+					self.worker.addEventListener('error', self.workerError);
+					URL.revokeObjectURL(blobUrl);
+					self._postInit();
+					return;
+				}
+			} catch (e) {
+				// URL parsing failed, fall through to direct Worker creation
+			}
 			self.worker = new Worker(self.workerUrl);
 			self.worker.addEventListener('message', self.onWorkerMessage);
 			self.worker.addEventListener('error', self.workerError);
 		}
+		self._postInit();
+	};
+
+	self._postInit = function () {
 		self.workerActive = false;
 		self.createCanvas();
 		self.setVideo(options.video);
@@ -874,7 +897,8 @@ export const SubtitlesOctopus = function (options) {
 
 	self.resizeWithTimeout = function () {
 		self.resize();
-		setTimeout(self.resize, 100);
+		clearTimeout(self._resizeTimer);
+		self._resizeTimer = setTimeout(self.resize, 100);
 	};
 
 	self.runBenchmark = function () {
@@ -970,6 +994,7 @@ export const SubtitlesOctopus = function (options) {
 
 			self.video.parentNode.removeChild(self.canvasParent);
 
+			clearTimeout(self._resizeTimer);
 			self.video = null;
 		}
 
