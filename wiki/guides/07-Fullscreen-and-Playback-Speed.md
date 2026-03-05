@@ -58,7 +58,6 @@ private createSpeedButton() {
     this.toggleMenu('speed');
   });
 
-  // Build menu
   this.speedMenu = this.player
     .createElement('div', 'speed-menu')
     .addClasses([
@@ -89,7 +88,6 @@ private createSpeedButton() {
     });
   }
 
-  // Highlight current speed
   this.player.on('speed', () => this.updateSpeedMenu());
   this.updateSpeedMenu();
 }
@@ -107,7 +105,7 @@ private updateSpeedMenu() {
 
 ### Menu toggle system
 
-A simple mechanism to open one popup at a time:
+A simple mechanism to open one popup at a time. At this step only the speed menu exists, so `toggleMenu()` only needs to handle that single menu. (In [Step 8](08-Quality-Subtitles-Audio-Selectors) we will extend this to support quality, subtitle, and audio menus.)
 
 ```typescript
 private activeMenu: string | null = null;
@@ -116,12 +114,6 @@ private activeMenu: string | null = null;
 private toggleMenu(name: string | null) {
   this.speedMenu?.classList.add('hidden');
   this.speedMenu?.classList.remove('flex');
-  this.qualityMenu?.classList.add('hidden');
-  this.qualityMenu?.classList.remove('flex');
-  this.subtitleMenu?.classList.add('hidden');
-  this.subtitleMenu?.classList.remove('flex');
-  this.audioMenu?.classList.add('hidden');
-  this.audioMenu?.classList.remove('flex');
 
   if (name === this.activeMenu || name === null) {
     this.activeMenu = null;
@@ -139,9 +131,6 @@ private toggleMenu(name: string | null) {
 private getMenuByName(name: string): HTMLDivElement | null {
   switch (name) {
     case 'speed': return this.speedMenu;
-    case 'quality': return this.qualityMenu;
-    case 'subtitles': return this.subtitleMenu;
-    case 'audio': return this.audioMenu;
     default: return null;
   }
 }

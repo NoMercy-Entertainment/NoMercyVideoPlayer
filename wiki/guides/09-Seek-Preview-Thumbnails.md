@@ -34,16 +34,40 @@ WEBVTT
 
 Each cue's text contains `x,y,width,height` — the region in the sprite sheet for that time range.
 
-### New properties
+### Extending PlayerUIPlugin
+
+Step 9 extends `PlayerUIPlugin` rather than building from scratch. The base class already creates the progress bar and all standard controls. We only need to add the seek preview on top:
 
 ```typescript
 import { WebVTTParser } from 'webvtt-parser';
-import type { PreviewTime } from '@nomercy-entertainment/nomercy-video-player';
+import { PlayerUIPlugin } from '@nomercy-entertainment/nomercy-video-player/src/plugins/playerUIPlugin';
+import type { PreviewTime } from '@nomercy-entertainment/nomercy-video-player/src/types';
+```
 
+### New properties
+
+```typescript
 private previewTime: PreviewTime[] = [];
 private sliderPop!: HTMLDivElement;
 private sliderPopImage!: HTMLDivElement;
 private sliderPopText!: HTMLSpanElement;
+```
+
+### Wire it up in `use()`
+
+Call `super.use()` to set up all the standard UI, then create the seek preview elements and register event listeners:
+
+```typescript
+use() {
+  super.use();
+  this.createSeekPreview();
+
+  this.player.on('firstFrame', () => this.fetchPreviewTime());
+  this.player.on('item', () => {
+    this.previewTime = [];
+    this.fetchPreviewTime();
+  });
+}
 ```
 
 ### Fetch and parse preview data
@@ -87,109 +111,100 @@ private fetchPreviewTime() {
 }
 ```
 
-### Create the tooltip element
+### Create the tooltip elements
 
-Add this inside `createProgressBar()`, after creating the slider elements:
+The `createSeekPreview()` method is called from `use()` after `super.use()`. It finds the slider bar that `PlayerUIPlugin` already created by querying for an element whose ID ends with `"slider-bar"`, then appends the tooltip elements to it:
 
 ```typescript
-// Tooltip container — positioned above the slider, follows the mouse
-this.sliderPop = this.player
-  .createElement('div', 'slider-pop')
-  .addClasses([
-    'absolute', 'bottom-full', 'mb-3',
-    'flex', 'flex-col', 'items-center',
-    'pointer-events-none', 'z-30',
-    'opacity-0', 'transition-opacity', 'duration-150',
-  ])
-  .appendTo(this.sliderBar)
-  .get();
+private createSeekPreview() {
+  // Find the slider bar that PlayerUIPlugin created
+  const sliderBar = this.player.container.querySelector<HTMLDivElement>('[id$="slider-bar"]');
+  if (!sliderBar) return;
 
-// Thumbnail image area — uses background-position to show the right frame
-this.sliderPopImage = this.player
-  .createElement('div', 'slider-pop-image')
-  .addClasses([
-    'rounded', 'overflow-hidden', 'bg-cover', 'bg-no-repeat',
-    'border', 'border-white/30',
-  ])
-  .appendTo(this.sliderPop)
-  .get();
+  // Create tooltip elements
+  this.sliderPop = this.player
+    .createElement('div', 'slider-pop')
+    .addClasses([
+      'absolute', 'bottom-full', 'mb-3',
+      'flex', 'flex-col', 'items-center',
+      'pointer-events-none', 'z-30',
+      'opacity-0', 'transition-opacity', 'duration-150',
+    ])
+    .appendTo(sliderBar)
+    .get();
 
-// Time label below the thumbnail
-this.sliderPopText = this.player
-  .createElement('span', 'slider-pop-text')
-  .addClasses([
-    'text-white', 'text-xs', 'mt-1', 'tabular-nums',
-    'bg-black/70', 'px-1.5', 'py-0.5', 'rounded',
-  ])
-  .appendTo(this.sliderPop)
-  .get();
+  this.sliderPopImage = this.player
+    .createElement('div', 'slider-pop-image')
+    .addClasses([
+      'rounded', 'overflow-hidden', 'bg-no-repeat',
+      'border', 'border-white/30',
+    ])
+    .appendTo(this.sliderPop)
+    .get();
+
+  this.sliderPopText = this.player
+    .createElement('span', 'slider-pop-text')
+    .addClasses([
+      'text-white', 'text-xs', 'mt-1', 'tabular-nums',
+      'bg-black/70', 'px-1.5', 'py-0.5', 'rounded',
+    ])
+    .appendTo(this.sliderPop)
+    .get();
+
+  const humanTime = (seconds: number): string => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return h > 0
+      ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+      : `${m}:${String(s).padStart(2, '0')}`;
+  };
+
+  sliderBar.addEventListener('mousemove', (e: MouseEvent) => {
+    if (this.previewTime.length === 0) return;
+
+    const rect = sliderBar.getBoundingClientRect();
+    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const percent = x / rect.width;
+    const scrubTime = percent * this.player.getDuration();
+
+    const preview = this.previewTime.find(
+      (p) => scrubTime >= p.start && scrubTime < p.end
+    ) ?? this.previewTime.at(-1);
+
+    if (preview) {
+      this.sliderPopImage.style.backgroundPosition = `-${preview.x}px -${preview.y}px`;
+      this.sliderPopImage.style.width = `${preview.w}px`;
+      this.sliderPopImage.style.height = `${preview.h}px`;
+
+      const popWidth = preview.w;
+      const minLeft = popWidth / 2;
+      const maxLeft = rect.width - popWidth / 2;
+      const clampedX = Math.max(minLeft, Math.min(x, maxLeft));
+      this.sliderPop.style.left = `${clampedX}px`;
+      this.sliderPop.style.transform = 'translateX(-50%)';
+
+      this.sliderPopText.textContent = humanTime(scrubTime);
+    }
+
+    this.sliderPop.style.opacity = '1';
+  });
+
+  sliderBar.addEventListener('mouseleave', () => {
+    this.sliderPop.style.opacity = '0';
+  });
+}
 ```
 
-### Show/hide the tooltip on hover
+### Clean up in `dispose()`
 
-Add these event handlers inside `createProgressBar()`:
-
-```typescript
-// Helper: convert seconds to human-readable time
-const humanTime = (seconds: number): string => {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor(seconds % 60);
-  return h > 0
-    ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-    : `${m}:${String(s).padStart(2, '0')}`;
-};
-
-this.sliderBar.addEventListener('mousemove', (e: MouseEvent) => {
-  if (this.previewTime.length === 0) return;
-
-  const rect = this.sliderBar.getBoundingClientRect();
-  const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-  const percent = x / rect.width;
-  const scrubTime = percent * this.player.getDuration();
-
-  // Find the matching preview frame
-  const preview = this.previewTime.find(
-    (p) => scrubTime >= p.start && scrubTime < p.end
-  ) ?? this.previewTime.at(-1);
-
-  if (preview) {
-    // Position the sprite background
-    this.sliderPopImage.style.backgroundPosition = `-${preview.x}px -${preview.y}px`;
-    this.sliderPopImage.style.width = `${preview.w}px`;
-    this.sliderPopImage.style.height = `${preview.h}px`;
-
-    // Position the tooltip horizontally, clamped to slider bounds
-    const popWidth = preview.w;
-    const minLeft = popWidth / 2;
-    const maxLeft = rect.width - popWidth / 2;
-    const clampedX = Math.max(minLeft, Math.min(x, maxLeft));
-    this.sliderPop.style.left = `${clampedX}px`;
-    this.sliderPop.style.transform = 'translateX(-50%)';
-
-    // Update the time label
-    this.sliderPopText.textContent = humanTime(scrubTime);
-  }
-
-  this.sliderPop.style.opacity = '1';
-});
-
-this.sliderBar.addEventListener('mouseleave', () => {
-  this.sliderPop.style.opacity = '0';
-});
-```
-
-### Wire it up
-
-Call `fetchPreviewTime()` when playback starts and on item change:
+Remove the tooltip element and call `super.dispose()` to clean up the base UI:
 
 ```typescript
-// In use(), after other setup:
-this.player.on('firstFrame', () => this.fetchPreviewTime());
-this.player.on('item', () => {
-  this.previewTime = [];
-  this.fetchPreviewTime();
-});
+dispose() {
+  this.sliderPop?.remove();
+  super.dispose();
+}
 ```
 
 ### Result

@@ -6,7 +6,7 @@
 
 ---
 
-Add a large center play/pause button, a buffering spinner, and a small play/pause button in the bottom bar.
+Add a large center play button, a buffering spinner, and a small play/pause button in the bottom bar.
 
 Add these properties to the class:
 
@@ -16,7 +16,9 @@ private playbackButton!: HTMLButtonElement;
 private spinner!: HTMLDivElement;
 ```
 
-### Center play/pause button
+### Center play button
+
+The center button shows a single play icon. When playback starts, the entire button is hidden rather than swapping between two icons. This keeps the center of the screen clean during playback.
 
 Add this method and call it from `use()` before `createBottomBar()`:
 
@@ -29,40 +31,30 @@ private createCenterButton() {
       'w-16', 'h-16', 'rounded-full',
       'bg-black/50', 'text-white',
       'flex', 'items-center', 'justify-center',
-      // Hidden by default; becomes visible when the player adds the .paused class
-      // to the container. group-[&.nomercyplayer.paused] targets the parent .nomercyplayer element.
-      'opacity-0', 'transition-opacity', 'duration-300', 'pointer-events-none',
-      'group-[&.nomercyplayer.paused]:opacity-100',
-      'group-[&.nomercyplayer.paused]:pointer-events-auto',
+      'transition-opacity', 'duration-300',
       'hover:bg-black/70', 'hover:scale-110',
       'cursor-pointer', 'group/button',
     ])
     .appendTo(this.overlay)
     .get();
 
-  // createSVGElement(parent, id, icon, hidden, hovered)
-  // 4th arg = start hidden, 5th arg = enable hover effect
-  const pausedIcon = this.player.createSVGElement(this.centerButton, 'center-paused', icons.play, false, true);
-  const playIcon = this.player.createSVGElement(this.centerButton, 'center-playing', icons.pause, true, true);
+  // Only one icon — the play icon. No pause icon needed here.
+  this.player.createSVGElement(this.centerButton, 'center-paused', icons.play, false, true);
 
-  // stopPropagation prevents the overlay click handler from firing too.
-  // 'hide-tooltip' dismisses any visible tooltip from the built-in tooltip system.
   this.centerButton.addEventListener('click', (event) => {
     event.stopPropagation();
     this.player.togglePlayback();
     this.player.emit('hide-tooltip');
   });
 
-  this.player.on('pause', () => {
-    playIcon.style.display = 'none';
-    pausedIcon.style.display = 'flex';
-  });
+  // Hide the entire button on play — no icon swap needed
   this.player.on('play', () => {
-    pausedIcon.style.display = 'none';
-    playIcon.style.display = 'flex';
+    this.centerButton.style.display = 'none';
   });
 }
 ```
+
+Notice the differences from the bottom-bar playback button: the center button only creates one icon (`icons.play`) and hides itself entirely on the `'play'` event via `display = 'none'`. It does not listen for `'pause'` because the `.paused` class on the container (added in `use()`) controls initial visibility — there is no need to show the button again once playback begins.
 
 ### Buffering spinner
 
@@ -100,9 +92,7 @@ private bottomRow!: HTMLDivElement;
 private createBottomRow() {
   this.bottomRow = this.player
     .createElement('div', 'bottom-row')
-    .addClasses([
-      'flex', 'items-center', 'gap-1', 'h-10',
-    ])
+    .addClasses(['flex', 'items-center', 'gap-1', 'h-10'])
     .appendTo(this.bottomBar)
     .get();
 }
@@ -133,7 +123,11 @@ private createPlaybackButton() {
 }
 ```
 
+The bottom-bar playback button *does* swap between two icons — it stays visible at all times, so the user always has a way to toggle playback from the controls row.
+
 ### Update `use()` and `dispose()`
+
+The `use()` method now includes initial state handling. If the video is paused when the plugin loads, we add the `.paused` class so the UI reflects that state. If the video is already playing, we hide the center button and emit the `'play'` event so the playback button icon is correct.
 
 ```typescript
 use() {
@@ -144,13 +138,20 @@ use() {
   this.createBottomBar();
   this.createBottomRow();
   this.createPlaybackButton();
+
+  if (this.player.videoElement?.paused) {
+    this.player.container.classList.add('paused');
+  } else {
+    this.centerButton.style.display = 'none';
+    this.player.emit('play');
+  }
 }
 
 dispose() {
-  this.centerButton?.remove();
-  this.spinner?.remove();
   this.topBar?.remove();
   this.bottomBar?.remove();
+  this.centerButton?.remove();
+  this.spinner?.remove();
 }
 ```
 

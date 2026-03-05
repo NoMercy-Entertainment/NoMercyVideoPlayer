@@ -105,14 +105,12 @@ private createProgressBar() {
     this.isMouseDown = false;
   }, { passive: true });
 
-  // Sync progress bar and time labels with playback position.
+  // Sync progress bar with playback position.
   // Skip updates while the user is scrubbing so the bar doesn't fight the drag.
   this.player.on('time', (data) => {
     if (this.isMouseDown) return;
     sliderProgress.style.width = `${data.percentage}%`;
     sliderNipple.style.left = `${data.percentage}%`;
-    this.currentTimeLabel.textContent = data.currentTimeHuman;
-    this.durationLabel.textContent = data.durationHuman;
   });
 
   // Reset slider on playlist item change
@@ -123,14 +121,34 @@ private createProgressBar() {
 }
 ```
 
-### Update `dispose()`
+The `'time'` event handler at this step only updates the slider position -- it sets `sliderProgress.style.width` and `sliderNipple.style.left`. Time labels (`currentTimeLabel` and `durationLabel`) are not introduced until Step 4, so the handler here is intentionally minimal.
+
+### Update `use()` and `dispose()`
 
 ```typescript
+use() {
+  this.overlay = this.player.overlay;
+  this.createTopBar();
+  this.createCenterButton();
+  this.createSpinner();
+  this.createBottomBar();
+  this.createProgressBar();
+  this.createBottomRow();
+  this.createPlaybackButton();
+
+  if (this.player.videoElement?.paused) {
+    this.player.container.classList.add('paused');
+  } else {
+    this.centerButton.style.display = 'none';
+    this.player.emit('play');
+  }
+}
+
 dispose() {
-  this.centerButton?.remove();
-  this.spinner?.remove();
   this.topBar?.remove();
   this.bottomBar?.remove();
+  this.centerButton?.remove();
+  this.spinner?.remove();
 }
 ```
 

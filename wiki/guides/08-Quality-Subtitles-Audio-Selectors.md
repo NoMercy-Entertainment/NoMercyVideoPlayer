@@ -6,7 +6,193 @@
 
 ---
 
+This is the most complex step in the tutorial. We are adding three popup menus -- quality, subtitles, and audio -- each with their own highlighting logic and icon toggling. We will also update the progress bar to include a buffer indicator, and finalize both `use()` and `dispose()`.
+
+### Toggle menu (updated)
+
+In step 7 we only had the speed menu. Now `toggleMenu` and `getMenuByName` handle all four menus:
+
+```typescript
+private toggleMenu(name: string | null) {
+  this.speedMenu?.classList.add('hidden');
+  this.speedMenu?.classList.remove('flex');
+  this.qualityMenu?.classList.add('hidden');
+  this.qualityMenu?.classList.remove('flex');
+  this.subtitleMenu?.classList.add('hidden');
+  this.subtitleMenu?.classList.remove('flex');
+  this.audioMenu?.classList.add('hidden');
+  this.audioMenu?.classList.remove('flex');
+
+  if (name === this.activeMenu || name === null) {
+    this.activeMenu = null;
+    return;
+  }
+
+  this.activeMenu = name;
+  const menu = this.getMenuByName(name);
+  if (menu) {
+    menu.classList.remove('hidden');
+    menu.classList.add('flex');
+  }
+}
+
+private getMenuByName(name: string): HTMLDivElement | null {
+  switch (name) {
+    case 'speed': return this.speedMenu;
+    case 'quality': return this.qualityMenu;
+    case 'subtitles': return this.subtitleMenu;
+    case 'audio': return this.audioMenu;
+    default: return null;
+  }
+}
+```
+
+---
+
+### Progress bar with buffer indicator
+
+Before we get to the selectors, let's upgrade the progress bar from [Step 5](05-Progress-Bar-and-Time-Display). Two new layers sit inside the slider: a **buffer bar** showing how far the browser has downloaded, and the existing **progress bar** showing the current playback position. The buffer bar uses inline styles for `zIndex` and `backgroundColor` rather than Tailwind classes, because these values never change and don't need utility-class flexibility.
+
+A standalone `updateBuffer()` function is called from both the `'time'` event (so the buffer updates as playback advances) and a native `'progress'` event listener on the `<video>` element (so the buffer updates even while paused).
+
+```typescript
+private createProgressBar() {
+  this.sliderBar = this.player
+    .createElement('div', 'slider-bar')
+    .addClasses([
+      'relative', 'w-full', 'h-1', 'mx-2',
+      'bg-white/20', 'rounded-full',
+      'cursor-pointer', 'group/slider',
+      'hover:h-2', 'transition-all', 'duration-150',
+    ])
+    .appendTo(this.bottomBar)
+    .get();
+
+  const sliderBuffer = this.player
+    .createElement('div', 'slider-buffer')
+    .addClasses([
+      'absolute', 'top-0', 'left-0', 'h-full',
+      'rounded-full', 'pointer-events-none',
+    ])
+    .appendTo(this.sliderBar)
+    .get();
+  sliderBuffer.style.zIndex = '1';
+  sliderBuffer.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+
+  const sliderProgress = this.player
+    .createElement('div', 'slider-progress')
+    .addClasses([
+      'absolute', 'top-0', 'left-0', 'h-full',
+      'bg-white', 'rounded-full', 'pointer-events-none',
+    ])
+    .appendTo(this.sliderBar)
+    .get();
+  sliderProgress.style.zIndex = '2';
+
+  const sliderNipple = this.player
+    .createElement('div', 'slider-nipple')
+    .addClasses([
+      'absolute', 'top-1/2', '-translate-y-1/2', '-translate-x-1/2',
+      'w-3', 'h-3', 'rounded-full', 'bg-white',
+      'hidden', 'group-hover/slider:flex',
+      'pointer-events-none', 'left-0', 'z-20',
+    ])
+    .appendTo(this.sliderBar)
+    .get();
+
+  // Converts a mouse or touch event's X position into a 0–100 percentage
+  // relative to the slider bar. Handles MouseEvent.clientX, Touch.clientX,
+  // and TouchEvent.changedTouches (fired on touchend when touches is empty).
+  const getPercentFromEvent = (e: MouseEvent | TouchEvent): number => {
+    const rect = this.sliderBar.getBoundingClientRect();
+    const clientX = ('clientX' in e ? e.clientX : undefined)
+      ?? ('touches' in e ? e.touches?.[0]?.clientX : undefined)
+      ?? ('changedTouches' in e ? e.changedTouches?.[0]?.clientX : undefined)
+      ?? 0;
+    // Clamp to slider bounds so dragging past the edges doesn't overflow
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    return (x / rect.width) * 100;
+  };
+
+  ['mousedown', 'touchstart'].forEach((event) => {
+    this.sliderBar.addEventListener(event, () => {
+      this.isMouseDown = true;
+    }, { passive: true });
+  });
+
+  // Click to seek — convert click position to a time and jump there
+  this.sliderBar.addEventListener('click', (e: MouseEvent) => {
+    this.isMouseDown = false;
+    const percent = getPercentFromEvent(e);
+    const duration = this.player.getDuration();
+    this.player.seek(duration * (percent / 100));
+    sliderNipple.style.left = `${percent}%`;
+  });
+
+  // Scrub while dragging — visually update the bar without seeking yet
+  ['mousemove', 'touchmove'].forEach((event) => {
+    this.sliderBar.addEventListener(event, (e: any) => {
+      const percent = getPercentFromEvent(e);
+      if (!this.isMouseDown) return;
+      sliderNipple.style.left = `${percent}%`;
+      sliderProgress.style.width = `${percent}%`;
+    }, { passive: true });
+  });
+
+  // Cancel drag if the cursor leaves the slider
+  this.sliderBar.addEventListener('mouseleave', () => {
+    this.isMouseDown = false;
+  }, { passive: true });
+
+  const updateBuffer = () => {
+    const video = this.player.getVideoElement();
+    if (video && video.buffered.length > 0 && video.duration > 0) {
+      const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+      const bufferPct = (bufferedEnd / video.duration) * 100;
+      sliderBuffer.style.width = `${bufferPct}%`;
+    }
+  };
+
+  // Sync progress bar and time labels with playback position.
+  // Skip updates while the user is scrubbing so the bar doesn't fight the drag.
+  this.player.on('time', (data) => {
+    if (this.isMouseDown) return;
+    sliderProgress.style.width = `${data.percentage}%`;
+    sliderNipple.style.left = `${data.percentage}%`;
+    this.currentTimeLabel.textContent = data.currentTimeHuman;
+    this.durationLabel.textContent = data.durationHuman;
+    updateBuffer();
+  });
+
+  // Update buffer bar even when paused (progress fires as the browser buffers)
+  this.player.getVideoElement()?.addEventListener('progress', updateBuffer);
+
+  // Reset slider on playlist item change
+  this.player.on('item', () => {
+    sliderBuffer.style.width = '0';
+    sliderProgress.style.width = '0';
+  });
+}
+```
+
+Key details:
+
+- `sliderBuffer` sits at `zIndex: '1'` and `sliderProgress` at `zIndex: '2'`, so the playback position always draws on top of the buffer.
+- `updateBuffer()` reads the browser's `buffered` TimeRanges to compute how far the download has progressed.
+- The native `'progress'` event on the `<video>` element ensures the buffer bar updates even when the video is paused and still downloading.
+
 ### Quality selector
+
+The quality menu has an **Auto** button as its first entry. When Auto is active, HLS picks the best quality level automatically. Selecting a specific level switches to manual mode.
+
+Two class properties track the current state:
+
+```typescript
+private isAutoQuality = true;
+private selectedQualityIndex = -1;
+```
+
+`isAutoQuality` starts as `true` (the default HLS behavior). When the user picks a specific level, `isAutoQuality` is set to `false` and `selectedQualityIndex` remembers which level they chose.
 
 ```typescript
 private qualityMenu: HTMLDivElement | null = null;
@@ -39,6 +225,25 @@ private createQualityButton() {
     this.qualityButton.style.display = levels.length > 1 ? '' : 'none';
     this.qualityMenu.innerHTML = '';
 
+    // Auto option — lets HLS pick the best quality
+    const autoOption = this.player
+      .createElement('button', 'quality-auto')
+      .addClasses([
+        'text-white', 'text-sm', 'px-3', 'py-1.5',
+        'rounded', 'hover:bg-white/20', 'text-left',
+        'cursor-pointer',
+      ])
+      .appendTo(this.qualityMenu!)
+      .get();
+    autoOption.textContent = 'Auto';
+    autoOption.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.player.setCurrentQuality(-1);
+      this.isAutoQuality = true;
+      this.highlightCurrentQuality();
+      this.toggleMenu(null);
+    });
+
     levels.forEach((level, index) => {
       const option = this.player
         .createElement('button', `quality-${index}`)
@@ -53,26 +258,62 @@ private createQualityButton() {
       option.addEventListener('click', (e) => {
         e.stopPropagation();
         this.player.setCurrentQuality(index);
+        this.isAutoQuality = false;
+        this.selectedQualityIndex = index;
+        this.highlightCurrentQuality();
         this.toggleMenu(null);
       });
     });
 
+    this.isAutoQuality = true;
     this.highlightCurrentQuality();
   });
 
   this.player.on('levelsChanged', () => this.highlightCurrentQuality());
 }
+```
 
+Notice the differences from a naive implementation:
+
+1. **Auto button** is always the first entry (index 0). It calls `setCurrentQuality(-1)` which tells HLS.js to use automatic ABR switching.
+2. **Manual selection** sets `isAutoQuality = false` and stores the chosen index in `selectedQualityIndex`.
+3. After the `'levels'` event fires, `isAutoQuality` is reset to `true` since the player defaults to auto mode when new levels arrive.
+
+#### Highlighting and icon toggling
+
+`highlightCurrentQuality()` needs to handle the offset caused by the Auto button. The Auto button is at index 0 in the `querySelectorAll` result, and the actual level buttons start at index 1. The quality icon also toggles between two SVG paths depending on the mode:
+
+- **Auto mode** (`isAutoQuality === true`): `icons.quality.normal` (the filled "HD" icon)
+- **Manual mode** (`isAutoQuality === false`): `icons.quality.hover` (the outlined "HD" icon)
+
+```typescript
 private highlightCurrentQuality() {
   if (!this.qualityMenu) return;
-  const current = this.player.getCurrentQuality();
-  this.qualityMenu.querySelectorAll('button').forEach((btn, i) => {
-    btn.classList.toggle('bg-white/20', i === current);
+  const current = this.isAutoQuality
+    ? this.player.getCurrentQuality()
+    : this.selectedQualityIndex;
+  const buttons = this.qualityMenu.querySelectorAll('button');
+  buttons.forEach((btn, i) => {
+    if (i === 0) {
+      // Auto button
+      btn.classList.toggle('bg-white/20', this.isAutoQuality);
+    } else {
+      // Level buttons (offset by 1 for the Auto button)
+      btn.classList.toggle('bg-white/20', !this.isAutoQuality && (i - 1) === current);
+    }
   });
+
+  // Outlined when auto, filled when manually selected
+  const path = this.qualityButton?.querySelector('path');
+  if (path) {
+    path.setAttribute('d', this.isAutoQuality ? icons.quality.normal : icons.quality.hover);
+  }
 }
 ```
 
 ### Subtitle selector
+
+The subtitle menu always starts with an "Off" button (like quality's Auto button). The `'captionsList'` event provides all available text tracks, but some sources include tracks with labels like "off", "disabled", or "none" that duplicate the Off button. We filter those out before building the menu:
 
 ```typescript
 private subtitleMenu: HTMLDivElement | null = null;
@@ -122,30 +363,46 @@ private createSubtitleButton() {
       this.toggleMenu(null);
     });
 
-    tracks.forEach((track, index) => {
-      const option = this.player
-        .createElement('button', `subs-${index}`)
-        .addClasses([
-          'text-white', 'text-sm', 'px-3', 'py-1.5',
-          'rounded', 'hover:bg-white/20', 'text-left',
-          'cursor-pointer',
-        ])
-        .appendTo(this.subtitleMenu!)
-        .get();
-      option.textContent = track.label || track.language || `Track ${index + 1}`;
-      option.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.player.setCurrentCaption(index);
-        this.toggleMenu(null);
+    tracks
+      .filter((track) => {
+        const label = (track.label || track.language || '').toLowerCase();
+        return label !== 'off' && label !== 'disabled' && label !== 'none';
+      })
+      .forEach((track, index) => {
+        const option = this.player
+          .createElement('button', `subs-${index}`)
+          .addClasses([
+            'text-white', 'text-sm', 'px-3', 'py-1.5',
+            'rounded', 'hover:bg-white/20', 'text-left',
+            'cursor-pointer',
+          ])
+          .appendTo(this.subtitleMenu!)
+          .get();
+        option.textContent = track.label || track.language || `Track ${index + 1}`;
+        option.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.player.setCurrentCaption(index);
+          this.toggleMenu(null);
+        });
       });
-    });
 
     this.highlightCurrentCaption();
   });
 
   this.player.on('captionsChanged', () => this.highlightCurrentCaption());
 }
+```
 
+The `.filter()` call removes tracks whose label (or language, as a fallback) matches `'off'`, `'disabled'`, or `'none'` (case-insensitive). This prevents the menu from showing duplicate "Off" entries that some HLS manifests or media sources inject.
+
+#### Subtitle highlighting and icon toggling
+
+Like quality, the subtitle icon toggles between two SVG paths to give the user a visual cue:
+
+- **Subtitle active** (`current >= 0`): `icons.subtitles.normal` (filled CC icon)
+- **Subtitle off** (`current === -1`): `icons.subtitles.hover` (outlined CC icon)
+
+```typescript
 private highlightCurrentCaption() {
   if (!this.subtitleMenu) return;
   // getCaptionIndex() returns -1 when off, 0 for first track, etc.
@@ -154,10 +411,19 @@ private highlightCurrentCaption() {
   this.subtitleMenu.querySelectorAll('button').forEach((btn, i) => {
     btn.classList.toggle('bg-white/20', i === current + 1);
   });
+
+  // Outlined when off, filled when a subtitle is active
+  const isActive = current >= 0;
+  const path = this.subtitleButton?.querySelector('path');
+  if (path) {
+    path.setAttribute('d', isActive ? icons.subtitles.normal : icons.subtitles.hover);
+  }
 }
 ```
 
 ### Audio selector
+
+The audio selector is the simplest of the three. No "Off" option is needed (there must always be an active audio track), and no icon toggling is required. The button is only shown when there are multiple audio tracks.
 
 ```typescript
 private audioMenu: HTMLDivElement | null = null;
@@ -225,6 +491,8 @@ private highlightCurrentAudio() {
 
 ### Final `use()` method
 
+The `use()` method wires everything together. After building all the UI elements, it checks the initial playback state and adjusts accordingly -- if autoplay is off the video starts paused, but no `'pause'` event fires, so we manually add the `.paused` class. If autoplay is on, we hide the center button and emit a synthetic `'play'` event so the playback icon syncs up.
+
 ```typescript
 use() {
   this.overlay = this.player.overlay;
@@ -258,6 +526,17 @@ use() {
 
   // Click outside to close menus
   document.addEventListener('click', this.onDocumentClick);
+
+  // When autoplay is off the video starts paused but no 'pause' event fires,
+  // so the .paused class is never added and the controls stay hidden.
+  // Force the correct initial state for the bottom/top bars.
+  if (this.player.videoElement?.paused) {
+    this.player.container.classList.add('paused');
+  } else {
+    // Autoplay is on — hide the center button and sync playback button icon
+    this.centerButton.style.display = 'none';
+    this.player.emit('play');
+  }
 }
 ```
 
@@ -325,15 +604,15 @@ You now have a fully functional video player UI with:
 
 - Large center play/pause button
 - Buffering spinner
-- Progress bar with click-to-seek and drag-to-scrub
+- Progress bar with buffer indicator, click-to-seek, and drag-to-scrub
 - Time display (current / duration)
 - Skip back/forward buttons
 - Volume button with mute toggle and expanding slider
 - Title bar showing the current item
 - Fullscreen toggle
 - Playback speed selector
-- Quality level selector (shown only when multiple levels exist)
-- Subtitle selector (shown only when subtitle tracks exist)
+- Quality level selector with Auto mode and icon toggling (shown only when multiple levels exist)
+- Subtitle selector with track filtering and icon toggling (shown only when subtitle tracks exist)
 - Audio track selector (shown only when multiple audio tracks exist)
 - Auto-hiding controls via CSS `.active`/`.inactive` classes
 - Proper cleanup in `dispose()`
