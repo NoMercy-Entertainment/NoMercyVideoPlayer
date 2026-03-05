@@ -745,6 +745,25 @@ export class PlayerUIPlugin extends Plugin {
 			this.qualityButton.style.display = levels.length > 1 ? '' : 'none';
 			this.qualityMenu.innerHTML = '';
 
+			// Auto option — lets HLS pick the best quality
+			const autoOption = this.player
+				.createElement('button', 'quality-auto')
+				.addClasses([
+					'text-white', 'text-sm', 'px-3', 'py-1.5',
+					'rounded', 'hover:bg-white/20', 'text-left',
+					'cursor-pointer',
+				])
+				.appendTo(this.qualityMenu!)
+				.get();
+			autoOption.textContent = 'Auto';
+			autoOption.addEventListener('click', (e) => {
+				e.stopPropagation();
+				this.player.setCurrentQuality(-1);
+				this.isAutoQuality = true;
+				this.highlightCurrentQuality();
+				this.toggleMenu(null);
+			});
+
 			levels.forEach((level, index) => {
 				const option = this.player
 					.createElement('button', `quality-${index}`)
@@ -759,21 +778,33 @@ export class PlayerUIPlugin extends Plugin {
 				option.addEventListener('click', (e) => {
 					e.stopPropagation();
 					this.player.setCurrentQuality(index);
+					this.isAutoQuality = false;
+					this.highlightCurrentQuality();
 					this.toggleMenu(null);
 				});
 			});
 
+			this.isAutoQuality = true;
 			this.highlightCurrentQuality();
 		});
 
 		this.player.on('levelsChanged', () => this.highlightCurrentQuality());
 	}
 
+	private isAutoQuality = true;
+
 	private highlightCurrentQuality() {
 		if (!this.qualityMenu) return;
 		const current = this.player.getCurrentQuality();
-		this.qualityMenu.querySelectorAll('button').forEach((btn, i) => {
-			btn.classList.toggle('bg-white/20', i === current);
+		const buttons = this.qualityMenu.querySelectorAll('button');
+		buttons.forEach((btn, i) => {
+			if (i === 0) {
+				// Auto button
+				btn.classList.toggle('bg-white/20', this.isAutoQuality);
+			} else {
+				// Level buttons (offset by 1 for the Auto button)
+				btn.classList.toggle('bg-white/20', !this.isAutoQuality && (i - 1) === current);
+			}
 		});
 	}
 

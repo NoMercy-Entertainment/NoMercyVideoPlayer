@@ -2569,7 +2569,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	setCurrentQuality(index: number) {
-		if ((!index && index != 0) || !this.hls) return;
+		if (!this.hls || (index === undefined || index === null)) return;
 		this.hls.nextLevel = index;
 	}
 
