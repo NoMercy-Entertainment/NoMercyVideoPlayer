@@ -1,5 +1,3 @@
-# Plugin Development
-
 Complete reference for building plugins. Plugins extend the player with UI, functionality, or both.
 
 All imports come from the package root:

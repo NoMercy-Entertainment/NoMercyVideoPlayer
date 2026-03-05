@@ -1,5 +1,3 @@
-# NMPlayer Methods
-
 Complete reference for all NMPlayer methods, organized by category.
 
 ## Table of Contents

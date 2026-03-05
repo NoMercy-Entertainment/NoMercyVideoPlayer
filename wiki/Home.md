@@ -1,5 +1,3 @@
-# NoMercy Video Player
-
 A headless video player engine for the web. It handles playback, streaming, subtitles, and state — you build the UI.
 
 ## How It Works

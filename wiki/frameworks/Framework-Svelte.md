@@ -1,5 +1,3 @@
-# Svelte Integration
-
 Svelte's `onMount` and `onDestroy` map directly to the player lifecycle.
 
 ## Component

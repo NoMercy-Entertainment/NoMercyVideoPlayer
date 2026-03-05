@@ -1,5 +1,3 @@
-# Vue 3 Integration
-
 Vue is the primary framework used by the project maintainers. The recommended pattern is a composable that owns the player lifecycle.
 
 ## Composable

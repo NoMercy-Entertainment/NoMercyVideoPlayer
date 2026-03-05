@@ -23,8 +23,8 @@ Your playlist items need two additional tracks:
 ```typescript
 tracks: [
   // ... other tracks ...
-  { id: 10, file: '/path/to/thumbs.vtt', kind: 'thumbnails' },
-  { id: 11, file: '/path/to/thumbs.webp', kind: 'sprite' },
+  { id: 10, file: '/Sintel.(2010)/thumbs_256x109.vtt', kind: 'thumbnails' },
+  { id: 11, file: '/Sintel.(2010)/thumbs_256x109.webp', kind: 'sprite' },
 ]
 ```
 

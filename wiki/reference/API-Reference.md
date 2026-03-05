@@ -1,5 +1,3 @@
-# API Reference
-
 TypeScript types and interfaces for the NoMercy Video Player headless engine.
 
 All types are exported from the package root:

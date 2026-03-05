@@ -1,5 +1,3 @@
-# Angular Integration
-
 Use `AfterViewInit` to initialize the player after the DOM is ready, and `OnDestroy` to clean up.
 
 ## Component

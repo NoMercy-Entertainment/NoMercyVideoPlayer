@@ -1,5 +1,3 @@
-# Events
-
 Complete reference for all NoMercy Video Player events with data types and usage examples.
 
 ## Table of Contents

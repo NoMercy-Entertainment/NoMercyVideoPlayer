@@ -1,5 +1,3 @@
-# Vanilla JavaScript
-
 No framework needed. Initialize the player after the DOM is ready.
 
 ## CDN / Script Tag

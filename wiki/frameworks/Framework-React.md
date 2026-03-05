@@ -1,5 +1,3 @@
-# React Integration
-
 The recommended pattern is a custom hook that manages the player lifecycle inside a `useEffect`.
 
 ## Hook

@@ -1,5 +1,3 @@
-# Building a Video Player UI
-
 Step-by-step tutorial that builds a complete, usable video player UI as a plugin. By the end you will have play/pause, a progress bar with seeking and thumbnail previews, time display, volume control, fullscreen, playback speed, and quality/subtitle/audio selectors.
 
 > **Note:** This tutorial uses [Tailwind CSS](https://tailwindcss.com) utility classes, matching the production NoMercy player. Substitute plain CSS if you are not using Tailwind.

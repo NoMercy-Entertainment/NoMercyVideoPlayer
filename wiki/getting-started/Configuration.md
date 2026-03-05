@@ -1,5 +1,3 @@
-# Configuration
-
 All `PlayerConfig` options for NoMercy Video Player. See the [Quick Start Guide](Quick-Start-Guide) for full setup examples.
 
 ---
@@ -48,9 +46,9 @@ const config: PlayerConfig = {
       id: 'big-buck-bunny',
       title: 'Big Buck Bunny',
       description: 'A giant rabbit defends small creatures from three bullying rodents.',
-      file: '/Big Buck Bunny/Big Buck Bunny.mp4',
-      image: '/Big Buck Bunny/poster.jpg',
-      duration: '596',
+      file: '/Big.Buck.Bunny.(2008)/Big.Buck.Bunny.(2008).NoMercy.m3u8',
+      image: 'https://image.tmdb.org/t/p/original/xtdybjRRZ15mCrPOvEld305myys.jpg',
+      duration: '9:56',
       year: 2008,
     },
   ],
@@ -67,24 +65,24 @@ const config: PlayerConfig = {
   playlist: [
     {
       id: 1,
-      title: 'Pilot',
-      description: 'The story begins.',
-      file: '/Big Buck Bunny/Big Buck Bunny.mp4',
-      image: '/Big Buck Bunny/poster.jpg',
-      duration: '596',
-      show: 'Big Buck Bunny',
+      title: 'Sintel',
+      description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
+      file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+      image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+      duration: '14:48',
+      show: 'Blender Open Movies',
       season: 1,
       episode: 1,
       seasonName: 'Season 1',
     },
     {
       id: 2,
-      title: 'The Chase',
-      description: 'The adventure continues.',
-      file: '/Sintel/Sintel.mp4',
-      image: '/Sintel/poster.jpg',
-      duration: '888',
-      show: 'Big Buck Bunny',
+      title: 'Cosmos Laundromat',
+      description: 'On a desolate island, a suicidal sheep meets a mysterious stranger.',
+      file: '/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
+      image: 'https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
+      duration: '12:04',
+      show: 'Blender Open Movies',
       season: 1,
       episode: 2,
       seasonName: 'Season 1',
@@ -112,16 +110,16 @@ Each playlist item can carry an array of `Track` objects describing subtitles, c
 {
   id: 'sintel',
   title: 'Sintel',
-  description: 'A girl searches for her lost dragon.',
-  file: '/Sintel/Sintel.mp4',
-  image: '/Sintel/poster.jpg',
-  duration: '888',
+  description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
+  file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+  image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+  duration: '14:48',
   tracks: [
-    { id: 1, kind: 'subtitles', label: 'English', language: 'en', file: '/Sintel/subs/en.vtt', default: true },
-    { id: 2, kind: 'subtitles', label: 'Dutch', language: 'nl', file: '/Sintel/subs/nl.ass', ext: 'ass' },
-    { id: 3, kind: 'chapters', file: '/Sintel/chapters.vtt' },
-    { id: 4, kind: 'thumbnails', file: '/Sintel/thumbnails.vtt' },
-    { id: 5, kind: 'fonts', file: '/Sintel/fonts/CustomFont.woff2' },
+    { id: 0, kind: 'subtitles', label: 'English (Full)', language: 'eng', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', default: true },
+    { id: 1, kind: 'subtitles', label: 'Dutch (Full)', language: 'dut', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.dut.full.vtt' },
+    { id: 2, kind: 'chapters', file: '/Sintel.(2010)/chapters.vtt' },
+    { id: 3, kind: 'thumbnails', file: '/Sintel.(2010)/thumbs_256x109.vtt' },
+    { id: 4, kind: 'sprite', file: '/Sintel.(2010)/thumbs_256x109.webp' },
   ],
 }
 ```
@@ -144,10 +142,10 @@ Set `progress` on a playlist item to resume from a saved position.
 {
   id: 'sintel',
   title: 'Sintel',
-  description: 'A girl searches for her lost dragon.',
-  file: '/Sintel/Sintel.mp4',
-  image: '/Sintel/poster.jpg',
-  duration: '888',
+  description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
+  file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+  image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+  duration: '14:48',
   progress: {
     time: 423.7,
     date: '2025-12-01T20:15:00Z',
@@ -173,14 +171,14 @@ const config: PlayerConfig = {
   imageBasePath: 'https://cdn.example.com/images',
   playlist: [
     {
-      id: 1,
+      id: 'sintel',
       title: 'Sintel',
       description: 'Short film by the Blender Foundation.',
-      file: '/Sintel/Sintel.mp4',
-      // Resolved: https://raw.githubusercontent.com/.../Films/Sintel/Sintel.mp4
-      image: '/Sintel/poster.jpg',
-      // Resolved: https://cdn.example.com/images/Sintel/poster.jpg
-      duration: '888',
+      file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+      // Resolved: https://raw.githubusercontent.com/.../Films/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8
+      image: '/posters/sintel.jpg',
+      // Resolved: https://cdn.example.com/images/posters/sintel.jpg
+      duration: '14:48',
       tracks: [
         {
           id: 1,
@@ -211,8 +209,8 @@ Standard WebVTT subtitles work out of the box. Add a track with `kind: 'subtitle
 
 ```typescript
 tracks: [
-  { id: 1, kind: 'subtitles', label: 'English', language: 'en', file: '/subs/en.vtt', default: true },
-  { id: 2, kind: 'subtitles', label: 'French', language: 'fr', file: '/subs/fr.vtt' },
+  { id: 0, kind: 'subtitles', label: 'English (Full)', language: 'eng', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', default: true },
+  { id: 1, kind: 'subtitles', label: 'French (Full)', language: 'fre', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.fre.full.vtt' },
 ]
 ```
 

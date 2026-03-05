@@ -1,5 +1,3 @@
-# Framework Integration
-
 NoMercy Video Player is framework-agnostic. The integration pattern is the same everywhere:
 
 1. Create a `<div>` with an ID — the player mounts into this element
