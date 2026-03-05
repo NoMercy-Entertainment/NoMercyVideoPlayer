@@ -108,19 +108,20 @@ class MyUIPlugin extends Plugin {
 }
 ```
 
-See the [Plugin Development Guide](wiki/Plugin-Development.md) for complete examples.
+See the [Plugin Development Guide](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Plugin-Development) for complete examples.
 
 ## Documentation
 
 | Guide | Description |
 |-------|-------------|
-| [Getting Started](wiki/Quick-Start-Guide.md) | Installation, setup, and first plugin |
-| [Configuration](wiki/Configuration.md) | All PlayerConfig options |
-| [Plugin Development](wiki/Plugin-Development.md) | Extending the player with plugins |
-| [API Reference](wiki/API-Reference.md) | Types and interfaces |
-| [Methods](wiki/API-Reference-Methods.md) | All NMPlayer methods |
-| [Events](wiki/Events.md) | All events with data types |
-| [Framework Integration](wiki/Framework-Integration.md) | Vue, React, Svelte, Angular, Vanilla JS |
+| [Getting Started](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Quick-Start-Guide) | Installation, setup, and first plugin |
+| [Configuration](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Configuration) | All PlayerConfig options |
+| [Plugin Development](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Plugin-Development) | Extending the player with plugins |
+| [Building a Player UI](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Building-a-Video-Player-UI) | 10-step tutorial from scratch |
+| [API Reference](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/API-Reference) | Types and interfaces |
+| [Methods](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/API-Reference-Methods) | All NMPlayer methods |
+| [Events](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Events) | All events with data types |
+| [Framework Integration](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Framework-Integration) | Vue, React, Svelte, Angular, Vanilla JS |
 
 ## Browser Support
 
