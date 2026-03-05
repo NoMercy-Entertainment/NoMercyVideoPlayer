@@ -322,20 +322,23 @@ export class PlayerUIPlugin extends Plugin {
 		const sliderBuffer = this.player
 			.createElement('div', 'slider-buffer')
 			.addClasses([
-				'absolute', 'top-0', 'left-0', 'h-full', 'z-[1]',
-				'bg-white/40', 'rounded-full', 'pointer-events-none',
+				'absolute', 'top-0', 'left-0', 'h-full',
+				'rounded-full', 'pointer-events-none',
 			])
 			.appendTo(this.sliderBar)
 			.get();
+		sliderBuffer.style.zIndex = '1';
+		sliderBuffer.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
 
 		const sliderProgress = this.player
 			.createElement('div', 'slider-progress')
 			.addClasses([
-				'absolute', 'top-0', 'left-0', 'h-full', 'z-[2]',
+				'absolute', 'top-0', 'left-0', 'h-full',
 				'bg-white', 'rounded-full', 'pointer-events-none',
 			])
 			.appendTo(this.sliderBar)
 			.get();
+		sliderProgress.style.zIndex = '2';
 
 		const sliderNipple = this.player
 			.createElement('div', 'slider-nipple')
