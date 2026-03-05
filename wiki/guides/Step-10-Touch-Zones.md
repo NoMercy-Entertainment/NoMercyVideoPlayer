@@ -45,7 +45,7 @@ Step 10 extends the seek preview plugin from Step 9. Import it along with the `I
 
 ```typescript
 import { StepPlugin as Step9Plugin } from './step9Plugin';
-import type { Icon } from '@nomercy-entertainment/nomercy-video-player';
+import type { Icon } from '@nomercy-entertainment/nomercy-video-player/src/types';
 ```
 
 ### Position interface
@@ -66,19 +66,21 @@ private center!: HTMLDivElement;
 private controlsVisible = false;
 ```
 
-The `controlsVisible` flag tracks whether the control bars are showing. It updates on the `'active'` event with a small delay to prevent the double-tap handler from firing playback toggle at the same time as a seek.
+The `controlsVisible` flag tracks whether the control bars are showing. It updates on the `'active'` event so single-tap actions (like toggling playback) only fire when controls are visible.
 
 ### Wire it up in `use()`
 
 ```typescript
 use() {
   super.use();
+
+  // Remove the inherited center play button — this step replaces it with touch zones
+  document.getElementById('center-play')?.remove();
+
   this.createCenter();
 
   this.player.on('active', (value: boolean) => {
-    setTimeout(() => {
-      this.controlsVisible = value;
-    }, (this.player.options.doubleClickDelay ?? 300) + 10);
+    this.controlsVisible = value;
   });
 }
 ```
@@ -122,18 +124,14 @@ Create the 3×6 grid and place zones based on device type:
 private createCenter() {
   const center = this.player.createElement('div', 'center')
     .addClasses([
-      'center', 'absolute',
+      'center', 'absolute', 'inset-0',
       'grid', 'grid-cols-3', 'grid-rows-6',
       'h-full', 'w-full', 'z-0',
-      'transition-all', 'duration-300',
-      'bg-transparent',
-      'group-[&.nomercyplayer:not(.buffering).paused]:bg-gradient-circle-c',
-      'from-15%', 'from-black/50',
-      'via-40%', 'via-black/30',
-      'to-100%', 'to-black/0',
-    ])
-    .appendTo(this.player.overlay);
+      'pointer-events-none',
+    ]);
 
+  // Insert as first child of overlay so controls render on top
+  this.player.overlay.insertBefore(center.get(), this.player.overlay.firstChild);
   this.center = center.get();
 
   if (this.player.isMobile()) {
@@ -157,7 +155,7 @@ Each zone is a grid-positioned div:
 ```typescript
 private createTouchBox(parent: HTMLElement, id: string, pos: Position): HTMLDivElement {
   const touch = this.player.createElement('div', `touch-box-${id}`)
-    .addClasses([`touch-box-${id}`, 'z-40'])
+    .addClasses([`touch-box-${id}`, 'pointer-events-auto'])
     .appendTo(parent);
 
   const el = touch.get();
