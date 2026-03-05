@@ -41,9 +41,7 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src",
-    "public",
-    "./*"
+    "src"
   ],
   "scripts": {
     "build": "vite build",
@@ -60,8 +58,8 @@
   "dependencies": {
     "@nomercy-entertainment/media-session": "^1.0.0",
     "@types/webvtt-parser": "2.2.0",
-    "hls.js": "1.5.13",
-    "tailwind-merge": "2.6.0",
+    "hls.js": "1.6.15",
+    "tailwind-merge": "3.5.0",
     "webvtt-parser": "2.2.0"
   },
   "devDependencies": {
