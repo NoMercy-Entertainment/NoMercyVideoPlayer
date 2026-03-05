@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=2)**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=2)** · **[View full source](https://github.com/NoMercy-Entertainment/Examples/blob/master/src/components/TutorialPlayer/steps/step2Plugin.ts)**
 
 Add a large center play button, a buffering spinner, and a small play/pause button in the bottom bar.
 

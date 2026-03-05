@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=4)**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=4)** · **[View full source](https://github.com/NoMercy-Entertainment/Examples/blob/master/src/components/TutorialPlayer/steps/step4Plugin.ts)**
 
 Add time labels and skip forward/back buttons to the bottom row.
 

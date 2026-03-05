@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=1)**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=1)** · **[View full source](https://github.com/NoMercy-Entertainment/Examples/blob/master/src/components/TutorialPlayer/steps/step1Plugin.ts)**
 
 Create the `PlayerUIPlugin` class with the three-zone layout: **top bar**, **center overlay**, and **bottom bar**.
 

@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=6)**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=6)** · **[View full source](https://github.com/NoMercy-Entertainment/Examples/blob/master/src/components/TutorialPlayer/steps/step6Plugin.ts)**
 
 Show the current item title (and show/season/episode for TV content).
 

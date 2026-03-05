@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=8)**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=8)** · **[View full source](https://github.com/NoMercy-Entertainment/Examples/blob/master/src/components/TutorialPlayer/steps/step8Plugin.ts)** · **[View built-in PlayerUIPlugin](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/blob/master/src/plugins/playerUIPlugin.ts)**
 
 This is the most complex step in the tutorial. We are adding three popup menus -- quality, subtitles, and audio -- each with their own highlighting logic and icon toggling. We will also update the progress bar to include a buffer indicator, and finalize both `use()` and `dispose()`.
 

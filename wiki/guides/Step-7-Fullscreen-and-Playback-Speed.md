@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=7)**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=7)** · **[View full source](https://github.com/NoMercy-Entertainment/Examples/blob/master/src/components/TutorialPlayer/steps/step7Plugin.ts)**
 
 ### Fullscreen button
 

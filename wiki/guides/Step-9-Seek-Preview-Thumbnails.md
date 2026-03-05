@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=9)**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=9)** · **[View full source](https://github.com/NoMercy-Entertainment/Examples/blob/master/src/components/TutorialPlayer/steps/step9Plugin.ts)**
 
 Add a thumbnail preview tooltip that appears when hovering over the progress bar. The tooltip shows a frame from the sprite sheet at the corresponding timestamp.
 

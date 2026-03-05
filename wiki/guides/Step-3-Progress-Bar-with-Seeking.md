@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=3)**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=3)** · **[View full source](https://github.com/NoMercy-Entertainment/Examples/blob/master/src/components/TutorialPlayer/steps/step3Plugin.ts)**
 
 The progress bar has three layers: a background track, a buffer bar, and a progress bar with a thumb that the user can drag to scrub.
 
