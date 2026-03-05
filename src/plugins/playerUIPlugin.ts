@@ -110,7 +110,8 @@ export class PlayerUIPlugin extends Plugin {
 	// Bound to document so clicks anywhere outside a menu will close it.
 	// Must be a pre-bound property (not inline) so we can removeEventListener in dispose().
 	private onDocumentClick = () => {
-		if (this.activeMenu) this.toggleMenu(null);
+		if (this.activeMenu)
+			this.toggleMenu(null);
 	};
 
 	initialize(player: NMPlayer<any>) {
@@ -155,7 +156,8 @@ export class PlayerUIPlugin extends Plugin {
 		// Force the correct initial state for the bottom/top bars.
 		if (this.player.videoElement?.paused) {
 			this.player.container.classList.add('paused');
-		} else {
+		}
+		else {
 			// Autoplay is on — hide the center button and sync playback button icon
 			this.centerButton.style.display = 'none';
 			this.player.emit('play');
@@ -183,13 +185,24 @@ export class PlayerUIPlugin extends Plugin {
 		this.topBar = this.player
 			.createElement('div', 'top-bar')
 			.addClasses([
-				'absolute', 'top-0', 'left-0', 'right-0',
-				'flex', 'items-center', 'gap-2',
-				'p-4', 'pb-12',
-				'bg-gradient-to-b', 'from-black/80', 'to-transparent',
+				'absolute',
+				'top-0',
+				'left-0',
+				'right-0',
+				'flex',
+				'items-center',
+				'gap-2',
+				'p-4',
+				'pb-12',
+				'bg-gradient-to-b',
+				'from-black/80',
+				'to-transparent',
 				// Hidden by default. The player toggles .active on mouse move / .paused on pause,
 				// so controls auto-show when the user interacts or playback is paused.
-				'opacity-0', 'transition-opacity', 'duration-300', 'pointer-events-none',
+				'opacity-0',
+				'transition-opacity',
+				'duration-300',
+				'pointer-events-none',
 				'group-[&.nomercyplayer.active]:opacity-100',
 				'group-[&.nomercyplayer.active]:pointer-events-auto',
 				'group-[&.nomercyplayer.paused]:opacity-100',
@@ -203,12 +216,24 @@ export class PlayerUIPlugin extends Plugin {
 		this.bottomBar = this.player
 			.createElement('div', 'bottom-bar')
 			.addClasses([
-				'absolute', 'bottom-0', 'left-0', 'right-0',
-				'flex', 'flex-col', 'gap-1',
-				'px-4', 'pt-12', 'pb-2',
-				'bg-gradient-to-t', 'from-black/80', 'to-transparent',
+				'absolute',
+				'bottom-0',
+				'left-0',
+				'right-0',
+				'flex',
+				'flex-col',
+				'gap-1',
+				'px-4',
+				'pt-12',
+				'pb-2',
+				'bg-gradient-to-t',
+				'from-black/80',
+				'to-transparent',
 				// Same auto-show logic as the top bar
-				'opacity-0', 'transition-opacity', 'duration-300', 'pointer-events-none',
+				'opacity-0',
+				'transition-opacity',
+				'duration-300',
+				'pointer-events-none',
 				'group-[&.nomercyplayer.active]:opacity-100',
 				'group-[&.nomercyplayer.active]:pointer-events-auto',
 				'group-[&.nomercyplayer.paused]:opacity-100',
@@ -222,15 +247,27 @@ export class PlayerUIPlugin extends Plugin {
 		this.centerButton = this.player
 			.createElement('button', 'center-play')
 			.addClasses([
-				'absolute', 'top-1/2', 'left-1/2', '-translate-x-1/2', '-translate-y-1/2',
-				'w-16', 'h-16', 'rounded-full',
-				'bg-black/50', 'text-white',
-				'flex', 'items-center', 'justify-center',
+				'absolute',
+				'top-1/2',
+				'left-1/2',
+				'-translate-x-1/2',
+				'-translate-y-1/2',
+				'w-16',
+				'h-16',
+				'rounded-full',
+				'bg-black/50',
+				'text-white',
+				'flex',
+				'items-center',
+				'justify-center',
 				// Visible only before first playback; hidden permanently after the user starts playing.
 				// This avoids blocking the video when the user pauses to inspect a frame.
-				'transition-opacity', 'duration-300',
-				'hover:bg-black/70', 'hover:scale-110',
-				'cursor-pointer', 'group/button',
+				'transition-opacity',
+				'duration-300',
+				'hover:bg-black/70',
+				'hover:scale-110',
+				'cursor-pointer',
+				'group/button',
 			])
 			.appendTo(this.overlay)
 			.get();
@@ -254,8 +291,13 @@ export class PlayerUIPlugin extends Plugin {
 		this.spinner = this.player
 			.createElement('div', 'spinner')
 			.addClasses([
-				'absolute', 'top-1/2', 'left-1/2', '-translate-x-1/2', '-translate-y-1/2',
-				'w-12', 'h-12',
+				'absolute',
+				'top-1/2',
+				'left-1/2',
+				'-translate-x-1/2',
+				'-translate-y-1/2',
+				'w-12',
+				'h-12',
 				// The player toggles the .buffering class on the container automatically
 				'hidden',
 				'group-[&.nomercyplayer.buffering]:block',
@@ -276,7 +318,10 @@ export class PlayerUIPlugin extends Plugin {
 		this.bottomRow = this.player
 			.createElement('div', 'bottom-row')
 			.addClasses([
-				'flex', 'items-center', 'gap-1', 'h-10',
+				'flex',
+				'items-center',
+				'gap-1',
+				'h-10',
 			])
 			.appendTo(this.bottomBar)
 			.get();
@@ -311,10 +356,17 @@ export class PlayerUIPlugin extends Plugin {
 		this.sliderBar = this.player
 			.createElement('div', 'slider-bar')
 			.addClasses([
-				'relative', 'w-full', 'h-1', 'mx-2',
-				'bg-white/20', 'rounded-full',
-				'cursor-pointer', 'group/slider',
-				'hover:h-2', 'transition-all', 'duration-150',
+				'relative',
+				'w-full',
+				'h-1',
+				'mx-2',
+				'bg-white/20',
+				'rounded-full',
+				'cursor-pointer',
+				'group/slider',
+				'hover:h-2',
+				'transition-all',
+				'duration-150',
 			])
 			.appendTo(this.bottomBar)
 			.get();
@@ -322,8 +374,12 @@ export class PlayerUIPlugin extends Plugin {
 		const sliderBuffer = this.player
 			.createElement('div', 'slider-buffer')
 			.addClasses([
-				'absolute', 'top-0', 'left-0', 'h-full',
-				'rounded-full', 'pointer-events-none',
+				'absolute',
+				'top-0',
+				'left-0',
+				'h-full',
+				'rounded-full',
+				'pointer-events-none',
 			])
 			.appendTo(this.sliderBar)
 			.get();
@@ -333,8 +389,13 @@ export class PlayerUIPlugin extends Plugin {
 		const sliderProgress = this.player
 			.createElement('div', 'slider-progress')
 			.addClasses([
-				'absolute', 'top-0', 'left-0', 'h-full',
-				'bg-white', 'rounded-full', 'pointer-events-none',
+				'absolute',
+				'top-0',
+				'left-0',
+				'h-full',
+				'bg-white',
+				'rounded-full',
+				'pointer-events-none',
 			])
 			.appendTo(this.sliderBar)
 			.get();
@@ -343,10 +404,19 @@ export class PlayerUIPlugin extends Plugin {
 		const sliderNipple = this.player
 			.createElement('div', 'slider-nipple')
 			.addClasses([
-				'absolute', 'top-1/2', '-translate-y-1/2', '-translate-x-1/2',
-				'w-3', 'h-3', 'rounded-full', 'bg-white',
-				'hidden', 'group-hover/slider:flex',
-				'pointer-events-none', 'left-0', 'z-20',
+				'absolute',
+				'top-1/2',
+				'-translate-y-1/2',
+				'-translate-x-1/2',
+				'w-3',
+				'h-3',
+				'rounded-full',
+				'bg-white',
+				'hidden',
+				'group-hover/slider:flex',
+				'pointer-events-none',
+				'left-0',
+				'z-20',
 			])
 			.appendTo(this.sliderBar)
 			.get();
@@ -375,7 +445,7 @@ export class PlayerUIPlugin extends Plugin {
 		this.sliderBar.addEventListener('click', (e: MouseEvent) => {
 			this.isMouseDown = false;
 			const percent = getPercentFromEvent(e);
-			const duration = this.player.getDuration();
+			const duration = this.player.duration();
 			this.player.seek(duration * (percent / 100));
 			sliderNipple.style.left = `${percent}%`;
 		});
@@ -384,7 +454,8 @@ export class PlayerUIPlugin extends Plugin {
 		['mousemove', 'touchmove'].forEach((event) => {
 			this.sliderBar.addEventListener(event, (e: any) => {
 				const percent = getPercentFromEvent(e);
-				if (!this.isMouseDown) return;
+				if (!this.isMouseDown)
+					return;
 				sliderNipple.style.left = `${percent}%`;
 				sliderProgress.style.width = `${percent}%`;
 			}, { passive: true });
@@ -396,7 +467,7 @@ export class PlayerUIPlugin extends Plugin {
 		}, { passive: true });
 
 		const updateBuffer = () => {
-			const video = this.player.getVideoElement();
+			const video = this.player.videoElement;
 			if (video && video.buffered.length > 0 && video.duration > 0) {
 				const bufferedEnd = video.buffered.end(video.buffered.length - 1);
 				const bufferPct = (bufferedEnd / video.duration) * 100;
@@ -407,7 +478,8 @@ export class PlayerUIPlugin extends Plugin {
 		// Sync progress bar and time labels with playback position.
 		// Skip updates while the user is scrubbing so the bar doesn't fight the drag.
 		this.player.on('time', (data) => {
-			if (this.isMouseDown) return;
+			if (this.isMouseDown)
+				return;
 			sliderProgress.style.width = `${data.percentage}%`;
 			sliderNipple.style.left = `${data.percentage}%`;
 			this.currentTimeLabel.textContent = data.currentTimeHuman;
@@ -416,7 +488,7 @@ export class PlayerUIPlugin extends Plugin {
 		});
 
 		// Update buffer bar even when paused (progress fires as the browser buffers)
-		this.player.getVideoElement()?.addEventListener('progress', updateBuffer);
+		this.player.videoElement?.addEventListener('progress', updateBuffer);
 
 		// Reset slider on playlist item change
 		this.player.on('item', () => {
@@ -454,7 +526,7 @@ export class PlayerUIPlugin extends Plugin {
 		this.player.createSVGElement(skipBack, 'skip-back-icon', icons.seekBack, false, true);
 		skipBack.addEventListener('click', (e) => {
 			e.stopPropagation();
-			this.player.rewindVideo(10);
+			this.player.rewind(10);
 		});
 
 		const skipForward = this.player.createUiButton(this.bottomRow, 'skip-forward').get();
@@ -462,7 +534,7 @@ export class PlayerUIPlugin extends Plugin {
 		this.player.createSVGElement(skipForward, 'skip-forward-icon', icons.seekForward, false, true);
 		skipForward.addEventListener('click', (e) => {
 			e.stopPropagation();
-			this.player.forwardVideo(10);
+			this.player.forward(10);
 		});
 	}
 
@@ -471,7 +543,10 @@ export class PlayerUIPlugin extends Plugin {
 		const volumeContainer = this.player
 			.createElement('div', 'volume-container')
 			.addClasses([
-				'flex', 'items-center', 'group/volume', 'ml-1',
+				'flex',
+				'items-center',
+				'group/volume',
+				'ml-1',
 			])
 			.appendTo(this.bottomRow)
 			.get();
@@ -494,13 +569,23 @@ export class PlayerUIPlugin extends Plugin {
 		this.volumeSlider = this.player
 			.createElement('div', 'volume-slider')
 			.addClasses([
-				'relative', 'h-1', 'rounded-full', 'bg-white/20',
-				'cursor-pointer', 'group/vol-slider',
+				'relative',
+				'h-1',
+				'rounded-full',
+				'bg-white/20',
+				'cursor-pointer',
+				'group/vol-slider',
 				'hover:h-2',
-				'w-0', 'opacity-0',
-				'group-hover/volume:w-20', 'group-hover/volume:mx-2', 'group-hover/volume:opacity-100',
-				'group-focus-within/volume:w-20', 'group-focus-within/volume:mx-2', 'group-focus-within/volume:opacity-100',
-				'transition-all', 'duration-150',
+				'w-0',
+				'opacity-0',
+				'group-hover/volume:w-20',
+				'group-hover/volume:mx-2',
+				'group-hover/volume:opacity-100',
+				'group-focus-within/volume:w-20',
+				'group-focus-within/volume:mx-2',
+				'group-focus-within/volume:opacity-100',
+				'transition-all',
+				'duration-150',
 			])
 			.appendTo(volumeContainer)
 			.get();
@@ -508,8 +593,13 @@ export class PlayerUIPlugin extends Plugin {
 		const volumeProgress = this.player
 			.createElement('div', 'volume-progress')
 			.addClasses([
-				'absolute', 'top-0', 'left-0', 'h-full',
-				'bg-white', 'rounded-full', 'pointer-events-none',
+				'absolute',
+				'top-0',
+				'left-0',
+				'h-full',
+				'bg-white',
+				'rounded-full',
+				'pointer-events-none',
 			])
 			.appendTo(this.volumeSlider)
 			.get();
@@ -517,10 +607,18 @@ export class PlayerUIPlugin extends Plugin {
 		const volumeNipple = this.player
 			.createElement('div', 'volume-nipple')
 			.addClasses([
-				'absolute', 'top-1/2', '-translate-y-1/2', '-translate-x-1/2',
-				'w-3', 'h-3', 'rounded-full', 'bg-white',
-				'hidden', 'group-hover/vol-slider:flex',
-				'pointer-events-none', 'z-20',
+				'absolute',
+				'top-1/2',
+				'-translate-y-1/2',
+				'-translate-x-1/2',
+				'w-3',
+				'h-3',
+				'rounded-full',
+				'bg-white',
+				'hidden',
+				'group-hover/vol-slider:flex',
+				'pointer-events-none',
+				'z-20',
 			])
 			.appendTo(this.volumeSlider)
 			.get();
@@ -543,28 +641,39 @@ export class PlayerUIPlugin extends Plugin {
 			return Math.round((x / rect.width) * 100);
 		};
 
-		this.volumeSlider.addEventListener('mousedown', () => { volDragging = true; }, { passive: true });
-		this.volumeSlider.addEventListener('touchstart', () => { volDragging = true; }, { passive: true });
+		this.volumeSlider.addEventListener('mousedown', () => {
+			volDragging = true;
+		}, { passive: true });
+		this.volumeSlider.addEventListener('touchstart', () => {
+			volDragging = true;
+		}, { passive: true });
 
 		this.volumeSlider.addEventListener('click', (e: MouseEvent) => {
 			volDragging = false;
 			const vol = getVolFromEvent(e);
-			this.player.setVolume(vol);
+			this.player.volume(vol);
 			updateVolSliderUI(vol);
 		});
 
 		['mousemove', 'touchmove'].forEach((evt) => {
 			this.volumeSlider.addEventListener(evt, (e: any) => {
-				if (!volDragging) return;
+				if (!volDragging)
+					return;
 				const vol = getVolFromEvent(e);
-				this.player.setVolume(vol);
+				this.player.volume(vol);
 				updateVolSliderUI(vol);
 			}, { passive: true });
 		});
 
-		this.volumeSlider.addEventListener('mouseleave', () => { volDragging = false; }, { passive: true });
-		document.addEventListener('mouseup', () => { volDragging = false; }, { passive: true });
-		document.addEventListener('touchend', () => { volDragging = false; }, { passive: true });
+		this.volumeSlider.addEventListener('mouseleave', () => {
+			volDragging = false;
+		}, { passive: true });
+		document.addEventListener('mouseup', () => {
+			volDragging = false;
+		}, { passive: true });
+		document.addEventListener('touchend', () => {
+			volDragging = false;
+		}, { passive: true });
 
 		// Swap between three volume icons based on mute state and level
 		const updateVolumeIcon = (volume: number, muted: boolean) => {
@@ -574,9 +683,11 @@ export class PlayerUIPlugin extends Plugin {
 
 			if (muted || volume === 0) {
 				volMuted.style.display = 'flex';
-			} else if (volume < 50) {
+			}
+			else if (volume < 50) {
 				volLow.style.display = 'flex';
-			} else {
+			}
+			else {
 				volHigh.style.display = 'flex';
 			}
 		};
@@ -589,16 +700,19 @@ export class PlayerUIPlugin extends Plugin {
 		});
 
 		// Set initial state from current player values
-		const initialVol = this.player.getVolume();
+		const initialVol = this.player.volume();
 		updateVolSliderUI(initialVol);
-		updateVolumeIcon(initialVol, this.player.isMuted());
+		updateVolumeIcon(initialVol, this.player.muted());
 	}
 
 	private createTitle() {
 		this.titleLabel = this.player
 			.createElement('div', 'title-display')
 			.addClasses([
-				'text-white', 'text-sm', 'font-medium', 'truncate',
+				'text-white',
+				'text-sm',
+				'font-medium',
+				'truncate',
 			])
 			.appendTo(this.topBar)
 			.get();
@@ -609,7 +723,8 @@ export class PlayerUIPlugin extends Plugin {
 
 	private updateTitle() {
 		const item = this.player.playlistItem();
-		if (!item) return;
+		if (!item)
+			return;
 
 		let text = item.title;
 		if (item.show) {
@@ -661,21 +776,33 @@ export class PlayerUIPlugin extends Plugin {
 		this.speedMenu = this.player
 			.createElement('div', 'speed-menu')
 			.addClasses([
-				'absolute', 'bottom-12', 'right-0',
-				'bg-black/90', 'rounded-lg', 'p-2',
-				'hidden', 'flex-col', 'gap-1', 'min-w-[120px]',
+				'absolute',
+				'bottom-12',
+				'right-0',
+				'bg-black/90',
+				'rounded-lg',
+				'p-2',
+				'hidden',
+				'flex-col',
+				'gap-1',
+				'min-w-[120px]',
 				'pointer-events-auto',
 			])
 			.appendTo(this.bottomRow)
 			.get();
 
-		const speeds = this.player.getSpeeds();
+		const speeds = this.player.speeds();
 		for (const rate of speeds) {
 			const option = this.player
 				.createElement('button', `speed-${rate}`)
 				.addClasses([
-					'text-white', 'text-sm', 'px-3', 'py-1.5',
-					'rounded', 'hover:bg-white/20', 'text-left',
+					'text-white',
+					'text-sm',
+					'px-3',
+					'py-1.5',
+					'rounded',
+					'hover:bg-white/20',
+					'text-left',
 					'cursor-pointer',
 				])
 				.appendTo(this.speedMenu!)
@@ -683,7 +810,7 @@ export class PlayerUIPlugin extends Plugin {
 			option.textContent = rate === 1 ? 'Normal' : `${rate}x`;
 			option.addEventListener('click', (e) => {
 				e.stopPropagation();
-				this.player.setSpeed(rate);
+				this.player.speed(rate);
 				this.toggleMenu(null);
 			});
 		}
@@ -693,10 +820,11 @@ export class PlayerUIPlugin extends Plugin {
 	}
 
 	private updateSpeedMenu() {
-		if (!this.speedMenu) return;
-		const current = this.player.getSpeed();
+		if (!this.speedMenu)
+			return;
+		const current = this.player.speed();
 		const buttons = this.speedMenu.querySelectorAll('button');
-		const speeds = this.player.getSpeeds();
+		const speeds = this.player.speeds();
 		buttons.forEach((btn, i) => {
 			btn.classList.toggle('bg-white/20', speeds[i] === current);
 		});
@@ -750,16 +878,24 @@ export class PlayerUIPlugin extends Plugin {
 		this.qualityMenu = this.player
 			.createElement('div', 'quality-menu')
 			.addClasses([
-				'absolute', 'bottom-12', 'right-0',
-				'bg-black/90', 'rounded-lg', 'p-2',
-				'hidden', 'flex-col', 'gap-1', 'min-w-[120px]',
+				'absolute',
+				'bottom-12',
+				'right-0',
+				'bg-black/90',
+				'rounded-lg',
+				'p-2',
+				'hidden',
+				'flex-col',
+				'gap-1',
+				'min-w-[120px]',
 				'pointer-events-auto',
 			])
 			.appendTo(this.bottomRow)
 			.get();
 
 		this.player.on('levels', (levels: Level[]) => {
-			if (!this.qualityMenu || !this.qualityButton) return;
+			if (!this.qualityMenu || !this.qualityButton)
+				return;
 			this.qualityButton.style.display = levels.length > 1 ? '' : 'none';
 			this.qualityMenu.innerHTML = '';
 
@@ -767,8 +903,13 @@ export class PlayerUIPlugin extends Plugin {
 			const autoOption = this.player
 				.createElement('button', 'quality-auto')
 				.addClasses([
-					'text-white', 'text-sm', 'px-3', 'py-1.5',
-					'rounded', 'hover:bg-white/20', 'text-left',
+					'text-white',
+					'text-sm',
+					'px-3',
+					'py-1.5',
+					'rounded',
+					'hover:bg-white/20',
+					'text-left',
 					'cursor-pointer',
 				])
 				.appendTo(this.qualityMenu!)
@@ -776,7 +917,7 @@ export class PlayerUIPlugin extends Plugin {
 			autoOption.textContent = 'Auto';
 			autoOption.addEventListener('click', (e) => {
 				e.stopPropagation();
-				this.player.setCurrentQuality(-1);
+				this.player.quality(-1);
 				this.isAutoQuality = true;
 				this.highlightCurrentQuality();
 				this.toggleMenu(null);
@@ -786,8 +927,13 @@ export class PlayerUIPlugin extends Plugin {
 				const option = this.player
 					.createElement('button', `quality-${index}`)
 					.addClasses([
-						'text-white', 'text-sm', 'px-3', 'py-1.5',
-						'rounded', 'hover:bg-white/20', 'text-left',
+						'text-white',
+						'text-sm',
+						'px-3',
+						'py-1.5',
+						'rounded',
+						'hover:bg-white/20',
+						'text-left',
 						'cursor-pointer',
 					])
 					.appendTo(this.qualityMenu!)
@@ -795,7 +941,7 @@ export class PlayerUIPlugin extends Plugin {
 				option.textContent = level.name || `${level.height}p`;
 				option.addEventListener('click', (e) => {
 					e.stopPropagation();
-					this.player.setCurrentQuality(index);
+					this.player.quality(index);
 					this.isAutoQuality = false;
 					this.selectedQualityIndex = index;
 					this.highlightCurrentQuality();
@@ -814,16 +960,18 @@ export class PlayerUIPlugin extends Plugin {
 	private selectedQualityIndex = -1;
 
 	private highlightCurrentQuality() {
-		if (!this.qualityMenu) return;
+		if (!this.qualityMenu)
+			return;
 		const current = this.isAutoQuality
-			? this.player.getCurrentQuality()
+			? this.player.quality()
 			: this.selectedQualityIndex;
 		const buttons = this.qualityMenu.querySelectorAll('button');
 		buttons.forEach((btn, i) => {
 			if (i === 0) {
 				// Auto button
 				btn.classList.toggle('bg-white/20', this.isAutoQuality);
-			} else {
+			}
+			else {
 				// Level buttons (offset by 1 for the Auto button)
 				btn.classList.toggle('bg-white/20', !this.isAutoQuality && (i - 1) === current);
 			}
@@ -850,16 +998,24 @@ export class PlayerUIPlugin extends Plugin {
 		this.subtitleMenu = this.player
 			.createElement('div', 'subtitle-menu')
 			.addClasses([
-				'absolute', 'bottom-12', 'right-0',
-				'bg-black/90', 'rounded-lg', 'p-2',
-				'hidden', 'flex-col', 'gap-1', 'min-w-[120px]',
+				'absolute',
+				'bottom-12',
+				'right-0',
+				'bg-black/90',
+				'rounded-lg',
+				'p-2',
+				'hidden',
+				'flex-col',
+				'gap-1',
+				'min-w-[120px]',
 				'pointer-events-auto',
 			])
 			.appendTo(this.bottomRow)
 			.get();
 
 		this.player.on('captionsList', (tracks: Track[]) => {
-			if (!this.subtitleMenu || !this.subtitleButton) return;
+			if (!this.subtitleMenu || !this.subtitleButton)
+				return;
 			this.subtitleButton.style.display = tracks.length > 0 ? '' : 'none';
 			this.subtitleMenu.innerHTML = '';
 
@@ -867,8 +1023,13 @@ export class PlayerUIPlugin extends Plugin {
 			const offOption = this.player
 				.createElement('button', 'subs-off')
 				.addClasses([
-					'text-white', 'text-sm', 'px-3', 'py-1.5',
-					'rounded', 'hover:bg-white/20', 'text-left',
+					'text-white',
+					'text-sm',
+					'px-3',
+					'py-1.5',
+					'rounded',
+					'hover:bg-white/20',
+					'text-left',
 					'cursor-pointer',
 				])
 				.appendTo(this.subtitleMenu!)
@@ -876,7 +1037,7 @@ export class PlayerUIPlugin extends Plugin {
 			offOption.textContent = 'Off';
 			offOption.addEventListener('click', (e) => {
 				e.stopPropagation();
-				this.player.setCurrentCaption(-1); // -1 disables subtitles
+				this.player.subtitle(-1); // -1 disables subtitles
 				this.toggleMenu(null);
 			});
 
@@ -886,22 +1047,27 @@ export class PlayerUIPlugin extends Plugin {
 					return label !== 'off' && label !== 'disabled' && label !== 'none';
 				})
 				.forEach((track, index) => {
-				const option = this.player
-					.createElement('button', `subs-${index}`)
-					.addClasses([
-						'text-white', 'text-sm', 'px-3', 'py-1.5',
-						'rounded', 'hover:bg-white/20', 'text-left',
-						'cursor-pointer',
-					])
-					.appendTo(this.subtitleMenu!)
-					.get();
-				option.textContent = track.label || track.language || `Track ${index + 1}`;
-				option.addEventListener('click', (e) => {
-					e.stopPropagation();
-					this.player.setCurrentCaption(index);
-					this.toggleMenu(null);
+					const option = this.player
+						.createElement('button', `subs-${index}`)
+						.addClasses([
+							'text-white',
+							'text-sm',
+							'px-3',
+							'py-1.5',
+							'rounded',
+							'hover:bg-white/20',
+							'text-left',
+							'cursor-pointer',
+						])
+						.appendTo(this.subtitleMenu!)
+						.get();
+					option.textContent = track.label || track.language || `Track ${index + 1}`;
+					option.addEventListener('click', (e) => {
+						e.stopPropagation();
+						this.player.subtitle(index);
+						this.toggleMenu(null);
+					});
 				});
-			});
 
 			this.highlightCurrentCaption();
 		});
@@ -910,10 +1076,11 @@ export class PlayerUIPlugin extends Plugin {
 	}
 
 	private highlightCurrentCaption() {
-		if (!this.subtitleMenu) return;
+		if (!this.subtitleMenu)
+			return;
 		// getCaptionIndex() returns -1 when off, 0 for first track, etc.
 		// Button index is offset by 1 because the first button is the "Off" option.
-		const current = this.player.getCaptionIndex();
+		const current = this.player.subtitleIndex();
 		this.subtitleMenu.querySelectorAll('button').forEach((btn, i) => {
 			btn.classList.toggle('bg-white/20', i === current + 1);
 		});
@@ -940,16 +1107,24 @@ export class PlayerUIPlugin extends Plugin {
 		this.audioMenu = this.player
 			.createElement('div', 'audio-menu')
 			.addClasses([
-				'absolute', 'bottom-12', 'right-0',
-				'bg-black/90', 'rounded-lg', 'p-2',
-				'hidden', 'flex-col', 'gap-1', 'min-w-[120px]',
+				'absolute',
+				'bottom-12',
+				'right-0',
+				'bg-black/90',
+				'rounded-lg',
+				'p-2',
+				'hidden',
+				'flex-col',
+				'gap-1',
+				'min-w-[120px]',
 				'pointer-events-auto',
 			])
 			.appendTo(this.bottomRow)
 			.get();
 
 		this.player.on('audioTracks', (tracks: Track[]) => {
-			if (!this.audioMenu || !this.audioButton) return;
+			if (!this.audioMenu || !this.audioButton)
+				return;
 			this.audioButton.style.display = tracks.length > 1 ? '' : 'none';
 			this.audioMenu.innerHTML = '';
 
@@ -957,8 +1132,13 @@ export class PlayerUIPlugin extends Plugin {
 				const option = this.player
 					.createElement('button', `audio-${index}`)
 					.addClasses([
-						'text-white', 'text-sm', 'px-3', 'py-1.5',
-						'rounded', 'hover:bg-white/20', 'text-left',
+						'text-white',
+						'text-sm',
+						'px-3',
+						'py-1.5',
+						'rounded',
+						'hover:bg-white/20',
+						'text-left',
 						'cursor-pointer',
 					])
 					.appendTo(this.audioMenu!)
@@ -966,7 +1146,7 @@ export class PlayerUIPlugin extends Plugin {
 				option.textContent = track.label || track.language || `Track ${index + 1}`;
 				option.addEventListener('click', (e) => {
 					e.stopPropagation();
-					this.player.setCurrentAudioTrack(index);
+					this.player.audioTrack(index);
 					this.toggleMenu(null);
 				});
 			});
@@ -978,8 +1158,9 @@ export class PlayerUIPlugin extends Plugin {
 	}
 
 	private highlightCurrentAudio() {
-		if (!this.audioMenu) return;
-		const current = this.player.getAudioTrackIndex();
+		if (!this.audioMenu)
+			return;
+		const current = this.player.audioTrackIndex();
 		this.audioMenu.querySelectorAll('button').forEach((btn, i) => {
 			btn.classList.toggle('bg-white/20', i === current);
 		});

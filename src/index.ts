@@ -1,19 +1,32 @@
 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
-import HLS, { type MediaPlaylist } from 'hls.js';
-import { Cue, type VTTData, WebVTTParser } from 'webvtt-parser';
+// noinspection JSUnusedGlobalSymbols
+
+import HLS from 'hls.js';
+import type { MediaPlaylist } from 'hls.js';
+import type { Cue, VTTData } from 'webvtt-parser';
+import { WebVTTParser } from 'webvtt-parser';
 
 import { Base } from './base';
 import translations from './translations';
 import type Plugin from './plugin';
 
 import { defaultSubtitleStyles, getEdgeStyle, humanTime, pad, parseColorToHex, unique } from './helpers';
-import {
-	PlaylistItem, PlayState, PreviewTime, PlayerConfig, Stretching,
-	TimeData, Track, TypeMappings, Chapter, Level, SubtitleStyle,
-	CreateElement,
+import type {
 	AddClasses,
-	Icon,
 	AddClassesReturn,
+	Chapter,
+	CreateElement,
+	Icon,
+	Level,
+	PlayerConfig,
+	PlaylistItem,
+	PlayState,
+	PreviewTime,
+	Stretching,
+	SubtitleStyle,
+	TimeData,
+	Track,
+	TypeMappings,
 } from './types';
 
 import BBCReithSansExtraBold from './fonts/ReithSans/ReithSansExtraBold';
@@ -47,31 +60,28 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	inactivityTime = 3000;
 
 	// Store
-	chapters: VTTData = <VTTData>{};
+	_chapters: VTTData = <VTTData>{};
 	currentChapterFile = '';
 
 	previewTime: PreviewTime[] = [];
-	currentTimeFile = '';
 
 	fonts: { file: string; mimeType: string }[] = [];
 	currentFontFile = '';
 
-	skippers: any;
+	_skippers: any;
 	currentSkipFile = '';
 
 	currentSubtitleIndex = -1;
-	subtitles: VTTData = <VTTData>{};
+	_subtitles: VTTData = <VTTData>{};
 	currentSubtitleFile = '';
 
-	currentSpriteFile = '';
-
 	// Playlist functionality
-	playlist: (PlaylistItem & T)[] = [];
+	_playlist: (PlaylistItem & T)[] = [];
 	currentPlaylistItem: (PlaylistItem & T) = <(PlaylistItem & T)>{} as (PlaylistItem & T);
 	currentIndex = -1;
 	isPlaying = false;
-	muted: boolean = false;
-	volume: number = 100;
+	_muted: boolean = false;
+	_volume: number = 100;
 	lastTime = 0;
 
 	lockActive: boolean = false;
@@ -100,13 +110,13 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	allowFullscreen: boolean = true;
 	shouldFloat: boolean = false;
 	firstFrame: boolean = false;
-	subtitleStyle: SubtitleStyle = defaultSubtitleStyles;
+	_subtitleStyle: SubtitleStyle = defaultSubtitleStyles;
 	resizeObserver: ResizeObserver = <ResizeObserver>{};
 
 	constructor(id?: string | number) {
 		super();
 
-		if (!id && instances.size == 0) {
+		if (!id && instances.size === 0) {
 			throw new Error('No player element found');
 		}
 
@@ -118,7 +128,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		if (typeof id === 'number') {
 			// get the player by index
 			instances.forEach((player, index) => {
-				if (parseInt(index, 10) === id) {
+				if (Number.parseInt(index, 10) === id) {
 					return player;
 				}
 			});
@@ -126,16 +136,20 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			throw new Error('Player not found');
 		}
 
-		// return the player instance if it already exists
-		if (instances.has(id as string)) {
-			return instances.get(id as string)!;
+		if (typeof id !== 'string') {
+			throw new TypeError('Player ID must be a string that matches the ID of a div element on the page or a number representing the index of the player to select');
 		}
 
-		return this.init(id as string);
+		// return the player instance if it already exists
+		if (instances.has(id)) {
+			return instances.get(id)!;
+		}
+
+		return this.init(id);
 	}
 
 	init(id: string): this {
-		const container = document.querySelector<HTMLDivElement>(`#${id}` as string);
+		const container = document.querySelector<HTMLDivElement>(`#${id}`);
 
 		if (!container) {
 			throw new Error(`Player element with ID ${id} not found`);
@@ -145,7 +159,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			throw new Error('Element must be a div element');
 		}
 
-		this.playerId = id as string;
+		this.playerId = id;
 		this.container = container;
 
 		this.createBaseStyles();
@@ -166,13 +180,14 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		});
 		this.resizeObserver.observe(this.container);
 
-		instances.set(id as string, this);
+		instances.set(id, this);
 
 		this._removeEvents();
 		this._addEvents();
 
 		setTimeout(() => {
-			if(!this.options.disableAutoPlayback) return;
+			if (!this.options.disableAutoPlayback)
+				return;
 			this.emit('ready');
 		}, 0);
 
@@ -190,7 +205,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.options.debug && console.log(`Using plugin: ${name}`, plugin);
 		if (plugin) {
 			plugin.use();
-		} else {
+		}
+		else {
 			console.error(`Plugin ${name} is not registered.`);
 		}
 	}
@@ -206,7 +222,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @throws {Error} If an unsupported file type is provided.
 	 */
 	appendScriptFilesToDocument(filePaths: string | any[]): Promise<Awaited<void>[]> {
-
 		if (!Array.isArray(filePaths)) {
 			filePaths = [filePaths];
 		}
@@ -217,15 +232,18 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			if (filePath.endsWith('.js')) {
 				file = document.createElement('script');
 				file.src = filePath;
-			} else if (filePath.endsWith('.css')) {
+			}
+			else if (filePath.endsWith('.css')) {
 				file = document.createElement('link');
 				file.rel = 'stylesheet';
 				file.href = filePath;
-			} else {
+			}
+			else {
 				reject(new Error('Unsupported file type'));
 			}
 
-			if (!file) return reject(new Error('File could not be loaded'));
+			if (!file)
+				return reject(new Error('File could not be loaded'));
 
 			file.addEventListener('load', () => {
 				resolve();
@@ -257,14 +275,16 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	/**
 	 * Returns the HTMLDivElement element with the specified player ID.
 	 * @returns The HTMLDivElement element with the specified player ID.
+	 * @deprecated Use `element()` instead.
 	 */
 	getElement(): HTMLDivElement {
-		return this.container;
+		return this.element();
 	}
 
 	/**
 	 * Returns the HTMLVideoElement contained within the base element.
 	 * @returns The HTMLVideoElement contained within the base element.
+	 * @deprecated Use `videoElement` directly instead.
 	 */
 	getVideoElement(): HTMLVideoElement {
 		return this.videoElement;
@@ -283,7 +303,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const horInView = (rect.left <= windowWidth) && ((rect.left + rect.width) >= 0);
 
 		return (vertInView && horInView);
-
 	}
 
 	/**
@@ -294,14 +313,15 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns A Promise that resolves with the fetched file contents.
 	 */
 	getFileContents = async <T = TypeMappings>({ url, options, callback }: {
-		url: string,
+		url: string;
 		options: {
-			type?: TypeMappings,
-			anonymous?: boolean
-			language?: string,
-		}, callback: (arg: T) => void;
+			type?: TypeMappings;
+			anonymous?: boolean;
+			language?: string;
+		};
+		callback: (arg: T) => void;
 	}): Promise<void> => {
-		const headers: { [arg: string]: string; } = {
+		const headers: { [arg: string]: string } = {
 			'Accept-Language': options.language || navigator.language,
 		};
 		if (this.options.accessToken && !options.anonymous) {
@@ -356,7 +376,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	createVideoElement(): void {
 		this.videoElement = this.createElement('video', `${this.playerId}_video`, true)
-			.appendTo(this.container).get();
+			.appendTo(this.container)
+			.get();
 
 		this.setupVideoElementAttributes();
 		this.setupVideoElementEventListeners();
@@ -369,7 +390,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.videoElement.controls = this.options.controls ?? false;
 		this.videoElement.preload = this.options.preload ?? 'auto';
 		this.storage.get('muted', this.options.muted).then((val) => {
-			this.videoElement.muted = val == true;
+			this.videoElement.muted = val === true;
 		});
 		this.storage.get('volume', 100).then((val) => {
 			this.videoElement.volume = val ? val / 100 : 1;
@@ -383,16 +404,17 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	createOverlayElement(): void {
-
 		this.overlay = this.createElement('div', `${this.playerId}-ui-overlay`, true)
 			.addClasses(['ui-overlay'])
-			.appendTo(this.container).get();
+			.appendTo(this.container)
+			.get();
 	}
 
 	createOverlayCenterMessage(): HTMLButtonElement {
 		const playerMessage = this.createElement('button', `${this.playerId}-player-message`)
 			.addClasses(['player-message'])
-			.prependTo(this.overlay).get();
+			.prependTo(this.overlay)
+			.get();
 
 		this.on('display-message', (val: string) => {
 			playerMessage.style.display = 'flex';
@@ -409,7 +431,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	createBaseStyles(): void {
 		const styleSheet = this.createElement('style', `${this.playerId}-styles`, true)
-			.prependTo(this.container).get();
+			.prependTo(this.container)
+			.get();
 
 		styleSheet.textContent = `
 			.nomercyplayer {
@@ -590,7 +613,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	createSubtitleFontFamily(): void {
 		const styleSheet = this.createElement('style', `${this.playerId}-fonts`, true)
-			.appendTo(this.container).get();
+			.appendTo(this.container)
+			.get();
 
 		styleSheet.textContent = `
 			@import url(https://fonts.bunny.net/css?family=noto-sans-jp:500);
@@ -626,64 +650,76 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	createSubtitleOverlay(): void {
-
 		this.subtitleOverlay = this.createElement('div', `${this.playerId}-subtitle-overlay`, true)
 			.addClasses(['subtitle-overlay'])
-			.appendTo(this.container).get();
+			.appendTo(this.container)
+			.get();
 
 		this.subtitleArea = this.createElement('div', `${this.playerId}-subtitle-area`, true)
 			.addClasses(['subtitle-area'])
-			.appendTo(this.subtitleOverlay).get();
+			.appendTo(this.subtitleOverlay)
+			.get();
 
 		this.subtitleText = this.createElement('span', `${this.playerId}-subtitle-text`, true)
 			.addClasses(['subtitle-text'])
-			.appendTo(this.subtitleArea).get();
+			.appendTo(this.subtitleArea)
+			.get();
 
 		this.on('time', this.checkSubtitles.bind(this));
 
 		this.storage.get<SubtitleStyle>('subtitle-style', defaultSubtitleStyles)
 			.then((val) => {
-				this.subtitleStyle = val;
+				this._subtitleStyle = val;
 				this.applySubtitleStyle();
 			});
 	}
 
-
+	/** @deprecated Use `subtitleStyle(style)` instead. */
 	setSubtitleStyle(style: Partial<SubtitleStyle>): void {
-		this.subtitleStyle = { ...this.subtitleStyle, ...style };
-		this.applySubtitleStyle();
+		this.subtitleStyle(style);
 	}
 
+	/** @deprecated Use `subtitleStyle()` instead. */
 	getSubtitleStyle(): SubtitleStyle {
-		return this.subtitleStyle;
+		return this.subtitleStyle();
 	}
-
 
 	private applySubtitleStyle(): void {
-		this.storage.set('subtitle-style', this.subtitleStyle).then();
+		this.storage.set('subtitle-style', this._subtitleStyle).then();
 
-		Object.entries(this.subtitleStyle).forEach(([key, value]) => {
+		Object.entries(this._subtitleStyle).forEach(([key, value]) => {
 			this.emit('set-subtitle-style', {
 				property: key,
-				value: value,
+				value,
 			});
 		});
 
-		const { fontSize, fontFamily, textColor,
-			textOpacity, backgroundColor, backgroundOpacity,
-			edgeStyle, areaColor, windowOpacity
-		} = this.subtitleStyle;
+		const {
+			fontSize,
+			fontFamily,
+			textColor,
+			textOpacity,
+			backgroundColor,
+			backgroundOpacity,
+			edgeStyle,
+			areaColor,
+			windowOpacity,
+		} = this._subtitleStyle;
 
 		const areaElement = this.subtitleArea.style;
 		const textElement = this.subtitleText.style;
 
-		this.options.debug && console.log('Applying subtitle style', this.subtitleStyle);
+		this.options.debug && console.log('Applying subtitle style', this._subtitleStyle);
 
-		if (fontSize) textElement.fontSize = `calc(100% * ${fontSize / 100})`;
-		if (fontFamily) textElement.fontFamily = fontFamily;
-		if (textColor) textElement.color = parseColorToHex(textColor, textOpacity / 100);
+		if (fontSize)
+			textElement.fontSize = `calc(100% * ${fontSize / 100})`;
+		if (fontFamily)
+			textElement.fontFamily = fontFamily;
+		if (textColor)
+			textElement.color = parseColorToHex(textColor, textOpacity / 100);
 
-		if (edgeStyle) textElement.textShadow = getEdgeStyle(edgeStyle, textOpacity / 100);
+		if (edgeStyle)
+			textElement.textShadow = getEdgeStyle(edgeStyle, textOpacity / 100);
 
 		if (backgroundColor) {
 			textElement.backgroundColor = parseColorToHex(backgroundColor, backgroundOpacity / 100);
@@ -702,26 +738,29 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const subtitleHeight = subtitleArea.clientHeight;
 
 		// Handle vertical positioning
-		if (typeof cue.linePosition === "number") {
+		if (typeof cue.linePosition === 'number') {
 			const verticalPos = cue.linePosition === 50
-				? `${50 - (subtitleHeight / videoHeight * 50)}%`  // Center
-				: `${cue.linePosition}%`;                         // Specified position
+				? `${50 - (subtitleHeight / videoHeight * 50)}%` // Center
+				: `${cue.linePosition}%`; // Specified position
 
 			subtitleArea.style.bottom = '';
 			subtitleArea.style.top = verticalPos;
-		} else {
+		}
+		else {
 			subtitleArea.style.top = '';
 			subtitleArea.style.bottom = '3%';
 		}
 
 		// Handle alignment
-		subtitleArea.classList.remove("aligned-start", "aligned-center", "aligned-end");
-		if (cue.alignment === "start" || cue.alignment === "left") {
-			subtitleArea.classList.add("aligned-start");
-		} else if (cue.alignment === "center") {
-			subtitleArea.classList.add("aligned-center");
-		} else if (cue.alignment === "end" || cue.alignment === "right") {
-			subtitleArea.classList.add("aligned-end");
+		subtitleArea.classList.remove('aligned-start', 'aligned-center', 'aligned-end');
+		if (cue.alignment === 'start' || cue.alignment === 'left') {
+			subtitleArea.classList.add('aligned-start');
+		}
+		else if (cue.alignment === 'center') {
+			subtitleArea.classList.add('aligned-center');
+		}
+		else if (cue.alignment === 'end' || cue.alignment === 'right') {
+			subtitleArea.classList.add('aligned-end');
 		}
 
 		// Handle width
@@ -729,7 +768,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			subtitleArea.style.width = `calc(${cue.size}% - 6%)`;
 			subtitleArea.style.left = `calc(${(100 - cue.size) / 2}% + 3%)`;
 			subtitleArea.style.right = `calc(${(100 - cue.size) / 2}% + 3%)`;
-		} else {
+		}
+		else {
 			subtitleArea.style.width = '100%';
 			subtitleArea.style.left = '3%';
 			subtitleArea.style.right = '3%';
@@ -746,7 +786,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const currentTime = this.videoElement.currentTime;
 		let subtitleCue: Cue = <Cue>{};
 
-		this.subtitles.cues?.forEach((sub) => {
+		this._subtitles.cues?.forEach((sub) => {
 			if (currentTime >= sub.startTime && currentTime <= sub.endTime) {
 				if (subtitleCue && sub.text === subtitleCue.text) {
 					return;
@@ -757,21 +797,21 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.subtitleText.innerHTML = '';
 		if (subtitleCue) {
-
 			// Apply size before rendering.
 			if (subtitleCue.size >= 0 && subtitleCue.size <= 100) {
-				this.subtitleArea.classList.add("sized");
+				this.subtitleArea.classList.add('sized');
 				this.subtitleArea.style.width = `${subtitleCue.size}%`;
 				this.subtitleArea.style.left = `${(100 - subtitleCue.size) / 2}%`;
-			} else {
-				this.subtitleArea.classList.remove("sized");
+			}
+			else {
+				this.subtitleArea.classList.remove('sized');
 				this.subtitleArea.style.width = `100%`;
 				this.subtitleArea.style.left = `0%`;
 			}
 
 			const fragment = this.buildSubtitleFragment(subtitleCue.text);
 			this.subtitleText.appendChild(fragment);
-			this.subtitleText.setAttribute('data-language', this.getCaptionLanguage());
+			this.subtitleText.setAttribute('data-language', this.subtitle()?.language ?? '');
 			requestAnimationFrame(() => {
 				this.computeSubtitlePosition(subtitleCue, this.videoElement, this.subtitleArea, this.subtitleText);
 			});
@@ -789,18 +829,23 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		parts.forEach((part) => {
 			if (part === '<i>') {
 				currentElement = document.createElement('i');
-			} else if (part === '<b>') {
+			}
+			else if (part === '<b>') {
 				currentElement = document.createElement('b');
-			} else if (part === '<u>') {
+			}
+			else if (part === '<u>') {
 				currentElement = document.createElement('u');
-			} else if (part === '</i>' || part === '</b>' || part === '</u>') {
+			}
+			else if (part === '</i>' || part === '</b>' || part === '</u>') {
 				if (currentElement) {
 					fragment.appendChild(currentElement);
 					currentElement = null;
 				}
-			} else if (currentElement) {
+			}
+			else if (currentElement) {
 				currentElement.appendChild(document.createTextNode(part));
-			} else {
+			}
+			else {
 				fragment.appendChild(document.createTextNode(part));
 			}
 		});
@@ -820,7 +865,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		if (Math.abs(playerAspectRatio - videoAspectRatio) > 0.1) {
 			if (playerAspectRatio > videoAspectRatio) {
 				insetInlineMatch = Math.round((playerWidth - playerHeight * videoAspectRatio) / 2);
-			} else {
+			}
+			else {
 				insetBlockMatch = Math.round((playerHeight - playerWidth / videoAspectRatio) / 2);
 			}
 		}
@@ -835,7 +881,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	hdrSupported(): boolean {
 		// noinspection JSDeprecatedSymbols
-		// if (navigator.vendor == 'Google Inc.') return true;
+		// if (navigator.vendor === 'Google Inc.') return true;
 		return screen.colorDepth > 24 && window.matchMedia('(color-gamut: p3)').matches;
 	}
 
@@ -851,7 +897,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const useHls = !this.options.disableHls && hlsSupported && (this.options.forceHls || isHls);
 
 		if (useHls) {
-
 			this.hls ??= new HLS({
 				debug: this.options.debug ?? false,
 				enableWorker: true,
@@ -884,8 +929,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.videoElement.src = appendToken ? `${url}${url.includes('?') ? '&' : '?'}token=${this.options.accessToken}` : url;
 		}
 
-		if (this.options.disableAutoPlayback || !this.options.autoPlay) return;
-		this.play().then().catch(() => {});
+		if (this.options.disableAutoPlayback || !this.options.autoPlay)
+			return;
+		this.play().then().catch(() => {
+		});
 	}
 
 	addGainNode(): void {
@@ -900,7 +947,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		gainNode.connect(audioCtx.destination);
 
 		setTimeout(() => {
-			this.emit('gain', this.getGain());
+			this.emit('gain', this.gain());
 		}, 0);
 	}
 
@@ -908,24 +955,14 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.gainNode?.disconnect();
 	}
 
+	/** @deprecated Use `gain(value)` instead. */
 	setGain(value: number) {
-		if (!this.gainNode) {
-			throw new Error('Gain node not found');
-		}
-		this.gainNode.gain.value = value;
-		this.emit('gain', this.getGain());
+		this.gain(value);
 	}
 
+	/** @deprecated Use `gain()` instead. */
 	getGain(): { min: number; max: number; defaultValue: number; value: number } {
-		if (!this.gainNode) {
-			throw new Error('Gain node not found');
-		}
-		return {
-			value: this.gainNode.gain.value,
-			min: this.gainNode.gain.minValue,
-			max: this.gainNode.gain.maxValue,
-			defaultValue: this.gainNode.gain.defaultValue,
-		};
+		return this.gain();
 	}
 
 	videoPlayer_playEvent(): void {
@@ -958,14 +995,16 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.firstFrame = false;
 		});
 
-		this.emit('audioTracks', this.getAudioTracks());
+		this.emit('audioTracks', this.audioTracks());
 
 		this.mediaSession.setPlaybackState('playing');
 	}
 
 	resolveImageUrl(image: string | undefined): string | undefined {
-		if (!image) return undefined;
-		if (image.startsWith('http')) return image;
+		if (!image)
+			return undefined;
+		if (image.startsWith('http'))
+			return image;
 		return (this.options.imageBasePath ?? this.options.basePath ?? '') + image;
 	}
 
@@ -986,33 +1025,37 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	async setCurrentCaptionFromStorage(): Promise<void> {
-		if (this.options.disableAutoPlayback) return;
+		if (this.options.disableAutoPlayback)
+			return;
 
 		const subtitleLanguage = await this.storage.get('subtitle-language', null);
 		const subtitleType = await this.storage.get('subtitle-type', null);
 		const subtitleExt = await this.storage.get('subtitle-ext', null);
 
 		if (subtitleLanguage && subtitleType && subtitleExt) {
-			const track = this.getCaptionIndexBy(
+			const track = this.subtitleIndexBy(
 				subtitleLanguage as string,
 				subtitleType as string,
-				subtitleExt as string
+				subtitleExt as string,
 			);
 
-			if (track == null || track == -1) return;
+			if (!track || track === -1)
+				return;
 
 			this.options.debug && console.log('Setting caption from storage', track);
-			this.setCurrentCaption(track);
+			this.subtitle(track);
 		}
 	}
 
 	setCurrentAudioTrackFromStorage(): void {
-		if (this.options.disableAutoPlayback) return;
+		if (this.options.disableAutoPlayback)
+			return;
 		this.storage.get('audio-language', null).then((val) => {
 			if (val) {
-				this.setCurrentAudioTrack(this.getAudioTrackIndexByLanguage(val));
-			} else {
-				this.setCurrentAudioTrack(0);
+				this.audioTrack(this.getAudioTrackIndexByLanguage(val));
+			}
+			else {
+				this.audioTrack(0);
 			}
 		});
 	}
@@ -1029,10 +1072,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	videoPlayer_endedEvent(): void {
-		if (this.currentIndex < this.playlist.length - 1) {
-			if (this.options.disableAutoPlayback) return;
+		if (this.currentIndex < this._playlist.length - 1) {
+			if (this.options.disableAutoPlayback)
+				return;
 			this.playVideo(this.currentIndex + 1);
-		} else {
+		}
+		else {
 			this.options.debug && console.log('Playlist completed.');
 			this.isPlaying = false;
 			this.emit('playlistComplete');
@@ -1071,7 +1116,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	videoPlayer_timeupdateEvent(e: Event): void {
 		const _e = e as Event & { target: HTMLVideoElement };
-		if (Number.isNaN(_e.target.duration) || Number.isNaN(_e.target.currentTime)) return;
+		if (Number.isNaN(_e.target.duration) || Number.isNaN(_e.target.currentTime))
+			return;
 
 		this.emit('time', this.videoPlayer_getTimeData(_e));
 	}
@@ -1080,27 +1126,28 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const _e = e as Event & { target: HTMLVideoElement };
 		this.emit('duration', this.videoPlayer_getTimeData(_e));
 
-		if(this.options.disableAutoPlayback) return;
+		if (this.options.disableAutoPlayback)
+			return;
 		this.emit('ready');
 	}
 
 	videoPlayer_volumechangeEvent(): void {
-		if (this.volume != Math.round(this.videoElement.volume * 100)) {
+		if (this._volume !== Math.round(this.videoElement.volume * 100)) {
 			this.emit('volume', {
 				volume: Math.round(this.videoElement.volume * 100),
 				muted: this.videoElement.muted,
 			});
 		}
 
-		if (this.muted != this.videoElement.muted) {
+		if (this._muted !== this.videoElement.muted) {
 			this.emit('mute', {
 				volume: Math.round(this.videoElement.volume * 100),
 				muted: this.videoElement.muted,
 			});
 		}
 
-		this.muted = this.videoElement.muted;
-		this.volume = Math.round(this.videoElement.volume * 100);
+		this._muted = this.videoElement.muted;
+		this._volume = Math.round(this.videoElement.volume * 100);
 	}
 
 	videoPlayer_getTimeData(_e: { target: HTMLVideoElement }): TimeData {
@@ -1116,17 +1163,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		};
 	}
 
+	/** @deprecated Use `timeData()` instead. */
 	getTimeData(): TimeData {
-		return {
-			currentTime: this.videoElement.currentTime,
-			duration: this.videoElement.duration,
-			percentage: (this.videoElement.currentTime / this.videoElement.duration) * 100,
-			remaining: this.videoElement.duration - this.videoElement.currentTime,
-			currentTimeHuman: humanTime(this.videoElement.currentTime),
-			durationHuman: humanTime(this.videoElement.duration),
-			remainingHuman: humanTime(this.videoElement.duration - this.videoElement.currentTime),
-			playbackRate: this.videoElement.playbackRate,
-		};
+		return this.timeData();
 	}
 
 	ui_addActiveClass(): void {
@@ -1150,7 +1189,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.ui_addActiveClass();
 
-		if (this.lockActive) return;
+		if (this.lockActive)
+			return;
 
 		this.inactivityTimeout = setTimeout(() => {
 			this.ui_removeActiveClass();
@@ -1166,7 +1206,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	handleMouseLeave(event: MouseEvent) {
-		if (this.lockActive) return;
+		if (this.lockActive)
+			return;
 
 		const relatedTarget = event.relatedTarget as HTMLElement;
 		if (relatedTarget && (relatedTarget.tagName === 'BUTTON' || relatedTarget.tagName === 'INPUT')) {
@@ -1214,10 +1255,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	];
 
 	_addEvents(): void {
-		this._playerEvents.forEach(event => {
+		this._playerEvents.forEach((event) => {
 			this.videoElement.addEventListener(event.type, event.handler, { passive: true });
 		});
-		this._containerEvents.forEach(event => {
+		this._containerEvents.forEach((event) => {
 			this.container.addEventListener(event.type, event.handler as EventListener, { passive: true });
 		});
 
@@ -1235,17 +1276,17 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			previous: this.previous.bind(this),
 			next: this.next.bind(this),
 			seek: this.seek.bind(this),
-			getPosition: this.getCurrentTime.bind(this),
+			getPosition: this.currentTime.bind(this),
 		});
 
 		this.on('item', () => {
 			this.lastTime = 0;
 			setTimeout(() => {
-				this.emit('captionsList', this.getCaptionsList());
-				this.emit('levels', this.getQualityLevels());
+				this.emit('captionsList', this.subtitles());
+				this.emit('levels', this.qualityLevels());
 				this.emit('levelsChanging', {
 					id: this.hls?.loadLevel,
-					name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
+					name: this.qualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
 				});
 			}, 250);
 		});
@@ -1255,17 +1296,17 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		});
 
 		this.on('firstFrame', () => {
-			this.emit('levels', this.getQualityLevels());
+			this.emit('levels', this.qualityLevels());
 			this.emit('levelsChanging', {
 				id: this.hls?.loadLevel,
-				name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
+				name: this.qualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
 			});
-			this.emit('audioTracks', this.getAudioTracks());
+			this.emit('audioTracks', this.audioTracks());
 		});
 
 		this.once('hls', () => {
-
-			if (!this.hls) return;
+			if (!this.hls)
+				return;
 
 			this.hls.on(HLS.Events.AUDIO_TRACK_LOADING, (event, data) => {
 				this.options.debug && console.log(event, data);
@@ -1277,20 +1318,20 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				this.options.debug && console.log(event, data);
 				this.emit('audioTrackChanging', {
 					id: data.id,
-					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
+					name: (this.audioTracks() as any[]).find(l => l.id === data.id)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.AUDIO_TRACK_SWITCHED, (event, data) => {
 				this.options.debug && console.log(event, data);
 				this.emit('audioTrackChanged', {
 					id: data.id,
-					name: this.getAudioTracks().find(l => l.id === data.id)?.name,
+					name: (this.audioTracks() as any[]).find(l => l.id === data.id)?.name,
 				});
 			});
 
 			this.hls.on(HLS.Events.ERROR, (error, errorData) => {
 				console.error('HLS error', error, errorData);
-				if (errorData.details == "bufferNudgeOnStall") {
+				if (errorData.details === 'bufferNudgeOnStall') {
 					this.seek(this.videoElement.currentTime + 1);
 				}
 			});
@@ -1298,32 +1339,31 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.hls.on(HLS.Events.LEVEL_LOADED, (event, data) => {
 				this.options.debug && console.log(event, data);
 
-				// @ts-expect-error levelInfo does exist but it typed wrong
-				this.videoElement.style.setProperty('--aspect-ratio', data.levelInfo ?`${data.levelInfo?.width / data.levelInfo?.height}` : '');
+				this.videoElement.style.setProperty('--aspect-ratio', data.levelInfo ? `${data.levelInfo?.width / data.levelInfo?.height}` : '');
 			});
 			this.hls.on(HLS.Events.LEVEL_LOADING, () => {
-				this.emit('levels', this.getQualityLevels());
+				this.emit('levels', this.qualityLevels());
 				this.emit('levelsChanging', {
 					id: this.hls?.loadLevel,
-					name: this.getQualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
+					name: this.qualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHED, (_, data) => {
 				this.emit('levelsChanged', {
 					id: data.level,
-					name: this.getQualityLevels().find(l => l.id === data.level)?.name,
+					name: this.qualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHING, (_, data) => {
 				this.emit('levelsChanging', {
 					id: data.level,
-					name: this.getQualityLevels().find(l => l.id === data.level)?.name,
+					name: this.qualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVEL_UPDATED, (_, data) => {
 				this.emit('levelsChanged', {
 					id: data.level,
-					name: this.getQualityLevels().find(l => l.id === data.level)?.name,
+					name: this.qualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
 			this.hls.on(HLS.Events.LEVELS_UPDATED, (event, data) => {
@@ -1355,16 +1395,16 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.hls.on(HLS.Events.MEDIA_DETACHING, (event) => {
 				this.options.debug && console.log(event, event);
 			});
-
 		});
 
 		this.once('item', () => {
-			this.on('captionsList', () => {
-				this.setCurrentCaptionFromStorage();
+			this.on('captionsList', async () => {
+				await this.setCurrentCaptionFromStorage();
 			});
 			this.emit('speed', this.videoElement.playbackRate);
 			this.on('audioTracks', () => {
-				if (this.getAudioTracks().length < 2) return;
+				if (this.audioTracks().length < 2)
+					return;
 
 				this.setCurrentAudioTrackFromStorage();
 
@@ -1374,8 +1414,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 					const audioLanguage = await this.storage.get('audio-language', null);
 
 					this.emit('audioTrackChanged', {
-						id: this.getAudioTracks().find(l => l.lang === audioLanguage)?.id,
-						name: this.getAudioTracks().find(l => l.lang === audioLanguage)?.name,
+						id: (this.audioTracks() as any[]).find(l => l.lang === audioLanguage)?.id,
+						name: (this.audioTracks() as any[]).find(l => l.lang === audioLanguage)?.name,
 					});
 				});
 			});
@@ -1401,11 +1441,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			else {
 				// Get item with the latest progress timer
 
-				const progressItem = this.getPlaylist()
+				const progressItem = this.playlist()
 					.filter(i => i.progress);
 
-				if (progressItem.length == 0 && this.options.autoPlay && !this.options.disableAutoPlayback) {
-					this.play().then().catch(() => {});
+				if (progressItem.length === 0 && this.options.autoPlay && !this.options.disableAutoPlayback) {
+					this.play().then().catch(() => {
+					});
 					return;
 				}
 
@@ -1416,23 +1457,26 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 				if (!playlistItem?.progress) {
 					if (this.options.autoPlay && !this.options.disableAutoPlayback) {
-						this.play().then().catch(() => {});
+						this.play().then().catch(() => {
+						});
 					}
 					return;
 				}
 
 				setTimeout(() => {
-					if (this.options.disableAutoPlayback) return;
-					if (playlistItem.progress && 100 * (playlistItem.progress?.time ?? 0) / (this.getDuration() ?? 0) > 90) {
-						this.playlistItem(this.getPlaylist().indexOf(playlistItem) + 1);
+					if (this.options.disableAutoPlayback)
+						return;
+					if (playlistItem.progress && 100 * (playlistItem.progress?.time ?? 0) / (this.duration() ?? 0) > 90) {
+						this.playlistItem(this.playlist().indexOf(playlistItem) + 1);
 					}
 					else {
-						this.playlistItem(this.getPlaylist().indexOf(playlistItem));
+						this.playlistItem(this.playlist().indexOf(playlistItem));
 					}
 				}, 0);
 
 				this.once('play', () => {
-					if (!playlistItem.progress || this.options.disableAutoPlayback) return;
+					if (!playlistItem.progress || this.options.disableAutoPlayback)
+						return;
 
 					this.seek(playlistItem.progress.time);
 				});
@@ -1477,9 +1521,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.container.classList.add('buffering');
 		});
 
-		this.on('item', () => {
+		this.on('item', async () => {
 			this.once('audioTracks', () => {
-				if (this.getAudioTracks().length < 2) return;
+				if (this.audioTracks().length < 2)
+					return;
 				this.setCurrentAudioTrackFromStorage();
 				this.once('play', () => {
 					this.setCurrentAudioTrackFromStorage();
@@ -1487,18 +1532,17 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			});
 			this.container.classList.remove('buffering');
 			this.container.classList.remove('error');
-			this.setCurrentCaptionFromStorage();
+			await this.setCurrentCaptionFromStorage();
 			this.fetchChapterFile();
 		});
 	}
 
 	_removeEvents(): void {
-
-		this._playerEvents.forEach(event => {
+		this._playerEvents.forEach((event) => {
 			this.videoElement.removeEventListener(event.type, event.handler);
 		});
 
-		this._containerEvents.forEach(event => {
+		this._containerEvents.forEach((event) => {
 			this.container.removeEventListener(event.type, event.handler as EventListener);
 		});
 
@@ -1508,7 +1552,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.off('showControls', this.ui_addActiveClass.bind(this));
 		this.off('hideControls', this.ui_removeActiveClass.bind(this));
 		this.off('dynamicControls', this.ui_resetInactivityTimer.bind(this));
-
 	}
 
 	getParameterByName<T extends number | string>(name: string, url = window.location.href): T | null {
@@ -1523,7 +1566,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		const value = decodeURIComponent(results[2].replace(/\+/gu, ' '));
 
-		if (!isNaN(Number(value))) {
+		if (!Number.isNaN(Number(value))) {
 			return Number(value) as T;
 		}
 		return value as T;
@@ -1558,16 +1601,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	/**
 	 * Returns an array of subtitle tracks for the current playlist item.
 	 * @returns {Array} An array of subtitle tracks for the current playlist item.
+	 * @deprecated Use `subtitles()` instead.
 	 */
 	getSubtitles(): Track[] | undefined {
-		return this.playlistItem().tracks
-			?.filter((t: { kind: string }) => t.kind === 'subtitles')
-			.map((level, index: number) => ({
-				...level,
-				id: index,
-				ext: level.file.split('.').at(-1) ?? 'vtt',
-				type: level.label?.includes('Full') || level.label?.includes('full') ? 'full' : 'sign',
-			}));
+		return this.subtitles();
 	}
 
 	/**
@@ -1575,7 +1612,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns {Array} An array of audio tracks for the current playlist item.
 	 */
 	getSubtitleFile(): string | undefined {
-		return this.getCurrentCaption()?.file;
+		return this.subtitle()?.file;
 	}
 
 	/**
@@ -1616,7 +1653,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * If the video duration is not available yet, waits for the 'duration' event to be emitted before emitting the 'skippers' event.
 	 */
 	fetchSkipFile() {
-		this.skippers = [];
+		this._skippers = [];
 		const file = this.getSkipFile();
 		if (file && this.currentSkipFile !== file) {
 			this.currentSkipFile = file;
@@ -1625,13 +1662,14 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				options: {},
 				callback: (data) => {
 					const parser = new window.WebVTTParser();
-					this.skippers = parser.parse(data, 'metadata');
+					this._skippers = parser.parse(data, 'metadata');
 
-					if (this.getDuration()) { // VideoJs doesn't have duration yet
-						this.emit('skippers', this.getSkippers());
-					} else {
+					if (this.duration()) { // VideoJs doesn't have duration yet
+						this.emit('skippers', this.skippers());
+					}
+					else {
 						this.once('duration', () => {
-							this.emit('skippers', this.getSkippers());
+							this.emit('skippers', this.skippers());
 						});
 					}
 				},
@@ -1642,42 +1680,36 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	/**
 	 * Returns an array of skip objects, each containing information about the skip's ID, title, start and end times, and position within the video.
 	 * @returns {Array} An array of skip objects.
+	 * @deprecated Use `skippers()` instead.
 	 */
 	getSkippers(): Array<any> {
-		return this.skippers?.cues?.map((skip: { id: any; text: any; startTime: any; endTime: any }, index: number) => {
-			return {
-				id: `Skip ${index}`,
-				title: skip.text,
-				startTime: skip.startTime,
-				endTime: skip.endTime,
-				type: skip.text.trim(),
-			};
-		}) ?? [];
+		return this.skippers();
 	}
 
 	/**
 	 * Returns the current skip based on the current time.
 	 * @returns The current skip object or undefined if no skip is found.
+	 * @deprecated Use `skip()` instead.
 	 */
 	getSkip(): any {
-		return this.getSkippers()?.find((chapter: { startTime: number; endTime: number; }) => {
-			return this.getCurrentTime() >= chapter.startTime && this.getCurrentTime() <= chapter.endTime;
-		});
+		return this.skip();
 	}
 
 	/**
 	 * @returns An array of available playback speeds.
+	 * @deprecated Use `speeds()` instead.
 	 */
 	getSpeeds(): number[] {
-		return this.options.playbackRates ?? [];
+		return this.speeds();
 	}
 
 	/**
 	 * Returns the current playback speed of the player.
 	 * @returns The current playback speed of the player.
+	 * @deprecated Use `speed()` instead.
 	 */
 	getSpeed(): number {
-		return this.videoElement.playbackRate;
+		return this.speed();
 	}
 
 	/**
@@ -1685,13 +1717,13 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns {boolean} True if the player has multiple speeds, false otherwise.
 	 */
 	hasSpeeds(): boolean {
-		const speeds = this.getSpeeds();
+		const speeds = this.speeds();
 		return speeds !== undefined && speeds.length > 1;
 	}
 
+	/** @deprecated Use `speed(value)` instead. */
 	setSpeed(speed: number): void {
-		this.videoElement.playbackRate = speed;
-		this.emit('speed', speed);
+		this.speed(speed);
 	}
 
 	/**
@@ -1732,7 +1764,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 								file: `${baseFolder}/${f.file}`,
 							};
 						});
-					} catch (e) {
+					}
+					catch (e) {
+						console.error(e);
 						this.fonts = [];
 					}
 
@@ -1758,9 +1792,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 					this.translations = JSON.parse(data);
 
 					this.emit('translations', this.translations);
-				}
+				},
 			});
-		} catch (error) {
+		}
+		catch (error) {
 			console.error('Failed to fetch translations file:', error);
 		}
 	}
@@ -1773,12 +1808,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.translations[key] = value;
 	}
 
-	addTranslations(translations: { key: string, value: string }[]): void {
+	addTranslations(translations: { key: string; value: string }[]): void {
 		if (!this.translations) {
 			this.translations = {};
 		}
 
-		translations.forEach(translation => {
+		translations.forEach((translation) => {
 			this.translations[translation.key] = translation.value;
 		});
 	}
@@ -1797,10 +1832,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				options: {},
 				callback: (data) => {
 					const parser = new WebVTTParser();
-					this.chapters = parser.parse(data, 'chapters');
+					this._chapters = parser.parse(data, 'chapters');
 
 					this.once('duration', () => {
-						this.emit('chapters', this.chapters);
+						this.emit('chapters', this._chapters);
 					});
 				},
 			}).then();
@@ -1811,62 +1846,45 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * Returns an array of chapter objects, each containing information about the chapter's ID, title, start and end times, and position within the video.
 	 * @returns {Array} An array of chapter objects.
 	 */
+	/** @deprecated Use `chapters()` instead. */
 	getChapters(): Chapter[] {
-		return this.chapters?.cues
-			?.map((chapter: { id: any; text: any; startTime: any; }, index: number): Chapter => {
-				const endTime = this.chapters?.cues[index + 1]?.startTime ?? this.getDuration();
-				return {
-					id: `Chapter ${index}`,
-					title: chapter.text,
-					left: chapter.startTime / this.getDuration() * 100,
-					width: (endTime - chapter.startTime) / this.getDuration() * 100,
-					startTime: chapter.startTime,
-					endTime: endTime,
-					time: 0,
-				};
-			}) ?? [];
-	}
-
-	/**
-	 * Returns the current chapter based on the current time.
-	 * @returns The current chapter object or undefined if no chapter is found.
-	 */
-	getChapter(): any {
-		return this.getChapters()?.find((chapter) => {
-			return this.getCurrentTime() >= chapter.startTime && this.getCurrentTime() <= chapter.endTime;
-		});
+		return this.chapters();
 	}
 
 	getPreviousChapter(currentStartTime: number): Cue | undefined {
-		return this.chapters.cues.filter(chapter => chapter.endTime <= currentStartTime).at(-1);
+		return this._chapters.cues.filter(chapter => chapter.endTime <= currentStartTime).at(-1);
 	}
 
+	/** @deprecated Use `chapter(currentTime)` instead. */
 	getCurrentChapter(currentTime: number): Cue | undefined {
-		return this.chapters.cues.find(chapter => currentTime >= chapter.startTime && currentTime <= chapter.endTime);
+		return this.chapter(currentTime);
 	}
 
 	getNextChapter(currentEndTime: number): Cue | undefined {
-		return this.chapters.cues.find(chapter => chapter.startTime >= currentEndTime);
+		return this._chapters.cues.find(chapter => chapter.startTime >= currentEndTime);
 	}
 
 	previousChapter(): void {
-		const currentChapter = this.getCurrentChapter(this.getCurrentTime());
-		if (!currentChapter) return;
+		const currentChapter = this.chapter(this.currentTime());
+		if (!currentChapter)
+			return;
 
-		if (this.getCurrentTime() - currentChapter.startTime > 10) {
+		if (this.currentTime() - currentChapter.startTime > 10) {
 			this.seek(currentChapter.startTime);
 			return;
 		}
 
-		const previousChapter = this.getPreviousChapter(this.getCurrentTime());
-		if (!previousChapter) return;
+		const previousChapter = this.getPreviousChapter(this.currentTime());
+		if (!previousChapter)
+			return;
 
 		this.seek(previousChapter.startTime);
 	}
 
 	nextChapter(): void {
-		const nextChapter = this.getNextChapter(this.getCurrentTime());
-		if (!nextChapter) return;
+		const nextChapter = this.getNextChapter(this.currentTime());
+		if (!nextChapter)
+			return;
 
 		this.seek(nextChapter.startTime);
 	}
@@ -1881,19 +1899,19 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 					anonymous: false,
 				},
 				callback: (data) => {
-					if (!data.startsWith('WEBVTT\n') && !data.startsWith('WEBVTT\r')) return;
+					if (!data.startsWith('WEBVTT\n') && !data.startsWith('WEBVTT\r'))
+						return;
 
-					data = data.replace(/Kind: captions\nLanguage: \w+/gm, "");
-					data = data.replace(/align:middle/gm, "align:center");
-					data = data.replace(/<\d{2}:\d{2}:\d{2}.\d{3}>|<c>|<\/c>/gui, "");
-
+					data = data.replace(/Kind: captions\nLanguage: \w+/g, '');
+					data = data.replace(/align:middle/g, 'align:center');
+					data = data.replace(/<\d{2}:\d{2}:\d{2}.\d{3}>|<c>|<\/c>/giu, '');
 
 					const parser = new WebVTTParser();
-					this.subtitles = parser.parse(data, 'captions');
+					this._subtitles = parser.parse(data, 'captions');
 					this.storeSubtitleChoice();
 
 					this.once('duration', () => {
-						this.emit('subtitles', this.subtitles);
+						this.emit('subtitles', this._subtitles);
 					});
 				},
 			}).then();
@@ -1905,12 +1923,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	// Method to load and play a video from the playlist
 	playVideo(index: number) {
-		if (index >= 0 && index < this.playlist.length) {
-			this.subtitles = <VTTData>{};
+		if (index >= 0 && index < this._playlist.length) {
+			this._subtitles = <VTTData>{};
 			this.subtitleText.textContent = '';
 			this.subtitleOverlay.style.display = 'none';
 
-			this.currentPlaylistItem = this.playlist[index] as PlaylistItem & T;
+			this.currentPlaylistItem = this._playlist[index] as PlaylistItem & T;
 
 			this.videoElement.poster = this.resolveImageUrl(this.currentPlaylistItem.image) ?? '';
 
@@ -1923,7 +1941,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.currentIndex = index;
 
 			this.loadSource((this.options.basePath ?? '') + this.currentPlaylistItem.file);
-
 		}
 		else {
 			this.options.debug && console.log('No more videos in the playlist.');
@@ -1936,10 +1953,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns The converted playlist for the current player.
 	 */
 	async fetchPlaylist(url: string) {
-
 		const language = await this.storage.get('NoMercy-displayLanguage', navigator.language);
 
-		const headers: { [arg: string]: string; } = {
+		const headers: { [arg: string]: string } = {
 			'Accept-Language': language,
 			'Content-Type': 'application/json',
 		};
@@ -1965,7 +1981,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				.then((json: (PlaylistItem & T)[]) => {
 					this.options.debug && console.log('Playlist fetched', json);
 
-					this.playlist = json
+					this._playlist = json
 						.map(item => ({
 							...item,
 							season: item.season,
@@ -1974,26 +1990,28 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 						.filter(item => !!item.file);
 
 					setTimeout(() => {
-						this.emit('playlist', this.playlist);
+						this.emit('playlist', this._playlist);
 					}, 0);
 
-					if (this.options.disableAutoPlayback) return;
+					if (this.options.disableAutoPlayback)
+						return;
 					this.playVideo(0);
 				});
 		}
 		else if (Array.isArray(this.options.playlist)) {
-			this.playlist = this.options.playlist
-				.map((item) => ({
+			this._playlist = this.options.playlist
+				.map(item => ({
 					...item,
 					season: item.season,
 					episode: item.episode,
 				})) as (PlaylistItem & T)[];
 
 			setTimeout(() => {
-				this.emit('playlist', this.playlist);
+				this.emit('playlist', this._playlist);
 			}, 0);
 
-			if (this.options.disableAutoPlayback) return;
+			if (this.options.disableAutoPlayback)
+				return;
 			this.playVideo(0);
 		}
 	}
@@ -2008,7 +2026,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns {boolean} True if the current playlist item is the first item in the playlist, false otherwise.
 	 */
 	isFirstPlaylistItem(): boolean {
-		return this.getPlaylistIndex() === 0;
+		return this.playlistIndex() === 0;
 	}
 
 	/**
@@ -2016,9 +2034,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * If the player is a JWPlayer, it returns the file URL of the current playlist item.
 	 * Otherwise, it returns the URL of the first source in the current playlist item.
 	 * @returns The current source URL of the player, or undefined if there is no current source.
+	 * @deprecated Use `currentSrc()` instead.
 	 */
 	getCurrentSrc(): string {
-		return this.playlistItem()?.file;
+		return this.currentSrc();
 	}
 
 	/**
@@ -2026,7 +2045,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns {boolean} True if the current playlist item is the last item in the playlist, false otherwise.
 	 */
 	isLastPlaylistItem(): boolean {
-		return this.getPlaylistIndex() === this.getPlaylist().length - 1;
+		return this.playlistIndex() === this.playlist().length - 1;
 	}
 
 	/**
@@ -2034,7 +2053,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns {boolean} True if the player has more than one playlist, false otherwise.
 	 */
 	hasPlaylists(): boolean {
-		return this.getPlaylist().length > 1;
+		return this.playlist().length > 1;
 	}
 
 	/**
@@ -2059,7 +2078,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	// Setup
-	setup<T = Partial<PlayerConfig<Record<string, any>>>>(options: Partial<PlayerConfig<T>>): NMPlayer<T> {
+	setup<T = Partial<PlayerConfig>>(options: Partial<PlayerConfig<T>>): NMPlayer<T> {
 		this.options = {
 			...this.options,
 			...options,
@@ -2079,28 +2098,372 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.options = { ...this.options, ...options };
 	}
 
-	getContainer(): HTMLDivElement {
+	// ── New Unified API ─────────────────────────────────────────────────
+
+	// Unified getter/setters
+	// Unified getter/setters — these contain the actual implementation
+	volume(): number;
+	volume(value: number): void;
+	volume(value?: number): number | void {
+		if (value === undefined)
+			return Math.floor(this.videoElement.volume * 100);
+		if (value < 0)
+			value = 0;
+		if (value > 100)
+			value = 100;
+		let vol = value / 100;
+		if (vol > 1)
+			vol = 1;
+		if (vol < 0)
+			vol = 0;
+		this.videoElement.volume = vol;
+		this.muted(false);
+		this.storage.set('volume', this.videoElement.volume * 100).then();
+	}
+
+	muted(): boolean;
+	muted(value: boolean): void;
+	muted(value?: boolean): boolean | void {
+		if (value === undefined)
+			return this.videoElement.muted;
+		this.videoElement.muted = value;
+	}
+
+	speed(): number;
+	speed(value: number): void;
+	speed(value?: number): number | void {
+		if (value === undefined)
+			return this.videoElement.playbackRate;
+		this.videoElement.playbackRate = value;
+		this.emit('speed', value);
+	}
+
+	fullscreen(): boolean;
+	fullscreen(value: boolean): void;
+	fullscreen(value?: boolean): boolean | void {
+		if (value === undefined)
+			return document.fullscreenElement === this.container;
+		if (value)
+			this.enterFullscreen();
+		else this.exitFullscreen();
+	}
+
+	subtitle(): Track | undefined;
+	subtitle(index: number): void;
+	subtitle(index?: number): Track | undefined | void {
+		if (index === undefined) {
+			return this.subtitles()?.[this.currentSubtitleIndex] ?? {
+				id: -1,
+				label: 'Off',
+				language: '',
+				kind: 'subtitles',
+				type: 'none',
+				file: '',
+				ext: 'none',
+				default: true,
+			};
+		}
+
+		if (index !== 0)
+			return;
+
+		this.currentSubtitleFile = '';
+		this.currentSubtitleIndex = index;
+		this._subtitles = <VTTData>{};
+		this.subtitleText.textContent = '';
+		this.subtitleOverlay.style.display = 'none';
+		this.emit('captionsChanged', this.subtitle());
+		this.storeSubtitleChoice();
+
+		if (index < 1)
+			return;
+
+		this.fetchSubtitleFile();
+	}
+
+	audioTrack(): Track | null;
+	audioTrack(index: number): void;
+	audioTrack(index?: number): Track | null | void {
+		if (index === undefined) {
+			if (!this.hls)
+				return null;
+			return this.hls.audioTracks[this.hls.audioTrack] as unknown as Track | null;
+		}
+		if (index === null || !this.hls)
+			return;
+		this.hls.audioTrack = index;
+		this.storage.set('audio-language', (this.audioTracks() as any[])[index]?.lang ?? '').then();
+	}
+
+	quality(): number;
+	quality(index: number): void;
+	quality(index?: number): number | void {
+		if (index === undefined) {
+			if (!this.hls)
+				return -1;
+			return this.hls.currentLevel;
+		}
+
+		if (!this.hls || (index === null))
+			return;
+
+		this.hls.nextLevel = index;
+	}
+
+	aspect(): string;
+	aspect(value: Stretching): void;
+	aspect(value?: Stretching): string | void {
+		if (value === undefined)
+			return this.currentAspectRatio;
+		this.setAspect(value);
+	}
+
+	subtitleStyle(): SubtitleStyle;
+	subtitleStyle(value: Partial<SubtitleStyle>): void;
+	subtitleStyle(value?: Partial<SubtitleStyle>): SubtitleStyle | void {
+		if (value === undefined)
+			return this._subtitleStyle;
+		this._subtitleStyle = { ...this._subtitleStyle, ...value };
+		this.applySubtitleStyle();
+	}
+
+	gain(): { min: number; max: number; defaultValue: number; value: number };
+	gain(value: number): void;
+	gain(value?: number): { min: number; max: number; defaultValue: number; value: number } | void {
+		if (value === undefined) {
+			if (!this.gainNode)
+				throw new Error('Gain node not found');
+			return {
+				value: this.gainNode.gain.value,
+				min: this.gainNode.gain.minValue,
+				max: this.gainNode.gain.maxValue,
+				defaultValue: this.gainNode.gain.defaultValue,
+			};
+		}
+		if (!this.gainNode)
+			throw new Error('Gain node not found');
+		this.gainNode.gain.value = value;
+		this.emit('gain', this.gain());
+	}
+
+	// Renamed get-only methods — these contain the actual implementation
+	state(): PlayState {
+		if (this.videoElement.readyState < 3 && !this.videoElement.paused)
+			return 'buffering';
+		if (this.videoElement.paused)
+			return 'paused';
+		if (!this.videoElement.paused)
+			return 'playing';
+		return 'idle';
+	}
+
+	currentTime(): number {
+		return this.videoElement.currentTime;
+	}
+
+	duration(): number {
+		return this.videoElement.duration;
+	}
+
+	buffer(): TimeRanges {
+		return this.videoElement.buffered;
+	}
+
+	width(): number {
+		return this.videoElement.getBoundingClientRect().width;
+	}
+
+	height(): number {
+		return this.videoElement.getBoundingClientRect().height;
+	}
+
+	element(): HTMLDivElement {
 		return this.container;
 	}
 
-	// Playlist
-	getPlaylist(): (PlaylistItem & T)[] {
-		return this.playlist;
+	currentSrc(): string {
+		return this.playlistItem()?.file;
 	}
 
-	getPlaylistItem(index?: number): (PlaylistItem & T) {
-		if (index === undefined) {
-			return this.currentPlaylistItem as (PlaylistItem & T);
+	playlist(): (PlaylistItem & T)[] {
+		return this._playlist;
+	}
+
+	playlistIndex(): number {
+		return this._playlist.indexOf(this.currentPlaylistItem);
+	}
+
+	audioTracks(): Track[] {
+		if (!this.hls)
+			return [];
+		return this.hls.audioTracks.map((playlist, index: number) => ({
+			...playlist,
+			id: index,
+			language: playlist.lang,
+			label: playlist.name,
+		})) as unknown as Track[];
+	}
+
+	audioTrackIndex(): number {
+		if (!this.hls)
+			return -1;
+		return this.hls.audioTrack;
+	}
+
+	qualityLevels(): Level[] {
+		if (!this.hls)
+			return [];
+		return this.hls.levels
+			.map((level, index: number) => ({
+				...level,
+				id: index,
+				label: level.name,
+			}))
+			.filter((level) => {
+				const range = level._attrs.at(0)?.['VIDEO-RANGE'];
+				const browserSupportsHDR = this.hdrSupported();
+				if (browserSupportsHDR)
+					return true;
+				return range !== 'PQ';
+			});
+	}
+
+	subtitles(): Track[] {
+		return this.playlistItem()?.tracks?.filter((t: { kind: string }) => t.kind === 'subtitles').map((level, index: number) => ({
+			...level,
+			id: index,
+			ext: level.file.split('.').at(-1) ?? 'vtt',
+			type: level.label?.includes('Full') || level.label?.includes('full') ? 'full' : 'sign',
+		})) ?? [];
+	}
+
+	subtitleIndex(): number {
+		return this.currentSubtitleIndex;
+	}
+
+	subtitleIndexBy(language: string, type: string, ext: string): number | undefined {
+		const list = this.getCaptionsList();
+		const index = list?.findIndex((t: any) => (t.file ?? t.id).endsWith(`${language}.${type}.${ext}`));
+		if (index === -1) {
+			return list?.findIndex((t: any) =>
+				t.language === language && t.type === type && t.ext === ext) - 1;
 		}
-		return this.playlist[index];
+		return index - 1;
 	}
 
+	chapters(): Chapter[] {
+		return this._chapters?.cues
+			?.map((chapter: { id: any; text: any; startTime: any }, index: number): Chapter => {
+				const endTime = this._chapters?.cues[index + 1]?.startTime ?? this.duration();
+				return {
+					id: `Chapter ${index}`,
+					title: chapter.text,
+					left: chapter.startTime / this.duration() * 100,
+					width: (endTime - chapter.startTime) / this.duration() * 100,
+					startTime: chapter.startTime,
+					endTime,
+					time: 0,
+				};
+			}) ?? [];
+	}
+
+	chapter(currentTime: number): Cue | undefined {
+		return this._chapters.cues.find(chapter => currentTime >= chapter.startTime && currentTime <= chapter.endTime);
+	}
+
+	speeds(): number[] {
+		return this.options.playbackRates ?? [];
+	}
+
+	skippers(): Array<any> {
+		return this._skippers?.cues?.map((skip: {
+			id: any;
+			text: any;
+			startTime: any;
+			endTime: any;
+		}, index: number) => ({
+			id: `Skip ${index}`,
+			title: skip.text,
+			startTime: skip.startTime,
+			endTime: skip.endTime,
+			type: skip.text.trim(),
+		})) ?? [];
+	}
+
+	skip(): any {
+		return this.skippers()?.find((chapter: { startTime: number; endTime: number }) => {
+			return this.currentTime() >= chapter.startTime && this.currentTime() <= chapter.endTime;
+		});
+	}
+
+	seasons(): Array<{ season: number; seasonName: string; episodes: number }> {
+		return unique(this.playlist(), 'season').map((s: any) => ({
+			season: s.season,
+			seasonName: s.seasonName,
+			episodes: this.playlist().filter((e: any) => e.season === s.season).length,
+		}));
+	}
+
+	timeData(): TimeData {
+		return {
+			currentTime: this.videoElement.currentTime,
+			duration: this.videoElement.duration,
+			percentage: (this.videoElement.currentTime / this.videoElement.duration) * 100,
+			remaining: this.videoElement.duration - this.videoElement.currentTime,
+			currentTimeHuman: humanTime(this.videoElement.currentTime),
+			durationHuman: humanTime(this.videoElement.duration),
+			remainingHuman: humanTime(this.videoElement.duration - this.videoElement.currentTime),
+			playbackRate: this.videoElement.playbackRate,
+		};
+	}
+
+	hasSubtitles(): boolean {
+		return (this.subtitles()?.length ?? 0) > 0;
+	}
+
+	// Renamed action methods
+	rewind(time = this.seekInterval ?? 10): void {
+		this.emit('remove-forward');
+		clearTimeout(this.leftTap);
+		this.tapCount += time;
+		this.emit('rewind', this.tapCount);
+		this.leftTap = setTimeout(() => {
+			this.emit('remove-rewind');
+			if (!this.options.disableAutoPlayback) {
+				this.seek(this.currentTime() - this.tapCount);
+			}
+			this.tapCount = 0;
+		}, this.leeway);
+	}
+
+	forward(time = this.seekInterval ?? 10): void {
+		this.emit('remove-rewind');
+		clearTimeout(this.rightTap);
+		this.tapCount += time;
+		this.emit('forward', this.tapCount);
+		this.rightTap = setTimeout(() => {
+			this.emit('remove-forward');
+			if (!this.options.disableAutoPlayback) {
+				this.seek(this.currentTime() + this.tapCount);
+			}
+			this.tapCount = 0;
+		}, this.leeway);
+	}
+
+	// ── Deprecated Methods (old API, delegate to new unified methods) ───
+
+	/** @deprecated Use `playlist()` */
+	getPlaylist(): (PlaylistItem & T)[] {
+		return this.playlist();
+	}
+
+	/** @deprecated Use `playlistIndex()` */
 	getPlaylistIndex(): number {
-		return this.playlist.indexOf(this.currentPlaylistItem);
+		return this.playlistIndex();
 	}
 
 	load(playlist: (PlaylistItem & T)[]) {
-		this.playlist = playlist;
+		this._playlist = playlist;
 	}
 
 	playlistItem(): (PlaylistItem & T);
@@ -2110,7 +2473,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			return this.currentPlaylistItem as (PlaylistItem & T);
 		}
 
-		if (index == this.currentIndex) {
+		if (index === this.currentIndex) {
 			return this.currentPlaylistItem;
 		}
 
@@ -2124,42 +2487,43 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @param episode - The episode number to play.
 	 */
 	setEpisode(season: number, episode: number): void {
-		const item = this.getPlaylist()
-			.findIndex((l: any) => l.season == season && l.episode == episode);
-		if (item == -1) {
+		const item = this.playlist()
+			.findIndex((l: any) => l.season === season && l.episode === episode);
+		if (item === -1) {
 			this.playlistItem(0);
-		} else {
+		}
+		else {
 			this.playlistItem(item);
 		}
 
-		if (this.options.disableAutoPlayback || !this.options.autoPlay) return;
-		this.play().then().catch(() => {});
+		if (this.options.disableAutoPlayback || !this.options.autoPlay)
+			return;
+		this.play().then().catch(() => {
+		});
 	}
 
-
 	next(): void {
-		if (this.getPlaylistIndex() < this.playlist.length - 1) {
-			this.playlistItem(this.getPlaylistIndex() + 1);
+		if (this.playlistIndex() < this._playlist.length - 1) {
+			this.playlistItem(this.playlistIndex() + 1);
 		}
 	}
 
 	previous(): void {
-		if (this.getPlaylistIndex() > 0) {
-			this.playlistItem(this.getPlaylistIndex() - 1);
+		if (this.playlistIndex() > 0) {
+			this.playlistItem(this.playlistIndex() - 1);
 		}
 	}
 
 	// Buffer
+	/** @deprecated Use `buffer()` instead. */
 	getBuffer(): TimeRanges {
-		return this.videoElement.buffered;
+		return this.buffer();
 	}
 
 	// Playback
+	/** @deprecated Use `state()` instead. */
 	getState(): PlayState {
-		if (this.videoElement.readyState < 3 && !this.videoElement.paused) return 'buffering';
-		if (this.videoElement.paused) return 'paused';
-		if (!this.videoElement.paused) return 'playing';
-		return 'idle';
+		return this.state();
 	}
 
 	play(): Promise<void> {
@@ -2177,8 +2541,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	togglePlayback(): void {
 		if (this.videoElement.paused) {
-			this.play().then().catch(() => {});
-		} else {
+			this.play().then().catch(() => {
+			});
+		}
+		else {
 			this.pause();
 		}
 	}
@@ -2190,16 +2556,19 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	// Seek
+	/** @deprecated Use `currentTime()` instead. */
 	getCurrentTime(): number {
-		return this.videoElement.currentTime;
+		return this.currentTime();
 	}
 
+	/** @deprecated Use `duration()` instead. */
 	getDuration(): number {
-		return this.videoElement.duration;
+		return this.duration();
 	}
 
 	seek(arg: number): number {
-		if (!Number.isFinite(arg)) return this.videoElement.currentTime;
+		if (!Number.isFinite(arg))
+			return this.videoElement.currentTime;
 		this.lastTime = 0;
 
 		this.emit('seek');
@@ -2215,7 +2584,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	restart(): void {
 		this.seek(0);
-		this.play().then().catch(() => {});
+		this.play().then().catch(() => {
+		});
 	}
 
 	seekByPercentage(arg: number): number {
@@ -2225,89 +2595,61 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	/**
 	 * Rewinds the video by a specified time interval.
 	 * @param time - The time interval to rewind the video by. Defaults to 10 seconds if not provided.
+	 * @deprecated Use `rewind(time)` instead.
 	 */
 	rewindVideo(time = this.seekInterval ?? 10): void {
-		this.emit('remove-forward');
-		clearTimeout(this.leftTap);
-
-		this.tapCount += time;
-		this.emit('rewind', this.tapCount);
-
-		this.leftTap = setTimeout(() => {
-			this.emit('remove-rewind');
-			if(!this.options.disableAutoPlayback) {
-				this.seek(this.getCurrentTime() - this.tapCount);
-			}
-			this.tapCount = 0;
-		}, this.leeway);
+		this.rewind(time);
 	}
 
 	/**
 	 * Forwards the video by the specified time interval.
 	 * @param time - The time interval to forward the video by, in seconds. Defaults to 10 seconds if not provided.
+	 * @deprecated Use `forward(time)` instead.
 	 */
 	forwardVideo(time = this.seekInterval ?? 10): void {
-		this.emit('remove-rewind');
-		clearTimeout(this.rightTap);
-
-		this.tapCount += time;
-		this.emit('forward', this.tapCount);
-
-		this.rightTap = setTimeout(() => {
-			this.emit('remove-forward');
-			if(!this.options.disableAutoPlayback) {
-				this.seek(this.getCurrentTime() + this.tapCount);
-			}
-			this.tapCount = 0;
-		}, this.leeway);
+		this.forward(time);
 	}
 
 	// Volume
+	/** @deprecated Use `muted()` instead. */
 	getMute(): boolean {
-		return this.videoElement.muted;
+		return this.muted();
 	}
 
+	/** @deprecated Use `volume()` instead. */
 	getVolume(): number {
-		return Math.floor(this.videoElement.volume * 100);
+		return this.volume();
 	}
 
+	/** @deprecated Use `muted(value)` instead. */
 	setMute(muted: boolean): void {
-		this.videoElement.muted = muted;
+		this.muted(muted);
 	}
 
 	toggleMute(): void {
-		this.setMute(!this.videoElement.muted);
+		this.muted(!this.videoElement.muted);
 
 		this.storage.set('muted', this.videoElement.muted).then();
 
 		if (this.videoElement.muted) {
 			this.displayMessage(this.localize('Muted'));
-		} else {
-			this.displayMessage(`${this.localize('Volume')}: ${this.getVolume()}%`);
 		}
-	}
-
-
-	/**
-	 * Returns a boolean indicating whether the player is currently muted.
-	 * If the player is a JWPlayer, it will return the value of `player.getMute()`.
-	 * Otherwise, it will return the value of `player.muted()`.
-	 * @returns {boolean} A boolean indicating whether the player is currently muted.
-	 */
-	isMuted(): boolean {
-		return this.getMute();
+		else {
+			this.displayMessage(`${this.localize('Volume')}: ${this.volume()}%`);
+		}
 	}
 
 	/**
 	 * Increases the volume of the player by 10 units, up to a maximum of 100.
 	 */
 	volumeUp(): void {
-		if (this.getVolume() === 100) {
-			this.setVolume(100);
+		if (this.volume() === 100) {
+			this.volume(100);
 			this.displayMessage(`${this.localize('Volume')}: 100%`);
-		} else {
-			this.setVolume(this.getVolume() + 10);
-			this.displayMessage(`${this.localize('Volume')}: ${this.getVolume()}%`);
+		}
+		else {
+			this.volume(this.volume() + 10);
+			this.displayMessage(`${this.localize('Volume')}: ${this.volume()}%`);
 		}
 	}
 
@@ -2315,39 +2657,36 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * Decreases the volume of the player by 10 units. If the volume is already at 0, the player is muted.
 	 */
 	volumeDown(): void {
-		if (this.getVolume() === 0) {
-			this.setMute(true);
-			this.displayMessage(`${this.localize('Volume')}: ${this.getVolume()}%`);
-		} else {
-			this.setMute(false);
-			this.setVolume(this.getVolume() - 10);
-			this.displayMessage(`${this.localize('Volume')}: ${this.getVolume()}%`);
+		if (this.volume() === 0) {
+			this.muted(true);
+			this.displayMessage(`${this.localize('Volume')}: ${this.volume()}%`);
+		}
+		else {
+			this.muted(false);
+			this.volume(this.volume() - 10);
+			this.displayMessage(`${this.localize('Volume')}: ${this.volume()}%`);
 		}
 	}
 
+	/** @deprecated Use `volume(value)` instead. */
 	setVolume(value: number) {
-		if (value < 0) value = 0;
-		if (value > 100) value = 100;
-		let vol = value / 100;
-		if (vol > 1) vol = 1;
-		if (vol < 0) vol = 0;
-
-		this.videoElement.volume = vol;
-		this.setMute(false);
-		this.storage.set('volume', this.videoElement.volume * 100).then();
+		this.volume(value);
 	}
 
 	// Resize
+	/** @deprecated Use `width()` instead. */
 	getWidth(): number {
-		return this.videoElement.getBoundingClientRect().width;
+		return this.width();
 	}
 
+	/** @deprecated Use `height()` instead. */
 	getHeight(): number {
-		return this.videoElement.getBoundingClientRect().height;
+		return this.height();
 	}
 
+	/** @deprecated Use `fullscreen()` instead. */
 	getFullscreen(): boolean {
-		return document.fullscreenElement === this.container;
+		return this.fullscreen();
 	}
 
 	resize(): void {
@@ -2363,24 +2702,25 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		const containerHeight = this.container.clientHeight;
 		const containerAspectRatio = containerWidth / containerHeight;
 
-		let newWidth: number|string;
-		let newHeight: number|string;
+		let newWidth: number | string;
+		let newHeight: number | string;
 
 		// Calculate new dimensions maintaining aspect ratio
 		if (videoAspectRatio > containerAspectRatio) {
 			// Video is wider than container - fit to width
 			newWidth = containerWidth;
 			newHeight = containerWidth / videoAspectRatio;
-		} else {
+		}
+		else {
 			// Video is taller than container - fit to height
 			newHeight = containerHeight;
 			newWidth = containerHeight * videoAspectRatio;
 		}
 
-        if(isNaN(newWidth) || isNaN(newHeight) || newWidth === 0 || newHeight === 0) {
-            newWidth = '100%';
-            newHeight = '100%';
-        }
+		if (Number.isNaN(newWidth) || Number.isNaN(newHeight) || newWidth === 0 || newHeight === 0) {
+			newWidth = '100%';
+			newHeight = '100%';
+		}
 
 		// Apply the calculated dimensions
 		this.videoElement.style.width = `${newWidth}px`;
@@ -2414,13 +2754,16 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		if (videoAspectRatio <= 1.4) {
 			// Close to 4:3 (1.33)
 			containerAspectRatio = '4/3';
-		} else if (videoAspectRatio <= 1.9) {
+		}
+		else if (videoAspectRatio <= 1.9) {
 			// Close to 16:9 (1.78)
 			containerAspectRatio = '16/9';
-		} else if (videoAspectRatio <= 2.5) {
+		}
+		else if (videoAspectRatio <= 2.5) {
 			// Close to 21:9 (2.33)
 			containerAspectRatio = '21/9';
-		} else {
+		}
+		else {
 			// Ultra-wide 32:9 (3.56) or wider
 			containerAspectRatio = '32/9';
 		}
@@ -2434,13 +2777,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	enterFullscreen(): void {
 		if (navigator.userActivation.isActive) {
 			this.container.requestFullscreen().then(() => {
-				this.emit('fullscreen', this.getFullscreen());
-			})
-				.catch((err) => {
-					alert(
-						`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`
-					);
-				});
+				this.emit('fullscreen', this.fullscreen());
+			}).catch((err) => {
+				this.displayMessage(this.localize('Fullscreen not supported'));
+				console.error(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+			});
 		}
 	}
 
@@ -2449,11 +2790,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 */
 	exitFullscreen(): void {
 		document.exitFullscreen().then(() => {
-			this.emit('fullscreen', this.getFullscreen());
-		})
-			.catch((err) => {
-				console.error(`Error attempting to exit fullscreen mode: ${err.message} (${err.name})`);
-			});
+			this.emit('fullscreen', this.fullscreen());
+		}).catch((err) => {
+			console.error(`Error attempting to exit fullscreen mode: ${err.message} (${err.name})`);
+		});
 	}
 
 	/**
@@ -2462,45 +2802,33 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * If the player is not in fullscreen mode, it enters fullscreen mode.
 	 */
 	toggleFullscreen(): void {
-		if (this.getFullscreen()) {
+		if (this.fullscreen()) {
 			this.exitFullscreen();
-		} else {
+		}
+		else {
 			this.enterFullscreen();
 		}
 	}
 
 	// Audio
+	/** @deprecated Use `audioTracks()` instead. */
 	getAudioTracks(): MediaPlaylist[] {
-		if (!this.hls) return [];
-		return this.hls.audioTracks
-			.map((playlist, index: number) => ({
-				...playlist,
-				id: index,
-				language: playlist.lang,
-				label: playlist.name,
-			}));
+		return this.audioTracks() as unknown as MediaPlaylist[];
 	}
 
-	getCurrentAudioTrack(): MediaPlaylist|null {
-		if (!this.hls) return null;
-		return this.hls.audioTracks[this.hls.audioTrack];
+	/** @deprecated Use `audioTrack()` instead. */
+	getCurrentAudioTrack(): MediaPlaylist | null {
+		return this.audioTrack() as unknown as MediaPlaylist | null;
 	}
 
+	/** @deprecated Use `audioTrackIndex()` instead. */
 	getAudioTrackIndex(): number {
-		if (!this.hls) return -1;
-		return this.hls.audioTrack;
+		return this.audioTrackIndex();
 	}
 
-	getCurrentAudioTrackName(): string {
-		if (!this.hls) return '';
-		return this.getCurrentAudioTrack()?.name ?? '';
-	}
-
+	/** @deprecated Use `audioTrack(index)` instead. */
 	setCurrentAudioTrack(index: number): void {
-		if (index === null || !this.hls) return;
-		this.hls.audioTrack = index;
-
-		this.storage.set('audio-language', this.getAudioTracks()[index]?.lang ?? '').then();
+		this.audioTrack(index);
 	}
 
 	/**
@@ -2509,7 +2837,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns The index of the audio track with the specified language, or -1 if no such track exists.
 	 */
 	getAudioTrackIndexByLanguage(language: string) {
-		return this.getAudioTracks().findIndex((t: any) => t.language == language);
+		return this.audioTracks().findIndex((t: any) => t.language === language);
 	}
 
 	/**
@@ -2517,7 +2845,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns {boolean} True if there are multiple audio tracks, false otherwise.
 	 */
 	hasAudioTracks(): boolean {
-		return this.getAudioTracks().length > 1;
+		return this.audioTracks().length > 1;
 	}
 
 	/**
@@ -2528,56 +2856,41 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * After cycling to the next track, this method will display a message indicating the new audio track.
 	 */
 	cycleAudioTracks(): void {
-
 		if (!this.hasAudioTracks()) {
 			return;
 		}
 
-		if (this.getAudioTrackIndex() === this.getAudioTracks().length - 1) {
-			this.setCurrentAudioTrack(0);
-		} else {
-			this.setCurrentAudioTrack(this.getAudioTrackIndex() + 1);
+		if (this.audioTrackIndex() === this.audioTracks().length - 1) {
+			this.audioTrack(0);
+		}
+		else {
+			this.audioTrack(this.audioTrackIndex() + 1);
 		}
 
-		this.displayMessage(`${this.localize('Audio')}: ${this.localize(this.getCurrentAudioTrackName()) || this.localize('Unknown')}`);
+		this.displayMessage(`${this.localize('Audio')}: ${this.localize((this.audioTrack() as any)?.name ?? '') || this.localize('Unknown')}`);
 	}
 
 	// Quality
+	/** @deprecated Use `qualityLevels()` instead. */
 	getQualityLevels(): Level[] {
-		if (!this.hls) return [];
-		return this.hls.levels
-			.map((level, index: number) => ({
-				...level,
-				id: index,
-				label: level.name,
-			}))
-			.filter((level) => {
-				const range = level._attrs.at(0)?.['VIDEO-RANGE'];
-				const browserSupportsHDR = this.hdrSupported();
-				if (browserSupportsHDR) return true;
-				return range !== 'PQ';
-			});
+		return this.qualityLevels();
 	}
 
+	/** @deprecated Use `quality()` instead. */
 	getCurrentQuality(): number {
-		if (!this.hls) return -1;
-		return this.hls.currentLevel;
+		return this.quality();
 	}
 
-	getCurrentQualityName(): any[] | string | undefined {
-		if (!this.hls) return [];
-		return this.hls.levels[this.hls.currentLevel]?.name;
-	}
-
+	/** @deprecated Use `quality(index)` instead. */
 	setCurrentQuality(index: number) {
-		if (!this.hls || (index === undefined || index === null)) return;
-		this.hls.nextLevel = index;
+		this.quality(index);
 	}
 
-	getCurrentQualityByFileName(name: string): number| undefined {
-		if (!this.hls) return;
+	getCurrentQualityByFileName(name: string): number | undefined {
+		if (!this.hls)
+			return;
 
-		return this.getQualityLevels().findIndex((level) => level.url.some(u => u.endsWith(name)));
+		return this.qualityLevels().findIndex(level => level.url.some(u => u.endsWith(name)));
 	}
 
 	/**
@@ -2585,12 +2898,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @returns {boolean} True if the player has more than one quality, false otherwise.
 	 */
 	hasQualities(): boolean {
-		return this.getQualityLevels().length > 1;
+		return this.qualityLevels().length > 1;
 	}
 
 	// Captions
 	getCaptionsList(): Track[] {
-		const subs = this.getSubtitles() ?? [];
+		const subs = this.subtitles() ?? [];
 		subs.unshift({
 			id: -1,
 			label: 'Off',
@@ -2604,29 +2917,19 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		return subs;
 	}
 
+	/** @deprecated Use `hasSubtitles()` instead. */
 	hasCaptions(): boolean {
-		return (this.getSubtitles()?.length ?? 0) > 0;
+		return this.hasSubtitles();
 	}
 
+	/** @deprecated Use `subtitle()` instead. */
 	getCurrentCaption(): Track | undefined {
-		return this.getSubtitles()?.[this.currentSubtitleIndex] ?? {
-			id: -1,
-			label: 'Off',
-			language: '',
-			kind: 'subtitles',
-			type: 'none',
-			file: '',
-			ext: 'none',
-			default: true,
-		};
+		return this.subtitle();
 	}
 
-	getCurrentCaptionsName(): any {
-		return this.getCurrentCaption()?.label ?? '';
-	}
-
+	/** @deprecated Use `subtitleIndex()` instead. */
 	getCaptionIndex(): number {
-		return this.currentSubtitleIndex;
+		return this.subtitleIndex();
 	}
 
 	/**
@@ -2635,66 +2938,37 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * @param type The type of the text track.
 	 * @param ext The extension of the text track.
 	 * @returns The index of the matching text track, or -1 if no match is found.
+	 * @deprecated Use `subtitleIndexBy(language, type, ext)` instead.
 	 */
 	getCaptionIndexBy(language: string, type: string, ext: string): number | undefined {
-		const index = this.getCaptionsList()
-			?.findIndex((t: any) => (t.file ?? t.id).endsWith(`${language}.${type}.${ext}`));
-
-		if (index === -1) {
-			return this.getCaptionsList()?.findIndex((t: any) =>
-				t.language === language && t.type === type && t.ext === ext) - 1;
-		}
-
-		return index - 1;
+		return this.subtitleIndexBy(language, type, ext);
 	}
 
+	/** @deprecated Use `subtitle(index)` instead. */
 	setCurrentCaption(index?: number): void {
-		if (!index && index != 0) return;
-
-		this.currentSubtitleFile = '';
-		this.currentSubtitleIndex = index;
-		this.subtitles = <VTTData>{};
-		this.subtitleText.textContent = '';
-		this.subtitleOverlay.style.display = 'none';
-
-		this.emit('captionsChanged', this.getCurrentCaption());
-		this.storeSubtitleChoice();
-
-		if (index == -1) {
-			return;
-		}
-
-		this.fetchSubtitleFile();
-	}
-
-	getCaptionLanguage(): any {
-		return this.getCurrentCaption()?.language ?? '';
-	}
-
-	getCaptionLabel(): any {
-		const currentCapitation = this.getCurrentCaption();
-		if (!currentCapitation) return '';
-		return `${this.localize(currentCapitation.language!)} ${currentCapitation.label}`;
+		if (index !== undefined)
+			this.subtitle(index);
 	}
 
 	/**
 	 * Triggers the styled subtitles based on the provided file.
 	 */
-	storeSubtitleChoice() {
-		const currentCapitation = this.getCurrentCaption();
+	async storeSubtitleChoice() {
+		const currentCapitation = this.subtitle();
 		if (!currentCapitation) {
-			this.storage.remove('subtitle-language');
-			this.storage.remove('subtitle-type');
-			this.storage.remove('subtitle-ext');
+			await this.storage.remove('subtitle-language');
+			await this.storage.remove('subtitle-type');
+			await this.storage.remove('subtitle-ext');
 			return;
 		}
 
 		const { language, type, ext } = currentCapitation;
-		if (!language || !type || !ext) return;
+		if (!language || !type || !ext)
+			return;
 
-		this.storage.set('subtitle-language', language).then();
-		this.storage.set('subtitle-type', type).then();
-		this.storage.set('subtitle-ext', ext).then();
+		await this.storage.set('subtitle-language', language);
+		await this.storage.set('subtitle-type', type);
+		await this.storage.set('subtitle-ext', ext);
 	}
 
 	/**
@@ -2705,31 +2979,34 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * Finally, it displays a message indicating the current subtitle track.
 	 */
 	cycleSubtitles(): void {
-		if (!this.hasCaptions()) {
+		if (!this.hasSubtitles()) {
 			return;
 		}
 
 		const captionsList = this.getCaptionsList();
-		const currentIndex = this.getCaptionIndex();
+		const currentIndex = this.subtitleIndex();
 
 		if (currentIndex === captionsList.length - 1) {
-			this.setCurrentCaption(0);
-		} else {
-			this.setCurrentCaption(currentIndex + 1);
+			this.subtitle(0);
+		}
+		else {
+			this.subtitle(currentIndex + 1);
 		}
 
-		this.displayMessage(`${this.localize('Subtitles')}: ${this.getCaptionLabel() || this.localize('Off')}`);
+		const sub = this.subtitle();
+		const label = sub?.language ? `${this.localize(sub.language)} ${sub.label ?? ''}`.trim() : '';
+		this.displayMessage(`${this.localize('Subtitles')}: ${label || this.localize('Off')}`);
 	}
-
 
 	/**
 	 * Returns the current aspect ratio of the player.
 	 * If the player is a JWPlayer, it returns the current stretching mode.
 	 * Otherwise, it returns the current aspect ratio.
 	 * @returns The current aspect ratio of the player.
+	 * @deprecated Use `aspect()` instead.
 	 */
 	getCurrentAspect() {
-		return this.currentAspectRatio;
+		return this.aspect();
 	}
 
 	/**
@@ -2788,11 +3065,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	 * Cycles through the available aspect ratio options and sets the current aspect ratio to the next one.
 	 */
 	cycleAspectRatio(): void {
-		const index = this.stretchOptions.findIndex((s: string) => s == this.getCurrentAspect());
-		if (index == this.stretchOptions.length - 1) {
-			this.setAspect(this.stretchOptions[0]);
-		} else {
-			this.setAspect(this.stretchOptions[index + 1]);
+		const index = this.stretchOptions.findIndex((s: string) => s === this.aspect());
+		if (index === this.stretchOptions.length - 1) {
+			this.aspect(this.stretchOptions[0]);
+		}
+		else {
+			this.aspect(this.stretchOptions[index + 1]);
 		}
 	}
 
@@ -2808,10 +3086,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}
 
 		this.shouldFloat = shouldFloat;
-	}
-
-	getFloat(): void {
-		//
 	}
 
 	// Advertising
@@ -2870,7 +3144,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.mediaSession?.setPlaybackState('none');
 
-		this.resizeObserver.disconnect()
+		this.resizeObserver.disconnect();
 
 		// Emit dispose event
 		this.emit('dispose');
@@ -2881,15 +3155,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	/**
 	 * Returns an array of objects representing each season in the playlist, along with the number of episodes in each season.
 	 * @returns {Array<{ season: number, seasonName: string, episodes: number }>} An array of objects representing each season in the playlist, along with the number of episodes in each season.
+	 * @deprecated Use `seasons()` instead.
 	 */
-	getSeasons(): Array<{ season: number; seasonName: string; episodes: number; }> {
-		return unique(this.getPlaylist(), 'season').map((s: any) => {
-			return {
-				season: s.season,
-				seasonName: s.seasonName,
-				episodes: this.getPlaylist().filter((e: any) => e.season == s.season).length,
-			};
-		});
+	getSeasons(): Array<{ season: number; seasonName: string; episodes: number }> {
+		return this.seasons();
 	}
 
 	/**
@@ -2908,7 +3177,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		if (unique) {
 			el = (document.getElementById(id) ?? document.createElement(type)) as HTMLElementTagNameMap[K];
-		} else {
+		}
+		else {
 			el = document.createElement(type);
 		}
 		el.id = id;
@@ -2969,7 +3239,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	createUiButton(parent: HTMLElement, id: string, title?: string): AddClassesReturn<HTMLButtonElement> {
-
 		const button = this.createElement('button', id)
 			.addClasses([
 				'cursor-pointer',
@@ -3013,7 +3282,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	getClosestSeekableInterval() {
-		const scrubTime = this.getCurrentTime();
+		const scrubTime = this.currentTime();
 		const interval = this.previewTime.find((interval) => {
 			return scrubTime >= interval.start && scrubTime < interval.end;
 		})!;
@@ -3035,27 +3304,26 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 	nearestValue = (arr: any[], val: number) => {
 		return arr.reduce((p, n) => (Math.abs(p) > Math.abs(n - val) ? n - val : p), Infinity) + val;
-	}
+	};
 
 	getClosestElement(element: HTMLButtonElement, selector: string) {
-
-		const arr = Array.from(document.querySelectorAll<HTMLButtonElement>(selector)).filter(el => getComputedStyle(el).display == 'flex');
+		const arr = Array.from(document.querySelectorAll<HTMLButtonElement>(selector)).filter(el => getComputedStyle(el).display === 'flex');
 		const originEl = element!.getBoundingClientRect();
 
 		return arr.find(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2))
-			== this.nearestValue(arr.map(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2)))
-				, originEl.top + (originEl.height / 2)));
+			=== this.nearestValue(arr.map(el => (el.getBoundingClientRect().top + (el.getBoundingClientRect().height / 2))), originEl.top + (originEl.height / 2)));
 	}
 
 	isNumber(value: any): value is number {
-		return !isNaN(parseInt(value, 10))
+		return !Number.isNaN(Number.parseInt(value, 10));
 	}
 
 	scrollCenter(el: HTMLElement, container: HTMLElement, options?: {
 		duration?: number;
 		margin?: number;
 	}) {
-		if (!el) return;
+		if (!el)
+			return;
 		const scrollDuration = options?.duration || 60;
 		const margin = options?.margin || 1.5;
 
@@ -3079,7 +3347,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	scrollIntoView(element: HTMLElement) {
-
 		const scrollDuration = 200;
 		const parentElement = element.parentElement as HTMLElement;
 		const elementLeft = element.getBoundingClientRect().left + (element.offsetWidth / 2) - (parentElement.offsetWidth / 2);
@@ -3101,7 +3368,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	createSVGElement(parent: HTMLElement, id: string, icon: Icon['path'], hidden = false, hovered = false) {
-
 		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 		svg.setAttribute('viewBox', '0 0 24 24');
 
@@ -3139,30 +3405,31 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		if (!parent.classList.contains('menu-button') && hovered) {
 			parent.addEventListener('mouseenter', () => {
-				if (icon.title.length == 0 || ['Next', 'Previous'].includes(icon.title)) return;
+				if (icon.title.length === 0 || ['Next', 'Previous'].includes(icon.title))
+					return;
 
-				if (icon.title == 'Fullscreen' && this.getFullscreen()) {
+				if (icon.title === 'Fullscreen' && this.fullscreen()) {
 					return;
 				}
-				if (icon.title == 'Exit fullscreen' && !this.getFullscreen()) {
+				if (icon.title === 'Exit fullscreen' && !this.fullscreen()) {
 					return;
 				}
-				if (icon.title == 'Play' && this.isPlaying) {
+				if (icon.title === 'Play' && this.isPlaying) {
 					return;
 				}
-				if (icon.title == 'Pause' && !this.isPlaying) {
+				if (icon.title === 'Pause' && !this.isPlaying) {
 					return;
 				}
-				if (icon.title == 'Mute' && this.isMuted()) {
+				if (icon.title === 'Mute' && this.muted()) {
 					return;
 				}
-				if (icon.title == 'Unmute' && !this.isMuted()) {
+				if (icon.title === 'Unmute' && !this.muted()) {
 					return;
 				}
 
 				const text = `${this.localize(icon.title)} ${this.getButtonKeyCode(id)}`;
 
-				const playerRect = this.getElement().getBoundingClientRect();
+				const playerRect = this.element().getBoundingClientRect();
 				const menuTipRect = parent.getBoundingClientRect();
 
 				let x = Math.abs(playerRect.left - (menuTipRect.left + (menuTipRect.width * 0.5)) - (text.length * 0.5));
@@ -3177,12 +3444,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				}
 
 				this.emit('show-tooltip', {
-					text: text,
+					text,
 					currentTime: 'bottom',
 					x: `${x}px`,
 					y: `-${y}px`,
 				});
-
 			});
 
 			parent.addEventListener('mouseleave', () => {
@@ -3195,7 +3461,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	getButtonKeyCode(id: string) {
-
 		switch (id) {
 			case 'play':
 			case 'pause':
@@ -3237,11 +3502,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			default:
 				return '';
 		}
-
 	}
 
 	createButton(match: string, id: string, insert: 'before' | 'after' = 'after', icon: Icon['path'], click?: (e?: MouseEvent) => void, rightClick?: (e?: MouseEvent) => void) {
-
 		const element = document.querySelector<HTMLButtonElement>(match);
 		if (!element) {
 			throw new Error('Element not found');
@@ -3287,7 +3550,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		if (insert === 'before') {
 			element.prepend(el);
-		} else {
+		}
+		else {
 			element.appendChild(el);
 		}
 
@@ -3326,7 +3590,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				event.preventDefault();
 				doubleTap(event);
 				clearTimeout(timeout2);
-			} else {
+			}
+			else {
 				timeout = setTimeout(() => {
 					clearTimeout(timeout);
 				}, delay);
@@ -3339,14 +3604,15 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	getChapterText(scrubTimePlayer: number): string | null {
-		if (this.getChapters().length == 0) return null;
+		if (this.chapters().length === 0)
+			return null;
 
-		const index = this.getChapters()?.findIndex((chapter: Chapter) => {
+		const index = this.chapters()?.findIndex((chapter: Chapter) => {
 			return chapter.startTime > scrubTimePlayer;
 		});
 
-		return this.getChapters()[index - 1]?.title
-			?? this.getChapters()[this.getChapters()?.length - 1]?.title
+		return this.chapters()[index - 1]?.title
+			?? this.chapters()[this.chapters()?.length - 1]?.title
 			?? null;
 	}
 }
@@ -3356,7 +3622,7 @@ String.prototype.toTitleCase = function (): string {
 	let j: number;
 	let str: string;
 
-	str = this.replace(/([^\W_]+[^\s-]*) */gu, (txt: string) => {
+	str = this.replace(/([^\W_][^\s-]*) */gu, (txt: string) => {
 		return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
 	});
 
@@ -3373,7 +3639,9 @@ String.prototype.toTitleCase = function (): string {
 	// cSpell:disable
 	// Certain words such as initialisms or acronyms should be left uppercase
 	const uppers = ['Id', 'Tv'];
-	for (i = 0, j = uppers.length; i < j; i++) { str = str.replace(new RegExp(`\\b${uppers[i]}\\b`, 'gu'), uppers[i].toUpperCase()); }
+	for (i = 0, j = uppers.length; i < j; i++) {
+		str = str.replace(new RegExp(`\\b${uppers[i]}\\b`, 'gu'), uppers[i].toUpperCase());
+	}
 
 	return str;
 };
@@ -3395,9 +3663,10 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 
 	if (withLowers) {
 		lowers = ['A', 'An', 'The', 'At', 'By', 'For', 'In', 'Of', 'On', 'To', 'Up', 'And', 'As', 'But', 'Or', 'Nor', 'Not'];
-		if (lang == 'FR') {
+		if (lang === 'FR') {
 			lowers = ['Un', 'Une', 'Le', 'La', 'Les', 'Du', 'De', 'Des', 'À', 'Au', 'Aux', 'Par', 'Pour', 'Dans', 'Sur', 'Et', 'Comme', 'Mais', 'Ou', 'Où', 'Ne', 'Ni', 'Pas'];
-		} else if (lang == 'NL') {
+		}
+		else if (lang === 'NL') {
 			lowers = ['De', 'Het', 'Een', 'En', 'Van', 'Naar', 'Op', 'Door', 'Voor', 'In', 'Als', 'Maar', 'Waar', 'Niet', 'Bij', 'Aan'];
 		}
 		for (let i = 0; i < lowers.length; i++) {
@@ -3415,47 +3684,47 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 	return string;
 };
 
-const nmplayer = <Conf extends Partial<PlayerConfig<Record<string, any>>> = Record<string, any>>(id?: string) => new NMPlayer<Conf>(id);
+const nmplayer = <Conf extends Partial<PlayerConfig> = Record<string, any>>(id?: string) => new NMPlayer<Conf>(id);
 
 window.nmplayer = nmplayer as unknown as any;
 
 export default nmplayer;
 
+export { Base } from './base';
+
+export { default as PlayerStorage } from './playerStorage';
+export { default as Plugin } from './plugin';
+export { default as KeyHandlerPlugin } from './plugins/keyHandlerPlugin';
+export { default as OctopusPlugin } from './plugins/octopusPlugin';
 // Re-export types for consumers
 export type {
+	AddClasses,
+	AddClassesReturn,
+	CaptionsConfig,
+	Chapter,
+	CreateElement,
+	CurrentTrack,
+	EdgeStyle,
+	Icon,
+	Level,
+	NMPlayer,
+	OS,
+	PlayerConfig,
+	PlaylistItem,
+	PlayState,
+	Position,
+	Preload,
+	PreviewTime,
+	StorageInterface,
+	Stretching,
+	StretchOptions,
+	SubtitleStyle,
+	TimeData,
+	Track,
+	TrackType,
 	TypeMapping,
 	TypeMappings,
 	Version,
-	OS,
-	CaptionsConfig,
-	SubtitleStyle,
-	Level,
-	Preload,
-	PlaylistItem,
-	TrackType,
-	Track,
-	CurrentTrack,
-	PlayState,
-	Stretching,
-	EdgeStyle,
-	PreviewTime,
 	VolumeState,
-	Chapter,
-	TimeData,
-	Position,
-	StretchOptions,
-	PlayerConfig,
-	StorageInterface,
-	CreateElement,
-	AddClasses,
-	AddClassesReturn,
-	Icon,
-	NMPlayer,
 } from './types';
-
 export type { VTTData } from 'webvtt-parser';
-export { Base } from './base';
-export { default as Plugin } from './plugin';
-export { default as PlayerStorage } from './playerStorage';
-export { default as OctopusPlugin } from './plugins/octopusPlugin';
-export { default as KeyHandlerPlugin } from './plugins/keyHandlerPlugin';

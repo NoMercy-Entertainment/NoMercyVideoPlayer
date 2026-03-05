@@ -1,5 +1,5 @@
 import Plugin from '../plugin';
-import { NMPlayer } from '../types';
+import type { NMPlayer } from '../types';
 
 export interface KeyHandlerPluginArgs {
 }
@@ -14,7 +14,8 @@ export class KeyHandlerPlugin extends Plugin {
 	}
 
 	use() {
-		if (this.player.options.disableControls) return;
+		if (this.player.options.disableControls)
+			return;
 		document.addEventListener('keyup', this.boundKeyHandler, false);
 	}
 
@@ -27,12 +28,14 @@ export class KeyHandlerPlugin extends Plugin {
 	 * @param {KeyboardEvent} event - The keyboard event to handle.
 	 */
 	keyHandler(event: KeyboardEvent) {
-		if (document.activeElement?.nodeName == 'INPUT') return;
+		if (document.activeElement?.nodeName === 'INPUT')
+			return;
 
 		const keys = this.keyBindings();
 		let keyTimeout = false;
 
-		if (this.player.container.getBoundingClientRect().width == 0) return;
+		if (this.player.container.getBoundingClientRect().width === 0)
+			return;
 
 		if (!keyTimeout && this.player) {
 			keyTimeout = true;
@@ -56,49 +59,50 @@ export class KeyHandlerPlugin extends Plugin {
 
 	handleSeek(seconds: number) {
 		if (seconds > 0) {
-			this.player.forwardVideo(seconds);
-		} else {
-			this.player.rewindVideo(Math.abs(seconds));
+			this.player.forward(seconds);
+		}
+		else {
+			this.player.rewind(Math.abs(seconds));
 		}
 	}
 
 	handleSpeedUp() {
-		const speeds = this.player.getSpeeds();
-		const current = this.player.getSpeed();
+		const speeds = this.player.speeds();
+		const current = this.player.speed();
 		const idx = speeds.indexOf(current);
 		if (idx < speeds.length - 1) {
 			const speed = speeds[idx + 1];
-			this.player.setSpeed(speed);
+			this.player.speed(speed);
 			this.player.displayMessage(`${speed}x`);
 		}
 	}
 
 	handleSpeedDown() {
-		const speeds = this.player.getSpeeds();
-		const current = this.player.getSpeed();
+		const speeds = this.player.speeds();
+		const current = this.player.speed();
 		const idx = speeds.indexOf(current);
 		if (idx > 0) {
 			const speed = speeds[idx - 1];
-			this.player.setSpeed(speed);
+			this.player.speed(speed);
 			this.player.displayMessage(`${speed}x`);
 		}
 	}
 
 	handleNormalSpeed() {
-		this.player.setSpeed(1);
+		this.player.speed(1);
 		this.player.displayMessage('1x');
 	}
 
 	handleFrameAdvance() {
 		if (!this.player.isPlaying) {
-			const current = this.player.getCurrentTime();
+			const current = this.player.currentTime();
 			this.player.seek(current + (1 / 30));
 		}
 	}
 
 	handleShowTime() {
-		const current = this.player.getCurrentTime();
-		const duration = this.player.getDuration();
+		const current = this.player.currentTime();
+		const duration = this.player.duration();
 		const remaining = duration - current;
 
 		const fmt = (s: number) => {
@@ -155,25 +159,25 @@ export class KeyHandlerPlugin extends Plugin {
 				name: 'Rewind',
 				key: 'ArrowLeft',
 				control: false,
-				function: () => !this.player.isTv() && this.player.rewindVideo(),
+				function: () => !this.player.isTv() && this.player.rewind(),
 			},
 			{
 				name: 'Rewind',
 				key: 'MediaRewind',
 				control: false,
-				function: () => !this.player.options.disableMediaControls && this.player.rewindVideo(),
+				function: () => !this.player.options.disableMediaControls && this.player.rewind(),
 			},
 			{
 				name: 'Fast forward',
 				key: 'ArrowRight',
 				control: false,
-				function: () => !this.player.isTv() && this.player.forwardVideo(),
+				function: () => !this.player.isTv() && this.player.forward(),
 			},
 			{
 				name: 'Fast forward',
 				key: 'MediaFastForward',
 				control: false,
-				function: () => !this.player.options.disableMediaControls && this.player.forwardVideo(),
+				function: () => !this.player.options.disableMediaControls && this.player.forward(),
 			},
 			{
 				name: 'Previous item',
@@ -255,49 +259,49 @@ export class KeyHandlerPlugin extends Plugin {
 				name: 'Forward 30 seconds',
 				key: 'ColorF0Red',
 				control: false,
-				function: () => this.player.forwardVideo(30),
+				function: () => this.player.forward(30),
 			},
 			{
 				name: 'Forward 60 seconds',
 				key: 'ColorF1Green',
 				control: false,
-				function: () => this.player.forwardVideo(60),
+				function: () => this.player.forward(60),
 			},
 			{
 				name: 'Forward 90 seconds',
 				key: 'ColorF2Yellow',
 				control: false,
-				function: () => this.player.forwardVideo(90),
+				function: () => this.player.forward(90),
 			},
 			{
 				name: 'Forward 120 seconds',
 				key: 'ColorF3Blue',
 				control: false,
-				function: () => this.player.forwardVideo(120),
+				function: () => this.player.forward(120),
 			},
 			{
 				name: 'Forward 30 seconds',
 				key: '3',
 				control: false,
-				function: () => this.player.forwardVideo(30),
+				function: () => this.player.forward(30),
 			},
 			{
 				name: 'Forward 60 seconds',
 				key: '6',
 				control: false,
-				function: () => this.player.forwardVideo(60),
+				function: () => this.player.forward(60),
 			},
 			{
 				name: 'Forward 90 seconds',
 				key: '9',
 				control: false,
-				function: () => this.player.forwardVideo(90),
+				function: () => this.player.forward(90),
 			},
 			{
 				name: 'Forward 120 seconds',
 				key: '1',
 				control: false,
-				function: () => this.player.forwardVideo(120),
+				function: () => this.player.forward(120),
 			},
 			{
 				name: 'Fullscreen',
@@ -316,8 +320,8 @@ export class KeyHandlerPlugin extends Plugin {
 				key: 'Escape',
 				control: false,
 				function: () => {
-					if (this.player.getFullscreen()) {
-						this.player.setFullscreen(false);
+					if (this.player.fullscreen()) {
+						this.player.fullscreen(false);
 					}
 				},
 			},

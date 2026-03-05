@@ -1,0 +1,35 @@
+﻿import antfu from '@antfu/eslint-config';
+
+export default antfu({
+	typescript: {
+		overrides: {
+			'@typescript-eslint/ban-ts-comment': 'off',
+			'@typescript-eslint/no-explicit-any': 'off',
+			'antfu/top-level-function': 'off',
+			'no-async-promise-executor': 'off',
+			'no-console': 'off',
+			'no-extend-native': 'off',
+			'node/prefer-global/process': 'off',
+			'perfectionist/sort-imports': 'off',
+			'ts/no-unsafe-function-type': 'off',
+			'unused-imports/no-unused-vars': 'warn',
+		},
+	},
+	js: {
+		overrides: {
+			'no-console': 'off',
+			'no-debugger': 'off',
+		},
+	},
+	stylistic: {
+		indent: 'tab',
+		quotes: 'single',
+		semi: true,
+	},
+	formatters: {
+		css: true,
+		html: true,
+		markdown: true,
+		svg: false,
+	},
+});

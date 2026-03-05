@@ -252,7 +252,6 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	isPlaying: boolean;
 	season: any;
 	title: any;
-	chapters: VTTData;
 	container: HTMLDivElement;
 	options: T & PlayerConfig<T>;
 	overlay: HTMLDivElement;
@@ -260,7 +259,6 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	subtitleArea: HTMLDivElement;
 	subtitleText: HTMLDivElement;
 	plugins: Map<string, Plugin>;
-	subtitleStyle: SubtitleStyle;
 	storage: PlayerStorage;
 	translations: { [key: string]: string };
 
@@ -297,124 +295,255 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	scrollIntoView(element: HTMLElement): void;
 	doubleTap(doubleTap: (event: Event) => void, singleTap?: (event2: Event) => void): void;
 	createElement<K extends keyof HTMLElementTagNameMap>(type: K, id: string, unique?: boolean): CreateElement<K extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[K] : HTMLElement>;
-	cycleAspectRatio(): void;
-	cycleAudioTracks(): void;
-	cycleSubtitles(): void;
-	getCaptionIndexBy(language: string, type: string, ext: string): number | undefined;
 	displayMessage(value: string): void;
-	getCurrentQualityByFileName(name: string): number| undefined;
 	dispose(): void;
 	playVideo(value: number): void;
 	emit(value: string, arg1?: any): void;
-	enterFullscreen(): void;
 	fetchFontFile(): Promise<void>;
-	forwardVideo(arg?: number): void;
-	getAudioTracks(): Track[];
-	getBuffer(): TimeRanges;
-	getCaptionIndex(): number;
-	getCaptionsList(): Track[];
-	getChapters(): Chapter[];
-	getContainer(): HTMLDivElement;
-	getCurrentAudioTrack(): Track | null;
-	getAudioTrackIndex(): number;
-	getAudioTrackIndexByLanguage(language: string): number | undefined;
-	getCurrentCaption(): Track | undefined;
-	getCurrentChapter(currentTime: number): Cue | undefined;
-	getCurrentQuality(): number;
-	getCurrentSrc(): string;
-	getCurrentTime(): number;
-	getDuration(): number;
-	getElement(): HTMLDivElement;
-	getFullscreen(): boolean;
-	getHeight(): number;
-	getMute(): boolean;
-	getNextChapter(currentEndTime: number): Cue | undefined;
-	getParameterByName(value: string): string | number | null;
-	getPlaylist(): PlaylistItem & T['playlist'][number][];
-	getPlaylistIndex(): number;
-	getPlaylistItem(index?: number): PlaylistItem & T['playlist'][number];
-	getPlugin(name: string): Plugin | undefined;
-	getPreviousChapter(currentStartTime: number): Cue | undefined;
-	getQualityLevels(): Level[];
-	getSeasons(): Array<{ season: number; seasonName: string; episodes: number; }>;
-	getSpeeds(): number[];
-	getSpeed(): number;
-	getSpriteFile(): string | undefined;
-	getState(): PlayState;
-	getSubtitleFile(): string | undefined;
-	getTimeData(): TimeData;
-	getTimeFile(): string | undefined;
-	getVideoElement(): HTMLVideoElement;
-	getVolume(): number;
-	getWidth(): number;
+
+	// ── Unified Getter/Setters ──────────────────────────────────────────
+
+	/** Get current volume (0–100) */
+	volume(): number;
+	/** Set volume (0–100) */
+	volume(value: number): void;
+
+	/** Get muted state */
+	muted(): boolean;
+	/** Set muted state */
+	muted(value: boolean): void;
+
+	/** Get playback speed */
+	speed(): number;
+	/** Set playback speed */
+	speed(value: number): void;
+
+	/** Get fullscreen state */
+	fullscreen(): boolean;
+	/** Set fullscreen state */
+	fullscreen(value: boolean): void;
+
+	/** Get current subtitle track */
+	subtitle(): Track | undefined;
+	/** Set subtitle track by index */
+	subtitle(index: number): void;
+
+	/** Get current audio track */
+	audioTrack(): Track | null;
+	/** Set audio track by index */
+	audioTrack(index: number): void;
+
+	/** Get current quality level index */
+	quality(): number;
+	/** Set quality level by index */
+	quality(index: number): void;
+
+	/** Get current aspect ratio */
+	aspect(): string;
+	/** Set aspect ratio */
+	aspect(value: Stretching): void;
+
+	/** Get subtitle style */
+	subtitleStyle(): SubtitleStyle;
+	/** Set subtitle style (partial) */
+	subtitleStyle(value: Partial<SubtitleStyle>): void;
+
+	/** Get current gain settings */
+	gain(): { min: number; max: number; defaultValue: number; value: number };
+	/** Set gain value */
+	gain(value: number): void;
+
+	// ── Get-Only Methods (renamed, dropped get/current prefix) ──────────
+
+	state(): PlayState;
+	currentTime(): number;
+	duration(): number;
+	buffer(): TimeRanges;
+	width(): number;
+	height(): number;
+	element(): HTMLDivElement;
+	currentSrc(): string;
+	playlist(): (PlaylistItem & T['playlist'][number])[];
+	playlistIndex(): number;
+	playlistItem(): PlaylistItem & T['playlist'][number];
+	playlistItem(index: number): void;
+	audioTracks(): Track[];
+	audioTrackIndex(): number;
+	qualityLevels(): Level[];
+	subtitles(): Track[];
+	subtitleIndex(): number;
+	subtitleIndexBy(language: string, type: string, ext: string): number | undefined;
+	chapters(): Chapter[];
+	chapter(currentTime: number): Cue | undefined;
+	speeds(): number[];
+	skippers(): Array<any>;
+	skip(): any;
+	seasons(): Array<{ season: number; seasonName: string; episodes: number; }>;
+	timeData(): TimeData;
+
+	// ── Action Methods (renamed) ────────────────────────────────────────
+
+	rewind(seconds?: number): void;
+	forward(seconds?: number): void;
+
+	// ── Existing Methods (unchanged) ────────────────────────────────────
+
+	cycleAspectRatio(): void;
+	cycleAudioTracks(): void;
+	cycleSubtitles(): void;
+	enterFullscreen(): void;
+	toggleFullscreen(): void;
+	toggleMute(): void;
+	togglePlayback(): void;
 	hasAudioTracks(): boolean;
-	hasCaptions(): boolean;
+	hasSubtitles(): boolean;
 	hasPIP(): boolean;
 	hasPlaylists(): boolean;
 	hasQualities(): boolean;
 	hasSpeeds(): boolean;
 	isLastPlaylistItem(): boolean;
+	isFirstPlaylistItem(): boolean;
 	isMobile(): boolean;
-	isMuted(): boolean;
 	isTv(): boolean;
 	load(playlist: PlayerConfig<T>['playlist'] | string): void;
 	localize(value: string): string;
 	next(): void;
 	nextChapter(): void;
 	pause(): void;
-	// pauseAd(toggle: boolean): void;
 	play(): Promise<void>;
-	playlistItem(): PlaylistItem & T['playlist'][number];
-	playlistItem(index: number): void;
 	previous(): void;
 	previousChapter(): void;
 	registerPlugin(id: string, plugin: Plugin): void;
 	resize(): void;
 	restart(): void;
-	rewindVideo(seconds?: number): void;
 	seek(position: number): void;
+	seekByPercentage(arg: number): number;
 	setAllowFullscreen(allowFullscreen?: boolean): void;
-	// setCaptions(styles: CaptionsConfig): void;
-	// setConfig(config: PlayerConfig): void;
-	setCurrentAudioTrack(index: number): void;
-	setCurrentCaption(index: number): void;
-	setCurrentQuality(index: number): void;
 	setFloatingPlayer(shouldFloat: boolean): void;
-	setFullscreen(state: boolean): void;
-	setMute(state?: boolean): void;
-	// setPip(state?: boolean): void;
-	// setPlaybackRate(rate?: number): void;
 	setPlaylist(playlist: PlayerConfig<T>['playlist']): void;
 	setPlaylistItemCallback(callback: null | ((item: PlaylistItem & T['playlist'][number], index: number) => void | Promise<PlayerConfig<T>['playlist']>)): void;
-	setSpeed(speed: any): void;
-	setVolume(volume: number): void;
 	setup<Conf extends Record<string, any> = Record<string, any>>(options: Partial<PlayerConfig<Conf>>): NMPlayer<Conf>;
+	setConfig<Conf>(options: Partial<Conf & PlayerConfig<any>>): void;
 	stop(): void;
-	toggleFullscreen(): void;
-	toggleMute(): void;
-	togglePlayback(): void;
 	ui_removeActiveClass(): void;
 	ui_resetInactivityTimer(event?: Event): void;
 	usePlugin(id: string): void;
 	volumeDown(): void;
 	volumeUp(): void;
-
-	setConfig<Conf>(options: Partial<Conf & PlayerConfig<any>>): void;
-	getCurrentAspect(): string;
-	setAspect(aspect: Stretching): void;
-	getFloat(): void;
 	addTranslation(key: string, value: string): void;
 	addTranslations(translations: { key: string; value: string }[]): void;
 	fetchTranslationsFile(): Promise<void>;
-	seekByPercentage(arg: number): number;
-	setGain(value: number): void;
-	getGain(): { min: number; max: number; defaultValue: number; value: number };
 	addGainNode(): void;
 	removeGainNode(): void;
-	isFirstPlaylistItem(): boolean;
+	getPlugin(name: string): Plugin | undefined;
+	getNextChapter(currentEndTime: number): Cue | undefined;
+	getPreviousChapter(currentStartTime: number): Cue | undefined;
+	getParameterByName(value: string): string | number | null;
+	getAudioTrackIndexByLanguage(language: string): number | undefined;
+	getCurrentQualityByFileName(name: string): number | undefined;
+	getSpriteFile(): string | undefined;
+	getSubtitleFile(): string | undefined;
+	getTimeFile(): string | undefined;
 
-	setSubtitleStyle(style: Partial<SubtitleStyle>): void;
+	// ── Deprecated Methods ──────────────────────────────────────────────
+	// These still work but delegate to the new API. Will be removed in a future version.
+
+	/** @deprecated Use `volume()` / `volume(value)` */
+	getVolume(): number;
+	/** @deprecated Use `volume(value)` */
+	setVolume(volume: number): void;
+	/** @deprecated Use `muted()` */
+	getMute(): boolean;
+	/** @deprecated Use `muted(value)` */
+	setMute(state?: boolean): void;
+	/** @deprecated Use `speed()` / `speed(value)` */
+	getSpeed(): number;
+	/** @deprecated Use `speed(value)` */
+	setSpeed(speed: any): void;
+	/** @deprecated Use `fullscreen()` */
+	getFullscreen(): boolean;
+	/** @deprecated Use `fullscreen(value)` */
+	setFullscreen(state: boolean): void;
+	/** @deprecated Use `subtitle()` / `subtitle(index)` */
+	getCurrentCaption(): Track | undefined;
+	/** @deprecated Use `subtitle(index)` */
+	setCurrentCaption(index: number): void;
+	/** @deprecated Use `audioTrack()` / `audioTrack(index)` */
+	getCurrentAudioTrack(): Track | null;
+	/** @deprecated Use `audioTrack(index)` */
+	setCurrentAudioTrack(index: number): void;
+	/** @deprecated Use `quality()` / `quality(index)` */
+	getCurrentQuality(): number;
+	/** @deprecated Use `quality(index)` */
+	setCurrentQuality(index: number): void;
+	/** @deprecated Use `aspect()` / `aspect(value)` */
+	getCurrentAspect(): string;
+	/** @deprecated Use `aspect(value)` */
+	setAspect(aspect: Stretching): void;
+	/** @deprecated Use `subtitleStyle()` / `subtitleStyle(value)` */
 	getSubtitleStyle(): SubtitleStyle;
+	/** @deprecated Use `subtitleStyle(value)` */
+	setSubtitleStyle(style: Partial<SubtitleStyle>): void;
+	/** @deprecated Use `gain()` / `gain(value)` */
+	getGain(): { min: number; max: number; defaultValue: number; value: number };
+	/** @deprecated Use `gain(value)` */
+	setGain(value: number): void;
+	/** @deprecated Use `state()` */
+	getState(): PlayState;
+	/** @deprecated Use `currentTime()` */
+	getCurrentTime(): number;
+	/** @deprecated Use `duration()` */
+	getDuration(): number;
+	/** @deprecated Use `buffer()` */
+	getBuffer(): TimeRanges;
+	/** @deprecated Use `width()` */
+	getWidth(): number;
+	/** @deprecated Use `height()` */
+	getHeight(): number;
+	/** @deprecated Use `element()` */
+	getElement(): HTMLDivElement;
+	/** @deprecated Use `videoElement` (field) */
+	getVideoElement(): HTMLVideoElement;
+	/** @deprecated Use `currentSrc()` */
+	getCurrentSrc(): string;
+	/** @deprecated Use `playlist()` */
+	getPlaylist(): (PlaylistItem & T['playlist'][number])[];
+	/** @deprecated Use `playlistIndex()` */
+	getPlaylistIndex(): number;
+	/** @deprecated Use `audioTracks()` */
+	getAudioTracks(): Track[];
+	/** @deprecated Use `audioTrackIndex()` */
+	getAudioTrackIndex(): number;
+	/** @deprecated Use `qualityLevels()` */
+	getQualityLevels(): Level[];
+	/** @deprecated Use `subtitles()` */
+	getSubtitles(): Track[];
+	/** @deprecated Use `subtitles()` */
+	getCaptionsList(): Track[];
+	/** @deprecated Use `subtitleIndex()` */
+	getCaptionIndex(): number;
+	/** @deprecated Use `subtitleIndexBy()` */
+	getCaptionIndexBy(language: string, type: string, ext: string): number | undefined;
+	/** @deprecated Use `chapters()` */
+	getChapters(): Chapter[];
+	/** @deprecated Use `chapter()` */
+	getCurrentChapter(currentTime: number): Cue | undefined;
+	/** @deprecated Use `speeds()` */
+	getSpeeds(): number[];
+	/** @deprecated Use `skippers()` */
+	getSkippers(): Array<any>;
+	/** @deprecated Use `skip()` */
+	getSkip(): any;
+	/** @deprecated Use `seasons()` */
+	getSeasons(): Array<{ season: number; seasonName: string; episodes: number; }>;
+	/** @deprecated Use `timeData()` */
+	getTimeData(): TimeData;
+	/** @deprecated Use `rewind()` */
+	rewindVideo(seconds?: number): void;
+	/** @deprecated Use `forward()` */
+	forwardVideo(seconds?: number): void;
+	/** @deprecated Use `hasSubtitles()` */
+	hasCaptions(): boolean;
 
 	emit(event: 'all', data?: any): void;
 

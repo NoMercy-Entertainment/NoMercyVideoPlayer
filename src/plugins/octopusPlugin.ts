@@ -53,7 +53,8 @@ export class OctopusPlugin extends Plugin {
 				this.player.octopusInstance.dispose();
 			}
 			this.player.octopusInstance = null;
-		} catch (_e) {
+		}
+		catch {
 			//
 		}
 	}
@@ -62,7 +63,8 @@ export class OctopusPlugin extends Plugin {
 		this.dispose();
 
 		const subtitleURL = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ''}${this.player.getSubtitleFile()}` : null;
-		if (!subtitleURL) return;
+		if (!subtitleURL)
+			return;
 
 		const tag = subtitleURL?.match(/\w+\.\w+\.\w+$/u)?.[0];
 		let [,, ext] = tag ? tag.split('.') : [];
@@ -71,20 +73,21 @@ export class OctopusPlugin extends Plugin {
 			ext = parts.at(-1) || '';
 		}
 
-		if (ext != 'ass' && ext != 'ssa') return;
+		if (ext !== 'ass' && ext !== 'ssa')
+			return;
 
 		if (subtitleURL) {
 			await this.player.fetchFontFile();
 
 			const fontFiles: string[] = this.player.fonts
-				?.map((f) => encodeURI(`${this.player.options.basePath ?? ''}${f.file}`));
+				?.map(f => encodeURI(`${this.player.options.basePath ?? ''}${f.file}`));
 
-			(this.player.getElement()
+			(this.player.element()
 				.querySelectorAll('.libassjs-canvas-parent') as NodeListOf<HTMLDivElement>)
 				.forEach(el => el.remove());
 
 			const options = {
-				video: this.player.getVideoElement(),
+				video: this.player.videoElement,
 				subUrl: encodeURI(subtitleURL),
 				fonts: fontFiles,
 				lossyRender: this.pluginOptions.lossyRender,
@@ -112,7 +115,8 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	resize(): void {
-		if (!this.player?.octopusInstance?.canvasParent || !this.player.subtitleOverlay) return;
+		if (!this.player?.octopusInstance?.canvasParent || !this.player.subtitleOverlay)
+			return;
 		this.player.octopusInstance.canvasParent.style.width = this.player.subtitleOverlay.style.width;
 		this.player.octopusInstance.canvasParent.style.height = this.player.subtitleOverlay.style.height;
 		this.player.octopusInstance.canvasParent.style.position = this.player.subtitleOverlay.style.position;

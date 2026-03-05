@@ -8,7 +8,7 @@ class Plugin {
 	}
 
 	use() {
-		
+
 	}
 
 	dispose() {
