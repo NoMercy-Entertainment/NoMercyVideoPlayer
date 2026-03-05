@@ -884,7 +884,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.videoElement.src = appendToken ? `${url}${url.includes('?') ? '&' : '?'}token=${this.options.accessToken}` : url;
 		}
 
-		if (this.options.disableAutoPlayback) return;
+		if (this.options.disableAutoPlayback || !this.options.autoPlay) return;
 		this.play().then().catch(() => {});
 	}
 
@@ -2132,7 +2132,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			this.playlistItem(item);
 		}
 
-		if (this.options.disableAutoPlayback) return;
+		if (this.options.disableAutoPlayback || !this.options.autoPlay) return;
 		this.play().then().catch(() => {});
 	}
 
