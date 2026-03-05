@@ -480,10 +480,11 @@ export class PlayerUIPlugin extends Plugin {
 			.addClasses([
 				'relative', 'h-1', 'rounded-full', 'bg-white/20',
 				'cursor-pointer', 'group/vol-slider',
+				'hover:h-2',
 				'w-0', 'opacity-0',
 				'group-hover/volume:w-20', 'group-hover/volume:mx-2', 'group-hover/volume:opacity-100',
 				'group-focus-within/volume:w-20', 'group-focus-within/volume:mx-2', 'group-focus-within/volume:opacity-100',
-				'transition-all', 'duration-200',
+				'transition-all', 'duration-150',
 			])
 			.appendTo(volumeContainer)
 			.get();
@@ -502,6 +503,7 @@ export class PlayerUIPlugin extends Plugin {
 			.addClasses([
 				'absolute', 'top-1/2', '-translate-y-1/2', '-translate-x-1/2',
 				'w-3', 'h-3', 'rounded-full', 'bg-white',
+				'hidden', 'group-hover/vol-slider:flex',
 				'pointer-events-none', 'z-20',
 			])
 			.appendTo(this.volumeSlider)
