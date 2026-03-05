@@ -814,7 +814,7 @@ export class PlayerUIPlugin extends Plugin {
 		// Outlined when auto, filled when manually selected
 		const path = this.qualityButton?.querySelector('path');
 		if (path) {
-			path.setAttribute('d', this.isAutoQuality ? icons.quality.hover : icons.quality.normal);
+			path.setAttribute('d', this.isAutoQuality ? icons.quality.normal : icons.quality.hover);
 		}
 	}
 
