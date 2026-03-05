@@ -1,6 +1,6 @@
 # Step 9: Seek Preview Thumbnails
 
-> **[Live example →](https://nomercy-entertainment.github.io/NoMercyExamples/tutorial?step=9)**
+> **[Live example →](https://examples.nomercy.tv/tutorial?step=9)**
 
 [← Previous: Quality, Subtitles, Audio Selectors](08-Quality-Subtitles-Audio-Selectors)
 

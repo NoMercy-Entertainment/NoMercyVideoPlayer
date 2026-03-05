@@ -1,6 +1,6 @@
 # Step 7: Fullscreen and Playback Speed
 
-> **[Live example →](https://nomercy-entertainment.github.io/NoMercyExamples/tutorial?step=7)**
+> **[Live example →](https://examples.nomercy.tv/tutorial?step=7)**
 
 [← Previous: Top Bar with Title](06-Top-Bar-with-Title) | [Next: Quality, Subtitles, Audio Selectors →](08-Quality-Subtitles-Audio-Selectors)
 

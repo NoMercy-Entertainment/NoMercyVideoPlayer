@@ -1,6 +1,6 @@
 # Step 6: Top Bar with Title
 
-> **[Live example →](https://nomercy-entertainment.github.io/NoMercyExamples/tutorial?step=6)**
+> **[Live example →](https://examples.nomercy.tv/tutorial?step=6)**
 
 [← Previous: Volume Control](05-Volume-Control) | [Next: Fullscreen and Playback Speed →](07-Fullscreen-and-Playback-Speed)
 

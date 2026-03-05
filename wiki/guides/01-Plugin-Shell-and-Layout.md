@@ -1,6 +1,6 @@
 # Step 1: Plugin Shell and Layout
 
-> **[Live example →](https://nomercy-entertainment.github.io/NoMercyExamples/tutorial?step=1)**
+> **[Live example →](https://examples.nomercy.tv/tutorial?step=1)**
 
 [Next: Play/Pause and Buffering →](02-Play-Pause-and-Buffering)
 

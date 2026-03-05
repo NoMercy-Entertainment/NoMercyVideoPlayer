@@ -1,6 +1,6 @@
 # Step 8: Quality, Subtitles, Audio Selectors and Cleanup
 
-> **[Live example →](https://nomercy-entertainment.github.io/NoMercyExamples/tutorial?step=8)**
+> **[Live example →](https://examples.nomercy.tv/tutorial?step=8)**
 
 [← Previous: Fullscreen and Playback Speed](07-Fullscreen-and-Playback-Speed) | [Next: Seek Preview Thumbnails →](09-Seek-Preview-Thumbnails)
 

@@ -1,6 +1,6 @@
 # Step 4: Time Display and Skip Buttons
 
-> **[Live example →](https://nomercy-entertainment.github.io/NoMercyExamples/tutorial?step=4)**
+> **[Live example →](https://examples.nomercy.tv/tutorial?step=4)**
 
 [← Previous: Progress Bar with Seeking](03-Progress-Bar-with-Seeking) | [Next: Volume Control →](05-Volume-Control)
 

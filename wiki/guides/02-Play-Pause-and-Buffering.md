@@ -1,6 +1,6 @@
 # Step 2: Play/Pause and Buffering
 
-> **[Live example →](https://nomercy-entertainment.github.io/NoMercyExamples/tutorial?step=2)**
+> **[Live example →](https://examples.nomercy.tv/tutorial?step=2)**
 
 [← Previous: Plugin Shell and Layout](01-Plugin-Shell-and-Layout) | [Next: Progress Bar with Seeking →](03-Progress-Bar-with-Seeking)
 

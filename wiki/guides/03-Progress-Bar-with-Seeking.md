@@ -1,6 +1,6 @@
 # Step 3: Progress Bar with Seeking
 
-> **[Live example →](https://nomercy-entertainment.github.io/NoMercyExamples/tutorial?step=3)**
+> **[Live example →](https://examples.nomercy.tv/tutorial?step=3)**
 
 [← Previous: Play/Pause and Buffering](02-Play-Pause-and-Buffering) | [Next: Time Display and Skip Buttons →](04-Time-Display-and-Skip-Buttons)
 
