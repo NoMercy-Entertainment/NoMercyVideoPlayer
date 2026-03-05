@@ -51,6 +51,7 @@ import { useVideoPlayer } from './hooks/useVideoPlayer';
 import type { PlaylistItem, PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const basePath = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films';
+const imageBasePath = 'https://image.tmdb.org/t/p';
 
 const playlist: PlaylistItem[] = [
   {
@@ -58,7 +59,7 @@ const playlist: PlaylistItem[] = [
     title: 'Sintel',
     description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
     file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-    image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+    image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
     duration: '14:48',
     year: 2010,
     tracks: [
@@ -68,7 +69,7 @@ const playlist: PlaylistItem[] = [
   },
 ];
 
-const config: PlayerConfig = { playlist, basePath, autoPlay: false };
+const config: PlayerConfig = { playlist, basePath, imageBasePath, autoPlay: false };
 
 export default function VideoPlayer() {
   const { currentTime, duration, isPlaying, togglePlayback } = useVideoPlayer('player', config);

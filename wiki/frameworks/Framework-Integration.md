@@ -35,6 +35,7 @@ Every framework example uses the same playlist:
 import type { PlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
 const basePath = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films';
+const imageBasePath = 'https://image.tmdb.org/t/p';
 
 const playlist: PlaylistItem[] = [
   {
@@ -42,7 +43,7 @@ const playlist: PlaylistItem[] = [
     title: 'Sintel',
     description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
     file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-    image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+    image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
     duration: '14:48',
     year: 2010,
     tracks: [
@@ -55,7 +56,7 @@ const playlist: PlaylistItem[] = [
     title: 'Cosmos Laundromat',
     description: 'On a desolate island, a suicidal sheep meets a mysterious stranger.',
     file: '/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
-    image: 'https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
+    image: '/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
     duration: '12:04',
     year: 2015,
     tracks: [

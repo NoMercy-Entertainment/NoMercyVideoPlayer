@@ -23,13 +23,14 @@ No framework needed. Initialize the player after the DOM is ready.
   <script>
     var config = {
       basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+      imageBasePath: 'https://image.tmdb.org/t/p',
       playlist: [
         {
           id: 'sintel',
           title: 'Sintel',
           description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
           file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-          image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+          image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
           duration: '14:48',
           year: 2010,
           tracks: [
@@ -71,13 +72,14 @@ If you're using a bundler, you can use ES module imports:
 
   const config: PlayerConfig = {
     basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+    imageBasePath: 'https://image.tmdb.org/t/p',
     playlist: [
       {
         id: 'sintel',
         title: 'Sintel',
         description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
         file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-        image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+        image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
         duration: '14:48',
       },
     ],

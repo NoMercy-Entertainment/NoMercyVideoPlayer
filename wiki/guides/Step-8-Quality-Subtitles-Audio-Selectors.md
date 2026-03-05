@@ -590,13 +590,14 @@ import type { NMPlayer, PlayerConfig, TimeData, VolumeState, Level, Track, Curre
 
 const config: PlayerConfig = {
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  imageBasePath: 'https://image.tmdb.org/t/p',
   playlist: [
     {
       id: 'sintel',
       title: 'Sintel',
       description: 'A short fantasy film by the Blender Foundation',
       file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+      image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
       duration: '14:48',
       tracks: [
         { id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },

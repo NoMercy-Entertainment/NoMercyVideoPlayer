@@ -22,13 +22,14 @@ import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const config: PlayerConfig = {
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  imageBasePath: 'https://image.tmdb.org/t/p',
   playlist: [
     {
       id: 'sintel',
       title: 'Sintel',
       description: 'A short fantasy film by the Blender Foundation',
       file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+      image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
       duration: '14:48',
       tracks: [
         { id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
@@ -80,6 +81,7 @@ import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const config: PlayerConfig = {
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  imageBasePath: 'https://image.tmdb.org/t/p',
   muted: false,
   preload: 'auto',
   playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
@@ -89,7 +91,7 @@ const config: PlayerConfig = {
       title: 'Sintel',
       description: 'A short fantasy film by the Blender Foundation',
       file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+      image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
       duration: '14:48',
       year: 2010,
       tracks: [
@@ -104,7 +106,7 @@ const config: PlayerConfig = {
       title: 'Cosmos Laundromat',
       description: 'On a desolate island, a suicidal sheep named Franck meets his fate...',
       file: '/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
+      image: '/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
       duration: '12:04',
       year: 2015,
       tracks: [
@@ -117,7 +119,7 @@ const config: PlayerConfig = {
       title: 'Big Buck Bunny',
       description: 'A giant rabbit with a heart bigger than himself.',
       file: '/Big.Buck.Bunny.(2008)/Big.Buck.Bunny.(2008).NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/original/xtdybjRRZ15mCrPOvEld305myys.jpg',
+      image: '/original/xtdybjRRZ15mCrPOvEld305myys.jpg',
       duration: '9:56',
       year: 2008,
       tracks: [
@@ -158,13 +160,14 @@ import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const config: PlayerConfig = {
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/refs/heads/master/Anime/Anime',
+  imageBasePath: 'https://image.tmdb.org/t/p',
   playlist: [
     {
       id: 'rail-wars',
       title: 'Rail Wars',
       description: 'Anime with styled ASS subtitles and custom fonts',
       file: '/Rail.Wars!.(2014)/Rail.Wars!.S00E00/Rail.Wars!.(2014).S00E00.NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/original/vH8NqN2LMcmtBv037iHGwcPOgCZ.jpg',
+      image: '/original/vH8NqN2LMcmtBv037iHGwcPOgCZ.jpg',
       duration: '1:30',
       tracks: [
         { id: 0, label: 'English', file: '/Rail.Wars!.(2014)/Rail.Wars!.S00E00/subtitles/Rail.Wars!.(2014).S00E00.NoMercy.eng.full.ass', language: 'eng', kind: 'subtitles' },
@@ -200,13 +203,14 @@ The `fonts` track points to a JSON file listing the font files needed by the ASS
   <script>
     var config = {
       basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+      imageBasePath: 'https://image.tmdb.org/t/p',
       playlist: [
         {
           id: 'sintel',
           title: 'Sintel',
           description: 'A short fantasy film',
           file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-          image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+          image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
           duration: '14:48',
         },
       ],

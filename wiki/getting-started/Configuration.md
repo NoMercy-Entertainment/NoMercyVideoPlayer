@@ -41,13 +41,14 @@ Every playlist item requires `id`, `title`, `description`, `file`, `image`, and 
 ```typescript
 const config: PlayerConfig = {
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  imageBasePath: 'https://image.tmdb.org/t/p',
   playlist: [
     {
       id: 'big-buck-bunny',
       title: 'Big Buck Bunny',
       description: 'A giant rabbit defends small creatures from three bullying rodents.',
       file: '/Big.Buck.Bunny.(2008)/Big.Buck.Bunny.(2008).NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/original/xtdybjRRZ15mCrPOvEld305myys.jpg',
+      image: '/original/xtdybjRRZ15mCrPOvEld305myys.jpg',
       duration: '9:56',
       year: 2008,
     },
@@ -62,13 +63,14 @@ For TV shows, populate `show`, `season`, `episode`, and `seasonName` to enable s
 ```typescript
 const config: PlayerConfig = {
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+  imageBasePath: 'https://image.tmdb.org/t/p',
   playlist: [
     {
       id: 1,
       title: 'Sintel',
       description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
       file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+      image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
       duration: '14:48',
       show: 'Blender Open Movies',
       season: 1,
@@ -80,7 +82,7 @@ const config: PlayerConfig = {
       title: 'Cosmos Laundromat',
       description: 'On a desolate island, a suicidal sheep meets a mysterious stranger.',
       file: '/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
+      image: '/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
       duration: '12:04',
       show: 'Blender Open Movies',
       season: 1,
@@ -112,7 +114,7 @@ Each playlist item can carry an array of `Track` objects describing subtitles, c
   title: 'Sintel',
   description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
   file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-  image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+  image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
   duration: '14:48',
   tracks: [
     { id: 0, kind: 'subtitles', label: 'English (Full)', language: 'eng', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', default: true },
@@ -144,7 +146,7 @@ Set `progress` on a playlist item to resume from a saved position.
   title: 'Sintel',
   description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
   file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-  image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+  image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
   duration: '14:48',
   progress: {
     time: 423.7,
@@ -168,7 +170,7 @@ The player resolves relative paths using `basePath` and `imageBasePath`. Absolut
 ```typescript
 const config: PlayerConfig = {
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
-  imageBasePath: 'https://cdn.example.com/images',
+  imageBasePath: 'https://image.tmdb.org/t/p',
   playlist: [
     {
       id: 'sintel',
@@ -176,8 +178,8 @@ const config: PlayerConfig = {
       description: 'Short film by the Blender Foundation.',
       file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
       // Resolved: https://raw.githubusercontent.com/.../Films/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8
-      image: '/posters/sintel.jpg',
-      // Resolved: https://cdn.example.com/images/posters/sintel.jpg
+      image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+      // Resolved: https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg
       duration: '14:48',
       tracks: [
         {
