@@ -806,6 +806,12 @@ export class PlayerUIPlugin extends Plugin {
 				btn.classList.toggle('bg-white/20', !this.isAutoQuality && (i - 1) === current);
 			}
 		});
+
+		// Outlined when auto, filled when manually selected
+		const path = this.qualityButton?.querySelector('path');
+		if (path) {
+			path.setAttribute('d', this.isAutoQuality ? icons.quality.normal : icons.quality.hover);
+		}
 	}
 
 	private createSubtitleButton() {
@@ -889,6 +895,13 @@ export class PlayerUIPlugin extends Plugin {
 		this.subtitleMenu.querySelectorAll('button').forEach((btn, i) => {
 			btn.classList.toggle('bg-white/20', i === current + 1);
 		});
+
+		// Outlined when off, filled when a subtitle is active
+		const isActive = current >= 0;
+		const path = this.subtitleButton?.querySelector('path');
+		if (path) {
+			path.setAttribute('d', isActive ? icons.subtitles.hover : icons.subtitles.normal);
+		}
 	}
 
 	private createAudioButton() {
