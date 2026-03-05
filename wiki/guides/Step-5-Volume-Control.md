@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=5)**
+> **<a href="https://examples.nomercy.tv/tutorial?step=5" target="_blank">▶ Live Example</a>**
 
 A volume button with three icon states (muted / low / high) and a custom div-based horizontal slider that expands on hover. Instead of a native `<input type="range">`, we build the slider from plain `<div>` elements and handle drag gestures ourselves — giving full control over the appearance and interaction.
 

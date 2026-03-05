@@ -12,7 +12,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=10)**
+> **<a href="https://examples.nomercy.tv/tutorial?step=10" target="_blank">▶ Live Example</a>**
 
 Add touch/click zones that let users double-tap to seek, single-tap to play/pause, double-tap center for fullscreen, and (on mobile) double-tap top/bottom to adjust volume. This step also adds seek ripple animations for visual feedback.
 

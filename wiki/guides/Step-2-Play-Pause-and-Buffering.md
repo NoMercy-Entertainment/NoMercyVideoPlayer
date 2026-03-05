@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=2)**
+> **<a href="https://examples.nomercy.tv/tutorial?step=2" target="_blank">▶ Live Example</a>**
 
 Add a large center play button, a buffering spinner, and a small play/pause button in the bottom bar.
 

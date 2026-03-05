@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=9)**
+> **<a href="https://examples.nomercy.tv/tutorial?step=9" target="_blank">▶ Live Example</a>**
 
 Add a thumbnail preview tooltip that appears when hovering over the progress bar. The tooltip shows a frame from the sprite sheet at the corresponding timestamp.
 

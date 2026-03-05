@@ -16,7 +16,7 @@
 
 ---
 
-> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=1)**
+> **<a href="https://examples.nomercy.tv/tutorial?step=1" target="_blank">▶ Live Example</a>**
 
 Create the `PlayerUIPlugin` class with the three-zone layout: **top bar**, **center overlay**, and **bottom bar**.
 
