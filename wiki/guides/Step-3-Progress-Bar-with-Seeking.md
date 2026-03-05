@@ -1,8 +1,7 @@
-# Step 3: Progress Bar with Seeking
-
-> **[Live example →](https://examples.nomercy.tv/tutorial?step=3)**
-
-[← Previous: Play/Pause and Buffering](02-Play-Pause-and-Buffering) | [Next: Time Display and Skip Buttons →](04-Time-Display-and-Skip-Buttons)
+<table width="100%"><tr>
+<td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a> · <a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=3">▶ Live Example</a></td>
+</tr></table>
 
 ---
 
@@ -154,4 +153,7 @@ dispose() {
 
 ---
 
-[← Previous: Play/Pause and Buffering](02-Play-Pause-and-Buffering) | [Next: Time Display and Skip Buttons →](04-Time-Display-and-Skip-Buttons)
+<table width="100%"><tr>
+<td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a> · <a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=3">▶ Live Example</a></td>
+</tr></table>

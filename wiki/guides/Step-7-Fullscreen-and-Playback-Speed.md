@@ -1,8 +1,7 @@
-# Step 7: Fullscreen and Playback Speed
-
-> **[Live example →](https://examples.nomercy.tv/tutorial?step=7)**
-
-[← Previous: Top Bar with Title](06-Top-Bar-with-Title) | [Next: Quality, Subtitles, Audio Selectors →](08-Quality-Subtitles-Audio-Selectors)
+<table width="100%"><tr>
+<td><a href="Step-6-Top-Bar-with-Title">← Previous</a> · <a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=7">▶ Live Example</a></td>
+</tr></table>
 
 ---
 
@@ -105,7 +104,7 @@ private updateSpeedMenu() {
 
 ### Menu toggle system
 
-A simple mechanism to open one popup at a time. At this step only the speed menu exists, so `toggleMenu()` only needs to handle that single menu. (In [Step 8](08-Quality-Subtitles-Audio-Selectors) we will extend this to support quality, subtitle, and audio menus.)
+A simple mechanism to open one popup at a time. At this step only the speed menu exists, so `toggleMenu()` only needs to handle that single menu. (In [Step 8](Step-8-Quality-Subtitles-Audio-Selectors) we will extend this to support quality, subtitle, and audio menus.)
 
 ```typescript
 private activeMenu: string | null = null;
@@ -148,4 +147,7 @@ private onDocumentClick = () => {
 
 ---
 
-[← Previous: Top Bar with Title](06-Top-Bar-with-Title) | [Next: Quality, Subtitles, Audio Selectors →](08-Quality-Subtitles-Audio-Selectors)
+<table width="100%"><tr>
+<td><a href="Step-6-Top-Bar-with-Title">← Previous</a> · <a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=7">▶ Live Example</a></td>
+</tr></table>

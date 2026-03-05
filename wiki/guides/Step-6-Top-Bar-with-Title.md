@@ -1,8 +1,7 @@
-# Step 6: Top Bar with Title
-
-> **[Live example →](https://examples.nomercy.tv/tutorial?step=6)**
-
-[← Previous: Volume Control](05-Volume-Control) | [Next: Fullscreen and Playback Speed →](07-Fullscreen-and-Playback-Speed)
+<table width="100%"><tr>
+<td><a href="Step-5-Volume-Control">← Previous</a> · <a href="Step-7-Fullscreen-and-Playback-Speed">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=6">▶ Live Example</a></td>
+</tr></table>
 
 ---
 
@@ -43,4 +42,7 @@ private updateTitle() {
 
 ---
 
-[← Previous: Volume Control](05-Volume-Control) | [Next: Fullscreen and Playback Speed →](07-Fullscreen-and-Playback-Speed)
+<table width="100%"><tr>
+<td><a href="Step-5-Volume-Control">← Previous</a> · <a href="Step-7-Fullscreen-and-Playback-Speed">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=6">▶ Live Example</a></td>
+</tr></table>

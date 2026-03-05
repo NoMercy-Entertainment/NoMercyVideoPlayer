@@ -1,8 +1,7 @@
-# Step 8: Quality, Subtitles, Audio Selectors and Cleanup
-
-> **[Live example →](https://examples.nomercy.tv/tutorial?step=8)**
-
-[← Previous: Fullscreen and Playback Speed](07-Fullscreen-and-Playback-Speed) | [Next: Seek Preview Thumbnails →](09-Seek-Preview-Thumbnails)
+<table width="100%"><tr>
+<td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a> · <a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=8">▶ Live Example</a></td>
+</tr></table>
 
 ---
 
@@ -51,7 +50,7 @@ private getMenuByName(name: string): HTMLDivElement | null {
 
 ### Progress bar with buffer indicator
 
-Before we get to the selectors, let's upgrade the progress bar from [Step 5](05-Progress-Bar-and-Time-Display). Two new layers sit inside the slider: a **buffer bar** showing how far the browser has downloaded, and the existing **progress bar** showing the current playback position. The buffer bar uses inline styles for `zIndex` and `backgroundColor` rather than Tailwind classes, because these values never change and don't need utility-class flexibility.
+Before we get to the selectors, let's upgrade the progress bar from [Step 3](Step-3-Progress-Bar-with-Seeking). Two new layers sit inside the slider: a **buffer bar** showing how far the browser has downloaded, and the existing **progress bar** showing the current playback position. The buffer bar uses inline styles for `zIndex` and `backgroundColor` rather than Tailwind classes, because these values never change and don't need utility-class flexibility.
 
 A standalone `updateBuffer()` function is called from both the `'time'` event (so the buffer updates as playback advances) and a native `'progress'` event listener on the `<video>` element (so the buffer updates even while paused).
 
@@ -619,4 +618,7 @@ You now have a fully functional video player UI with:
 
 ---
 
-[← Previous: Fullscreen and Playback Speed](07-Fullscreen-and-Playback-Speed) | [Next: Seek Preview Thumbnails →](09-Seek-Preview-Thumbnails)
+<table width="100%"><tr>
+<td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a> · <a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=8">▶ Live Example</a></td>
+</tr></table>

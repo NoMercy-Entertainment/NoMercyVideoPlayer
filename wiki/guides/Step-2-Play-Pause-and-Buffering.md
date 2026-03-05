@@ -1,8 +1,7 @@
-# Step 2: Play/Pause and Buffering
-
-> **[Live example →](https://examples.nomercy.tv/tutorial?step=2)**
-
-[← Previous: Plugin Shell and Layout](01-Plugin-Shell-and-Layout) | [Next: Progress Bar with Seeking →](03-Progress-Bar-with-Seeking)
+<table width="100%"><tr>
+<td><a href="Step-1-Plugin-Shell-and-Layout">← Previous</a> · <a href="Step-3-Progress-Bar-with-Seeking">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=2">▶ Live Example</a></td>
+</tr></table>
 
 ---
 
@@ -157,4 +156,7 @@ dispose() {
 
 ---
 
-[← Previous: Plugin Shell and Layout](01-Plugin-Shell-and-Layout) | [Next: Progress Bar with Seeking →](03-Progress-Bar-with-Seeking)
+<table width="100%"><tr>
+<td><a href="Step-1-Plugin-Shell-and-Layout">← Previous</a> · <a href="Step-3-Progress-Bar-with-Seeking">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=2">▶ Live Example</a></td>
+</tr></table>

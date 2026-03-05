@@ -1,8 +1,7 @@
-# Step 1: Plugin Shell and Layout
-
-> **[Live example →](https://examples.nomercy.tv/tutorial?step=1)**
-
-[Next: Play/Pause and Buffering →](02-Play-Pause-and-Buffering)
+<table width="100%"><tr>
+<td><a href="Step-2-Play-Pause-and-Buffering">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=1">▶ Live Example</a></td>
+</tr></table>
 
 ---
 
@@ -85,4 +84,7 @@ At this point you have two invisible gradient bars that fade in/out as the playe
 
 ---
 
-[Next: Play/Pause and Buffering →](02-Play-Pause-and-Buffering)
+<table width="100%"><tr>
+<td><a href="Step-2-Play-Pause-and-Buffering">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=1">▶ Live Example</a></td>
+</tr></table>

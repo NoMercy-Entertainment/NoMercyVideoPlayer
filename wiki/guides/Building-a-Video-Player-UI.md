@@ -21,7 +21,7 @@ We use [Fluent UI](https://github.com/microsoft/fluentui-system-icons) SVG paths
 
 Each icon must match the `Icon` interface: `{ classes: string[], hover: string, normal: string, title: string }`.
 
-You can find all icon definitions in [Step 1](01-Plugin-Shell-and-Layout) or copy them from the [live example source](https://github.com/NoMercy-Entertainment/Examples).
+You can find all icon definitions in [Step 1](Step-1-Plugin-Shell-and-Layout) or copy them from the [live example source](https://github.com/NoMercy-Entertainment/Examples).
 
 ---
 
@@ -29,15 +29,15 @@ You can find all icon definitions in [Step 1](01-Plugin-Shell-and-Layout) or cop
 
 | Step | Title | What you build |
 |------|-------|----------------|
-| 1 | [Plugin Shell & Layout](01-Plugin-Shell-and-Layout) | Base plugin class, container layout, CSS structure |
-| 2 | [Play / Pause & Buffering](02-Play-Pause-and-Buffering) | Center play button, buffering spinner, click-to-toggle |
-| 3 | [Progress Bar with Seeking](03-Progress-Bar-with-Seeking) | Seekable slider, buffer bar, hover preview time |
-| 4 | [Time Display & Skip Buttons](04-Time-Display-and-Skip-Buttons) | Current time / duration, 10s skip forward/back |
-| 5 | [Volume Control](05-Volume-Control) | Mute toggle, volume slider, icon state |
-| 6 | [Top Bar with Title](06-Top-Bar-with-Title) | Episode/movie title overlay |
-| 7 | [Fullscreen & Playback Speed](07-Fullscreen-and-Playback-Speed) | Fullscreen toggle, speed selector menu |
-| 8 | [Quality, Subtitles & Audio Selectors](08-Quality-Subtitles-Audio-Selectors) | Quality levels, subtitle tracks, audio tracks, putting it all together |
-| 9 | [Seek Preview Thumbnails](09-Seek-Preview-Thumbnails) | Sprite-based thumbnail tooltip on progress bar hover |
+| 1 | [Plugin Shell & Layout](Step-1-Plugin-Shell-and-Layout) | Base plugin class, container layout, CSS structure |
+| 2 | [Play / Pause & Buffering](Step-2-Play-Pause-and-Buffering) | Center play button, buffering spinner, click-to-toggle |
+| 3 | [Progress Bar with Seeking](Step-3-Progress-Bar-with-Seeking) | Seekable slider, buffer bar, hover preview time |
+| 4 | [Time Display & Skip Buttons](Step-4-Time-Display-and-Skip-Buttons) | Current time / duration, 10s skip forward/back |
+| 5 | [Volume Control](Step-5-Volume-Control) | Mute toggle, volume slider, icon state |
+| 6 | [Top Bar with Title](Step-6-Top-Bar-with-Title) | Episode/movie title overlay |
+| 7 | [Fullscreen & Playback Speed](Step-7-Fullscreen-and-Playback-Speed) | Fullscreen toggle, speed selector menu |
+| 8 | [Quality, Subtitles & Audio Selectors](Step-8-Quality-Subtitles-Audio-Selectors) | Quality levels, subtitle tracks, audio tracks, putting it all together |
+| 9 | [Seek Preview Thumbnails](Step-9-Seek-Preview-Thumbnails) | Sprite-based thumbnail tooltip on progress bar hover |
 
 ---
 

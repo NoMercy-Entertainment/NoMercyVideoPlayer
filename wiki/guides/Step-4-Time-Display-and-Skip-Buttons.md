@@ -1,8 +1,7 @@
-# Step 4: Time Display and Skip Buttons
-
-> **[Live example →](https://examples.nomercy.tv/tutorial?step=4)**
-
-[← Previous: Progress Bar with Seeking](03-Progress-Bar-with-Seeking) | [Next: Volume Control →](05-Volume-Control)
+<table width="100%"><tr>
+<td><a href="Step-3-Progress-Bar-with-Seeking">← Previous</a> · <a href="Step-5-Volume-Control">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=4">▶ Live Example</a></td>
+</tr></table>
 
 ---
 
@@ -72,4 +71,7 @@ private createSkipButtons() {
 
 ---
 
-[← Previous: Progress Bar with Seeking](03-Progress-Bar-with-Seeking) | [Next: Volume Control →](05-Volume-Control)
+<table width="100%"><tr>
+<td><a href="Step-3-Progress-Bar-with-Seeking">← Previous</a> · <a href="Step-5-Volume-Control">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=4">▶ Live Example</a></td>
+</tr></table>

@@ -1,8 +1,7 @@
-# Step 9: Seek Preview Thumbnails
-
-> **[Live example →](https://examples.nomercy.tv/tutorial?step=9)**
-
-[← Previous: Quality, Subtitles, Audio Selectors](08-Quality-Subtitles-Audio-Selectors)
+<table width="100%"><tr>
+<td><a href="Step-8-Quality-Subtitles-Audio-Selectors">← Previous</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=9">▶ Live Example</a></td>
+</tr></table>
 
 ---
 
@@ -223,4 +222,7 @@ When hovering over the progress bar, a thumbnail tooltip appears showing the vid
 
 ---
 
-[← Previous: Quality, Subtitles, Audio Selectors](08-Quality-Subtitles-Audio-Selectors)
+<table width="100%"><tr>
+<td><a href="Step-8-Quality-Subtitles-Audio-Selectors">← Previous</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=9">▶ Live Example</a></td>
+</tr></table>

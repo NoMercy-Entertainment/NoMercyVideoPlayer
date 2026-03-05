@@ -1,8 +1,7 @@
-# Step 5: Volume Control
-
-> **[Live example →](https://examples.nomercy.tv/tutorial?step=5)**
-
-[← Previous: Time Display and Skip Buttons](04-Time-Display-and-Skip-Buttons) | [Next: Top Bar with Title →](06-Top-Bar-with-Title)
+<table width="100%"><tr>
+<td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a> · <a href="Step-6-Top-Bar-with-Title">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=5">▶ Live Example</a></td>
+</tr></table>
 
 ---
 
@@ -139,4 +138,7 @@ A `volDragging` boolean flag tracks whether the user is currently dragging. The 
 
 ---
 
-[← Previous: Time Display and Skip Buttons](04-Time-Display-and-Skip-Buttons) | [Next: Top Bar with Title →](06-Top-Bar-with-Title)
+<table width="100%"><tr>
+<td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a> · <a href="Step-6-Top-Bar-with-Title">Next →</a></td>
+<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=5">▶ Live Example</a></td>
+</tr></table>
