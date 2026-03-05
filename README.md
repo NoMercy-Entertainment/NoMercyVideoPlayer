@@ -83,6 +83,36 @@ The player adds CSS classes to the container div that reflect its state. Use the
 | `inactive` | User stopped interacting (controls should hide) |
 | `error` | Playback error occurred |
 
+**With plain CSS** — target the state classes on the container:
+
+```css
+.nomercyplayer.paused .controls  { opacity: 1; }
+.nomercyplayer.playing .controls { opacity: 0; }
+.nomercyplayer.active .controls  { opacity: 1; }
+.nomercyplayer.buffering .spinner { display: flex; }
+```
+
+**With Tailwind CSS** — add `group` to the container (the player does this automatically) and use the `group-[&.class]` modifier:
+
+```html
+<!-- Show controls when paused or active -->
+<div class="opacity-0 group-[&.paused]:opacity-100 group-[&.active]:opacity-100 transition-opacity">
+  <!-- your controls -->
+</div>
+
+<!-- Show spinner only when buffering -->
+<div class="hidden group-[&.buffering]:flex">
+  <!-- spinner -->
+</div>
+
+<!-- Hide an element during playback -->
+<button class="flex group-[&.playing]:hidden">
+  <!-- big play button -->
+</button>
+```
+
+You can chain multiple states: `group-[&.nomercyplayer:not(.buffering).paused]:bg-black/50` targets a paused, non-buffering player.
+
 Create a plugin to build your controls:
 
 ```typescript
