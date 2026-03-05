@@ -607,7 +607,7 @@ const config: PlayerConfig = {
   ],
 };
 
-const player = nmplayer('player').setup(config);
+const player = nmplayer('nomercy-player').setup(config);
 
 player.registerPlugin('ui', new PlayerUIPlugin());
 player.usePlugin('ui');

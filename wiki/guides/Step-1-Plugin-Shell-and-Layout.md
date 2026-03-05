@@ -88,7 +88,7 @@ class PlayerUIPlugin extends Plugin {
 Register and use it:
 
 ```typescript
-const player = nmplayer('player').setup(config);
+const player = nmplayer('nomercy-player').setup(config);
 player.registerPlugin('ui', new PlayerUIPlugin());
 player.usePlugin('ui');
 ```

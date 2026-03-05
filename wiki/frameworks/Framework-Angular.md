@@ -12,7 +12,7 @@ import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/no
   selector: 'app-nomercy-player',
   template: `
     <div>
-      <div id="player" style="width: 100%; aspect-ratio: 16/9;"></div>
+      <div [id]="containerId" style="width: 100%; aspect-ratio: 16/9;"></div>
 
       <div class="controls">
         <button (click)="togglePlayback()">
@@ -24,6 +24,7 @@ import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/no
   `,
 })
 export class NMPlayerComponent implements AfterViewInit, OnDestroy {
+  @Input() containerId = 'nomercy-player';
   @Input() config!: PlayerConfig;
 
   player: NMPlayer | null = null;
@@ -32,7 +33,7 @@ export class NMPlayerComponent implements AfterViewInit, OnDestroy {
   isPlaying = false;
 
   ngAfterViewInit() {
-    this.player = nmplayer('player').setup(this.config);
+    this.player = nmplayer(this.containerId).setup(this.config);
 
     this.player.registerPlugin('keyHandler', new KeyHandlerPlugin());
     this.player.usePlugin('keyHandler');
@@ -60,11 +61,15 @@ export class NMPlayerComponent implements AfterViewInit, OnDestroy {
 ## Usage
 
 ```html
-<app-nomercy-player [config]="{
-  playlist: playlist,
-  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
-  autoPlay: false
-}" />
+<app-nomercy-player
+  containerId="nomercy-player"
+  [config]="{
+    playlist: playlist,
+    basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+    imageBasePath: 'https://image.tmdb.org/t/p',
+    autoPlay: false
+  }"
+/>
 ```
 
 ## Service Pattern

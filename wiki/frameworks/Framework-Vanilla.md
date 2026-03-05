@@ -8,11 +8,11 @@ No framework needed. Initialize the player after the DOM is ready.
 <head>
   <meta charset="UTF-8" />
   <style>
-    #player { width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000; }
+    #nomercy-player { width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000; }
   </style>
 </head>
 <body>
-  <div id="player"></div>
+  <div id="nomercy-player"></div>
 
   <div class="controls">
     <button id="play-btn">Play</button>
@@ -41,7 +41,7 @@ No framework needed. Initialize the player after the DOM is ready.
       ],
     };
 
-    var player = window.nmplayer('player').setup(config);
+    var player = window.nmplayer('nomercy-player').setup(config);
 
     var playBtn = document.getElementById('play-btn');
     var timeDisplay = document.getElementById('time');
@@ -64,7 +64,7 @@ No framework needed. Initialize the player after the DOM is ready.
 If you're using a bundler, you can use ES module imports:
 
 ```html
-<div id="player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000;"></div>
+<div id="nomercy-player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000;"></div>
 
 <script type="module">
   import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
@@ -85,7 +85,7 @@ If you're using a bundler, you can use ES module imports:
     ],
   };
 
-  const player = nmplayer('player').setup(config);
+  const player = nmplayer('nomercy-player').setup(config);
 
   player.registerPlugin('keyHandler', new KeyHandlerPlugin());
   player.usePlugin('keyHandler');

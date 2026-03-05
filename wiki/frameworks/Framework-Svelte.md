@@ -27,6 +27,7 @@ Svelte's `onMount` and `onDestroy` map directly to the player lifecycle.
     },
   ];
 
+  const containerId = 'nomercy-player';
   const config: PlayerConfig = { playlist, basePath, imageBasePath, autoPlay: false };
 
   let player: NMPlayer | null = null;
@@ -35,7 +36,7 @@ Svelte's `onMount` and `onDestroy` map directly to the player lifecycle.
   let isPlaying = false;
 
   onMount(() => {
-    player = nmplayer('player').setup(config);
+    player = nmplayer(containerId).setup(config);
 
     player.registerPlugin('keyHandler', new KeyHandlerPlugin());
     player.usePlugin('keyHandler');
@@ -56,7 +57,7 @@ Svelte's `onMount` and `onDestroy` map directly to the player lifecycle.
 </script>
 
 <div>
-  <div id="player" style="width: 100%; aspect-ratio: 16/9;" />
+  <div id={containerId} style="width: 100%; aspect-ratio: 16/9;" />
 
   <div class="controls">
     <button on:click={() => player?.togglePlayback()}>
@@ -91,6 +92,7 @@ With Svelte 5 runes, you can use `$state` and `$effect`:
     },
   ];
 
+  const containerId = 'nomercy-player';
   const config: PlayerConfig = { playlist, basePath, imageBasePath };
 
   let player = $state<NMPlayer | null>(null);
@@ -99,7 +101,7 @@ With Svelte 5 runes, you can use `$state` and `$effect`:
   let isPlaying = $state(false);
 
   $effect(() => {
-    const instance = nmplayer('player').setup(config);
+    const instance = nmplayer(containerId).setup(config);
 
     instance.registerPlugin('keyHandler', new KeyHandlerPlugin());
     instance.usePlugin('keyHandler');
@@ -122,7 +124,7 @@ With Svelte 5 runes, you can use `$state` and `$effect`:
 </script>
 
 <div>
-  <div id="player" style="width: 100%; aspect-ratio: 16/9;"></div>
+  <div id={containerId} style="width: 100%; aspect-ratio: 16/9;"></div>
 
   <div class="controls">
     <button onclick={() => player?.togglePlayback()}>

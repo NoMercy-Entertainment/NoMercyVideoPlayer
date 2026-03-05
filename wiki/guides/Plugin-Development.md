@@ -302,7 +302,7 @@ The generic flows through the entire player API — `playlistItem()`, `getPlayli
 ```typescript
 import type { NMPlayer } from '@nomercy-entertainment/nomercy-video-player';
 
-const player: NMPlayer<AppPlaylistItem> = nmplayer('player').setup(config);
+const player: NMPlayer<AppPlaylistItem> = nmplayer('nomercy-player').setup(config);
 
 // playlistItem() returns AppPlaylistItem
 const item = player.playlistItem();

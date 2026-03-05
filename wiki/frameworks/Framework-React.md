@@ -71,12 +71,12 @@ const playlist: PlaylistItem[] = [
 
 const config: PlayerConfig = { playlist, basePath, imageBasePath, autoPlay: false };
 
-export default function NMPlayerView() {
-  const { currentTime, duration, isPlaying, togglePlayback } = useNMPlayer('player', config);
+export default function NMPlayerView({ containerId = 'nomercy-player' }: { containerId?: string }) {
+  const { currentTime, duration, isPlaying, togglePlayback } = useNMPlayer(containerId, config);
 
   return (
     <div>
-      <div id="player" style={{ width: '100%', aspectRatio: '16/9' }} />
+      <div id={containerId} style={{ width: '100%', aspectRatio: '16/9' }} />
 
       <div className="controls">
         <button onClick={togglePlayback}>

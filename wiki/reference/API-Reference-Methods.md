@@ -13,6 +13,8 @@ Complete reference for all NMPlayer methods, organized by category.
 
 ## Setup & Configuration
 
+The `nmplayer(containerId)` factory takes the **`id` of a `<div>` element** in the DOM. Each player instance must target a unique container ID — using the same ID for multiple players will cause conflicts.
+
 ### `setup<Conf>(options: Partial<PlayerConfig<Conf>>): NMPlayer<Conf>`
 
 Initializes the player with configuration options.

@@ -11,8 +11,10 @@ npm install @nomercy-entertainment/nomercy-video-player
 Add a `<div>` to your HTML. Never use a `<video>` tag — the player creates its own video element.
 
 ```html
-<div id="player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000;"></div>
+<div id="nomercy-player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000;"></div>
 ```
+
+> **Important:** Each player instance requires a **unique** container ID. If you have multiple players on the same page, give each one a different `id` (e.g., `nomercy-player-1`, `nomercy-player-2`).
 
 ### 2. Initialize the Player
 
@@ -39,7 +41,7 @@ const config: PlayerConfig = {
   ],
 };
 
-const player = nmplayer('player').setup(config);
+const player = nmplayer('nomercy-player').setup(config);
 ```
 
 The player is now running — but you won't see any controls. That's by design. This is a headless player; you build the UI yourself.
@@ -129,7 +131,7 @@ const config: PlayerConfig = {
   ],
 };
 
-const player = nmplayer('player').setup(config);
+const player = nmplayer('nomercy-player').setup(config);
 
 // Add keyboard shortcuts (Space, arrows, F, M, etc.)
 const keyHandler = new KeyHandlerPlugin();
@@ -177,7 +179,7 @@ const config: PlayerConfig = {
   ],
 };
 
-const player = nmplayer('player').setup(config);
+const player = nmplayer('nomercy-player').setup(config);
 
 // Register the OctopusPlugin for ASS/SSA subtitle rendering
 player.registerPlugin('octopus', new OctopusPlugin());
@@ -197,7 +199,7 @@ The `fonts` track points to a JSON file listing the font files needed by the ASS
   <title>NoMercy Video Player</title>
 </head>
 <body>
-  <div id="player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000;"></div>
+  <div id="nomercy-player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000;"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player/dist/nomercy-video-player.iife.js"></script>
   <script>
@@ -216,7 +218,7 @@ The `fonts` track points to a JSON file listing the font files needed by the ASS
       ],
     };
 
-    var player = window.nmplayer('player').setup(config);
+    var player = window.nmplayer('nomercy-player').setup(config);
 
     player.on('ready', function() { player.play(); });
   </script>

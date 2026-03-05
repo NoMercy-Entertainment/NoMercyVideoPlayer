@@ -82,12 +82,13 @@ const config = ref<PlayerConfig>({
   autoPlay: false,
 });
 
-const { player, currentTime, duration, isPlaying } = useNMPlayer('player', config);
+const containerId = 'nomercy-player';
+const { player, currentTime, duration, isPlaying } = useNMPlayer(containerId, config);
 </script>
 
 <template>
   <div>
-    <div id="player" style="width: 100%; aspect-ratio: 16/9;" />
+    <div :id="containerId" style="width: 100%; aspect-ratio: 16/9;" />
 
     <div class="controls">
       <button @click="player?.togglePlayback()">
