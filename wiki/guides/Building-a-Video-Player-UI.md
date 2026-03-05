@@ -21,7 +21,7 @@ We use [Fluent UI](https://github.com/microsoft/fluentui-system-icons) SVG paths
 
 Each icon must match the `Icon` interface: `{ classes: string[], hover: string, normal: string, title: string }`.
 
-You can find all icon definitions in [Step 1](01-Plugin-Shell-and-Layout) or copy them from the [live example source](https://github.com/NoMercy-Entertainment/NoMercyExamples).
+You can find all icon definitions in [Step 1](01-Plugin-Shell-and-Layout) or copy them from the [live example source](https://github.com/NoMercy-Entertainment/Examples).
 
 ---
 
