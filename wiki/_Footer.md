@@ -1,5 +1,3 @@
----
-
 <p align="center">
   <a href="https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer">GitHub</a> ·
   <a href="https://www.npmjs.com/package/@nomercy-entertainment/nomercy-video-player">npm</a> ·
