@@ -1,7 +1,18 @@
-<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
-<a href="Step-1-Plugin-Shell-and-Layout" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
-<a href="Step-3-Progress-Bar-with-Seeking" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
-</div>
+<table><thead>
+<tr>
+<th width="300px">
+
+[← Previous](Step-1-Plugin-Shell-and-Layout)
+
+</th>
+<th width="1400px"></th>
+<th width="150px">
+
+[Next →](Step-3-Progress-Bar-with-Seeking)
+
+</th>
+</tr>
+</thead></table>
 
 ---
 
@@ -158,7 +169,18 @@ dispose() {
 
 ---
 
-<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
-<a href="Step-1-Plugin-Shell-and-Layout" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
-<a href="Step-3-Progress-Bar-with-Seeking" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
-</div>
+<table><thead>
+<tr>
+<th width="300px">
+
+[← Previous](Step-1-Plugin-Shell-and-Layout)
+
+</th>
+<th width="1400px"></th>
+<th width="150px">
+
+[Next →](Step-3-Progress-Bar-with-Seeking)
+
+</th>
+</tr>
+</thead></table>

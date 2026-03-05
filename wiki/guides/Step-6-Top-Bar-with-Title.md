@@ -1,7 +1,18 @@
-<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
-<a href="Step-5-Volume-Control" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
-<a href="Step-7-Fullscreen-and-Playback-Speed" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
-</div>
+<table><thead>
+<tr>
+<th width="300px">
+
+[← Previous](Step-5-Volume-Control)
+
+</th>
+<th width="1400px"></th>
+<th width="150px">
+
+[Next →](Step-7-Fullscreen-and-Playback-Speed)
+
+</th>
+</tr>
+</thead></table>
 
 ---
 
@@ -44,7 +55,18 @@ private updateTitle() {
 
 ---
 
-<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
-<a href="Step-5-Volume-Control" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
-<a href="Step-7-Fullscreen-and-Playback-Speed" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
-</div>
+<table><thead>
+<tr>
+<th width="300px">
+
+[← Previous](Step-5-Volume-Control)
+
+</th>
+<th width="1400px"></th>
+<th width="150px">
+
+[Next →](Step-7-Fullscreen-and-Playback-Speed)
+
+</th>
+</tr>
+</thead></table>
