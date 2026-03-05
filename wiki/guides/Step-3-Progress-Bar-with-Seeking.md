@@ -1,9 +1,10 @@
 <table width="100%"><tr>
 <td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a> · <a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=3">▶ Live Example</a></td>
 </tr></table>
 
 ---
+
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=3)**
 
 The progress bar has three layers: a background track, a buffer bar, and a progress bar with a thumb that the user can drag to scrub.
 
@@ -155,5 +156,4 @@ dispose() {
 
 <table width="100%"><tr>
 <td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a> · <a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=3">▶ Live Example</a></td>
 </tr></table>

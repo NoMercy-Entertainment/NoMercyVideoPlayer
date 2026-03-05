@@ -1,9 +1,10 @@
 <table width="100%"><tr>
 <td><a href="Step-8-Quality-Subtitles-Audio-Selectors">← Previous</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=9">▶ Live Example</a></td>
 </tr></table>
 
 ---
+
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=9)**
 
 Add a thumbnail preview tooltip that appears when hovering over the progress bar. The tooltip shows a frame from the sprite sheet at the corresponding timestamp.
 
@@ -224,5 +225,4 @@ When hovering over the progress bar, a thumbnail tooltip appears showing the vid
 
 <table width="100%"><tr>
 <td><a href="Step-8-Quality-Subtitles-Audio-Selectors">← Previous</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=9">▶ Live Example</a></td>
 </tr></table>

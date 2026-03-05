@@ -1,9 +1,10 @@
 <table width="100%"><tr>
 <td><a href="Step-1-Plugin-Shell-and-Layout">← Previous</a> · <a href="Step-3-Progress-Bar-with-Seeking">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=2">▶ Live Example</a></td>
 </tr></table>
 
 ---
+
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=2)**
 
 Add a large center play button, a buffering spinner, and a small play/pause button in the bottom bar.
 
@@ -158,5 +159,4 @@ dispose() {
 
 <table width="100%"><tr>
 <td><a href="Step-1-Plugin-Shell-and-Layout">← Previous</a> · <a href="Step-3-Progress-Bar-with-Seeking">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=2">▶ Live Example</a></td>
 </tr></table>

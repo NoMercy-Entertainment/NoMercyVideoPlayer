@@ -1,9 +1,10 @@
 <table width="100%"><tr>
 <td><a href="Step-5-Volume-Control">← Previous</a> · <a href="Step-7-Fullscreen-and-Playback-Speed">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=6">▶ Live Example</a></td>
 </tr></table>
 
 ---
+
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=6)**
 
 Show the current item title (and show/season/episode for TV content).
 
@@ -44,5 +45,4 @@ private updateTitle() {
 
 <table width="100%"><tr>
 <td><a href="Step-5-Volume-Control">← Previous</a> · <a href="Step-7-Fullscreen-and-Playback-Speed">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=6">▶ Live Example</a></td>
 </tr></table>

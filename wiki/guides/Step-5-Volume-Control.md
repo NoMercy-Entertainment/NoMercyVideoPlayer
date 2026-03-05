@@ -1,9 +1,10 @@
 <table width="100%"><tr>
 <td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a> · <a href="Step-6-Top-Bar-with-Title">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=5">▶ Live Example</a></td>
 </tr></table>
 
 ---
+
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=5)**
 
 A volume button with three icon states (muted / low / high) and a custom div-based horizontal slider that expands on hover. Instead of a native `<input type="range">`, we build the slider from plain `<div>` elements and handle drag gestures ourselves — giving full control over the appearance and interaction.
 
@@ -140,5 +141,4 @@ A `volDragging` boolean flag tracks whether the user is currently dragging. The 
 
 <table width="100%"><tr>
 <td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a> · <a href="Step-6-Top-Bar-with-Title">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=5">▶ Live Example</a></td>
 </tr></table>

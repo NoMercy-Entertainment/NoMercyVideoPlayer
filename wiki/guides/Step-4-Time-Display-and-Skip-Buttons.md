@@ -1,9 +1,10 @@
 <table width="100%"><tr>
 <td><a href="Step-3-Progress-Bar-with-Seeking">← Previous</a> · <a href="Step-5-Volume-Control">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=4">▶ Live Example</a></td>
 </tr></table>
 
 ---
+
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=4)**
 
 Add time labels and skip forward/back buttons to the bottom row.
 
@@ -73,5 +74,4 @@ private createSkipButtons() {
 
 <table width="100%"><tr>
 <td><a href="Step-3-Progress-Bar-with-Seeking">← Previous</a> · <a href="Step-5-Volume-Control">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=4">▶ Live Example</a></td>
 </tr></table>

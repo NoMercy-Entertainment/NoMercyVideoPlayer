@@ -1,9 +1,10 @@
 <table width="100%"><tr>
 <td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a> · <a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=8">▶ Live Example</a></td>
 </tr></table>
 
 ---
+
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=8)**
 
 This is the most complex step in the tutorial. We are adding three popup menus -- quality, subtitles, and audio -- each with their own highlighting logic and icon toggling. We will also update the progress bar to include a buffer indicator, and finalize both `use()` and `dispose()`.
 
@@ -620,5 +621,4 @@ You now have a fully functional video player UI with:
 
 <table width="100%"><tr>
 <td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a> · <a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=8">▶ Live Example</a></td>
 </tr></table>

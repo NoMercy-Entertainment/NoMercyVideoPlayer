@@ -1,9 +1,10 @@
 <table width="100%"><tr>
 <td><a href="Step-6-Top-Bar-with-Title">← Previous</a> · <a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=7">▶ Live Example</a></td>
 </tr></table>
 
 ---
+
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=7)**
 
 ### Fullscreen button
 
@@ -149,5 +150,4 @@ private onDocumentClick = () => {
 
 <table width="100%"><tr>
 <td><a href="Step-6-Top-Bar-with-Title">← Previous</a> · <a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
-<td align="right"><a href="https://examples.nomercy.tv/tutorial?step=7">▶ Live Example</a></td>
 </tr></table>
