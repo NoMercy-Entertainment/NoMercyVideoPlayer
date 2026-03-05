@@ -2199,6 +2199,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	}
 
 	seek(arg: number): number {
+		if (!Number.isFinite(arg)) return this.videoElement.currentTime;
 		this.lastTime = 0;
 
 		this.emit('seek');

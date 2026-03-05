@@ -32,7 +32,7 @@ export class KeyHandlerPlugin extends Plugin {
 		const keys = this.keyBindings();
 		let keyTimeout = false;
 
-		if (this.player.getVideoElement().getBoundingClientRect().width == 0) return;
+		if (this.player.container.getBoundingClientRect().width == 0) return;
 
 		if (!keyTimeout && this.player) {
 			keyTimeout = true;
