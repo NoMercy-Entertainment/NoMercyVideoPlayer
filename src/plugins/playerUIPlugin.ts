@@ -322,7 +322,7 @@ export class PlayerUIPlugin extends Plugin {
 		const sliderBuffer = this.player
 			.createElement('div', 'slider-buffer')
 			.addClasses([
-				'absolute', 'top-0', 'left-0', 'h-full',
+				'absolute', 'top-0', 'left-0', 'h-full', 'z-[1]',
 				'bg-white/40', 'rounded-full', 'pointer-events-none',
 			])
 			.appendTo(this.sliderBar)
@@ -331,7 +331,7 @@ export class PlayerUIPlugin extends Plugin {
 		const sliderProgress = this.player
 			.createElement('div', 'slider-progress')
 			.addClasses([
-				'absolute', 'top-0', 'left-0', 'h-full',
+				'absolute', 'top-0', 'left-0', 'h-full', 'z-[2]',
 				'bg-white', 'rounded-full', 'pointer-events-none',
 			])
 			.appendTo(this.sliderBar)
@@ -392,6 +392,15 @@ export class PlayerUIPlugin extends Plugin {
 			this.isMouseDown = false;
 		}, { passive: true });
 
+		const updateBuffer = () => {
+			const video = this.player.getVideoElement();
+			if (video && video.buffered.length > 0 && video.duration > 0) {
+				const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+				const bufferPct = (bufferedEnd / video.duration) * 100;
+				sliderBuffer.style.width = `${bufferPct}%`;
+			}
+		};
+
 		// Sync progress bar and time labels with playback position.
 		// Skip updates while the user is scrubbing so the bar doesn't fight the drag.
 		this.player.on('time', (data) => {
@@ -400,15 +409,11 @@ export class PlayerUIPlugin extends Plugin {
 			sliderNipple.style.left = `${data.percentage}%`;
 			this.currentTimeLabel.textContent = data.currentTimeHuman;
 			this.durationLabel.textContent = data.durationHuman;
-
-			// Update buffer bar
-			const video = this.player.getVideoElement();
-			if (video && video.buffered.length > 0) {
-				const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-				const bufferPct = (bufferedEnd / video.duration) * 100;
-				sliderBuffer.style.width = `${bufferPct}%`;
-			}
+			updateBuffer();
 		});
+
+		// Update buffer bar even when paused (progress fires as the browser buffers)
+		this.player.getVideoElement()?.addEventListener('progress', updateBuffer);
 
 		// Reset slider on playlist item change
 		this.player.on('item', () => {
