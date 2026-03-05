@@ -1,11 +1,6 @@
 name: Create Release
 
 on:
-  push:
-    paths:
-      - 'src/**'
-      - 'dist/**'
-      - 'package.json'
   workflow_dispatch:
 
 jobs:
