@@ -323,7 +323,7 @@ export class PlayerUIPlugin extends Plugin {
 			.createElement('div', 'slider-buffer')
 			.addClasses([
 				'absolute', 'top-0', 'left-0', 'h-full',
-				'bg-white/30', 'rounded-full', 'pointer-events-none',
+				'bg-white/40', 'rounded-full', 'pointer-events-none',
 			])
 			.appendTo(this.sliderBar)
 			.get();
@@ -400,6 +400,14 @@ export class PlayerUIPlugin extends Plugin {
 			sliderNipple.style.left = `${data.percentage}%`;
 			this.currentTimeLabel.textContent = data.currentTimeHuman;
 			this.durationLabel.textContent = data.durationHuman;
+
+			// Update buffer bar
+			const video = this.player.getVideoElement();
+			if (video && video.buffered.length > 0) {
+				const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+				const bufferPct = (bufferedEnd / video.duration) * 100;
+				sliderBuffer.style.width = `${bufferPct}%`;
+			}
 		});
 
 		// Reset slider on playlist item change
