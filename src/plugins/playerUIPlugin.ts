@@ -779,6 +779,7 @@ export class PlayerUIPlugin extends Plugin {
 					e.stopPropagation();
 					this.player.setCurrentQuality(index);
 					this.isAutoQuality = false;
+					this.selectedQualityIndex = index;
 					this.highlightCurrentQuality();
 					this.toggleMenu(null);
 				});
@@ -792,10 +793,13 @@ export class PlayerUIPlugin extends Plugin {
 	}
 
 	private isAutoQuality = true;
+	private selectedQualityIndex = -1;
 
 	private highlightCurrentQuality() {
 		if (!this.qualityMenu) return;
-		const current = this.player.getCurrentQuality();
+		const current = this.isAutoQuality
+			? this.player.getCurrentQuality()
+			: this.selectedQualityIndex;
 		const buttons = this.qualityMenu.querySelectorAll('button');
 		buttons.forEach((btn, i) => {
 			if (i === 0) {
@@ -810,7 +814,7 @@ export class PlayerUIPlugin extends Plugin {
 		// Outlined when auto, filled when manually selected
 		const path = this.qualityButton?.querySelector('path');
 		if (path) {
-			path.setAttribute('d', this.isAutoQuality ? icons.quality.normal : icons.quality.hover);
+			path.setAttribute('d', this.isAutoQuality ? icons.quality.hover : icons.quality.normal);
 		}
 	}
 
@@ -900,7 +904,7 @@ export class PlayerUIPlugin extends Plugin {
 		const isActive = current >= 0;
 		const path = this.subtitleButton?.querySelector('path');
 		if (path) {
-			path.setAttribute('d', isActive ? icons.subtitles.hover : icons.subtitles.normal);
+			path.setAttribute('d', isActive ? icons.subtitles.normal : icons.subtitles.hover);
 		}
 	}
 
