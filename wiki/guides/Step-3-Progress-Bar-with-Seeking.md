@@ -16,7 +16,7 @@
 
 ---
 
-> **<a href="https://examples.nomercy.tv/tutorial?step=3" target="_blank">▶ Live Example</a>**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=3)**
 
 The progress bar has three layers: a background track, a buffer bar, and a progress bar with a thumb that the user can drag to scrub.
 

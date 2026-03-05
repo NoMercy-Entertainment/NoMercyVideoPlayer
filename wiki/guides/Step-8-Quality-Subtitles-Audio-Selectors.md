@@ -16,7 +16,7 @@
 
 ---
 
-> **<a href="https://examples.nomercy.tv/tutorial?step=8" target="_blank">▶ Live Example</a>**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=8)**
 
 This is the most complex step in the tutorial. We are adding three popup menus -- quality, subtitles, and audio -- each with their own highlighting logic and icon toggling. We will also update the progress bar to include a buffer indicator, and finalize both `use()` and `dispose()`.
 

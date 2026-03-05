@@ -16,7 +16,7 @@
 
 ---
 
-> **<a href="https://examples.nomercy.tv/tutorial?step=4" target="_blank">▶ Live Example</a>**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=4)**
 
 Add time labels and skip forward/back buttons to the bottom row.
 

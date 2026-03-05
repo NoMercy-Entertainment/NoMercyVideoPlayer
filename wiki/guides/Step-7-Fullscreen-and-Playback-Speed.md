@@ -16,7 +16,7 @@
 
 ---
 
-> **<a href="https://examples.nomercy.tv/tutorial?step=7" target="_blank">▶ Live Example</a>**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=7)**
 
 ### Fullscreen button
 

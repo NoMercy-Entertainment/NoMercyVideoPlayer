@@ -16,7 +16,7 @@
 
 ---
 
-> **<a href="https://examples.nomercy.tv/tutorial?step=6" target="_blank">▶ Live Example</a>**
+> **[▶ Live Example](https://examples.nomercy.tv/tutorial?step=6)**
 
 Show the current item title (and show/season/episode for TV content).
 
