@@ -183,11 +183,11 @@ const config: PlayerConfig = {
       duration: '14:48',
       tracks: [
         {
-          id: 1,
+          id: 0,
           kind: 'subtitles',
-          label: 'English',
-          language: 'en',
-          file: 'https://subs.example.com/sintel-en.vtt',
+          label: 'English (Full)',
+          language: 'eng',
+          file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt',
           // Absolute URL -- used as-is
         },
       ],
