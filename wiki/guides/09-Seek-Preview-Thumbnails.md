@@ -202,9 +202,9 @@ When hovering over the progress bar, a thumbnail tooltip appears showing the vid
 
 - Build a playlist panel showing all items
 - Add touch gestures (swipe to seek, vertical swipe for volume)
-- See [Plugin Development](../Plugin-Development) for the full plugin reference
-- See [Events](../../reference/Events) for all available events
-- See [Methods](../../reference/API-Reference-Methods) for all player methods
+- See [Plugin Development](Plugin-Development) for the full plugin reference
+- See [Events](Events) for all available events
+- See [Methods](API-Reference-Methods) for all player methods
 
 ---
 

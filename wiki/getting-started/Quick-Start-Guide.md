@@ -230,7 +230,7 @@ The player communicates through:
 2. **Events** — `play`, `pause`, `time`, `levels`, `captionsList`, etc.
 3. **Methods** — `play()`, `pause()`, `seek()`, `setVolume()`, etc.
 
-See [Plugin Development](../guides/Plugin-Development) for building plugins that use these.
+See [Plugin Development](Plugin-Development) for building plugins that use these.
 
 ## Cleanup
 
@@ -243,8 +243,8 @@ player.dispose();
 ## Next Steps
 
 - [Configuration](Configuration) — All PlayerConfig options
-- [Plugin Development](../guides/Plugin-Development) — extending the player
-- [Events](../reference/Events) — Full event reference
-- [Methods](../reference/API-Reference-Methods) — All player methods
-- [Framework Integration](../frameworks/Framework-Integration) — React, Vue, Angular, Svelte patterns
+- [Plugin Development](Plugin-Development) — extending the player
+- [Events](Events) — Full event reference
+- [Methods](API-Reference-Methods) — All player methods
+- [Framework Integration](Framework-Integration) — React, Vue, Angular, Svelte patterns
 - [Live Examples](https://github.com/NoMercy-Entertainment/Examples) — Working example project

@@ -44,5 +44,5 @@ You can find all icon definitions in [Step 1](01-Plugin-Shell-and-Layout) or cop
 ## Next Steps
 
 - Read the [Plugin Development](Plugin-Development) guide for architecture details
-- Check the [API Reference](../reference/API-Reference) for all TypeScript types
-- Browse available [Methods](../reference/API-Reference-Methods) and [Events](../reference/Events)
+- Check the [API Reference](API-Reference) for all TypeScript types
+- Browse available [Methods](API-Reference-Methods) and [Events](Events)

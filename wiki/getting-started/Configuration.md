@@ -218,7 +218,7 @@ tracks: [
 
 Set `default: true` on exactly one subtitle track to enable it automatically.
 
-For ASS/SSA subtitles with the OctopusPlugin, see the [Plugin Development](../guides/Plugin-Development) guide.
+For ASS/SSA subtitles with the OctopusPlugin, see the [Plugin Development](Plugin-Development) guide.
 
 ---
 
@@ -311,9 +311,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 ## Related Pages
 
-- [Home](../Home) -- Project overview
+- [Home](Home) -- Project overview
 - [Quick Start Guide](Quick-Start-Guide) -- Getting started
-- [API Reference](../reference/API-Reference) -- Methods and properties
-- [Events](../reference/Events) -- Event system reference
-- [Plugin Development](../guides/Plugin-Development) -- Creating custom plugins
-- [Framework Integration](../frameworks/Framework-Integration) -- React, Vue, Angular usage
+- [API Reference](API-Reference) -- Methods and properties
+- [Events](Events) -- Event system reference
+- [Plugin Development](Plugin-Development) -- Creating custom plugins
+- [Framework Integration](Framework-Integration) -- React, Vue, Angular usage

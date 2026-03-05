@@ -180,9 +180,9 @@ This approach keeps your JavaScript minimal. Let CSS do the work of reacting to 
 
 For the full list of methods, events, and properties available inside your plugin:
 
-- **[Methods](../reference/API-Reference-Methods)** — `play()`, `seek()`, `setVolume()`, `toggleFullscreen()`, `setCurrentCaption()`, and more
-- **[Events](../reference/Events)** — `time`, `play`, `pause`, `volume`, `levels`, `captionsList`, `item`, and more
-- **[API Reference](../reference/API-Reference)** — TypeScript types (`TimeData`, `VolumeState`, `Level`, `Track`, `PlaylistItem`)
+- **[Methods](API-Reference-Methods)** — `play()`, `seek()`, `setVolume()`, `toggleFullscreen()`, `setCurrentCaption()`, and more
+- **[Events](Events)** — `time`, `play`, `pause`, `volume`, `levels`, `captionsList`, `item`, and more
+- **[API Reference](API-Reference)** — TypeScript types (`TimeData`, `VolumeState`, `Level`, `Track`, `PlaylistItem`)
 
 ### Key properties
 

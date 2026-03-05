@@ -70,7 +70,7 @@ const playlist: PlaylistItem[] = [
 
 ## Next Steps
 
-- [Plugin Development](../guides/Plugin-Development) — extending the player
-- [Events](../reference/Events) — full event reference
-- [Methods](../reference/API-Reference-Methods) — all player methods
-- [Configuration](../getting-started/Configuration) — all PlayerConfig options
+- [Plugin Development](Plugin-Development) — extending the player
+- [Events](Events) — full event reference
+- [Methods](API-Reference-Methods) — all player methods
+- [Configuration](Configuration) — all PlayerConfig options
