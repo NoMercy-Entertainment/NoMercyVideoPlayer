@@ -821,11 +821,12 @@ export class PlayerUIPlugin extends Plugin {
 				this.toggleMenu(null);
 			});
 
-			tracks.forEach((track, index) => {
-				// Skip tracks that represent "off" / disabled — we already have our own Off button
-				const label = (track.label || track.language || '').toLowerCase();
-				if (label === 'off' || label === 'disabled' || label === 'none') return;
-
+			tracks
+				.filter((track) => {
+					const label = (track.label || track.language || '').toLowerCase();
+					return label !== 'off' && label !== 'disabled' && label !== 'none';
+				})
+				.forEach((track, index) => {
 				const option = this.player
 					.createElement('button', `subs-${index}`)
 					.addClasses([
