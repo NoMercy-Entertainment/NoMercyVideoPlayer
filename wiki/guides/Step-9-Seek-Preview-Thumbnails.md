@@ -6,7 +6,11 @@
 
 </th>
 <th width="1400px"></th>
-<th width="150px"></th>
+<th width="300px">
+
+[Next →](Step-10-Touch-Zones)
+
+</th>
 </tr>
 </thead></table>
 
@@ -70,7 +74,7 @@ use() {
   super.use();
   this.createSeekPreview();
 
-  this.player.on('firstFrame', () => this.fetchPreviewTime());
+  this.player.on('ready', () => this.fetchPreviewTime());
   this.player.on('item', () => {
     this.previewTime = [];
     this.fetchPreviewTime();
@@ -239,6 +243,10 @@ When hovering over the progress bar, a thumbnail tooltip appears showing the vid
 
 </th>
 <th width="1400px"></th>
-<th width="150px"></th>
+<th width="300px">
+
+[Next →](Step-10-Touch-Zones)
+
+</th>
 </tr>
 </thead></table>

@@ -318,7 +318,7 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	getCurrentAudioTrack(): Track | null;
 	getAudioTrackIndex(): number;
 	getAudioTrackIndexByLanguage(language: string): number | undefined;
-	getCurrentCaptions(): Track | undefined;
+	getCurrentCaption(): Track | undefined;
 	getCurrentChapter(currentTime: number): Cue | undefined;
 	getCurrentQuality(): number;
 	getCurrentSrc(): string;

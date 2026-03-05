@@ -36,6 +36,7 @@ You can find all icon definitions in [Step 1](Step-1-Plugin-Shell-and-Layout) or
 | 7 | [Fullscreen & Playback Speed](Step-7-Fullscreen-and-Playback-Speed) | Fullscreen toggle, speed selector menu |
 | 8 | [Quality, Subtitles & Audio Selectors](Step-8-Quality-Subtitles-Audio-Selectors) | Quality levels, subtitle tracks, audio tracks, putting it all together |
 | 9 | [Seek Preview Thumbnails](Step-9-Seek-Preview-Thumbnails) | Sprite-based thumbnail tooltip on progress bar hover |
+| 10 | [Touch Zones](Step-10-Touch-Zones) | Double-tap seek, playback toggle, fullscreen, volume zones |
 
 ---
 
