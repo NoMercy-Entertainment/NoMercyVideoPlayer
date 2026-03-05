@@ -1,5 +1,6 @@
 <table width="100%"><tr>
-<td><a href="Step-6-Top-Bar-with-Title">← Previous</a> · <a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
+<td><a href="Step-6-Top-Bar-with-Title">← Previous</a></td>
+<td align="right"><a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
 </tr></table>
 
 ---
@@ -149,5 +150,6 @@ private onDocumentClick = () => {
 ---
 
 <table width="100%"><tr>
-<td><a href="Step-6-Top-Bar-with-Title">← Previous</a> · <a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
+<td><a href="Step-6-Top-Bar-with-Title">← Previous</a></td>
+<td align="right"><a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
 </tr></table>

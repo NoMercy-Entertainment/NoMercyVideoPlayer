@@ -1,5 +1,6 @@
 <table width="100%"><tr>
-<td><a href="Step-3-Progress-Bar-with-Seeking">← Previous</a> · <a href="Step-5-Volume-Control">Next →</a></td>
+<td><a href="Step-3-Progress-Bar-with-Seeking">← Previous</a></td>
+<td align="right"><a href="Step-5-Volume-Control">Next →</a></td>
 </tr></table>
 
 ---
@@ -73,5 +74,6 @@ private createSkipButtons() {
 ---
 
 <table width="100%"><tr>
-<td><a href="Step-3-Progress-Bar-with-Seeking">← Previous</a> · <a href="Step-5-Volume-Control">Next →</a></td>
+<td><a href="Step-3-Progress-Bar-with-Seeking">← Previous</a></td>
+<td align="right"><a href="Step-5-Volume-Control">Next →</a></td>
 </tr></table>

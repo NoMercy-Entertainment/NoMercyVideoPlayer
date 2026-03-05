@@ -1,5 +1,6 @@
 <table width="100%"><tr>
 <td><a href="Step-8-Quality-Subtitles-Audio-Selectors">← Previous</a></td>
+<td></td>
 </tr></table>
 
 ---
@@ -225,4 +226,5 @@ When hovering over the progress bar, a thumbnail tooltip appears showing the vid
 
 <table width="100%"><tr>
 <td><a href="Step-8-Quality-Subtitles-Audio-Selectors">← Previous</a></td>
+<td></td>
 </tr></table>

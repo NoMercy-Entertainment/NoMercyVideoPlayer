@@ -1,5 +1,6 @@
 <table width="100%"><tr>
-<td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a> · <a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
+<td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a></td>
+<td align="right"><a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
 </tr></table>
 
 ---
@@ -155,5 +156,6 @@ dispose() {
 ---
 
 <table width="100%"><tr>
-<td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a> · <a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
+<td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a></td>
+<td align="right"><a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
 </tr></table>

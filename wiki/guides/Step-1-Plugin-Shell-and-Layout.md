@@ -1,5 +1,6 @@
 <table width="100%"><tr>
-<td><a href="Step-2-Play-Pause-and-Buffering">Next →</a></td>
+<td></td>
+<td align="right"><a href="Step-2-Play-Pause-and-Buffering">Next →</a></td>
 </tr></table>
 
 ---
@@ -86,5 +87,6 @@ At this point you have two invisible gradient bars that fade in/out as the playe
 ---
 
 <table width="100%"><tr>
-<td><a href="Step-2-Play-Pause-and-Buffering">Next →</a></td>
+<td></td>
+<td align="right"><a href="Step-2-Play-Pause-and-Buffering">Next →</a></td>
 </tr></table>

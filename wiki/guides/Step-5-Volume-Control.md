@@ -1,5 +1,6 @@
 <table width="100%"><tr>
-<td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a> · <a href="Step-6-Top-Bar-with-Title">Next →</a></td>
+<td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a></td>
+<td align="right"><a href="Step-6-Top-Bar-with-Title">Next →</a></td>
 </tr></table>
 
 ---
@@ -140,5 +141,6 @@ A `volDragging` boolean flag tracks whether the user is currently dragging. The 
 ---
 
 <table width="100%"><tr>
-<td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a> · <a href="Step-6-Top-Bar-with-Title">Next →</a></td>
+<td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a></td>
+<td align="right"><a href="Step-6-Top-Bar-with-Title">Next →</a></td>
 </tr></table>

@@ -1,5 +1,6 @@
 <table width="100%"><tr>
-<td><a href="Step-5-Volume-Control">← Previous</a> · <a href="Step-7-Fullscreen-and-Playback-Speed">Next →</a></td>
+<td><a href="Step-5-Volume-Control">← Previous</a></td>
+<td align="right"><a href="Step-7-Fullscreen-and-Playback-Speed">Next →</a></td>
 </tr></table>
 
 ---
@@ -44,5 +45,6 @@ private updateTitle() {
 ---
 
 <table width="100%"><tr>
-<td><a href="Step-5-Volume-Control">← Previous</a> · <a href="Step-7-Fullscreen-and-Playback-Speed">Next →</a></td>
+<td><a href="Step-5-Volume-Control">← Previous</a></td>
+<td align="right"><a href="Step-7-Fullscreen-and-Playback-Speed">Next →</a></td>
 </tr></table>

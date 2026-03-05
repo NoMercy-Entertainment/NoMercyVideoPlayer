@@ -1,5 +1,6 @@
 <table width="100%"><tr>
-<td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a> · <a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
+<td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a></td>
+<td align="right"><a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
 </tr></table>
 
 ---
@@ -620,5 +621,6 @@ You now have a fully functional video player UI with:
 ---
 
 <table width="100%"><tr>
-<td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a> · <a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
+<td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a></td>
+<td align="right"><a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
 </tr></table>

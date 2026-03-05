@@ -1,5 +1,6 @@
 <table width="100%"><tr>
-<td><a href="Step-1-Plugin-Shell-and-Layout">← Previous</a> · <a href="Step-3-Progress-Bar-with-Seeking">Next →</a></td>
+<td><a href="Step-1-Plugin-Shell-and-Layout">← Previous</a></td>
+<td align="right"><a href="Step-3-Progress-Bar-with-Seeking">Next →</a></td>
 </tr></table>
 
 ---
@@ -158,5 +159,6 @@ dispose() {
 ---
 
 <table width="100%"><tr>
-<td><a href="Step-1-Plugin-Shell-and-Layout">← Previous</a> · <a href="Step-3-Progress-Bar-with-Seeking">Next →</a></td>
+<td><a href="Step-1-Plugin-Shell-and-Layout">← Previous</a></td>
+<td align="right"><a href="Step-3-Progress-Bar-with-Seeking">Next →</a></td>
 </tr></table>
