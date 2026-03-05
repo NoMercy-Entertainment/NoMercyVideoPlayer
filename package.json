@@ -1,6 +1,6 @@
 {
   "name": "@nomercy-entertainment/nomercy-video-player",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Full event-driven video player without a UI.",
   "type": "module",
   "main": "./dist/nomercy-video-player.cjs",
