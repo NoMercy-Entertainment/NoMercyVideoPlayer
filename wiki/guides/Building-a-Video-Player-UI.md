@@ -147,6 +147,8 @@ class PlayerUIPlugin extends Plugin {
         'flex', 'items-center', 'gap-2',
         'p-4', 'pb-12',
         'bg-gradient-to-b', 'from-black/80', 'to-transparent',
+        // Hidden by default. The player toggles .active on mouse move / .paused on pause,
+        // so controls auto-show when the user interacts or playback is paused.
         'opacity-0', 'transition-opacity', 'duration-300', 'pointer-events-none',
         'group-[&.nomercyplayer.active]:opacity-100',
         'group-[&.nomercyplayer.active]:pointer-events-auto',
@@ -165,6 +167,7 @@ class PlayerUIPlugin extends Plugin {
         'flex', 'flex-col', 'gap-1',
         'px-4', 'pt-12', 'pb-2',
         'bg-gradient-to-t', 'from-black/80', 'to-transparent',
+        // Same auto-show logic as the top bar
         'opacity-0', 'transition-opacity', 'duration-300', 'pointer-events-none',
         'group-[&.nomercyplayer.active]:opacity-100',
         'group-[&.nomercyplayer.active]:pointer-events-auto',
@@ -197,7 +200,7 @@ Add these properties to the class:
 
 ```typescript
 private centerButton!: HTMLButtonElement;
-private playButton!: HTMLButtonElement;
+private playbackButton!: HTMLButtonElement;
 private spinner!: HTMLDivElement;
 ```
 
@@ -214,6 +217,8 @@ private createCenterButton() {
       'w-16', 'h-16', 'rounded-full',
       'bg-black/50', 'text-white',
       'flex', 'items-center', 'justify-center',
+      // Hidden by default; becomes visible when the player adds the .paused class
+      // to the container. group-[&.nomercyplayer.paused] targets the parent .nomercyplayer element.
       'opacity-0', 'transition-opacity', 'duration-300', 'pointer-events-none',
       'group-[&.nomercyplayer.paused]:opacity-100',
       'group-[&.nomercyplayer.paused]:pointer-events-auto',
@@ -221,14 +226,29 @@ private createCenterButton() {
       'cursor-pointer', 'group/button',
     ])
     .appendTo(this.overlay)
-    .get() as HTMLButtonElement;
+    .get();
 
-  // Play icon (shown when paused — toggled via play/pause handlers)
-  this.player.createSVGElement(this.centerButton, 'center-play-icon', icons.play, false, true);
-  // Pause icon (hidden by default)
-  this.player.createSVGElement(this.centerButton, 'center-pause-icon', icons.pause, true, true);
+  // createSVGElement(parent, id, icon, hidden, hovered)
+  // 4th arg = start hidden, 5th arg = enable hover effect
+  const pausedIcon = this.player.createSVGElement(this.centerButton, 'center-paused', icons.play, false, true);
+  const playIcon = this.player.createSVGElement(this.centerButton, 'center-playing', icons.pause, true, true);
 
-  this.centerButton.addEventListener('click', this.onTogglePlayback);
+  // stopPropagation prevents the overlay click handler from firing too.
+  // 'hide-tooltip' dismisses any visible tooltip from the built-in tooltip system.
+  this.centerButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    this.player.togglePlayback();
+    this.player.emit('hide-tooltip');
+  });
+
+  this.player.on('pause', () => {
+    playIcon.style.display = 'none';
+    pausedIcon.style.display = 'flex';
+  });
+  this.player.on('play', () => {
+    pausedIcon.style.display = 'none';
+    playIcon.style.display = 'flex';
+  });
 }
 ```
 
@@ -236,14 +256,18 @@ private createCenterButton() {
 
 ```typescript
 private createSpinner() {
-  this.spinner = document.createElement('div');
-  this.spinner.className = [
-    'absolute', 'top-1/2', 'left-1/2', '-translate-x-1/2', '-translate-y-1/2',
-    'w-12', 'h-12',
-    'hidden',
-    'group-[&.nomercyplayer.buffering]:block',
-    'pointer-events-none',
-  ].join(' ');
+  this.spinner = this.player
+    .createElement('div', 'spinner')
+    .addClasses([
+      'absolute', 'top-1/2', 'left-1/2', '-translate-x-1/2', '-translate-y-1/2',
+      'w-12', 'h-12',
+      // The player toggles the .buffering class on the container automatically
+      'hidden',
+      'group-[&.nomercyplayer.buffering]:block',
+      'pointer-events-none',
+    ])
+    .appendTo(this.overlay)
+    .get();
 
   this.spinner.innerHTML = `
     <svg class="animate-spin text-white" viewBox="0 0 100 101" fill="none">
@@ -251,12 +275,10 @@ private createSpinner() {
       <path d="M93.97 39.04c2.42-.64 3.89-3.13 3.04-5.49A50 50 0 0041.73 1.28c-2.47.41-3.92 2.92-3.28 5.34.66 2.43 3.14 3.85 5.62 3.48a40 40 0 0146.62 22.32c.9 2.24 3.36 3.7 5.79 3.06z" fill="currentColor"/>
     </svg>
   `;
-
-  this.overlay.appendChild(this.spinner);
 }
 ```
 
-### Small play/pause button in the bottom bar
+### Playback button in the bottom bar
 
 Add a controls row inside the bottom bar:
 
@@ -273,50 +295,30 @@ private createBottomRow() {
     .get();
 }
 
-private createPlayButton() {
-  this.playButton = this.player
-    .createUiButton(this.bottomRow, 'play-pause')
+private createPlaybackButton() {
+  this.playbackButton = this.player
+    .createUiButton(this.bottomRow, 'playback')
     .get();
-  this.playButton.ariaLabel = 'Play';
+  this.playbackButton.ariaLabel = icons.play.title;
 
-  this.player.createSVGElement(this.playButton, 'play-icon', icons.play, false, true);
-  this.player.createSVGElement(this.playButton, 'pause-icon', icons.pause, true, true);
+  const pausedIcon = this.player.createSVGElement(this.playbackButton, 'paused', icons.play, false, true);
+  const playIcon = this.player.createSVGElement(this.playbackButton, 'playing', icons.pause, true, true);
 
-  this.playButton.addEventListener('click', this.onTogglePlayback);
+  this.playbackButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    this.player.togglePlayback();
+    this.player.emit('hide-tooltip');
+  });
 
-  // Toggle icon visibility on play/pause
-  this.player.on('play', this.onPlay);
-  this.player.on('pause', this.onPause);
+  this.player.on('pause', () => {
+    playIcon.style.display = 'none';
+    pausedIcon.style.display = 'flex';
+  });
+  this.player.on('play', () => {
+    pausedIcon.style.display = 'none';
+    playIcon.style.display = 'flex';
+  });
 }
-```
-
-### Pre-bound event handlers
-
-```typescript
-private onTogglePlayback = (e: Event) => {
-  e.stopPropagation();
-  this.player.togglePlayback();
-};
-
-private onPlay = () => {
-  this.playButton.querySelector('#play-icon')?.setAttribute('style', 'display:none');
-  this.playButton.querySelector('#pause-icon')?.removeAttribute('style');
-  this.playButton.ariaLabel = 'Pause';
-
-  // Center button: show pause, hide play
-  this.centerButton.querySelector('#center-play-icon')?.setAttribute('style', 'display:none');
-  this.centerButton.querySelector('#center-pause-icon')?.removeAttribute('style');
-};
-
-private onPause = () => {
-  this.playButton.querySelector('#pause-icon')?.setAttribute('style', 'display:none');
-  this.playButton.querySelector('#play-icon')?.removeAttribute('style');
-  this.playButton.ariaLabel = 'Play';
-
-  // Center button: show play, hide pause
-  this.centerButton.querySelector('#center-pause-icon')?.setAttribute('style', 'display:none');
-  this.centerButton.querySelector('#center-play-icon')?.removeAttribute('style');
-};
 ```
 
 ### Update `use()` and `dispose()`
@@ -329,12 +331,10 @@ use() {
   this.createSpinner();
   this.createBottomBar();
   this.createBottomRow();
-  this.createPlayButton();
+  this.createPlaybackButton();
 }
 
 dispose() {
-  this.player.off('play', this.onPlay);
-  this.player.off('pause', this.onPause);
   this.centerButton?.remove();
   this.spinner?.remove();
   this.topBar?.remove();
@@ -352,9 +352,6 @@ Add these properties:
 
 ```typescript
 private sliderBar!: HTMLDivElement;
-private sliderBuffer!: HTMLDivElement;
-private sliderProgress!: HTMLDivElement;
-private sliderNipple!: HTMLDivElement;
 private isMouseDown = false;
 ```
 
@@ -364,7 +361,6 @@ Call this method from `use()` after `createBottomBar()` and before `createBottom
 
 ```typescript
 private createProgressBar() {
-  // Container
   this.sliderBar = this.player
     .createElement('div', 'slider-bar')
     .addClasses([
@@ -376,8 +372,7 @@ private createProgressBar() {
     .appendTo(this.bottomBar)
     .get();
 
-  // Buffer bar
-  this.sliderBuffer = this.player
+  const sliderBuffer = this.player
     .createElement('div', 'slider-buffer')
     .addClasses([
       'absolute', 'top-0', 'left-0', 'h-full',
@@ -386,8 +381,7 @@ private createProgressBar() {
     .appendTo(this.sliderBar)
     .get();
 
-  // Progress bar
-  this.sliderProgress = this.player
+  const sliderProgress = this.player
     .createElement('div', 'slider-progress')
     .addClasses([
       'absolute', 'top-0', 'left-0', 'h-full',
@@ -396,81 +390,83 @@ private createProgressBar() {
     .appendTo(this.sliderBar)
     .get();
 
-  // Thumb / nipple
-  this.sliderNipple = document.createElement('div');
-  this.sliderNipple.className = [
-    'absolute', 'top-1/2', '-translate-y-1/2',
-    'w-3', 'h-3', 'rounded-full', 'bg-white',
-    'opacity-0', 'group-hover/slider:opacity-100',
-    'transition-opacity', 'duration-150',
-    'pointer-events-none',
-  ].join(' ');
-  this.sliderBar.appendChild(this.sliderNipple);
+  const sliderNipple = this.player
+    .createElement('div', 'slider-nipple')
+    .addClasses([
+      'absolute', 'top-1/2', '-translate-y-1/2', '-translate-x-1/2',
+      'w-3', 'h-3', 'rounded-full', 'bg-white',
+      'hidden', 'group-hover/slider:flex',
+      'pointer-events-none', 'left-0', 'z-20',
+    ])
+    .appendTo(this.sliderBar)
+    .get();
 
-  // Events
-  this.sliderBar.addEventListener('mousedown', this.onSliderDown, { passive: true });
-  document.addEventListener('mousemove', this.onSliderMove, { passive: true });
-  document.addEventListener('mouseup', this.onSliderUp);
+  // Converts a mouse or touch event's X position into a 0–100 percentage
+  // relative to the slider bar. Handles MouseEvent.clientX, Touch.clientX,
+  // and TouchEvent.changedTouches (fired on touchend when touches is empty).
+  const getPercentFromEvent = (e: MouseEvent | TouchEvent): number => {
+    const rect = this.sliderBar.getBoundingClientRect();
+    const clientX = ('clientX' in e ? e.clientX : undefined)
+      ?? ('touches' in e ? e.touches?.[0]?.clientX : undefined)
+      ?? ('changedTouches' in e ? e.changedTouches?.[0]?.clientX : undefined)
+      ?? 0;
+    // Clamp to slider bounds so dragging past the edges doesn't overflow
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    return (x / rect.width) * 100;
+  };
 
-  this.player.on('time', this.onTime);
-}
-```
-
-### Seek interaction handlers
-
-```typescript
-private onSliderDown = (e: MouseEvent) => {
-  this.isMouseDown = true;
-  this.scrubFromEvent(e);
-};
-
-private onSliderMove = (e: MouseEvent) => {
-  if (!this.isMouseDown) return;
-  this.scrubFromEvent(e);
-};
-
-private onSliderUp = (e: MouseEvent) => {
-  if (!this.isMouseDown) return;
-  this.isMouseDown = false;
-  const percent = this.getPercentFromEvent(e);
-  const duration = this.player.getDuration();
-  this.player.seek(duration * (percent / 100));
-};
-
-private getPercentFromEvent(e: MouseEvent): number {
-  const rect = this.sliderBar.getBoundingClientRect();
-  const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-  return (x / rect.width) * 100;
-}
-
-private scrubFromEvent(e: MouseEvent) {
-  const percent = this.getPercentFromEvent(e);
-  this.sliderProgress.style.width = `${percent}%`;
-  this.sliderNipple.style.left = `${percent}%`;
-}
-```
-
-### Time event handler with `requestAnimationFrame`
-
-```typescript
-private onTime = (data: TimeData) => {
-  if (this.isMouseDown) return; // don't fight the user while scrubbing
-  requestAnimationFrame(() => {
-    this.sliderProgress.style.width = `${data.percentage}%`;
-    this.sliderNipple.style.left = `${data.percentage}%`;
+  ['mousedown', 'touchstart'].forEach((event) => {
+    this.sliderBar.addEventListener(event, () => {
+      this.isMouseDown = true;
+    }, { passive: true });
   });
-};
+
+  // Click to seek — convert click position to a time and jump there
+  this.sliderBar.addEventListener('click', (e: MouseEvent) => {
+    this.isMouseDown = false;
+    const percent = getPercentFromEvent(e);
+    const duration = this.player.getDuration();
+    this.player.seek(duration * (percent / 100));
+    sliderNipple.style.left = `${percent}%`;
+  });
+
+  // Scrub while dragging — visually update the bar without seeking yet
+  ['mousemove', 'touchmove'].forEach((event) => {
+    this.sliderBar.addEventListener(event, (e: any) => {
+      const percent = getPercentFromEvent(e);
+      if (!this.isMouseDown) return;
+      sliderNipple.style.left = `${percent}%`;
+      sliderProgress.style.width = `${percent}%`;
+    }, { passive: true });
+  });
+
+  // Cancel drag if the cursor leaves the slider
+  this.sliderBar.addEventListener('mouseleave', () => {
+    this.isMouseDown = false;
+  }, { passive: true });
+
+  // Sync progress bar and time labels with playback position.
+  // Skip updates while the user is scrubbing so the bar doesn't fight the drag.
+  this.player.on('time', (data) => {
+    if (this.isMouseDown) return;
+    sliderProgress.style.width = `${data.percentage}%`;
+    sliderNipple.style.left = `${data.percentage}%`;
+    this.currentTimeLabel.textContent = data.currentTimeHuman;
+    this.durationLabel.textContent = data.durationHuman;
+  });
+
+  // Reset slider on playlist item change
+  this.player.on('item', () => {
+    sliderBuffer.style.width = '0';
+    sliderProgress.style.width = '0';
+  });
+}
 ```
 
 ### Update `dispose()`
 
 ```typescript
 dispose() {
-  this.player.off('play', this.onPlay);
-  this.player.off('pause', this.onPause);
-  this.player.off('time', this.onTime);
-  document.removeEventListener('mousemove', this.onSliderMove);
-  document.removeEventListener('mouseup', this.onSliderUp);
   this.centerButton?.remove();
   this.spinner?.remove();
   this.topBar?.remove();
@@ -491,44 +487,38 @@ private durationLabel!: HTMLSpanElement;
 
 ### Time display
 
-Call this from `use()` after `createPlayButton()`:
+Call this from `use()` after `createPlaybackButton()`:
 
 ```typescript
 private createTimeDisplay() {
-  this.currentTimeLabel = document.createElement('span');
-  this.currentTimeLabel.className = 'text-white text-xs tabular-nums ml-2';
+  this.currentTimeLabel = this.player
+    .createElement('span', 'current-time')
+    .addClasses(['text-white', 'text-xs', 'tabular-nums', 'ml-2'])
+    .appendTo(this.bottomRow)
+    .get();
   this.currentTimeLabel.textContent = '0:00';
-  this.bottomRow.appendChild(this.currentTimeLabel);
 
-  const separator = document.createElement('span');
-  separator.className = 'text-white/50 text-xs mx-1';
+  const separator = this.player
+    .createElement('span', 'time-separator')
+    .addClasses(['text-white/50', 'text-xs', 'mx-1'])
+    .appendTo(this.bottomRow)
+    .get();
   separator.textContent = '/';
-  this.bottomRow.appendChild(separator);
 
-  this.durationLabel = document.createElement('span');
-  this.durationLabel.className = 'text-white text-xs tabular-nums';
+  this.durationLabel = this.player
+    .createElement('span', 'duration')
+    .addClasses(['text-white', 'text-xs', 'tabular-nums'])
+    .appendTo(this.bottomRow)
+    .get();
   this.durationLabel.textContent = '0:00';
-  this.bottomRow.appendChild(this.durationLabel);
 }
 ```
 
-Update the `onTime` handler to also set the labels:
-
-```typescript
-private onTime = (data: TimeData) => {
-  if (this.isMouseDown) return;
-  requestAnimationFrame(() => {
-    this.sliderProgress.style.width = `${data.percentage}%`;
-    this.sliderNipple.style.left = `${data.percentage}%`;
-    this.currentTimeLabel.textContent = data.currentTimeHuman;
-    this.durationLabel.textContent = data.durationHuman;
-  });
-};
-```
+The time labels are updated by the `time` event handler inside `createProgressBar()`, so no separate handler is needed — just make sure `createTimeDisplay()` is called before `createProgressBar()` in `use()`.
 
 ### Skip buttons
 
-Call these from `use()` after `createPlayButton()` and before `createTimeDisplay()`:
+Call these from `use()` after `createPlaybackButton()` and before `createTimeDisplay()`:
 
 ```typescript
 private createSkipButtons() {
@@ -577,16 +567,18 @@ private createVolumeControl() {
   const volumeButton = this.player.createUiButton(volumeContainer, 'volume').get();
   volumeButton.ariaLabel = 'Mute';
 
-  this.player.createSVGElement(volumeButton, 'vol-high', icons.volumeHigh, false, true);
-  this.player.createSVGElement(volumeButton, 'vol-low', icons.volumeLow, true, true);
-  this.player.createSVGElement(volumeButton, 'vol-muted', icons.volumeMuted, true, true);
+  const volHigh = this.player.createSVGElement(volumeButton, 'vol-high', icons.volumeHigh, false, true);
+  const volLow = this.player.createSVGElement(volumeButton, 'vol-low', icons.volumeLow, true, true);
+  const volMuted = this.player.createSVGElement(volumeButton, 'vol-muted', icons.volumeMuted, true, true);
 
   volumeButton.addEventListener('click', (e) => {
     e.stopPropagation();
     this.player.toggleMute();
+    this.player.emit('hide-tooltip');
   });
 
-  // Volume slider — hidden by default, expands on hover
+  // Volume slider — collapsed to 0 width by default, expands when the
+  // parent group/volume container is hovered or has keyboard focus within.
   this.volumeSlider = this.player
     .createElement('input', 'volume-slider')
     .addClasses([
@@ -596,6 +588,7 @@ private createVolumeControl() {
       'transition-all', 'duration-200',
       'appearance-none', 'bg-white/30', 'rounded-full', 'h-1',
       'cursor-pointer',
+      // Style the native range input thumb via Tailwind's arbitrary variant syntax
       '[&::-webkit-slider-thumb]:appearance-none',
       '[&::-webkit-slider-thumb]:w-3',
       '[&::-webkit-slider-thumb]:h-3',
@@ -603,7 +596,7 @@ private createVolumeControl() {
       '[&::-webkit-slider-thumb]:rounded-full',
     ])
     .appendTo(volumeContainer)
-    .get() as HTMLInputElement;
+    .get();
 
   this.volumeSlider.type = 'range';
   this.volumeSlider.min = '0';
@@ -617,46 +610,31 @@ private createVolumeControl() {
     this.player.setVolume(vol);
   });
 
-  // Sync from player state
-  this.player.on('volume', this.onVolumeChange);
+  // Swap between three volume icons based on mute state and level
+  const updateVolumeIcon = (volume: number, muted: boolean) => {
+    volHigh.style.display = 'none';
+    volLow.style.display = 'none';
+    volMuted.style.display = 'none';
 
-  // Update icon for initial state
-  this.updateVolumeIcon(volumeButton, this.player.getVolume(), this.player.isMuted());
+    if (muted || volume === 0) {
+      volMuted.style.display = 'flex';
+    } else if (volume < 50) {
+      volLow.style.display = 'flex';
+    } else {
+      volHigh.style.display = 'flex';
+    }
+  };
+
+  // Bidirectional sync: the 'volume' event fires when volume changes
+  // from any source (keyboard shortcut, another plugin, etc.)
+  this.player.on('volume', (data: VolumeState) => {
+    this.volumeSlider.value = String(data.volume);
+    updateVolumeIcon(data.volume, data.muted);
+  });
+
+  // Set initial state from current player values
+  updateVolumeIcon(this.player.getVolume(), this.player.isMuted());
 }
-
-private onVolumeChange = (data: VolumeState) => {
-  this.volumeSlider.value = String(data.volume);
-
-  const volumeButton = this.bottomRow.querySelector('#volume') as HTMLElement;
-  if (volumeButton) {
-    this.updateVolumeIcon(volumeButton, data.volume, data.muted);
-  }
-};
-
-private updateVolumeIcon(button: HTMLElement, volume: number, muted: boolean) {
-  const high = button.querySelector('#vol-high') as HTMLElement;
-  const low = button.querySelector('#vol-low') as HTMLElement;
-  const mutedIcon = button.querySelector('#vol-muted') as HTMLElement;
-  if (!high || !low || !mutedIcon) return;
-
-  high.style.display = 'none';
-  low.style.display = 'none';
-  mutedIcon.style.display = 'none';
-
-  if (muted || volume === 0) {
-    mutedIcon.style.display = '';
-  } else if (volume < 50) {
-    low.style.display = '';
-  } else {
-    high.style.display = '';
-  }
-}
-```
-
-Update `dispose()`:
-
-```typescript
-this.player.off('volume', this.onVolumeChange);
 ```
 
 ---
@@ -680,12 +658,8 @@ private createTitle() {
     .get();
 
   this.updateTitle();
-  this.player.on('item', this.onItem);
+  this.player.on('item', () => this.updateTitle());
 }
-
-private onItem = () => {
-  this.updateTitle();
-};
 
 private updateTitle() {
   const item = this.player.playlistItem();
@@ -702,12 +676,6 @@ private updateTitle() {
 }
 ```
 
-Update `dispose()`:
-
-```typescript
-this.player.off('item', this.onItem);
-```
-
 ---
 
 ## Step 7: Fullscreen and Playback Speed
@@ -718,9 +686,10 @@ Add a spacer to push right-side buttons to the end, then add the fullscreen butt
 
 ```typescript
 private createRightSpacer() {
-  const spacer = document.createElement('div');
-  spacer.className = 'flex-1';
-  this.bottomRow.appendChild(spacer);
+  this.player
+    .createElement('div', 'spacer')
+    .addClasses(['flex-1'])
+    .appendTo(this.bottomRow);
 }
 ```
 
@@ -729,21 +698,18 @@ private createFullscreenButton() {
   const btn = this.player.createUiButton(this.bottomRow, 'fullscreen').get();
   btn.ariaLabel = 'Fullscreen';
 
-  this.player.createSVGElement(btn, 'fs-enter', icons.fullscreen, false, true);
-  this.player.createSVGElement(btn, 'fs-exit', icons.exitFullscreen, true, true);
+  const enterIcon = this.player.createSVGElement(btn, 'fs-enter', icons.fullscreen, false, true);
+  const exitIcon = this.player.createSVGElement(btn, 'fs-exit', icons.exitFullscreen, true, true);
 
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
     this.player.toggleFullscreen();
+    this.player.emit('hide-tooltip');
   });
 
   this.player.on('fullscreen', (isFs: boolean) => {
-    const enter = btn.querySelector('#fs-enter') as HTMLElement;
-    const exit = btn.querySelector('#fs-exit') as HTMLElement;
-    if (!enter || !exit) return;
-
-    enter.style.display = isFs ? 'none' : '';
-    exit.style.display = isFs ? '' : 'none';
+    enterIcon.style.display = isFs ? 'none' : 'flex';
+    exitIcon.style.display = isFs ? 'flex' : 'none';
     btn.ariaLabel = isFs ? 'Exit fullscreen' : 'Fullscreen';
   });
 }
@@ -780,19 +746,21 @@ private createSpeedButton() {
 
   const speeds = this.player.getSpeeds();
   for (const rate of speeds) {
-    const option = document.createElement('button');
-    option.className = [
-      'text-white', 'text-sm', 'px-3', 'py-1.5',
-      'rounded', 'hover:bg-white/20', 'text-left',
-      'cursor-pointer',
-    ].join(' ');
+    const option = this.player
+      .createElement('button', `speed-${rate}`)
+      .addClasses([
+        'text-white', 'text-sm', 'px-3', 'py-1.5',
+        'rounded', 'hover:bg-white/20', 'text-left',
+        'cursor-pointer',
+      ])
+      .appendTo(this.speedMenu!)
+      .get();
     option.textContent = rate === 1 ? 'Normal' : `${rate}x`;
     option.addEventListener('click', (e) => {
       e.stopPropagation();
       this.player.setSpeed(rate);
       this.toggleMenu(null);
     });
-    this.speedMenu.appendChild(option);
   }
 
   // Highlight current speed
@@ -818,8 +786,8 @@ A simple mechanism to open one popup at a time:
 ```typescript
 private activeMenu: string | null = null;
 
+// Opens one menu at a time. Passing the currently open menu's name (or null) closes it.
 private toggleMenu(name: string | null) {
-  // Close all menus
   this.speedMenu?.classList.add('hidden');
   this.speedMenu?.classList.remove('flex');
   this.qualityMenu?.classList.add('hidden');
@@ -856,16 +824,11 @@ private getMenuByName(name: string): HTMLDivElement | null {
 Close menus when clicking outside:
 
 ```typescript
-// Add in use()
-document.addEventListener('click', this.onDocumentClick);
-
-// Handler
+// Bound to document so clicks anywhere outside a menu will close it.
+// Must be a pre-bound property (not inline) so we can removeEventListener in dispose().
 private onDocumentClick = () => {
   if (this.activeMenu) this.toggleMenu(null);
 };
-
-// Add to dispose()
-// document.removeEventListener('click', this.onDocumentClick);
 ```
 
 ---
@@ -900,33 +863,34 @@ private createQualityButton() {
     .appendTo(this.bottomRow)
     .get();
 
-  this.player.on('levels', this.onLevels);
-  this.player.on('levelsChanged', this.onLevelChanged);
-}
+  this.player.on('levels', (levels: Level[]) => {
+    if (!this.qualityMenu || !this.qualityButton) return;
+    this.qualityButton.style.display = levels.length > 1 ? '' : 'none';
+    this.qualityMenu.innerHTML = '';
 
-private onLevels = (levels: Level[]) => {
-  if (!this.qualityMenu || !this.qualityButton) return;
-  this.qualityButton.style.display = levels.length > 1 ? '' : 'none';
-  this.qualityMenu.innerHTML = '';
-
-  levels.forEach((level, index) => {
-    const option = document.createElement('button');
-    option.className = 'text-white text-sm px-3 py-1.5 rounded hover:bg-white/20 text-left cursor-pointer';
-    option.textContent = level.name || `${level.height}p`;
-    option.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.player.setCurrentQuality(index);
-      this.toggleMenu(null);
+    levels.forEach((level, index) => {
+      const option = this.player
+        .createElement('button', `quality-${index}`)
+        .addClasses([
+          'text-white', 'text-sm', 'px-3', 'py-1.5',
+          'rounded', 'hover:bg-white/20', 'text-left',
+          'cursor-pointer',
+        ])
+        .appendTo(this.qualityMenu!)
+        .get();
+      option.textContent = level.name || `${level.height}p`;
+      option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.player.setCurrentQuality(index);
+        this.toggleMenu(null);
+      });
     });
-    this.qualityMenu!.appendChild(option);
+
+    this.highlightCurrentQuality();
   });
 
-  this.highlightCurrentQuality();
-};
-
-private onLevelChanged = () => {
-  this.highlightCurrentQuality();
-};
+  this.player.on('levelsChanged', () => this.highlightCurrentQuality());
+}
 
 private highlightCurrentQuality() {
   if (!this.qualityMenu) return;
@@ -965,49 +929,57 @@ private createSubtitleButton() {
     .appendTo(this.bottomRow)
     .get();
 
-  this.player.on('captionsList', this.onCaptionsList);
-  this.player.on('captionsChanged', this.onCaptionsChanged);
-}
+  this.player.on('captionsList', (tracks: Track[]) => {
+    if (!this.subtitleMenu || !this.subtitleButton) return;
+    this.subtitleButton.style.display = tracks.length > 0 ? '' : 'none';
+    this.subtitleMenu.innerHTML = '';
 
-private onCaptionsList = (tracks: Track[]) => {
-  if (!this.subtitleMenu || !this.subtitleButton) return;
-  this.subtitleButton.style.display = tracks.length > 0 ? '' : 'none';
-  this.subtitleMenu.innerHTML = '';
-
-  // "Off" option
-  const offOption = document.createElement('button');
-  offOption.className = 'text-white text-sm px-3 py-1.5 rounded hover:bg-white/20 text-left cursor-pointer';
-  offOption.textContent = 'Off';
-  offOption.addEventListener('click', (e) => {
-    e.stopPropagation();
-    this.player.setCurrentCaption(-1);
-    this.toggleMenu(null);
-  });
-  this.subtitleMenu.appendChild(offOption);
-
-  tracks.forEach((track, index) => {
-    const option = document.createElement('button');
-    option.className = 'text-white text-sm px-3 py-1.5 rounded hover:bg-white/20 text-left cursor-pointer';
-    option.textContent = track.label || track.language || `Track ${index + 1}`;
-    option.addEventListener('click', (e) => {
+    // "Off" option
+    const offOption = this.player
+      .createElement('button', 'subs-off')
+      .addClasses([
+        'text-white', 'text-sm', 'px-3', 'py-1.5',
+        'rounded', 'hover:bg-white/20', 'text-left',
+        'cursor-pointer',
+      ])
+      .appendTo(this.subtitleMenu!)
+      .get();
+    offOption.textContent = 'Off';
+    offOption.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.player.setCurrentCaption(index);
+      this.player.setCurrentCaption(-1); // -1 disables subtitles
       this.toggleMenu(null);
     });
-    this.subtitleMenu!.appendChild(option);
+
+    tracks.forEach((track, index) => {
+      const option = this.player
+        .createElement('button', `subs-${index}`)
+        .addClasses([
+          'text-white', 'text-sm', 'px-3', 'py-1.5',
+          'rounded', 'hover:bg-white/20', 'text-left',
+          'cursor-pointer',
+        ])
+        .appendTo(this.subtitleMenu!)
+        .get();
+      option.textContent = track.label || track.language || `Track ${index + 1}`;
+      option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.player.setCurrentCaption(index);
+        this.toggleMenu(null);
+      });
+    });
+
+    this.highlightCurrentCaption();
   });
 
-  this.highlightCurrentCaption();
-};
-
-private onCaptionsChanged = () => {
-  this.highlightCurrentCaption();
-};
+  this.player.on('captionsChanged', () => this.highlightCurrentCaption());
+}
 
 private highlightCurrentCaption() {
   if (!this.subtitleMenu) return;
+  // getCaptionIndex() returns -1 when off, 0 for first track, etc.
+  // Button index is offset by 1 because the first button is the "Off" option.
   const current = this.player.getCaptionIndex();
-  // +1 because first button is "Off"
   this.subtitleMenu.querySelectorAll('button').forEach((btn, i) => {
     btn.classList.toggle('bg-white/20', i === current + 1);
   });
@@ -1042,33 +1014,34 @@ private createAudioButton() {
     .appendTo(this.bottomRow)
     .get();
 
-  this.player.on('audioTracks', this.onAudioTracks);
-  this.player.on('audioTrackChanged', this.onAudioTrackChanged);
-}
+  this.player.on('audioTracks', (tracks: Track[]) => {
+    if (!this.audioMenu || !this.audioButton) return;
+    this.audioButton.style.display = tracks.length > 1 ? '' : 'none';
+    this.audioMenu.innerHTML = '';
 
-private onAudioTracks = (tracks: Track[]) => {
-  if (!this.audioMenu || !this.audioButton) return;
-  this.audioButton.style.display = tracks.length > 1 ? '' : 'none';
-  this.audioMenu.innerHTML = '';
-
-  tracks.forEach((track, index) => {
-    const option = document.createElement('button');
-    option.className = 'text-white text-sm px-3 py-1.5 rounded hover:bg-white/20 text-left cursor-pointer';
-    option.textContent = track.label || track.language || `Track ${index + 1}`;
-    option.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.player.setCurrentAudioTrack(index);
-      this.toggleMenu(null);
+    tracks.forEach((track, index) => {
+      const option = this.player
+        .createElement('button', `audio-${index}`)
+        .addClasses([
+          'text-white', 'text-sm', 'px-3', 'py-1.5',
+          'rounded', 'hover:bg-white/20', 'text-left',
+          'cursor-pointer',
+        ])
+        .appendTo(this.audioMenu!)
+        .get();
+      option.textContent = track.label || track.language || `Track ${index + 1}`;
+      option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.player.setCurrentAudioTrack(index);
+        this.toggleMenu(null);
+      });
     });
-    this.audioMenu!.appendChild(option);
+
+    this.highlightCurrentAudio();
   });
 
-  this.highlightCurrentAudio();
-};
-
-private onAudioTrackChanged = () => {
-  this.highlightCurrentAudio();
-};
+  this.player.on('audioTrackChanged', () => this.highlightCurrentAudio());
+}
 
 private highlightCurrentAudio() {
   if (!this.audioMenu) return;
@@ -1097,7 +1070,7 @@ use() {
 
   // Bottom row (buttons)
   this.createBottomRow();
-  this.createPlayButton();
+  this.createPlaybackButton();
   this.createSkipButtons();
   this.createTimeDisplay();
   this.createVolumeControl();
@@ -1123,25 +1096,12 @@ Always clean up every event listener and DOM element:
 
 ```typescript
 dispose() {
-  // Player events
-  this.player.off('play', this.onPlay);
-  this.player.off('pause', this.onPause);
-  this.player.off('time', this.onTime);
-  this.player.off('volume', this.onVolumeChange);
-  this.player.off('item', this.onItem);
-  this.player.off('levels', this.onLevels);
-  this.player.off('levelsChanged', this.onLevelChanged);
-  this.player.off('captionsList', this.onCaptionsList);
-  this.player.off('captionsChanged', this.onCaptionsChanged);
-  this.player.off('audioTracks', this.onAudioTracks);
-  this.player.off('audioTrackChanged', this.onAudioTrackChanged);
-
-  // Document events
-  document.removeEventListener('mousemove', this.onSliderMove);
-  document.removeEventListener('mouseup', this.onSliderUp);
+  // Document-level listeners need explicit removal because they aren't
+  // attached to our DOM tree — removing elements won't clean them up.
   document.removeEventListener('click', this.onDocumentClick);
 
-  // DOM
+  // Removing a DOM element also removes all event listeners attached to it
+  // and its children. player.on() handlers are cleaned up by the player on destroy.
   this.topBar?.remove();
   this.bottomBar?.remove();
   this.centerButton?.remove();
