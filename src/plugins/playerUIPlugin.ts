@@ -156,8 +156,9 @@ export class PlayerUIPlugin extends Plugin {
 		if (this.player.videoElement?.paused) {
 			this.player.container.classList.add('paused');
 		} else {
-			// Autoplay is on — hide the center button immediately since playback will start
+			// Autoplay is on — hide the center button and sync playback button icon
 			this.centerButton.style.display = 'none';
+			this.player.emit('play');
 		}
 	}
 
