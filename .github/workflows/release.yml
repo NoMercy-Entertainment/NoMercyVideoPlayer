@@ -1,12 +1,11 @@
 name: Create Release
 
 on:
-  # Temporarily disabled — re-enable after wiki/docs review
-  # push:
-  #   paths:
-  #     - 'src/**'
-  #     - 'dist/**'
-  #     - 'package.json'
+  push:
+    paths:
+      - 'src/**'
+      - 'dist/**'
+      - 'package.json'
   workflow_dispatch:
 
 jobs:
@@ -23,7 +22,6 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org
 
       # Step 3: Read the version from package.json
       - name: Get version from package.json
@@ -50,20 +48,3 @@ jobs:
           prerelease: ${{ contains(env.PACKAGE_VERSION, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Step 6: Publish to npm
-      - name: Install dependencies
-        run: rm -rf node_modules package-lock.json && npm install
-
-      - name: Build
-        run: npm run build
-
-      - name: Publish to npm
-        run: |
-          if [[ "$PACKAGE_VERSION" == *-* ]]; then
-            npm publish --tag beta
-          else
-            npm publish
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
