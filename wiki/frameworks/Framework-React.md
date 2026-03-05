@@ -3,12 +3,12 @@ The recommended pattern is a custom hook that manages the player lifecycle insid
 ## Hook
 
 ```typescript
-// hooks/useVideoPlayer.ts
+// hooks/useNMPlayer.ts
 import { useRef, useEffect, useState, useCallback } from 'react';
 import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
-export function useVideoPlayer(containerId: string, config: PlayerConfig) {
+export function useNMPlayer(containerId: string, config: PlayerConfig) {
   const playerRef = useRef<NMPlayer | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -47,7 +47,7 @@ export function useVideoPlayer(containerId: string, config: PlayerConfig) {
 ## Component
 
 ```tsx
-import { useVideoPlayer } from './hooks/useVideoPlayer';
+import { useNMPlayer } from './hooks/useNMPlayer';
 import type { PlaylistItem, PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const basePath = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films';
@@ -71,8 +71,8 @@ const playlist: PlaylistItem[] = [
 
 const config: PlayerConfig = { playlist, basePath, imageBasePath, autoPlay: false };
 
-export default function VideoPlayer() {
-  const { currentTime, duration, isPlaying, togglePlayback } = useVideoPlayer('player', config);
+export default function NMPlayerView() {
+  const { currentTime, duration, isPlaying, togglePlayback } = useNMPlayer('player', config);
 
   return (
     <div>

@@ -3,12 +3,12 @@ Vue is the primary framework used by the project maintainers. The recommended pa
 ## Composable
 
 ```typescript
-// composables/useVideoPlayer.ts
+// composables/useNMPlayer.ts
 import { ref, onMounted, onBeforeUnmount, watch, type Ref } from 'vue';
 import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
-export function useVideoPlayer(containerId: string, config: Ref<PlayerConfig>) {
+export function useNMPlayer(containerId: string, config: Ref<PlayerConfig>) {
   const player = ref<NMPlayer | null>(null);
   const currentTime = ref(0);
   const duration = ref(0);
@@ -53,7 +53,7 @@ export function useVideoPlayer(containerId: string, config: Ref<PlayerConfig>) {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useVideoPlayer } from '@/composables/useVideoPlayer';
+import { useNMPlayer } from '@/composables/useNMPlayer';
 import type { PlayerConfig, PlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
 const basePath = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films';
@@ -82,7 +82,7 @@ const config = ref<PlayerConfig>({
   autoPlay: false,
 });
 
-const { player, currentTime, duration, isPlaying } = useVideoPlayer('player', config);
+const { player, currentTime, duration, isPlaying } = useNMPlayer('player', config);
 </script>
 
 <template>

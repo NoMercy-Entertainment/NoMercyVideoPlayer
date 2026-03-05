@@ -3,13 +3,13 @@ Use `AfterViewInit` to initialize the player after the DOM is ready, and `OnDest
 ## Component
 
 ```typescript
-// video-player.component.ts
+// nomercy-player.component.ts
 import { Component, AfterViewInit, OnDestroy, Input } from '@angular/core';
 import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 @Component({
-  selector: 'app-video-player',
+  selector: 'app-nomercy-player',
   template: `
     <div>
       <div id="player" style="width: 100%; aspect-ratio: 16/9;"></div>
@@ -23,7 +23,7 @@ import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/no
     </div>
   `,
 })
-export class VideoPlayerComponent implements AfterViewInit, OnDestroy {
+export class NMPlayerComponent implements AfterViewInit, OnDestroy {
   @Input() config!: PlayerConfig;
 
   player: NMPlayer | null = null;
@@ -60,7 +60,7 @@ export class VideoPlayerComponent implements AfterViewInit, OnDestroy {
 ## Usage
 
 ```html
-<app-video-player [config]="{
+<app-nomercy-player [config]="{
   playlist: playlist,
   basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
   autoPlay: false
@@ -72,14 +72,14 @@ export class VideoPlayerComponent implements AfterViewInit, OnDestroy {
 For shared player state across components, wrap the player in an Angular service:
 
 ```typescript
-// video-player.service.ts
+// nomercy-player.service.ts
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import nmplayer from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 @Injectable({ providedIn: 'root' })
-export class VideoPlayerService implements OnDestroy {
+export class NMPlayerService implements OnDestroy {
   private player: NMPlayer | null = null;
 
   readonly isPlaying$ = new BehaviorSubject(false);
