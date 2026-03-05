@@ -13,18 +13,6 @@ export default defineConfig({
 		target: 'es2022',
 		rollupOptions: {
 			input: ['./src/index.ts'],
-			external: [
-				'hls.js',
-				'webvtt-parser',
-				'tailwind-merge',
-			],
-			output: {
-				globals: {
-					'hls.js': 'Hls',
-					'webvtt-parser': 'WebVTTParser',
-					'tailwind-merge': 'tailwindMerge',
-				},
-			},
 		},
 		lib: {
 			entry: resolve(__dirname, 'src/index.ts'),
