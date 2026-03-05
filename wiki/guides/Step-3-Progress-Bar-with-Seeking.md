@@ -1,7 +1,7 @@
-<table width="100%"><tr>
-<td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a></td>
-<td align="right"><a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-2-Play-Pause-and-Buffering" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<a href="Step-4-Time-Display-and-Skip-Buttons" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>
 
 ---
 
@@ -155,7 +155,7 @@ dispose() {
 
 ---
 
-<table width="100%"><tr>
-<td><a href="Step-2-Play-Pause-and-Buffering">← Previous</a></td>
-<td align="right"><a href="Step-4-Time-Display-and-Skip-Buttons">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-2-Play-Pause-and-Buffering" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<a href="Step-4-Time-Display-and-Skip-Buttons" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>

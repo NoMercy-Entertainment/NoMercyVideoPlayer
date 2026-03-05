@@ -1,7 +1,7 @@
-<table width="100%"><tr>
-<td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a></td>
-<td align="right"><a href="Step-6-Top-Bar-with-Title">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-4-Time-Display-and-Skip-Buttons" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<a href="Step-6-Top-Bar-with-Title" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>
 
 ---
 
@@ -140,7 +140,7 @@ A `volDragging` boolean flag tracks whether the user is currently dragging. The 
 
 ---
 
-<table width="100%"><tr>
-<td><a href="Step-4-Time-Display-and-Skip-Buttons">← Previous</a></td>
-<td align="right"><a href="Step-6-Top-Bar-with-Title">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-4-Time-Display-and-Skip-Buttons" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<a href="Step-6-Top-Bar-with-Title" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>

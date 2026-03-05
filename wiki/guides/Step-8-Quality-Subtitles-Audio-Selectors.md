@@ -1,7 +1,7 @@
-<table width="100%"><tr>
-<td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a></td>
-<td align="right"><a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-7-Fullscreen-and-Playback-Speed" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<a href="Step-9-Seek-Preview-Thumbnails" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>
 
 ---
 
@@ -620,7 +620,7 @@ You now have a fully functional video player UI with:
 
 ---
 
-<table width="100%"><tr>
-<td><a href="Step-7-Fullscreen-and-Playback-Speed">← Previous</a></td>
-<td align="right"><a href="Step-9-Seek-Preview-Thumbnails">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-7-Fullscreen-and-Playback-Speed" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<a href="Step-9-Seek-Preview-Thumbnails" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>

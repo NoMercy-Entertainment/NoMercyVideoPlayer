@@ -1,7 +1,7 @@
-<table width="100%"><tr>
-<td><a href="Step-8-Quality-Subtitles-Audio-Selectors">← Previous</a></td>
-<td></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-8-Quality-Subtitles-Audio-Selectors" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<span></span>
+</div>
 
 ---
 
@@ -224,7 +224,7 @@ When hovering over the progress bar, a thumbnail tooltip appears showing the vid
 
 ---
 
-<table width="100%"><tr>
-<td><a href="Step-8-Quality-Subtitles-Audio-Selectors">← Previous</a></td>
-<td></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-8-Quality-Subtitles-Audio-Selectors" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<span></span>
+</div>

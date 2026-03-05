@@ -1,7 +1,7 @@
-<table width="100%"><tr>
-<td></td>
-<td align="right"><a href="Step-2-Play-Pause-and-Buffering">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Building-a-Video-Player-UI" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Back to Index</a>
+<a href="Step-2-Play-Pause-and-Buffering" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>
 
 ---
 
@@ -86,7 +86,7 @@ At this point you have two invisible gradient bars that fade in/out as the playe
 
 ---
 
-<table width="100%"><tr>
-<td></td>
-<td align="right"><a href="Step-2-Play-Pause-and-Buffering">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Building-a-Video-Player-UI" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Back to Index</a>
+<a href="Step-2-Play-Pause-and-Buffering" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>

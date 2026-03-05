@@ -1,7 +1,7 @@
-<table width="100%"><tr>
-<td><a href="Step-6-Top-Bar-with-Title">← Previous</a></td>
-<td align="right"><a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-6-Top-Bar-with-Title" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<a href="Step-8-Quality-Subtitles-Audio-Selectors" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>
 
 ---
 
@@ -149,7 +149,7 @@ private onDocumentClick = () => {
 
 ---
 
-<table width="100%"><tr>
-<td><a href="Step-6-Top-Bar-with-Title">← Previous</a></td>
-<td align="right"><a href="Step-8-Quality-Subtitles-Audio-Selectors">Next →</a></td>
-</tr></table>
+<div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 1em;">
+<a href="Step-6-Top-Bar-with-Title" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">← Previous</a>
+<a href="Step-8-Quality-Subtitles-Audio-Selectors" style="border: 1px solid #ccc; padding: 0.5em 1em; border-radius: 4px; color: inherit;">Next →</a>
+</div>
