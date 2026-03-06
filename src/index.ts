@@ -235,7 +235,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		});
 
 		this.inactivityTime = this.options.controlsTimeout ?? 3000;
-		this.videoElement.controls = options.controls ?? true;
+		this.videoElement.controls = options.controls ?? false;
 
 		this.setupTime = Date.now();
 
