@@ -1,24 +1,25 @@
 // minimum time difference between frames
-var FRAMETIME_ULP = 0.001;
+const FRAMETIME_ULP = 0.001;
 // minimum time difference between subtitle events
-var EVENTTIME_ULP = 0.01;
+const EVENTTIME_ULP = 0.01;
 // maximum time offset for the next request in seconds
-var MAX_REQUEST_OFFSET = 1;
+const MAX_REQUEST_OFFSET = 1;
 
-export const SubtitlesOctopus = function (options) {
-	var supportsWebAssembly = false;
+export function SubtitlesOctopus(options) {
+	let supportsWebAssembly = false;
 	try {
-		if (typeof WebAssembly === "object"
-			&& typeof WebAssembly.instantiate === "function") {
-			var module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+		if (typeof WebAssembly === 'object'
+			&& typeof WebAssembly.instantiate === 'function') {
+			const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6D, 0x01, 0x00, 0x00, 0x00));
 			if (module instanceof WebAssembly.Module)
 				supportsWebAssembly = (new WebAssembly.Instance(module) instanceof WebAssembly.Instance);
 		}
-	} catch (e) {
 	}
-	console.log("WebAssembly support detected: " + (supportsWebAssembly ? "yes" : "no"));
+	catch (e) {
+	}
+	console.log(`WebAssembly support detected: ${supportsWebAssembly ? 'yes' : 'no'}`);
 
-	var self = this;
+	const self = this;
 	self.canvas = options.canvas; // HTML canvas element (optional if video specified)
 	self.renderMode = options.renderMode || (options.lossyRender ? 'lossy' : 'wasm-blend');
 	self.dropAllAnimations = options.dropAllAnimations || false;
@@ -40,7 +41,8 @@ export const SubtitlesOctopus = function (options) {
 	self.onReadyEvent = options.onReady; // Function called when SubtitlesOctopus is ready (optional)
 	if (supportsWebAssembly) {
 		self.workerUrl = options.workerUrl || 'subtitles-octopus-worker.js'; // Link to WebAssembly worker
-	} else {
+	}
+	else {
 		self.workerUrl = options.legacyWorkerUrl || 'subtitles-octopus-worker-legacy.js'; // Link to legacy worker
 	}
 	self.subUrl = options.subUrl; // Link to sub file (optional if subContent specified)
@@ -53,7 +55,7 @@ export const SubtitlesOctopus = function (options) {
 	self.timeOffset = options.timeOffset || 0; // Time offset would be applied to currentTime from video (option)
 
 	self.renderedItems = []; // used to store items rendered ahead when renderAhead > 0
-	self.renderAhead = self.renderAhead * 1024 * 1024 * 0.9 /* try to eat less than requested */;
+	self.renderAhead = self.renderAhead * 1024 * 1024 * 0.9;
 	self.oneshotState = {
 		displayedEvent: null, // Last displayed event
 		eventStart: null,
@@ -64,8 +66,8 @@ export const SubtitlesOctopus = function (options) {
 		nextRequestOffset: 0, // Next request offset, s
 		restart: true,
 		prevWidth: null,
-		prevHeight: null
-	}
+		prevHeight: null,
+	};
 	self.rafId = 0;
 
 	self.hasAlphaBug = false;
@@ -73,36 +75,38 @@ export const SubtitlesOctopus = function (options) {
 	self.accessToken = options.accessToken || null; // Access token for some services (optional)
 
 	// private
-	var targetWidth;    // Width of render target
-	var targetHeight;   // Height of render target
+	let targetWidth; // Width of render target
+	let targetHeight; // Height of render target
 
-	(function() {
+	(function () {
 		if (typeof ImageData.prototype.constructor === 'function') {
 			try {
 				// try actually calling ImageData, as on some browsers it's reported
 				// as existing but calling it errors out as "TypeError: Illegal constructor"
 				new window.ImageData(new Uint8ClampedArray([0, 0, 0, 0]), 1, 1);
 				return;
-			} catch (e) {
-				console.log("detected that ImageData is not constructable despite browser saying so");
+			}
+			catch (e) {
+				console.log('detected that ImageData is not constructable despite browser saying so');
 			}
 		}
 
-		var canvas = document.createElement('canvas');
-		var ctx = canvas.getContext('2d', { willReadFrequently: true });
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
 		window.ImageData = function () {
-			var i = 0;
+			let i = 0;
 			if (arguments[0] instanceof Uint8ClampedArray) {
 				var data = arguments[i++];
 			}
-			var width = arguments[i++];
-			var height = arguments[i];
+			const width = arguments[i++];
+			const height = arguments[i];
 
-			var imageData = ctx.createImageData(width, height);
-			if (data) imageData.data.set(data);
+			const imageData = ctx.createImageData(width, height);
+			if (data)
+				imageData.data.set(data);
 			return imageData;
-		}
+		};
 	})();
 
 	self.workerError = function (error) {
@@ -112,7 +116,7 @@ export const SubtitlesOctopus = function (options) {
 		}
 		if (!self.debug) {
 			self.dispose();
-			throw new Error('Worker error: ' + error);
+			throw new Error(`Worker error: ${error}`);
 		}
 	};
 
@@ -126,13 +130,13 @@ export const SubtitlesOctopus = function (options) {
 		if (!self.worker) {
 			// Check if worker URL is cross-origin; if so, use importScripts blob to bypass CORS restriction
 			try {
-				var workerOrigin = new URL(self.workerUrl, document.baseURI).origin;
+				const workerOrigin = new URL(self.workerUrl, document.baseURI).origin;
 				if (workerOrigin !== location.origin) {
-					var workerBaseUrl = self.workerUrl.substring(0, self.workerUrl.lastIndexOf('/') + 1);
-					var blobContent = 'var Module = { locateFile: function(path) { return ' + JSON.stringify(workerBaseUrl) + ' + path; } };\n' +
-						'importScripts(' + JSON.stringify(self.workerUrl) + ');';
-					var blob = new Blob([blobContent], { type: 'application/javascript' });
-					var blobUrl = URL.createObjectURL(blob);
+					const workerBaseUrl = self.workerUrl.substring(0, self.workerUrl.lastIndexOf('/') + 1);
+					const blobContent = `var Module = { locateFile: function(path) { return ${JSON.stringify(workerBaseUrl)} + path; } };\n`
+						+ `importScripts(${JSON.stringify(self.workerUrl)});`;
+					const blob = new Blob([blobContent], { type: 'application/javascript' });
+					const blobUrl = URL.createObjectURL(blob);
 					self.worker = new Worker(blobUrl);
 					self.worker.addEventListener('message', self.onWorkerMessage);
 					self.worker.addEventListener('error', self.workerError);
@@ -140,7 +144,8 @@ export const SubtitlesOctopus = function (options) {
 					self._postInit();
 					return;
 				}
-			} catch (e) {
+			}
+			catch (e) {
 				// URL parsing failed, fall through to direct Worker creation
 			}
 			self.worker = new Worker(self.workerUrl);
@@ -216,17 +221,17 @@ export const SubtitlesOctopus = function (options) {
 		// (with alpha == 0) as non-black which then leads to visual artifacts
 		self.bufferCanvas.width = 1;
 		self.bufferCanvas.height = 1;
-		var testBuf = new Uint8ClampedArray([0, 255, 0, 0]);
-		var testImage = new ImageData(testBuf, 1, 1);
+		const testBuf = new Uint8ClampedArray([0, 255, 0, 0]);
+		const testImage = new ImageData(testBuf, 1, 1);
 		self.bufferCanvasCtx.clearRect(0, 0, 1, 1);
 		self.ctx.clearRect(0, 0, 1, 1);
-		var prePut = self.ctx.getImageData(0, 0, 1, 1).data;
+		const prePut = self.ctx.getImageData(0, 0, 1, 1).data;
 		self.bufferCanvasCtx.putImageData(testImage, 0, 0);
 		self.ctx.drawImage(self.bufferCanvas, 0, 0);
-		var postPut = self.ctx.getImageData(0, 0, 1, 1).data;
+		const postPut = self.ctx.getImageData(0, 0, 1, 1).data;
 		self.hasAlphaBug = prePut[1] != postPut[1];
 		if (self.hasAlphaBug) {
-			console.log("Detected a browser having issue with transparent pixels, applying workaround");
+			console.log('Detected a browser having issue with transparent pixels, applying workaround');
 		}
 	};
 
@@ -249,7 +254,7 @@ export const SubtitlesOctopus = function (options) {
 	function onSeeked() {
 		self.video.addEventListener('timeupdate', onTimeUpdate, false);
 
-		var currentTime = self.video.currentTime + self.timeOffset;
+		const currentTime = self.video.currentTime + self.timeOffset;
 
 		self.setCurrentTime(currentTime);
 
@@ -282,14 +287,14 @@ export const SubtitlesOctopus = function (options) {
 			self.video.addEventListener('ratechange', onRateChange, false);
 			self.video.addEventListener('waiting', onWaiting, false);
 
-			document.addEventListener("fullscreenchange", self.resizeWithTimeout, false);
-			document.addEventListener("mozfullscreenchange", self.resizeWithTimeout, false);
-			document.addEventListener("webkitfullscreenchange", self.resizeWithTimeout, false);
-			document.addEventListener("msfullscreenchange", self.resizeWithTimeout, false);
-			window.addEventListener("resize", self.resizeWithTimeout, false);
+			document.addEventListener('fullscreenchange', self.resizeWithTimeout, false);
+			document.addEventListener('mozfullscreenchange', self.resizeWithTimeout, false);
+			document.addEventListener('webkitfullscreenchange', self.resizeWithTimeout, false);
+			document.addEventListener('msfullscreenchange', self.resizeWithTimeout, false);
+			window.addEventListener('resize', self.resizeWithTimeout, false);
 
 			// Support Element Resize Observer
-			if (typeof ResizeObserver !== "undefined") {
+			if (typeof ResizeObserver !== 'undefined') {
 				self.ro = new ResizeObserver(self.resizeWithTimeout);
 				self.ro.observe(self.video);
 			}
@@ -304,21 +309,22 @@ export const SubtitlesOctopus = function (options) {
 	};
 
 	self.getVideoPosition = function () {
-		var videoRatio = self.video.videoWidth / self.video.videoHeight;
-		var width = self.video.offsetWidth, height = self.video.offsetHeight;
-		var elementRatio = width / height;
-		var realWidth = width, realHeight = height;
-		if (elementRatio > videoRatio) realWidth = Math.floor(height * videoRatio);
+		const videoRatio = self.video.videoWidth / self.video.videoHeight;
+		const width = self.video.offsetWidth; const height = self.video.offsetHeight;
+		const elementRatio = width / height;
+		let realWidth = width; let realHeight = height;
+		if (elementRatio > videoRatio)
+			realWidth = Math.floor(height * videoRatio);
 		else realHeight = Math.floor(width / videoRatio);
 
-		var x = (width - realWidth) / 2;
-		var y = (height - realHeight) / 2;
+		const x = (width - realWidth) / 2;
+		const y = (height - realHeight) / 2;
 
 		return {
 			width: realWidth,
 			height: realHeight,
-			x: x,
-			y: y
+			x,
+			y,
 		};
 	};
 
@@ -327,7 +333,7 @@ export const SubtitlesOctopus = function (options) {
 	};
 
 	function _cleanPastRendered(currentTime, seekClean) {
-		var retainedItems = [];
+		let retainedItems = [];
 		for (var i = 0, len = self.renderedItems.length; i < len; i++) {
 			var item = self.renderedItems[i];
 			if (item.emptyFinish < 0 || currentTime < item.emptyFinish) {
@@ -341,17 +347,19 @@ export const SubtitlesOctopus = function (options) {
 			// so first item is the earliest
 			if (currentTime < retainedItems[0].eventStart) {
 				if (retainedItems[0].eventStart - currentTime > 60) {
-					console.info("seeked back too far, cleaning prerender buffer");
+					console.info('seeked back too far, cleaning prerender buffer');
 					retainedItems = [];
-				} else {
-					console.info("seeked backwards, need to free up some buffer");
-					var size = 0, limit = self.renderAhead * 0.3 /* try to take no more than 1/3 of buffer */;
-					var retain = [];
+				}
+				else {
+					console.info('seeked backwards, need to free up some buffer');
+					let size = 0; const limit = self.renderAhead * 0.3;
+					const retain = [];
 					for (var i = 0, len = retainedItems.length; i < len; i++) {
 						var item = retainedItems[i];
 						size += item.size;
 						// Remove the end marker (emptyFinish < 0) to allow re-rendering in case we already reached end-of-events
-						if (size >= limit || item.emptyFinish < 0) break;
+						if (size >= limit || item.emptyFinish < 0)
+							break;
 						retain.push(item);
 					}
 					retainedItems = retain;
@@ -364,48 +372,52 @@ export const SubtitlesOctopus = function (options) {
 			self.oneshotState.nextRequestOffset = 0;
 		}
 
-		var removed = retainedItems.length < self.renderedItems.length;
+		const removed = retainedItems.length < self.renderedItems.length;
 		self.renderedItems = retainedItems;
 		return removed;
 	}
 
 	function tryRequestOneshot(currentTime, renderNow) {
-		if (!self.renderAhead || self.renderAhead <= 0) return;
-		if (self.oneshotState.renderRequested && !renderNow) return;
+		if (!self.renderAhead || self.renderAhead <= 0)
+			return;
+		if (self.oneshotState.renderRequested && !renderNow)
+			return;
 
 		if (typeof currentTime === 'undefined') {
-			if (!self.video) return;
+			if (!self.video)
+				return;
 			currentTime = self.video.currentTime + self.timeOffset;
 		}
 
-		var size = 0;
-		for (var i = 0, len = self.renderedItems.length; i < len; i++) {
-			var item = self.renderedItems[i];
+		let size = 0;
+		for (let i = 0, len = self.renderedItems.length; i < len; i++) {
+			const item = self.renderedItems[i];
 			if (item.emptyFinish < 0) {
 				console.info('oneshot already reached end-of-events');
 				return;
 			}
 			if (currentTime >= item.eventStart && currentTime < item.emptyFinish) {
 				// an event for requested time already exists
-				console.debug('not requesting a render for ' + currentTime +
-					' as event already covering it exists (start=' +
-					item.eventStart + ', empty=' + item.emptyFinish + ')');
+				console.debug(`not requesting a render for ${currentTime
+				} as event already covering it exists (start=${
+					item.eventStart}, empty=${item.emptyFinish})`);
 				return;
 			}
 			size += item.size;
 		}
 
 		if (size <= self.renderAhead) {
-			var lastRendered = currentTime - (renderNow ? 0 : FRAMETIME_ULP);
+			const lastRendered = currentTime - (renderNow ? 0 : FRAMETIME_ULP);
 			if (!self.oneshotState.renderRequested) {
 				self.oneshotState.renderRequested = true;
 				self.worker.postMessage({
 					target: 'oneshot-render',
-					lastRendered: lastRendered,
-					renderNow: renderNow,
-					iteration: self.oneshotState.iteration
+					lastRendered,
+					renderNow,
+					iteration: self.oneshotState.iteration,
 				});
-			} else {
+			}
+			else {
 				if (self.workerActive) {
 					// console.info('worker busy, requesting to seek');
 				}
@@ -418,23 +430,24 @@ export const SubtitlesOctopus = function (options) {
 		self.oneshotState.displayedEvent = event;
 
 		// keep event displayed, if there is no gap after it, until it is replaced by a new one
-		var eventOver = event.eventFinish !== event.emptyFinish && event.eventFinish <= currentTime;
-		if (self.oneshotState.eventStart == event.eventStart && self.oneshotState.eventOver == eventOver) return;
+		const eventOver = event.eventFinish !== event.emptyFinish && event.eventFinish <= currentTime;
+		if (self.oneshotState.eventStart == event.eventStart && self.oneshotState.eventOver == eventOver)
+			return;
 		self.oneshotState.eventStart = event.eventStart;
 		self.oneshotState.eventOver = eventOver;
 
 		self.oneshotState.nextRequestOffset = (self.oneshotState.nextRequestOffset + event.spentTime * 1e-3) * 0.5;
 		self.oneshotState.nextRequestOffset = Math.min(self.oneshotState.nextRequestOffset, MAX_REQUEST_OFFSET);
 
-		var beforeDrawTime = performance.now();
+		const beforeDrawTime = performance.now();
 		if (event.viewport.width != self.canvas.width || event.viewport.height != self.canvas.height) {
 			self.canvas.width = event.viewport.width;
 			self.canvas.height = event.viewport.height;
 		}
 		self.ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
 		if (!eventOver) {
-			for (var i = 0; i < event.items.length; i++) {
-				var image = event.items[i];
+			for (let i = 0; i < event.items.length; i++) {
+				const image = event.items[i];
 				self.bufferCanvas.width = image.w;
 				self.bufferCanvas.height = image.h;
 				self.bufferCanvasCtx.putImageData(image.image, 0, 0);
@@ -442,18 +455,19 @@ export const SubtitlesOctopus = function (options) {
 			}
 		}
 		if (self.debug) {
-			var drawTime = Math.round(performance.now() - beforeDrawTime);
-			console.log('render: ' + Math.round(event.spentTime - event.blendTime) + ' ms, blend: ' + Math.round(event.blendTime) + ' ms, draw: ' + drawTime + ' ms');
+			const drawTime = Math.round(performance.now() - beforeDrawTime);
+			console.log(`render: ${Math.round(event.spentTime - event.blendTime)} ms, blend: ${Math.round(event.blendTime)} ms, draw: ${drawTime} ms`);
 		}
 	}
 
 	function oneshotRender() {
 		self.rafId = window.requestAnimationFrame(oneshotRender);
-		if (!self.video) return;
+		if (!self.video)
+			return;
 
-		var currentTime = self.video.currentTime + self.timeOffset;
+		const currentTime = self.video.currentTime + self.timeOffset;
 
-		var eventToShow = null;
+		let eventToShow = null;
 
 		for (var i = 0, len = self.renderedItems.length; i < len; i++) {
 			var item = self.renderedItems[i];
@@ -461,27 +475,29 @@ export const SubtitlesOctopus = function (options) {
 			// we need the last started event
 			if (item.eventStart <= currentTime) {
 				eventToShow = item;
-			} else {
+			}
+			else {
 				break;
 			}
 		}
 
 		if (eventToShow) {
 			_renderSubtitleEvent(eventToShow, currentTime);
-		} else if (self.oneshotState.displayedEvent) {
+		}
+		else if (self.oneshotState.displayedEvent) {
 			_renderSubtitleEvent(self.oneshotState.displayedEvent, currentTime);
 		}
 
-		var nextTime = currentTime;
+		let nextTime = currentTime;
 
 		if (!self.video.paused) {
 			// request the next event with some extra time, because we won't get it instantly
 			nextTime += Math.max(self.oneshotState.nextRequestOffset, 1.0 / self.targetFps) * self.video.playbackRate;
 		}
 
-		var nextEvent = null;
-		var finishTime = -1;
-		var animated = false;
+		let nextEvent = null;
+		let finishTime = -1;
+		let animated = false;
 
 		for (var i = 0, len = self.renderedItems.length; i < len; i++) {
 			var item = self.renderedItems[i];
@@ -490,17 +506,20 @@ export const SubtitlesOctopus = function (options) {
 			if (item.eventStart <= nextTime) {
 				nextEvent = item;
 				finishTime = item.emptyFinish;
-			} else if (finishTime >= 0) {
+			}
+			else if (finishTime >= 0) {
 				// we've already found a known event, now find
 				// the farthest point of consequent events
 				// NOTE: self.renderedItems may have gaps due to seeking
 				if (item.eventStart - finishTime < EVENTTIME_ULP) {
 					finishTime = item.emptyFinish;
 					animated = item.animated;
-				} else {
+				}
+				else {
 					break;
 				}
-			} else {
+			}
+			else {
 				break;
 			}
 		}
@@ -509,13 +528,14 @@ export const SubtitlesOctopus = function (options) {
 			if (finishTime >= 0) {
 				// request the next event from the most distant time
 				nextTime = Math.max(finishTime, nextTime);
-			} else {
+			}
+			else {
 				// reached end-of-events
 				nextTime = -1;
 			}
 		}
 
-		var freed = !self.video.paused && _cleanPastRendered(currentTime);
+		const freed = !self.video.paused && _cleanPastRendered(currentTime);
 
 		if ((freed || !eventToShow || self.oneshotState.restart)
 			&& nextTime >= 0 && Math.abs(self.oneshotState.requestNextTimestamp - nextTime) > EVENTTIME_ULP) {
@@ -532,26 +552,30 @@ export const SubtitlesOctopus = function (options) {
 
 	self.resetRenderAheadCache = function (isResizing) {
 		if (self.renderAhead > 0) {
-			var newCache = [];
+			const newCache = [];
 			if (isResizing && self.oneshotState.prevHeight && self.oneshotState.prevWidth) {
-				if (self.oneshotState.prevHeight === targetHeight &&
-					self.oneshotState.prevWidth === targetWidth) return;
-				var timeLimit = 10, sizeLimit = self.renderAhead * 0.3;
-				if (targetHeight >= self.oneshotState.prevHeight * (1.0 - self.resizeVariation) &&
-					targetHeight <= self.oneshotState.prevHeight * (1.0 + self.resizeVariation) &&
-					targetWidth >= self.oneshotState.prevWidth * (1.0 - self.resizeVariation) &&
-					targetWidth <= self.oneshotState.prevWidth * (1.0 + self.resizeVariation)) {
+				if (self.oneshotState.prevHeight === targetHeight
+					&& self.oneshotState.prevWidth === targetWidth) {
+					return;
+				}
+				let timeLimit = 10; let sizeLimit = self.renderAhead * 0.3;
+				if (targetHeight >= self.oneshotState.prevHeight * (1.0 - self.resizeVariation)
+					&& targetHeight <= self.oneshotState.prevHeight * (1.0 + self.resizeVariation)
+					&& targetWidth >= self.oneshotState.prevWidth * (1.0 - self.resizeVariation)
+					&& targetWidth <= self.oneshotState.prevWidth * (1.0 + self.resizeVariation)) {
 					console.debug('viewport changes are small, leaving more of prerendered buffer');
 					timeLimit = 30;
 					sizeLimit = self.renderAhead * 0.5;
 				}
-				var stopTime = self.video.currentTime + self.timeOffset + timeLimit;
-				var size = 0;
-				for (var i = 0; i < self.renderedItems.length; i++) {
-					var item = self.renderedItems[i];
-					if (item.emptyFinish < 0 || stopTime < item.emptyFinish) break;
+				const stopTime = self.video.currentTime + self.timeOffset + timeLimit;
+				let size = 0;
+				for (let i = 0; i < self.renderedItems.length; i++) {
+					const item = self.renderedItems[i];
+					if (item.emptyFinish < 0 || stopTime < item.emptyFinish)
+						break;
 					size += item.size;
-					if (size >= sizeLimit) break;
+					if (size >= sizeLimit)
+						break;
 					newCache.push(item);
 				}
 			}
@@ -575,37 +599,39 @@ export const SubtitlesOctopus = function (options) {
 				self.oneshotState.displayedEvent = null;
 			}
 
-			if (!self.rafId) self.rafId = window.requestAnimationFrame(oneshotRender);
+			if (!self.rafId)
+				self.rafId = window.requestAnimationFrame(oneshotRender);
 			tryRequestOneshot(undefined, true);
 		}
-	}
+	};
 
 	self.renderFrameData = null;
 	function renderFrames() {
-		var data = self.renderFramesData;
-		var beforeDrawTime = performance.now();
+		const data = self.renderFramesData;
+		const beforeDrawTime = performance.now();
 		self.ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
-		for (var i = 0; i < data.canvases.length; i++) {
-			var image = data.canvases[i];
+		for (let i = 0; i < data.canvases.length; i++) {
+			const image = data.canvases[i];
 			self.bufferCanvas.width = image.w;
 			self.bufferCanvas.height = image.h;
-			var imageBuffer = new Uint8ClampedArray(image.buffer);
+			const imageBuffer = new Uint8ClampedArray(image.buffer);
 			if (self.hasAlphaBug) {
-				for (var j = 3; j < imageBuffer.length; j = j + 4) {
+				for (let j = 3; j < imageBuffer.length; j = j + 4) {
 					imageBuffer[j] = (imageBuffer[j] >= 1) ? imageBuffer[j] : 1;
 				}
 			}
-			var imageData = new ImageData(imageBuffer, image.w, image.h);
+			const imageData = new ImageData(imageBuffer, image.w, image.h);
 			self.bufferCanvasCtx.putImageData(imageData, 0, 0);
 			self.ctx.drawImage(self.bufferCanvas, image.x, image.y);
 		}
 		if (self.debug) {
-			var drawTime = Math.round(performance.now() - beforeDrawTime);
-			var blendTime = data.blendTime;
+			const drawTime = Math.round(performance.now() - beforeDrawTime);
+			const blendTime = data.blendTime;
 			if (typeof blendTime !== 'undefined') {
-				console.log('render: ' + Math.round(data.spentTime - blendTime) + ' ms, blend: ' + Math.round(blendTime) + ' ms, draw: ' + drawTime + ' ms; TOTAL=' + Math.round(data.spentTime + drawTime) + ' ms');
-			} else {
-				console.log(Math.round(data.spentTime) + ' ms (+ ' + drawTime + ' ms draw)');
+				console.log(`render: ${Math.round(data.spentTime - blendTime)} ms, blend: ${Math.round(blendTime)} ms, draw: ${drawTime} ms; TOTAL=${Math.round(data.spentTime + drawTime)} ms`);
+			}
+			else {
+				console.log(`${Math.round(data.spentTime)} ms (+ ${drawTime} ms draw)`);
 			}
 			self.renderStart = performance.now();
 		}
@@ -616,16 +642,16 @@ export const SubtitlesOctopus = function (options) {
 	 *
 	 */
 	function renderFastFrames() {
-		var data = self.renderFramesData;
-		var beforeDrawTime = performance.now();
+		const data = self.renderFramesData;
+		const beforeDrawTime = performance.now();
 		self.ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
-		for (var i = 0; i < data.bitmaps.length; i++) {
-			var image = data.bitmaps[i];
+		for (let i = 0; i < data.bitmaps.length; i++) {
+			const image = data.bitmaps[i];
 			self.ctx.drawImage(image.bitmap, image.x, image.y);
 		}
 		if (self.debug) {
-			var drawTime = Math.round(performance.now() - beforeDrawTime);
-			console.log(data.bitmaps.length + ' bitmaps, libass: ' + Math.round(data.libassTime) + 'ms, decode: ' + Math.round(data.decodeTime) + 'ms, draw: ' + drawTime + 'ms');
+			const drawTime = Math.round(performance.now() - beforeDrawTime);
+			console.log(`${data.bitmaps.length} bitmaps, libass: ${Math.round(data.libassTime)}ms, decode: ${Math.round(data.decodeTime)}ms, draw: ${drawTime}ms`);
 			self.renderStart = performance.now();
 		}
 	}
@@ -633,14 +659,14 @@ export const SubtitlesOctopus = function (options) {
 	self.workerActive = false;
 	self.frameId = 0;
 	self.onWorkerMessage = function (event) {
-		//dump('\nclient got ' + JSON.stringify(event.data).substr(0, 150) + '\n');
+		// dump('\nclient got ' + JSON.stringify(event.data).substr(0, 150) + '\n');
 		if (!self.workerActive) {
 			self.workerActive = true;
 			if (self.onReadyEvent) {
 				self.onReadyEvent();
 			}
 		}
-		var data = event.data;
+		const data = event.data;
 		switch (data.target) {
 			case 'stdout': {
 				console.log(data.content);
@@ -711,9 +737,9 @@ export const SubtitlesOctopus = function (options) {
 						}
 
 						if (self.debug) {
-							console.info('oneshot received (start=' +
-								data.eventStart + ', empty=' + data.emptyFinish +
-								'), render: ' + Math.round(data.spentTime) + ' ms');
+							console.info(`oneshot received (start=${
+								data.eventStart}, empty=${data.emptyFinish
+							}), render: ${Math.round(data.spentTime)} ms`);
 						}
 						self.oneshotState.renderRequested = false;
 						if (Math.abs(data.lastRenderedTime - self.oneshotState.requestNextTimestamp) < EVENTTIME_ULP) {
@@ -730,27 +756,27 @@ export const SubtitlesOctopus = function (options) {
 								blendTime: 0,
 								items: [],
 								animated: false,
-								size: 0
+								size: 0,
 							});
 						}
 
-						var items = [];
-						var size = 0;
-						for (var i = 0, len = data.canvases.length; i < len; i++) {
-							var item = data.canvases[i];
+						const items = [];
+						let size = 0;
+						for (let i = 0, len = data.canvases.length; i < len; i++) {
+							const item = data.canvases[i];
 							items.push({
 								w: item.w,
 								h: item.h,
 								x: item.x,
 								y: item.y,
-								image: new ImageData(new Uint8ClampedArray(item.buffer), item.w, item.h)
+								image: new ImageData(new Uint8ClampedArray(item.buffer), item.w, item.h),
 							});
 							size += item.buffer.byteLength;
 						}
 
-						var eventSplitted = false;
+						let eventSplitted = false;
 						if ((data.emptyFinish > 0 && data.emptyFinish - data.eventStart < 1.0 / self.targetFps) || data.animated) {
-							var newFinish = data.eventStart + 1.0 / self.targetFps;
+							const newFinish = data.eventStart + 1.0 / self.targetFps;
 							data.emptyFinish = newFinish;
 							data.eventFinish = newFinish;
 							eventSplitted = true;
@@ -762,24 +788,27 @@ export const SubtitlesOctopus = function (options) {
 							spentTime: data.spentTime,
 							blendTime: data.blendTime,
 							viewport: data.viewport,
-							items: items,
+							items,
 							animated: data.animated,
-							size: size
+							size,
 						});
 
-						self.renderedItems.sort(function (a, b) {
+						self.renderedItems.sort((a, b) => {
 							return a.eventStart - b.eventStart;
 						});
 
 						if (self.oneshotState.requestNextTimestamp >= 0) {
 							// requesting an out of order event render
 							tryRequestOneshot(self.oneshotState.requestNextTimestamp, true);
-						} else if (data.eventStart < 0) {
+						}
+						else if (data.eventStart < 0) {
 							console.info('oneshot received "end of frames" event');
-						} else if (data.emptyFinish >= 0) {
+						}
+						else if (data.emptyFinish >= 0) {
 							// there's some more event to render, try requesting next event
 							tryRequestOneshot(data.emptyFinish, eventSplitted);
-						} else {
+						}
+						else {
 							console.info('there are no more events to prerender');
 						}
 						break;
@@ -793,21 +822,22 @@ export const SubtitlesOctopus = function (options) {
 				self.frameId = data.id;
 				self.worker.postMessage({
 					target: 'tock',
-					id: self.frameId
+					id: self.frameId,
 				});
 				break;
 			}
 			case 'custom': {
-				if (self['onCustomMessage']) {
-					self['onCustomMessage'](event);
-				} else {
+				if (self.onCustomMessage) {
+					self.onCustomMessage(event);
+				}
+				else {
 					throw 'Custom message received but client onCustomMessage not implemented.';
 				}
 				break;
 			}
 			case 'setimmediate': {
 				self.worker.postMessage({
-					target: 'setimmediate'
+					target: 'setimmediate',
 				});
 				break;
 			}
@@ -821,19 +851,20 @@ export const SubtitlesOctopus = function (options) {
 				break;
 			}
 			default:
-				throw 'what? ' + data.target;
+				throw `what? ${data.target}`;
 		}
 	};
 
 	function _computeCanvasSize(width, height) {
-		var scalefactor = self.prescaleFactor <= 0 ? 1.0 : self.prescaleFactor;
+		const scalefactor = self.prescaleFactor <= 0 ? 1.0 : self.prescaleFactor;
 
 		if (height <= 0 || width <= 0) {
 			width = 0;
 			height = 0;
-		} else {
-			var sgn = scalefactor < 1 ? -1 : 1;
-			var newH = height;
+		}
+		else {
+			const sgn = scalefactor < 1 ? -1 : 1;
+			let newH = height;
 			if (sgn * newH * scalefactor <= sgn * self.prescaleHeightLimit)
 				newH *= scalefactor;
 			else if (sgn * newH < sgn * self.prescaleHeightLimit)
@@ -846,19 +877,19 @@ export const SubtitlesOctopus = function (options) {
 			height = newH;
 		}
 
-		return {'width': width, 'height': height};
+		return { width, height };
 	}
 
 	self.resize = function (width, height, top, left) {
-		var videoSize = null;
+		let videoSize = null;
 		top = top || 0;
 		left = left || 0;
 		if ((!width || !height) && self.video) {
 			videoSize = self.getVideoPosition();
-			var newSize = _computeCanvasSize(videoSize.width * self.pixelRatio, videoSize.height * self.pixelRatio);
+			const newSize = _computeCanvasSize(videoSize.width * self.pixelRatio, videoSize.height * self.pixelRatio);
 			width = newSize.width;
 			height = newSize.height;
-			var offset = self.canvasParent.getBoundingClientRect().top - self.video.getBoundingClientRect().top;
+			const offset = self.canvasParent.getBoundingClientRect().top - self.video.getBoundingClientRect().top;
 			top = videoSize.y - offset;
 			left = videoSize.x;
 		}
@@ -873,10 +904,10 @@ export const SubtitlesOctopus = function (options) {
 			self.canvasParent.style.position = 'relative';
 			self.canvas.style.display = 'block';
 			self.canvas.style.position = 'absolute';
-			self.canvas.style.width = videoSize.width + 'px';
-			self.canvas.style.height = videoSize.height + 'px';
-			self.canvas.style.top = top + 'px';
-			self.canvas.style.left = left + 'px';
+			self.canvas.style.width = `${videoSize.width}px`;
+			self.canvas.style.height = `${videoSize.height}px`;
+			self.canvas.style.top = `${top}px`;
+			self.canvas.style.left = `${left}px`;
 			self.canvas.style.pointerEvents = 'none';
 		}
 
@@ -889,7 +920,7 @@ export const SubtitlesOctopus = function (options) {
 			self.worker.postMessage({
 				target: 'canvas',
 				width: self.canvas.width,
-				height: self.canvas.height
+				height: self.canvas.height,
 			});
 			self.resetRenderAheadCache(true);
 		}
@@ -903,7 +934,7 @@ export const SubtitlesOctopus = function (options) {
 
 	self.runBenchmark = function () {
 		self.worker.postMessage({
-			target: 'runBenchmark'
+			target: 'runBenchmark',
 		});
 	};
 
@@ -912,21 +943,21 @@ export const SubtitlesOctopus = function (options) {
 		self.worker.postMessage({
 			target: 'custom',
 			userData: data,
-			preMain: options.preMain
+			preMain: options.preMain,
 		});
 	};
 
 	self.setCurrentTime = function (currentTime) {
 		self.worker.postMessage({
 			target: 'video',
-			currentTime: currentTime
+			currentTime,
 		});
 	};
 
 	self.setTrackByUrl = function (url) {
 		self.worker.postMessage({
 			target: 'set-track-by-url',
-			url: url
+			url,
 		});
 		self.resetRenderAheadCache(false);
 	};
@@ -934,39 +965,38 @@ export const SubtitlesOctopus = function (options) {
 	self.setTrack = function (content) {
 		self.worker.postMessage({
 			target: 'set-track',
-			content: content
+			content,
 		});
 		self.resetRenderAheadCache(false);
 	};
 
 	self.freeTrack = function (content) {
 		self.worker.postMessage({
-			target: 'free-track'
+			target: 'free-track',
 		});
 		self.resetRenderAheadCache(false);
 	};
-
 
 	self.render = self.setCurrentTime;
 
 	self.setIsPaused = function (isPaused, currentTime) {
 		self.worker.postMessage({
 			target: 'video',
-			isPaused: isPaused,
-			currentTime: currentTime
+			isPaused,
+			currentTime,
 		});
 	};
 
 	self.setRate = function (rate) {
 		self.worker.postMessage({
 			target: 'video',
-			rate: rate
+			rate,
 		});
 	};
 
 	self.dispose = function () {
 		self.worker.postMessage({
-			target: 'destroy'
+			target: 'destroy',
 		});
 
 		self.worker.terminate();
@@ -1012,99 +1042,100 @@ export const SubtitlesOctopus = function (options) {
 
 	self.fetchFromWorker = function (workerOptions, onSuccess, onError) {
 		try {
-			var target = workerOptions['target']
+			const target = workerOptions.target;
 
-			var timeout = setTimeout(function() {
-				reject(Error('Error: Timeout while try to fetch ' + target))
-			}, 5000)
+			const timeout = setTimeout(() => {
+				reject(new Error(`Error: Timeout while try to fetch ${target}`));
+			}, 5000);
 
-			var resolve = function (event) {
+			const resolve = function (event) {
 				if (event.data.target == target) {
-					onSuccess(event.data)
-					self.worker.removeEventListener('message', resolve)
-					self.worker.removeEventListener('error', reject)
-					clearTimeout(timeout)
+					onSuccess(event.data);
+					self.worker.removeEventListener('message', resolve);
+					self.worker.removeEventListener('error', reject);
+					clearTimeout(timeout);
 				}
-			}
+			};
 
 			var reject = function (event) {
-				onError(event)
-				self.worker.removeEventListener('message', resolve)
-				self.worker.removeEventListener('error', reject)
-				clearTimeout(timeout)
-			}
+				onError(event);
+				self.worker.removeEventListener('message', resolve);
+				self.worker.removeEventListener('error', reject);
+				clearTimeout(timeout);
+			};
 
-			self.worker.addEventListener('message', resolve)
-			self.worker.addEventListener('error', reject)
+			self.worker.addEventListener('message', resolve);
+			self.worker.addEventListener('error', reject);
 
-			self.worker.postMessage(workerOptions)
-		} catch (error) {
-			onError(error)
+			self.worker.postMessage(workerOptions);
 		}
-	}
+		catch (error) {
+			onError(error);
+		}
+	};
 
 	self.createEvent = function (event) {
 		self.worker.postMessage({
 			target: 'create-event',
-			event: event
+			event,
 		});
 	};
 
 	self.getEvents = function (onSuccess, onError) {
 		self.fetchFromWorker({
-			target: 'get-events'
-		}, function(data) {
-			onSuccess(data.events)
+			target: 'get-events',
+		}, (data) => {
+			onSuccess(data.events);
 		}, onError);
 	};
 
 	self.setEvent = function (event, index) {
 		self.worker.postMessage({
 			target: 'set-event',
-			event: event,
-			index: index
+			event,
+			index,
 		});
 	};
 
 	self.removeEvent = function (index) {
 		self.worker.postMessage({
 			target: 'remove-event',
-			index: index
+			index,
 		});
 	};
 
 	self.createStyle = function (style) {
 		self.worker.postMessage({
 			target: 'create-style',
-			style: style
+			style,
 		});
 	};
 
 	self.getStyles = function (onSuccess, onError) {
 		self.fetchFromWorker({
-			target: 'get-styles'
-		}, function(data) {
-			onSuccess(data.styles)
+			target: 'get-styles',
+		}, (data) => {
+			onSuccess(data.styles);
 		}, onError);
 	};
 
 	self.setStyle = function (style, index) {
 		self.worker.postMessage({
 			target: 'set-style',
-			style: style,
-			index: index
+			style,
+			index,
 		});
 	};
 
 	self.removeStyle = function (index) {
 		self.worker.postMessage({
 			target: 'remove-style',
-			index: index
+			index,
 		});
 	};
 
 	self.init();
-};
+}
 
 if (typeof SubtitlesOctopusOnLoad == 'function') {
 	SubtitlesOctopusOnLoad();
