@@ -1,5 +1,7 @@
 Complete reference for building plugins. Plugins extend the player with UI, functionality, or both.
 
+> **[▶ Live Examples](https://examples.nomercy.tv/wiki/examples/):** [Custom Plugin](https://examples.nomercy.tv/wiki/examples/custom-plugin.html) · [Keyboard Shortcuts](https://examples.nomercy.tv/wiki/examples/keyboard-shortcuts.html)
+
 All imports come from the package root:
 
 ```typescript

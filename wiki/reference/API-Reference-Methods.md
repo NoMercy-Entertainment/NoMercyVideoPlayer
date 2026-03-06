@@ -1,5 +1,7 @@
 Complete reference for all NMPlayer methods, organized by category.
 
+> **[▶ Live Examples](https://examples.nomercy.tv/wiki/examples/):** [Seeking](https://examples.nomercy.tv/wiki/examples/seeking-controls.html) · [Volume & Audio](https://examples.nomercy.tv/wiki/examples/volume-audio.html) · [Display Modes](https://examples.nomercy.tv/wiki/examples/display-modes.html) · [Tracks](https://examples.nomercy.tv/wiki/examples/tracks.html) · [Advanced](https://examples.nomercy.tv/wiki/examples/advanced.html)
+
 ## Table of Contents
 
 - [Setup & Configuration](#setup--configuration)

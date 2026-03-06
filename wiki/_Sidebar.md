@@ -30,3 +30,7 @@
 - [API Reference](API-Reference)
 - [Methods](API-Reference-Methods)
 - [Events](Events)
+
+**Examples**
+
+- [All Wiki Examples](https://examples.nomercy.tv/wiki/examples/)
