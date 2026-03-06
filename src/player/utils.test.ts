@@ -36,7 +36,7 @@ describe('humanTime', () => {
 	});
 
 	it('handles NaN input', () => {
-		expect(humanTime(NaN)).toBe('00:00');
+		expect(humanTime(Number.NaN)).toBe('00:00');
 	});
 
 	it('handles string input', () => {

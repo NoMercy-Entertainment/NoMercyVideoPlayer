@@ -72,7 +72,7 @@ export const audioMethods = {
 	 * @returns The index of the audio track with the specified language, or -1 if no such track exists.
 	 */
 	audioTrackIndexByLanguage(this: NMPlayer, language: string): number {
-		return this.audioTracks().findIndex((t) => t.language === language);
+		return this.audioTracks().findIndex(t => t.language === language);
 	},
 
 	setCurrentAudioTrackFromStorage(this: NMPlayer): void {

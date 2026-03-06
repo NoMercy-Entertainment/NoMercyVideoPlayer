@@ -144,8 +144,8 @@ describe('playbackMethods', () => {
 
 		it('warns on non-finite value', () => {
 			const player = createMockPlayer();
-			player.seek(NaN);
-			expect(player.logger.warn).toHaveBeenCalledWith('seek() received non-finite value', { arg: NaN });
+			player.seek(Number.NaN);
+			expect(player.logger.warn).toHaveBeenCalledWith('seek() received non-finite value', { arg: Number.NaN });
 		});
 	});
 
@@ -164,13 +164,13 @@ describe('playbackMethods', () => {
 
 		it('warns on non-finite value', () => {
 			const player = createMockPlayer();
-			player.seekByPercentage(NaN);
-			expect(player.logger.warn).toHaveBeenCalledWith('seekByPercentage() received non-finite value', { arg: NaN });
+			player.seekByPercentage(Number.NaN);
+			expect(player.logger.warn).toHaveBeenCalledWith('seekByPercentage() received non-finite value', { arg: Number.NaN });
 		});
 
 		it('warns when duration not available', () => {
 			const player = createMockPlayer();
-			Object.defineProperty(player.videoElement, 'duration', { value: NaN });
+			Object.defineProperty(player.videoElement, 'duration', { value: Number.NaN });
 			player.seekByPercentage(50);
 			expect(player.logger.warn).toHaveBeenCalledWith('seekByPercentage() called before duration is available');
 		});
@@ -198,8 +198,8 @@ describe('playbackMethods', () => {
 
 		it('warns on non-finite value', () => {
 			const player = createMockPlayer();
-			player.speed(NaN);
-			expect(player.logger.warn).toHaveBeenCalledWith('speed() requires a positive finite number', { value: NaN });
+			player.speed(Number.NaN);
+			expect(player.logger.warn).toHaveBeenCalledWith('speed() requires a positive finite number', { value: Number.NaN });
 		});
 
 		it('warns on zero', () => {

@@ -207,8 +207,8 @@ describe('volumeMethods', () => {
 		it('warns on non-finite value', () => {
 			const gainNode = { gain: { value: 1, minValue: 0, maxValue: 3.4, defaultValue: 1 } };
 			const player = createMockPlayer({ gainNode });
-			player.gain(NaN);
-			expect(player.logger.warn).toHaveBeenCalledWith('gain() requires a finite number', { value: NaN });
+			player.gain(Number.NaN);
+			expect(player.logger.warn).toHaveBeenCalledWith('gain() requires a finite number', { value: Number.NaN });
 		});
 
 		it('warns when no gainNode', () => {

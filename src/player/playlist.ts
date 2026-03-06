@@ -9,7 +9,8 @@ export const playlistMethods = {
 
 	tracks<K extends TrackType>(this: NMPlayer, kind?: K): Track[] | TrackKindMap[K][] {
 		const all = this.playlistItem()?.tracks ?? [];
-		if (!kind) return all;
+		if (!kind)
+			return all;
 		return all.filter((t: Track): t is TrackKindMap[K] => t.kind === kind);
 	},
 
@@ -85,7 +86,7 @@ export const playlistMethods = {
 		const json = await response.json();
 
 		if (!Array.isArray(json)) {
-			throw new Error(`Playlist fetch returned non-array response (${url})`);
+			throw new TypeError(`Playlist fetch returned non-array response (${url})`);
 		}
 
 		return json as PlaylistItem[];

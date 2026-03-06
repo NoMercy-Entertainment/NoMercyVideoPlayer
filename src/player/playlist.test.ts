@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { playlistMethods } from './playlist';
 import type { SubtitleTrack, Track } from '../types';
 
@@ -13,7 +13,8 @@ function createMockPlayer(tracks: Track[] = []) {
 
 	// Bind methods
 	player.playlistItem = function (index?: number) {
-		if (index === undefined) return this.currentPlaylistItem;
+		if (index === undefined)
+			return this.currentPlaylistItem;
 	};
 
 	player.tracks = playlistMethods.tracks.bind(player);

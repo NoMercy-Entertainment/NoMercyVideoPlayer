@@ -28,15 +28,15 @@ const defaultHandler: LogHandler = (level, category, message, context) => {
 	}
 
 	switch (level) {
-	case 'error':
-		console.error(...args);
-		break;
-	case 'warn':
-		console.warn(...args);
-		break;
-	default:
-		console.log(...args);
-		break;
+		case 'error':
+			console.error(...args);
+			break;
+		case 'warn':
+			console.warn(...args);
+			break;
+		default:
+			console.log(...args);
+			break;
 	}
 };
 

@@ -1,6 +1,7 @@
 import type { PlaylistItem, StretchOptions } from './data';
-export type { LogConfig, LogHandler, LogLevel } from '../player/logger';
 import type { LogConfig } from '../player/logger';
+
+export type { LogConfig, LogHandler, LogLevel } from '../player/logger';
 
 export interface PlayerConfig<T = Record<string, any>> {
 	chapters?: boolean;

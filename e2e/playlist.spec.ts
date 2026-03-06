@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
@@ -30,14 +30,16 @@ test.describe('Empty playlist', () => {
 
 	test('next() does not throw on empty playlist', async ({ page }) => {
 		const threw = await page.evaluate(() => {
-			try { (window as any).player.next(); return false; } catch { return true; }
+			try { (window as any).player.next(); return false; }
+			catch { return true; }
 		});
 		expect(threw).toBe(false);
 	});
 
 	test('previous() does not throw on empty playlist', async ({ page }) => {
 		const threw = await page.evaluate(() => {
-			try { (window as any).player.previous(); return false; } catch { return true; }
+			try { (window as any).player.previous(); return false; }
+			catch { return true; }
 		});
 		expect(threw).toBe(false);
 	});

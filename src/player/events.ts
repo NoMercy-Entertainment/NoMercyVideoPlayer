@@ -481,10 +481,15 @@ export const eventMethods = {
 			this.container.removeEventListener(event.type, event.handler as EventListener);
 		});
 
-		if (this._boundEmitPlay) this.off('play', this._boundEmitPlay);
-		if (this._boundEmitPaused) this.off('pause', this._boundEmitPaused);
-		if (this._boundShowControls) this.off('showControls', this._boundShowControls);
-		if (this._boundHideControls) this.off('hideControls', this._boundHideControls);
-		if (this._boundDynamicControls) this.off('dynamicControls', this._boundDynamicControls);
+		if (this._boundEmitPlay)
+			this.off('play', this._boundEmitPlay);
+		if (this._boundEmitPaused)
+			this.off('pause', this._boundEmitPaused);
+		if (this._boundShowControls)
+			this.off('showControls', this._boundShowControls);
+		if (this._boundHideControls)
+			this.off('hideControls', this._boundHideControls);
+		if (this._boundDynamicControls)
+			this.off('dynamicControls', this._boundDynamicControls);
 	},
 };

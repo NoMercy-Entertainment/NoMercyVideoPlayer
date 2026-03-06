@@ -17,7 +17,7 @@ function createMockStorage(): StorageInterface {
 	};
 }
 
-describe('PlayerStorage', () => {
+describe('playerStorage', () => {
 	describe('get', () => {
 		it('returns default value when key not found', async () => {
 			const storage = new PlayerStorage(createMockStorage());

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
@@ -14,13 +14,23 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('Playback API methods exist', () => {
 	const methods = [
-		'play', 'pause', 'togglePlayback', 'stop', 'seek', 'seekByPercentage',
-		'restart', 'rewind', 'forward', 'speed', 'speeds', 'hasSpeeds',
+		'play',
+		'pause',
+		'togglePlayback',
+		'stop',
+		'seek',
+		'seekByPercentage',
+		'restart',
+		'rewind',
+		'forward',
+		'speed',
+		'speeds',
+		'hasSpeeds',
 	];
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -31,7 +41,7 @@ test.describe('Volume API methods exist', () => {
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -39,16 +49,30 @@ test.describe('Volume API methods exist', () => {
 
 test.describe('Display API methods exist', () => {
 	const methods = [
-		'fullscreen', 'enterFullscreen', 'exitFullscreen', 'toggleFullscreen',
-		'aspect', 'setAspect', 'cycleAspectRatio', 'setAllowFullscreen',
-		'resize', 'width', 'height', 'element', 'state',
-		'currentTime', 'duration', 'timeData', 'currentSrc',
-		'hasPIP', 'setFloatingPlayer',
+		'fullscreen',
+		'enterFullscreen',
+		'exitFullscreen',
+		'toggleFullscreen',
+		'aspect',
+		'setAspect',
+		'cycleAspectRatio',
+		'setAllowFullscreen',
+		'resize',
+		'width',
+		'height',
+		'element',
+		'state',
+		'currentTime',
+		'duration',
+		'timeData',
+		'currentSrc',
+		'hasPIP',
+		'setFloatingPlayer',
 	];
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -56,13 +80,19 @@ test.describe('Display API methods exist', () => {
 
 test.describe('Subtitle API methods exist', () => {
 	const methods = [
-		'subtitle', 'subtitles', 'subtitleIndex', 'subtitleIndexBy',
-		'hasSubtitles', 'cycleSubtitles', 'subtitleStyle', 'subtitleFile',
+		'subtitle',
+		'subtitles',
+		'subtitleIndex',
+		'subtitleIndexBy',
+		'hasSubtitles',
+		'cycleSubtitles',
+		'subtitleStyle',
+		'subtitleFile',
 	];
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -70,13 +100,17 @@ test.describe('Subtitle API methods exist', () => {
 
 test.describe('Audio API methods exist', () => {
 	const methods = [
-		'audioTrack', 'audioTracks', 'audioTrackIndex',
-		'hasAudioTracks', 'cycleAudioTracks', 'audioTrackIndexByLanguage',
+		'audioTrack',
+		'audioTracks',
+		'audioTrackIndex',
+		'hasAudioTracks',
+		'cycleAudioTracks',
+		'audioTrackIndexByLanguage',
 	];
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -87,7 +121,7 @@ test.describe('Quality API methods exist', () => {
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -95,13 +129,17 @@ test.describe('Quality API methods exist', () => {
 
 test.describe('Chapter API methods exist', () => {
 	const methods = [
-		'chapters', 'chapter', 'chapterFile', 'chapterText',
-		'previousChapter', 'nextChapter',
+		'chapters',
+		'chapter',
+		'chapterFile',
+		'chapterText',
+		'previousChapter',
+		'nextChapter',
 	];
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -112,7 +150,7 @@ test.describe('Skipper API methods exist', () => {
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -120,15 +158,25 @@ test.describe('Skipper API methods exist', () => {
 
 test.describe('Playlist API methods exist', () => {
 	const methods = [
-		'playlist', 'playlistItem', 'playlistIndex', 'playVideo',
-		'load', 'setPlaylist', 'next', 'previous', 'setEpisode',
-		'isFirstPlaylistItem', 'isLastPlaylistItem', 'hasPlaylists',
-		'seasons', 'tracks',
+		'playlist',
+		'playlistItem',
+		'playlistIndex',
+		'playVideo',
+		'load',
+		'setPlaylist',
+		'next',
+		'previous',
+		'setEpisode',
+		'isFirstPlaylistItem',
+		'isLastPlaylistItem',
+		'hasPlaylists',
+		'seasons',
+		'tracks',
 	];
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -139,7 +187,7 @@ test.describe('Event API methods exist', () => {
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -147,14 +195,20 @@ test.describe('Event API methods exist', () => {
 
 test.describe('DOM utility methods exist', () => {
 	const methods = [
-		'createElement', 'addClasses', 'displayMessage',
-		'snakeToCamel', 'spaceToCamel', 'isMobile', 'isTv',
-		'doubleTap', 'appendScriptFilesToDocument',
+		'createElement',
+		'addClasses',
+		'displayMessage',
+		'snakeToCamel',
+		'spaceToCamel',
+		'isMobile',
+		'isTv',
+		'doubleTap',
+		'appendScriptFilesToDocument',
 	];
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -165,7 +219,7 @@ test.describe('Translation methods exist', () => {
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}
@@ -176,7 +230,7 @@ test.describe('Lifecycle methods exist', () => {
 
 	for (const method of methods) {
 		test(`${method}() is a function`, async ({ page }) => {
-			const isFn = await page.evaluate((m) => typeof (window as any).player[m] === 'function', method);
+			const isFn = await page.evaluate(m => typeof (window as any).player[m] === 'function', method);
 			expect(isFn).toBe(true);
 		});
 	}

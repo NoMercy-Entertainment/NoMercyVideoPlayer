@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Base } from './base';
 
-describe('Base (event emitter)', () => {
+describe('base (event emitter)', () => {
 	function createBase() {
 		return new Base();
 	}

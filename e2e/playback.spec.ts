@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
@@ -88,7 +88,8 @@ test.describe('Playback controls (no source)', () => {
 			try {
 				(window as any).player.togglePlayback();
 				return false;
-			} catch {
+			}
+			catch {
 				return true;
 			}
 		});
@@ -100,7 +101,8 @@ test.describe('Playback controls (no source)', () => {
 			try {
 				(window as any).player.pause();
 				return false;
-			} catch {
+			}
+			catch {
 				return true;
 			}
 		});
@@ -112,7 +114,8 @@ test.describe('Playback controls (no source)', () => {
 			try {
 				(window as any).player.stop();
 				return false;
-			} catch {
+			}
+			catch {
 				return true;
 			}
 		});
@@ -141,7 +144,8 @@ test.describe('Playback controls (no source)', () => {
 			try {
 				(window as any).player.rewind(5);
 				return false;
-			} catch {
+			}
+			catch {
 				return true;
 			}
 		});
@@ -153,7 +157,8 @@ test.describe('Playback controls (no source)', () => {
 			try {
 				(window as any).player.forward(5);
 				return false;
-			} catch {
+			}
+			catch {
 				return true;
 			}
 		});
@@ -165,7 +170,8 @@ test.describe('Playback controls (no source)', () => {
 			try {
 				(window as any).player.restart();
 				return false;
-			} catch {
+			}
+			catch {
 				return true;
 			}
 		});
@@ -292,7 +298,8 @@ test.describe('Dispose', () => {
 				player.dispose();
 				player.dispose();
 				return false;
-			} catch {
+			}
+			catch {
 				return true;
 			}
 		});

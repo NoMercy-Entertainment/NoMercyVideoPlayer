@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
@@ -42,7 +42,8 @@ test.describe('Event emitter: on/emit', () => {
 			try {
 				(window as any).player.emit('nonexistent-event', { data: 1 });
 				return false;
-			} catch {
+			}
+			catch {
 				return true;
 			}
 		});

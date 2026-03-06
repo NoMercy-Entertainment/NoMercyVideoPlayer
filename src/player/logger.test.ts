@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { Logger } from './logger';
 import type { LogHandler } from './logger';
 
-describe('Logger', () => {
+describe('logger', () => {
 	describe('level filtering', () => {
 		it('logs error at error level', () => {
 			const handler = vi.fn();

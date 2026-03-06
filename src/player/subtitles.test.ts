@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 import { subtitleMethods } from './subtitles';
-import type { SubtitleTrack } from '../types';
 
 function createMockPlayer(overrides: Record<string, any> = {}) {
 	const mockStorage = {
