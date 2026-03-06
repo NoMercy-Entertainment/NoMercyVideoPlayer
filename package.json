@@ -1,7 +1,7 @@
 {
 	"name": "@nomercy-entertainment/nomercy-video-player",
 	"type": "module",
-	"version": "1.0.0-beta.6",
+	"version": "1.0.0-beta.7",
 	"description": "Full event-driven video player without a UI.",
 	"author": {
 		"name": "NoMercy Entertainment",
@@ -58,7 +58,7 @@
 		"prepublishOnly": "npm run build"
 	},
 	"dependencies": {
-		"@nomercy-entertainment/media-session": "^1.0.0",
+		"@nomercy-entertainment/media-session": "^1.0.1",
 		"@types/webvtt-parser": "2.2.0",
 		"hls.js": "1.6.15",
 		"tailwind-merge": "3.5.0",
