@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: 'npm'
+          cache: npm
 
       - name: Upgrade npm for trusted publishing
         run: npm install -g npm@latest

@@ -24,7 +24,7 @@ jobs:
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
-          
+
       # Step 4: Create the tag
       - name: Create tag
         run: |
@@ -37,8 +37,8 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
-          tag_name: "${{ env.PACKAGE_VERSION }}"
-          release_name: "Release ${{ env.PACKAGE_VERSION }}"
+          tag_name: '${{ env.PACKAGE_VERSION }}'
+          release_name: 'Release ${{ env.PACKAGE_VERSION }}'
           draft: false
           prerelease: ${{ contains(env.PACKAGE_VERSION, '-') }}
         env:
