@@ -1039,7 +1039,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				subtitleExt as string,
 			);
 
-			if (!track || track === -1)
+			if (track == null || track === -1)
 				return;
 
 			this.options.debug && console.log('Setting caption from storage', track);
@@ -1924,9 +1924,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	// Method to load and play a video from the playlist
 	playVideo(index: number) {
 		if (index >= 0 && index < this._playlist.length) {
+			this.currentSubtitleFile = '';
+			this.currentSubtitleIndex = -1;
 			this._subtitles = <VTTData>{};
 			this.subtitleText.textContent = '';
 			this.subtitleOverlay.style.display = 'none';
+			this.emit('captionsChanged', this.subtitle());
 
 			this.currentPlaylistItem = this._playlist[index] as PlaylistItem & T;
 
@@ -2163,9 +2166,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 				default: true,
 			};
 		}
-
-		if (index !== 0)
-			return;
 
 		this.currentSubtitleFile = '';
 		this.currentSubtitleIndex = index;
@@ -2469,7 +2469,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	playlistItem(): (PlaylistItem & T);
 	playlistItem(index: number): void;
 	playlistItem(index?: number): (PlaylistItem & T) | void {
-		if (!index) {
+		if (index === undefined) {
 			return this.currentPlaylistItem as (PlaylistItem & T);
 		}
 
