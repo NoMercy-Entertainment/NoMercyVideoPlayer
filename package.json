@@ -1,7 +1,7 @@
 {
 	"name": "@nomercy-entertainment/nomercy-video-player",
 	"type": "module",
-	"version": "1.0.0-beta.11",
+	"version": "1.0.0-beta.12",
 	"description": "Full event-driven video player without a UI.",
 	"author": {
 		"name": "NoMercy Entertainment",
@@ -38,7 +38,7 @@
 		"./src": "./src/index.ts",
 		"./src/index": "./src/index.ts",
 		"./src/player/utils": "./src/player/utils.ts",
-		"./src/plugin": "./src/plugin.ts",
+		"./src/plugin": "./src/plugins/plugin.ts",
 		"./src/plugins/*": "./src/plugins/*",
 		"./dist/*": "./dist/*"
 	},
