@@ -1,4 +1,4 @@
-import type { StorageInterface } from './types';
+import type { StorageInterface } from '../types';
 
 export class PlayerStorage {
 	public storage: StorageInterface;

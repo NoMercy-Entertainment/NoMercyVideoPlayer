@@ -1,0 +1,137 @@
+name: Test Reports
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run unit & integration tests
+        run: npx vitest run --reporter=default --reporter=html --outputFile=reports/vitest/index.html
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npx playwright test
+
+      - name: Generate landing page
+        run: |
+          cat > reports/index.html << 'LANDING'
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>NoMercyVideoPlayer — Test Reports</title>
+              <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                  background: #0a0a0a;
+                  color: #e0e0e0;
+                  min-height: 100vh;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 2rem;
+                }
+                h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #fff; }
+                .subtitle { color: #888; margin-bottom: 3rem; font-size: 0.95rem; }
+                .cards {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                  gap: 1.5rem;
+                  max-width: 800px;
+                  width: 100%;
+                }
+                a.card {
+                  display: block;
+                  background: #161616;
+                  border: 1px solid #2a2a2a;
+                  border-radius: 12px;
+                  padding: 2rem;
+                  text-decoration: none;
+                  color: inherit;
+                  transition: border-color 0.2s, transform 0.2s;
+                }
+                a.card:hover { border-color: #555; transform: translateY(-2px); }
+                .card h2 { font-size: 1.25rem; color: #fff; margin-bottom: 0.5rem; }
+                .card .badge {
+                  display: inline-block;
+                  padding: 0.2rem 0.6rem;
+                  border-radius: 6px;
+                  font-size: 0.75rem;
+                  font-weight: 600;
+                  margin-bottom: 0.75rem;
+                }
+                .badge.vitest { background: #1a1a2e; color: #729b1b; border: 1px solid #729b1b44; }
+                .badge.playwright { background: #1a1a2e; color: #2eae4a; border: 1px solid #2eae4a44; }
+                .card p { color: #999; font-size: 0.9rem; line-height: 1.5; }
+                footer { margin-top: 3rem; color: #555; font-size: 0.8rem; }
+                footer a { color: #888; }
+              </style>
+            </head>
+            <body>
+              <h1>NoMercyVideoPlayer</h1>
+              <p class="subtitle">Test Reports</p>
+              <div class="cards">
+                <a class="card" href="./vitest/">
+                  <span class="badge vitest">Vitest</span>
+                  <h2>Unit &amp; Integration Tests</h2>
+                  <p>380 tests across 21 files. Covers utilities, event emitter, storage, playback, volume, display, subtitles, audio, chapters, plugins, and more.</p>
+                </a>
+                <a class="card" href="./playwright/">
+                  <span class="badge playwright">Playwright</span>
+                  <h2>End-to-End Tests</h2>
+                  <p>224 tests across 7 spec files. Covers full API surface, real browser playback, events, DOM, playlists, and lifecycle in Chromium.</p>
+                </a>
+              </div>
+              <footer>
+                <a href="https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer">GitHub</a>
+              </footer>
+            </body>
+          </html>
+          LANDING
+
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: reports
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

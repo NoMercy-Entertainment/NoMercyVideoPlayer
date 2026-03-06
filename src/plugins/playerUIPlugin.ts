@@ -1,5 +1,5 @@
-import Plugin from '../plugin';
-import type { Icon, Level, NMPlayer, Track, VolumeState } from '../types';
+import Plugin from './plugin';
+import type { AudioTrack, Icon, Level, NMPlayer, SubtitleTrack, VolumeState } from '../types';
 
 const icons: Icon = {
 	play: {
@@ -114,6 +114,11 @@ export class PlayerUIPlugin extends Plugin {
 			this.toggleMenu(null);
 	};
 
+	// Pre-bound so we can remove them in dispose().
+	private onDocumentMouseUp = () => { this._volDragging = false; };
+	private onDocumentTouchEnd = () => { this._volDragging = false; };
+	private _volDragging = false;
+
 	initialize(player: NMPlayer<any>) {
 		this.player = player;
 	}
@@ -168,6 +173,8 @@ export class PlayerUIPlugin extends Plugin {
 		// Document-level listeners need explicit removal because they aren't
 		// attached to our DOM tree — removing elements won't clean them up.
 		document.removeEventListener('click', this.onDocumentClick);
+		document.removeEventListener('mouseup', this.onDocumentMouseUp);
+		document.removeEventListener('touchend', this.onDocumentTouchEnd);
 
 		// Removing a DOM element also removes all event listeners attached to it
 		// and its children. player.on() handlers are cleaned up by the player on destroy.
@@ -630,7 +637,6 @@ export class PlayerUIPlugin extends Plugin {
 		};
 
 		// Set volume from click / drag position
-		let volDragging = false;
 		const getVolFromEvent = (e: MouseEvent | TouchEvent): number => {
 			const rect = this.volumeSlider.getBoundingClientRect();
 			const clientX = ('clientX' in e ? e.clientX : undefined)
@@ -642,14 +648,14 @@ export class PlayerUIPlugin extends Plugin {
 		};
 
 		this.volumeSlider.addEventListener('mousedown', () => {
-			volDragging = true;
+			this._volDragging = true;
 		}, { passive: true });
 		this.volumeSlider.addEventListener('touchstart', () => {
-			volDragging = true;
+			this._volDragging = true;
 		}, { passive: true });
 
 		this.volumeSlider.addEventListener('click', (e: MouseEvent) => {
-			volDragging = false;
+			this._volDragging = false;
 			const vol = getVolFromEvent(e);
 			this.player.volume(vol);
 			updateVolSliderUI(vol);
@@ -657,7 +663,7 @@ export class PlayerUIPlugin extends Plugin {
 
 		['mousemove', 'touchmove'].forEach((evt) => {
 			this.volumeSlider.addEventListener(evt, (e: any) => {
-				if (!volDragging)
+				if (!this._volDragging)
 					return;
 				const vol = getVolFromEvent(e);
 				this.player.volume(vol);
@@ -666,14 +672,10 @@ export class PlayerUIPlugin extends Plugin {
 		});
 
 		this.volumeSlider.addEventListener('mouseleave', () => {
-			volDragging = false;
+			this._volDragging = false;
 		}, { passive: true });
-		document.addEventListener('mouseup', () => {
-			volDragging = false;
-		}, { passive: true });
-		document.addEventListener('touchend', () => {
-			volDragging = false;
-		}, { passive: true });
+		document.addEventListener('mouseup', this.onDocumentMouseUp, { passive: true });
+		document.addEventListener('touchend', this.onDocumentTouchEnd, { passive: true });
 
 		// Swap between three volume icons based on mute state and level
 		const updateVolumeIcon = (volume: number, muted: boolean) => {
@@ -1013,7 +1015,7 @@ export class PlayerUIPlugin extends Plugin {
 			.appendTo(this.bottomRow)
 			.get();
 
-		this.player.on('captionsList', (tracks: Track[]) => {
+		this.player.on('captionsList', (tracks: SubtitleTrack[]) => {
 			if (!this.subtitleMenu || !this.subtitleButton)
 				return;
 			this.subtitleButton.style.display = tracks.length > 0 ? '' : 'none';
@@ -1122,7 +1124,7 @@ export class PlayerUIPlugin extends Plugin {
 			.appendTo(this.bottomRow)
 			.get();
 
-		this.player.on('audioTracks', (tracks: Track[]) => {
+		this.player.on('audioTracks', (tracks: AudioTrack[]) => {
 			if (!this.audioMenu || !this.audioButton)
 				return;
 			this.audioButton.style.display = tracks.length > 1 ? '' : 'none';

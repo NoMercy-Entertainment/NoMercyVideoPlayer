@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
@@ -19,6 +20,16 @@ export default defineConfig({
 			name: 'nmplayer',
 			formats: ['es', 'cjs', 'umd', 'iife'],
 			fileName: 'nomercy-video-player',
+		},
+	},
+	test: {
+		globals: true,
+		environment: 'happy-dom',
+		include: ['src/**/*.test.ts'],
+		coverage: {
+			provider: 'v8',
+			include: ['src/**/*.ts'],
+			exclude: ['src/**/*.test.ts', 'src/types/**', 'src/fonts/**'],
 		},
 	},
 	clearScreen: true,

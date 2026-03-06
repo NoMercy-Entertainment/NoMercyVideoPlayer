@@ -1,4 +1,4 @@
-import type { NMPlayer } from './types';
+import type { NMPlayer } from '../types';
 
 class Plugin {
 	declare player: NMPlayer<any>;

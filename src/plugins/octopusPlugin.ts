@@ -1,6 +1,6 @@
 import SubtitlesOctopus from '../../public/js/octopus/subtitles-octopus';
 
-import Plugin from '../plugin';
+import Plugin from './plugin';
 import type { NMPlayer } from '../types';
 
 const OCTOPUS_CDN_BASE = 'https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player@latest/public/js/octopus';

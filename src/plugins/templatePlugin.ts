@@ -1,5 +1,5 @@
-import Plugin from '../plugin';
-import { NMPlayer } from '../types';
+import Plugin from './plugin';
+import type { NMPlayer } from '../types';
 
 export class TemplatePlugin extends Plugin {
 	declare player: NMPlayer<any>;
@@ -9,7 +9,7 @@ export class TemplatePlugin extends Plugin {
 	}
 
 	use() {
-		
+
 	}
 
 	dispose() {

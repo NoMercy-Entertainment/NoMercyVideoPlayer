@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>E2E Test Fixture</title>
+		<style>
+			#player {
+				width: 640px;
+				height: 360px;
+				background: #000;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="player"></div>
+		<script type="module">
+			import nmplayer from '/src/index.ts';
+
+			window.__playerError = null;
+
+			try {
+				const player = nmplayer('player');
+				window.player = player;
+				window.__playerReady = true;
+			} catch (e) {
+				window.__playerError = e.message || String(e);
+				window.__playerReady = false;
+			}
+		</script>
+	</body>
+</html>

@@ -13,4 +13,8 @@ yarn-error.log*
 .yarn.lock
 
 dist/
+coverage/
+test-results/
+playwright-report/
+reports/
 setup.ts

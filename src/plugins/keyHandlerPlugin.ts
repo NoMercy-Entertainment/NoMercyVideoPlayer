@@ -1,4 +1,4 @@
-import Plugin from '../plugin';
+import Plugin from './plugin';
 import type { NMPlayer } from '../types';
 
 export interface KeyHandlerPluginArgs {

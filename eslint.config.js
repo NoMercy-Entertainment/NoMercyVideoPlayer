@@ -12,6 +12,7 @@ export default antfu({
 			'node/prefer-global/process': 'off',
 			'perfectionist/sort-imports': 'off',
 			'ts/no-unsafe-function-type': 'off',
+			'ts/method-signature-style': 'off',
 			'unused-imports/no-unused-vars': 'warn',
 		},
 	},
