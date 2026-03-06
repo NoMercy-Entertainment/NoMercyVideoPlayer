@@ -52,7 +52,7 @@ No framework needed. Initialize the player after the DOM is ready.
 				],
 			};
 
-			var player = window.nmplayer.default('nomercy-player').setup(config);
+			var player = window.nmplayer('nomercy-player').setup(config);
 
 			var playBtn = document.getElementById('play-btn');
 			var timeDisplay = document.getElementById('time');

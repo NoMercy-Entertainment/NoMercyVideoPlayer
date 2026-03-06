@@ -51,7 +51,7 @@
 		"src"
 	],
 	"scripts": {
-		"build": "vite build",
+		"build": "vite build && vite build --config vite.config.iife.ts",
 		"dev": "vite --port 5502 --host",
 		"lint": "eslint --fix .",
 		"test": "vitest run",

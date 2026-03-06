@@ -362,8 +362,6 @@ String.prototype.titleCase = function (lang: string = navigator.language.split('
 
 const nmplayer = <Conf extends Partial<PlayerConfig> = Record<string, any>>(id?: string) => new NMPlayer<Conf>(id);
 
-window.nmplayer = nmplayer as unknown as any;
-
 export default nmplayer;
 
 export { Base } from './player/base';

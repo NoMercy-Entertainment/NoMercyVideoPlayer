@@ -18,7 +18,7 @@ export default defineConfig({
 		lib: {
 			entry: resolve(__dirname, 'src/index.ts'),
 			name: 'nmplayer',
-			formats: ['es', 'cjs', 'umd', 'iife'],
+			formats: ['es', 'cjs', 'umd'],
 			fileName: 'nomercy-video-player',
 		},
 	},
