@@ -21,26 +21,26 @@ npm install @nomercy-entertainment/nomercy-video-player
 ## Quick Example
 
 ```typescript
-import nmplayer from '@nomercy-entertainment/nomercy-video-player';
-import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
+
 import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const player = nmplayer('player').setup({
-  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
-  playlist: [
-    {
-      id: 'sintel',
-      title: 'Sintel',
-      description: 'A short fantasy film by the Blender Foundation',
-      file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-      image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
-      duration: '14:48',
-      tracks: [
-        { id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
-        { id: 1, file: '/Sintel.(2010)/chapters.vtt', kind: 'chapters' },
-      ],
-    },
-  ],
+	basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+	playlist: [
+		{
+			id: 'sintel',
+			title: 'Sintel',
+			description: 'A short fantasy film by the Blender Foundation',
+			file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+			image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+			duration: '14:48',
+			tracks: [
+				{ id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
+				{ id: 1, file: '/Sintel.(2010)/chapters.vtt', kind: 'chapters' },
+			],
+		},
+	],
 });
 
 // Add keyboard shortcuts (Space, arrows, F, M, etc.)
@@ -50,7 +50,7 @@ player.usePlugin('keyHandler');
 
 // React to player state
 player.on('play', () => console.log('Playing'));
-player.on('time', (data) => console.log(`${data.currentTimeHuman} / ${data.durationHuman}`));
+player.on('time', data => console.log(`${data.currentTimeHuman} / ${data.durationHuman}`));
 ```
 
 The `'player'` argument is the ID of a `<div>` element — never use a `<video>` tag. The player creates its own video element internally.
@@ -73,23 +73,32 @@ The `'player'` argument is the ID of a `<div>` element — never use a `<video>`
 
 The player adds CSS classes to the container div that reflect its state. Use these to drive your UI:
 
-| Class | When applied |
-|-------|-------------|
-| `nomercyplayer` | Always present |
-| `playing` | Video is playing |
-| `paused` | Video is paused |
-| `buffering` | Video is buffering |
-| `active` | User is interacting (mouse/keyboard activity) |
-| `inactive` | User stopped interacting (controls should hide) |
-| `error` | Playback error occurred |
+| Class           | When applied                                    |
+| --------------- | ----------------------------------------------- |
+| `nomercyplayer` | Always present                                  |
+| `playing`       | Video is playing                                |
+| `paused`        | Video is paused                                 |
+| `buffering`     | Video is buffering                              |
+| `active`        | User is interacting (mouse/keyboard activity)   |
+| `inactive`      | User stopped interacting (controls should hide) |
+| `error`         | Playback error occurred                         |
 
 **With plain CSS** — target the state classes on the container:
 
 ```css
-.nomercyplayer.paused .controls  { opacity: 1; }
-.nomercyplayer.playing .controls { opacity: 0; }
-.nomercyplayer.active .controls  { opacity: 1; }
-.nomercyplayer.buffering .spinner { display: flex; }
+.nomercyplayer.paused .controls {
+	opacity: 1;
+}
+.nomercyplayer.playing .controls {
+	opacity: 0;
+}
+.nomercyplayer.active .controls {
+	opacity: 1;
+}
+.nomercyplayer.buffering .spinner {
+	display: flex;
+}
+
 ```
 
 **With Tailwind CSS** — add `group` to the container (the player does this automatically) and use the `group-[&.class]` modifier:
@@ -97,18 +106,19 @@ The player adds CSS classes to the container div that reflect its state. Use the
 ```html
 <!-- Show controls when paused or active -->
 <div class="opacity-0 group-[&.paused]:opacity-100 group-[&.active]:opacity-100 transition-opacity">
-  <!-- your controls -->
+	<!-- your controls -->
 </div>
 
 <!-- Show spinner only when buffering -->
 <div class="hidden group-[&.buffering]:flex">
-  <!-- spinner -->
+	<!-- spinner -->
 </div>
 
 <!-- Hide an element during playback -->
 <button class="flex group-[&.playing]:hidden">
-  <!-- big play button -->
+	<!-- big play button -->
 </button>
+
 ```
 
 You can chain multiple states: `group-[&.nomercyplayer:not(.buffering).paused]:bg-black/50` targets a paused, non-buffering player.
@@ -120,21 +130,21 @@ import { Plugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer } from '@nomercy-entertainment/nomercy-video-player';
 
 class MyUIPlugin extends Plugin {
-  declare player: NMPlayer;
+	declare player: NMPlayer;
 
-  initialize(player: NMPlayer) {
-    this.player = player;
-  }
+	initialize(player: NMPlayer) {
+		this.player = player;
+	}
 
-  use() {
-    // Build your UI using player.container, player.overlay, etc.
-    // Listen to events: this.player.on('time', ...)
-    // Call methods: this.player.play(), this.player.seek(30), etc.
-  }
+	use() {
+		// Build your UI using player.container, player.overlay, etc.
+		// Listen to events: this.player.on('time', ...)
+		// Call methods: this.player.play(), this.player.seek(30), etc.
+	}
 
-  dispose() {
-    // Clean up DOM elements and event listeners
-  }
+	dispose() {
+		// Clean up DOM elements and event listeners
+	}
 }
 ```
 
@@ -142,25 +152,25 @@ See the [Plugin Development Guide](https://github.com/NoMercy-Entertainment/NoMe
 
 ## Documentation
 
-| Guide | Description |
-|-------|-------------|
-| [Getting Started](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Quick-Start-Guide) | Installation, setup, and first plugin |
-| [Configuration](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Configuration) | All PlayerConfig options |
-| [Plugin Development](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Plugin-Development) | Extending the player with plugins |
-| [Building a Player UI](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Building-a-Video-Player-UI) | 10-step tutorial from scratch |
-| [API Reference](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/API-Reference) | Types and interfaces |
-| [Methods](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/API-Reference-Methods) | All NMPlayer methods |
-| [Events](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Events) | All events with data types |
-| [Framework Integration](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Framework-Integration) | Vue, React, Svelte, Angular, Vanilla JS |
+| Guide                                                                                                               | Description                             |
+| ------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| [Getting Started](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Quick-Start-Guide)               | Installation, setup, and first plugin   |
+| [Configuration](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Configuration)                     | All PlayerConfig options                |
+| [Plugin Development](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Plugin-Development)           | Extending the player with plugins       |
+| [Building a Player UI](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Building-a-Video-Player-UI) | 10-step tutorial from scratch           |
+| [API Reference](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/API-Reference)                     | Types and interfaces                    |
+| [Methods](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/API-Reference-Methods)                   | All NMPlayer methods                    |
+| [Events](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Events)                                   | All events with data types              |
+| [Framework Integration](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Framework-Integration)     | Vue, React, Svelte, Angular, Vanilla JS |
 
 ## Browser Support
 
-| Feature | Chrome | Firefox | Safari | Edge |
-|---------|--------|---------|--------|------|
-| Core Playback | Yes | Yes | Yes | Yes |
-| HLS Streaming | Yes | Yes | Native | Yes |
-| ASS Subtitles | Yes | Yes | Yes | Yes |
-| Plugin System | Yes | Yes | Yes | Yes |
+| Feature       | Chrome | Firefox | Safari | Edge |
+| ------------- | ------ | ------- | ------ | ---- |
+| Core Playback | Yes    | Yes     | Yes    | Yes  |
+| HLS Streaming | Yes    | Yes     | Native | Yes  |
+| ASS Subtitles | Yes    | Yes     | Yes    | Yes  |
+| Plugin System | Yes    | Yes     | Yes    | Yes  |
 
 ## Contributing
 

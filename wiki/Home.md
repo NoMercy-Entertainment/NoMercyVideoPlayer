@@ -40,7 +40,6 @@ There are no built-in play buttons, progress bars, or volume sliders. The player
 - Volume, mute, playback rate, and seeking
 - Media Session API integration
 
-
 ### Everything Is a Plugin
 
 All UI and extended functionality is built through plugins. A plugin is a class with three methods:
@@ -55,17 +54,31 @@ Instead of rendering UI, the player toggles CSS classes on the container element
 
 ```css
 /* Show/hide your custom controls */
-.nomercyplayer.active .my-controls { opacity: 1; }
-.nomercyplayer.inactive .my-controls { opacity: 0; }
+.nomercyplayer.active .my-controls {
+	opacity: 1;
+}
+.nomercyplayer.inactive .my-controls {
+	opacity: 0;
+}
 
 /* React to playback state */
-.nomercyplayer.playing .play-icon { display: none; }
-.nomercyplayer.playing .pause-icon { display: block; }
-.nomercyplayer.paused .play-icon { display: block; }
-.nomercyplayer.paused .pause-icon { display: none; }
+.nomercyplayer.playing .play-icon {
+	display: none;
+}
+.nomercyplayer.playing .pause-icon {
+	display: block;
+}
+.nomercyplayer.paused .play-icon {
+	display: block;
+}
+.nomercyplayer.paused .pause-icon {
+	display: none;
+}
 
 /* Show spinner while buffering */
-.nomercyplayer.buffering .spinner { display: block; }
+.nomercyplayer.buffering .spinner {
+	display: block;
+}
 ```
 
 ### Events Are Your Data Source
@@ -74,17 +87,17 @@ The player emits typed events for everything: playback state, time updates, trac
 
 ```typescript
 player.on('time', (data) => {
-  // data.currentTime, data.duration, data.percentage,
-  // data.remaining, data.currentTimeHuman, data.durationHuman
+	// data.currentTime, data.duration, data.percentage,
+	// data.remaining, data.currentTimeHuman, data.durationHuman
 });
 ```
 
 ## Included Plugins
 
-| Plugin | Purpose |
-|--------|---------|
-| `OctopusPlugin` | ASS/SSA subtitle rendering via libass |
-| `KeyHandlerPlugin` | VLC-style keyboard shortcuts |
+| Plugin             | Purpose                               |
+| ------------------ | ------------------------------------- |
+| `OctopusPlugin`    | ASS/SSA subtitle rendering via libass |
+| `KeyHandlerPlugin` | VLC-style keyboard shortcuts          |
 
 ## Links
 

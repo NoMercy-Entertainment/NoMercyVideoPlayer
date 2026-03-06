@@ -8,7 +8,7 @@ Step-by-step tutorial that builds a complete, usable video player UI as a plugin
 
 ```typescript
 import nmplayer, { Plugin } from '@nomercy-entertainment/nomercy-video-player';
-import type { NMPlayer, TimeData, VolumeState, Level, Track, CurrentTrack } from '@nomercy-entertainment/nomercy-video-player';
+import type { CurrentTrack, Level, NMPlayer, TimeData, Track, VolumeState } from '@nomercy-entertainment/nomercy-video-player';
 ```
 
 ---
@@ -25,18 +25,18 @@ You can find all icon definitions in [Step 1](Step-1-Plugin-Shell-and-Layout) or
 
 ## Tutorial Steps
 
-| Step | Title | What you build |
-|------|-------|----------------|
-| 1 | [Plugin Shell & Layout](Step-1-Plugin-Shell-and-Layout) | Base plugin class, container layout, CSS structure |
-| 2 | [Play / Pause & Buffering](Step-2-Play-Pause-and-Buffering) | Center play button, buffering spinner, click-to-toggle |
-| 3 | [Progress Bar with Seeking](Step-3-Progress-Bar-with-Seeking) | Seekable slider, buffer bar, hover preview time |
-| 4 | [Time Display & Skip Buttons](Step-4-Time-Display-and-Skip-Buttons) | Current time / duration, 10s skip forward/back |
-| 5 | [Volume Control](Step-5-Volume-Control) | Mute toggle, volume slider, icon state |
-| 6 | [Top Bar with Title](Step-6-Top-Bar-with-Title) | Episode/movie title overlay |
-| 7 | [Fullscreen & Playback Speed](Step-7-Fullscreen-and-Playback-Speed) | Fullscreen toggle, speed selector menu |
-| 8 | [Quality, Subtitles & Audio Selectors](Step-8-Quality-Subtitles-Audio-Selectors) | Quality levels, subtitle tracks, audio tracks, putting it all together |
-| 9 | [Seek Preview Thumbnails](Step-9-Seek-Preview-Thumbnails) | Sprite-based thumbnail tooltip on progress bar hover |
-| 10 | [Touch Zones](Step-10-Touch-Zones) | Double-tap seek, playback toggle, fullscreen, volume zones |
+| Step | Title                                                                            | What you build                                                         |
+| ---- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1    | [Plugin Shell & Layout](Step-1-Plugin-Shell-and-Layout)                          | Base plugin class, container layout, CSS structure                     |
+| 2    | [Play / Pause & Buffering](Step-2-Play-Pause-and-Buffering)                      | Center play button, buffering spinner, click-to-toggle                 |
+| 3    | [Progress Bar with Seeking](Step-3-Progress-Bar-with-Seeking)                    | Seekable slider, buffer bar, hover preview time                        |
+| 4    | [Time Display & Skip Buttons](Step-4-Time-Display-and-Skip-Buttons)              | Current time / duration, 10s skip forward/back                         |
+| 5    | [Volume Control](Step-5-Volume-Control)                                          | Mute toggle, volume slider, icon state                                 |
+| 6    | [Top Bar with Title](Step-6-Top-Bar-with-Title)                                  | Episode/movie title overlay                                            |
+| 7    | [Fullscreen & Playback Speed](Step-7-Fullscreen-and-Playback-Speed)              | Fullscreen toggle, speed selector menu                                 |
+| 8    | [Quality, Subtitles & Audio Selectors](Step-8-Quality-Subtitles-Audio-Selectors) | Quality levels, subtitle tracks, audio tracks, putting it all together |
+| 9    | [Seek Preview Thumbnails](Step-9-Seek-Preview-Thumbnails)                        | Sprite-based thumbnail tooltip on progress bar hover                   |
+| 10   | [Touch Zones](Step-10-Touch-Zones)                                               | Double-tap seek, playback toggle, fullscreen, volume zones             |
 
 ---
 

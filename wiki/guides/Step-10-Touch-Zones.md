@@ -33,6 +33,7 @@ Desktop:                         Mobile:
 ```
 
 **Interactions:**
+
 - **Single tap** on left/right → hide controls
 - **Double tap** on left/right → seek back/forward 10 seconds
 - **Single tap** center → toggle playback
@@ -54,8 +55,8 @@ Grid coordinates for placing touch zones:
 
 ```typescript
 interface Position {
-  x: { start: number; end: number };
-  y: { start: number; end: number };
+	x: { start: number; end: number };
+	y: { start: number; end: number };
 }
 ```
 
@@ -247,12 +248,12 @@ The `icons.bigPlay` object follows the standard `Icon` interface:
 
 ```typescript
 const icons: Icon = {
-  bigPlay: {
-    classes: [],
-    title: 'Play',
-    normal: 'M5 5.27466C5 3.5678 6.82609 2.48249 8.32538 3.29828L20.687 10.0244C22.2531 10.8766 22.2531 13.125 20.687 13.9772L8.32538 20.7033C6.82609 21.5191 5 20.4338 5 18.727V5.27466Z',
-    hover: 'M5 5.27466C5 3.5678 6.82609 2.48249 8.32538 3.29828L20.687 10.0244C22.2531 10.8766 22.2531 13.125 20.687 13.9772L8.32538 20.7033C6.82609 21.5191 5 20.4338 5 18.727V5.27466Z',
-  },
+	bigPlay: {
+		classes: [],
+		title: 'Play',
+		normal: 'M5 5.27466C5 3.5678 6.82609 2.48249 8.32538 3.29828L20.687 10.0244C22.2531 10.8766 22.2531 13.125 20.687 13.9772L8.32538 20.7033C6.82609 21.5191 5 20.4338 5 18.727V5.27466Z',
+		hover: 'M5 5.27466C5 3.5678 6.82609 2.48249 8.32538 3.29828L20.687 10.0244C22.2531 10.8766 22.2531 13.125 20.687 13.9772L8.32538 20.7033C6.82609 21.5191 5 20.4338 5 18.727V5.27466Z',
+	},
 };
 ```
 

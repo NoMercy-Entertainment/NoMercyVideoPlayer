@@ -4,43 +4,43 @@ The recommended pattern is a custom hook that manages the player lifecycle insid
 
 ```typescript
 // hooks/useNMPlayer.ts
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 export function useNMPlayer(containerId: string, config: PlayerConfig) {
-  const playerRef = useRef<NMPlayer | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+	const playerRef = useRef<NMPlayer | null>(null);
+	const [currentTime, setCurrentTime] = useState(0);
+	const [duration, setDuration] = useState(0);
+	const [isPlaying, setIsPlaying] = useState(false);
 
-  useEffect(() => {
-    const instance = nmplayer(containerId).setup(config);
+	useEffect(() => {
+		const instance = nmplayer(containerId).setup(config);
 
-    instance.registerPlugin('keyHandler', new KeyHandlerPlugin());
-    instance.usePlugin('keyHandler');
+		instance.registerPlugin('keyHandler', new KeyHandlerPlugin());
+		instance.usePlugin('keyHandler');
 
-    instance.on('time', (data: TimeData) => {
-      setCurrentTime(data.currentTime);
-      setDuration(data.duration);
-    });
+		instance.on('time', (data: TimeData) => {
+			setCurrentTime(data.currentTime);
+			setDuration(data.duration);
+		});
 
-    instance.on('play', () => setIsPlaying(true));
-    instance.on('pause', () => setIsPlaying(false));
+		instance.on('play', () => setIsPlaying(true));
+		instance.on('pause', () => setIsPlaying(false));
 
-    playerRef.current = instance;
+		playerRef.current = instance;
 
-    return () => {
-      instance.dispose();
-      playerRef.current = null;
-    };
-  }, [containerId]);
+		return () => {
+			instance.dispose();
+			playerRef.current = null;
+		};
+	}, [containerId]);
 
-  const togglePlayback = useCallback(() => {
-    playerRef.current?.togglePlayback();
-  }, []);
+	const togglePlayback = useCallback(() => {
+		playerRef.current?.togglePlayback();
+	}, []);
 
-  return { player: playerRef, currentTime, duration, isPlaying, togglePlayback };
+	return { player: playerRef, currentTime, duration, isPlaying, togglePlayback };
 }
 ```
 
@@ -48,44 +48,50 @@ export function useNMPlayer(containerId: string, config: PlayerConfig) {
 
 ```tsx
 import { useNMPlayer } from './hooks/useNMPlayer';
-import type { PlaylistItem, PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
+import type { PlayerConfig, PlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
 const basePath = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films';
 const imageBasePath = 'https://image.tmdb.org/t/p';
 
 const playlist: PlaylistItem[] = [
-  {
-    id: 'sintel',
-    title: 'Sintel',
-    description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
-    file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-    image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
-    duration: '14:48',
-    year: 2010,
-    tracks: [
-      { id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
-      { id: 1, file: '/Sintel.(2010)/chapters.vtt', kind: 'chapters' },
-    ],
-  },
+	{
+		id: 'sintel',
+		title: 'Sintel',
+		description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
+		file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+		image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+		duration: '14:48',
+		year: 2010,
+		tracks: [
+			{ id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
+			{ id: 1, file: '/Sintel.(2010)/chapters.vtt', kind: 'chapters' },
+		],
+	},
 ];
 
 const config: PlayerConfig = { playlist, basePath, imageBasePath, autoPlay: false };
 
 export default function NMPlayerView({ containerId = 'nomercy-player' }: { containerId?: string }) {
-  const { currentTime, duration, isPlaying, togglePlayback } = useNMPlayer(containerId, config);
+	const { currentTime, duration, isPlaying, togglePlayback } = useNMPlayer(containerId, config);
 
-  return (
-    <div>
-      <div id={containerId} style={{ width: '100%', aspectRatio: '16/9' }} />
+	return (
+		<div>
+			<div id={containerId} style={{ width: '100%', aspectRatio: '16/9' }} />
 
-      <div className="controls">
-        <button onClick={togglePlayback}>
-          {isPlaying ? 'Pause' : 'Play'}
-        </button>
-        <span>{Math.floor(currentTime)}s / {Math.floor(duration)}s</span>
-      </div>
-    </div>
-  );
+			<div className="controls">
+				<button onClick={togglePlayback}>
+					{isPlaying ? 'Pause' : 'Play'}
+				</button>
+				<span>
+					{Math.floor(currentTime)}
+					s /
+					{' '}
+					{Math.floor(duration)}
+					s
+				</span>
+			</div>
+		</div>
+	);
 }
 ```
 

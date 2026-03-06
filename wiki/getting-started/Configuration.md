@@ -4,31 +4,31 @@ All `PlayerConfig` options for NoMercy Video Player. See the [Quick Start Guide]
 
 ## PlayerConfig Reference
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `playlist` | `string \| PlaylistItem[]` | `[]` | **Required.** Array of playlist items or a URL to a JSON playlist endpoint. |
-| `basePath` | `string` | `undefined` | Base URL prepended to relative `file`, subtitle, and font paths. |
-| `imageBasePath` | `string` | `undefined` | Base URL for images. Falls back to `basePath` when not set. |
-| `accessToken` | `string` | `undefined` | Auth token: sent as `Authorization: Bearer` header on fetch/XHR requests, and appended as `?token=` query param on video source URLs. |
-| `muted` | `boolean` | `false` | Start playback muted. |
-| `autoPlay` | `boolean` | `false` | Begin playback automatically on setup. |
-| `controls` | `boolean` | `false` | Enable the built-in control layer. |
-| `preload` | `'auto' \| 'metadata' \| 'none'` | `'auto'` | HTMLMediaElement preload attribute. |
-| `stretching` | `'uniform' \| 'fill' \| 'exactfit' \| 'none'` | `'uniform'` | Video scaling behavior within the container. |
-| `playbackRates` | `number[]` | `[0.5, 1, 1.5, 2]` | Available playback speed options. |
-| `chapters` | `boolean` | `undefined` | Enable chapter marker support from VTT chapter tracks. |
-| `debug` | `boolean` | `false` | Log internal events and state changes to the console. |
-| `language` | `string` | `undefined` | ISO language code for preferred audio/subtitle track selection. |
-| `displayLanguage` | `string` | `navigator.language` | Locale used for the player UI translations. |
-| `controlsTimeout` | `number` | `3000` | Milliseconds of inactivity before controls auto-hide. |
-| `doubleClickDelay` | `number` | `300` | Milliseconds to distinguish single-click from double-click. |
-| `disableControls` | `boolean` | `false` | Completely disable the control layer. |
-| `disableTouchControls` | `boolean` | `false` | Disable touch gesture handling (swipe-to-seek, etc.). |
-| `disableMediaControls` | `boolean` | `false` | Disable MediaSession integration (lock screen / OS media controls). |
-| `disableAutoPlayback` | `boolean` | `false` | Prevent automatic advancement to the next playlist item. |
-| `disableHls` | `boolean` | `undefined` | Disable HLS.js even when the source is an HLS manifest. |
-| `forceHls` | `boolean` | `undefined` | Force HLS.js usage regardless of native HLS support. |
-| `customStorage` | `StorageInterface` | built-in | Custom async storage adapter for persisting user preferences. |
+| Property               | Type                                          | Default              | Description                                                                                                                           |
+| ---------------------- | --------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `playlist`             | `string \| PlaylistItem[]`                    | `[]`                 | **Required.** Array of playlist items or a URL to a JSON playlist endpoint.                                                           |
+| `basePath`             | `string`                                      | `undefined`          | Base URL prepended to relative `file`, subtitle, and font paths.                                                                      |
+| `imageBasePath`        | `string`                                      | `undefined`          | Base URL for images. Falls back to `basePath` when not set.                                                                           |
+| `accessToken`          | `string`                                      | `undefined`          | Auth token: sent as `Authorization: Bearer` header on fetch/XHR requests, and appended as `?token=` query param on video source URLs. |
+| `muted`                | `boolean`                                     | `false`              | Start playback muted.                                                                                                                 |
+| `autoPlay`             | `boolean`                                     | `false`              | Begin playback automatically on setup.                                                                                                |
+| `controls`             | `boolean`                                     | `false`              | Enable the built-in control layer.                                                                                                    |
+| `preload`              | `'auto' \| 'metadata' \| 'none'`              | `'auto'`             | HTMLMediaElement preload attribute.                                                                                                   |
+| `stretching`           | `'uniform' \| 'fill' \| 'exactfit' \| 'none'` | `'uniform'`          | Video scaling behavior within the container.                                                                                          |
+| `playbackRates`        | `number[]`                                    | `[0.5, 1, 1.5, 2]`   | Available playback speed options.                                                                                                     |
+| `chapters`             | `boolean`                                     | `undefined`          | Enable chapter marker support from VTT chapter tracks.                                                                                |
+| `debug`                | `boolean`                                     | `false`              | Log internal events and state changes to the console.                                                                                 |
+| `language`             | `string`                                      | `undefined`          | ISO language code for preferred audio/subtitle track selection.                                                                       |
+| `displayLanguage`      | `string`                                      | `navigator.language` | Locale used for the player UI translations.                                                                                           |
+| `controlsTimeout`      | `number`                                      | `3000`               | Milliseconds of inactivity before controls auto-hide.                                                                                 |
+| `doubleClickDelay`     | `number`                                      | `300`                | Milliseconds to distinguish single-click from double-click.                                                                           |
+| `disableControls`      | `boolean`                                     | `false`              | Completely disable the control layer.                                                                                                 |
+| `disableTouchControls` | `boolean`                                     | `false`              | Disable touch gesture handling (swipe-to-seek, etc.).                                                                                 |
+| `disableMediaControls` | `boolean`                                     | `false`              | Disable MediaSession integration (lock screen / OS media controls).                                                                   |
+| `disableAutoPlayback`  | `boolean`                                     | `false`              | Prevent automatic advancement to the next playlist item.                                                                              |
+| `disableHls`           | `boolean`                                     | `undefined`          | Disable HLS.js even when the source is an HLS manifest.                                                                               |
+| `forceHls`             | `boolean`                                     | `undefined`          | Force HLS.js usage regardless of native HLS support.                                                                                  |
+| `customStorage`        | `StorageInterface`                            | built-in             | Custom async storage adapter for persisting user preferences.                                                                         |
 
 ---
 
@@ -40,19 +40,19 @@ Every playlist item requires `id`, `title`, `description`, `file`, `image`, and 
 
 ```typescript
 const config: PlayerConfig = {
-  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
-  imageBasePath: 'https://image.tmdb.org/t/p',
-  playlist: [
-    {
-      id: 'big-buck-bunny',
-      title: 'Big Buck Bunny',
-      description: 'A giant rabbit defends small creatures from three bullying rodents.',
-      file: '/Big.Buck.Bunny.(2008)/Big.Buck.Bunny.(2008).NoMercy.m3u8',
-      image: '/original/xtdybjRRZ15mCrPOvEld305myys.jpg',
-      duration: '9:56',
-      year: 2008,
-    },
-  ],
+	basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+	imageBasePath: 'https://image.tmdb.org/t/p',
+	playlist: [
+		{
+			id: 'big-buck-bunny',
+			title: 'Big Buck Bunny',
+			description: 'A giant rabbit defends small creatures from three bullying rodents.',
+			file: '/Big.Buck.Bunny.(2008)/Big.Buck.Bunny.(2008).NoMercy.m3u8',
+			image: '/original/xtdybjRRZ15mCrPOvEld305myys.jpg',
+			duration: '9:56',
+			year: 2008,
+		},
+	],
 };
 ```
 
@@ -62,34 +62,34 @@ For TV shows, populate `show`, `season`, `episode`, and `seasonName` to enable s
 
 ```typescript
 const config: PlayerConfig = {
-  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
-  imageBasePath: 'https://image.tmdb.org/t/p',
-  playlist: [
-    {
-      id: 1,
-      title: 'Sintel',
-      description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
-      file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-      image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
-      duration: '14:48',
-      show: 'Blender Open Movies',
-      season: 1,
-      episode: 1,
-      seasonName: 'Season 1',
-    },
-    {
-      id: 2,
-      title: 'Cosmos Laundromat',
-      description: 'On a desolate island, a suicidal sheep meets a mysterious stranger.',
-      file: '/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
-      image: '/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
-      duration: '12:04',
-      show: 'Blender Open Movies',
-      season: 1,
-      episode: 2,
-      seasonName: 'Season 1',
-    },
-  ],
+	basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+	imageBasePath: 'https://image.tmdb.org/t/p',
+	playlist: [
+		{
+			id: 1,
+			title: 'Sintel',
+			description: 'A girl named Sintel searches for a baby dragon she calls Scales.',
+			file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+			image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+			duration: '14:48',
+			show: 'Blender Open Movies',
+			season: 1,
+			episode: 1,
+			seasonName: 'Season 1',
+		},
+		{
+			id: 2,
+			title: 'Cosmos Laundromat',
+			description: 'On a desolate island, a suicidal sheep meets a mysterious stranger.',
+			file: '/Cosmos.Laundromat.(2015)/Cosmos.Laundromat.(2015).NoMercy.m3u8',
+			image: '/w780/f2wABsgj2lIR2dkDEfBZX8p4Iyk.jpg',
+			duration: '12:04',
+			show: 'Blender Open Movies',
+			season: 1,
+			episode: 2,
+			seasonName: 'Season 1',
+		},
+	],
 };
 ```
 
@@ -99,8 +99,8 @@ Pass a URL string instead of an array. The player fetches the JSON and expects i
 
 ```typescript
 const config: PlayerConfig = {
-  playlist: 'https://api.example.com/player/playlist.json',
-  basePath: 'https://cdn.example.com/media',
+	playlist: 'https://api.example.com/player/playlist.json',
+	basePath: 'https://cdn.example.com/media',
 };
 ```
 
@@ -128,13 +128,13 @@ Each playlist item can carry an array of `Track` objects describing subtitles, c
 
 **Track `kind` values:**
 
-| Kind | Purpose |
-|---|---|
-| `subtitles` | VTT or ASS/SSA subtitle file. Set `ext: 'ass'` for ASS files. |
-| `chapters` | WebVTT chapter markers. Requires `chapters: true` in the config. |
+| Kind         | Purpose                                                                        |
+| ------------ | ------------------------------------------------------------------------------ |
+| `subtitles`  | VTT or ASS/SSA subtitle file. Set `ext: 'ass'` for ASS files.                  |
+| `chapters`   | WebVTT chapter markers. Requires `chapters: true` in the config.               |
 | `thumbnails` | WebVTT file with timestamp-to-coordinate mappings for seek preview thumbnails. |
-| `sprite` | The image sprite file containing the actual thumbnail frames. |
-| `fonts` | Font files required by ASS subtitles (used by the Octopus renderer). |
+| `sprite`     | The image sprite file containing the actual thumbnail frames.                  |
+| `fonts`      | Font files required by ASS subtitles (used by the Octopus renderer).           |
 
 ### Resume Playback
 
@@ -169,34 +169,35 @@ The player resolves relative paths using `basePath` and `imageBasePath`. Absolut
 
 ```typescript
 const config: PlayerConfig = {
-  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
-  imageBasePath: 'https://image.tmdb.org/t/p',
-  playlist: [
-    {
-      id: 'sintel',
-      title: 'Sintel',
-      description: 'Short film by the Blender Foundation.',
-      file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-      // Resolved: https://raw.githubusercontent.com/.../Films/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8
-      image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
-      // Resolved: https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg
-      duration: '14:48',
-      tracks: [
-        {
-          id: 0,
-          kind: 'subtitles',
-          label: 'English (Full)',
-          language: 'eng',
-          file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt',
-          // Absolute URL -- used as-is
-        },
-      ],
-    },
-  ],
+	basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+	imageBasePath: 'https://image.tmdb.org/t/p',
+	playlist: [
+		{
+			id: 'sintel',
+			title: 'Sintel',
+			description: 'Short film by the Blender Foundation.',
+			file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+			// Resolved: https://raw.githubusercontent.com/.../Films/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8
+			image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+			// Resolved: https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg
+			duration: '14:48',
+			tracks: [
+				{
+					id: 0,
+					kind: 'subtitles',
+					label: 'English (Full)',
+					language: 'eng',
+					file: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt',
+					// Absolute URL -- used as-is
+				},
+			],
+		},
+	],
 };
 ```
 
 When `accessToken` is set:
+
 - Fetch and XHR requests (subtitles, fonts, playlists) include an `Authorization: Bearer` header.
 - The video element source URL gets `?token=` appended as a query parameter (since `<video>` elements cannot send custom headers).
 - Requests marked `anonymous: true` internally skip the token.
@@ -211,9 +212,9 @@ Standard WebVTT subtitles work out of the box. Add a track with `kind: 'subtitle
 
 ```typescript
 tracks: [
-  { id: 0, kind: 'subtitles', label: 'English (Full)', language: 'eng', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', default: true },
-  { id: 1, kind: 'subtitles', label: 'French (Full)', language: 'fre', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.fre.full.vtt' },
-]
+	{ id: 0, kind: 'subtitles', label: 'English (Full)', language: 'eng', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', default: true },
+	{ id: 1, kind: 'subtitles', label: 'French (Full)', language: 'fre', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.fre.full.vtt' },
+];
 ```
 
 Set `default: true` on exactly one subtitle track to enable it automatically.
@@ -230,9 +231,9 @@ The player persists user preferences (volume, subtitle selection, quality level)
 
 ```typescript
 interface StorageInterface {
-  get: (key: string) => Promise<string | null>;
-  set: (key: string, value: string) => Promise<void>;
-  remove: (key: string) => Promise<void>;
+	get: (key: string) => Promise<string | null>;
+	set: (key: string, value: string) => Promise<void>;
+	remove: (key: string) => Promise<void>;
 }
 ```
 
@@ -242,23 +243,23 @@ interface StorageInterface {
 import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
 const idbStorage = {
-  async get(key: string): Promise<string | null> {
-    const db = await openDB();
-    return db.get('player', key);
-  },
-  async set(key: string, value: string): Promise<void> {
-    const db = await openDB();
-    await db.put('player', value, key);
-  },
-  async remove(key: string): Promise<void> {
-    const db = await openDB();
-    await db.delete('player', key);
-  },
+	async get(key: string): Promise<string | null> {
+		const db = await openDB();
+		return db.get('player', key);
+	},
+	async set(key: string, value: string): Promise<void> {
+		const db = await openDB();
+		await db.put('player', value, key);
+	},
+	async remove(key: string): Promise<void> {
+		const db = await openDB();
+		await db.delete('player', key);
+	},
 };
 
 const config: PlayerConfig = {
-  customStorage: idbStorage,
-  playlist: [/* ... */],
+	customStorage: idbStorage,
+	playlist: [/* ... */],
 };
 ```
 
@@ -266,22 +267,22 @@ const config: PlayerConfig = {
 
 ```typescript
 const serverStorage = {
-  async get(key: string) {
-    const res = await fetch(`/api/preferences/${key}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.ok ? res.text() : null;
-  },
-  async set(key: string, value: string) {
-    await fetch(`/api/preferences/${key}`, {
-      method: 'PUT',
-      body: value,
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
-  async remove(key: string) {
-    await fetch(`/api/preferences/${key}`, { method: 'DELETE' });
-  },
+	async get(key: string) {
+		const res = await fetch(`/api/preferences/${key}`, {
+			headers: { Authorization: `Bearer ${token}` },
+		});
+		return res.ok ? res.text() : null;
+	},
+	async set(key: string, value: string) {
+		await fetch(`/api/preferences/${key}`, {
+			method: 'PUT',
+			body: value,
+			headers: { Authorization: `Bearer ${token}` },
+		});
+	},
+	async remove(key: string) {
+		await fetch(`/api/preferences/${key}`, { method: 'DELETE' });
+	},
 };
 ```
 
@@ -295,9 +296,9 @@ Set `accessToken` to attach a `Bearer` token to all fetch requests the player ma
 
 ```typescript
 const config: PlayerConfig = {
-  accessToken: 'eyJhbGciOiJIUzI1NiIs...',
-  basePath: 'https://secure-cdn.example.com/media',
-  playlist: 'https://api.example.com/playlist.json',
+	accessToken: 'eyJhbGciOiJIUzI1NiIs...',
+	basePath: 'https://secure-cdn.example.com/media',
+	playlist: 'https://api.example.com/playlist.json',
 };
 ```
 

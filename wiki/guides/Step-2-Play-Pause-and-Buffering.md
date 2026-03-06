@@ -135,7 +135,7 @@ private createPlaybackButton() {
 }
 ```
 
-The bottom-bar playback button *does* swap between two icons — it stays visible at all times, so the user always has a way to toggle playback from the controls row.
+The bottom-bar playback button _does_ swap between two icons — it stays visible at all times, so the user always has a way to toggle playback from the controls row.
 
 ### Update `use()` and `dispose()`
 

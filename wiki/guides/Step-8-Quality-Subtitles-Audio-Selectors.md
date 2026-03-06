@@ -287,7 +287,7 @@ private createQualityButton() {
 
 Notice the differences from a naive implementation:
 
-1. **Auto button** is always the first entry (index 0). It calls `quality(-1)` which tells HLS.js to use automatic ABR switching.
+1. **Auto button** is always the first entry (index 0). It calls `setCurrentQuality(-1)` which tells HLS.js to use automatic ABR switching.
 2. **Manual selection** sets `isAutoQuality = false` and stores the chosen index in `selectedQualityIndex`.
 3. After the `'levels'` event fires, `isAutoQuality` is reset to `true` since the player defaults to auto mode when new levels arrive.
 
@@ -583,28 +583,28 @@ Register the plugin with a standard player setup:
 
 ```typescript
 import nmplayer, { Plugin } from '@nomercy-entertainment/nomercy-video-player';
-import type { NMPlayer, PlayerConfig, TimeData, VolumeState, Level, Track, CurrentTrack } from '@nomercy-entertainment/nomercy-video-player';
+import type { CurrentTrack, Level, NMPlayer, PlayerConfig, TimeData, Track, VolumeState } from '@nomercy-entertainment/nomercy-video-player';
 
 // ... icons object and createSVG helper from above ...
 // ... full PlayerUIPlugin class from steps 1-8 ...
 
 const config: PlayerConfig = {
-  basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
-  imageBasePath: 'https://image.tmdb.org/t/p',
-  playlist: [
-    {
-      id: 'sintel',
-      title: 'Sintel',
-      description: 'A short fantasy film by the Blender Foundation',
-      file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-      image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
-      duration: '14:48',
-      tracks: [
-        { id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
-        { id: 1, file: '/Sintel.(2010)/chapters.vtt', kind: 'chapters' },
-      ],
-    },
-  ],
+	basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+	imageBasePath: 'https://image.tmdb.org/t/p',
+	playlist: [
+		{
+			id: 'sintel',
+			title: 'Sintel',
+			description: 'A short fantasy film by the Blender Foundation',
+			file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+			image: '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+			duration: '14:48',
+			tracks: [
+				{ id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
+				{ id: 1, file: '/Sintel.(2010)/chapters.vtt', kind: 'chapters' },
+			],
+		},
+	],
 };
 
 const player = nmplayer('nomercy-player').setup(config);

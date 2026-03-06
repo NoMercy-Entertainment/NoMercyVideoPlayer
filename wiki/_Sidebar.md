@@ -1,9 +1,11 @@
 **Getting Started**
+
 - [Home](Home)
 - [Quick Start Guide](Quick-Start-Guide)
 - [Configuration](Configuration)
 
 **Guides**
+
 - [Plugin Development](Plugin-Development)
 - [Building a Player UI](Building-a-Video-Player-UI)
   - [1. Shell & Layout](Step-1-Plugin-Shell-and-Layout)
@@ -24,6 +26,7 @@
   - [Vanilla JS](Framework-Vanilla)
 
 **Reference**
+
 - [API Reference](API-Reference)
 - [Methods](API-Reference-Methods)
 - [Events](Events)

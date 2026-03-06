@@ -134,11 +134,11 @@ private createVolumeControl() {
 
 The slider is built from three nested `<div>` elements instead of a native `<input type="range">`:
 
-| Element | Purpose |
-|---------|---------|
-| `volumeSlider` | The track. Has `group/vol-slider` so children can react to its hover state. Uses `bg-white/20` for the unfilled track color. Grows from `w-0` to `w-20` when the parent volume group is hovered. Expands vertically from `h-1` to `h-2` on its own hover via `hover:h-2`. |
-| `volumeProgress` | Absolutely positioned fill bar (`bg-white`). Its `width` is set as a percentage by `updateVolSliderUI()`. |
-| `volumeNipple` | A small circular handle. Hidden by default (`hidden`) and shown on slider hover (`group-hover/vol-slider:flex`). Its `left` position tracks the volume percentage. |
+| Element          | Purpose                                                                                                                                                                                                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `volumeSlider`   | The track. Has `group/vol-slider` so children can react to its hover state. Uses `bg-white/20` for the unfilled track color. Grows from `w-0` to `w-20` when the parent volume group is hovered. Expands vertically from `h-1` to `h-2` on its own hover via `hover:h-2`. |
+| `volumeProgress` | Absolutely positioned fill bar (`bg-white`). Its `width` is set as a percentage by `updateVolSliderUI()`.                                                                                                                                                                 |
+| `volumeNipple`   | A small circular handle. Hidden by default (`hidden`) and shown on slider hover (`group-hover/vol-slider:flex`). Its `left` position tracks the volume percentage.                                                                                                        |
 
 A `volDragging` boolean flag tracks whether the user is currently dragging. The flow:
 

@@ -4,47 +4,48 @@ Vue is the primary framework used by the project maintainers. The recommended pa
 
 ```typescript
 // composables/useNMPlayer.ts
-import { ref, onMounted, onBeforeUnmount, watch, type Ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import type { Ref } from 'vue';
 import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 export function useNMPlayer(containerId: string, config: Ref<PlayerConfig>) {
-  const player = ref<NMPlayer | null>(null);
-  const currentTime = ref(0);
-  const duration = ref(0);
-  const isPlaying = ref(false);
+	const player = ref<NMPlayer | null>(null);
+	const currentTime = ref(0);
+	const duration = ref(0);
+	const isPlaying = ref(false);
 
-  function init() {
-    const instance = nmplayer(containerId).setup(config.value);
+	function init() {
+		const instance = nmplayer(containerId).setup(config.value);
 
-    instance.registerPlugin('keyHandler', new KeyHandlerPlugin());
-    instance.usePlugin('keyHandler');
+		instance.registerPlugin('keyHandler', new KeyHandlerPlugin());
+		instance.usePlugin('keyHandler');
 
-    instance.on('time', (data: TimeData) => {
-      currentTime.value = data.currentTime;
-      duration.value = data.duration;
-    });
+		instance.on('time', (data: TimeData) => {
+			currentTime.value = data.currentTime;
+			duration.value = data.duration;
+		});
 
-    instance.on('play', () => { isPlaying.value = true; });
-    instance.on('pause', () => { isPlaying.value = false; });
+		instance.on('play', () => { isPlaying.value = true; });
+		instance.on('pause', () => { isPlaying.value = false; });
 
-    player.value = instance;
-  }
+		player.value = instance;
+	}
 
-  onMounted(() => init());
+	onMounted(() => init());
 
-  onBeforeUnmount(() => {
-    player.value?.dispose();
-    player.value = null;
-  });
+	onBeforeUnmount(() => {
+		player.value?.dispose();
+		player.value = null;
+	});
 
-  watch(config, (newConfig) => {
-    if (player.value) {
-      player.value.load(newConfig.playlist);
-    }
-  });
+	watch(config, (newConfig) => {
+		if (player.value) {
+			player.value.load(newConfig.playlist);
+		}
+	});
 
-  return { player, currentTime, duration, isPlaying };
+	return { player, currentTime, duration, isPlaying };
 }
 ```
 
@@ -106,7 +107,7 @@ The composable watches the config ref. To switch playlists dynamically:
 
 ```typescript
 function loadNewPlaylist(items: PlaylistItem[]) {
-  config.value = { ...config.value, playlist: items };
+	config.value = { ...config.value, playlist: items };
 }
 ```
 

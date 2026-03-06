@@ -4,13 +4,13 @@ Use `AfterViewInit` to initialize the player after the DOM is ready, and `OnDest
 
 ```typescript
 // nomercy-player.component.ts
-import { Component, AfterViewInit, OnDestroy, Input } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
 import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/nomercy-video-player';
 
 @Component({
-  selector: 'app-nomercy-player',
-  template: `
+	selector: 'app-nomercy-player',
+	template: `
     <div>
       <div [id]="containerId" style="width: 100%; aspect-ratio: 16/9;"></div>
 
@@ -24,37 +24,37 @@ import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/no
   `,
 })
 export class NMPlayerComponent implements AfterViewInit, OnDestroy {
-  @Input() containerId = 'nomercy-player';
-  @Input() config!: PlayerConfig;
+	@Input() containerId = 'nomercy-player';
+	@Input() config!: PlayerConfig;
 
-  player: NMPlayer | null = null;
-  currentTime = 0;
-  duration = 0;
-  isPlaying = false;
+	player: NMPlayer | null = null;
+	currentTime = 0;
+	duration = 0;
+	isPlaying = false;
 
-  ngAfterViewInit() {
-    this.player = nmplayer(this.containerId).setup(this.config);
+	ngAfterViewInit() {
+		this.player = nmplayer(this.containerId).setup(this.config);
 
-    this.player.registerPlugin('keyHandler', new KeyHandlerPlugin());
-    this.player.usePlugin('keyHandler');
+		this.player.registerPlugin('keyHandler', new KeyHandlerPlugin());
+		this.player.usePlugin('keyHandler');
 
-    this.player.on('time', (data: TimeData) => {
-      this.currentTime = data.currentTime;
-      this.duration = data.duration;
-    });
+		this.player.on('time', (data: TimeData) => {
+			this.currentTime = data.currentTime;
+			this.duration = data.duration;
+		});
 
-    this.player.on('play', () => { this.isPlaying = true; });
-    this.player.on('pause', () => { this.isPlaying = false; });
-  }
+		this.player.on('play', () => { this.isPlaying = true; });
+		this.player.on('pause', () => { this.isPlaying = false; });
+	}
 
-  ngOnDestroy() {
-    this.player?.dispose();
-    this.player = null;
-  }
+	ngOnDestroy() {
+		this.player?.dispose();
+		this.player = null;
+	}
 
-  togglePlayback() {
-    this.player?.togglePlayback();
-  }
+	togglePlayback() {
+		this.player?.togglePlayback();
+	}
 }
 ```
 
@@ -62,8 +62,8 @@ export class NMPlayerComponent implements AfterViewInit, OnDestroy {
 
 ```html
 <app-nomercy-player
-  containerId="nomercy-player"
-  [config]="{
+	containerId="nomercy-player"
+	[config]="{
     playlist: playlist,
     basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
     imageBasePath: 'https://image.tmdb.org/t/p',
@@ -85,31 +85,31 @@ import type { NMPlayer, PlayerConfig, TimeData } from '@nomercy-entertainment/no
 
 @Injectable({ providedIn: 'root' })
 export class NMPlayerService implements OnDestroy {
-  private player: NMPlayer | null = null;
+	private player: NMPlayer | null = null;
 
-  readonly isPlaying$ = new BehaviorSubject(false);
-  readonly currentTime$ = new BehaviorSubject(0);
-  readonly duration$ = new BehaviorSubject(0);
+	readonly isPlaying$ = new BehaviorSubject(false);
+	readonly currentTime$ = new BehaviorSubject(0);
+	readonly duration$ = new BehaviorSubject(0);
 
-  init(containerId: string, config: PlayerConfig) {
-    this.player = nmplayer(containerId).setup(config);
+	init(containerId: string, config: PlayerConfig) {
+		this.player = nmplayer(containerId).setup(config);
 
-    this.player.on('play', () => this.isPlaying$.next(true));
-    this.player.on('pause', () => this.isPlaying$.next(false));
-    this.player.on('time', (data: TimeData) => {
-      this.currentTime$.next(data.currentTime);
-      this.duration$.next(data.duration);
-    });
-  }
+		this.player.on('play', () => this.isPlaying$.next(true));
+		this.player.on('pause', () => this.isPlaying$.next(false));
+		this.player.on('time', (data: TimeData) => {
+			this.currentTime$.next(data.currentTime);
+			this.duration$.next(data.duration);
+		});
+	}
 
-  togglePlayback() {
-    this.player?.togglePlayback();
-  }
+	togglePlayback() {
+		this.player?.togglePlayback();
+	}
 
-  ngOnDestroy() {
-    this.player?.dispose();
-    this.player = null;
-  }
+	ngOnDestroy() {
+		this.player?.dispose();
+		this.player = null;
+	}
 }
 ```
 

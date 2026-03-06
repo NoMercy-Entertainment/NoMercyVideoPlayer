@@ -17,25 +17,25 @@ Every plugin extends the `Plugin` base class and follows a three-phase lifecycle
 registerPlugin()  -->  initialize(player)  -->  use()  -->  dispose()
 ```
 
-| Phase | What happens |
-|---|---|
-| **`initialize(player)`** | Called immediately when you register the plugin. Store the player reference. Do not touch the DOM yet. |
-| **`use()`** | Called when `usePlugin()` is invoked. Set up your DOM elements, attach event listeners, start rendering. |
-| **`dispose()`** | Called when the player is destroyed. Remove all DOM elements, detach all event listeners, cancel timers. |
+| Phase                    | What happens                                                                                             |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| **`initialize(player)`** | Called immediately when you register the plugin. Store the player reference. Do not touch the DOM yet.   |
+| **`use()`**              | Called when `usePlugin()` is invoked. Set up your DOM elements, attach event listeners, start rendering. |
+| **`dispose()`**          | Called when the player is destroyed. Remove all DOM elements, detach all event listeners, cancel timers. |
 
 The base class:
 
 ```typescript
 class Plugin {
-  declare player: NMPlayer;
+	declare player: NMPlayer;
 
-  initialize(player: NMPlayer) {
-    this.player = player;
-  }
+	initialize(player: NMPlayer) {
+		this.player = player;
+	}
 
-  use() { }
+	use() { }
 
-  dispose() { }
+	dispose() { }
 }
 ```
 
@@ -63,28 +63,28 @@ import { Plugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer } from '@nomercy-entertainment/nomercy-video-player';
 
 class MyPlugin extends Plugin {
-  declare player: NMPlayer;
-  private el: HTMLDivElement | null = null;
-  private onPlay = () => { /* update UI */ };
-  private onPause = () => { /* update UI */ };
+	declare player: NMPlayer;
+	private el: HTMLDivElement | null = null;
+	private onPlay = () => { /* update UI */ };
+	private onPause = () => { /* update UI */ };
 
-  initialize(player: NMPlayer) {
-    this.player = player;
-  }
+	initialize(player: NMPlayer) {
+		this.player = player;
+	}
 
-  use() {
-    this.el = document.createElement('div');
-    this.player.overlay.appendChild(this.el);
-    this.player.on('play', this.onPlay);
-    this.player.on('pause', this.onPause);
-  }
+	use() {
+		this.el = document.createElement('div');
+		this.player.overlay.appendChild(this.el);
+		this.player.on('play', this.onPlay);
+		this.player.on('pause', this.onPause);
+	}
 
-  dispose() {
-    this.player.off('play', this.onPlay);
-    this.player.off('pause', this.onPause);
-    this.el?.remove();
-    this.el = null;
-  }
+	dispose() {
+		this.player.off('play', this.onPlay);
+		this.player.off('pause', this.onPause);
+		this.el?.remove();
+		this.el = null;
+	}
 }
 ```
 
@@ -103,15 +103,15 @@ The player automatically toggles CSS classes on the container `<div>`. This is t
 
 ### Available CSS classes
 
-| Class | Meaning |
-|---|---|
-| `.nomercyplayer` | Always present on the container |
-| `.playing` | Video is playing |
-| `.paused` | Video is paused |
-| `.buffering` | Video is buffering |
-| `.active` | User is interacting (mouse movement, keyboard input) |
-| `.inactive` | User stopped interacting (idle timeout elapsed) |
-| `.error` | A playback error occurred |
+| Class            | Meaning                                              |
+| ---------------- | ---------------------------------------------------- |
+| `.nomercyplayer` | Always present on the container                      |
+| `.playing`       | Video is playing                                     |
+| `.paused`        | Video is paused                                      |
+| `.buffering`     | Video is buffering                                   |
+| `.active`        | User is interacting (mouse movement, keyboard input) |
+| `.inactive`      | User stopped interacting (idle timeout elapsed)      |
+| `.error`         | A playback error occurred                            |
 
 ### Auto-hiding controls
 
@@ -120,27 +120,27 @@ The most common pattern: show controls when the user is active, hide them when i
 ```css
 /* Controls container inside your plugin */
 .my-controls {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 12px;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 12px;
+	background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	pointer-events: none;
 }
 
 /* Show when user is active OR video is paused */
 .nomercyplayer.active .my-controls,
 .nomercyplayer.paused .my-controls {
-  opacity: 1;
-  pointer-events: auto;
+	opacity: 1;
+	pointer-events: auto;
 }
 
 /* Hide cursor when inactive */
 .nomercyplayer.inactive {
-  cursor: none;
+	cursor: none;
 }
 ```
 
@@ -148,26 +148,34 @@ The most common pattern: show controls when the user is active, hide them when i
 
 ```css
 .my-spinner {
-  display: none;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
 
 .nomercyplayer.buffering .my-spinner {
-  display: block;
+	display: block;
 }
 ```
 
 ### Play/pause state styling
 
 ```css
-.my-play-icon  { display: none; }
-.my-pause-icon { display: none; }
+.my-play-icon {
+	display: none;
+}
+.my-pause-icon {
+	display: none;
+}
 
-.nomercyplayer.paused  .my-play-icon  { display: block; }
-.nomercyplayer.playing .my-pause-icon { display: block; }
+.nomercyplayer.paused .my-play-icon {
+	display: block;
+}
+.nomercyplayer.playing .my-pause-icon {
+	display: block;
+}
 ```
 
 This approach keeps your JavaScript minimal. Let CSS do the work of reacting to state changes.
@@ -184,12 +192,12 @@ For the full list of methods, events, and properties available inside your plugi
 
 ### Key properties
 
-| Property | Type | Description |
-|---|---|---|
-| `container` | `HTMLDivElement` | The root player container element (the one with CSS classes). |
-| `overlay` | `HTMLDivElement` | The UI overlay div. Append your UI elements here. |
-| `options` | `PlayerConfig & T` | The merged configuration object. |
-| `isPlaying` | `boolean` | Whether the video is currently playing. |
+| Property    | Type               | Description                                                   |
+| ----------- | ------------------ | ------------------------------------------------------------- |
+| `container` | `HTMLDivElement`   | The root player container element (the one with CSS classes). |
+| `overlay`   | `HTMLDivElement`   | The UI overlay div. Append your UI elements here.             |
+| `options`   | `PlayerConfig & T` | The merged configuration object.                              |
+| `isPlaying` | `boolean`          | Whether the video is currently playing.                       |
 
 ### DOM structure
 
@@ -215,32 +223,32 @@ import { Plugin } from '@nomercy-entertainment/nomercy-video-player';
 import type { NMPlayer } from '@nomercy-entertainment/nomercy-video-player';
 
 interface MyPluginConfig {
-  accentColor: string;
-  showTitle: boolean;
+	accentColor: string;
+	showTitle: boolean;
 }
 
 class TitleOverlayPlugin extends Plugin {
-  declare player: NMPlayer<MyPluginConfig>;
+	declare player: NMPlayer<MyPluginConfig>;
 
-  initialize(player: NMPlayer<MyPluginConfig>) {
-    this.player = player;
-  }
+	initialize(player: NMPlayer<MyPluginConfig>) {
+		this.player = player;
+	}
 
-  use() {
-    // Custom options are available alongside standard ones
-    const color = this.player.options.accentColor;
-    const showTitle = this.player.options.showTitle;
-    const debug = this.player.options.debug; // standard option still available
+	use() {
+		// Custom options are available alongside standard ones
+		const color = this.player.options.accentColor;
+		const showTitle = this.player.options.showTitle;
+		const debug = this.player.options.debug; // standard option still available
 
-    if (showTitle) {
-      const title = document.createElement('div');
-      title.style.color = color;
-      title.textContent = this.player.playlistItem().title;
-      this.player.overlay.appendChild(title);
-    }
-  }
+		if (showTitle) {
+			const title = document.createElement('div');
+			title.style.color = color;
+			title.textContent = this.player.playlistItem().title;
+			this.player.overlay.appendChild(title);
+		}
+	}
 
-  dispose() { }
+	dispose() { }
 }
 ```
 
@@ -265,39 +273,39 @@ player.usePlugin('titleOverlay');
 Define an extended interface and pass it as `T`:
 
 ```typescript
-import type { PlaylistItem, PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
+import type { PlayerConfig, PlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
 // Extend PlaylistItem with your app-specific fields
 interface AppPlaylistItem extends PlaylistItem {
-  video_id: string;
-  tmdb_id: number;
-  video_type: string;
-  audio: Track[];
-  captions: Track[];
+	video_id: string;
+	tmdb_id: number;
+	video_type: string;
+	audio: Track[];
+	captions: Track[];
 }
 
 // Use the extended type as the generic parameter
 const config: PlayerConfig<AppPlaylistItem> = {
-  basePath: 'https://api.example.com/media',
-  playlist: [
-    {
-      id: 'sintel',
-      title: 'Sintel',
-      description: 'A short fantasy film',
-      file: '/Sintel.m3u8',
-      image: '/poster.jpg',
-      duration: '14:48',
-      video_id: 'abc123',        // typed — required by AppPlaylistItem
-      tmdb_id: 45745,            // typed — required by AppPlaylistItem
-      video_type: 'movie',       // typed — required by AppPlaylistItem
-      audio: [],
-      captions: [],
-    },
-  ],
+	basePath: 'https://api.example.com/media',
+	playlist: [
+		{
+			id: 'sintel',
+			title: 'Sintel',
+			description: 'A short fantasy film',
+			file: '/Sintel.m3u8',
+			image: '/poster.jpg',
+			duration: '14:48',
+			video_id: 'abc123', // typed — required by AppPlaylistItem
+			tmdb_id: 45745, // typed — required by AppPlaylistItem
+			video_type: 'movie', // typed — required by AppPlaylistItem
+			audio: [],
+			captions: [],
+		},
+	],
 };
 ```
 
-The generic flows through the entire player API — `playlistItem()`, `playlist()`, and event callbacks all return `PlaylistItem & T`:
+The generic flows through the entire player API — `playlistItem()`, `getPlaylist()`, event callbacks, and `setPlaylistItemCallback()` all return `PlaylistItem & T`:
 
 ```typescript
 import type { NMPlayer } from '@nomercy-entertainment/nomercy-video-player';
@@ -306,12 +314,12 @@ const player: NMPlayer<AppPlaylistItem> = nmplayer('nomercy-player').setup(confi
 
 // playlistItem() returns AppPlaylistItem
 const item = player.playlistItem();
-console.log(item.title);      // standard PlaylistItem field
-console.log(item.video_id);   // custom AppPlaylistItem field
+console.log(item.title); // standard PlaylistItem field
+console.log(item.video_id); // custom AppPlaylistItem field
 
 // Events carry the extended type too
 player.on('item', (item) => {
-  console.log(item.tmdb_id);  // typed as number
+	console.log(item.tmdb_id); // typed as number
 });
 ```
 
@@ -325,14 +333,14 @@ Plugins can emit their own events through the player's event bus using `this.pla
 
 ```typescript
 class ChapterMenuPlugin extends Plugin {
-  declare player: NMPlayer;
+	declare player: NMPlayer;
 
-  use() {
-    // When the user selects a chapter in your menu UI:
-    this.player.emit('chapterSelected', { index: 3, title: 'Act II' });
-  }
+	use() {
+		// When the user selects a chapter in your menu UI:
+		this.player.emit('chapterSelected', { index: 3, title: 'Act II' });
+	}
 
-  dispose() { }
+	dispose() { }
 }
 ```
 
@@ -340,22 +348,22 @@ class ChapterMenuPlugin extends Plugin {
 
 ```typescript
 class TimelinePlugin extends Plugin {
-  declare player: NMPlayer;
-  private boundOnChapter = (data: { index: number; title: string }) => {
-    this.highlightChapter(data.index);
-  };
+	declare player: NMPlayer;
+	private boundOnChapter = (data: { index: number; title: string }) => {
+		this.highlightChapter(data.index);
+	};
 
-  use() {
-    this.player.on('chapterSelected', this.boundOnChapter);
-  }
+	use() {
+		this.player.on('chapterSelected', this.boundOnChapter);
+	}
 
-  dispose() {
-    this.player.off('chapterSelected', this.boundOnChapter);
-  }
+	dispose() {
+		this.player.off('chapterSelected', this.boundOnChapter);
+	}
 
-  private highlightChapter(index: number) {
-    // Update timeline marker
-  }
+	private highlightChapter(index: number) {
+		// Update timeline marker
+	}
 }
 ```
 
@@ -366,7 +374,7 @@ If you need a direct reference to another plugin instance:
 ```typescript
 const timeline = this.player.plugin('timeline') as TimelinePlugin | undefined;
 if (timeline) {
-  // call methods on it directly
+	// call methods on it directly
 }
 ```
 
@@ -386,8 +394,8 @@ Renders ASS/SSA subtitle files using the libass WebAssembly engine (subtitles-oc
 import { OctopusPlugin } from '@nomercy-entertainment/nomercy-video-player';
 
 const octopus = new OctopusPlugin({
-  workerUrl: '/js/octopus/subtitles-octopus-worker.js',
-  renderAhead: 30,
+	workerUrl: '/js/octopus/subtitles-octopus-worker.js',
+	renderAhead: 30,
 });
 player.registerPlugin('octopus', octopus);
 player.usePlugin('octopus');
@@ -395,16 +403,16 @@ player.usePlugin('octopus');
 
 Constructor options (`OctopusPluginOptions`):
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `workerUrl` | `string` | CDN | Path to `subtitles-octopus-worker.js`. |
-| `legacyWorkerUrl` | `string` | CDN | Path to the legacy worker fallback. |
-| `fallbackFont` | `string` | CDN | Path to a fallback `.ttf` font. |
-| `renderAhead` | `number` | `undefined` | Seconds of subtitle frames to pre-render. |
-| `lossyRender` | `boolean` | `undefined` | Faster but lower quality rendering. |
-| `targetFps` | `number` | `undefined` | Target framerate for subtitle rendering. |
-| `blendRender` | `boolean` | `undefined` | Blend render mode. |
-| `lazyFileLoading` | `boolean` | `undefined` | Lazy-load font files. |
+| Option            | Type      | Default     | Description                               |
+| ----------------- | --------- | ----------- | ----------------------------------------- |
+| `workerUrl`       | `string`  | CDN         | Path to `subtitles-octopus-worker.js`.    |
+| `legacyWorkerUrl` | `string`  | CDN         | Path to the legacy worker fallback.       |
+| `fallbackFont`    | `string`  | CDN         | Path to a fallback `.ttf` font.           |
+| `renderAhead`     | `number`  | `undefined` | Seconds of subtitle frames to pre-render. |
+| `lossyRender`     | `boolean` | `undefined` | Faster but lower quality rendering.       |
+| `targetFps`       | `number`  | `undefined` | Target framerate for subtitle rendering.  |
+| `blendRender`     | `boolean` | `undefined` | Blend render mode.                        |
+| `lazyFileLoading` | `boolean` | `undefined` | Lazy-load font files.                     |
 
 ### KeyHandlerPlugin
 
@@ -428,6 +436,7 @@ The key handler respects the `disableControls` config option -- if set to `true`
 - **Use pre-bound methods for event listeners.** Store bound references as class properties (e.g., `private boundOnPlay = () => this.onPlay()`) so you can pass the same function reference to both `on()` and `off()`. Calling `.bind()` inline creates a new function each time, making `off()` unable to find the original listener.
 
 - **Use `requestAnimationFrame` for DOM updates during `time` events.** The `time` event fires frequently during playback. Batch your DOM writes inside `requestAnimationFrame` to avoid layout thrashing:
+
   ```typescript
   private onTime = (data: TimeData) => {
     requestAnimationFrame(() => {
