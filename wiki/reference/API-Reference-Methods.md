@@ -5,11 +5,21 @@ Complete reference for all NMPlayer methods, organized by category.
 - [Setup & Configuration](#setup--configuration)
 - [Playback Control](#playback-control)
 - [Media Information](#media-information)
+- [Volume Control](#volume-control)
+- [Playback Speed](#playback-speed)
+- [Playlist Management](#playlist-management)
 - [Track Management](#track-management)
+- [Chapter Navigation](#chapter-navigation)
+- [Skipper Segments](#skipper-segments)
 - [UI & Display](#ui--display)
+- [Element Access](#element-access)
 - [Event Handling](#event-handling)
 - [Plugin System](#plugin-system)
+- [Translation & Localization](#translation--localization)
+- [File & Resource Access](#file--resource-access)
 - [Utility Methods](#utility-methods)
+- [TV/Season Support](#tvseason-support)
+- [Cleanup](#cleanup)
 
 ## Setup & Configuration
 
@@ -37,34 +47,45 @@ const player = nmplayer('container-id').setup({
 
 **Returns:** Configured player instance
 
-### `load(playlist: PlayerConfig<T>['playlist'] | string): void`
+### `setConfig<U>(options: Partial<U & PlayerConfig<any>>): void`
+
+Updates configuration after player creation.
+
+```typescript
+player.setConfig({ muted: true, controls: false });
+```
+
+**Parameters:**
+- `options` - Partial configuration to merge
+
+### `load(playlist: PlaylistItem[]): void`
 
 Loads a new playlist into the player.
 
 ```typescript
-// Load array of items
 player.load([
   { title: 'Video 1', file: 'video1.mp4', image: 'thumb1.jpg', description: 'First video' },
   { title: 'Video 2', file: 'video2.mp4', image: 'thumb2.jpg', description: 'Second video' }
 ]);
-
-// Load from URL
-player.load('https://api.example.com/playlist.json');
-```
-
-**Parameters:**
-- `playlist` - Array of playlist items or URL to playlist
-
-### `setPlaylist(playlist: PlayerConfig<T>['playlist']): void`
-
-Sets the playlist without reloading the current item.
-
-```typescript
-player.setPlaylist(newPlaylistItems);
 ```
 
 **Parameters:**
 - `playlist` - Array of playlist items
+
+### `setPlaylist(playlist: string | PlaylistItem[]): void`
+
+Sets the playlist (accepts array or URL string).
+
+```typescript
+// From array
+player.setPlaylist(newPlaylistItems);
+
+// From URL
+player.setPlaylist('https://api.example.com/playlist.json');
+```
+
+**Parameters:**
+- `playlist` - Array of playlist items or URL string
 
 ## Playback Control
 
@@ -102,21 +123,37 @@ Toggles between play and pause states.
 player.togglePlayback();
 ```
 
-### `seek(position: number): void`
+### `seek(position: number): number`
 
-Seeks to a specific time position.
+Seeks to a specific time position in seconds.
 
 ```typescript
 // Seek to 30 seconds
 player.seek(30);
 
 // Seek to 50% of duration
-const duration = player.getDuration();
-player.seek(duration * 0.5);
+const dur = player.duration();
+player.seek(dur * 0.5);
 ```
 
 **Parameters:**
 - `position` - Time position in seconds
+
+**Returns:** The position that was seeked to
+
+### `seekByPercentage(percentage: number): number`
+
+Seeks to a position by percentage of duration.
+
+```typescript
+// Seek to 50%
+player.seekByPercentage(50);
+```
+
+**Parameters:**
+- `percentage` - Percentage of total duration (0-100)
+
+**Returns:** The time position in seconds
 
 ### `restart(): void`
 
@@ -126,31 +163,31 @@ Restarts the current item from the beginning.
 player.restart();
 ```
 
-### `forwardVideo(seconds?: number): void`
+### `forward(seconds?: number): void`
 
 Skips forward by specified seconds.
 
 ```typescript
 // Skip forward 10 seconds (default)
-player.forwardVideo();
+player.forward();
 
 // Skip forward 30 seconds
-player.forwardVideo(30);
+player.forward(30);
 ```
 
 **Parameters:**
 - `seconds` - Number of seconds to skip (default: 10)
 
-### `rewindVideo(seconds?: number): void`
+### `rewind(seconds?: number): void`
 
 Rewinds by specified seconds.
 
 ```typescript
 // Rewind 10 seconds (default)
-player.rewindVideo();
+player.rewind();
 
 // Rewind 30 seconds
-player.rewindVideo(30);
+player.rewind(30);
 ```
 
 **Parameters:**
@@ -158,120 +195,118 @@ player.rewindVideo(30);
 
 ## Media Information
 
-### `getCurrentTime(): number`
+### `currentTime(): number`
 
 Gets the current playback time.
 
 ```typescript
-const currentTime = player.getCurrentTime();
-console.log(`Current time: ${currentTime} seconds`);
+const time = player.currentTime();
+console.log(`Current time: ${time} seconds`);
 ```
 
 **Returns:** Current time in seconds
 
-### `getDuration(): number`
+### `duration(): number`
 
 Gets the total duration of the current media.
 
 ```typescript
-const duration = player.getDuration();
-console.log(`Duration: ${duration} seconds`);
+const dur = player.duration();
+console.log(`Duration: ${dur} seconds`);
 ```
 
 **Returns:** Duration in seconds
 
-### `getTimeData(): TimeData`
+### `timeData(): TimeData`
 
 Gets comprehensive time information.
 
 ```typescript
-const timeData = player.getTimeData();
-console.log(`${timeData.currentTimeHuman} / ${timeData.durationHuman}`);
-console.log(`${timeData.percentage}% complete`);
+const td = player.timeData();
+console.log(`${td.currentTimeHuman} / ${td.durationHuman}`);
+console.log(`${td.percentage}% complete`);
+console.log(`Playback rate: ${td.playbackRate}x`);
 ```
 
-**Returns:** [TimeData](API-Reference.md#timedata) object
+**Returns:** [TimeData](API-Reference.md#timedata) object with `currentTime`, `duration`, `percentage`, `remaining`, `playbackRate`, `currentTimeHuman`, `durationHuman`, `remainingHuman`
 
-### `getState(): PlayState`
+### `state(): PlayState`
 
 Gets the current playback state.
 
 ```typescript
-const state = player.getState();
+const state = player.state();
 console.log(`Player state: ${state}`); // 'playing', 'paused', 'buffering', 'idle'
 ```
 
 **Returns:** Current [PlayState](API-Reference.md#playstate)
 
-### `getBuffer(): TimeRanges`
+### `buffer(): TimeRanges`
 
 Gets buffered time ranges.
 
 ```typescript
-const buffer = player.getBuffer();
-for (let i = 0; i < buffer.length; i++) {
-  console.log(`Buffered: ${buffer.start(i)} - ${buffer.end(i)}`);
+const buf = player.buffer();
+for (let i = 0; i < buf.length; i++) {
+  console.log(`Buffered: ${buf.start(i)} - ${buf.end(i)}`);
 }
 ```
 
 **Returns:** HTML5 TimeRanges object
 
+### `currentSrc(): string`
+
+Gets the current media source URL.
+
+```typescript
+const src = player.currentSrc();
+console.log(`Playing: ${src}`);
+```
+
+**Returns:** Current media URL
+
 ## Volume Control
 
-### `getVolume(): number`
+### `volume(): number` / `volume(value: number): void`
 
-Gets the current volume level.
-
-```typescript
-const volume = player.getVolume();
-console.log(`Volume: ${volume}%`);
-```
-
-**Returns:** Volume level (0-100)
-
-### `setVolume(volume: number): void`
-
-Sets the volume level.
+Gets or sets the volume level (0-100).
 
 ```typescript
+// Get current volume
+const vol = player.volume();
+console.log(`Volume: ${vol}%`);
+
 // Set to 50%
-player.setVolume(50);
+player.volume(50);
 
 // Set to maximum
-player.setVolume(100);
+player.volume(100);
 ```
 
-**Parameters:**
-- `volume` - Volume level (0-100)
+**Parameters (setter):**
+- `value` - Volume level (0-100, clamped)
 
-### `getMute(): boolean`
+**Returns (getter):** Volume level (0-100)
 
-Gets the mute state.
+### `muted(): boolean` / `muted(value: boolean): void`
 
-```typescript
-const isMuted = player.getMute();
-console.log(`Muted: ${isMuted}`);
-```
-
-**Returns:** Whether player is muted
-
-### `setMute(state?: boolean): void`
-
-Sets the mute state.
+Gets or sets the mute state.
 
 ```typescript
+// Get mute state
+const isMuted = player.muted();
+
 // Mute
-player.setMute(true);
+player.muted(true);
 
 // Unmute
-player.setMute(false);
-
-// Toggle mute
-player.setMute();
+player.muted(false);
 ```
 
-**Parameters:**
-- `state` - Mute state (toggles if undefined)
+**Parameters (setter):**
+- `value` - Mute state
+
+**Returns (getter):** Whether player is muted
 
 ### `toggleMute(): void`
 
@@ -283,7 +318,7 @@ player.toggleMute();
 
 ### `volumeUp(): void`
 
-Increases volume by 10%.
+Increases volume by 5%.
 
 ```typescript
 player.volumeUp();
@@ -291,50 +326,65 @@ player.volumeUp();
 
 ### `volumeDown(): void`
 
-Decreases volume by 10%.
+Decreases volume by 5%.
 
 ```typescript
 player.volumeDown();
 ```
 
+### `gain(): object | undefined` / `gain(value: number): void`
+
+Gets or sets the audio gain (volume boost beyond 100%).
+
+```typescript
+// Get current gain info
+const gainInfo = player.gain();
+if (gainInfo) {
+  console.log(`Gain: ${gainInfo.value} (min: ${gainInfo.min}, max: ${gainInfo.max})`);
+}
+
+// Set gain value
+player.gain(2.0);
+```
+
+**Parameters (setter):**
+- `value` - Gain multiplier
+
+**Returns (getter):** Object with `{ min, max, defaultValue, value }` or undefined if no gain node
+
 ## Playback Speed
 
-### `getSpeed(): number`
+### `speed(): number` / `speed(value: number): void`
 
-Gets the current playback rate.
-
-```typescript
-const speed = player.getSpeed();
-console.log(`Playback speed: ${speed}x`);
-```
-
-**Returns:** Current playback rate
-
-### `setSpeed(speed: number): void`
-
-Sets the playback rate.
+Gets or sets the playback rate.
 
 ```typescript
+// Get current speed
+const rate = player.speed();
+console.log(`Playback speed: ${rate}x`);
+
 // Normal speed
-player.setSpeed(1.0);
+player.speed(1.0);
 
 // Double speed
-player.setSpeed(2.0);
+player.speed(2.0);
 
 // Half speed
-player.setSpeed(0.5);
+player.speed(0.5);
 ```
 
-**Parameters:**
-- `speed` - Playback rate multiplier
+**Parameters (setter):**
+- `value` - Playback rate multiplier
 
-### `getSpeeds(): number[]`
+**Returns (getter):** Current playback rate
+
+### `speeds(): number[]`
 
 Gets available playback speeds.
 
 ```typescript
-const speeds = player.getSpeeds();
-console.log('Available speeds:', speeds); // [0.5, 0.75, 1, 1.25, 1.5, 2]
+const available = player.speeds();
+console.log('Available speeds:', available); // [0.5, 0.75, 1, 1.25, 1.5, 2]
 ```
 
 **Returns:** Array of available speeds
@@ -353,56 +403,52 @@ if (player.hasSpeeds()) {
 
 ## Playlist Management
 
-### `getPlaylist(): PlaylistItem[]`
+### `playlist(): PlaylistItem[]`
 
 Gets the current playlist.
 
 ```typescript
-const playlist = player.getPlaylist();
-console.log(`Playlist has ${playlist.length} items`);
+const items = player.playlist();
+console.log(`Playlist has ${items.length} items`);
 ```
 
 **Returns:** Array of [PlaylistItem](API-Reference.md#playlistitem)
 
-### `getPlaylistIndex(): number`
+### `playlistIndex(): number`
 
-Gets the current playlist item index.
-
-```typescript
-const index = player.getPlaylistIndex();
-console.log(`Playing item ${index + 1} of ${player.getPlaylist().length}`);
-```
-
-**Returns:** Current item index (0-based)
-
-### `getPlaylistItem(index?: number): PlaylistItem`
-
-Gets a playlist item by index.
+Gets the current playlist item index. Returns -1 when no item is active.
 
 ```typescript
-// Get current item
-const currentItem = player.getPlaylistItem();
-
-// Get specific item
-const firstItem = player.getPlaylistItem(0);
+const index = player.playlistIndex();
+console.log(`Playing item ${index + 1} of ${player.playlist().length}`);
 ```
 
-**Parameters:**
-- `index` - Item index (current if undefined)
+**Returns:** Current item index (0-based, -1 if no active item)
 
-**Returns:** [PlaylistItem](API-Reference.md#playlistitem)
+### `playlistItem(): PlaylistItem` / `playlistItem(index: number): void`
 
-### `playlistItem(): PlaylistItem`
-### `playlistItem(index: number): void`
-
-Gets current item or sets current item by index.
+Gets the current playlist item or sets the active item by index.
 
 ```typescript
 // Get current item
 const current = player.playlistItem();
+console.log(`Now playing: ${current.title}`);
 
-// Play item at index 2
+// Set active item by index
 player.playlistItem(2);
+```
+
+**Parameters (setter):**
+- `index` - Item index to activate
+
+**Returns (getter):** Current [PlaylistItem](API-Reference.md#playlistitem)
+
+### `playVideo(index: number): void`
+
+Plays a specific playlist item by index.
+
+```typescript
+player.playVideo(0); // Play first item
 ```
 
 **Parameters:**
@@ -434,7 +480,19 @@ if (player.hasPlaylists()) {
 }
 ```
 
-**Returns:** Whether playlist has multiple items
+**Returns:** Whether playlist has more than one item
+
+### `isFirstPlaylistItem(): boolean`
+
+Checks if currently playing the first item.
+
+```typescript
+if (player.isFirstPlaylistItem()) {
+  // Hide previous button
+}
+```
+
+**Returns:** Whether current item is the first
 
 ### `isLastPlaylistItem(): boolean`
 
@@ -448,89 +506,212 @@ if (player.isLastPlaylistItem()) {
 
 **Returns:** Whether current item is the last
 
-### `setPlaylistItemCallback(callback: null | ((item: PlaylistItem, index: number) => void | Promise<PlaylistItem[]>)): void`
+### `tracks(): Track[]` / `tracks<K>(kind: K): TrackKindMap[K][]`
 
-Sets a callback for playlist item changes.
+Gets tracks from the current playlist item, optionally filtered by kind.
 
 ```typescript
-player.setPlaylistItemCallback(async (item, index) => {
-  console.log(`Now playing: ${item.title}`);
-  
-  // Optionally return new playlist
-  if (index === player.getPlaylist().length - 1) {
-    return await fetchNextEpisodes();
-  }
-});
+// Get all tracks
+const allTracks = player.tracks();
+
+// Get only subtitle tracks
+const subs = player.tracks('subtitles');
+
+// Get only chapter tracks
+const chaps = player.tracks('chapters');
+
+// Get only skipper tracks
+const skips = player.tracks('skippers');
 ```
 
 **Parameters:**
-- `callback` - Function called when item changes
+- `kind` - Optional track kind: `'subtitles'`, `'chapters'`, `'thumbnails'`, `'skippers'`, `'fonts'`
+
+**Returns:** Array of tracks matching the kind
+
+### `fetchPlaylist(url: string): Promise<PlaylistItem[]>`
+
+Fetches a playlist from a URL.
+
+```typescript
+const items = await player.fetchPlaylist('https://api.example.com/playlist.json');
+```
+
+**Parameters:**
+- `url` - Playlist URL
+
+**Returns:** Promise resolving to array of playlist items
 
 ## Track Management
 
+### Subtitle Tracks
+
+### `subtitle(): SubtitleTrack | undefined` / `subtitle(index: number): void`
+
+Gets the current subtitle track or sets it by index.
+
+```typescript
+// Get current subtitle
+const current = player.subtitle();
+if (current) {
+  console.log(`Current subtitles: ${current.label}`);
+}
+
+// Set to first subtitle track
+player.subtitle(1);
+
+// Disable subtitles (select "Off" at index 0)
+player.subtitle(0);
+```
+
+**Parameters (setter):**
+- `index` - Subtitle track index (0 = Off)
+
+**Returns (getter):** Current [SubtitleTrack](API-Reference.md#track) or undefined
+
+### `subtitles(): SubtitleTrack[]`
+
+Gets available subtitle tracks. The first entry (index 0) is always "Off".
+
+```typescript
+const subs = player.subtitles();
+subs.forEach(track => {
+  console.log(`Subtitle: ${track.label} (${track.language})`);
+});
+```
+
+**Returns:** Array of subtitle tracks
+
+### `subtitleIndex(): number`
+
+Gets the current subtitle track index.
+
+```typescript
+const idx = player.subtitleIndex();
+```
+
+**Returns:** Current subtitle track index (0 = Off)
+
+### `subtitleIndexBy(language: string, type: string, ext: string): number | undefined`
+
+Gets subtitle track index by criteria.
+
+```typescript
+const englishSubs = player.subtitleIndexBy('en', 'full', 'vtt');
+if (englishSubs !== undefined) {
+  player.subtitle(englishSubs);
+}
+```
+
+**Parameters:**
+- `language` - Language code
+- `type` - Subtitle type
+- `ext` - File extension
+
+**Returns:** Track index or undefined
+
+### `cycleSubtitles(): void`
+
+Cycles through subtitle tracks (including Off).
+
+```typescript
+player.cycleSubtitles();
+```
+
+### `hasSubtitles(): boolean`
+
+Checks if subtitle tracks are available (more than just "Off").
+
+```typescript
+if (player.hasSubtitles()) {
+  // Show subtitle options
+}
+```
+
+**Returns:** Whether subtitles are available
+
+### `subtitleStyle(): SubtitleStyle` / `subtitleStyle(value: Partial<SubtitleStyle>): void`
+
+Gets or sets subtitle styling.
+
+```typescript
+// Get current style
+const style = player.subtitleStyle();
+console.log(`Font size: ${style.fontSize}px`);
+
+// Set style
+player.subtitleStyle({
+  fontSize: 18,
+  textColor: '#ffff00',
+  edgeStyle: 'dropShadow'
+});
+```
+
+**Parameters (setter):**
+- `value` - Partial [SubtitleStyle](API-Reference.md#subtitlestyle) object
+
+**Returns (getter):** Current [SubtitleStyle](API-Reference.md#subtitlestyle)
+
 ### Audio Tracks
 
-### `getAudioTracks(): Track[]`
+### `audioTrack(): AudioTrack | null` / `audioTrack(index: number): void`
+
+Gets the current audio track or sets it by index.
+
+```typescript
+// Get current audio track
+const current = player.audioTrack();
+if (current) {
+  console.log(`Current audio: ${current.label}`);
+}
+
+// Set to first audio track
+player.audioTrack(0);
+```
+
+**Parameters (setter):**
+- `index` - Audio track index
+
+**Returns (getter):** Current audio track or null
+
+### `audioTracks(): AudioTrack[]`
 
 Gets available audio tracks.
 
 ```typescript
-const audioTracks = player.getAudioTracks();
-audioTracks.forEach(track => {
+const tracks = player.audioTracks();
+tracks.forEach(track => {
   console.log(`Audio: ${track.label} (${track.language})`);
 });
 ```
 
-**Returns:** Array of audio [Track](API-Reference.md#track)
+**Returns:** Array of audio tracks
 
-### `getCurrentAudioTrack(): Track | null`
-
-Gets the current audio track.
-
-```typescript
-const currentAudio = player.getCurrentAudioTrack();
-console.log(`Current audio: ${currentAudio.label}`);
-```
-
-**Returns:** Current audio [Track](API-Reference.md#track)
-
-### `setCurrentAudioTrack(index: number): void`
-
-Sets the current audio track.
-
-```typescript
-// Set to first audio track
-player.setCurrentAudioTrack(0);
-```
-
-**Parameters:**
-- `index` - Audio track index
-
-### `getAudioTrackIndex(): number`
+### `audioTrackIndex(): number`
 
 Gets the current audio track index.
 
 ```typescript
-const audioIndex = player.getAudioTrackIndex();
+const idx = player.audioTrackIndex();
 ```
 
 **Returns:** Current audio track index
 
-### `getAudioTrackIndexByLanguage(language: string): number | undefined`
+### `audioTrackIndexByLanguage(language: string): number`
 
 Gets audio track index by language code.
 
 ```typescript
-const spanishAudio = player.getAudioTrackIndexByLanguage('es');
-if (spanishAudio !== undefined) {
-  player.setCurrentAudioTrack(spanishAudio);
+const spanishAudio = player.audioTrackIndexByLanguage('es');
+if (spanishAudio >= 0) {
+  player.audioTrack(spanishAudio);
 }
 ```
 
 **Parameters:**
 - `language` - ISO language code
 
-**Returns:** Track index or undefined
+**Returns:** Track index (-1 if not found)
 
 ### `cycleAudioTracks(): void`
 
@@ -552,152 +733,41 @@ if (player.hasAudioTracks()) {
 
 **Returns:** Whether multiple audio tracks exist
 
-### Subtitle/Caption Tracks
-
-### `getCaptionsList(): Track[]`
-
-Gets available subtitle/caption tracks.
-
-```typescript
-const captions = player.getCaptionsList();
-captions.forEach(track => {
-  console.log(`Subtitle: ${track.label} (${track.language})`);
-});
-```
-
-**Returns:** Array of subtitle [Track](API-Reference.md#track)
-
-### `getCurrentCaptions(): Track | undefined`
-
-Gets the current subtitle track.
-
-```typescript
-const currentSubs = player.getCurrentCaptions();
-if (currentSubs) {
-  console.log(`Current subtitles: ${currentSubs.label}`);
-}
-```
-
-**Returns:** Current subtitle [Track](API-Reference.md#track) or undefined
-
-### `setCurrentCaption(index: number): void`
-
-Sets the current subtitle track.
-
-```typescript
-// Set to first subtitle track
-player.setCurrentCaption(0);
-
-// Disable subtitles
-player.setCurrentCaption(-1);
-```
-
-**Parameters:**
-- `index` - Subtitle track index (-1 to disable)
-
-### `getCaptionIndex(): number`
-
-Gets the current subtitle track index.
-
-```typescript
-const captionIndex = player.getCaptionIndex();
-```
-
-**Returns:** Current subtitle track index (-1 if disabled)
-
-### `getCaptionIndexBy(language: string, type: string, ext: string): number | undefined`
-
-Gets subtitle track index by criteria.
-
-```typescript
-const englishSubs = player.getCaptionIndexBy('en', 'full', 'vtt');
-if (englishSubs !== undefined) {
-  player.setCurrentCaption(englishSubs);
-}
-```
-
-**Parameters:**
-- `language` - Language code
-- `type` - Subtitle type
-- `ext` - File extension
-
-**Returns:** Track index or undefined
-
-### `cycleSubtitles(): void`
-
-Cycles through subtitle tracks (including off).
-
-```typescript
-player.cycleSubtitles();
-```
-
-### `hasCaptions(): boolean`
-
-Checks if subtitle tracks are available.
-
-```typescript
-if (player.hasCaptions()) {
-  // Show subtitle options
-}
-```
-
-**Returns:** Whether subtitles are available
-
 ### Quality Levels
 
-### `getQualityLevels(): Level[]`
+### `quality(): number` / `quality(index: number): void`
+
+Gets the current quality level index or sets it.
+
+```typescript
+// Get current quality index
+const qualityIndex = player.quality();
+
+// Set to highest quality
+const levels = player.qualityLevels();
+player.quality(levels.length - 1);
+
+// Set to auto (adaptive)
+player.quality(-1);
+```
+
+**Parameters (setter):**
+- `index` - Quality level index (-1 for auto)
+
+**Returns (getter):** Current quality level index
+
+### `qualityLevels(): Level[]`
 
 Gets available quality levels.
 
 ```typescript
-const qualities = player.getQualityLevels();
-qualities.forEach(level => {
+const levels = player.qualityLevels();
+levels.forEach(level => {
   console.log(`Quality: ${level.height}p - ${level.bitrate} kbps`);
 });
 ```
 
 **Returns:** Array of [Level](API-Reference.md#level)
-
-### `getCurrentQuality(): number`
-
-Gets the current quality level index.
-
-```typescript
-const qualityIndex = player.getCurrentQuality();
-const level = player.getQualityLevels()[qualityIndex];
-console.log(`Current quality: ${level.height}p`);
-```
-
-**Returns:** Current quality level index
-
-### `setCurrentQuality(index: number): void`
-
-Sets the current quality level.
-
-```typescript
-// Set to highest quality
-const levels = player.getQualityLevels();
-player.setCurrentQuality(levels.length - 1);
-
-// Set to auto (adaptive)
-player.setCurrentQuality(-1);
-```
-
-**Parameters:**
-- `index` - Quality level index (-1 for auto)
-
-### `getCurrentQualityByFileName(name: string): number | undefined`
-
-Gets quality index by filename.
-
-```typescript
-const qualityIndex = player.getCurrentQualityByFileName('video_720p.mp4');
-```
-
-**Parameters:**
-- `name` - Filename to match
-
-**Returns:** Quality index or undefined
 
 ### `hasQualities(): boolean`
 
@@ -713,27 +783,27 @@ if (player.hasQualities()) {
 
 ## Chapter Navigation
 
-### `getChapters(): Chapter[]`
+### `chapters(): Chapter[]`
 
 Gets available chapters.
 
 ```typescript
-const chapters = player.getChapters();
-chapters.forEach(chapter => {
+const chaps = player.chapters();
+chaps.forEach(chapter => {
   console.log(`Chapter: ${chapter.title} (${chapter.startTime}s)`);
 });
 ```
 
 **Returns:** Array of [Chapter](API-Reference.md#chapter)
 
-### `getCurrentChapter(currentTime: number): Cue | undefined`
+### `chapter(currentTime: number): Cue | undefined`
 
 Gets the chapter at specified time.
 
 ```typescript
-const currentChapter = player.getCurrentChapter(player.getCurrentTime());
-if (currentChapter) {
-  console.log(`Current chapter: ${currentChapter.text}`);
+const current = player.chapter(player.currentTime());
+if (current) {
+  console.log(`Current chapter: ${current.text}`);
 }
 ```
 
@@ -742,12 +812,12 @@ if (currentChapter) {
 
 **Returns:** VTT Cue object or undefined
 
-### `getNextChapter(currentEndTime: number): Cue | undefined`
+### `nextChapterAt(currentEndTime: number): Cue | undefined`
 
 Gets the next chapter after specified time.
 
 ```typescript
-const nextChapter = player.getNextChapter(player.getCurrentTime());
+const next = player.nextChapterAt(player.currentTime());
 ```
 
 **Parameters:**
@@ -755,12 +825,12 @@ const nextChapter = player.getNextChapter(player.getCurrentTime());
 
 **Returns:** Next VTT Cue or undefined
 
-### `getPreviousChapter(currentStartTime: number): Cue | undefined`
+### `previousChapterAt(currentStartTime: number): Cue | undefined`
 
 Gets the previous chapter before specified time.
 
 ```typescript
-const prevChapter = player.getPreviousChapter(player.getCurrentTime());
+const prev = player.previousChapterAt(player.currentTime());
 ```
 
 **Parameters:**
@@ -770,7 +840,7 @@ const prevChapter = player.getPreviousChapter(player.getCurrentTime());
 
 ### `nextChapter(): void`
 
-Jumps to the next chapter.
+Seeks to the next chapter.
 
 ```typescript
 player.nextChapter();
@@ -778,20 +848,20 @@ player.nextChapter();
 
 ### `previousChapter(): void`
 
-Jumps to the previous chapter.
+Seeks to the previous chapter.
 
 ```typescript
 player.previousChapter();
 ```
 
-### `getChapterText(scrubTime: number): string | null`
+### `chapterText(scrubTime: number): string | null`
 
 Gets chapter title at specified time.
 
 ```typescript
-const chapterTitle = player.getChapterText(player.getCurrentTime());
-if (chapterTitle) {
-  console.log(`Chapter: ${chapterTitle}`);
+const title = player.chapterText(player.currentTime());
+if (title) {
+  console.log(`Chapter: ${title}`);
 }
 ```
 
@@ -800,34 +870,79 @@ if (chapterTitle) {
 
 **Returns:** Chapter title or null
 
+### `chapterFile(): string | undefined`
+
+Gets the current chapter VTT file URL.
+
+```typescript
+const file = player.chapterFile();
+```
+
+**Returns:** Chapter file URL or undefined
+
+## Skipper Segments
+
+### `skippers(): Skipper[]`
+
+Gets available skip segments (intro, recap, credits, etc.).
+
+```typescript
+const segments = player.skippers();
+segments.forEach(s => {
+  console.log(`${s.title}: ${s.startTime}s - ${s.endTime}s`);
+});
+```
+
+**Returns:** Array of skipper segments
+
+### `skip(): Skipper | undefined`
+
+Gets the active skip segment at the current playback time.
+
+```typescript
+const active = player.skip();
+if (active) {
+  console.log(`You can skip: ${active.title}`);
+  // Seek past it
+  player.seek(active.endTime);
+}
+```
+
+**Returns:** Active skipper segment or undefined
+
+### `skipFile(): string | undefined`
+
+Gets the current skipper VTT file URL.
+
+```typescript
+const file = player.skipFile();
+```
+
+**Returns:** Skipper file URL or undefined
+
 ## UI & Display
 
 ### Fullscreen
 
-### `getFullscreen(): boolean`
+### `fullscreen(): boolean` / `fullscreen(value: boolean): void`
 
-Gets fullscreen state.
-
-```typescript
-const isFullscreen = player.getFullscreen();
-```
-
-**Returns:** Whether player is in fullscreen
-
-### `setFullscreen(state: boolean): void`
-
-Sets fullscreen state.
+Gets or sets fullscreen state.
 
 ```typescript
+// Get fullscreen state
+const isFs = player.fullscreen();
+
 // Enter fullscreen
-player.setFullscreen(true);
+player.fullscreen(true);
 
 // Exit fullscreen
-player.setFullscreen(false);
+player.fullscreen(false);
 ```
 
-**Parameters:**
-- `state` - Fullscreen state
+**Parameters (setter):**
+- `value` - Fullscreen state
+
+**Returns (getter):** Whether player is in fullscreen
 
 ### `enterFullscreen(): void`
 
@@ -837,6 +952,14 @@ Enters fullscreen mode.
 player.enterFullscreen();
 ```
 
+### `exitFullscreen(): void`
+
+Exits fullscreen mode.
+
+```typescript
+player.exitFullscreen();
+```
+
 ### `toggleFullscreen(): void`
 
 Toggles fullscreen state.
@@ -844,6 +967,21 @@ Toggles fullscreen state.
 ```typescript
 player.toggleFullscreen();
 ```
+
+### `setAllowFullscreen(allowFullscreen: boolean): void`
+
+Controls whether fullscreen is allowed.
+
+```typescript
+// Disable fullscreen
+player.setAllowFullscreen(false);
+
+// Enable fullscreen
+player.setAllowFullscreen(true);
+```
+
+**Parameters:**
+- `allowFullscreen` - Whether to allow fullscreen
 
 ### Picture-in-Picture
 
@@ -859,116 +997,236 @@ if (player.hasPIP()) {
 
 **Returns:** Whether PiP is supported
 
-### Display & Layout
+### `setFloatingPlayer(shouldFloat: boolean): void`
 
-### `getWidth(): number`
-
-Gets player width.
+Controls floating/picture-in-picture mode.
 
 ```typescript
-const width = player.getWidth();
+player.setFloatingPlayer(true);
+```
+
+**Parameters:**
+- `shouldFloat` - Whether player should float
+
+### Aspect Ratio
+
+### `aspect(): string` / `aspect(value: Stretching): void`
+
+Gets or sets the aspect ratio / stretch mode.
+
+```typescript
+// Get current aspect mode
+const mode = player.aspect();
+
+// Set to fill
+player.aspect('fill');
+```
+
+**Parameters (setter):**
+- `value` - Stretch mode: `'exactfit'`, `'fill'`, `'none'`, `'uniform'`
+
+**Returns (getter):** Current stretch mode
+
+### `setAspect(aspect: Stretching): void`
+
+Sets the aspect ratio mode explicitly.
+
+```typescript
+player.setAspect('fill');     // objectFit: fill
+player.setAspect('uniform');  // objectFit: contain
+player.setAspect('exactfit'); // objectFit: cover
+player.setAspect('none');     // objectFit: none
+```
+
+**Parameters:**
+- `aspect` - Stretch mode
+
+### `cycleAspectRatio(): void`
+
+Cycles through aspect ratio modes.
+
+```typescript
+player.cycleAspectRatio();
+```
+
+### Dimensions
+
+### `width(): number`
+
+Gets player container width.
+
+```typescript
+const w = player.width();
 ```
 
 **Returns:** Player width in pixels
 
-### `getHeight(): number`
+### `height(): number`
 
-Gets player height.
+Gets player container height.
 
 ```typescript
-const height = player.getHeight();
+const h = player.height();
 ```
 
 **Returns:** Player height in pixels
 
 ### `resize(): void`
 
-Recalculates and updates the player dimensions based on the container and video aspect ratio.
+Recalculates and updates dimensions based on container and video aspect ratio.
 
 ```typescript
 player.resize();
 ```
 
-### `cycleAspectRatio(): void`
+### `setResponsiveAspectRatio(videoAspectRatio: number): void`
 
-Cycles through aspect ratios.
+Sets a responsive aspect ratio based on the video's aspect ratio.
 
 ```typescript
-player.cycleAspectRatio();
+player.setResponsiveAspectRatio(16 / 9);
 ```
 
-### Messages & UI
+**Parameters:**
+- `videoAspectRatio` - The video's width/height ratio
 
-### `displayMessage(value: string): void`
+### Messages
 
-Shows a message overlay.
+### `displayMessage(value: string, time?: number): void`
+
+Shows a temporary message overlay on the player.
 
 ```typescript
+// Show for default duration
 player.displayMessage('Video quality changed to 1080p');
+
+// Show for 5 seconds
+player.displayMessage('Skipping intro...', 5000);
 ```
 
 **Parameters:**
 - `value` - Message text
+- `time` - Display duration in milliseconds (optional)
 
-### `setSubtitleStyle(style: Partial<SubtitleStyle>): void`
+### HDR
 
-Sets advanced subtitle styling.
+### `hdrSupported(): boolean`
 
-```typescript
-player.setSubtitleStyle({
-  fontSize: 18,
-  textColor: '#ffff00',
-  edgeStyle: 'dropShadow'
-});
-```
-
-**Parameters:**
-- `style` - Partial [SubtitleStyle](API-Reference.md#subtitlestyle) object
-
-### `getSubtitleStyle(): SubtitleStyle`
-
-Gets current subtitle styling.
+Checks if the browser supports HDR video playback.
 
 ```typescript
-const style = player.getSubtitleStyle();
-console.log(`Font size: ${style.fontSize}px`);
+if (player.hdrSupported()) {
+  console.log('HDR content is supported');
+}
 ```
 
-**Returns:** Current [SubtitleStyle](API-Reference.md#subtitlestyle)
+**Returns:** Whether HDR is supported
 
 ## Element Access
 
-### `getContainer(): HTMLDivElement`
+### `element(): HTMLDivElement`
 
-Gets the main player container.
+Gets the player container element.
 
 ```typescript
-const container = player.getContainer();
-container.style.border = '2px solid red';
+const el = player.element();
+el.style.border = '2px solid red';
 ```
 
 **Returns:** Player container element
 
-### `getElement(): HTMLDivElement`
+### `container` (property)
 
-Gets the player element (alias for getContainer).
+Direct access to the player container element.
 
 ```typescript
-const element = player.getElement();
+const container = player.container;
 ```
 
-**Returns:** Player element
+### `videoElement` (property)
 
-### `getVideoElement(): HTMLVideoElement`
-
-Gets the underlying video element.
+Direct access to the underlying HTML5 video element.
 
 ```typescript
-const video = player.getVideoElement();
+const video = player.videoElement;
 console.log(`Video duration: ${video.duration}`);
 ```
 
-**Returns:** HTML5 video element
+## Event Handling
+
+### `on(event: string, callback: Function): void`
+
+Adds an event listener.
+
+```typescript
+player.on('play', () => {
+  console.log('Playback started');
+});
+
+player.on('time', (timeData) => {
+  console.log(`Time: ${timeData.currentTime}s`);
+});
+```
+
+**Parameters:**
+- `event` - Event name
+- `callback` - Event handler function
+
+### `off(event: string, callback?: Function): void`
+
+Removes event listener(s).
+
+```typescript
+function handlePlay() {
+  console.log('Playing');
+}
+
+// Add listener
+player.on('play', handlePlay);
+
+// Remove specific listener
+player.off('play', handlePlay);
+
+// Remove all listeners for event
+player.off('play');
+
+// Remove ALL listeners for ALL events
+player.off('all');
+```
+
+**Parameters:**
+- `event` - Event name (or `'all'` to remove everything)
+- `callback` - Specific handler to remove (omit to remove all for that event)
+
+### `once(event: string, callback: Function): void`
+
+Adds a one-time event listener that auto-removes after firing.
+
+```typescript
+player.once('ready', () => {
+  console.log('Player is ready (fired only once)');
+});
+```
+
+**Parameters:**
+- `event` - Event name
+- `callback` - Event handler function
+
+### `emit(event: string, data?: any): void`
+
+Emits a custom event.
+
+```typescript
+// Emit without data
+player.emit('customEvent');
+
+// Emit with data
+player.emit('customEvent', { message: 'Hello' });
+```
+
+**Parameters:**
+- `event` - Event name
+- `data` - Optional event data
 
 ## Plugin System
 
@@ -998,12 +1256,12 @@ player.usePlugin('custom');
 **Parameters:**
 - `id` - Plugin identifier
 
-### `getPlugin(name: string): Plugin | undefined`
+### `plugin(name: string): Plugin | undefined`
 
 Gets a registered plugin by name.
 
 ```typescript
-const keyHandler = player.getPlugin('keyHandler');
+const keyHandler = player.plugin('keyHandler');
 if (keyHandler) {
   // Plugin is available
 }
@@ -1014,63 +1272,93 @@ if (keyHandler) {
 
 **Returns:** Plugin instance or undefined
 
-## File & Resource Access
+## Translation & Localization
 
-### `getCurrentSrc(): string`
+### `localize(value: string): string`
 
-Gets the current media source URL.
+Localizes a string using the current language.
 
 ```typescript
-const src = player.getCurrentSrc();
-console.log(`Playing: ${src}`);
+const text = player.localize('Play');
+console.log(text); // "Wiedergabe" in German
 ```
 
-**Returns:** Current media URL
+**Parameters:**
+- `value` - String key to localize
 
-### `getSubtitleFile(): string | undefined`
+**Returns:** Localized string (or original if no translation found)
+
+### `setTitle(value: string): void`
+
+Sets the player's display title.
+
+```typescript
+player.setTitle('Now Playing: My Video');
+```
+
+**Parameters:**
+- `value` - Title text
+
+### `addTranslation(key: string, value: string): void`
+
+Adds a single translation entry.
+
+```typescript
+player.addTranslation('customButton', 'Mein Button');
+```
+
+**Parameters:**
+- `key` - Translation key
+- `value` - Translated text
+
+### `addTranslations(translations: Array<{ key: string, value: string }>): void`
+
+Adds multiple translation entries at once.
+
+```typescript
+player.addTranslations([
+  { key: 'play', value: 'Wiedergabe' },
+  { key: 'pause', value: 'Pause' },
+  { key: 'mute', value: 'Stumm' }
+]);
+```
+
+**Parameters:**
+- `translations` - Array of key/value pairs
+
+## File & Resource Access
+
+### `subtitleFile(): string | undefined`
 
 Gets the current subtitle file URL.
 
 ```typescript
-const subFile = player.getSubtitleFile();
-if (subFile) {
-  console.log(`Subtitle file: ${subFile}`);
-}
+const file = player.subtitleFile();
 ```
 
 **Returns:** Subtitle file URL or undefined
 
-### `getSpriteFile(): string | undefined`
+### `spriteFile(): string | undefined`
 
 Gets the current sprite/thumbnail file URL.
 
 ```typescript
-const spriteFile = player.getSpriteFile();
+const file = player.spriteFile();
 ```
 
 **Returns:** Sprite file URL or undefined
 
-### `getTimeFile(): string | undefined`
+### `timeFile(): string | undefined`
 
 Gets the current time metadata file URL.
 
 ```typescript
-const timeFile = player.getTimeFile();
+const file = player.timeFile();
 ```
 
 **Returns:** Time file URL or undefined
 
-### `fetchFontFile(): Promise<void>`
-
-Fetches and loads font files for subtitles.
-
-```typescript
-await player.fetchFontFile();
-```
-
-**Returns:** Promise that resolves when fonts are loaded
-
-### `getFileContents<T extends TypeMappings>({url, options, callback}): Promise<void>`
+### `getFileContents<T>({ url, options, callback }): Promise<void>`
 
 Fetches file contents with various options.
 
@@ -1091,76 +1379,6 @@ await player.getFileContents({
 - `url` - File URL
 - `options` - Request options
 - `callback` - Success callback
-
-## Event Handling
-
-### `emit(event: string, data?: any): void`
-
-Emits a custom event.
-
-```typescript
-// Emit without data
-player.emit('customEvent');
-
-// Emit with data
-player.emit('customEvent', { message: 'Hello' });
-```
-
-**Parameters:**
-- `event` - Event name
-- `data` - Optional event data
-
-### `on(event: string, callback: Function): void`
-
-Adds an event listener.
-
-```typescript
-player.on('play', () => {
-  console.log('Playback started');
-});
-
-player.on('time', (timeData) => {
-  console.log(`Time: ${timeData.currentTime}s`);
-});
-```
-
-**Parameters:**
-- `event` - Event name
-- `callback` - Event handler function
-
-### `off(event: string, callback: Function): void`
-
-Removes an event listener.
-
-```typescript
-function handlePlay() {
-  console.log('Playing');
-}
-
-// Add listener
-player.on('play', handlePlay);
-
-// Remove listener
-player.off('play', handlePlay);
-```
-
-**Parameters:**
-- `event` - Event name
-- `callback` - Event handler function to remove
-
-### `once(event: string, callback: Function): void`
-
-Adds a one-time event listener.
-
-```typescript
-player.once('ready', () => {
-  console.log('Player is ready (fired only once)');
-});
-```
-
-**Parameters:**
-- `event` - Event name
-- `callback` - Event handler function
 
 ## Utility Methods
 
@@ -1190,24 +1408,57 @@ if (player.isTv()) {
 
 **Returns:** Whether device is TV
 
-### `isMuted(): boolean`
+### `isInViewport(): boolean`
 
-Checks if player is muted (alias for getMute).
+Checks if the player is currently visible in the viewport.
 
 ```typescript
-const muted = player.isMuted();
+if (player.isInViewport()) {
+  // Player is visible
+}
 ```
 
-**Returns:** Whether player is muted
+**Returns:** Whether player is in viewport
 
-### UI Utilities
+### DOM Utilities
 
-### `getClosestElement(element: HTMLButtonElement, selector: string): HTMLElement | null`
+### `createElement<K>(type: K, id: string, unique?: boolean): CreateElement`
+
+Creates an HTML element with builder pattern.
+
+```typescript
+const el = player.createElement('div', 'my-overlay')
+  .addClasses(['custom-overlay', 'visible'])
+  .appendTo(player.container);
+```
+
+**Parameters:**
+- `type` - HTML element tag name
+- `id` - Element ID
+- `unique` - If true, returns existing element with same ID instead of creating new
+
+**Returns:** Builder object with `.addClasses()`, `.appendTo()`, `.prependTo()`, `.get()`
+
+### `addClasses<T extends Element>(el: T, names: string[]): AddClasses<T>`
+
+Adds CSS classes to an element with builder pattern.
+
+```typescript
+player.addClasses(element, ['active', 'highlighted'])
+  .appendTo(container);
+```
+
+**Parameters:**
+- `el` - Target element
+- `names` - Array of class names
+
+**Returns:** Builder object with `.appendTo()`, `.prependTo()`, `.get()`
+
+### `getClosestElement(element: HTMLButtonElement, selector: string): HTMLElement | undefined`
 
 Finds the closest parent element matching selector.
 
 ```typescript
-const button = document.querySelector('button');
 const container = player.getClosestElement(button, '.player-container');
 ```
 
@@ -1215,7 +1466,7 @@ const container = player.getClosestElement(button, '.player-container');
 - `element` - Starting element
 - `selector` - CSS selector
 
-**Returns:** Matching element or null
+**Returns:** Matching element or undefined
 
 ### `scrollCenter(el: HTMLElement, container: HTMLElement, options?): void`
 
@@ -1246,58 +1497,31 @@ player.scrollIntoView(selectedMenuItem);
 
 ### String Utilities
 
-### `localize(value: string): string`
+### `snakeToCamel(str: string): string`
 
-Localizes a string using current language.
+Converts snake_case string to camelCase.
 
 ```typescript
-const localizedText = player.localize('Play');
-console.log(localizedText); // "Wiedergabe" in German
+player.snakeToCamel('video_player'); // "videoPlayer"
 ```
-
-**Parameters:**
-- `value` - String to localize
-
-**Returns:** Localized string
 
 ### `spaceToCamel(str: string): string`
 
 Converts space-separated string to camelCase.
 
 ```typescript
-const camelCase = player.spaceToCamel('play button');
-console.log(camelCase); // "playButton"
+player.spaceToCamel('play button'); // "playButton"
 ```
-
-**Parameters:**
-- `str` - Input string
-
-**Returns:** camelCase string
-
-### `snakeToCamel(str: string): string`
-
-Converts snake_case string to camelCase.
-
-```typescript
-const camelCase = player.snakeToCamel('video_player');
-console.log(camelCase); // "videoPlayer"
-```
-
-**Parameters:**
-- `str` - Input string
-
-**Returns:** camelCase string
 
 ### Math Utilities
 
-### `nearestValue(arr: any[], val: number): any`
+### `nearestValue(arr: number[], val: number): number`
 
 Finds nearest value in array.
 
 ```typescript
 const speeds = [0.5, 1, 1.5, 2];
-const nearest = player.nearestValue(speeds, 1.2);
-console.log(nearest); // 1
+const nearest = player.nearestValue(speeds, 1.2); // 1
 ```
 
 **Parameters:**
@@ -1306,7 +1530,7 @@ console.log(nearest); // 1
 
 **Returns:** Nearest value from array
 
-### `isNumber(value: any): boolean`
+### `isNumber(value: any): value is number`
 
 Type guard for number values.
 
@@ -1316,10 +1540,7 @@ if (player.isNumber(userInput)) {
 }
 ```
 
-**Parameters:**
-- `value` - Value to check
-
-**Returns:** Whether value is a number
+**Returns:** Whether value is a finite number
 
 ### `getClosestSeekableInterval(): number`
 
@@ -1330,6 +1551,22 @@ const interval = player.getClosestSeekableInterval();
 ```
 
 **Returns:** Seekable interval in seconds
+
+### `debounce<T>(func: T, wait: number): Function`
+
+Creates a debounced function.
+
+```typescript
+const debouncedResize = player.debounce(() => {
+  player.resize();
+}, 300);
+```
+
+**Parameters:**
+- `func` - Function to debounce
+- `wait` - Delay in milliseconds
+
+**Returns:** Debounced function
 
 ### Input Handling
 
@@ -1358,7 +1595,6 @@ Gets keyboard shortcut for button.
 
 ```typescript
 const keyCode = player.getButtonKeyCode('play');
-console.log(`Play key: ${keyCode}`);
 ```
 
 **Parameters:**
@@ -1366,30 +1602,28 @@ console.log(`Play key: ${keyCode}`);
 
 **Returns:** Key code string
 
-### `getParameterByName(value: string): string | number | null`
+### `getParameterByName<T>(name: string, url?: string): T | null`
 
 Gets URL parameter value.
 
 ```typescript
 const autoplay = player.getParameterByName('autoplay');
-if (autoplay === '1') {
-  // Auto-start playback
-}
 ```
 
 **Parameters:**
-- `value` - Parameter name
+- `name` - Parameter name
+- `url` - URL to parse (defaults to current URL)
 
 **Returns:** Parameter value or null
 
 ## TV/Season Support
 
-### `getSeasons(): Array<{season: number; seasonName: string; episodes: number}>`
+### `seasons(): Array<{ season: number; seasonName: string; episodes: number }>`
 
 Gets available seasons for TV shows.
 
 ```typescript
-const seasons = player.getSeasons();
+const seasons = player.seasons();
 seasons.forEach(season => {
   console.log(`Season ${season.season}: ${season.episodes} episodes`);
 });
@@ -1410,49 +1644,27 @@ player.setEpisode(2, 5);
 - `season` - Season number
 - `episode` - Episode number
 
-## Advanced Settings
-
-### `setAllowFullscreen(allowFullscreen?: boolean): void`
-
-Controls fullscreen capability.
-
-```typescript
-// Disable fullscreen
-player.setAllowFullscreen(false);
-
-// Enable fullscreen
-player.setAllowFullscreen(true);
-```
-
-**Parameters:**
-- `allowFullscreen` - Whether to allow fullscreen
-
-### `setFloatingPlayer(shouldFloat: boolean): void`
-
-Controls floating/picture-in-picture mode.
-
-```typescript
-// Enable floating mode
-player.setFloatingPlayer(true);
-```
-
-**Parameters:**
-- `shouldFloat` - Whether player should float
-
 ## Cleanup
 
 ### `dispose(): void`
 
-Disposes of the player and cleans up resources.
+Disposes of the player and cleans up all resources. Removes event listeners, destroys HLS instance, closes AudioContext, clears the container, and emits a `'dispose'` event.
 
 ```typescript
-// Clean up when done
 player.dispose();
+```
+
+### `ui_addActiveClass(): void`
+
+Adds the active/visible class to UI elements.
+
+```typescript
+player.ui_addActiveClass();
 ```
 
 ### `ui_removeActiveClass(): void`
 
-Removes active class from UI elements.
+Removes the active/visible class from UI elements.
 
 ```typescript
 player.ui_removeActiveClass();
@@ -1460,7 +1672,7 @@ player.ui_removeActiveClass();
 
 ### `ui_resetInactivityTimer(event?: Event): void`
 
-Resets the UI inactivity timer.
+Resets the UI inactivity timer (shows controls, restarts auto-hide countdown).
 
 ```typescript
 player.ui_resetInactivityTimer();

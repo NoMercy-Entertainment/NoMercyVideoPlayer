@@ -68,7 +68,7 @@ private createSkipButtons() {
   this.player.createSVGElement(skipBack, 'skip-back-icon', icons.seekBack, false, true);
   skipBack.addEventListener('click', (e) => {
     e.stopPropagation();
-    this.player.rewindVideo(10);
+    this.player.rewind(10);
   });
 
   // Skip forward
@@ -77,7 +77,7 @@ private createSkipButtons() {
   this.player.createSVGElement(skipForward, 'skip-forward-icon', icons.seekForward, false, true);
   skipForward.addEventListener('click', (e) => {
     e.stopPropagation();
-    this.player.forwardVideo(10);
+    this.player.forward(10);
   });
 }
 ```

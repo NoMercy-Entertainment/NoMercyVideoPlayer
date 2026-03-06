@@ -81,7 +81,7 @@ private createSpeedButton() {
     .appendTo(this.bottomRow)
     .get();
 
-  const speeds = this.player.getSpeeds();
+  const speeds = this.player.speeds();
   for (const rate of speeds) {
     const option = this.player
       .createElement('button', `speed-${rate}`)
@@ -95,7 +95,7 @@ private createSpeedButton() {
     option.textContent = rate === 1 ? 'Normal' : `${rate}x`;
     option.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.player.setSpeed(rate);
+      this.player.speed(rate);
       this.toggleMenu(null);
     });
   }
@@ -106,9 +106,9 @@ private createSpeedButton() {
 
 private updateSpeedMenu() {
   if (!this.speedMenu) return;
-  const current = this.player.getSpeed();
+  const current = this.player.speed();
   const buttons = this.speedMenu.querySelectorAll('button');
-  const speeds = this.player.getSpeeds();
+  const speeds = this.player.speeds();
   buttons.forEach((btn, i) => {
     btn.classList.toggle('bg-white/20', speeds[i] === current);
   });

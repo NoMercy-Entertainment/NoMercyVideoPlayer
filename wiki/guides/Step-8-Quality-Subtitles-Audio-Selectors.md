@@ -136,7 +136,7 @@ private createProgressBar() {
   this.sliderBar.addEventListener('click', (e: MouseEvent) => {
     this.isMouseDown = false;
     const percent = getPercentFromEvent(e);
-    const duration = this.player.getDuration();
+    const duration = this.player.duration();
     this.player.seek(duration * (percent / 100));
     sliderNipple.style.left = `${percent}%`;
   });
@@ -157,7 +157,7 @@ private createProgressBar() {
   }, { passive: true });
 
   const updateBuffer = () => {
-    const video = this.player.getVideoElement();
+    const video = this.player.videoElement;
     if (video && video.buffered.length > 0 && video.duration > 0) {
       const bufferedEnd = video.buffered.end(video.buffered.length - 1);
       const bufferPct = (bufferedEnd / video.duration) * 100;
@@ -177,7 +177,7 @@ private createProgressBar() {
   });
 
   // Update buffer bar even when paused (progress fires as the browser buffers)
-  this.player.getVideoElement()?.addEventListener('progress', updateBuffer);
+  this.player.videoElement?.addEventListener('progress', updateBuffer);
 
   // Reset slider on playlist item change
   this.player.on('item', () => {
@@ -250,7 +250,7 @@ private createQualityButton() {
     autoOption.textContent = 'Auto';
     autoOption.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.player.setCurrentQuality(-1);
+      this.player.quality(-1);
       this.isAutoQuality = true;
       this.highlightCurrentQuality();
       this.toggleMenu(null);
@@ -269,7 +269,7 @@ private createQualityButton() {
       option.textContent = level.name || `${level.height}p`;
       option.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.player.setCurrentQuality(index);
+        this.player.quality(index);
         this.isAutoQuality = false;
         this.selectedQualityIndex = index;
         this.highlightCurrentQuality();
@@ -287,7 +287,7 @@ private createQualityButton() {
 
 Notice the differences from a naive implementation:
 
-1. **Auto button** is always the first entry (index 0). It calls `setCurrentQuality(-1)` which tells HLS.js to use automatic ABR switching.
+1. **Auto button** is always the first entry (index 0). It calls `quality(-1)` which tells HLS.js to use automatic ABR switching.
 2. **Manual selection** sets `isAutoQuality = false` and stores the chosen index in `selectedQualityIndex`.
 3. After the `'levels'` event fires, `isAutoQuality` is reset to `true` since the player defaults to auto mode when new levels arrive.
 
@@ -302,7 +302,7 @@ Notice the differences from a naive implementation:
 private highlightCurrentQuality() {
   if (!this.qualityMenu) return;
   const current = this.isAutoQuality
-    ? this.player.getCurrentQuality()
+    ? this.player.quality()
     : this.selectedQualityIndex;
   const buttons = this.qualityMenu.querySelectorAll('button');
   buttons.forEach((btn, i) => {
@@ -371,7 +371,7 @@ private createSubtitleButton() {
     offOption.textContent = 'Off';
     offOption.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.player.setCurrentCaption(-1); // -1 disables subtitles
+      this.player.subtitle(0); // 0 selects "Off" (disables subtitles)
       this.toggleMenu(null);
     });
 
@@ -393,7 +393,7 @@ private createSubtitleButton() {
         option.textContent = track.label || track.language || `Track ${index + 1}`;
         option.addEventListener('click', (e) => {
           e.stopPropagation();
-          this.player.setCurrentCaption(index);
+          this.player.subtitle(index);
           this.toggleMenu(null);
         });
       });
@@ -417,9 +417,9 @@ Like quality, the subtitle icon toggles between two SVG paths to give the user a
 ```typescript
 private highlightCurrentCaption() {
   if (!this.subtitleMenu) return;
-  // getCaptionIndex() returns -1 when off, 0 for first track, etc.
+  // subtitleIndex() returns 0 for "Off", 1 for first track, etc.
   // Button index is offset by 1 because the first button is the "Off" option.
-  const current = this.player.getCaptionIndex();
+  const current = this.player.subtitleIndex();
   this.subtitleMenu.querySelectorAll('button').forEach((btn, i) => {
     btn.classList.toggle('bg-white/20', i === current + 1);
   });
@@ -481,7 +481,7 @@ private createAudioButton() {
       option.textContent = track.label || track.language || `Track ${index + 1}`;
       option.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.player.setCurrentAudioTrack(index);
+        this.player.audioTrack(index);
         this.toggleMenu(null);
       });
     });
@@ -494,7 +494,7 @@ private createAudioButton() {
 
 private highlightCurrentAudio() {
   if (!this.audioMenu) return;
-  const current = this.player.getAudioTrackIndex();
+  const current = this.player.audioTrackIndex();
   this.audioMenu.querySelectorAll('button').forEach((btn, i) => {
     btn.classList.toggle('bg-white/20', i === current);
   });

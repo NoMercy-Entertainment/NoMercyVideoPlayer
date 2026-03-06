@@ -186,7 +186,7 @@ player.registerPlugin('octopus', new OctopusPlugin());
 player.usePlugin('octopus');
 ```
 
-The `fonts` track points to a JSON file listing the font files needed by the ASS subtitle. The OctopusPlugin fetches and loads them automatically when a caption with an `.ass` or `.ssa` extension is selected.
+The `fonts` track points to a JSON file listing the font files needed by the ASS subtitle. The OctopusPlugin fetches and loads them automatically when a subtitle with an `.ass` or `.ssa` extension is selected.
 
 ## Vanilla HTML
 
@@ -232,7 +232,7 @@ The player communicates through:
 
 1. **CSS classes** on the container div — `playing`, `paused`, `buffering`, `active`, `inactive`, `error`
 2. **Events** — `play`, `pause`, `time`, `levels`, `captionsList`, etc.
-3. **Methods** — `play()`, `pause()`, `seek()`, `setVolume()`, etc.
+3. **Methods** — `play()`, `pause()`, `seek()`, `volume()`, etc.
 
 See [Plugin Development](Plugin-Development) for building plugins that use these.
 

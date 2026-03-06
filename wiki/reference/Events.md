@@ -64,7 +64,7 @@ Fired when the player is fully initialized and ready to use.
 player.on('ready', () => {
   console.log('Player is ready');
   // Safe to call player methods
-  player.setVolume(80);
+  player.volume(80);
 });
 ```
 
@@ -171,7 +171,7 @@ Fired when buffer state changes.
 ```typescript
 player.on('bufferChange', () => {
   console.log('Buffer state changed');
-  const buffer = player.getBuffer();
+  const buffer = player.buffer();
   // Handle buffer update
 });
 ```
@@ -287,7 +287,7 @@ Fired when playback speed changes.
 
 ```typescript
 player.on('playbackRateChanged', () => {
-  const rate = player.getSpeed();
+  const rate = player.speed();
   console.log(`Playback rate: ${rate}x`);
 });
 ```
@@ -444,12 +444,12 @@ Fired when volume changes.
 
 ```typescript
 player.on('volume', (volumeState) => {
-  console.log(`Volume: ${Math.round(volumeState.volume * 100)}%`);
+  console.log(`Volume: ${volumeState.volume}%`);
   console.log(`Muted: ${volumeState.muted}`);
-  
+
   // Update volume slider
   updateVolumeSlider(volumeState.volume);
-  
+
   // Update mute button
   updateMuteButton(volumeState.muted);
 });
@@ -460,7 +460,7 @@ player.on('volume', (volumeState) => {
 ```typescript
 interface VolumeState {
   muted: boolean;   // Whether audio is muted
-  volume: number;   // Volume level (0-1)
+  volume: number;   // Volume level (0-100)
 }
 ```
 
@@ -515,8 +515,8 @@ Fired when player is resized.
 ```typescript
 player.on('resize', () => {
   console.log('Player resized');
-  const width = player.getWidth();
-  const height = player.getHeight();
+  const width = player.width();
+  const height = player.height();
   console.log(`New size: ${width}x${height}`);
   
   // Adjust UI elements for new size
@@ -1202,8 +1202,8 @@ player.on('meta', () => {
   console.log('Metadata loaded');
   
   // Metadata is now available
-  const duration = player.getDuration();
-  const title = player.getPlaylistItem().title;
+  const duration = player.duration();
+  const title = player.playlistItem().title;
   
   updateMetadataDisplay(title, duration);
 });

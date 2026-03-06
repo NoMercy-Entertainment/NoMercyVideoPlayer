@@ -91,14 +91,14 @@ private createVolumeControl() {
   this.volumeSlider.addEventListener('click', (e: MouseEvent) => {
     volDragging = false;
     const vol = getVolFromEvent(e);
-    this.player.setVolume(vol);
+    this.player.volume(vol);
     updateVolSliderUI(vol);
   });
   ['mousemove', 'touchmove'].forEach((evt) => {
     this.volumeSlider.addEventListener(evt, (e: any) => {
       if (!volDragging) return;
       const vol = getVolFromEvent(e);
-      this.player.setVolume(vol);
+      this.player.volume(vol);
       updateVolSliderUI(vol);
     }, { passive: true });
   });
@@ -124,9 +124,9 @@ private createVolumeControl() {
   });
 
   // Set initial state from current player values
-  const initialVol = this.player.getVolume();
+  const initialVol = this.player.volume();
   updateVolSliderUI(initialVol);
-  updateVolumeIcon(initialVol, this.player.isMuted());
+  updateVolumeIcon(initialVol, this.player.muted());
 }
 ```
 

@@ -170,14 +170,14 @@ private createTouchBox(parent: HTMLElement, id: string, pos: Position): HTMLDivE
 
 ### Seek zones
 
-**Left zone** — double-tap calls `rewindVideo()`:
+**Left zone** — double-tap calls `rewind()`:
 
 ```typescript
 private createTouchSeekBack(parent: HTMLElement, pos: Position) {
   const el = this.createTouchBox(parent, 'touchSeekBack', pos);
 
   el.addEventListener('click', this.doubleTap(
-    () => this.player.rewindVideo(),
+    () => this.player.rewind(),
     () => {
       if (this.controlsVisible) {
         this.player.emit('hideControls');
@@ -189,7 +189,7 @@ private createTouchSeekBack(parent: HTMLElement, pos: Position) {
 }
 ```
 
-**Right zone** — double-tap calls `forwardVideo()`. Uses `mouseup`/`touchend` to avoid conflicts with the progress bar:
+**Right zone** — double-tap calls `forward()`. Uses `mouseup`/`touchend` to avoid conflicts with the progress bar:
 
 ```typescript
 private createTouchSeekForward(parent: HTMLElement, pos: Position) {
@@ -197,7 +197,7 @@ private createTouchSeekForward(parent: HTMLElement, pos: Position) {
 
   ['mouseup', 'touchend'].forEach((event) => {
     el.addEventListener(event, this.doubleTap(
-      () => this.player.forwardVideo(),
+      () => this.player.forward(),
       () => {
         if (this.controlsVisible) {
           this.player.emit('hideControls');

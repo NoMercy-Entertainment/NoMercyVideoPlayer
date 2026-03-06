@@ -42,6 +42,10 @@ interface PlayerConfig<T = Record<string, any>> {
   forceHls?: boolean;
   customStorage?: StorageInterface;
   disableAutoPlayback?: boolean;
+  log?: {
+    level?: 'error' | 'warn' | 'info' | 'debug' | 'verbose';
+    handler?: (output: string) => void;
+  };
 }
 ```
 
@@ -61,7 +65,7 @@ interface PlayerConfig<T = Record<string, any>> {
 | `accessToken` | `string` | `undefined` | Access token for authenticated requests |
 | `basePath` | `string` | `undefined` | Base URL for media files |
 | `imageBasePath` | `string` | `undefined` | Base URL for images (poster, artwork) |
-| `language` | `string` | `navigator.language` | Player interface language |
+| `language` | `string` | `undefined` | Player interface language (falls back to `navigator.language`) |
 | `doubleClickDelay` | `number` | `300` | Delay for double-click detection (ms) |
 | `controlsTimeout` | `number` | `3000` | Auto-hide controls timeout (ms) |
 | `displayLanguage` | `string` | `navigator.language` | Display language for metadata |
@@ -72,6 +76,7 @@ interface PlayerConfig<T = Record<string, any>> {
 | `forceHls` | `boolean` | `false` | Force HLS.js even when native HLS is available |
 | `customStorage` | `StorageInterface` | `undefined` | Custom storage implementation |
 | `disableAutoPlayback` | `boolean` | `false` | Disable automatic playback progression |
+| `log` | `{ level?, handler? }` | `undefined` | Logging configuration (level: `'error'`\|`'warn'`\|`'info'`\|`'debug'`\|`'verbose'`, handler: custom log output function) |
 
 ## Types & Interfaces
 
@@ -150,7 +155,7 @@ interface Track {
 ### TrackType
 
 ```typescript
-type TrackType = 'subtitles' | 'chapters' | 'thumbnails' | 'sprite' | 'fonts';
+type TrackType = 'subtitles' | 'chapters' | 'thumbnails' | 'sprite' | 'fonts' | 'skippers';
 ```
 
 ### Level
@@ -225,8 +230,8 @@ interface TimeData {
 
 ```typescript
 interface VolumeState {
-  muted: boolean;
-  volume: number;
+  muted: boolean;   // Whether audio is muted
+  volume: number;   // Volume level (0-100)
 }
 ```
 

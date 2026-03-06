@@ -178,7 +178,7 @@ This approach keeps your JavaScript minimal. Let CSS do the work of reacting to 
 
 For the full list of methods, events, and properties available inside your plugin:
 
-- **[Methods](API-Reference-Methods)** — `play()`, `seek()`, `setVolume()`, `toggleFullscreen()`, `setCurrentCaption()`, and more
+- **[Methods](API-Reference-Methods)** — `play()`, `seek()`, `volume()`, `toggleFullscreen()`, `subtitle()`, and more
 - **[Events](Events)** — `time`, `play`, `pause`, `volume`, `levels`, `captionsList`, `item`, and more
 - **[API Reference](API-Reference)** — TypeScript types (`TimeData`, `VolumeState`, `Level`, `Track`, `PlaylistItem`)
 
@@ -297,7 +297,7 @@ const config: PlayerConfig<AppPlaylistItem> = {
 };
 ```
 
-The generic flows through the entire player API — `playlistItem()`, `getPlaylist()`, event callbacks, and `setPlaylistItemCallback()` all return `PlaylistItem & T`:
+The generic flows through the entire player API — `playlistItem()`, `playlist()`, and event callbacks all return `PlaylistItem & T`:
 
 ```typescript
 import type { NMPlayer } from '@nomercy-entertainment/nomercy-video-player';
@@ -364,7 +364,7 @@ class TimelinePlugin extends Plugin {
 If you need a direct reference to another plugin instance:
 
 ```typescript
-const timeline = this.player.getPlugin('timeline') as TimelinePlugin | undefined;
+const timeline = this.player.plugin('timeline') as TimelinePlugin | undefined;
 if (timeline) {
   // call methods on it directly
 }

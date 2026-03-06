@@ -97,7 +97,7 @@ private createProgressBar() {
   this.sliderBar.addEventListener('click', (e: MouseEvent) => {
     this.isMouseDown = false;
     const percent = getPercentFromEvent(e);
-    const duration = this.player.getDuration();
+    const duration = this.player.duration();
     this.player.seek(duration * (percent / 100));
     sliderNipple.style.left = `${percent}%`;
   });
