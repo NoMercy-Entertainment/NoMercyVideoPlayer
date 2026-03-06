@@ -220,7 +220,7 @@ The `fonts` track points to a JSON file listing the font files needed by the ASS
 				],
 			};
 
-			var player = window.nmplayer('nomercy-player').setup(config);
+			var player = window.nmplayer.default('nomercy-player').setup(config);
 
 			player.on('ready', function () {
 				player.play();
