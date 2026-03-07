@@ -79,7 +79,23 @@ Instead of rendering UI, the player toggles CSS classes on the container element
 .nomercyplayer.buffering .spinner {
 	display: block;
 }
+
+/* Theater mode — expand player, hide sidebar */
+.nomercyplayer.theater ~ #sidebar {
+	display: none;
+}
+
+/* PiP mode — float in corner */
+.nomercyplayer.pip {
+	position: fixed;
+	bottom: 1rem;
+	right: 1rem;
+	width: 24rem;
+	z-index: 9999;
+}
 ```
+
+All available state classes are documented in [API Reference — CSS Classes](API-Reference#css-classes).
 
 ### Events Are Your Data Source
 
