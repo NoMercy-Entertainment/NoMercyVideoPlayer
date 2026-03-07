@@ -9,8 +9,17 @@ export const audioMethods = {
 		}
 		if (!this.hls)
 			return;
+
+		// -1 means "no change" (consistent with subtitle(-1) and quality(-1))
+		if (index < 0)
+			return;
+
+		// Same track already selected — no-op
+		if (index === this.hls.audioTrack)
+			return;
+
 		const tracks = this.audioTracks();
-		if (index < 0 || index >= tracks.length) {
+		if (index >= tracks.length) {
 			this.logger.warn('audioTrack() index out of bounds', { index, count: tracks.length });
 			return;
 		}

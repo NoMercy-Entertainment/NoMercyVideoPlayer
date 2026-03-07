@@ -10,6 +10,10 @@ export const subtitleMethods = {
 			return this.subtitles()[this.currentSubtitleIndex];
 		}
 
+		// Same subtitle already selected — no-op
+		if (index === this.currentSubtitleIndex)
+			return;
+
 		const subs = this.subtitles();
 		if (index < -1 || index >= subs.length) {
 			this.logger.warn('subtitle() index out of bounds', { index, count: subs.length });

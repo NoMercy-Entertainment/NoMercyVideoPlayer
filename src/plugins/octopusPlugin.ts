@@ -21,6 +21,7 @@ export class OctopusPlugin extends Plugin {
 	resizeObserver!: ResizeObserver;
 	private pluginOptions: OctopusPluginOptions;
 	private boundOpus!: () => Promise<void>;
+	private currentLoadedUrl: string | null = null;
 
 	constructor(options: OctopusPluginOptions = {}) {
 		super();
@@ -39,6 +40,12 @@ export class OctopusPlugin extends Plugin {
 			this.resize();
 		});
 		this.resizeObserver.observe(this.player.container);
+
+		// If a subtitle is already active when the plugin is activated,
+		// trigger opus() immediately (handles late registration after setup()).
+		if (this.player.subtitleFile()) {
+			this.opus();
+		}
 	}
 
 	dispose(): void {
@@ -49,6 +56,7 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	destroy(): void {
+		this.currentLoadedUrl = null;
 		try {
 			this.player.octopusInstance?.worker?.terminate();
 			if (this.player.octopusInstance?.canvasParent) {
@@ -62,24 +70,50 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	async opus(): Promise<void> {
-		this.dispose();
+		const subtitleURL = this.player.subtitleFile()
+			? `${this.player.options.basePath ?? ''}${this.player.subtitleFile()}`
+			: null;
 
-		const subtitleURL = this.player.getSubtitleFile() ? `${this.player.options.basePath ?? ''}${this.player.getSubtitleFile()}` : null;
-		if (!subtitleURL)
+		// No subtitle selected — tear down any active instance
+		if (!subtitleURL) {
+			if (this.currentLoadedUrl) {
+				this.destroy();
+			}
 			return;
+		}
 
-		const tag = subtitleURL?.match(/\w+\.\w+\.\w+$/u)?.[0];
+		// Same subtitle already loaded (or currently loading) — skip
+		if (subtitleURL === this.currentLoadedUrl) {
+			return;
+		}
+
+		const tag = subtitleURL.match(/\w+\.\w+\.\w+$/u)?.[0];
 		let [,, ext] = tag ? tag.split('.') : [];
 		if (!ext) {
 			const parts = subtitleURL.split('.');
 			ext = parts.at(-1) || '';
 		}
 
-		if (ext !== 'ass' && ext !== 'ssa')
+		if (ext !== 'ass' && ext !== 'ssa') {
+			if (this.currentLoadedUrl) {
+				this.destroy();
+			}
 			return;
+		}
 
-		if (subtitleURL) {
+		// Different ASS/SSA subtitle — tear down old instance and load new one
+		this.destroy();
+		this.currentLoadedUrl = subtitleURL;
+
+		try {
+			this.player.logger.debug('OctopusPlugin: loading ASS subtitle', { url: subtitleURL });
+
 			await this.player.fetchFontFile();
+
+			// Guard against race: if another opus() call changed the URL while we awaited
+			if (this.currentLoadedUrl !== subtitleURL) {
+				return;
+			}
 
 			const fontFiles: string[] = this.player.fonts
 				?.map(f => encodeURI(`${this.player.options.basePath ?? ''}${f.file}`));
@@ -88,7 +122,7 @@ export class OctopusPlugin extends Plugin {
 				.querySelectorAll('.libassjs-canvas-parent') as NodeListOf<HTMLDivElement>)
 				.forEach(el => el.remove());
 
-			const options = {
+			this.player.octopusInstance = new SubtitlesOctopus({
 				video: this.player.videoElement,
 				subUrl: encodeURI(subtitleURL),
 				fonts: fontFiles,
@@ -102,17 +136,19 @@ export class OctopusPlugin extends Plugin {
 				workerUrl: this.pluginOptions.workerUrl ?? `${OCTOPUS_CDN_BASE}/subtitles-octopus-worker.js`,
 				legacyWorkerUrl: this.pluginOptions.legacyWorkerUrl ?? `${OCTOPUS_CDN_BASE}/subtitles-octopus-worker-legacy.js`,
 				fallbackFont: this.pluginOptions.fallbackFont ?? `${OCTOPUS_CDN_BASE}/default.ttf`,
-				onReady: async () => {
+				onReady: () => {
+					this.player.logger.debug('OctopusPlugin: SubtitlesOctopus ready');
 				},
 				onError: (event: unknown) => {
-					console.error('opus error', event);
+					this.player.logger.error('OctopusPlugin: SubtitlesOctopus error', { event });
 				},
-			};
+			});
 
-			if (subtitleURL && subtitleURL.includes('.ass')) {
-				this.player.octopusInstance?.worker?.terminate();
-				this.player.octopusInstance = new SubtitlesOctopus(options);
-			}
+			this.player.logger.debug('OctopusPlugin: SubtitlesOctopus instance created');
+		}
+		catch (error) {
+			this.player.logger.error('OctopusPlugin: failed to initialize', { error: String(error) });
+			this.currentLoadedUrl = null;
 		}
 	}
 

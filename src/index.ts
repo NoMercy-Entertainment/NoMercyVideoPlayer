@@ -271,7 +271,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			plugin.dispose();
 		}
 
-		this.plugins = new Map<string, Plugin>() as import('./types/plugins').PluginMap;
+		this.plugins = new Map<string, Plugin>() as PluginMap;
 
 		if (this.hls) {
 			this.hls.destroy();

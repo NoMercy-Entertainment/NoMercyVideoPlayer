@@ -1,4 +1,5 @@
 import type { NMPlayer, Skipper, Track, VTTData } from '../types';
+import { WebVTTParser } from 'webvtt-parser';
 
 export const skipperMethods = {
 	/**
@@ -44,7 +45,7 @@ export const skipperMethods = {
 				url: file,
 				options: {},
 				callback: (data) => {
-					const parser = new window.WebVTTParser();
+					const parser = new WebVTTParser();
 					this._skippers = parser.parse(data, 'metadata');
 
 					if (this.duration()) {
