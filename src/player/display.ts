@@ -114,6 +114,10 @@ export const displayMethods = {
 				break;
 		}
 
+		// Set video to fill container so CSS objectFit controls scaling
+		videoElementStyle.width = '100%';
+		videoElementStyle.height = '100%';
+
 		this.displayMessage(`${this.localize('Aspect ratio')}: ${this.localize(aspect)}`);
 	},
 
@@ -140,6 +144,20 @@ export const displayMethods = {
 		const videoAspectRatio = videoWidth / videoHeight;
 
 		this.setResponsiveAspectRatio(videoAspectRatio);
+
+		const ratio = videoAspectRatio;
+		this.videoElement.width = videoWidth;
+		this.videoElement.height = videoHeight;
+		this.videoElement.style.setProperty('--aspect-ratio', `${Number.isNaN(ratio) ? 'auto' : ratio}`);
+
+		// When objectFit is active (setAspect was called), CSS handles video scaling
+		if (this.videoElement.style.objectFit) {
+			if (this.subtitleOverlay) {
+				this.subtitleOverlay.style.width = '100%';
+				this.subtitleOverlay.style.height = '100%';
+			}
+			return;
+		}
 
 		const containerWidth = this.container.clientWidth;
 		const containerHeight = this.container.clientHeight;
@@ -175,11 +193,6 @@ export const displayMethods = {
 			this.subtitleOverlay.style.height = `${newHeight}px`;
 			this.subtitleOverlay.style.position = 'absolute';
 		}
-
-		const ratio = videoAspectRatio;
-		this.videoElement.width = videoWidth;
-		this.videoElement.height = videoHeight;
-		this.videoElement.style.setProperty('--aspect-ratio', `${Number.isNaN(ratio) ? 'auto' : ratio}`);
 	},
 
 	setResponsiveAspectRatio(this: NMPlayer, videoAspectRatio: number): void {
