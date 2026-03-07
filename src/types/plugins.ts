@@ -2,6 +2,33 @@ import type Plugin from '../plugins/plugin';
 import type { PlayerConfig } from './config';
 import type { NMPlayer } from './player';
 
+/**
+ * Plugin registry interface for typed plugin access.
+ * Consumers can extend this via declaration merging to register custom plugins:
+ *
+ * @example
+ * ```ts
+ * declare module '@nomercy-entertainment/nomercy-video-player' {
+ *   interface PluginRegistry {
+ *     myPlugin: MyPlugin;
+ *   }
+ * }
+ * ```
+ *
+ * Then `player.plugins.get('myPlugin')` returns `MyPlugin | undefined`.
+ */
+export interface PluginRegistry {}
+
+/** Typed Map that uses PluginRegistry for known keys, falls back to Plugin for unknown keys. */
+export interface PluginMap extends Map<string, Plugin> {
+	get<K extends keyof PluginRegistry>(key: K): PluginRegistry[K] | undefined;
+	get(key: string): Plugin | undefined;
+	set<K extends keyof PluginRegistry>(key: K, value: PluginRegistry[K]): this;
+	set(key: string, value: Plugin): this;
+	has(key: keyof PluginRegistry | string): boolean;
+	delete(key: keyof PluginRegistry | string): boolean;
+}
+
 export interface NMPlayerPlugins {
 	/**
 	 * Registers a plugin instance under the given ID and immediately initializes it

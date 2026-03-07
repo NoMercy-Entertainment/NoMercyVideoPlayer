@@ -6,6 +6,7 @@ import { Base } from './player/base';
 import { Logger } from './player/logger';
 import translations from './translations/en-US';
 import type Plugin from './plugins/plugin';
+import type { PluginMap } from './types/plugins';
 
 import { defaultSubtitleStyles } from './player/utils';
 import type {
@@ -100,7 +101,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	lockActive: boolean = false;
 	_readyFired: boolean = false;
 
-	plugins: Map<string, Plugin> = new Map<string, Plugin>();
+	plugins: PluginMap = new Map<string, Plugin>() as PluginMap;
 
 	stretchOptions: Array<Stretching> = [
 		'uniform',
@@ -270,7 +271,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			plugin.dispose();
 		}
 
-		this.plugins = new Map<string, Plugin>();
+		this.plugins = new Map<string, Plugin>() as import('./types/plugins').PluginMap;
 
 		if (this.hls) {
 			this.hls.destroy();
@@ -410,6 +411,7 @@ export type {
 	EdgeStyle,
 	Font,
 	FontTrack,
+	GainData,
 	Icon,
 	Level,
 	LogConfig,
@@ -419,6 +421,8 @@ export type {
 	OS,
 	PlayerConfig,
 	PlayerEventMap,
+	PluginMap,
+	PluginRegistry,
 	PlaylistItem,
 	PlayState,
 	Position,
@@ -431,15 +435,19 @@ export type {
 	Stretching,
 	StretchOptions,
 	SubtitleStyle,
+	SubtitleStyleChange,
 	SubtitleTrack,
 	ThumbnailTrack,
 	TimeData,
+	TooltipData,
 	Track,
 	TrackKindMap,
 	TrackType,
 	TypeMapping,
 	TypeMappings,
 	Version,
+	VisualQualityData,
 	VolumeState,
+	WarningData,
 } from './types';
 export type { VTTData } from 'webvtt-parser';

@@ -1,6 +1,36 @@
 import type { AudioTrack, CurrentTrack, Font, Level, PlaylistItem, PreviewTime, Skipper, SubtitleTrack, TimeData, VolumeState } from './data';
 import type { VTTData } from 'webvtt-parser';
 
+export interface TooltipData {
+	text: string;
+	x: string;
+	y: string;
+	currentTime: string;
+}
+
+export interface GainData {
+	min: number;
+	max: number;
+	defaultValue: number;
+	value: number;
+}
+
+export interface SubtitleStyleChange {
+	property: string;
+	value: string | number;
+}
+
+export interface VisualQualityData {
+	level: Level;
+	reason: string;
+}
+
+export interface WarningData {
+	url: string;
+	status: number;
+	statusText: string;
+}
+
 // Maps every event name to its payload type for type-safe on/off/once/emit.
 export interface PlayerEventMap {
 	// Lifecycle
@@ -28,7 +58,7 @@ export interface PlayerEventMap {
 	'loadedmetadata': HTMLVideoElement;
 	'firstFrame': undefined;
 	'error': MediaError | undefined;
-	'warning': { url: string; status: number; statusText: string } | string;
+	'warning': WarningData | string;
 	'autostartNotAllowed': undefined;
 	'playAttemptFailed': undefined;
 
@@ -52,7 +82,7 @@ export interface PlayerEventMap {
 	'levels': Level[];
 	'levelsChanged': CurrentTrack;
 	'levelsChanging': CurrentTrack;
-	'visualQuality': { level: Level; reason: string };
+	'visualQuality': VisualQualityData;
 	'hls': undefined;
 
 	// Subtitles
@@ -60,7 +90,7 @@ export interface PlayerEventMap {
 	'captionsChanged': SubtitleTrack | undefined;
 	'captionsChanging': CurrentTrack;
 	'subtitles': VTTData;
-	'set-subtitle-style': { property: string; value: string | number };
+	'set-subtitle-style': SubtitleStyleChange;
 
 	// Audio
 	'audioTracks': AudioTrack[];
@@ -90,7 +120,7 @@ export interface PlayerEventMap {
 	'display-message': string;
 	'remove-message': string;
 	'show-menu': boolean;
-	'show-tooltip': { text: string; element: HTMLElement };
+	'show-tooltip': TooltipData;
 	'hide-tooltip': undefined;
 	'float': boolean;
 	'overlay': boolean;
@@ -111,7 +141,7 @@ export interface PlayerEventMap {
 	'remove-rewind': undefined;
 
 	// Gain
-	'gain': { min: number; max: number; defaultValue: number; value: number };
+	'gain': GainData;
 
 	// Translations
 	'translations': Record<string, string>;

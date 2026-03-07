@@ -1,5 +1,4 @@
 import type { VTTData } from 'webvtt-parser';
-import type Plugin from '../plugins/plugin';
 import type PlayerStorage from '../player/playerStorage';
 import type { Base } from '../player/base';
 import type {
@@ -26,7 +25,7 @@ import type { NMPlayerEvents } from './events';
 import type { NMPlayerUiState } from './ui-state';
 import type { NMPlayerSkippers } from './skippers';
 import type { NMPlayerFonts } from './fonts';
-import type { NMPlayerPlugins } from './plugins';
+import type { NMPlayerPlugins, PluginMap } from './plugins';
 import type { NMPlayerDeprecated } from './deprecated';
 
 export interface NMPlayer<T extends Record<string, any> = Record<string, any>> extends
@@ -68,7 +67,7 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	subtitleOverlay: HTMLDivElement;
 	subtitleArea: HTMLDivElement;
 	subtitleText: HTMLSpanElement;
-	plugins: Map<string, Plugin>;
+	plugins: PluginMap;
 	storage: PlayerStorage;
 	translations: { [key: string]: string };
 	videoElement: HTMLVideoElement;
