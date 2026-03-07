@@ -181,7 +181,7 @@ private createTouchSeekBack(parent: HTMLElement, pos: Position) {
     () => this.player.rewind(),
     () => {
       if (this.controlsVisible) {
-        this.player.emit('hideControls');
+        this.player.emit('active', false);
       }
     },
   ));
@@ -201,7 +201,7 @@ private createTouchSeekForward(parent: HTMLElement, pos: Position) {
       () => this.player.forward(),
       () => {
         if (this.controlsVisible) {
-          this.player.emit('hideControls');
+          this.player.emit('active', false);
         }
       },
     ));
@@ -270,7 +270,7 @@ private createTouchVolUp(parent: HTMLElement, pos: Position) {
     () => this.player.volumeUp(),
     () => {
       if (this.controlsVisible) {
-        this.player.emit('hideControls');
+        this.player.emit('active', false);
       }
     },
   ));
@@ -284,7 +284,7 @@ private createTouchVolDown(parent: HTMLElement, pos: Position) {
     () => this.player.volumeDown(),
     () => {
       if (this.controlsVisible) {
-        this.player.emit('hideControls');
+        this.player.emit('active', false);
       }
     },
   ));

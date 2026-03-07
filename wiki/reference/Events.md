@@ -528,43 +528,47 @@ player.on('resize', () => {
 
 **Data:** None
 
-### `dynamicControls`
+### `interaction`
 
-Fired when dynamic controls update.
+Fired on user interaction (mouse move, key press, touch). Resets the inactivity timer.
 
 ```typescript
-player.on('dynamicControls', () => {
-	console.log('Controls updated dynamically');
+player.on('interaction', () => {
+	console.log('User interacted with the player');
 });
 ```
 
 **Data:** None
 
-### `displayClick`
+> **Deprecated:** The old event name `dynamicControls` still works but will be removed in a future version.
 
-Fired when display area is clicked.
+### `player-click`
+
+Fired when the player display area is clicked.
 
 ```typescript
-player.on('displayClick', () => {
-	console.log('Display clicked');
-	// Toggle playback or show controls
+player.on('player-click', (event) => {
+	console.log('Player clicked', event);
 	player.togglePlayback();
 });
 ```
 
-**Data:** None
+**Data:** `MouseEvent`
 
-### `overlay`
+> **Deprecated:** The old event name `displayClick` still works but will be removed in a future version.
 
-Fired when overlay state changes.
+### `player-dblclick`
+
+Fired when the player display area is double-clicked.
 
 ```typescript
-player.on('overlay', () => {
-	console.log('Overlay state changed');
+player.on('player-dblclick', (event) => {
+	console.log('Player double-clicked', event);
+	player.toggleFullscreen();
 });
 ```
 
-**Data:** None
+**Data:** `MouseEvent`
 
 ### `pip`
 
@@ -586,24 +590,14 @@ player.on('pip', (enabled) => {
 
 **Data:** `boolean` - Whether PiP is enabled
 
-### `pip-internal`
+> **Deprecated:** The old event name `pip-internal` still works but will be removed in a future version.
 
-Fired for internal PiP state changes.
-
-```typescript
-player.on('pip-internal', (enabled) => {
-	console.log(`Internal PiP state: ${enabled}`);
-});
-```
-
-**Data:** `boolean` - Internal PiP state
-
-### `theaterMode`
+### `theater`
 
 Fired when theater mode state changes.
 
 ```typescript
-player.on('theaterMode', (enabled) => {
+player.on('theater', (enabled) => {
 	if (enabled) {
 		console.log('Entered theater mode');
 		// Expand player, hide page elements
@@ -617,17 +611,24 @@ player.on('theaterMode', (enabled) => {
 
 **Data:** `boolean` - Whether theater mode is enabled
 
+> **Deprecated:** The old event name `theaterMode` still works but will be removed in a future version.
+
 ### `float`
 
-Fired when floating player state changes.
+Fired when the floating mini-player state changes (e.g., when the player scrolls out of view).
 
 ```typescript
-player.on('float', () => {
-	console.log('Float state changed');
+player.on('float', (isFloating) => {
+	if (isFloating) {
+		console.log('Player is floating');
+	}
+	else {
+		console.log('Player returned to normal');
+	}
 });
 ```
 
-**Data:** None
+**Data:** `boolean` - Whether the player is floating
 
 ## Track Events
 
@@ -867,51 +868,9 @@ player.on('beforeplaylistitem', () => {
 
 **Data:** None
 
-### `nextClick`
-
-Fired when next button is clicked.
-
-```typescript
-player.on('nextClick', () => {
-	console.log('Next button clicked');
-
-	// Custom next logic if needed
-	if (customNextLogic()) {
-		// Handle custom navigation
-	}
-});
-```
-
-**Data:** None
-
 ## UI Events
 
 Events related to user interface interactions.
-
-### Menu Events
-
-### `show-{menuName}-menu`
-
-Fired when specific menus are shown/hidden.
-
-```typescript
-// Quality menu
-player.on('show-quality-menu', (showing) => {
-	console.log(`Quality menu ${showing ? 'shown' : 'hidden'}`);
-});
-
-// Audio menu
-player.on('show-audio-menu', (showing) => {
-	console.log(`Audio menu ${showing ? 'shown' : 'hidden'}`);
-});
-
-// Subtitle menu
-player.on('show-subtitle-menu', (showing) => {
-	console.log(`Subtitle menu ${showing ? 'shown' : 'hidden'}`);
-});
-```
-
-**Data:** `boolean` - Whether menu is showing
 
 ### Screen Events
 
@@ -1034,18 +993,6 @@ player.on('back', (callback) => {
 ```
 
 **Data:** Optional callback function
-
-### `back-button`
-
-Fired when back button is specifically pressed.
-
-```typescript
-player.on('back-button', () => {
-	console.log('Back button clicked');
-});
-```
-
-**Data:** None
 
 ### `close`
 
@@ -1243,35 +1190,39 @@ player.on('preview-time', (previews) => {
 
 ### Message Events
 
-### `display-message`
+### `message`
 
 Fired when a message should be displayed.
 
 ```typescript
-player.on('display-message', (message) => {
-	console.log(`Display message: ${message}`);
+player.on('message', (text) => {
+	console.log(`Display message: ${text}`);
 
 	// Show message to user
-	showPlayerMessage(message);
+	showPlayerMessage(text);
 });
 ```
 
 **Data:** `string` - Message text
 
-### `remove-message`
+> **Deprecated:** The old event name `display-message` still works but will be removed in a future version.
 
-Fired when a message should be removed.
+### `message-dismiss`
+
+Fired when a message should be dismissed.
 
 ```typescript
-player.on('remove-message', (message) => {
-	console.log(`Remove message: ${message}`);
+player.on('message-dismiss', (text) => {
+	console.log(`Dismiss message: ${text}`);
 
 	// Hide specific message
-	hidePlayerMessage(message);
+	hidePlayerMessage(text);
 });
 ```
 
-**Data:** `string` - Message text to remove
+**Data:** `string` - Message text to dismiss
+
+> **Deprecated:** The old event name `remove-message` still works but will be removed in a future version.
 
 ### `translations`
 
@@ -1335,17 +1286,15 @@ player.on('time', (timeData) => {
 #### Auto-hide Controls
 
 ```typescript
-let controlsTimer;
-
-player.on('showControls', () => {
-	clearTimeout(controlsTimer);
-});
-
-player.on('hideControls', () => {
-	controlsTimer = setTimeout(() => {
-		// Hide custom UI elements
+player.on('active', (isActive) => {
+	if (isActive) {
+		// Controls are visible — show custom UI elements
+		showCustomControls();
+	}
+	else {
+		// Controls hidden — hide custom UI elements
 		hideCustomControls();
-	}, 300);
+	}
 });
 ```
 
@@ -1353,11 +1302,7 @@ player.on('hideControls', () => {
 
 ```typescript
 player.on('levelsChanged', (level) => {
-	player.emit('display-message', `Quality changed to ${level.name}`);
-
-	setTimeout(() => {
-		player.emit('remove-message', `Quality changed to ${level.name}`);
-	}, 3000);
+	player.displayMessage(`Quality changed to ${level.name}`);
 });
 ```
 
@@ -1365,15 +1310,15 @@ player.on('levelsChanged', (level) => {
 
 ```typescript
 player.on('forward', (amount) => {
-	player.emit('display-message', `+${amount}s`);
+	player.displayMessage(`+${amount}s`);
 });
 
 player.on('rewind', (amount) => {
-	player.emit('display-message', `-${amount}s`);
+	player.displayMessage(`-${amount}s`);
 });
 
 player.on('speed', (rate) => {
-	player.emit('display-message', `Speed: ${rate}x`);
+	player.displayMessage(`Speed: ${rate}x`);
 });
 ```
 
