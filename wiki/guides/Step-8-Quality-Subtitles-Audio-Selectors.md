@@ -371,7 +371,7 @@ private createSubtitleButton() {
     offOption.textContent = 'Off';
     offOption.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.player.subtitle(0); // 0 selects "Off" (disables subtitles)
+      this.player.subtitle(-1); // -1 disables subtitles
       this.toggleMenu(null);
     });
 

@@ -67,18 +67,12 @@ describe('qualityMethods', () => {
 	});
 
 	describe('qualityLevels()', () => {
-		it('returns levels with Auto prepended', () => {
+		it('returns only real levels (no Auto entry)', () => {
 			const player = createMockPlayer();
 			const levels = player.qualityLevels();
-			expect(levels[0]).toMatchObject({ id: -1, label: 'Auto' });
-			expect(levels).toHaveLength(3); // Auto + 2 levels
-		});
-
-		it('maps id and label from HLS levels', () => {
-			const player = createMockPlayer();
-			const levels = player.qualityLevels();
-			expect(levels[1]).toMatchObject({ id: 0, label: '720p' });
-			expect(levels[2]).toMatchObject({ id: 1, label: '1080p' });
+			expect(levels).toHaveLength(2);
+			expect(levels[0]).toMatchObject({ id: 0, label: '720p' });
+			expect(levels[1]).toMatchObject({ id: 1, label: '1080p' });
 		});
 
 		it('returns empty array when no HLS', () => {
@@ -99,9 +93,8 @@ describe('qualityMethods', () => {
 				hdrSupported: vi.fn(() => false),
 			});
 			const levels = player.qualityLevels();
-			// Auto + SDR only (PQ filtered out)
-			expect(levels).toHaveLength(2);
-			expect(levels[1].label).toBe('1080p SDR');
+			expect(levels).toHaveLength(1);
+			expect(levels[0].label).toBe('1080p SDR');
 		});
 
 		it('includes PQ when HDR supported', () => {
@@ -117,7 +110,7 @@ describe('qualityMethods', () => {
 				hdrSupported: vi.fn(() => true),
 			});
 			const levels = player.qualityLevels();
-			expect(levels).toHaveLength(3); // Auto + SDR + HDR
+			expect(levels).toHaveLength(2);
 		});
 	});
 

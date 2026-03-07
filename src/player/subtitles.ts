@@ -5,12 +5,13 @@ import { WebVTTParser } from 'webvtt-parser';
 export const subtitleMethods = {
 	subtitle(this: NMPlayer, index?: number): SubtitleTrack | undefined | void {
 		if (index === undefined) {
-			const subs = this.subtitles();
-			return subs[this.currentSubtitleIndex] ?? subs[0];
+			if (this.currentSubtitleIndex === -1)
+				return undefined;
+			return this.subtitles()[this.currentSubtitleIndex];
 		}
 
 		const subs = this.subtitles();
-		if (index < 0 || index >= subs.length) {
+		if (index < -1 || index >= subs.length) {
 			this.logger.warn('subtitle() index out of bounds', { index, count: subs.length });
 			return;
 		}
@@ -23,7 +24,7 @@ export const subtitleMethods = {
 		this.emit('captionsChanged', this.subtitle());
 		this.storeSubtitleChoice();
 
-		if (index < 1)
+		if (index < 0)
 			return;
 
 		this.fetchSubtitleFile();
@@ -34,24 +35,12 @@ export const subtitleMethods = {
 	 * @returns {Array} An array of subtitle tracks for the current playlist item.
 	 */
 	subtitles(this: NMPlayer): SubtitleTrack[] {
-		const subs: SubtitleTrack[] = this.playlistItem()?.tracks?.filter((t: Track): t is SubtitleTrack => t.kind === 'subtitles').map((level: SubtitleTrack, index: number): SubtitleTrack => ({
+		return this.playlistItem()?.tracks?.filter((t: Track): t is SubtitleTrack => t.kind === 'subtitles').map((level: SubtitleTrack, index: number): SubtitleTrack => ({
 			...level,
 			id: index,
 			ext: level.file.split('.').at(-1) ?? 'vtt',
 			type: level.label?.includes('Full') || level.label?.includes('full') ? 'full' : 'sign',
 		})) ?? [];
-
-		subs.unshift({
-			id: -1,
-			label: 'Off',
-			language: '',
-			type: 'none',
-			ext: 'none',
-			file: '',
-			kind: 'subtitles',
-		});
-
-		return subs;
 	},
 
 	subtitleIndex(this: NMPlayer): number {
@@ -72,7 +61,7 @@ export const subtitleMethods = {
 	},
 
 	hasSubtitles(this: NMPlayer): boolean {
-		return (this.subtitles()?.length ?? 0) > 1;
+		return (this.subtitles()?.length ?? 0) > 0;
 	},
 
 	/**
@@ -90,8 +79,8 @@ export const subtitleMethods = {
 		const captionsList = this.subtitles();
 		const currentIndex = this.subtitleIndex();
 
-		if (currentIndex === captionsList.length - 1) {
-			this.subtitle(0);
+		if (currentIndex >= captionsList.length - 1) {
+			this.subtitle(-1);
 		}
 		else {
 			this.subtitle(currentIndex + 1);
@@ -220,7 +209,7 @@ export const subtitleMethods = {
 	 */
 	async storeSubtitleChoice(this: NMPlayer) {
 		const current = this.subtitle();
-		if (!current || current.id === -1) {
+		if (!current) {
 			await this.storage.remove('subtitle-language');
 			await this.storage.remove('subtitle-type');
 			await this.storage.remove('subtitle-ext');

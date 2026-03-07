@@ -9,7 +9,7 @@ function createMockPlayer(overrides: Record<string, any> = {}) {
 	};
 
 	return {
-		currentSubtitleIndex: 0,
+		currentSubtitleIndex: -1,
 		currentSubtitleFile: '',
 		_subtitles: {},
 		subtitleText: document.createElement('span'),
@@ -62,46 +62,59 @@ function bindMethods(player: any) {
 
 describe('subtitleMethods', () => {
 	describe('subtitles()', () => {
-		it('returns "Off" entry at index 0 plus playlist tracks', () => {
+		it('returns only real subtitle tracks (no Off entry)', () => {
 			const player = createMockPlayer();
 			const m = bindMethods(player);
 			const subs = m.subtitles();
-			expect(subs[0]).toMatchObject({ id: -1, label: 'Off', language: '' });
-			expect(subs).toHaveLength(3); // Off + 2 subtitle tracks
+			expect(subs).toHaveLength(2);
+			expect(subs[0]).toMatchObject({ id: 0, language: 'eng' });
+			expect(subs[1]).toMatchObject({ id: 1, language: 'nld' });
 		});
 
-		it('returns empty + Off when no tracks', () => {
+		it('returns empty array when no tracks', () => {
 			const player = createMockPlayer({ playlistItem: vi.fn(() => ({ tracks: [] })) });
 			const m = bindMethods(player);
 			const subs = m.subtitles();
-			expect(subs).toHaveLength(1);
-			expect(subs[0].label).toBe('Off');
+			expect(subs).toHaveLength(0);
 		});
 	});
 
 	describe('subtitle() getter', () => {
+		it('returns undefined when index is -1 (Off)', () => {
+			const player = createMockPlayer({ currentSubtitleIndex: -1 });
+			const m = bindMethods(player);
+			expect(m.subtitle()).toBeUndefined();
+		});
+
 		it('returns track at currentSubtitleIndex', () => {
-			const player = createMockPlayer({ currentSubtitleIndex: 1 });
+			const player = createMockPlayer({ currentSubtitleIndex: 0 });
 			const m = bindMethods(player);
 			const sub = m.subtitle();
 			expect(sub?.language).toBe('eng');
 		});
 
-		it('falls back to first entry when index out of range', () => {
+		it('returns undefined when index out of range', () => {
 			const player = createMockPlayer({ currentSubtitleIndex: 99 });
 			const m = bindMethods(player);
-			const sub = m.subtitle();
-			expect(sub?.label).toBe('Off');
+			expect(m.subtitle()).toBeUndefined();
 		});
 	});
 
 	describe('subtitle(index) setter', () => {
-		it('sets index and emits captionsChanged', () => {
+		it('sets index 0 and emits captionsChanged', () => {
 			const player = createMockPlayer();
 			const m = bindMethods(player);
-			m.subtitle(1);
-			expect(player.currentSubtitleIndex).toBe(1);
+			m.subtitle(0);
+			expect(player.currentSubtitleIndex).toBe(0);
 			expect(player.emit).toHaveBeenCalledWith('captionsChanged', expect.anything());
+		});
+
+		it('sets index -1 (Off) and emits captionsChanged with undefined', () => {
+			const player = createMockPlayer({ currentSubtitleIndex: 0 });
+			const m = bindMethods(player);
+			m.subtitle(-1);
+			expect(player.currentSubtitleIndex).toBe(-1);
+			expect(player.emit).toHaveBeenCalledWith('captionsChanged', undefined);
 		});
 
 		it('logs warning for out-of-bounds index', () => {
@@ -114,11 +127,21 @@ describe('subtitleMethods', () => {
 			);
 		});
 
+		it('logs warning for index below -1', () => {
+			const player = createMockPlayer();
+			const m = bindMethods(player);
+			m.subtitle(-2);
+			expect(player.logger.warn).toHaveBeenCalledWith(
+				'subtitle() index out of bounds',
+				expect.objectContaining({ index: -2 }),
+			);
+		});
+
 		it('clears subtitle display', () => {
 			const player = createMockPlayer();
 			const m = bindMethods(player);
 			player.subtitleText.textContent = 'old text';
-			m.subtitle(1);
+			m.subtitle(0);
 			expect(player.subtitleText.textContent).toBe('');
 		});
 	});
@@ -128,7 +151,7 @@ describe('subtitleMethods', () => {
 			const player = createMockPlayer();
 			const m = bindMethods(player);
 			const idx = m.subtitleIndexBy('eng', 'full', 'vtt');
-			expect(idx).toBe(1); // index 1 in subtitles() (index 0 is "Off")
+			expect(idx).toBe(0);
 		});
 
 		it('returns undefined when not found', () => {
@@ -146,7 +169,7 @@ describe('subtitleMethods', () => {
 			expect(m.hasSubtitles()).toBe(true);
 		});
 
-		it('returns false when only Off entry', () => {
+		it('returns false when no subtitle tracks', () => {
 			const player = createMockPlayer({ playlistItem: vi.fn(() => ({ tracks: [] })) });
 			const m = bindMethods(player);
 			expect(m.hasSubtitles()).toBe(false);
@@ -154,6 +177,13 @@ describe('subtitleMethods', () => {
 	});
 
 	describe('cycleSubtitles()', () => {
+		it('cycles from -1 (Off) to first track', () => {
+			const player = createMockPlayer({ currentSubtitleIndex: -1 });
+			const m = bindMethods(player);
+			m.cycleSubtitles();
+			expect(player.currentSubtitleIndex).toBe(0);
+		});
+
 		it('cycles to next track', () => {
 			const player = createMockPlayer({ currentSubtitleIndex: 0 });
 			const m = bindMethods(player);
@@ -161,15 +191,15 @@ describe('subtitleMethods', () => {
 			expect(player.currentSubtitleIndex).toBe(1);
 		});
 
-		it('wraps to 0 at end', () => {
-			const player = createMockPlayer({ currentSubtitleIndex: 2 });
+		it('wraps to -1 (Off) at end', () => {
+			const player = createMockPlayer({ currentSubtitleIndex: 1 });
 			const m = bindMethods(player);
 			m.cycleSubtitles();
-			expect(player.currentSubtitleIndex).toBe(0);
+			expect(player.currentSubtitleIndex).toBe(-1);
 		});
 
 		it('displays message with track name', () => {
-			const player = createMockPlayer({ currentSubtitleIndex: 0 });
+			const player = createMockPlayer({ currentSubtitleIndex: -1 });
 			const m = bindMethods(player);
 			m.cycleSubtitles();
 			expect(player.displayMessage).toHaveBeenCalled();
@@ -177,15 +207,15 @@ describe('subtitleMethods', () => {
 	});
 
 	describe('storeSubtitleChoice()', () => {
-		it('removes storage when Off is selected', async () => {
-			const player = createMockPlayer({ currentSubtitleIndex: 0 });
+		it('removes storage when Off is selected (-1)', async () => {
+			const player = createMockPlayer({ currentSubtitleIndex: -1 });
 			const m = bindMethods(player);
 			await m.storeSubtitleChoice();
 			expect(player.storage.remove).toHaveBeenCalledWith('subtitle-language');
 		});
 
 		it('stores language, type, ext for active subtitle', async () => {
-			const player = createMockPlayer({ currentSubtitleIndex: 1 });
+			const player = createMockPlayer({ currentSubtitleIndex: 0 });
 			const m = bindMethods(player);
 			await m.storeSubtitleChoice();
 			expect(player.storage.set).toHaveBeenCalledWith('subtitle-language', 'eng');

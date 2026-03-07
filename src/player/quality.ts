@@ -24,7 +24,7 @@ export const qualityMethods = {
 		if (!this.hls)
 			return [];
 
-		const levels: Level[] = this.hls.levels
+		return this.hls.levels
 			.map((level, index: number) => ({
 				...level,
 				id: index,
@@ -37,13 +37,6 @@ export const qualityMethods = {
 					return true;
 				return range !== 'PQ';
 			});
-
-		levels.unshift({
-			id: -1,
-			label: 'Auto',
-		} as Level);
-
-		return levels;
 	},
 
 	/**
@@ -51,6 +44,6 @@ export const qualityMethods = {
 	 * @returns {boolean} True if the player has more than one quality, false otherwise.
 	 */
 	hasQualities(this: NMPlayer): boolean {
-		return this.qualityLevels().length > 1;
+		return this.qualityLevels().length > 0;
 	},
 };

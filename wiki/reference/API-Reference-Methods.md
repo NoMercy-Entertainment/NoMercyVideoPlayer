@@ -574,21 +574,21 @@ if (current) {
 }
 
 // Set to first subtitle track
-player.subtitle(1);
-
-// Disable subtitles (select "Off" at index 0)
 player.subtitle(0);
+
+// Disable subtitles
+player.subtitle(-1);
 ```
 
 **Parameters (setter):**
 
-- `index` - Subtitle track index (0 = Off)
+- `index` - Subtitle track index (0+ = track, -1 = Off)
 
 **Returns (getter):** Current [SubtitleTrack](API-Reference.md#track) or undefined
 
 ### `subtitles(): SubtitleTrack[]`
 
-Gets available subtitle tracks. The first entry (index 0) is always "Off".
+Gets available subtitle tracks. Use `subtitle(-1)` to disable subtitles.
 
 ```typescript
 const subs = player.subtitles();

@@ -20,6 +20,7 @@ export class OctopusPlugin extends Plugin {
 	declare player: NMPlayer;
 	resizeObserver!: ResizeObserver;
 	private pluginOptions: OctopusPluginOptions;
+	private boundOpus!: () => Promise<void>;
 
 	constructor(options: OctopusPluginOptions = {}) {
 		super();
@@ -31,7 +32,8 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	use(): void {
-		this.player.on('captionsChanged', this.opus.bind(this));
+		this.boundOpus = this.opus.bind(this);
+		this.player.on('captionsChanged', this.boundOpus);
 
 		this.resizeObserver = new ResizeObserver(() => {
 			this.resize();
@@ -40,7 +42,7 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	dispose(): void {
-		this.player.off('captionsChanged', this.opus.bind(this));
+		this.player.off('captionsChanged', this.boundOpus);
 		this.resizeObserver?.disconnect();
 
 		this.destroy();
