@@ -328,7 +328,7 @@ player.toggleMute();
 
 ### `volumeUp(): void`
 
-Increases volume by 5%.
+Increases volume by 10%.
 
 ```typescript
 player.volumeUp();
@@ -336,7 +336,7 @@ player.volumeUp();
 
 ### `volumeDown(): void`
 
-Decreases volume by 5%.
+Decreases volume by 10%.
 
 ```typescript
 player.volumeDown();
@@ -607,7 +607,7 @@ Gets the current subtitle track index.
 const idx = player.subtitleIndex();
 ```
 
-**Returns:** Current subtitle track index (0 = Off)
+**Returns:** Current subtitle track index (-1 = Off, 0+ = track index)
 
 ### `subtitleIndexBy(language: string, type: string, ext: string): number | undefined`
 
@@ -1053,24 +1053,9 @@ player.aspect('fill');
 
 **Parameters (setter):**
 
-- `value` - Stretch mode: `'exactfit'`, `'fill'`, `'none'`, `'uniform'`
+- `value` - Stretch mode: `'uniform'`, `'fill'`, `'exactfit'`, `'none'`, `'16:9'`, `'4:3'`
 
 **Returns (getter):** Current stretch mode
-
-### `setAspect(aspect: Stretching): void`
-
-Sets the aspect ratio mode explicitly.
-
-```typescript
-player.setAspect('fill'); // objectFit: fill
-player.setAspect('uniform'); // objectFit: contain
-player.setAspect('exactfit'); // objectFit: cover
-player.setAspect('none'); // objectFit: none
-```
-
-**Parameters:**
-
-- `aspect` - Stretch mode
 
 ### `cycleAspectRatio(): void`
 
@@ -1401,6 +1386,25 @@ const file = player.timeFile();
 ```
 
 **Returns:** Time file URL or undefined
+
+### `fontsFile(): string | undefined`
+
+Gets the current fonts metadata file URL from the playlist item's tracks.
+
+```typescript
+const file = player.fontsFile();
+```
+
+**Returns:** Fonts file URL or undefined
+
+### `fetchFontFile(): Promise<void>`
+
+Fetches and parses the fonts JSON file, updating the player's `fonts` array. Emits a `'fonts'` event when complete. Skips if the file hasn't changed since the last fetch.
+
+```typescript
+await player.fetchFontFile();
+// player.fonts is now populated
+```
 
 ### `getFileContents<T>({ url, options, callback }): Promise<void>`
 

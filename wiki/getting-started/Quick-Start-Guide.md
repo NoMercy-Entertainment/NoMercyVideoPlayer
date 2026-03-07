@@ -201,7 +201,7 @@ The `fonts` track points to a JSON file listing the font files needed by the ASS
 	<body>
 		<div id="nomercy-player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000"></div>
 
-		<script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player@1.0.0-beta.22/dist/nomercy-video-player.iife.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player@1.0.0-beta.23/dist/nomercy-video-player.iife.js"></script>
 		<script>
 			var config = {
 				basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
@@ -234,7 +234,7 @@ The player communicates through:
 
 1. **CSS classes** on the container div — `playing`, `paused`, `buffering`, `active`, `inactive`, `error`
 2. **Events** — `play`, `pause`, `time`, `levels`, `captionsList`, etc.
-3. **Methods** — `play()`, `pause()`, `seek()`, `setVolume()`, etc.
+3. **Methods** — `play()`, `pause()`, `seek()`, `volume()`, etc.
 
 See [Plugin Development](Plugin-Development) for building plugins that use these.
 
