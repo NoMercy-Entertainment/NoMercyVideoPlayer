@@ -228,11 +228,6 @@ export const eventMethods = {
 		});
 
 		this.on('firstFrame', () => {
-			this.emit('levels', this.qualityLevels());
-			this.emit('levelsChanging', {
-				id: this.hls?.loadLevel,
-				name: this.qualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
-			});
 			this.emit('audioTracks', this.audioTracks());
 		});
 
@@ -273,12 +268,8 @@ export const eventMethods = {
 
 				this.videoElement.style.setProperty('--aspect-ratio', data.levelInfo ? `${data.levelInfo?.width / data.levelInfo?.height}` : '');
 			});
-			this.hls.on(HLS.Events.LEVEL_LOADING, () => {
-				this.emit('levels', this.qualityLevels());
-				this.emit('levelsChanging', {
-					id: this.hls?.loadLevel,
-					name: this.qualityLevels().find(l => l.id === this.hls?.loadLevel)?.name,
-				});
+			this.hls.on(HLS.Events.LEVEL_LOADING, (event, data) => {
+				this.logger.verbose(event, { data });
 			});
 			this.hls.on(HLS.Events.LEVEL_SWITCHED, (_, data) => {
 				this.emit('levelsChanged', {
@@ -292,8 +283,8 @@ export const eventMethods = {
 					name: this.qualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
-			this.hls.on(HLS.Events.LEVEL_UPDATED, () => {
-				this.emit('levels', this.qualityLevels());
+			this.hls.on(HLS.Events.LEVEL_UPDATED, (event, data) => {
+				this.logger.verbose(event, { data });
 			});
 			this.hls.on(HLS.Events.LEVELS_UPDATED, (event, data) => {
 				this.logger.verbose(event, { data });
