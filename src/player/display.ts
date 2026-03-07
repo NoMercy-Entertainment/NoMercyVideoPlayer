@@ -183,6 +183,9 @@ export const displayMethods = {
 	},
 
 	setResponsiveAspectRatio(this: NMPlayer, videoAspectRatio: number): void {
+		// Don't override when the user has explicitly set an aspect ratio
+		if (this.currentAspectRatio === '16:9' || this.currentAspectRatio === '4:3') return;
+
 		let containerAspectRatio: string;
 
 		if (videoAspectRatio <= 1.4) {

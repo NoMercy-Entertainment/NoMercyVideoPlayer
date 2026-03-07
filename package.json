@@ -1,7 +1,7 @@
 {
 	"name": "@nomercy-entertainment/nomercy-video-player",
 	"type": "module",
-	"version": "1.0.0-beta.16",
+	"version": "1.0.0-beta.17",
 	"description": "Full event-driven video player without a UI.",
 	"author": {
 		"name": "NoMercy Entertainment",
