@@ -173,9 +173,10 @@ export const coreMethods = {
 			}
 
 			.nomercyplayer .subtitle-overlay .subtitle-text {
+				display: inline-block;
 				white-space: pre-line;
 				padding: 0 0.5rem;
-				line-height: 1.5;
+				line-height: 1.2;
 				writing-mode: horizontal-tb;
 				unicode-bidi: plaintext;
 			}

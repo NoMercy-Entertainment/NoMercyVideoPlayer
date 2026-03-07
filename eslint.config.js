@@ -23,6 +23,11 @@ export default antfu({
 			'no-debugger': 'off',
 		},
 	},
+	test: {
+		overrides: {
+			'test/prefer-lowercase-title': 'off',
+		},
+	},
 	stylistic: {
 		indent: 'tab',
 		quotes: 'single',
