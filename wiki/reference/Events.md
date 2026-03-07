@@ -528,52 +528,6 @@ player.on('resize', () => {
 
 **Data:** None
 
-### `controls`
-
-Fired when control visibility changes.
-
-```typescript
-player.on('controls', (showing) => {
-	if (showing) {
-		console.log('Controls shown');
-	}
-	else {
-		console.log('Controls hidden');
-	}
-
-	// Adjust overlay elements
-	adjustOverlays(showing);
-});
-```
-
-**Data:** `boolean` - Whether controls are showing
-
-### `showControls`
-
-Fired when controls are shown.
-
-```typescript
-player.on('showControls', () => {
-	console.log('Controls appeared');
-	// Fade in custom UI elements
-});
-```
-
-**Data:** None
-
-### `hideControls`
-
-Fired when controls are hidden.
-
-```typescript
-player.on('hideControls', () => {
-	console.log('Controls hidden');
-	// Fade out custom UI elements
-});
-```
-
-**Data:** None
-
 ### `dynamicControls`
 
 Fired when dynamic controls update.

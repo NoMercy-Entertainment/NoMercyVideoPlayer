@@ -119,9 +119,6 @@ export interface PlayerEventMap {
 	// Display / UI
 	'fullscreen': boolean;
 	'resize': undefined;
-	'controls': boolean;
-	'showControls': undefined;
-	'hideControls': undefined;
 	'active': boolean;
 	'display-message': string;
 	'remove-message': string;

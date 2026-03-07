@@ -8,7 +8,6 @@ export const uiStateMethods = {
 
 		if (!wasActive) {
 			this.emit('active', true);
-			this.emit('controls', true);
 		}
 	},
 
@@ -19,7 +18,6 @@ export const uiStateMethods = {
 
 		if (wasActive) {
 			this.emit('active', false);
-			this.emit('controls', false);
 		}
 	},
 

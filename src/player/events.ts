@@ -148,8 +148,6 @@ export const eventMethods = {
 	_containerEvents: [] as { type: string; handler: (e?: any) => void }[],
 	_boundEmitPlay: null as ((data?: any) => void) | null,
 	_boundEmitPaused: null as ((data?: any) => void) | null,
-	_boundShowControls: null as ((data?: any) => void) | null,
-	_boundHideControls: null as ((data?: any) => void) | null,
 	_boundDynamicControls: null as ((data?: any) => void) | null,
 
 	_initEventArrays(this: NMPlayer): void {
@@ -189,15 +187,10 @@ export const eventMethods = {
 
 		this._boundEmitPlay = this.emitPlayEvent.bind(this);
 		this._boundEmitPaused = this.emitPausedEvent.bind(this);
-		this._boundShowControls = this.ui_addActiveClass.bind(this);
-		this._boundHideControls = this.ui_removeActiveClass.bind(this);
 		this._boundDynamicControls = this.ui_resetInactivityTimer.bind(this);
 
 		this.on('play', this._boundEmitPlay);
 		this.on('pause', this._boundEmitPaused);
-
-		this.on('showControls', this._boundShowControls);
-		this.on('hideControls', this._boundHideControls);
 		this.on('dynamicControls', this._boundDynamicControls);
 
 		this.mediaSession?.setActionHandler({
@@ -471,10 +464,6 @@ export const eventMethods = {
 			this.off('play', this._boundEmitPlay);
 		if (this._boundEmitPaused)
 			this.off('pause', this._boundEmitPaused);
-		if (this._boundShowControls)
-			this.off('showControls', this._boundShowControls);
-		if (this._boundHideControls)
-			this.off('hideControls', this._boundHideControls);
 		if (this._boundDynamicControls)
 			this.off('dynamicControls', this._boundDynamicControls);
 	},

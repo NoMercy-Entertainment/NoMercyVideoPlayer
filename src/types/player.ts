@@ -113,8 +113,6 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	_containerEvents: { type: string; handler: EventListener }[];
 	_boundEmitPlay: ((data?: any) => void) | null;
 	_boundEmitPaused: ((data?: any) => void) | null;
-	_boundShowControls: ((data?: any) => void) | null;
-	_boundHideControls: ((data?: any) => void) | null;
 	_boundDynamicControls: ((data?: any) => void) | null;
 
 	// ── Shared utility ───────────────────────────────────────────────────
