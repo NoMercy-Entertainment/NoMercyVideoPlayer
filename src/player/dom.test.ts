@@ -258,4 +258,160 @@ describe('domMethods', () => {
 			expect(typeof player.isTv()).toBe('boolean');
 		});
 	});
+
+	describe('debounce()', () => {
+		it('returns a function', () => {
+			const player = createMockPlayer();
+			const fn = vi.fn();
+			const debounced = player.debounce(fn, 100);
+			expect(typeof debounced).toBe('function');
+		});
+
+		it('does not call function immediately', () => {
+			vi.useFakeTimers();
+			const player = createMockPlayer();
+			const fn = vi.fn();
+			const debounced = player.debounce(fn, 200);
+			debounced();
+			expect(fn).not.toHaveBeenCalled();
+			vi.useRealTimers();
+		});
+
+		it('calls function after wait period', () => {
+			vi.useFakeTimers();
+			const player = createMockPlayer();
+			const fn = vi.fn();
+			const debounced = player.debounce(fn, 200);
+			debounced();
+			vi.advanceTimersByTime(200);
+			expect(fn).toHaveBeenCalledOnce();
+			vi.useRealTimers();
+		});
+
+		it('resets timer on subsequent calls', () => {
+			vi.useFakeTimers();
+			const player = createMockPlayer();
+			const fn = vi.fn();
+			const debounced = player.debounce(fn, 200);
+			debounced();
+			vi.advanceTimersByTime(100);
+			debounced(); // reset
+			vi.advanceTimersByTime(100);
+			expect(fn).not.toHaveBeenCalled();
+			vi.advanceTimersByTime(100);
+			expect(fn).toHaveBeenCalledOnce();
+			vi.useRealTimers();
+		});
+
+		it('passes arguments to the debounced function', () => {
+			vi.useFakeTimers();
+			const player = createMockPlayer();
+			const fn = vi.fn();
+			const debounced = player.debounce(fn, 100);
+			debounced('arg1', 'arg2');
+			vi.advanceTimersByTime(100);
+			expect(fn).toHaveBeenCalledWith('arg1', 'arg2');
+			vi.useRealTimers();
+		});
+	});
+
+	describe('isInViewport()', () => {
+		it('returns a boolean', () => {
+			const player = createMockPlayer();
+			const result = player.isInViewport();
+			expect(typeof result).toBe('boolean');
+		});
+
+		it('returns true when video element is in viewport (default position)', () => {
+			const player = createMockPlayer();
+			// In happy-dom, elements at default position (0,0) with 0 dimensions
+			// The check is (rect.top <= windowHeight) && ((rect.top + rect.height) >= 0)
+			// and (rect.left <= windowWidth) && ((rect.left + rect.width) >= 0)
+			// For a 0x0 element at 0,0: (0 <= height) && (0 >= 0) && (0 <= width) && (0 >= 0) = true
+			expect(player.isInViewport()).toBe(true);
+		});
+	});
+
+	describe('getClosestSeekableInterval()', () => {
+		it('returns start of interval containing currentTime', () => {
+			const player = createMockPlayer({
+				currentTime: vi.fn(() => 15),
+				previewTime: [
+					{ start: 0, end: 10 },
+					{ start: 10, end: 20 },
+					{ start: 20, end: 30 },
+				],
+			});
+			expect(player.getClosestSeekableInterval()).toBe(10);
+		});
+
+		it('returns start of first interval for time at start', () => {
+			const player = createMockPlayer({
+				currentTime: vi.fn(() => 0),
+				previewTime: [
+					{ start: 0, end: 10 },
+					{ start: 10, end: 20 },
+				],
+			});
+			expect(player.getClosestSeekableInterval()).toBe(0);
+		});
+
+		it('returns undefined when currentTime is outside all intervals', () => {
+			const player = createMockPlayer({
+				currentTime: vi.fn(() => 50),
+				previewTime: [
+					{ start: 0, end: 10 },
+					{ start: 10, end: 20 },
+				],
+			});
+			expect(player.getClosestSeekableInterval()).toBeUndefined();
+		});
+
+		it('returns undefined when previewTime is empty', () => {
+			const player = createMockPlayer({
+				currentTime: vi.fn(() => 5),
+				previewTime: [],
+			});
+			expect(player.getClosestSeekableInterval()).toBeUndefined();
+		});
+
+		it('does not match when currentTime equals end (exclusive)', () => {
+			const player = createMockPlayer({
+				currentTime: vi.fn(() => 10),
+				previewTime: [
+					{ start: 0, end: 10 },
+					{ start: 10, end: 20 },
+				],
+			});
+			// currentTime=10 is >= 10 start and < 20 end, so matches second interval
+			expect(player.getClosestSeekableInterval()).toBe(10);
+		});
+	});
+
+	describe('nearestValue()', () => {
+		it('finds exact match', () => {
+			const player = createMockPlayer();
+			expect(player.nearestValue([10, 20, 30], 20)).toBe(20);
+		});
+
+		it('finds nearest lower value', () => {
+			const player = createMockPlayer();
+			expect(player.nearestValue([10, 20, 30], 22)).toBe(20);
+		});
+
+		it('finds nearest higher value', () => {
+			const player = createMockPlayer();
+			expect(player.nearestValue([10, 20, 30], 28)).toBe(30);
+		});
+
+		it('handles single element array', () => {
+			const player = createMockPlayer();
+			expect(player.nearestValue([42], 100)).toBe(42);
+		});
+
+		it('handles negative values', () => {
+			const player = createMockPlayer();
+			expect(player.nearestValue([-10, 0, 10], -7)).toBe(-10);
+		});
+	});
 });

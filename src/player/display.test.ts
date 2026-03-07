@@ -337,6 +337,124 @@ describe('displayMethods', () => {
 		});
 	});
 
+	describe('toggleFullscreen()', () => {
+		it('calls exitFullscreen when in fullscreen', () => {
+			const player = createMockPlayer();
+			// Spy on enterFullscreen and exitFullscreen
+			player.exitFullscreen = vi.fn();
+			player.enterFullscreen = vi.fn();
+			// Make fullscreen() return true
+			player.fullscreen = vi.fn(() => true);
+			player.toggleFullscreen();
+			expect(player.exitFullscreen).toHaveBeenCalled();
+			expect(player.enterFullscreen).not.toHaveBeenCalled();
+		});
+
+		it('calls enterFullscreen when not in fullscreen', () => {
+			const player = createMockPlayer();
+			player.exitFullscreen = vi.fn();
+			player.enterFullscreen = vi.fn();
+			// Make fullscreen() return false (default in happy-dom)
+			player.fullscreen = vi.fn(() => false);
+			player.toggleFullscreen();
+			expect(player.enterFullscreen).toHaveBeenCalled();
+			expect(player.exitFullscreen).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('width() / height()', () => {
+		it('width() returns a number', () => {
+			const player = createMockPlayer();
+			expect(typeof player.width()).toBe('number');
+		});
+
+		it('height() returns a number', () => {
+			const player = createMockPlayer();
+			expect(typeof player.height()).toBe('number');
+		});
+
+		it('width() returns getBoundingClientRect width', () => {
+			const player = createMockPlayer();
+			player.videoElement.getBoundingClientRect = vi.fn(() => ({
+				width: 640,
+				height: 360,
+				top: 0,
+				left: 0,
+				right: 640,
+				bottom: 360,
+				x: 0,
+				y: 0,
+				toJSON: () => ({}),
+			}));
+			expect(player.width()).toBe(640);
+		});
+
+		it('height() returns getBoundingClientRect height', () => {
+			const player = createMockPlayer();
+			player.videoElement.getBoundingClientRect = vi.fn(() => ({
+				width: 640,
+				height: 360,
+				top: 0,
+				left: 0,
+				right: 640,
+				bottom: 360,
+				x: 0,
+				y: 0,
+				toJSON: () => ({}),
+			}));
+			expect(player.height()).toBe(360);
+		});
+	});
+
+	describe('buffer()', () => {
+		it('returns videoElement.buffered', () => {
+			const player = createMockPlayer();
+			const result = player.buffer();
+			expect(result).toBe(player.videoElement.buffered);
+		});
+
+		it('returns a TimeRanges object', () => {
+			const player = createMockPlayer();
+			const result = player.buffer();
+			expect(result).toHaveProperty('length');
+		});
+	});
+
+	describe('setFloatingPlayer()', () => {
+		it('sets shouldFloat to true on desktop', () => {
+			const player = createMockPlayer({
+				isMobile: vi.fn(() => false),
+			});
+			player.setFloatingPlayer(true);
+			expect(player.shouldFloat).toBe(true);
+		});
+
+		it('sets shouldFloat to false on desktop', () => {
+			const player = createMockPlayer({
+				isMobile: vi.fn(() => false),
+			});
+			player.setFloatingPlayer(false);
+			expect(player.shouldFloat).toBe(false);
+		});
+
+		it('forces shouldFloat to false on mobile', () => {
+			const player = createMockPlayer({
+				isMobile: vi.fn(() => true),
+			});
+			player.setFloatingPlayer(true);
+			expect(player.shouldFloat).toBe(false);
+		});
+
+		it('keeps shouldFloat false on mobile even when requesting true', () => {
+			const player = createMockPlayer({
+				isMobile: vi.fn(() => true),
+				shouldFloat: true,
+			});
+			player.setFloatingPlayer(true);
+			expect(player.shouldFloat).toBe(false);
+		});
+	});
+
 	describe('setAllowFullscreen()', () => {
 		it('sets allowFullscreen flag', () => {
 			const player = createMockPlayer();

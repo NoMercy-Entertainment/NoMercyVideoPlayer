@@ -57,6 +57,8 @@ function bindMethods(player: any) {
 	player.fetchSubtitleFile = bound.fetchSubtitleFile;
 	player.buildSubtitleFragment = bound.buildSubtitleFragment;
 	player.setCurrentCaptionFromStorage = bound.setCurrentCaptionFromStorage;
+	player.checkSubtitles = bound.checkSubtitles;
+	player.subtitleStyle = bound.subtitleStyle;
 	return bound;
 }
 
@@ -246,6 +248,221 @@ describe('subtitleMethods', () => {
 			const container = document.createElement('div');
 			container.appendChild(fragment);
 			expect(container.querySelector('b')?.textContent).toBe('bold');
+		});
+	});
+
+	describe('subtitleStyle() getter/setter', () => {
+		it('getter returns _subtitleStyle', () => {
+			const initialStyle = { fontSize: 120, fontFamily: 'Arial' };
+			const player = createMockPlayer({ _subtitleStyle: initialStyle });
+			const m = bindMethods(player);
+			expect(m.subtitleStyle()).toBe(initialStyle);
+		});
+
+		it('setter merges with existing styles', () => {
+			const player = createMockPlayer({
+				_subtitleStyle: { fontSize: 100, fontFamily: 'Arial', textColor: 'white' },
+			});
+			const m = bindMethods(player);
+			m.subtitleStyle({ fontSize: 150 });
+			expect(player._subtitleStyle).toEqual({
+				fontSize: 150,
+				fontFamily: 'Arial',
+				textColor: 'white',
+			});
+		});
+
+		it('setter calls applySubtitleStyle', () => {
+			const player = createMockPlayer({
+				_subtitleStyle: { fontSize: 100 },
+			});
+			const m = bindMethods(player);
+			m.subtitleStyle({ fontSize: 200 });
+			expect(player.applySubtitleStyle).toHaveBeenCalled();
+		});
+
+		it('getter returns undefined properties when style is empty', () => {
+			const player = createMockPlayer({ _subtitleStyle: {} });
+			const m = bindMethods(player);
+			const style = m.subtitleStyle();
+			expect(style).toEqual({});
+		});
+	});
+
+	describe('checkSubtitles()', () => {
+		it('renders matching cue text to subtitleText', () => {
+			const videoElement = document.createElement('video');
+			Object.defineProperty(videoElement, 'currentTime', { value: 5, writable: true });
+
+			const player = createMockPlayer({
+				videoElement,
+				_subtitles: {
+					cues: [
+						{ startTime: 0, endTime: 3, text: 'First cue', size: -1 },
+						{ startTime: 4, endTime: 8, text: 'Second cue', size: -1 },
+						{ startTime: 10, endTime: 15, text: 'Third cue', size: -1 },
+					],
+				},
+				computeSubtitlePosition: vi.fn(),
+				currentSubtitleIndex: 0,
+			});
+			const m = bindMethods(player);
+			m.checkSubtitles();
+
+			expect(player.subtitleText.textContent).toBe('Second cue');
+		});
+
+		it('clears subtitleText when no cue matches', () => {
+			const videoElement = document.createElement('video');
+			Object.defineProperty(videoElement, 'currentTime', { value: 9, writable: true });
+
+			const player = createMockPlayer({
+				videoElement,
+				_subtitles: {
+					cues: [
+						{ startTime: 0, endTime: 3, text: 'First cue', size: -1 },
+						{ startTime: 4, endTime: 8, text: 'Second cue', size: -1 },
+					],
+				},
+				computeSubtitlePosition: vi.fn(),
+				currentSubtitleIndex: 0,
+			});
+			const m = bindMethods(player);
+			player.subtitleText.textContent = 'old text';
+			m.checkSubtitles();
+
+			expect(player.subtitleText.textContent).toBe('');
+		});
+
+		it('sets subtitleOverlay display to block', () => {
+			const videoElement = document.createElement('video');
+			Object.defineProperty(videoElement, 'currentTime', { value: 0, writable: true });
+
+			const player = createMockPlayer({
+				videoElement,
+				_subtitles: { cues: [] },
+				computeSubtitlePosition: vi.fn(),
+			});
+			const m = bindMethods(player);
+			m.checkSubtitles();
+
+			expect(player.subtitleOverlay.style.display).toBe('block');
+		});
+	});
+
+	describe('setCurrentCaptionFromStorage()', () => {
+		it('does nothing when disableAutoPlayback is true', async () => {
+			const player = createMockPlayer({
+				options: { disableAutoPlayback: true },
+			});
+			const m = bindMethods(player);
+			await m.setCurrentCaptionFromStorage();
+			expect(player.storage.get).not.toHaveBeenCalled();
+		});
+
+		it('restores subtitle from storage values', async () => {
+			const player = createMockPlayer({
+				currentSubtitleIndex: -1,
+				storage: {
+					get: vi.fn((key: string) => {
+						const map: Record<string, string> = {
+							'subtitle-language': 'eng',
+							'subtitle-type': 'full',
+							'subtitle-ext': 'vtt',
+						};
+						return Promise.resolve(map[key] ?? null);
+					}),
+					set: vi.fn(() => Promise.resolve()),
+					remove: vi.fn(() => Promise.resolve()),
+				},
+			});
+			const m = bindMethods(player);
+			await m.setCurrentCaptionFromStorage();
+			// subtitleIndexBy('eng', 'full', 'vtt') should return 0
+			expect(player.currentSubtitleIndex).toBe(0);
+		});
+
+		it('does nothing when storage has no subtitle values', async () => {
+			const player = createMockPlayer({
+				currentSubtitleIndex: -1,
+			});
+			const m = bindMethods(player);
+			await m.setCurrentCaptionFromStorage();
+			expect(player.currentSubtitleIndex).toBe(-1);
+		});
+
+		it('does nothing when stored subtitle is not found in tracks', async () => {
+			const player = createMockPlayer({
+				currentSubtitleIndex: -1,
+				storage: {
+					get: vi.fn((key: string) => {
+						const map: Record<string, string> = {
+							'subtitle-language': 'jpn',
+							'subtitle-type': 'full',
+							'subtitle-ext': 'vtt',
+						};
+						return Promise.resolve(map[key] ?? null);
+					}),
+					set: vi.fn(() => Promise.resolve()),
+					remove: vi.fn(() => Promise.resolve()),
+				},
+			});
+			const m = bindMethods(player);
+			await m.setCurrentCaptionFromStorage();
+			// subtitleIndexBy returns undefined for 'jpn', so subtitle() is never called
+			expect(player.currentSubtitleIndex).toBe(-1);
+		});
+	});
+
+	describe('subtitleFile()', () => {
+		it('returns file of current subtitle', () => {
+			const player = createMockPlayer({ currentSubtitleIndex: 0 });
+			const m = bindMethods(player);
+			expect(m.subtitleFile()).toBe('eng.full.vtt');
+		});
+
+		it('returns undefined when no subtitle is selected', () => {
+			const player = createMockPlayer({ currentSubtitleIndex: -1 });
+			const m = bindMethods(player);
+			expect(m.subtitleFile()).toBeUndefined();
+		});
+	});
+
+	describe('subtitles() computed fields', () => {
+		it('adds ext field from file extension', () => {
+			const player = createMockPlayer();
+			const m = bindMethods(player);
+			const subs = m.subtitles();
+			expect(subs[0].ext).toBe('vtt');
+			expect(subs[1].ext).toBe('vtt');
+		});
+
+		it('adds type "full" when label includes "Full"', () => {
+			const player = createMockPlayer();
+			const m = bindMethods(player);
+			const subs = m.subtitles();
+			expect(subs[0].type).toBe('full');
+		});
+
+		it('adds type "sign" when label does not include "Full"', () => {
+			const player = createMockPlayer({
+				playlistItem: vi.fn(() => ({
+					tracks: [
+						{ kind: 'subtitles', file: 'eng.sign.vtt', label: 'Sign Language', language: 'eng', id: 0 },
+					],
+				})),
+			});
+			const m = bindMethods(player);
+			const subs = m.subtitles();
+			expect(subs[0].type).toBe('sign');
+		});
+
+		it('assigns sequential id values', () => {
+			const player = createMockPlayer();
+			const m = bindMethods(player);
+			const subs = m.subtitles();
+			expect(subs[0].id).toBe(0);
+			expect(subs[1].id).toBe(1);
 		});
 	});
 });

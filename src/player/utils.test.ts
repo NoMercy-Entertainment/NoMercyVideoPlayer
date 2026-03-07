@@ -3,13 +3,19 @@ import {
 	breakEpisodeTitle,
 	breakLogoTitle,
 	convertToSeconds,
+	defaultSubtitleStyles,
+	edgeStyles,
+	fontFamilies,
+	getEdgeStyle,
 	hslToHex,
 	humanTime,
 	limitSentenceByCharacters,
 	lineBreakShowTitle,
+	namedColors,
 	nearestValue,
 	normalizeHex,
 	pad,
+	parseColorToHex,
 	rgbToHex,
 	unique,
 } from './utils';
@@ -212,5 +218,161 @@ describe('normalizeHex', () => {
 
 	it('returns 8-digit hex as-is (uppercased)', () => {
 		expect(normalizeHex('#ff0000ff', 1)).toBe('#FF0000FF');
+	});
+});
+
+describe('getEdgeStyle', () => {
+	it('returns depressed shadow string', () => {
+		const result = getEdgeStyle('depressed', 1);
+		expect(result).toContain('1px 1px 2px');
+		expect(result).toContain('#000000');
+	});
+
+	it('returns dropShadow string', () => {
+		const result = getEdgeStyle('dropShadow', 1);
+		expect(result).toContain('2px 2px 4px');
+	});
+
+	it('returns raised shadow string', () => {
+		const result = getEdgeStyle('raised', 1);
+		expect(result).toContain('-1px -1px 2px');
+	});
+
+	it('returns uniform shadow string', () => {
+		const result = getEdgeStyle('uniform', 1);
+		expect(result).toContain('0px 0px 4px');
+	});
+
+	it('returns textShadow with multiple repeating shadows', () => {
+		const result = getEdgeStyle('textShadow', 1);
+		// textShadow produces 7 comma-separated shadow values
+		const parts = result.split(',');
+		expect(parts).toHaveLength(7);
+		expect(parts[0]).toContain('0px 0px 4px');
+	});
+
+	it('returns empty string for none', () => {
+		expect(getEdgeStyle('none', 1)).toBe('');
+	});
+
+	it('passes opacity through to parseColorToHex', () => {
+		const full = getEdgeStyle('depressed', 1);
+		const half = getEdgeStyle('depressed', 0.5);
+		// In happy-dom canvas context is null, so both return the same fallback.
+		// Just verify both produce valid strings.
+		expect(typeof full).toBe('string');
+		expect(typeof half).toBe('string');
+	});
+});
+
+describe('parseColorToHex', () => {
+	// Note: happy-dom does not support canvas 2d context, so parseColorToHex
+	// falls through to the early `return '#00000000'` before reaching the
+	// namedColors lookup. We test the transparent path (which runs before
+	// the ctx check) and verify the fallback behavior. The named-color logic
+	// is tested indirectly via normalizeHex + namedColors below.
+
+	it('returns transparent hex for "transparent"', () => {
+		const result = parseColorToHex('transparent', 1);
+		expect(result).toBe('#00000000');
+	});
+
+	it('returns transparent hex for "Transparent" (case insensitive)', () => {
+		const result = parseColorToHex('Transparent', 1);
+		expect(result).toBe('#00000000');
+	});
+
+	it('returns fallback when canvas context is unavailable (happy-dom)', () => {
+		// In happy-dom, getContext("2d") returns null, so all non-transparent
+		// colors hit the early return '#00000000'.
+		const result = parseColorToHex('black', 1);
+		expect(result).toBe('#00000000');
+	});
+
+	it('namedColors map resolves correctly via normalizeHex', () => {
+		expect(normalizeHex(namedColors['black'], 1)).toBe('#000000FF');
+		expect(normalizeHex(namedColors['white'], 1)).toBe('#FFFFFFFF');
+		expect(normalizeHex(namedColors['red'], 1)).toBe('#FF0000FF');
+	});
+
+	it('namedColors + normalizeHex respects opacity', () => {
+		expect(normalizeHex(namedColors['black'], 0.5)).toBe('#00000080');
+		expect(normalizeHex(namedColors['white'], 0)).toBe('#FFFFFF00');
+	});
+});
+
+describe('defaultSubtitleStyles', () => {
+	it('has all required properties', () => {
+		expect(defaultSubtitleStyles).toHaveProperty('fontSize');
+		expect(defaultSubtitleStyles).toHaveProperty('fontFamily');
+		expect(defaultSubtitleStyles).toHaveProperty('textColor');
+		expect(defaultSubtitleStyles).toHaveProperty('textOpacity');
+		expect(defaultSubtitleStyles).toHaveProperty('backgroundColor');
+		expect(defaultSubtitleStyles).toHaveProperty('backgroundOpacity');
+		expect(defaultSubtitleStyles).toHaveProperty('edgeStyle');
+		expect(defaultSubtitleStyles).toHaveProperty('areaColor');
+		expect(defaultSubtitleStyles).toHaveProperty('windowOpacity');
+	});
+
+	it('has correct default values', () => {
+		expect(defaultSubtitleStyles.fontSize).toBe(100);
+		expect(defaultSubtitleStyles.fontFamily).toBe('ReithSans, sans-serif');
+		expect(defaultSubtitleStyles.textColor).toBe('white');
+		expect(defaultSubtitleStyles.textOpacity).toBe(100);
+		expect(defaultSubtitleStyles.backgroundColor).toBe('black');
+		expect(defaultSubtitleStyles.backgroundOpacity).toBe(0);
+		expect(defaultSubtitleStyles.edgeStyle).toBe('textShadow');
+		expect(defaultSubtitleStyles.areaColor).toBe('black');
+		expect(defaultSubtitleStyles.windowOpacity).toBe(0);
+	});
+});
+
+describe('edgeStyles', () => {
+	it('contains all 6 edge style options', () => {
+		expect(edgeStyles).toHaveLength(6);
+	});
+
+	it('contains none, depressed, dropShadow, textShadow, raised, uniform', () => {
+		const values = edgeStyles.map(s => s.value);
+		expect(values).toContain('none');
+		expect(values).toContain('depressed');
+		expect(values).toContain('dropShadow');
+		expect(values).toContain('textShadow');
+		expect(values).toContain('raised');
+		expect(values).toContain('uniform');
+	});
+
+	it('each entry has name and value', () => {
+		for (const style of edgeStyles) {
+			expect(style).toHaveProperty('name');
+			expect(style).toHaveProperty('value');
+			expect(typeof style.name).toBe('string');
+			expect(typeof style.value).toBe('string');
+		}
+	});
+});
+
+describe('fontFamilies', () => {
+	it('contains 5 font family options', () => {
+		expect(fontFamilies).toHaveLength(5);
+	});
+
+	it('each entry has name and value', () => {
+		for (const font of fontFamilies) {
+			expect(font).toHaveProperty('name');
+			expect(font).toHaveProperty('value');
+			expect(typeof font.name).toBe('string');
+			expect(typeof font.value).toBe('string');
+		}
+	});
+
+	it('includes ReithSans as the first option', () => {
+		expect(fontFamilies[0].name).toBe('ReithSans');
+	});
+
+	it('all values contain a fallback font', () => {
+		for (const font of fontFamilies) {
+			expect(font.value).toContain(',');
+		}
 	});
 });

@@ -23,10 +23,13 @@ function createMockPlayer(overrides: Record<string, any> = {}) {
 	subtitleOverlay.classList.add('subtitle-overlay');
 	const subtitleArea = document.createElement('div');
 	subtitleArea.classList.add('subtitle-area');
+	const subtitleSafeZone = document.createElement('div');
+	subtitleSafeZone.classList.add('subtitle-safezone');
 	const subtitleText = document.createElement('span');
 	subtitleText.classList.add('subtitle-text');
 	subtitleArea.appendChild(subtitleText);
-	subtitleOverlay.appendChild(subtitleArea);
+	subtitleSafeZone.appendChild(subtitleArea);
+	subtitleOverlay.appendChild(subtitleSafeZone);
 	container.appendChild(subtitleOverlay);
 	container.appendChild(videoElement);
 
@@ -41,6 +44,7 @@ function createMockPlayer(overrides: Record<string, any> = {}) {
 		videoElement,
 		overlay: document.createElement('div'),
 		subtitleOverlay,
+		subtitleSafeZone,
 		subtitleArea,
 		subtitleText,
 		_subtitleStyle: { ...defaultSubtitleStyles },
@@ -69,8 +73,8 @@ function createMockPlayer(overrides: Record<string, any> = {}) {
 		getFileContents: vi.fn(() => Promise.resolve()),
 		playlistItem: vi.fn(() => ({
 			tracks: [
-				{ kind: 'subtitles', file: 'eng.full.vtt', label: 'English', language: 'eng', id: 0 },
-				{ kind: 'subtitles', file: 'nld.full.vtt', label: 'Dutch', language: 'nld', id: 1 },
+				{ kind: 'subtitles', file: 'eng.full.vtt', label: 'Full', language: 'eng', id: 0 },
+				{ kind: 'subtitles', file: 'nld.full.vtt', label: 'Full', language: 'nld', id: 1 },
 			],
 		})),
 		...overrides,

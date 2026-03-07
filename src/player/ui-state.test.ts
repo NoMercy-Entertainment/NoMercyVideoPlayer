@@ -136,6 +136,33 @@ describe('uiStateMethods', () => {
 			player.handleMouseLeave(event);
 			expect(player.container.classList.contains('active')).toBe(true);
 		});
+
+		it('does not emit active false when lockActive is true', () => {
+			const player = createMockPlayer({ lockActive: true });
+			player.container.classList.add('active');
+			const event = new MouseEvent('mouseleave', { relatedTarget: null });
+			player.handleMouseLeave(event);
+			expect(player.emit).not.toHaveBeenCalledWith('active', false);
+		});
+
+		it('removes active class when relatedTarget is a DIV', () => {
+			const player = createMockPlayer();
+			player.container.classList.add('active');
+			const div = document.createElement('div');
+			const event = new MouseEvent('mouseleave', { relatedTarget: div });
+			player.handleMouseLeave(event);
+			expect(player.container.classList.contains('inactive')).toBe(true);
+			expect(player.container.classList.contains('active')).toBe(false);
+		});
+
+		it('removes active class when relatedTarget is a SPAN', () => {
+			const player = createMockPlayer();
+			player.container.classList.add('active');
+			const span = document.createElement('span');
+			const event = new MouseEvent('mouseleave', { relatedTarget: span });
+			player.handleMouseLeave(event);
+			expect(player.container.classList.contains('inactive')).toBe(true);
+		});
 	});
 
 	describe('handleMouseEnter()', () => {
@@ -155,6 +182,33 @@ describe('uiStateMethods', () => {
 			Object.defineProperty(event, 'target', { value: input });
 			player.handleMouseEnter(event);
 			expect(player.container.classList.contains('active')).toBe(true);
+		});
+
+		it('does not add active class when entering a DIV', () => {
+			const player = createMockPlayer();
+			const div = document.createElement('div');
+			const event = new MouseEvent('mouseenter');
+			Object.defineProperty(event, 'target', { value: div });
+			player.handleMouseEnter(event);
+			expect(player.container.classList.contains('active')).toBe(false);
+		});
+
+		it('does not add active class when entering a SPAN', () => {
+			const player = createMockPlayer();
+			const span = document.createElement('span');
+			const event = new MouseEvent('mouseenter');
+			Object.defineProperty(event, 'target', { value: span });
+			player.handleMouseEnter(event);
+			expect(player.container.classList.contains('active')).toBe(false);
+		});
+
+		it('emits active true when entering a button', () => {
+			const player = createMockPlayer();
+			const button = document.createElement('button');
+			const event = new MouseEvent('mouseenter');
+			Object.defineProperty(event, 'target', { value: button });
+			player.handleMouseEnter(event);
+			expect(player.emit).toHaveBeenCalledWith('active', true);
 		});
 	});
 });

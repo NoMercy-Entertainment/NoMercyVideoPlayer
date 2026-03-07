@@ -243,6 +243,141 @@ describe('eventMethods', () => {
 		});
 	});
 
+	describe('videoPlayer_onPlayingEvent()', () => {
+		it('emits firstFrame once and calls setMediaAPI', () => {
+			const player = createMockPlayer({ firstFrame: false });
+			const removeSpy = vi.spyOn(player.videoElement, 'removeEventListener');
+
+			player.videoPlayer_onPlayingEvent();
+
+			expect(removeSpy).toHaveBeenCalledWith('playing', player.videoPlayer_onPlayingEvent);
+			expect(player.emit).toHaveBeenCalledWith('firstFrame');
+			expect(player.firstFrame).toBe(true);
+			expect(player.setMediaAPI).toHaveBeenCalled();
+		});
+
+		it('does not emit firstFrame when already fired', () => {
+			const player = createMockPlayer({ firstFrame: true });
+
+			player.videoPlayer_onPlayingEvent();
+
+			expect(player.emit).not.toHaveBeenCalledWith('firstFrame');
+			expect(player.firstFrame).toBe(true);
+			expect(player.setMediaAPI).toHaveBeenCalled();
+		});
+
+		it('registers item listener to re-add playing event', () => {
+			const player = createMockPlayer({ firstFrame: false });
+
+			player.videoPlayer_onPlayingEvent();
+
+			expect(player.on).toHaveBeenCalledWith('item', expect.any(Function));
+		});
+	});
+
+	describe('videoPlayer_waitingEvent()', () => {
+		it('emits waiting with videoElement', () => {
+			const player = createMockPlayer();
+
+			player.videoPlayer_waitingEvent();
+
+			expect(player.emit).toHaveBeenCalledWith('waiting', player.videoElement);
+		});
+	});
+
+	describe('videoPlayer_canplayEvent()', () => {
+		it('emits canplay with videoElement', () => {
+			const player = createMockPlayer();
+
+			player.videoPlayer_canplayEvent();
+
+			expect(player.emit).toHaveBeenCalledWith('canplay', player.videoElement);
+		});
+	});
+
+	describe('videoPlayer_loadedmetadataEvent()', () => {
+		it('calls resize and emits loadedmetadata and duration', () => {
+			const player = createMockPlayer();
+			const mockEvent = { target: player.videoElement } as unknown as Event;
+
+			player.videoPlayer_loadedmetadataEvent(mockEvent);
+
+			expect(player.resize).toHaveBeenCalled();
+			expect(player.emit).toHaveBeenCalledWith('loadedmetadata', player.videoElement);
+			expect(player.emit).toHaveBeenCalledWith('duration', expect.objectContaining({
+				currentTime: 30,
+				duration: 120,
+				percentage: 25,
+				remaining: 90,
+				playbackRate: 1,
+			}));
+		});
+	});
+
+	describe('videoPlayer_loadstartEvent()', () => {
+		it('emits loadstart with videoElement', () => {
+			const player = createMockPlayer();
+
+			player.videoPlayer_loadstartEvent();
+
+			expect(player.emit).toHaveBeenCalledWith('loadstart', player.videoElement);
+		});
+	});
+
+	describe('videoPlayer_timeupdateEvent()', () => {
+		it('emits time with timeData', () => {
+			const player = createMockPlayer();
+			const mockEvent = { target: player.videoElement } as unknown as Event;
+
+			player.videoPlayer_timeupdateEvent(mockEvent);
+
+			expect(player.emit).toHaveBeenCalledWith('time', expect.objectContaining({
+				currentTime: 30,
+				duration: 120,
+				percentage: 25,
+				remaining: 90,
+				playbackRate: 1,
+			}));
+		});
+
+		it('skips emit when duration is NaN', () => {
+			const player = createMockPlayer();
+			Object.defineProperty(player.videoElement, 'duration', { value: NaN, writable: true });
+			const mockEvent = { target: player.videoElement } as unknown as Event;
+
+			player.videoPlayer_timeupdateEvent(mockEvent);
+
+			expect(player.emit).not.toHaveBeenCalled();
+		});
+
+		it('skips emit when currentTime is NaN', () => {
+			const player = createMockPlayer();
+			Object.defineProperty(player.videoElement, 'currentTime', { value: NaN, writable: true });
+			const mockEvent = { target: player.videoElement } as unknown as Event;
+
+			player.videoPlayer_timeupdateEvent(mockEvent);
+
+			expect(player.emit).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('videoPlayer_durationchangeEvent()', () => {
+		it('emits duration with timeData', () => {
+			const player = createMockPlayer();
+			const mockEvent = { target: player.videoElement } as unknown as Event;
+
+			player.videoPlayer_durationchangeEvent(mockEvent);
+
+			expect(player.emit).toHaveBeenCalledWith('duration', expect.objectContaining({
+				currentTime: 30,
+				duration: 120,
+				percentage: 25,
+				remaining: 90,
+				playbackRate: 1,
+			}));
+		});
+	});
+
 	describe('emitPlayEvent / emitPausedEvent', () => {
 		it('emits playing true', () => {
 			const player = createMockPlayer();
