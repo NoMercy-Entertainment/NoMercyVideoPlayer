@@ -29,7 +29,7 @@ function createMockPlayer(overrides: Record<string, any> = {}) {
 		_containerEvents: [],
 		_boundEmitPlay: null,
 		_boundEmitPaused: null,
-		_boundDynamicControls: null,
+		_boundInteraction: null,
 		options: { disableAutoPlayback: false, disableControls: false },
 		emit: vi.fn(),
 		on: vi.fn(),
@@ -239,7 +239,7 @@ describe('eventMethods', () => {
 
 			expect(player.off).toHaveBeenCalledWith('play', expect.any(Function));
 			expect(player.off).toHaveBeenCalledWith('pause', expect.any(Function));
-			expect(player.off).toHaveBeenCalledWith('dynamicControls', expect.any(Function));
+			expect(player.off).toHaveBeenCalledWith('interaction', expect.any(Function));
 		});
 	});
 

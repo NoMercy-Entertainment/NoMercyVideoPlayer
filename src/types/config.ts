@@ -1,4 +1,7 @@
 import type { PlaylistItem, StretchOptions } from './data';
+import type { FloatConfig } from './float';
+import type { PipConfig } from './pip';
+import type { TheaterConfig } from './theater';
 import type { LogConfig } from '../player/logger';
 
 export type { LogConfig, LogHandler, LogLevel } from '../player/logger';
@@ -28,6 +31,9 @@ export interface PlayerConfig<T = Record<string, any>> {
 	disableAutoPlayback?: boolean;
 	disableHls?: boolean;
 	forceHls?: boolean;
+	float?: boolean | FloatConfig;
+	pip?: boolean | PipConfig;
+	theater?: boolean | TheaterConfig;
 }
 
 export interface StorageInterface {

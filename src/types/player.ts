@@ -27,6 +27,9 @@ import type { NMPlayerSkippers } from './skippers';
 import type { NMPlayerFonts } from './fonts';
 import type { NMPlayerPlugins, PluginMap } from './plugins';
 import type { NMPlayerDeprecated } from './deprecated';
+import type { NMPlayerFloat } from './float';
+import type { NMPlayerPip } from './pip';
+import type { NMPlayerTheater } from './theater';
 
 export interface NMPlayer<T extends Record<string, any> = Record<string, any>> extends
 	Base<T>,
@@ -46,17 +49,16 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	NMPlayerSkippers,
 	NMPlayerFonts,
 	NMPlayerPlugins,
+	NMPlayerFloat,
+	NMPlayerPip,
+	NMPlayerTheater,
 	NMPlayerDeprecated<T> {
 	// ── Public state ─────────────────────────────────────────────────────
 	currentTimeFile: string | undefined;
 	episode: number | undefined;
 	fonts: { file: string; mimeType: string }[];
 	octopusInstance: import('../../public/js/octopus/subtitles-octopus').default | null;
-	hasBackEventHandler: boolean;
-	hasCloseEventHandler: boolean;
 	hasNextTip: boolean;
-	hasPipEventHandler: boolean;
-	hasTheaterEventHandler: boolean;
 	id: string | number;
 	isPlaying: boolean;
 	season: number | undefined;
@@ -113,7 +115,10 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	_containerEvents: { type: string; handler: EventListener }[];
 	_boundEmitPlay: ((data?: any) => void) | null;
 	_boundEmitPaused: ((data?: any) => void) | null;
-	_boundDynamicControls: ((data?: any) => void) | null;
+	_boundInteraction: ((data?: any) => void) | null;
+	_theaterMode: boolean;
+	_floatObserver: IntersectionObserver | undefined;
+	_pipVisibilityHandler: (() => void) | undefined;
 
 	// ── Shared utility ───────────────────────────────────────────────────
 	getFileContents: <T extends TypeMappings>({ url, options, callback }: {

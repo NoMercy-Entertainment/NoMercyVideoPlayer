@@ -50,11 +50,6 @@ export class Base<T = Record<string, any>> {
 		disableAutoPlayback: false,
 	} as T & PlayerConfig<Record<string, any>>;
 
-	hasPipEventHandler = false;
-	hasTheaterEventHandler = false;
-	hasBackEventHandler = false;
-	hasCloseEventHandler = false;
-
 	events: {
 		type: string;
 		fn: ((arg?: any) => void) & { original?: (arg?: any) => void };
@@ -87,7 +82,6 @@ export class Base<T = Record<string, any>> {
 	on<K extends keyof PlayerEventMap>(event: K, callback: (data: PlayerEventMap[K]) => void): void;
 	on(event: string, callback: (data: any) => void): void;
 	on(event: any, callback: (arg: any) => any) {
-		this.eventHooks(event, true);
 		const cb = (e: Event) => callback((e as CustomEvent).detail);
 		cb.original = callback; // Store original callback reference
 		this.eventTarget.addEventListener(event, cb);
@@ -102,8 +96,6 @@ export class Base<T = Record<string, any>> {
 	off<K extends keyof PlayerEventMap>(event: K, callback?: (data: PlayerEventMap[K]) => void): void;
 	off(event: string, callback?: (data: any) => void): void;
 	off(event: any, callback?: (data: any) => void) {
-		this.eventHooks(event, false);
-
 		if (callback) {
 			// Find event with matching original callback
 			const eventObj = this.events.find(e => e.type === event && e.fn.original === callback);
@@ -144,28 +136,16 @@ export class Base<T = Record<string, any>> {
 	once<K extends keyof PlayerEventMap>(event: K, callback: (data: PlayerEventMap[K]) => void): void;
 	once(event: string, callback: (data: any) => void): void;
 	once(event: any, callback: (arg: any) => any) {
-		this.eventHooks(event, true);
 		const cb = (e: Event) => callback((e as CustomEvent).detail);
 		this.eventTarget.addEventListener(event, cb, { once: true });
 	}
 
 	/**
-	 * Sets the enabled state of various event hooks.
-	 * @param event - The event to enable/disable.
-	 * @param enabled - Whether the event should be enabled or disabled.
+	 * Returns whether any listeners are registered for the given event.
+	 * @param event - The event name to check.
+	 * @returns `true` if at least one listener is registered.
 	 */
-	eventHooks(event: any, enabled: boolean) {
-		if (event === 'pip') {
-			this.hasPipEventHandler = enabled;
-		}
-		else if (event === 'theaterMode') {
-			this.hasTheaterEventHandler = enabled;
-		}
-		else if (event === 'back') {
-			this.hasBackEventHandler = enabled;
-		}
-		else if (event === 'close') {
-			this.hasCloseEventHandler = enabled;
-		}
+	hasListeners(event: string): boolean {
+		return this.events.some(e => e.type === event);
 	}
 }

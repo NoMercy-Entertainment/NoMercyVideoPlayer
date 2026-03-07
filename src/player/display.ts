@@ -274,7 +274,7 @@ export const displayMethods = {
 	},
 
 	hasPIP(this: NMPlayer): boolean {
-		return this.hasPipEventHandler;
+		return !!this.options.pip || this.hasListeners('pip');
 	},
 
 	setFloatingPlayer(this: NMPlayer, shouldFloat: boolean): void {

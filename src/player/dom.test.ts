@@ -109,18 +109,18 @@ describe('domMethods', () => {
 	});
 
 	describe('displayMessage()', () => {
-		it('emits display-message', () => {
+		it('emits message', () => {
 			const player = createMockPlayer();
 			player.displayMessage('Hello');
-			expect(player.emit).toHaveBeenCalledWith('display-message', 'Hello');
+			expect(player.emit).toHaveBeenCalledWith('message', 'Hello');
 		});
 
-		it('emits remove-message after timeout', async () => {
+		it('emits message-dismiss after timeout', async () => {
 			vi.useFakeTimers();
 			const player = createMockPlayer();
 			player.displayMessage('Hello', 100);
 			vi.advanceTimersByTime(100);
-			expect(player.emit).toHaveBeenCalledWith('remove-message', 'Hello');
+			expect(player.emit).toHaveBeenCalledWith('message-dismiss', 'Hello');
 			vi.useRealTimers();
 		});
 
@@ -130,9 +130,9 @@ describe('domMethods', () => {
 			player.displayMessage('First', 1000);
 			player.displayMessage('Second', 1000);
 			vi.advanceTimersByTime(1000);
-			// Only 'Second' should be in the remove-message call
+			// Only 'Second' should be in the message-dismiss call
 			const removeCalls = player.emit.mock.calls.filter(
-				(c: any[]) => c[0] === 'remove-message',
+				(c: any[]) => c[0] === 'message-dismiss',
 			);
 			expect(removeCalls).toHaveLength(1);
 			expect(removeCalls[0][1]).toBe('Second');

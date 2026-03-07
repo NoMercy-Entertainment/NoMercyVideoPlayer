@@ -62,25 +62,6 @@ export const coreMethods = {
 			.get();
 	},
 
-	createOverlayCenterMessage(this: NMPlayer): HTMLButtonElement {
-		const playerMessage = this.createElement('button', `${this.playerId}-player-message`)
-			.addClasses(['player-message'])
-			.prependTo(this.overlay)
-			.get();
-
-		this.on('display-message', (val: string) => {
-			playerMessage.style.display = 'flex';
-			playerMessage.textContent = val;
-		});
-
-		this.on('remove-message', () => {
-			playerMessage.style.display = 'none';
-			playerMessage.textContent = '';
-		});
-
-		return playerMessage;
-	},
-
 	createBaseStyles(this: NMPlayer): void {
 		const styleSheet = this.createElement('style', `${this.playerId}-styles`, true)
 			.prependTo(this.container)

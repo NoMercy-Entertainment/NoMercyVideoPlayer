@@ -27,11 +27,6 @@ export interface NMPlayerCore {
 	createOverlayElement(): void;
 
 	/**
-	 * Creates the center message element used for transient overlay messages.
-	 */
-	createOverlayCenterMessage(): void;
-
-	/**
 	 * Injects the base CSS styles needed by the player into the document.
 	 */
 	createBaseStyles(): void;

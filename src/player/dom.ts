@@ -336,8 +336,10 @@ export const domMethods = {
 	 */
 	displayMessage(this: NMPlayer, data: string, time = DEFAULT_MESSAGE_TIME): void {
 		clearTimeout(this.message);
+		this.emit('message', data);
 		this.emit('display-message', data);
 		this.message = setTimeout(() => {
+			this.emit('message-dismiss', data);
 			this.emit('remove-message', data);
 		}, time);
 	},

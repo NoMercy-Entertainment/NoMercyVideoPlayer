@@ -6,6 +6,7 @@ import { Base } from './player/base';
 import { Logger } from './player/logger';
 import translations from './translations/en-US';
 import type Plugin from './plugins/plugin';
+import MessagePlugin from './plugins/messagePlugin';
 import type { PluginMap } from './types/plugins';
 
 import { defaultSubtitleStyles } from './player/utils';
@@ -25,13 +26,16 @@ import { deprecatedMethods } from './player/deprecated';
 import { displayMethods } from './player/display';
 import { domMethods } from './player/dom';
 import { eventMethods } from './player/events';
+import { floatMethods } from './player/float';
 import { fontMethods } from './player/fonts';
+import { pipMethods } from './player/pip';
 import { playbackMethods } from './player/playback';
 import { playlistMethods } from './player/playlist';
 import { qualityMethods } from './player/quality';
 import { skipperMethods } from './player/skippers';
 import { subtitleMethods } from './player/subtitles';
 import { translationMethods } from './player/translations';
+import { theaterMethods } from './player/theater';
 import { uiStateMethods } from './player/ui-state';
 import { volumeMethods } from './player/volume';
 
@@ -46,7 +50,6 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	declare createSubtitleFontFamily: () => void;
 	declare fetchTranslationsFile: () => Promise<void>;
 	declare createOverlayElement: () => void;
-	declare createOverlayCenterMessage: () => HTMLButtonElement;
 	declare styleContainer: () => void;
 	declare createVideoElement: () => void;
 	declare createSubtitleOverlay: () => void;
@@ -55,6 +58,13 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	declare _addEvents: () => void;
 	declare loadPlaylist: () => void;
 	declare removeGainNode: () => void;
+	declare _initFloatObserver: () => void;
+	declare _destroyFloatObserver: () => void;
+	declare _initPipListeners: () => void;
+	declare _destroyPipListeners: () => void;
+	declare _initTheater: () => void;
+	declare _destroyTheater: () => void;
+	declare _initDeprecatedEventForwarders: () => void;
 
 	// Setup
 	hls: import('hls.js').default | undefined;
@@ -116,6 +126,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	allowFullscreen: boolean = true;
 	shouldFloat: boolean = false;
 	firstFrame: boolean = false;
+	_theaterMode: boolean = false;
+	_floatObserver: IntersectionObserver | undefined;
+	_pipVisibilityHandler: (() => void) | undefined;
 	_subtitleStyle: SubtitleStyle = defaultSubtitleStyles;
 	resizeObserver: ResizeObserver = <ResizeObserver>{};
 
@@ -176,7 +189,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 			.then(() => this.emit('translationsLoaded'));
 
 		this.createOverlayElement();
-		this.createOverlayCenterMessage();
+
+		this.registerPlugin('message', new MessagePlugin());
+		this.usePlugin('message');
 
 		this.styleContainer();
 		this.createVideoElement();
@@ -191,6 +206,11 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this._removeEvents();
 		this._addEvents();
+
+		this._initFloatObserver();
+		this._initPipListeners();
+		this._initTheater();
+		this._initDeprecatedEventForwarders();
 
 		setTimeout(() => {
 			if (this._readyFired)
@@ -265,6 +285,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		}
 
 		this._removeEvents();
+		this._destroyFloatObserver();
+		this._destroyPipListeners();
+		this._destroyTheater();
 
 		for (const plugin of this.plugins.values()) {
 			this.logger.debug('Disposing plugin');
@@ -303,7 +326,15 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 // Merge all mixin methods onto prototype
 // prettier-ignore
-Object.assign(NMPlayer.prototype, coreMethods, domMethods, eventMethods, uiStateMethods, playbackMethods, volumeMethods, audioMethods, qualityMethods, subtitleMethods, playlistMethods, chapterMethods, skipperMethods, fontMethods, translationMethods, displayMethods, deprecatedMethods);
+Object.assign(NMPlayer.prototype, coreMethods, domMethods, eventMethods, uiStateMethods, playbackMethods, volumeMethods, audioMethods, qualityMethods, subtitleMethods, playlistMethods, chapterMethods, skipperMethods, fontMethods, translationMethods, displayMethods, floatMethods, pipMethods, theaterMethods, deprecatedMethods);
+
+// Deprecated getter shims for removed event hook flags (backwards compat with 0.6.x)
+Object.defineProperties(NMPlayer.prototype, {
+	hasPipEventHandler: { get() { return this.hasListeners('pip'); }, configurable: true },
+	hasTheaterEventHandler: { get() { return this.hasListeners('theater') || this.hasListeners('theaterMode'); }, configurable: true },
+	hasBackEventHandler: { get() { return this.hasListeners('back'); }, configurable: true },
+	hasCloseEventHandler: { get() { return this.hasListeners('close'); }, configurable: true },
+});
 
 // ── String.prototype extensions ──────────────────────────────────────
 
@@ -394,6 +425,7 @@ export {
 	unique,
 } from './player/utils';
 export { default as KeyHandlerPlugin } from './plugins/keyHandlerPlugin';
+export { default as MessagePlugin } from './plugins/messagePlugin';
 export { default as OctopusPlugin } from './plugins/octopusPlugin';
 export { default as Plugin } from './plugins/plugin';
 
@@ -409,6 +441,7 @@ export type {
 	CreateElement,
 	CurrentTrack,
 	EdgeStyle,
+	FloatConfig,
 	Font,
 	FontTrack,
 	GainData,
@@ -419,6 +452,7 @@ export type {
 	LogLevel,
 	NMPlayer,
 	OS,
+	PipConfig,
 	PlayerConfig,
 	PlayerEventMap,
 	PlaylistItem,
@@ -437,6 +471,7 @@ export type {
 	SubtitleStyle,
 	SubtitleStyleChange,
 	SubtitleTrack,
+	TheaterConfig,
 	ThumbnailTrack,
 	TimeData,
 	TooltipData,

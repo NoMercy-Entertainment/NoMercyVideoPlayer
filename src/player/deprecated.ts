@@ -353,4 +353,27 @@ export const deprecatedMethods = {
 	getPlugin(this: NMPlayer, name: string): any {
 		return this.plugin(name);
 	},
+
+	// ── Deprecated event forwarders ──────────────────────────────────
+
+	/** Sets up listeners on new events to forward them as deprecated event names. */
+	_initDeprecatedEventForwarders(this: NMPlayer): void {
+		this.on('active', (isActive: boolean) => {
+			this.emit('controls', isActive);
+			if (isActive) {
+				this.emit('showControls');
+			}
+			else {
+				this.emit('hideControls');
+			}
+		});
+
+		this.on('pip', (inPip: boolean) => {
+			this.emit('pip-internal', inPip);
+		});
+
+		this.on('theater', (inTheater: boolean) => {
+			this.emit('theaterMode', inTheater);
+		});
+	},
 };

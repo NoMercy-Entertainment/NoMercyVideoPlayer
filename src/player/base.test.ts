@@ -103,32 +103,31 @@ describe('base (event emitter)', () => {
 		});
 	});
 
-	describe('eventHooks', () => {
-		it('sets hasPipEventHandler', () => {
+	describe('hasListeners', () => {
+		it('returns false when no listeners registered', () => {
 			const base = createBase();
-			expect(base.hasPipEventHandler).toBe(false);
-			base.eventHooks('pip', true);
-			expect(base.hasPipEventHandler).toBe(true);
-			base.eventHooks('pip', false);
-			expect(base.hasPipEventHandler).toBe(false);
+			expect(base.hasListeners('pip')).toBe(false);
 		});
 
-		it('sets hasTheaterEventHandler', () => {
+		it('returns true after registering a listener', () => {
 			const base = createBase();
-			base.eventHooks('theaterMode', true);
-			expect(base.hasTheaterEventHandler).toBe(true);
+			base.on('pip' as any, () => {});
+			expect(base.hasListeners('pip')).toBe(true);
 		});
 
-		it('sets hasBackEventHandler', () => {
+		it('returns false after removing all listeners', () => {
 			const base = createBase();
-			base.eventHooks('back', true);
-			expect(base.hasBackEventHandler).toBe(true);
+			const cb = () => {};
+			base.on('pip' as any, cb);
+			base.off('pip' as any, cb);
+			expect(base.hasListeners('pip')).toBe(false);
 		});
 
-		it('sets hasCloseEventHandler', () => {
+		it('works for any event name', () => {
 			const base = createBase();
-			base.eventHooks('close', true);
-			expect(base.hasCloseEventHandler).toBe(true);
+			base.on('back' as any, () => {});
+			expect(base.hasListeners('back')).toBe(true);
+			expect(base.hasListeners('close')).toBe(false);
 		});
 	});
 

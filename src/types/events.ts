@@ -89,12 +89,6 @@ export interface PlayerEventMap {
 	'subtitleList': SubtitleTrack[];
 	'subtitleChanged': SubtitleTrack | undefined;
 	'subtitleChanging': CurrentTrack;
-	/** @deprecated Use `subtitleList` instead. */
-	'captionsList': SubtitleTrack[];
-	/** @deprecated Use `subtitleChanged` instead. */
-	'captionsChanged': SubtitleTrack | undefined;
-	/** @deprecated Use `subtitleChanging` instead. */
-	'captionsChanging': CurrentTrack;
 	'subtitles': VTTData;
 	'set-subtitle-style': SubtitleStyleChange;
 
@@ -120,24 +114,21 @@ export interface PlayerEventMap {
 	'fullscreen': boolean;
 	'resize': undefined;
 	'active': boolean;
-	'display-message': string;
-	'remove-message': string;
+	'message': string;
+	'message-dismiss': string;
 	'show-menu': boolean;
 	'show-tooltip': TooltipData;
 	'hide-tooltip': undefined;
 	'float': boolean;
-	'overlay': boolean;
-	'dynamicControls': undefined;
-	'displayClick': MouseEvent;
+	'interaction': undefined;
+	'player-click': MouseEvent;
+	'player-dblclick': MouseEvent;
 	'containerViewable': boolean;
 	'viewable': boolean;
-	'absolutePositionReady': undefined;
 
 	// Navigation
 	'back': undefined;
-	'back-button': undefined;
 	'close': undefined;
-	'nextClick': undefined;
 	'forward': number;
 	'rewind': number;
 	'remove-forward': undefined;
@@ -155,8 +146,7 @@ export interface PlayerEventMap {
 
 	// PIP / Theater
 	'pip': boolean;
-	'pip-internal': boolean;
-	'theaterMode': boolean;
+	'theater': boolean;
 
 	// Cast
 	'cast': boolean;
@@ -166,8 +156,31 @@ export interface PlayerEventMap {
 	'meta': Record<string, unknown>;
 	'switch-season': number;
 
-	// Catch-all for dynamic events like show-*-menu
-	[key: `show-${string}-menu`]: boolean;
+	// ── Deprecated (forwarded for backwards compatibility) ───────────
+	/** @deprecated Use `subtitleList` instead. */
+	'captionsList': SubtitleTrack[];
+	/** @deprecated Use `subtitleChanged` instead. */
+	'captionsChanged': SubtitleTrack | undefined;
+	/** @deprecated Use `subtitleChanging` instead. */
+	'captionsChanging': CurrentTrack;
+	/** @deprecated Use `active` instead. */
+	'controls': boolean;
+	/** @deprecated Use `active` instead (listen for `true`). */
+	'showControls': undefined;
+	/** @deprecated Use `active` instead (listen for `false`). */
+	'hideControls': undefined;
+	/** @deprecated Use `message` instead. */
+	'display-message': string;
+	/** @deprecated Use `message-dismiss` instead. */
+	'remove-message': string;
+	/** @deprecated Use `interaction` instead. */
+	'dynamicControls': undefined;
+	/** @deprecated Use `player-click` instead. */
+	'displayClick': MouseEvent;
+	/** @deprecated Use `pip` instead. */
+	'pip-internal': boolean;
+	/** @deprecated Use `theater` instead. */
+	'theaterMode': boolean;
 }
 
 export interface NMPlayerEvents {

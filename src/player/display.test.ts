@@ -19,7 +19,8 @@ function createMockPlayer(overrides: Record<string, any> = {}) {
 		subtitleOverlay: document.createElement('div'),
 		currentAspectRatio: 'uniform',
 		stretchOptions: ['uniform', 'fill', 'exactfit', 'none', '16:9', '4:3'],
-		hasPipEventHandler: false,
+		hasListeners: vi.fn(() => false),
+		options: {},
 		shouldFloat: false,
 		allowFullscreen: true,
 		previewTime: [],
@@ -325,8 +326,13 @@ describe('displayMethods', () => {
 			expect(player.hasPIP()).toBe(false);
 		});
 
-		it('returns true when handler exists', () => {
-			const player = createMockPlayer({ hasPipEventHandler: true });
+		it('returns true when pip listener exists', () => {
+			const player = createMockPlayer({ hasListeners: vi.fn(() => true) });
+			expect(player.hasPIP()).toBe(true);
+		});
+
+		it('returns true when pip config is set', () => {
+			const player = createMockPlayer({ options: { pip: { enabled: true } } });
 			expect(player.hasPIP()).toBe(true);
 		});
 	});

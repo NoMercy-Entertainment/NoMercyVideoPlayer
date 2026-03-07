@@ -148,7 +148,7 @@ export const eventMethods = {
 	_containerEvents: [] as { type: string; handler: (e?: any) => void }[],
 	_boundEmitPlay: null as ((data?: any) => void) | null,
 	_boundEmitPaused: null as ((data?: any) => void) | null,
-	_boundDynamicControls: null as ((data?: any) => void) | null,
+	_boundInteraction: null as ((data?: any) => void) | null,
 
 	_initEventArrays(this: NMPlayer): void {
 		this._playerEvents = [
@@ -187,11 +187,11 @@ export const eventMethods = {
 
 		this._boundEmitPlay = this.emitPlayEvent.bind(this);
 		this._boundEmitPaused = this.emitPausedEvent.bind(this);
-		this._boundDynamicControls = this.ui_resetInactivityTimer.bind(this);
+		this._boundInteraction = this.ui_resetInactivityTimer.bind(this);
 
 		this.on('play', this._boundEmitPlay);
 		this.on('pause', this._boundEmitPaused);
-		this.on('dynamicControls', this._boundDynamicControls);
+		this.on('interaction', this._boundInteraction);
 
 		this.mediaSession?.setActionHandler({
 			play: this.play.bind(this),
@@ -464,7 +464,7 @@ export const eventMethods = {
 			this.off('play', this._boundEmitPlay);
 		if (this._boundEmitPaused)
 			this.off('pause', this._boundEmitPaused);
-		if (this._boundDynamicControls)
-			this.off('dynamicControls', this._boundDynamicControls);
+		if (this._boundInteraction)
+			this.off('interaction', this._boundInteraction);
 	},
 };
