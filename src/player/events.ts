@@ -398,7 +398,9 @@ export const eventMethods = {
 				setTimeout(() => {
 					if (this.options.disableAutoPlayback)
 						return;
-					if (playlistItem.progress && 100 * (playlistItem.progress?.time ?? 0) / (this.duration() ?? 0) > 90) {
+					const duration = this.duration();
+					const progressTime = playlistItem.progress?.time ?? 0;
+					if (playlistItem.progress && Number.isFinite(duration) && duration > 0 && 100 * progressTime / duration > 90) {
 						this.playlistItem(this.playlist().indexOf(playlistItem) + 1);
 					}
 					else {
@@ -406,7 +408,7 @@ export const eventMethods = {
 					}
 				}, 0);
 
-				this.once('play', () => {
+				this.once('firstFrame', () => {
 					if (!playlistItem.progress || this.options.disableAutoPlayback)
 						return;
 
