@@ -82,6 +82,7 @@ export const displayMethods = {
 
 		videoPlayerContainer.paddingTop = '';
 		videoPlayerContainer.position = '';
+		videoPlayerContainer.aspectRatio = '';
 		videoElementStyle.position = '';
 		videoElementStyle.top = '';
 		videoElementStyle.left = '';
@@ -101,16 +102,12 @@ export const displayMethods = {
 				videoElementStyle.objectFit = 'cover';
 				break;
 			case '16:9':
-				videoPlayerContainer.paddingTop = '56.25%';
-				videoPlayerContainer.position = 'relative';
-				videoElementStyle.objectFit = '';
-				videoElementStyle.position = 'absolute';
-				videoElementStyle.top = '50%';
-				videoElementStyle.left = '50%';
-				videoElementStyle.width = '100%';
-				videoElementStyle.transform = 'translate(-50%, -50%)';
-				videoOverlay.height = '100vh';
-				subtitleOverlayStyle.height = '22%';
+				videoPlayerContainer.aspectRatio = '16/9';
+				videoElementStyle.objectFit = 'contain';
+				break;
+			case '4:3':
+				videoPlayerContainer.aspectRatio = '4/3';
+				videoElementStyle.objectFit = 'contain';
 				break;
 			case 'none':
 				videoElementStyle.objectFit = 'none';
