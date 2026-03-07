@@ -44,13 +44,6 @@ export interface NMPlayerDisplay {
 	aspect(value: Stretching): void;
 
 	/**
-	 * Sets the aspect ratio of the player and adjusts CSS styles on the video element,
-	 * overlay, and subtitle overlay.
-	 * @param aspect - The aspect ratio mode to apply.
-	 */
-	setAspect(aspect: Stretching): void;
-
-	/**
 	 * Cycles through the available aspect ratio options and applies the next one.
 	 * Wraps around to the first option after the last one.
 	 */

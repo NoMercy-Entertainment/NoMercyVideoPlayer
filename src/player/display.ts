@@ -65,20 +65,13 @@ export const displayMethods = {
 	aspect(this: NMPlayer, value?: Stretching): string | void {
 		if (value === undefined)
 			return this.currentAspectRatio;
-		this.setAspect(value);
-	},
 
-	/**
-	 * Sets the aspect ratio of the player.
-	 * @param aspect - The aspect ratio to set.
-	 */
-	setAspect(this: NMPlayer, aspect: Stretching): void {
 		const videoPlayerContainer = this.container.style;
 		const videoOverlay = this.overlay.style;
 		const videoElementStyle = this.videoElement.style;
 		const subtitleOverlayStyle = this.subtitleOverlay.style;
 
-		this.currentAspectRatio = aspect;
+		this.currentAspectRatio = value;
 
 		videoPlayerContainer.paddingTop = '';
 		videoPlayerContainer.position = '';
@@ -91,7 +84,7 @@ export const displayMethods = {
 		videoOverlay.height = '';
 		subtitleOverlayStyle.height = '';
 
-		switch (aspect) {
+		switch (value) {
 			case 'fill':
 				videoElementStyle.objectFit = 'fill';
 				break;
@@ -118,7 +111,7 @@ export const displayMethods = {
 		videoElementStyle.width = '100%';
 		videoElementStyle.height = '100%';
 
-		this.displayMessage(`${this.localize('Aspect ratio')}: ${this.localize(aspect)}`);
+		this.displayMessage(`${this.localize('Aspect ratio')}: ${this.localize(value)}`);
 	},
 
 	/**
@@ -197,7 +190,8 @@ export const displayMethods = {
 
 	setResponsiveAspectRatio(this: NMPlayer, videoAspectRatio: number): void {
 		// Don't override when the user has explicitly set an aspect ratio
-		if (this.currentAspectRatio === '16:9' || this.currentAspectRatio === '4:3') return;
+		if (this.currentAspectRatio === '16:9' || this.currentAspectRatio === '4:3')
+			return;
 
 		let containerAspectRatio: string;
 

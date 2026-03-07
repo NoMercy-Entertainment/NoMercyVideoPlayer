@@ -1,6 +1,6 @@
 import type { MediaPlaylist } from 'hls.js';
 import type { Cue } from 'webvtt-parser';
-import type { Chapter, Level, NMPlayer, PlaylistItem, PlayState, Skipper, SubtitleStyle, SubtitleTrack, TimeData } from '../types';
+import type { Chapter, Level, NMPlayer, PlaylistItem, PlayState, Skipper, Stretching, SubtitleStyle, SubtitleTrack, TimeData } from '../types';
 
 /**
  * ALL deprecated method wrappers. Each method delegates to its modern equivalent.
@@ -95,19 +95,31 @@ export const deprecatedMethods = {
 
 	// ── Quality ──────────────────────────────────────────────────────
 
-	/** @deprecated Use `qualityLevels()` instead. */
+	/**
+	 * @deprecated Use `qualityLevels()` instead.
+	 * Note: In v0 the list had an "Auto" entry at index 0. This wrapper
+	 * prepends it so old code that relied on that shape still works.
+	 */
 	getQualityLevels(this: NMPlayer): Level[] {
-		return this.qualityLevels();
+		const auto = { id: -1, label: 'Auto' } as Level;
+		return [auto, ...this.qualityLevels()];
 	},
 
-	/** @deprecated Use `quality()` instead. */
+	/**
+	 * @deprecated Use `quality()` instead.
+	 * Note: Returns v0-style index (shifted +1 to account for the old "Auto" at 0).
+	 */
 	getCurrentQuality(this: NMPlayer): number {
-		return this.quality();
+		return this.quality() + 1;
 	},
 
-	/** @deprecated Use `quality(index)` instead. */
+	/**
+	 * @deprecated Use `quality(index)` instead.
+	 * Note: In v0 index 0 meant "Auto" and 1+ meant real levels.
+	 * This wrapper translates to the new -1/0+ convention.
+	 */
 	setCurrentQuality(this: NMPlayer, index: number): void {
-		this.quality(index);
+		this.quality(index - 1);
 	},
 
 	// ── Subtitles ────────────────────────────────────────────────────
@@ -117,9 +129,14 @@ export const deprecatedMethods = {
 		return this.subtitles();
 	},
 
-	/** @deprecated Use `subtitles()` instead. */
+	/**
+	 * @deprecated Use `subtitles()` instead.
+	 * Note: In v0 the list had an "Off" entry at index 0. This wrapper
+	 * prepends it so old code that relied on that shape still works.
+	 */
 	getCaptionsList(this: NMPlayer): SubtitleTrack[] {
-		return this.subtitles();
+		const off: SubtitleTrack = { id: -1, label: 'Off', language: '', type: 'none', ext: 'none', file: '', kind: 'subtitles' };
+		return [off, ...this.subtitles()];
 	},
 
 	/** @deprecated Use `hasSubtitles()` instead. */
@@ -132,20 +149,32 @@ export const deprecatedMethods = {
 		return this.subtitle();
 	},
 
-	/** @deprecated Use `subtitleIndex()` instead. */
+	/**
+	 * @deprecated Use `subtitleIndex()` instead.
+	 * Note: In v0 index 0 meant "Off" and 1+ meant real tracks.
+	 * This wrapper shifts the new -1/0+ convention back to 0/1+.
+	 */
 	getCaptionIndex(this: NMPlayer): number {
-		return this.subtitleIndex();
+		return this.subtitleIndex() + 1;
 	},
 
-	/** @deprecated Use `subtitleIndexBy(language, type, ext)` instead. */
+	/**
+	 * @deprecated Use `subtitleIndexBy(language, type, ext)` instead.
+	 * Note: Returns v0-style index (shifted +1 to account for the old "Off" at 0).
+	 */
 	getCaptionIndexBy(this: NMPlayer, language: string, type: string, ext: string): number | undefined {
-		return this.subtitleIndexBy(language, type, ext);
+		const idx = this.subtitleIndexBy(language, type, ext);
+		return idx !== undefined ? idx + 1 : undefined;
 	},
 
-	/** @deprecated Use `subtitle(index)` instead. */
+	/**
+	 * @deprecated Use `subtitle(index)` instead.
+	 * Note: In v0 index 0 meant "Off" and 1+ meant real tracks.
+	 * This wrapper translates to the new -1/0+ convention.
+	 */
 	setCurrentCaption(this: NMPlayer, index?: number): void {
 		if (index !== undefined)
-			this.subtitle(index);
+			this.subtitle(index - 1);
 	},
 
 	/** @deprecated Use `subtitleStyle(style)` instead. */
@@ -246,6 +275,16 @@ export const deprecatedMethods = {
 	/** @deprecated Use `fullscreen()` instead. */
 	getFullscreen(this: NMPlayer): boolean {
 		return this.fullscreen();
+	},
+
+	/** @deprecated Use `fullscreen(value)` instead. */
+	setFullscreen(this: NMPlayer, state: boolean): void {
+		this.fullscreen(state);
+	},
+
+	/** @deprecated Use `aspect(value)` instead. */
+	setAspect(this: NMPlayer, aspect: Stretching): void {
+		this.aspect(aspect);
 	},
 
 	/** @deprecated Use `width()` instead. */

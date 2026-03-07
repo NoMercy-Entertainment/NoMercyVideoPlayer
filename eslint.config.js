@@ -1,7 +1,7 @@
 import antfu from '@antfu/eslint-config';
 
 export default antfu({
-	ignores: ['wiki/**'],
+	ignores: ['wiki/**', 'public/js/**', 'README.md'],
 	typescript: {
 		overrides: {
 			'@typescript-eslint/ban-ts-comment': 'off',
@@ -33,5 +33,10 @@ export default antfu({
 		html: true,
 		markdown: true,
 		svg: false,
+	},
+}, {
+	files: ['e2e/**/*.ts'],
+	rules: {
+		'style/max-statements-per-line': 'off',
 	},
 });

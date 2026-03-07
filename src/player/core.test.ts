@@ -53,12 +53,24 @@ function createMockPlayer(overrides: Record<string, any> = {}) {
 			el.id = id;
 			return {
 				addClasses: () => ({
-					appendTo: (p: Element) => { p.appendChild(el); return { get: () => el }; },
-					prependTo: (p: Element) => { p.prepend(el); return { get: () => el }; },
+					appendTo: (p: Element) => {
+						p.appendChild(el);
+						return { get: () => el };
+					},
+					prependTo: (p: Element) => {
+						p.prepend(el);
+						return { get: () => el };
+					},
 					get: () => el,
 				}),
-				appendTo: (p: Element) => { p.appendChild(el); return { addClasses: () => ({ get: () => el }), get: () => el }; },
-				prependTo: (p: Element) => { p.prepend(el); return { addClasses: () => ({ get: () => el }), get: () => el }; },
+				appendTo: (p: Element) => {
+					p.appendChild(el);
+					return { addClasses: () => ({ get: () => el }), get: () => el };
+				},
+				prependTo: (p: Element) => {
+					p.prepend(el);
+					return { addClasses: () => ({ get: () => el }), get: () => el };
+				},
 				get: () => el,
 			};
 		}),

@@ -61,48 +61,48 @@ describe('displayMethods', () => {
 		});
 	});
 
-	describe('setAspect()', () => {
+	describe('aspect() setter', () => {
 		it('sets fill objectFit', () => {
 			const player = createMockPlayer();
-			player.setAspect('fill');
+			player.aspect('fill');
 			expect(player.videoElement.style.objectFit).toBe('fill');
 		});
 
 		it('sets contain for uniform', () => {
 			const player = createMockPlayer();
-			player.setAspect('uniform');
+			player.aspect('uniform');
 			expect(player.videoElement.style.objectFit).toBe('contain');
 		});
 
 		it('sets cover for exactfit', () => {
 			const player = createMockPlayer();
-			player.setAspect('exactfit');
+			player.aspect('exactfit');
 			expect(player.videoElement.style.objectFit).toBe('cover');
 		});
 
 		it('sets none for none', () => {
 			const player = createMockPlayer();
-			player.setAspect('none');
+			player.aspect('none');
 			expect(player.videoElement.style.objectFit).toBe('none');
 		});
 
 		it('sets container aspectRatio to 16/9 for 16:9 mode', () => {
 			const player = createMockPlayer();
-			player.setAspect('16:9');
+			player.aspect('16:9');
 			expect(player.container.style.aspectRatio.replace(/\s/gu, '')).toBe('16/9');
 			expect(player.videoElement.style.objectFit).toBe('contain');
 		});
 
 		it('sets container aspectRatio to 4/3 for 4:3 mode', () => {
 			const player = createMockPlayer();
-			player.setAspect('4:3');
+			player.aspect('4:3');
 			expect(player.container.style.aspectRatio.replace(/\s/gu, '')).toBe('4/3');
 			expect(player.videoElement.style.objectFit).toBe('contain');
 		});
 
 		it('sets video width and height to 100%', () => {
 			const player = createMockPlayer();
-			player.setAspect('uniform');
+			player.aspect('uniform');
 			expect(player.videoElement.style.width).toBe('100%');
 			expect(player.videoElement.style.height).toBe('100%');
 		});
@@ -110,10 +110,10 @@ describe('displayMethods', () => {
 		it('clears container aspectRatio for non-ratio modes', () => {
 			const player = createMockPlayer();
 			// First set 16:9 to add inline aspectRatio
-			player.setAspect('16:9');
+			player.aspect('16:9');
 			expect(player.container.style.aspectRatio.replace(/\s/gu, '')).toBe('16/9');
 			// Then switch to fill — should clear it
-			player.setAspect('fill');
+			player.aspect('fill');
 			expect(player.container.style.aspectRatio).toBe('');
 		});
 
@@ -124,8 +124,8 @@ describe('displayMethods', () => {
 			player.videoElement.style.top = '50%';
 			player.videoElement.style.left = '50%';
 			player.videoElement.style.transform = 'translate(-50%, -50%)';
-			// setAspect should clear them
-			player.setAspect('uniform');
+			// aspect() should clear them
+			player.aspect('uniform');
 			expect(player.videoElement.style.position).toBe('');
 			expect(player.videoElement.style.top).toBe('');
 			expect(player.videoElement.style.left).toBe('');
@@ -134,7 +134,7 @@ describe('displayMethods', () => {
 
 		it('displays message with aspect name', () => {
 			const player = createMockPlayer();
-			player.setAspect('fill');
+			player.aspect('fill');
 			expect(player.displayMessage).toHaveBeenCalledWith(expect.stringContaining('Aspect ratio'));
 		});
 	});
@@ -164,9 +164,9 @@ describe('displayMethods', () => {
 	describe('resize()', () => {
 		it('skips manual sizing when objectFit is set', () => {
 			const player = createMockPlayer();
-			// Set objectFit via setAspect
-			player.setAspect('fill');
-			// Clear any styles that setAspect set so we can detect resize adding them
+			// Set objectFit via aspect()
+			player.aspect('fill');
+			// Clear any styles that aspect() set so we can detect resize adding them
 			player.videoElement.style.position = '';
 			// Run resize
 			player.resize();
@@ -176,7 +176,7 @@ describe('displayMethods', () => {
 
 		it('applies manual sizing when objectFit is not set', () => {
 			const player = createMockPlayer();
-			// Ensure objectFit is not set (initial state before any setAspect)
+			// Ensure objectFit is not set (initial state before any aspect())
 			player.videoElement.style.objectFit = '';
 			// Mock container dimensions
 			Object.defineProperty(player.container, 'clientWidth', { value: 960, configurable: true });
@@ -188,7 +188,7 @@ describe('displayMethods', () => {
 
 		it('does not call setResponsiveAspectRatio when objectFit is active', () => {
 			const player = createMockPlayer();
-			player.setAspect('4:3');
+			player.aspect('4:3');
 			expect(player.container.style.aspectRatio.replace(/\s/gu, '')).toBe('4/3');
 			// Spy on setResponsiveAspectRatio
 			const spy = vi.spyOn(player, 'setResponsiveAspectRatio');
@@ -198,7 +198,7 @@ describe('displayMethods', () => {
 
 		it('sets subtitle overlay to 100% when objectFit is active', () => {
 			const player = createMockPlayer();
-			player.setAspect('uniform');
+			player.aspect('uniform');
 			player.resize();
 			expect(player.subtitleOverlay.style.width).toBe('100%');
 			expect(player.subtitleOverlay.style.height).toBe('100%');
@@ -232,7 +232,7 @@ describe('displayMethods', () => {
 
 		it('skips when currentAspectRatio is 16:9', () => {
 			const player = createMockPlayer();
-			player.setAspect('16:9');
+			player.aspect('16:9');
 			expect(player.container.style.aspectRatio.replace(/\s/gu, '')).toBe('16/9');
 			// Try to set a different ratio — should be skipped
 			player.setResponsiveAspectRatio(1.3); // would normally set 4/3
@@ -241,7 +241,7 @@ describe('displayMethods', () => {
 
 		it('skips when currentAspectRatio is 4:3', () => {
 			const player = createMockPlayer();
-			player.setAspect('4:3');
+			player.aspect('4:3');
 			expect(player.container.style.aspectRatio.replace(/\s/gu, '')).toBe('4/3');
 			// Try to set a different ratio — should be skipped
 			player.setResponsiveAspectRatio(1.78); // would normally set 16/9
