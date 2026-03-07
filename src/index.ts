@@ -98,6 +98,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	lastTime = 0;
 
 	lockActive: boolean = false;
+	_readyFired: boolean = false;
 
 	plugins: Map<string, Plugin> = new Map<string, Plugin>();
 
@@ -191,8 +192,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this._addEvents();
 
 		setTimeout(() => {
-			if (!this.options.disableAutoPlayback)
+			if (this._readyFired)
 				return;
+			this._readyFired = true;
 			this.emit('ready');
 		}, 0);
 
@@ -289,6 +291,8 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.mediaSession?.setPlaybackState('none');
 
 		this.resizeObserver.disconnect();
+
+		this._readyFired = false;
 
 		this.emit('dispose');
 

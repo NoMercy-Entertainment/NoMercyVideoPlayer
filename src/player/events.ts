@@ -50,6 +50,8 @@ export const eventMethods = {
 	},
 
 	videoPlayer_endedEvent(this: NMPlayer): void {
+		this.emit('complete');
+
 		if (this.currentIndex < this._playlist.length - 1) {
 			if (this.options.disableAutoPlayback)
 				return;
@@ -102,10 +104,6 @@ export const eventMethods = {
 	videoPlayer_durationchangeEvent(this: NMPlayer, e: Event): void {
 		const _e = e as Event & { target: HTMLVideoElement };
 		this.emit('duration', this.videoPlayer_getTimeData(_e));
-
-		if (this.options.disableAutoPlayback)
-			return;
-		this.emit('ready');
 	},
 
 	videoPlayer_volumechangeEvent(this: NMPlayer): void {
@@ -336,7 +334,6 @@ export const eventMethods = {
 			this.on('captionsList', async () => {
 				await this.setCurrentCaptionFromStorage();
 			});
-			this.emit('speed', this.videoElement.playbackRate);
 			this.on('audioTracks', () => {
 				if (this.audioTracks().length < 2)
 					return;
