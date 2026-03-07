@@ -9,7 +9,7 @@ export interface NMPlayerSubtitles {
 	subtitle(): SubtitleTrack | undefined;
 	/**
 	 * Switches to the subtitle track at the given index. Pass `0` to disable subtitles (selects the "Off" entry).
-	 * Clears the current subtitle display, emits `'captionsChanged'`, and persists the choice to storage.
+	 * Clears the current subtitle display, emits `'subtitleChanged'`, and persists the choice to storage.
 	 * @param index - The subtitle track index to activate.
 	 */
 	subtitle(index: number): void;

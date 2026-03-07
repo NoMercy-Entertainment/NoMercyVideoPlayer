@@ -34,7 +34,7 @@ export class OctopusPlugin extends Plugin {
 
 	use(): void {
 		this.boundOpus = this.opus.bind(this);
-		this.player.on('captionsChanged', this.boundOpus);
+		this.player.on('subtitleChanged', this.boundOpus);
 
 		this.resizeObserver = new ResizeObserver(() => {
 			this.resize();
@@ -49,7 +49,7 @@ export class OctopusPlugin extends Plugin {
 	}
 
 	dispose(): void {
-		this.player.off('captionsChanged', this.boundOpus);
+		this.player.off('subtitleChanged', this.boundOpus);
 		this.resizeObserver?.disconnect();
 
 		this.destroy();

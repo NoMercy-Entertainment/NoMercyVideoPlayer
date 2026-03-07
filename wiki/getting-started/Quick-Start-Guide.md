@@ -147,8 +147,8 @@ player.on('levelsChanged', (quality) => {
 	console.log('Quality changed to:', quality.name);
 });
 
-player.on('captionsChanged', (track) => {
-	console.log('Subtitle changed to:', track.name);
+player.on('subtitleChanged', (track) => {
+	console.log('Subtitle changed to:', track?.label);
 });
 ```
 
@@ -233,7 +233,7 @@ The `fonts` track points to a JSON file listing the font files needed by the ASS
 The player communicates through:
 
 1. **CSS classes** on the container div — `playing`, `paused`, `buffering`, `active`, `inactive`, `error`
-2. **Events** — `play`, `pause`, `time`, `levels`, `captionsList`, etc.
+2. **Events** — `play`, `pause`, `time`, `levels`, `subtitleList`, etc.
 3. **Methods** — `play()`, `pause()`, `seek()`, `volume()`, etc.
 
 See [Plugin Development](Plugin-Development) for building plugins that use these.

@@ -1015,7 +1015,7 @@ export class PlayerUIPlugin extends Plugin {
 			.appendTo(this.bottomRow)
 			.get();
 
-		this.player.on('captionsList', (tracks: SubtitleTrack[]) => {
+		this.player.on('subtitleList', (tracks: SubtitleTrack[]) => {
 			if (!this.subtitleMenu || !this.subtitleButton)
 				return;
 			this.subtitleButton.style.display = tracks.length > 0 ? '' : 'none';
@@ -1074,7 +1074,7 @@ export class PlayerUIPlugin extends Plugin {
 			this.highlightCurrentCaption();
 		});
 
-		this.player.on('captionsChanged', () => this.highlightCurrentCaption());
+		this.player.on('subtitleChanged', () => this.highlightCurrentCaption());
 	}
 
 	private highlightCurrentCaption() {

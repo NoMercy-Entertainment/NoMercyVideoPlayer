@@ -101,20 +101,20 @@ describe('subtitleMethods', () => {
 	});
 
 	describe('subtitle(index) setter', () => {
-		it('sets index 0 and emits captionsChanged', () => {
+		it('sets index 0 and emits subtitleChanged', () => {
 			const player = createMockPlayer();
 			const m = bindMethods(player);
 			m.subtitle(0);
 			expect(player.currentSubtitleIndex).toBe(0);
-			expect(player.emit).toHaveBeenCalledWith('captionsChanged', expect.anything());
+			expect(player.emit).toHaveBeenCalledWith('subtitleChanged', expect.anything());
 		});
 
-		it('sets index -1 (Off) and emits captionsChanged with undefined', () => {
+		it('sets index -1 (Off) and emits subtitleChanged with undefined', () => {
 			const player = createMockPlayer({ currentSubtitleIndex: 0 });
 			const m = bindMethods(player);
 			m.subtitle(-1);
 			expect(player.currentSubtitleIndex).toBe(-1);
-			expect(player.emit).toHaveBeenCalledWith('captionsChanged', undefined);
+			expect(player.emit).toHaveBeenCalledWith('subtitleChanged', undefined);
 		});
 
 		it('logs warning for out-of-bounds index', () => {

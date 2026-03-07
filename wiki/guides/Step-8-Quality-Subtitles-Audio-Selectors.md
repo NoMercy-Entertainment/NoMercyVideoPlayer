@@ -325,7 +325,7 @@ private highlightCurrentQuality() {
 
 ### Subtitle selector
 
-The subtitle menu always starts with an "Off" button (like quality's Auto button). The `'captionsList'` event provides all available text tracks, but some sources include tracks with labels like "off", "disabled", or "none" that duplicate the Off button. We filter those out before building the menu:
+The subtitle menu always starts with an "Off" button (like quality's Auto button). The `'subtitleList'` event provides all available text tracks, but some sources include tracks with labels like "off", "disabled", or "none" that duplicate the Off button. We filter those out before building the menu:
 
 ```typescript
 private subtitleMenu: HTMLDivElement | null = null;
@@ -353,7 +353,7 @@ private createSubtitleButton() {
     .appendTo(this.bottomRow)
     .get();
 
-  this.player.on('captionsList', (tracks: Track[]) => {
+  this.player.on('subtitleList', (tracks: SubtitleTrack[]) => {
     if (!this.subtitleMenu || !this.subtitleButton) return;
     this.subtitleButton.style.display = tracks.length > 0 ? '' : 'none';
     this.subtitleMenu.innerHTML = '';
@@ -401,7 +401,7 @@ private createSubtitleButton() {
     this.highlightCurrentCaption();
   });
 
-  this.player.on('captionsChanged', () => this.highlightCurrentCaption());
+  this.player.on('subtitleChanged', () => this.highlightCurrentCaption());
 }
 ```
 

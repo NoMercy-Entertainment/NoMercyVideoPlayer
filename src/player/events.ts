@@ -33,8 +33,6 @@ export const eventMethods = {
 			this.firstFrame = false;
 		});
 
-		this.emit('audioTracks', this.audioTracks());
-
 		this.mediaSession.setPlaybackState('playing');
 	},
 
@@ -215,6 +213,7 @@ export const eventMethods = {
 		this.on('item', () => {
 			this.lastTime = 0;
 			setTimeout(() => {
+					this.emit('subtitleList', this.subtitles());
 				this.emit('captionsList', this.subtitles());
 				this.emit('levels', this.qualityLevels());
 				this.emit('levelsChanging', {
@@ -293,11 +292,8 @@ export const eventMethods = {
 					name: this.qualityLevels().find(l => l.id === data.level)?.name,
 				});
 			});
-			this.hls.on(HLS.Events.LEVEL_UPDATED, (_, data) => {
-				this.emit('levelsChanged', {
-					id: data.level,
-					name: this.qualityLevels().find(l => l.id === data.level)?.name,
-				});
+			this.hls.on(HLS.Events.LEVEL_UPDATED, () => {
+				this.emit('levels', this.qualityLevels());
 			});
 			this.hls.on(HLS.Events.LEVELS_UPDATED, (event, data) => {
 				this.logger.verbose(event, { data });
@@ -331,7 +327,7 @@ export const eventMethods = {
 		});
 
 		this.once('item', () => {
-			this.on('captionsList', async () => {
+			this.on('subtitleList', async () => {
 				await this.setCurrentCaptionFromStorage();
 			});
 			this.on('audioTracks', () => {

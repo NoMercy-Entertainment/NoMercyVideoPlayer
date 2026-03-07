@@ -25,6 +25,7 @@ export const subtitleMethods = {
 		this._subtitles = <VTTData>{};
 		this.subtitleText.textContent = '';
 		this.subtitleOverlay.style.display = 'none';
+		this.emit('subtitleChanged', this.subtitle());
 		this.emit('captionsChanged', this.subtitle());
 		this.storeSubtitleChoice();
 
@@ -80,10 +81,10 @@ export const subtitleMethods = {
 			return;
 		}
 
-		const captionsList = this.subtitles();
+		const subtitleList = this.subtitles();
 		const currentIndex = this.subtitleIndex();
 
-		if (currentIndex >= captionsList.length - 1) {
+		if (currentIndex >= subtitleList.length - 1) {
 			this.subtitle(-1);
 		}
 		else {

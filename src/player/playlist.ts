@@ -37,6 +37,7 @@ export const playlistMethods = {
 			this._subtitles = <VTTData>{};
 			this.subtitleText.textContent = '';
 			this.subtitleOverlay.style.display = 'none';
+			this.emit('subtitleChanged', this.subtitle());
 			this.emit('captionsChanged', this.subtitle());
 
 			this.currentPlaylistItem = this._playlist[index];

@@ -86,8 +86,14 @@ export interface PlayerEventMap {
 	'hls': undefined;
 
 	// Subtitles
+	'subtitleList': SubtitleTrack[];
+	'subtitleChanged': SubtitleTrack | undefined;
+	'subtitleChanging': CurrentTrack;
+	/** @deprecated Use `subtitleList` instead. */
 	'captionsList': SubtitleTrack[];
+	/** @deprecated Use `subtitleChanged` instead. */
 	'captionsChanged': SubtitleTrack | undefined;
+	/** @deprecated Use `subtitleChanging` instead. */
 	'captionsChanging': CurrentTrack;
 	'subtitles': VTTData;
 	'set-subtitle-style': SubtitleStyleChange;

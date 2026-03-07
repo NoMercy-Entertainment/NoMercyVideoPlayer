@@ -724,14 +724,14 @@ player.on('audioTrackChanging', (track) => {
 
 **Data:** [CurrentTrack](API-Reference.md#currenttrack) object
 
-### Subtitle/Caption Events
+### Subtitle Events
 
-### `captionsList`
+### `subtitleList`
 
 Fired when subtitle tracks list is updated.
 
 ```typescript
-player.on('captionsList', (tracks) => {
+player.on('subtitleList', (tracks) => {
 	console.log(`${tracks.length} subtitle tracks available`);
 
 	// Populate subtitle menu
@@ -739,19 +739,21 @@ player.on('captionsList', (tracks) => {
 });
 ```
 
-**Data:** `Track[]` - Array of available subtitle tracks
+**Data:** `SubtitleTrack[]` - Array of available subtitle tracks
 
-### `captionsChanged`
+> **Deprecated:** The old event name `captionsList` still works but will be removed in a future version.
+
+### `subtitleChanged`
 
 Fired when subtitle track selection changes.
 
 ```typescript
-player.on('captionsChanged', (track) => {
-	if (track.id === -1) {
+player.on('subtitleChanged', (track) => {
+	if (track === undefined) {
 		console.log('Subtitles disabled');
 	}
 	else {
-		console.log(`Subtitles changed to: ${track.name} (ID: ${track.id})`);
+		console.log(`Subtitles changed to: ${track.label}`);
 	}
 
 	// Update subtitle indicator
@@ -759,19 +761,23 @@ player.on('captionsChanged', (track) => {
 });
 ```
 
-**Data:** [CurrentTrack](API-Reference.md#currenttrack) object
+**Data:** `SubtitleTrack | undefined` — the selected track, or `undefined` when subtitles are off
 
-### `captionsChanging`
+> **Deprecated:** The old event name `captionsChanged` still works but will be removed in a future version.
+
+### `subtitleChanging`
 
 Fired when subtitle track is changing.
 
 ```typescript
-player.on('captionsChanging', (track) => {
+player.on('subtitleChanging', (track) => {
 	console.log(`Switching to subtitles: ${track.name}`);
 });
 ```
 
 **Data:** [CurrentTrack](API-Reference.md#currenttrack) object
+
+> **Deprecated:** The old event name `captionsChanging` still works but will be removed in a future version.
 
 ### Quality Events
 
