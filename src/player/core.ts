@@ -289,9 +289,14 @@ export const coreMethods = {
 			.appendTo(this.container)
 			.get();
 
+		this.subtitleSafeZone = this.createElement('div', `${this.playerId}-subtitle-safezone`, true)
+			.addClasses(['subtitle-safezone'])
+			.appendTo(this.subtitleOverlay)
+			.get();
+
 		this.subtitleArea = this.createElement('div', `${this.playerId}-subtitle-area`, true)
 			.addClasses(['subtitle-area'])
-			.appendTo(this.subtitleOverlay)
+			.appendTo(this.subtitleSafeZone)
 			.get();
 
 		this.subtitleText = this.createElement('span', `${this.playerId}-subtitle-text`, true)
