@@ -213,7 +213,7 @@ export const eventMethods = {
 		this.on('item', () => {
 			this.lastTime = 0;
 			setTimeout(() => {
-					this.emit('subtitleList', this.subtitles());
+				this.emit('subtitleList', this.subtitles());
 				this.emit('captionsList', this.subtitles());
 				this.emit('levels', this.qualityLevels());
 				this.emit('levelsChanging', {
