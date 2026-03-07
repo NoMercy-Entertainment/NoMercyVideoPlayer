@@ -9,6 +9,7 @@ import type { Chapter, Level, NMPlayer, PlayerConfig, PlaylistItem, PreviewTime,
 ## Table of Contents
 
 - [PlayerConfig](#playerconfig)
+- [CSS Classes](#css-classes)
 - [Types & Interfaces](#types--interfaces)
 
 For methods, see [Methods](API-Reference-Methods). For events, see [Events](Events).
@@ -77,6 +78,50 @@ interface PlayerConfig<T = Record<string, any>> {
 | `customStorage`        | `StorageInterface`               | `undefined`          | Custom storage implementation                                                                                             |
 | `disableAutoPlayback`  | `boolean`                        | `false`              | Disable automatic playback progression                                                                                    |
 | `log`                  | `{ level?, handler? }`           | `undefined`          | Logging configuration (level: `'error'`\|`'warn'`\|`'info'`\|`'debug'`\|`'verbose'`, handler: custom log output function) |
+
+## CSS Classes
+
+The player automatically adds and removes CSS classes on the container element (`.nomercyplayer`) to reflect its current state. Since the player is headless, **no visual styles are provided** -- your application must define them.
+
+| Class          | Inverse        | Description                                                    |
+| -------------- | -------------- | -------------------------------------------------------------- |
+| `active`       | `inactive`     | Controls are visible (mouse move, keyboard input)              |
+| `paused`       | --             | Playback is paused                                             |
+| `theater`      | `not-theater`  | Theater mode is enabled                                        |
+| `pip`          | `not-pip`      | Picture-in-Picture mode is active                              |
+| `float`        | `not-float`    | Floating mini-player is active (scrolled out of view)          |
+
+### Example: PiP Float
+
+```css
+.pip-float {
+	position: fixed;
+	bottom: 1rem;
+	right: 1rem;
+	width: 24rem;
+	max-width: 30vw;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	z-index: 9999;
+	border-radius: 0.5rem;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+	transition: all 0.3s ease;
+}
+```
+
+### Example: Theater Mode
+
+```css
+/* Hide sidebar and expand player when theater mode is active */
+#container:has(.nomercyplayer.theater) #sidebar {
+	display: none;
+}
+#container:has(.nomercyplayer.theater) #player-wrapper {
+	max-width: none;
+}
+```
+
+For more details on when these classes are applied, see [Events](Events#pip).
 
 ## Types & Interfaces
 

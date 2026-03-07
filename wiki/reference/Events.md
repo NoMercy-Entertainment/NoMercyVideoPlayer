@@ -572,50 +572,70 @@ player.on('player-dblclick', (event) => {
 
 ### `pip`
 
-Fired when Picture-in-Picture state changes.
+Fired when Picture-in-Picture state changes. The player automatically adds/removes the CSS class `pip` (and its inverse `not-pip`) on the container element. Your application must provide the visual styles.
 
 ```typescript
 player.on('pip', (enabled) => {
+	const wrapper = document.getElementById('player-wrapper');
 	if (enabled) {
-		console.log('Entered Picture-in-Picture');
+		wrapper?.classList.add('pip-float');
+	} else {
+		wrapper?.classList.remove('pip-float');
 	}
-	else {
-		console.log('Exited Picture-in-Picture');
-	}
-
-	// Update PiP button
-	updatePipButton(enabled);
 });
 ```
 
+Example CSS for a floating mini-player:
+
+```css
+.pip-float {
+	position: fixed;
+	bottom: 1rem;
+	right: 1rem;
+	width: 24rem;
+	max-width: 30vw;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	z-index: 9999;
+	border-radius: 0.5rem;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+	transition: all 0.3s ease;
+}
+```
+
 **Data:** `boolean` - Whether PiP is enabled
+
+**CSS classes on container:** `.pip` when enabled, `.not-pip` when disabled
 
 > **Deprecated:** The old event name `pip-internal` still works but will be removed in a future version.
 
 ### `theater`
 
-Fired when theater mode state changes.
+Fired when theater mode state changes. The player automatically adds/removes the CSS class `theater` (and its inverse `not-theater`) on the container element. Your application must provide the visual styles.
 
 ```typescript
 player.on('theater', (enabled) => {
+	const sidebar = document.getElementById('sidebar');
+	const wrapper = document.getElementById('player-wrapper');
 	if (enabled) {
-		console.log('Entered theater mode');
-		// Expand player, hide page elements
-	}
-	else {
-		console.log('Exited theater mode');
-		// Restore normal view
+		sidebar?.classList.add('hidden');
+		wrapper?.classList.add('max-w-none');
+	} else {
+		sidebar?.classList.remove('hidden');
+		wrapper?.classList.remove('max-w-none');
 	}
 });
 ```
 
 **Data:** `boolean` - Whether theater mode is enabled
 
+**CSS classes on container:** `.theater` when enabled, `.not-theater` when disabled
+
 > **Deprecated:** The old event name `theaterMode` still works but will be removed in a future version.
 
 ### `float`
 
-Fired when the floating mini-player state changes (e.g., when the player scrolls out of view).
+Fired when the floating mini-player state changes (e.g., when the player scrolls out of view). The player automatically adds/removes the CSS class `float` (and its inverse `not-float`) on the container element. Your application must provide the visual styles.
 
 ```typescript
 player.on('float', (isFloating) => {
@@ -629,6 +649,8 @@ player.on('float', (isFloating) => {
 ```
 
 **Data:** `boolean` - Whether the player is floating
+
+**CSS classes on container:** `.float` when enabled, `.not-float` when disabled
 
 ## Track Events
 
