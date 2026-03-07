@@ -2,21 +2,25 @@ import type { NMPlayer } from '../types';
 
 export const uiStateMethods = {
 	ui_addActiveClass(this: NMPlayer): void {
+		const wasActive = this.container.classList.contains('active');
 		this.container.classList.remove('inactive');
 		this.container.classList.add('active');
 
-		this.emit('active', true);
-		this.emit('controls', true);
-		this.emit('showControls');
+		if (!wasActive) {
+			this.emit('active', true);
+			this.emit('controls', true);
+		}
 	},
 
 	ui_removeActiveClass(this: NMPlayer): void {
+		const wasActive = this.container.classList.contains('active');
 		this.container.classList.remove('active');
 		this.container.classList.add('inactive');
 
-		this.emit('active', false);
-		this.emit('controls', false);
-		this.emit('hideControls');
+		if (wasActive) {
+			this.emit('active', false);
+			this.emit('controls', false);
+		}
 	},
 
 	ui_resetInactivityTimer(this: NMPlayer): void {

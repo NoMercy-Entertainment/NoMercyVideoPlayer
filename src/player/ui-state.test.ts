@@ -50,6 +50,7 @@ describe('uiStateMethods', () => {
 
 		it('emits active false', () => {
 			const player = createMockPlayer();
+			player.container.classList.add('active');
 			player.ui_removeActiveClass();
 			expect(player.emit).toHaveBeenCalledWith('active', false);
 		});
