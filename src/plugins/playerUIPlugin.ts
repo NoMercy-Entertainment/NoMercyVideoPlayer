@@ -165,7 +165,7 @@ export class PlayerUIPlugin extends Plugin {
 		else {
 			// Autoplay is on — hide the center button and sync playback button icon
 			this.centerButton.style.display = 'none';
-			this.player.emit('play');
+			this.player.emit('play', this.player.timeData());
 		}
 	}
 

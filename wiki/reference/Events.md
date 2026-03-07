@@ -22,8 +22,8 @@ NoMercy Video Player uses a comprehensive event system to notify your applicatio
 
 ```typescript
 // Listen to an event
-player.on('play', () => {
-	console.log('Playback started');
+player.on('play', (timeData) => {
+	console.log(`Playback started at ${timeData.currentTimeHuman}`);
 });
 
 // Listen to an event with data
@@ -117,26 +117,26 @@ Events related to media playback state changes.
 Fired when playback starts or resumes.
 
 ```typescript
-player.on('play', () => {
-	console.log('Playback started');
-	// Update UI, start analytics, etc.
+player.on('play', (timeData) => {
+	console.log(`Playback started at ${timeData.currentTimeHuman}`);
+	// Update UI, start analytics, track resume position, etc.
 });
 ```
 
-**Data:** None
+**Data:** [TimeData](API-Reference.md#timedata) object
 
 ### `pause`
 
 Fired when playback is paused.
 
 ```typescript
-player.on('pause', () => {
-	console.log('Playback paused');
-	// Update UI, pause analytics, etc.
+player.on('pause', (timeData) => {
+	console.log(`Paused at ${timeData.currentTimeHuman} (${timeData.percentage}%)`);
+	// Save resume position, update UI, pause analytics, etc.
 });
 ```
 
-**Data:** None
+**Data:** [TimeData](API-Reference.md#timedata) object
 
 ### `playing`
 

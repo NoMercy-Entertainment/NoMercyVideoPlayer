@@ -53,6 +53,16 @@ function createMockPlayer(overrides: Record<string, any> = {}) {
 		qualityLevels: vi.fn(() => []),
 		playlist: vi.fn(() => []),
 		playlistItem: vi.fn(),
+		timeData: vi.fn(() => ({
+			currentTime: 30,
+			duration: 120,
+			percentage: 25,
+			remaining: 90,
+			currentTimeHuman: '00:30',
+			durationHuman: '02:00',
+			remainingHuman: '01:30',
+			playbackRate: 1,
+		})),
 		setEpisode: vi.fn(),
 		getParameterByName: vi.fn(() => null),
 		setCurrentCaptionFromStorage: vi.fn(() => Promise.resolve()),
@@ -101,7 +111,7 @@ describe('eventMethods', () => {
 			const player = createMockPlayer();
 			player.videoPlayer_playEvent();
 			expect(player.emit).toHaveBeenCalledWith('beforePlay');
-			expect(player.emit).toHaveBeenCalledWith('play');
+			expect(player.emit).toHaveBeenCalledWith('play', player.timeData());
 		});
 	});
 
@@ -115,10 +125,10 @@ describe('eventMethods', () => {
 			expect(player.container.classList.contains('playing')).toBe(false);
 		});
 
-		it('emits pause event with video element', () => {
+		it('emits pause event with time data', () => {
 			const player = createMockPlayer();
 			player.videoPlayer_pauseEvent();
-			expect(player.emit).toHaveBeenCalledWith('pause', player.videoElement);
+			expect(player.emit).toHaveBeenCalledWith('pause', player.timeData());
 		});
 	});
 

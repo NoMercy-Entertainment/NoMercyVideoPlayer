@@ -6,6 +6,8 @@ export const uiStateMethods = {
 		this.container.classList.add('active');
 
 		this.emit('active', true);
+		this.emit('controls', true);
+		this.emit('showControls');
 	},
 
 	ui_removeActiveClass(this: NMPlayer): void {
@@ -13,6 +15,8 @@ export const uiStateMethods = {
 		this.container.classList.add('inactive');
 
 		this.emit('active', false);
+		this.emit('controls', false);
+		this.emit('hideControls');
 	},
 
 	ui_resetInactivityTimer(this: NMPlayer): void {

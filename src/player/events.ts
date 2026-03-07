@@ -13,7 +13,7 @@ export const eventMethods = {
 
 		this.mediaSession.setPlaybackState('playing');
 
-		this.emit('play');
+		this.emit('play', this.timeData());
 
 		this.isPlaying = true;
 	},
@@ -42,7 +42,7 @@ export const eventMethods = {
 		this.container.classList.remove('playing');
 		this.container.classList.add('paused');
 
-		this.emit('pause', this.videoElement);
+		this.emit('pause', this.timeData());
 
 		this.mediaSession.setPlaybackState('paused');
 

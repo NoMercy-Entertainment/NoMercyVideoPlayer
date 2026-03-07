@@ -147,6 +147,7 @@ export const displayMethods = {
 				this.subtitleOverlay.style.width = '100%';
 				this.subtitleOverlay.style.height = '100%';
 			}
+			this.emit('resize');
 			return;
 		}
 
@@ -186,6 +187,8 @@ export const displayMethods = {
 			this.subtitleOverlay.style.height = `${newHeight}px`;
 			this.subtitleOverlay.style.position = 'absolute';
 		}
+
+		this.emit('resize');
 	},
 
 	setResponsiveAspectRatio(this: NMPlayer, videoAspectRatio: number): void {

@@ -40,8 +40,8 @@ export interface PlayerEventMap {
 	'setupError': Error | string;
 
 	// Playback
-	'play': undefined;
-	'pause': HTMLVideoElement;
+	'play': TimeData;
+	'pause': TimeData;
 	'playing': boolean;
 	'beforePlay': undefined;
 	'idle': undefined;
