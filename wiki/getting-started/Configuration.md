@@ -1,7 +1,5 @@
 All `PlayerConfig` options for NoMercy Video Player. See the [Quick Start Guide](Quick-Start-Guide) for full setup examples.
 
-> **[▶ Live Examples](https://examples.nomercy.tv/wiki/examples/):** [URL Resolution](https://examples.nomercy.tv/wiki/examples/url-resolution.html) · [Custom Storage](https://examples.nomercy.tv/wiki/examples/custom-storage.html) · [Access Token](https://examples.nomercy.tv/wiki/examples/access-token.html) · [Resume Playback](https://examples.nomercy.tv/wiki/examples/resume-playback.html) · [Playback Rates](https://examples.nomercy.tv/wiki/examples/playback-rates.html) · [External Playlist](https://examples.nomercy.tv/wiki/examples/external-playlist.html)
-
 ---
 
 ## PlayerConfig Reference

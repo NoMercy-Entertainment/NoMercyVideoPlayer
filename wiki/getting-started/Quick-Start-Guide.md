@@ -4,8 +4,6 @@
 npm install @nomercy-entertainment/nomercy-video-player
 ```
 
-> **[▶ Live Examples](https://examples.nomercy.tv/wiki/examples/):** [Basic Setup](https://examples.nomercy.tv/wiki/examples/basic-setup.html) · [Playlist](https://examples.nomercy.tv/wiki/examples/playlist.html) · [ASS Subtitles](https://examples.nomercy.tv/wiki/examples/ass-subtitles.html)
-
 ## Basic Setup
 
 ### 1. Create a Container

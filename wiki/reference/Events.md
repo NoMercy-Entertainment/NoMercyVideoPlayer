@@ -1,7 +1,5 @@
 Complete reference for all NoMercy Video Player events with data types and usage examples.
 
-> **[▶ Live Example](https://examples.nomercy.tv/wiki/examples/events.html)** · **[View full source](https://github.com/NoMercy-Entertainment/Examples/blob/master/public/wiki/examples/events.html)**
-
 ## Table of Contents
 
 - [Event System Overview](#event-system-overview)

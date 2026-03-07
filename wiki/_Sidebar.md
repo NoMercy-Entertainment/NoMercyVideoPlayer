@@ -33,4 +33,4 @@
 
 **Examples**
 
-- [All Wiki Examples](https://examples.nomercy.tv/wiki/examples/)
+- [Live Examples](https://examples.nomercy.tv)
