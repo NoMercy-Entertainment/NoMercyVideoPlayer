@@ -1,9 +1,9 @@
 import type { NMPlayer } from '../types';
 
-class Plugin {
-	declare player: NMPlayer<any>;
+class Plugin<T extends Record<string, any> = Record<string, any>> {
+	declare player: NMPlayer<T>;
 
-	initialize(player: NMPlayer<any>) {
+	initialize(player: NMPlayer<T>) {
 		this.player = player;
 	}
 
