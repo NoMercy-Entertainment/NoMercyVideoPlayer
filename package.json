@@ -1,8 +1,8 @@
 {
 	"name": "@nomercy-entertainment/nomercy-video-player",
 	"type": "module",
-	"version": "1.0.0-beta.28",
-	"description": "Full event-driven video player without a UI.",
+	"version": "1.0.0",
+	"description": "Headless, event-driven HTML5 video player with HLS streaming, subtitle rendering (VTT/ASS/SSA), and a plugin system. No UI — you build your own.",
 	"author": {
 		"name": "NoMercy Entertainment",
 		"email": "info@nomercy.tv",
@@ -20,7 +20,23 @@
 	"keywords": [
 		"video",
 		"player",
-		"NoMercy"
+		"video-player",
+		"headless",
+		"hls",
+		"hls-player",
+		"html5",
+		"typescript",
+		"plugin",
+		"streaming",
+		"subtitles",
+		"ass",
+		"ssa",
+		"vtt",
+		"adaptive",
+		"playlist",
+		"media",
+		"no-ui",
+		"event-driven"
 	],
 	"exports": {
 		".": {

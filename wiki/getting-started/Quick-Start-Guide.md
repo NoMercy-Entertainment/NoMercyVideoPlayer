@@ -201,7 +201,7 @@ The `fonts` track points to a JSON file listing the font files needed by the ASS
 	<body>
 		<div id="nomercy-player" style="width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000"></div>
 
-		<script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player@1.0.0-beta.28/dist/nomercy-video-player.iife.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player@1.0.0/dist/nomercy-video-player.iife.js"></script>
 		<script>
 			var config = {
 				basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',

@@ -5,6 +5,7 @@ A headless, plugin-based HTML5 video player engine built with TypeScript. No UI 
 [![NPM Version](https://img.shields.io/npm/v/@nomercy-entertainment/nomercy-video-player?style=flat&logo=npm&logoColor=white&color=cb3837)](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-video-player)
 [![NPM Downloads](https://img.shields.io/npm/dm/@nomercy-entertainment/nomercy-video-player?style=flat&logo=npm&logoColor=white&color=cb3837)](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-video-player)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/NoMercy-Entertainment/NoMercyVideoPlayer/release.yml?style=flat&logo=github&logoColor=white)](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/actions)
+[![Tests](https://img.shields.io/github/actions/workflow/status/NoMercy-Entertainment/NoMercyVideoPlayer/test-reports.yml?style=flat&logo=vitest&logoColor=white&label=tests)](https://nomercy-entertainment.github.io/NoMercyVideoPlayer/)
 [![License](https://img.shields.io/github/license/NoMercy-Entertainment/NoMercyVideoPlayer?style=flat&color=green)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
@@ -22,26 +23,28 @@ npm install @nomercy-entertainment/nomercy-video-player
 
 ```typescript
 import nmplayer, { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player';
-
 import type { PlayerConfig } from '@nomercy-entertainment/nomercy-video-player';
 
-const player = nmplayer('player').setup({
-	basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+const config: PlayerConfig = {
+	basePath:      'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',
+	imageBasePath: 'https://image.tmdb.org/t/p',
 	playlist: [
 		{
-			id: 'sintel',
-			title: 'Sintel',
+			id:          'sintel',
+			title:       'Sintel',
 			description: 'A short fantasy film by the Blender Foundation',
-			file: '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
-			image: 'https://image.tmdb.org/t/p/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
-			duration: '14:48',
+			file:        '/Sintel.(2010)/Sintel.(2010).NoMercy.m3u8',
+			image:       '/w780/q2bVM5z90tCGbmXYtq2J38T5hSX.jpg',
+			duration:    '14:48',
 			tracks: [
 				{ id: 0, label: 'English', file: '/Sintel.(2010)/subtitles/Sintel.(2010).NoMercy.eng.full.vtt', language: 'eng', kind: 'subtitles' },
 				{ id: 1, file: '/Sintel.(2010)/chapters.vtt', kind: 'chapters' },
 			],
 		},
 	],
-});
+};
+
+const player = nmplayer('player').setup(config);
 
 // Add keyboard shortcuts (Space, arrows, F, M, etc.)
 const keyHandler = new KeyHandlerPlugin();
@@ -184,7 +187,7 @@ npm run build
 
 ## License
 
-[MIT](LICENSE)
+[Apache-2.0](LICENSE)
 
 ## About
 
