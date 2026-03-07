@@ -143,8 +143,6 @@ export const displayMethods = {
 		const videoHeight = this.videoElement.videoHeight;
 		const videoAspectRatio = videoWidth / videoHeight;
 
-		this.setResponsiveAspectRatio(videoAspectRatio);
-
 		const ratio = videoAspectRatio;
 		this.videoElement.width = videoWidth;
 		this.videoElement.height = videoHeight;
@@ -158,6 +156,8 @@ export const displayMethods = {
 			}
 			return;
 		}
+
+		this.setResponsiveAspectRatio(videoAspectRatio);
 
 		const containerWidth = this.container.clientWidth;
 		const containerHeight = this.container.clientHeight;
