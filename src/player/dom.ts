@@ -1,5 +1,4 @@
 import type { AddClasses, AddClassesReturn, CreateElement, Icon, NMPlayer } from '../types';
-import { twMerge } from 'tailwind-merge';
 
 const DEFAULT_MESSAGE_TIME = 2000;
 
@@ -129,7 +128,7 @@ export const domMethods = {
 		svg.setAttribute('viewBox', '0 0 24 24');
 
 		svg.id = id;
-		this.addClasses(svg, twMerge([
+		this.addClasses(svg, [
 			`${id}-icon`,
 			'svg-size',
 			'h-5',
@@ -140,7 +139,7 @@ export const domMethods = {
 			'duration-700',
 			hidden ? 'hidden' : 'flex',
 			...icon.classes,
-		]).split(' '));
+		]);
 
 		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		path.setAttribute('d', hovered ? icon.normal : icon.hover);

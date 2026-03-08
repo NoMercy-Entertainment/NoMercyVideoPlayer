@@ -3,11 +3,6 @@ import type { NMPlayer, SubtitleStyle } from '../types';
 import { defaultSubtitleStyles, getEdgeStyle, pad, parseColorToHex } from './utils';
 import type { Cue } from 'webvtt-parser';
 
-import BBCReithSansExtraBold from '../fonts/ReithSans/ReithSansExtraBold';
-import BBCReithSansExtraBoldItalic from '../fonts/ReithSans/ReithSansExtraBoldItalic';
-import BBCReithSansMedium from '../fonts/ReithSans/ReithSansMedium';
-import BBCReithSansMediumItalic from '../fonts/ReithSans/ReithSansMediumItalic';
-
 const EMPTY_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
 export const coreMethods = {
@@ -246,6 +241,8 @@ export const coreMethods = {
 	},
 
 	createSubtitleFontFamily(this: NMPlayer): void {
+		const fontBaseUrl = 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/refs/heads/master/Fonts/ReithSans';
+
 		const styleSheet = this.createElement('style', `${this.playerId}-fonts`, true)
 			.appendTo(this.container)
 			.get();
@@ -255,30 +252,30 @@ export const coreMethods = {
 			@font-face {
 				font-family: 'ReithSans';
 				font-style: normal;
-				font-weight: 500; /* Medium */
+				font-weight: 500;
 				font-display: swap;
-				src: url("data:font/woff2;base64,${BBCReithSansMedium}") format("woff2");
+				src: url("${fontBaseUrl}/ReithSansMedium.woff2") format("woff2");
 			}
 			@font-face {
 				font-family: 'ReithSans';
 				font-style: italic;
 				font-weight: 500;
 				font-display: swap;
-				src: url("data:font/woff2;base64,${BBCReithSansMediumItalic}") format("woff2");
+				src: url("${fontBaseUrl}/ReithSansMediumItalic.woff2") format("woff2");
 			}
 			@font-face {
 				font-family: 'ReithSans';
 				font-style: normal;
-				font-weight: 800; /* ExtraBold, assuming close to 800 */
+				font-weight: 800;
 				font-display: swap;
-				src: url("data:font/woff2;base64,${BBCReithSansExtraBold}") format("woff2");
+				src: url("${fontBaseUrl}/ReithSansExtraBold.woff2") format("woff2");
 			}
 			@font-face {
 				font-family: 'ReithSans';
 				font-style: italic;
 				font-weight: 800;
 				font-display: swap;
-				src: url("data:font/woff2;base64,${BBCReithSansExtraBoldItalic}") format("woff2");
+				src: url("${fontBaseUrl}/ReithSansExtraBoldItalic.woff2") format("woff2");
 			}
 		`;
 	},

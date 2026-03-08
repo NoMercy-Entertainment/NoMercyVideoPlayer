@@ -14,6 +14,12 @@ export default defineConfig({
 		target: 'es2022',
 		rollupOptions: {
 			input: ['./src/index.ts'],
+			external: ['hls.js'],
+			output: {
+				globals: {
+					'hls.js': 'Hls',
+				},
+			},
 		},
 		lib: {
 			entry: resolve(__dirname, 'src/index.ts'),
