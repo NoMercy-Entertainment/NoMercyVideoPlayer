@@ -21,6 +21,12 @@ export interface PlayerConfig<T = Record<string, any>> {
 	basePath?: string;
 	imageBasePath?: string;
 	language?: string;
+	/**
+	 * Custom translations. Accepts either:
+	 * - `string[]` — URL patterns (supports `{lang}` placeholder) for additional JSON locale files to fetch.
+	 * - `Record<string, string>` — inline key-value overrides merged directly into the translations dictionary.
+	 */
+	translations?: string[] | Record<string, string>;
 	doubleClickDelay?: number;
 	controlsTimeout?: number;
 	displayLanguage?: string;
@@ -29,6 +35,7 @@ export interface PlayerConfig<T = Record<string, any>> {
 	disableMediaControls?: boolean;
 	customStorage?: StorageInterface;
 	disableAutoPlayback?: boolean;
+	messagePlugin?: boolean;
 	disableHls?: boolean;
 	forceHls?: boolean;
 	float?: boolean | FloatConfig;

@@ -400,7 +400,7 @@ describe('eventMethods', () => {
 
 		it('skips emit when duration is NaN', () => {
 			const player = createMockPlayer();
-			Object.defineProperty(player.videoElement, 'duration', { value: NaN, writable: true });
+			Object.defineProperty(player.videoElement, 'duration', { value: Number.NaN, writable: true });
 			const mockEvent = { target: player.videoElement } as unknown as Event;
 
 			player.videoPlayer_timeupdateEvent(mockEvent);
@@ -410,7 +410,7 @@ describe('eventMethods', () => {
 
 		it('skips emit when currentTime is NaN', () => {
 			const player = createMockPlayer();
-			Object.defineProperty(player.videoElement, 'currentTime', { value: NaN, writable: true });
+			Object.defineProperty(player.videoElement, 'currentTime', { value: Number.NaN, writable: true });
 			const mockEvent = { target: player.videoElement } as unknown as Event;
 
 			player.videoPlayer_timeupdateEvent(mockEvent);

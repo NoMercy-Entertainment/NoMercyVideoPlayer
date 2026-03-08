@@ -1299,20 +1299,31 @@ if (keyHandler) {
 
 ## Translation & Localization
 
+The player automatically loads a built-in locale file containing a small set of core player strings (e.g. "Off", "Muted", "Subtitles"). Language code names for subtitle/audio track display (e.g. `eng`, `fra`) are resolved at runtime via `Intl.DisplayNames` — no locale data is needed for them. UI-specific strings (Play, Pause, etc.) are not included — provide them via `config.translations` (URL patterns as `string[]`, or an inline `Record<string, string>`) in your UI plugin.
+
 ### `localize(value: string): string`
 
-Localizes a string using the current language.
+Looks up a translation key using a four-tier fallback:
+
+1. Loaded translations (built-in locale file + custom files/record from `config.translations`)
+2. Default translations
+3. `Intl.DisplayNames` — automatically resolves ISO 639-3 / BCP-47 language codes against the player's current language setting
+4. The original key as-is (pass-through)
 
 ```typescript
-const text = player.localize('Play');
-console.log(text); // "Wiedergabe" in German
+const text = player.localize('eng');
+console.log(text); // "Anglais" when language is French (via Intl)
+
+// UI keys pass through if no translation file provides them
+const play = player.localize('Play');
+console.log(play); // "Play" (or translated if your UI plugin loaded translations)
 ```
 
 **Parameters:**
 
 - `value` - String key to localize
 
-**Returns:** Localized string (or original if no translation found)
+**Returns:** Localized string, or original key if nothing resolves it
 
 ### `setTitle(value: string): void`
 
@@ -1339,11 +1350,19 @@ player.addTranslation('customButton', 'Mein Button');
 - `key` - Translation key
 - `value` - Translated text
 
-### `addTranslations(translations: Array<{ key: string, value: string }>): void`
+### `addTranslations(translations: Record<string, string> | Array<{ key: string, value: string }>): void`
 
-Adds multiple translation entries at once.
+Adds multiple translation entries at once. Accepts either a Record or an array of key/value pairs.
 
 ```typescript
+// Record form (preferred)
+player.addTranslations({
+	play: 'Wiedergabe',
+	pause: 'Pause',
+	mute: 'Stumm',
+});
+
+// Array form (also supported)
 player.addTranslations([
 	{ key: 'play', value: 'Wiedergabe' },
 	{ key: 'pause', value: 'Pause' },
@@ -1353,7 +1372,7 @@ player.addTranslations([
 
 **Parameters:**
 
-- `translations` - Array of key/value pairs
+- `translations` - Record of key-value pairs, or array of `{ key, value }` objects
 
 ## File & Resource Access
 

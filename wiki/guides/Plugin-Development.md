@@ -384,7 +384,7 @@ Prefer events over direct references when possible. Events keep plugins decouple
 
 ## 7. Built-in Plugins
 
-The package ships with two built-in plugins.
+The package ships with three built-in plugins.
 
 ### OctopusPlugin
 
@@ -413,6 +413,36 @@ Constructor options (`OctopusPluginOptions`):
 | `targetFps`       | `number`  | `undefined` | Target framerate for subtitle rendering.  |
 | `blendRender`     | `boolean` | `undefined` | Blend render mode.                        |
 | `lazyFileLoading` | `boolean` | `undefined` | Lazy-load font files.                     |
+
+### MessagePlugin
+
+Displays overlay messages on the player (e.g. "Audio: English", "Subtitles: Dutch"). Enabled by default — disable it with `messagePlugin: false` in the config.
+
+```typescript
+// Disable the built-in message overlay
+const player = nmplayer('player1').setup({
+	messagePlugin: false,
+	// ...
+});
+```
+
+Audio and subtitle track switches automatically show a message overlay (e.g. "Audio: English", "Subtitles: Dutch"). You can also trigger your own messages:
+
+```typescript
+player.displayMessage('🍿 Enjoy the show!');
+```
+
+If you disable the plugin, you can handle `message` events yourself:
+
+```typescript
+player.on('message', (text) => {
+	myCustomToast.show(text);
+});
+
+player.on('message-dismiss', () => {
+	myCustomToast.hide();
+});
+```
 
 ### KeyHandlerPlugin
 

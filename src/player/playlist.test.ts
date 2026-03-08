@@ -445,10 +445,10 @@ describe('setEpisode()', () => {
 	it('warns and returns early for non-finite season', () => {
 		const player = createMockPlayer(samplePlaylistItems, 0);
 		const spy = vi.spyOn(player, 'playVideo');
-		player.setEpisode(NaN, 1);
+		player.setEpisode(Number.NaN, 1);
 		expect(player.logger.warn).toHaveBeenCalledWith(
 			'setEpisode() expects finite number arguments',
-			{ season: NaN, episode: 1 },
+			{ season: Number.NaN, episode: 1 },
 		);
 		expect(spy).not.toHaveBeenCalled();
 	});

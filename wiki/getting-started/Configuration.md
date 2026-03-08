@@ -18,17 +18,59 @@ All `PlayerConfig` options for NoMercy Video Player. See the [Quick Start Guide]
 | `playbackRates`        | `number[]`                                    | `[0.5, 1, 1.5, 2]`   | Available playback speed options.                                                                                                     |
 | `chapters`             | `boolean`                                     | `undefined`          | Enable chapter marker support from VTT chapter tracks.                                                                                |
 | `debug`                | `boolean`                                     | `false`              | Log internal events and state changes to the console.                                                                                 |
-| `language`             | `string`                                      | `undefined`          | ISO language code for preferred audio/subtitle track selection.                                                                       |
+| `language`             | `string`                                      | `navigator.language` | Locale for translations and preferred audio/subtitle track selection. Falls back through base language → `en-US`.                     |
 | `displayLanguage`      | `string`                                      | `navigator.language` | Locale used for the player UI translations.                                                                                           |
+| `translations`         | `string[] \| Record<string, string>` | `undefined`          | Custom translations: URL patterns (supports `{lang}` placeholder) to fetch JSON locale files, or an inline key-value record merged directly (see [Translations](#translations)). |
 | `controlsTimeout`      | `number`                                      | `3000`               | Milliseconds of inactivity before controls auto-hide.                                                                                 |
 | `doubleClickDelay`     | `number`                                      | `300`                | Milliseconds to distinguish single-click from double-click.                                                                           |
 | `disableControls`      | `boolean`                                     | `false`              | Completely disable the control layer.                                                                                                 |
 | `disableTouchControls` | `boolean`                                     | `false`              | Disable touch gesture handling (swipe-to-seek, etc.).                                                                                 |
 | `disableMediaControls` | `boolean`                                     | `false`              | Disable MediaSession integration (lock screen / OS media controls).                                                                   |
 | `disableAutoPlayback`  | `boolean`                                     | `false`              | Prevent automatic advancement to the next playlist item.                                                                              |
+| `messagePlugin`        | `boolean`                                     | `true`               | Enable the built-in message overlay plugin. Set to `false` to handle `message` events yourself.                                       |
 | `disableHls`           | `boolean`                                     | `undefined`          | Disable HLS.js even when the source is an HLS manifest.                                                                               |
 | `forceHls`             | `boolean`                                     | `undefined`          | Force HLS.js usage regardless of native HLS support.                                                                                  |
 | `customStorage`        | `StorageInterface`                            | built-in             | Custom async storage adapter for persisting user preferences.                                                                         |
+
+---
+
+## Translations
+
+The player automatically loads a **built-in locale file** at startup based on the `language` option (or `navigator.language`). This file provides a small set of **core player strings** (`Audio`, `Volume`, `Muted`, `Subtitles`, `Off`, `Unknown`, `Aspect ratio`, `Fullscreen not supported`, `E`, `S`, `SPACE`).
+
+ISO 639-3 / BCP-47 language code names (e.g. `eng`, `fre`) used for subtitle and audio track labels are resolved automatically at runtime via `Intl.DisplayNames` — no locale data is needed for them.
+
+Built-in locale files are available for 80+ languages. The fallback chain is: exact locale (e.g. `nl-NL`) → base language (`nl`) → `en-US`.
+
+To add your own translations (e.g. for your UI plugin), use the `translations` config option with **URL patterns**:
+
+```typescript
+const player = nmplayer('player1').setup({
+    language: 'nl',
+    translations: [
+        '/locales/{lang}/ui.json',       // your custom translations
+    ],
+});
+```
+
+The `{lang}` placeholder is replaced with the resolved language code. Each file uses the same fallback chain as the built-in file. All results are merged into `player.translations` (later files override earlier ones).
+
+Alternatively, pass an **inline `Record<string, string>`** to avoid a network request entirely:
+
+```typescript
+const player = nmplayer('player1').setup({
+    language: 'nl',
+    translations: {
+        Play: 'Afspelen',
+        Pause: 'Pauzeren',
+        Mute: 'Dempen',
+    },
+});
+```
+
+The inline record is merged directly into `player.translations` and emits a `'translations'` event with `source: 'config'`.
+
+Use `player.localize('key')` to look up any translation. The resolution order is: loaded translations → default translations → `Intl.DisplayNames` (for language codes) → original key as-is. English keys always work without a translation file.
 
 ---
 
@@ -55,6 +97,23 @@ const config: PlayerConfig = {
 	],
 };
 ```
+
+### Title Placeholders
+
+Playlist item titles support `%S` and `%E` placeholders for localized season/episode abbreviations. The player replaces these at runtime using the current locale — so your server can send language-neutral titles:
+
+```typescript
+{
+	title: '%S01%E03 The One Where It Starts',
+	show: 'My Series',
+	season: 1,
+	episode: 3,
+	// In English: "S01E03 The One Where It Starts"
+	// In Dutch:   "S01A03 The One Where It Starts" (A = Aflevering)
+}
+```
+
+The translations for `S` and `E` are included in the built-in locale files.
 
 ### Multi-Item Playlist
 

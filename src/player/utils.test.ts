@@ -290,14 +290,14 @@ describe('parseColorToHex', () => {
 	});
 
 	it('namedColors map resolves correctly via normalizeHex', () => {
-		expect(normalizeHex(namedColors['black'], 1)).toBe('#000000FF');
-		expect(normalizeHex(namedColors['white'], 1)).toBe('#FFFFFFFF');
-		expect(normalizeHex(namedColors['red'], 1)).toBe('#FF0000FF');
+		expect(normalizeHex(namedColors.black, 1)).toBe('#000000FF');
+		expect(normalizeHex(namedColors.white, 1)).toBe('#FFFFFFFF');
+		expect(normalizeHex(namedColors.red, 1)).toBe('#FF0000FF');
 	});
 
 	it('namedColors + normalizeHex respects opacity', () => {
-		expect(normalizeHex(namedColors['black'], 0.5)).toBe('#00000080');
-		expect(normalizeHex(namedColors['white'], 0)).toBe('#FFFFFF00');
+		expect(normalizeHex(namedColors.black, 0.5)).toBe('#00000080');
+		expect(normalizeHex(namedColors.white, 0)).toBe('#FFFFFF00');
 	});
 });
 

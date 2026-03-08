@@ -24,7 +24,7 @@ No framework needed. Initialize the player after the DOM is ready.
 			<span id="time">0s / 0s</span>
 		</div>
 
-		<script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player@1.0.0/dist/nomercy-video-player.iife.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@nomercy-entertainment/nomercy-video-player@latest/dist/nomercy-video-player.iife.js"></script>
 		<script>
 			var config = {
 				basePath: 'https://raw.githubusercontent.com/NoMercy-Entertainment/media/master/Films/Films',

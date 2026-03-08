@@ -31,6 +31,16 @@ export interface WarningData {
 	statusText: string;
 }
 
+export interface TranslationFileEventData {
+	source: string;
+	data: Record<string, string>;
+}
+
+export interface TranslationsLoadedEventData {
+	language: string;
+	files: string[];
+}
+
 // Maps every event name to its payload type for type-safe on/off/once/emit.
 export interface PlayerEventMap {
 	// Lifecycle
@@ -138,8 +148,8 @@ export interface PlayerEventMap {
 	'gain': GainData;
 
 	// Translations
-	'translations': Record<string, string>;
-	'translationsLoaded': undefined;
+	'translations': TranslationFileEventData;
+	'translationsLoaded': TranslationsLoadedEventData;
 
 	// Preview
 	'preview-time': PreviewTime[];

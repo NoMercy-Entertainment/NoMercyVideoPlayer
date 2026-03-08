@@ -1248,18 +1248,32 @@ player.on('message-dismiss', (text) => {
 
 ### `translations`
 
-Fired when translations are loaded.
+Fired each time a translation file is loaded. The built-in locale file (ISO 639-3 language codes + core player strings) loads first, then each custom file from `config.translations[]`.
 
 ```typescript
-player.on('translations', (translations) => {
-	console.log('Translations loaded');
-
-	// Update UI with localized text
-	updateUITranslations(translations);
+player.on('translations', ({ source, data }) => {
+	console.log(`Loaded translations from ${source}`);
+	console.log(`${Object.keys(data).length} keys loaded`);
 });
 ```
 
-**Data:** `{ [key: string]: string }` - Translation key-value pairs
+**Data:** `TranslationFileEventData` — `{ source: string; data: Record<string, string> }` - Source URL (or `'config'` for inline records) and translation key-value pairs
+
+### `translationsLoaded`
+
+Fired after all translation files have been loaded (built-in + custom).
+
+```typescript
+player.on('translationsLoaded', ({ language, files }) => {
+	console.log(`Translations ready for ${language}`);
+	console.log(`Loaded ${files.length} file(s)`);
+
+	// Safe to use player.localize() now
+	const label = player.localize('eng'); // "English", "Anglais", etc.
+});
+```
+
+**Data:** `TranslationsLoadedEventData` — `{ language: string; files: string[] }` - Resolved language and list of loaded sources (`'config'` when an inline record was used, otherwise the fetched file URLs)
 
 ### `all`
 

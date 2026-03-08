@@ -4,7 +4,6 @@ import type { VTTData } from 'webvtt-parser';
 
 import { Base } from './player/base';
 import { Logger } from './player/logger';
-import translations from './translations/en-US';
 import type Plugin from './plugins/plugin';
 import MessagePlugin from './plugins/messagePlugin';
 import type { PluginMap } from './types/plugins';
@@ -49,6 +48,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	declare createBaseStyles: () => void;
 	declare createSubtitleFontFamily: () => void;
 	declare fetchTranslationsFile: () => Promise<void>;
+	declare _tryFetchTranslation: (url: string) => Promise<string | null>;
 	declare createOverlayElement: () => void;
 	declare styleContainer: () => void;
 	declare createVideoElement: () => void;
@@ -70,7 +70,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	hls: import('hls.js').default | undefined;
 	gainNode: GainNode | undefined;
 	translations: { [key: string]: string } = {};
-	defaultTranslations: { [key: string]: string } = translations;
+	defaultTranslations: { [key: string]: string } = {};
 
 	// State
 	leftTap: NodeJS.Timeout = <NodeJS.Timeout>{};
@@ -185,13 +185,12 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		this.createBaseStyles();
 		this.createSubtitleFontFamily();
 
-		this.fetchTranslationsFile()
-			.then(() => this.emit('translationsLoaded'));
-
 		this.createOverlayElement();
 
-		this.registerPlugin('message', new MessagePlugin());
-		this.usePlugin('message');
+		if (this.options.messagePlugin !== false) {
+			this.registerPlugin('message', new MessagePlugin());
+			this.usePlugin('message');
+		}
 
 		this.styleContainer();
 		this.createVideoElement();
@@ -262,6 +261,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.setupTime = Date.now();
 
+		this.fetchTranslationsFile();
 		this.loadPlaylist();
 
 		return this as unknown as NMPlayer<U>;
@@ -478,6 +478,8 @@ export type {
 	Track,
 	TrackKindMap,
 	TrackType,
+	TranslationFileEventData,
+	TranslationsLoadedEventData,
 	TypeMapping,
 	TypeMappings,
 	Version,

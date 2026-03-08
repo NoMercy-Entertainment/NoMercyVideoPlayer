@@ -18,16 +18,23 @@ export interface NMPlayerTranslations {
 
 	/**
 	 * Adds multiple translation key-value pairs to the translations dictionary.
-	 * @param translations - An array of `{ key, value }` objects.
+	 * @param translations - A Record or an array of `{ key, value }` objects.
 	 */
-	addTranslations(translations: { key: string; value: string }[]): void;
+	addTranslations(translations: Record<string, string> | { key: string; value: string }[]): void;
 
 	/**
-	 * Fetches the translations file using the `language` option (falling back to `navigator.language`).
-	 * Loads from the GitHub-hosted locale JSON and emits a `'translations'` event.
-	 * @returns A promise that resolves when the translations have been loaded.
+	 * Fetches translation files for the resolved language.
+	 * Loads the built-in locale JSON, then either fetches URL patterns from
+	 * `options.translations` (string[]) or merges an inline record (Record<string, string>).
+	 * @returns A promise that resolves when all translations have been loaded.
 	 */
 	fetchTranslationsFile(): Promise<void>;
+
+	/**
+	 * Fetches a single translation file and merges it into translations.
+	 * @internal
+	 */
+	_tryFetchTranslation(url: string): Promise<string | null>;
 
 	/**
 	 * Sets the title of the document.

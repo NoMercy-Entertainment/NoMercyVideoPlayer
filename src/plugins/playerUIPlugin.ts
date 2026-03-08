@@ -529,7 +529,7 @@ export class PlayerUIPlugin extends Plugin {
 
 	private createSkipButtons() {
 		const skipBack = this.player.createUiButton(this.bottomRow, 'skip-back').get();
-		skipBack.ariaLabel = 'Skip back 10 seconds';
+		skipBack.ariaLabel = this.player.localize('Seek backward');
 		this.player.createSVGElement(skipBack, 'skip-back-icon', icons.seekBack, false, true);
 		skipBack.addEventListener('click', (e) => {
 			e.stopPropagation();
@@ -537,7 +537,7 @@ export class PlayerUIPlugin extends Plugin {
 		});
 
 		const skipForward = this.player.createUiButton(this.bottomRow, 'skip-forward').get();
-		skipForward.ariaLabel = 'Skip forward 10 seconds';
+		skipForward.ariaLabel = this.player.localize('Seek forward');
 		this.player.createSVGElement(skipForward, 'skip-forward-icon', icons.seekForward, false, true);
 		skipForward.addEventListener('click', (e) => {
 			e.stopPropagation();
@@ -559,7 +559,7 @@ export class PlayerUIPlugin extends Plugin {
 			.get();
 
 		const volumeButton = this.player.createUiButton(volumeContainer, 'volume').get();
-		volumeButton.ariaLabel = 'Mute';
+		volumeButton.ariaLabel = this.player.localize('Mute');
 
 		const volHigh = this.player.createSVGElement(volumeButton, 'vol-high', icons.volumeHigh, false, true);
 		const volLow = this.player.createSVGElement(volumeButton, 'vol-low', icons.volumeLow, true, true);
@@ -747,7 +747,7 @@ export class PlayerUIPlugin extends Plugin {
 
 	private createFullscreenButton() {
 		const btn = this.player.createUiButton(this.bottomRow, 'fullscreen').get();
-		btn.ariaLabel = 'Fullscreen';
+		btn.ariaLabel = this.player.localize('Fullscreen');
 
 		const enterIcon = this.player.createSVGElement(btn, 'fs-enter', icons.fullscreen, false, true);
 		const exitIcon = this.player.createSVGElement(btn, 'fs-exit', icons.exitFullscreen, true, true);
@@ -761,13 +761,13 @@ export class PlayerUIPlugin extends Plugin {
 		this.player.on('fullscreen', (isFs: boolean) => {
 			enterIcon.style.display = isFs ? 'none' : 'flex';
 			exitIcon.style.display = isFs ? 'flex' : 'none';
-			btn.ariaLabel = isFs ? 'Exit fullscreen' : 'Fullscreen';
+			btn.ariaLabel = isFs ? this.player.localize('Exit fullscreen') : this.player.localize('Fullscreen');
 		});
 	}
 
 	private createSpeedButton() {
 		const btn = this.player.createUiButton(this.bottomRow, 'speed').get();
-		btn.ariaLabel = 'Playback speed';
+		btn.ariaLabel = this.player.localize('Speed');
 		this.player.createSVGElement(btn, 'speed-icon', icons.speed, false, true);
 
 		btn.addEventListener('click', (e) => {
@@ -809,7 +809,7 @@ export class PlayerUIPlugin extends Plugin {
 				])
 				.appendTo(this.speedMenu!)
 				.get();
-			option.textContent = rate === 1 ? 'Normal' : `${rate}x`;
+			option.textContent = rate === 1 ? this.player.localize('Normal') : `${rate}x`;
 			option.addEventListener('click', (e) => {
 				e.stopPropagation();
 				this.player.speed(rate);
@@ -868,7 +868,7 @@ export class PlayerUIPlugin extends Plugin {
 
 	private createQualityButton() {
 		this.qualityButton = this.player.createUiButton(this.bottomRow, 'quality').get();
-		this.qualityButton.ariaLabel = 'Quality';
+		this.qualityButton.ariaLabel = this.player.localize('Quality');
 		this.qualityButton.style.display = 'none';
 		this.player.createSVGElement(this.qualityButton, 'quality-icon', icons.quality, false, true);
 
@@ -916,7 +916,7 @@ export class PlayerUIPlugin extends Plugin {
 				])
 				.appendTo(this.qualityMenu!)
 				.get();
-			autoOption.textContent = 'Auto';
+			autoOption.textContent = this.player.localize('auto');
 			autoOption.addEventListener('click', (e) => {
 				e.stopPropagation();
 				this.player.quality(-1);
@@ -988,7 +988,7 @@ export class PlayerUIPlugin extends Plugin {
 
 	private createSubtitleButton() {
 		this.subtitleButton = this.player.createUiButton(this.bottomRow, 'subtitles').get();
-		this.subtitleButton.ariaLabel = 'Subtitles';
+		this.subtitleButton.ariaLabel = this.player.localize('Subtitles');
 		this.subtitleButton.style.display = 'none';
 		this.player.createSVGElement(this.subtitleButton, 'subs-icon', icons.subtitles, false, true);
 
@@ -1036,7 +1036,7 @@ export class PlayerUIPlugin extends Plugin {
 				])
 				.appendTo(this.subtitleMenu!)
 				.get();
-			offOption.textContent = 'Off';
+			offOption.textContent = this.player.localize('Off');
 			offOption.addEventListener('click', (e) => {
 				e.stopPropagation();
 				this.player.subtitle(-1); // -1 disables subtitles
@@ -1097,7 +1097,7 @@ export class PlayerUIPlugin extends Plugin {
 
 	private createAudioButton() {
 		this.audioButton = this.player.createUiButton(this.bottomRow, 'audio').get();
-		this.audioButton.ariaLabel = 'Audio';
+		this.audioButton.ariaLabel = this.player.localize('Audio');
 		this.audioButton.style.display = 'none';
 		this.player.createSVGElement(this.audioButton, 'audio-icon', icons.audio, false, true);
 
