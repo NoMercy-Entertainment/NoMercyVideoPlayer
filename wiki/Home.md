@@ -22,6 +22,7 @@ Reference (look things up as needed):
 - **[API Reference](API-Reference)** — TypeScript types and interfaces
 - **[Methods](API-Reference-Methods)** — All NMPlayer methods
 - **[Events](Events)** — All events with data types
+- **[Utility Functions](Utility-Functions)** — Standalone helpers and constants you can import directly
 
 ## Core Concepts
 

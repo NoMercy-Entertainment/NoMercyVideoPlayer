@@ -30,6 +30,7 @@
 - [API Reference](API-Reference)
 - [Methods](API-Reference-Methods)
 - [Events](Events)
+- [Utility Functions](Utility-Functions)
 - [Keyboard Shortcuts](Keyboard-Shortcuts)
 
 **Examples**
