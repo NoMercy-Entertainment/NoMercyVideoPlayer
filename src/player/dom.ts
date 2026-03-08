@@ -1,4 +1,5 @@
 import type { AddClasses, AddClassesReturn, CreateElement, Icon, NMPlayer } from '../types';
+import { toTitleCase } from './utils';
 
 const DEFAULT_MESSAGE_TIME = 2000;
 
@@ -107,7 +108,7 @@ export const domMethods = {
 
 		const el = button.get();
 
-		el.ariaLabel = title ?? this.localize(id.replace(/-/g, ' ').toTitleCase());
+		el.ariaLabel = title ?? this.localize(toTitleCase(id.replace(/-/g, ' '), this.options.language));
 
 		el.addEventListener('keypress', (event) => {
 			if (event.key === 'Backspace') {
@@ -247,7 +248,7 @@ export const domMethods = {
 
 		const el = button.get();
 
-		el.ariaLabel = icon.title ?? this.localize(id.replace(/-/g, ' ').toTitleCase());
+		el.ariaLabel = icon.title ?? this.localize(toTitleCase(id.replace(/-/g, ' '), this.options.language));
 
 		el.addEventListener('keypress', (event) => {
 			if (event.key === 'Backspace') {

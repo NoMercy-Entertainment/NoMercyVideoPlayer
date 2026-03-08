@@ -26,6 +26,7 @@ import {
 	pad,
 	parseColorToHex,
 	rgbToHex,
+	toTitleCase,
 	unique,
 } from './player/utils';
 import KeyHandlerPlugin from './plugins/keyHandlerPlugin';
@@ -55,6 +56,7 @@ Object.assign(nmplayer, {
 	pad,
 	parseColorToHex,
 	rgbToHex,
+	toTitleCase,
 	unique,
 });
 

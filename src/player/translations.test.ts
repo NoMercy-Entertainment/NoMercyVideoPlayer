@@ -250,7 +250,7 @@ describe('translationMethods', () => {
 		it('falls back to en for unknown locales', async () => {
 			const player = createMockPlayer({
 				options: { language: 'xx-YY' },
-				getFileContents: vi.fn(({ url, callback }: any) => {
+				getFileContents: vi.fn(({ _url, callback }: any) => {
 					callback(JSON.stringify({ eng: 'English' }));
 					return Promise.resolve();
 				}),

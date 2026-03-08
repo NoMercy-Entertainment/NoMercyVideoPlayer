@@ -336,66 +336,6 @@ Object.defineProperties(NMPlayer.prototype, {
 	hasCloseEventHandler: { get() { return this.hasListeners('close'); }, configurable: true },
 });
 
-// ── String.prototype extensions ──────────────────────────────────────
-
-String.prototype.toTitleCase = function (): string {
-	let i: number;
-	let j: number;
-	let str: string;
-
-	str = this.replace(/([^\W_][^\s-]*) */gu, (txt: string) => {
-		return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
-	});
-
-	const lowers = ['A', 'An', 'The', 'And', 'But', 'Or', 'For', 'Nor', 'As', 'At', 'By', 'For', 'From', 'In', 'Into', 'Near', 'Of', 'On', 'Onto', 'To', 'With'];
-	for (i = 0, j = lowers.length; i < j; i++) {
-		str = str.replace(new RegExp(`\\s${lowers[i]}\\s`, 'gu'), (txt: string) => {
-			return txt.toLowerCase();
-		});
-	}
-
-	const uppers = ['Id', 'Tv'];
-	for (i = 0, j = uppers.length; i < j; i++) {
-		str = str.replace(new RegExp(`\\b${uppers[i]}\\b`, 'gu'), uppers[i].toUpperCase());
-	}
-
-	return str;
-};
-
-// cSpell:disable
-String.prototype.titleCase = function (lang: string = navigator.language.split('-')[0], withLowers: boolean = true): string {
-	let string: string;
-	let lowers: string[] = [];
-
-	string = this.replace(/([^\s:\-'])([^\s:\-']*)/gu, (txt: string) => {
-		return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
-	}).replace(/Mc(.)/gu, (_match: string, next: string): string => {
-		return `Mc${next.toUpperCase()}`;
-	});
-
-	if (withLowers) {
-		lowers = ['A', 'An', 'The', 'At', 'By', 'For', 'In', 'Of', 'On', 'To', 'Up', 'And', 'As', 'But', 'Or', 'Nor', 'Not'];
-		if (lang === 'FR') {
-			lowers = ['Un', 'Une', 'Le', 'La', 'Les', 'Du', 'De', 'Des', 'À', 'Au', 'Aux', 'Par', 'Pour', 'Dans', 'Sur', 'Et', 'Comme', 'Mais', 'Ou', 'Où', 'Ne', 'Ni', 'Pas'];
-		}
-		else if (lang === 'NL') {
-			lowers = ['De', 'Het', 'Een', 'En', 'Van', 'Naar', 'Op', 'Door', 'Voor', 'In', 'Als', 'Maar', 'Waar', 'Niet', 'Bij', 'Aan'];
-		}
-		for (let i = 0; i < lowers.length; i++) {
-			string = string.replace(new RegExp(`\\s${lowers[i]}\\s`, 'gu'), (txt: string) => {
-				return txt.toLowerCase();
-			});
-		}
-	}
-
-	const uppers = ['Id', 'R&d'];
-	for (let i = 0; i < uppers.length; i++) {
-		string = string.replace(new RegExp(`\\b${uppers[i]}\\b`, 'gu'), uppers[i].toUpperCase());
-	}
-
-	return string;
-};
-
 const nmplayer = <Conf extends Partial<PlayerConfig> = Record<string, any>>(id?: string) => new NMPlayer<Conf>(id);
 
 export default nmplayer;
@@ -422,6 +362,7 @@ export {
 	pad,
 	parseColorToHex,
 	rgbToHex,
+	toTitleCase,
 	unique,
 } from './player/utils';
 export { default as KeyHandlerPlugin } from './plugins/keyHandlerPlugin';

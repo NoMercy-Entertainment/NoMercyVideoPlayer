@@ -393,3 +393,124 @@ export function normalizeHex(hex: string, opacity: number): string {
 	}
 	return hex.toUpperCase();
 }
+
+// Pre-compiled regexes and data for toTitleCase — module-level so they are
+// created once and reused across all calls.
+const _ttcWhitespaceRE = /^\s+$/u;
+const _ttcHardBoundaryRE = /^[-\u2013\u2014:!?]$/u;
+const _ttcApostropheRE = /^['\u2018\u2019]$/u;
+
+const _ttcDelimiterRE = /(\s+|[\-\u2013\u2014:!?'\u2018\u2019])/u;
+const _ttcDelimiterTestRE = /^(?:\s+|[-\u2013\u2014:!?'\u2018\u2019])$/u;
+const _ttcContractionRE = /^(?:[stmd]|re|ve|ll|nt|em|[ny])$/iu;
+// Matches roman numerals (I–MMMM) so they are preserved in full uppercase.
+const _ttcRomanNumeralRE = /^(?=[MDCLXVI])M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})$/iu;
+
+// Articles, conjunctions and prepositions that stay lowercase per language.
+// Stored as Sets for O(1) lookup. Unknown languages fall back to English.
+const _ttcSmallWords: Readonly<Record<string, ReadonlySet<string>>> = {
+	en: new Set(['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'as', 'at', 'by', 'from', 'in', 'into', 'near', 'of', 'on', 'onto', 'to', 'up', 'via', 'vs', 'with']),
+	de: new Set(['der', 'die', 'das', 'ein', 'eine', 'und', 'oder', 'aber', 'f\u00FCr', 'von', 'zu', 'mit', 'an', 'auf', 'in', 'bei', 'nach', '\u00FCber', 'um', 'vor']),
+	nl: new Set(['de', 'het', 'een', 'en', 'van', 'naar', 'op', 'door', 'voor', 'in', 'als', 'maar', 'of', 'bij', 'aan', 'om', 'uit', 'tot', 'met']),
+	fr: new Set(['un', 'une', 'le', 'la', 'les', 'du', 'de', 'des', '\u00E0', 'au', 'aux', 'par', 'pour', 'dans', 'sur', 'et', 'ou', 'ni', 'comme', 'mais', 'car']),
+	es: new Set(['el', 'la', 'los', 'las', 'un', 'una', 'de', 'del', 'y', 'e', 'o', 'u', 'para', 'por', 'en', 'con', 'sin', 'sobre', 'desde', 'hasta']),
+	it: new Set(['il', 'lo', 'la', 'i', 'gli', 'le', 'un', 'una', 'di', 'da', 'in', 'con', 'su', 'per', 'e', 'o', 'tra', 'fra', 'del', 'della', 'dello', 'degli', 'delle', 'al', 'alla', 'allo', 'agli', 'alle', 'dal', 'dalla', 'dallo', 'dagli', 'dalle', 'nel', 'nella', 'nello', 'negli', 'nelle', 'sul', 'sulla', 'sullo', 'sugli', 'sulle']),
+	pt: new Set(['o', 'a', 'os', 'as', 'um', 'uma', 'de', 'do', 'da', 'em', 'no', 'na', 'com', 'por', 'para', 'e', 'ou']),
+	sv: new Set(['en', 'ett', 'och', 'men', 'eller', 'f\u00F6r', 'om', 'p\u00E5', 'i', 'av', 'till', 'fr\u00E5n', 'med', 'vid']),
+	no: new Set(['en', 'et', 'og', 'men', 'eller', 'for', 'om', 'p\u00E5', 'i', 'av', 'til', 'fra', 'med', 'ved']),
+	da: new Set(['en', 'et', 'og', 'men', 'eller', 'for', 'om', 'p\u00E5', 'i', 'af', 'til', 'fra', 'med', 'ved']),
+	pl: new Set(['i', 'a', 'lub', 'albo', 'ale', 'lecz', 'oraz', '\u017Ce', 'do', 'od', 'na', 'po', 'przy', 'przez', 'za', 'ze', 'z', 'w', 'we']),
+	ru: new Set(['\u0438', '\u0430', '\u043D\u043E', '\u0438\u043B\u0438', '\u0447\u0442\u043E', '\u0432', '\u043D\u0430', '\u0437\u0430', '\u043A', '\u043E\u0442', '\u0438\u0437', '\u043F\u043E', '\u0434\u043B\u044F', '\u043E', '\u043E\u0431']),
+	tr: new Set(['ve', 'veya', 'ile', 'ama', 'fakat', 'gibi', 'i\u00E7in', 'bir']),
+};
+
+/**
+ * Converts a string to title case with proper locale-aware casing.
+ *
+ * - Uses `toLocaleUpperCase` / `toLocaleLowerCase` so locale-specific rules
+ *   (e.g. Turkish dotted-I, German ß→SS) are respected.
+ * - Keeps language-appropriate articles, conjunctions and prepositions lowercase
+ *   when they appear mid-phrase (O(1) Set lookup per language).
+ * - Always capitalises the first and last token and any token that follows a
+ *   hard boundary (colon, em-dash, en-dash, exclamation mark, question mark).
+ * - Handles apostrophe elisions (l'homme, O'Brien) and contractions (don't, it's).
+ *
+ * @param str    - Input string.
+ * @param locale - BCP-47 locale tag (defaults to `navigator.language`).
+ */
+export function toTitleCase(str: string, locale?: string): string {
+	const resolvedLocale = locale ?? (typeof navigator !== 'undefined' ? navigator.language : 'en');
+	const lang = resolvedLocale.split('-')[0].toLowerCase();
+	// _ttcSmallWords is keyed by base language only; full-locale keys (e.g. "pt-BR") are
+	// intentionally not stored because pt-BR and pt share the same article/preposition set.
+	const smallWords = _ttcSmallWords[lang] ?? _ttcSmallWords.en;
+
+	const tokens = str.split(_ttcDelimiterRE);
+
+	// Scan backwards for the last word token (excludes whitespace and punctuation).
+	let lastWordIndex = -1;
+	for (let i = tokens.length - 1; i >= 0; i--) {
+		if (tokens[i].length > 0 && !_ttcDelimiterTestRE.test(tokens[i])) {
+			lastWordIndex = i;
+			break;
+		}
+	}
+
+	let capitaliseNext = true;
+	let prevDelimiter: string | null = null;
+
+	return tokens.map((token, i) => {
+		// Empty token produced by adjacent delimiters — skip without side-effects.
+		if (token.length === 0) {
+			return token;
+		}
+
+		// Whitespace — pass through unchanged, clear delimiter context.
+		if (_ttcWhitespaceRE.test(token)) {
+			prevDelimiter = null;
+			return token;
+		}
+
+		// Apostrophe — record but do NOT set capitaliseNext (keeps contractions lowercase).
+		if (_ttcApostropheRE.test(token)) {
+			prevDelimiter = token;
+			return token;
+		}
+
+		// Hard sentence boundary — next real word must be capitalised.
+		if (_ttcHardBoundaryRE.test(token)) {
+			capitaliseNext = true;
+			prevDelimiter = token;
+			return token;
+		}
+
+		const lower = token.toLocaleLowerCase(resolvedLocale);
+		const isFirst = capitaliseNext;
+		const isLast = i === lastWordIndex;
+		const afterApostrophe = prevDelimiter !== null && _ttcApostropheRE.test(prevDelimiter);
+
+		capitaliseNext = false;
+		prevDelimiter = null;
+
+		// Contraction suffix after apostrophe (don't → Don't, it's → It's).
+		if (afterApostrophe && _ttcContractionRE.test(lower)) {
+			return lower;
+		}
+
+		if (!isFirst && !isLast && smallWords.has(lower)) {
+			return lower;
+		}
+
+		// Roman numerals stay fully uppercase (VIII, XIV, etc.).
+		// Checked after small-words so language articles (Italian "i") are kept lowercase.
+		// length > 1 prevents false positives for single letters (e.g. "vitamin i").
+		// The fast pre-check limits chars to [MDCLXVI] before running the full structural regex.
+		if (lower.length > 1 && /^[mdclxvi]+$/iu.test(lower) && _ttcRomanNumeralRE.test(lower)) {
+			return lower.toLocaleUpperCase(resolvedLocale);
+		}
+
+		// Capitalise the first grapheme (spread is Unicode-safe for multi-code-unit chars).
+		const chars = [...lower];
+		return chars[0].toLocaleUpperCase(resolvedLocale) + chars.slice(1).join('');
+	}).join('');
+}
