@@ -10,19 +10,12 @@ export const floatMethods = {
 
 		this.shouldFloat = value;
 
-		if (value) {
-			this.container.classList.remove('not-floating');
-			this.container.classList.add('floating');
-		}
-		else {
-			this.container.classList.remove('floating');
-			this.container.classList.add('not-floating');
-		}
-
 		this.emit('float', value);
 	},
 
 	_initFloatObserver(this: NMPlayer): void {
+		this.container.classList.add('not-floating');
+
 		const floatConfig = this.options.float;
 		if (!floatConfig)
 			return;

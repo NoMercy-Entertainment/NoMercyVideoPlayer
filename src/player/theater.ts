@@ -10,15 +10,6 @@ export const theaterMethods = {
 
 		this._theaterMode = value;
 
-		if (value) {
-			this.container.classList.remove('not-theater');
-			this.container.classList.add('theater');
-		}
-		else {
-			this.container.classList.remove('theater');
-			this.container.classList.add('not-theater');
-		}
-
 		this.storage.set('theater', value).catch(() => {});
 		this.emit('theater', value);
 	},
@@ -28,6 +19,8 @@ export const theaterMethods = {
 	},
 
 	_initTheater(this: NMPlayer): void {
+		this.container.classList.add('not-theater');
+
 		const theaterConfig = this.options.theater;
 		if (!theaterConfig)
 			return;

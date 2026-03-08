@@ -18,19 +18,17 @@ export const pipMethods = {
 	},
 
 	_initPipListeners(this: NMPlayer): void {
+		this.container.classList.add('not-pip');
+
 		const pipConfig = this.options.pip;
 		if (!pipConfig)
 			return;
 
 		this.videoElement.addEventListener('enterpictureinpicture', () => {
-			this.container.classList.remove('not-pip');
-			this.container.classList.add('pip');
 			this.emit('pip', true);
 		});
 
 		this.videoElement.addEventListener('leavepictureinpicture', () => {
-			this.container.classList.remove('pip');
-			this.container.classList.add('not-pip');
 			this.emit('pip', false);
 		});
 

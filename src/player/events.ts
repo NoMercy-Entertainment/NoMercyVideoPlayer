@@ -149,6 +149,9 @@ export const eventMethods = {
 	_boundEmitPlay: null as ((data?: any) => void) | null,
 	_boundEmitPaused: null as ((data?: any) => void) | null,
 	_boundInteraction: null as ((data?: any) => void) | null,
+	_boundPipClass: null as ((enabled: boolean) => void) | null,
+	_boundTheaterClass: null as ((enabled: boolean) => void) | null,
+	_boundFloatClass: null as ((enabled: boolean) => void) | null,
 
 	_initEventArrays(this: NMPlayer): void {
 		this._playerEvents = [
@@ -192,6 +195,23 @@ export const eventMethods = {
 		this.on('play', this._boundEmitPlay);
 		this.on('pause', this._boundEmitPaused);
 		this.on('interaction', this._boundInteraction);
+
+		this._boundPipClass = (enabled: boolean) => {
+			this.container.classList.toggle('pip', enabled);
+			this.container.classList.toggle('not-pip', !enabled);
+		};
+		this._boundTheaterClass = (enabled: boolean) => {
+			this.container.classList.toggle('theater', enabled);
+			this.container.classList.toggle('not-theater', !enabled);
+		};
+		this._boundFloatClass = (enabled: boolean) => {
+			this.container.classList.toggle('floating', enabled);
+			this.container.classList.toggle('not-floating', !enabled);
+		};
+
+		this.on('pip', this._boundPipClass);
+		this.on('theater', this._boundTheaterClass);
+		this.on('float', this._boundFloatClass);
 
 		this.mediaSession?.setActionHandler({
 			play: this.play.bind(this),
@@ -466,5 +486,11 @@ export const eventMethods = {
 			this.off('pause', this._boundEmitPaused);
 		if (this._boundInteraction)
 			this.off('interaction', this._boundInteraction);
+		if (this._boundPipClass)
+			this.off('pip', this._boundPipClass);
+		if (this._boundTheaterClass)
+			this.off('theater', this._boundTheaterClass);
+		if (this._boundFloatClass)
+			this.off('float', this._boundFloatClass);
 	},
 };

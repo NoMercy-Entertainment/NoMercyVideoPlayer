@@ -116,6 +116,9 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	_boundEmitPlay: ((data?: any) => void) | null;
 	_boundEmitPaused: ((data?: any) => void) | null;
 	_boundInteraction: ((data?: any) => void) | null;
+	_boundPipClass: ((enabled: boolean) => void) | null;
+	_boundTheaterClass: ((enabled: boolean) => void) | null;
+	_boundFloatClass: ((enabled: boolean) => void) | null;
 	_theaterMode: boolean;
 	_floatObserver: IntersectionObserver | undefined;
 	_pipVisibilityHandler: (() => void) | undefined;

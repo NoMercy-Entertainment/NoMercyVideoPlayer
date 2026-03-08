@@ -241,6 +241,64 @@ describe('eventMethods', () => {
 			expect(player.off).toHaveBeenCalledWith('pause', expect.any(Function));
 			expect(player.off).toHaveBeenCalledWith('interaction', expect.any(Function));
 		});
+
+		it('registers and cleans up pip/theater/float class listeners', () => {
+			const player = createMockPlayer();
+			player._addEvents();
+
+			expect(player._boundPipClass).not.toBeNull();
+			expect(player._boundTheaterClass).not.toBeNull();
+			expect(player._boundFloatClass).not.toBeNull();
+
+			expect(player.on).toHaveBeenCalledWith('pip', expect.any(Function));
+			expect(player.on).toHaveBeenCalledWith('theater', expect.any(Function));
+			expect(player.on).toHaveBeenCalledWith('float', expect.any(Function));
+
+			player._removeEvents();
+
+			expect(player.off).toHaveBeenCalledWith('pip', expect.any(Function));
+			expect(player.off).toHaveBeenCalledWith('theater', expect.any(Function));
+			expect(player.off).toHaveBeenCalledWith('float', expect.any(Function));
+		});
+
+		it('pip class handler toggles pip/not-pip classes', () => {
+			const player = createMockPlayer();
+			player._addEvents();
+
+			player._boundPipClass(true);
+			expect(player.container.classList.contains('pip')).toBe(true);
+			expect(player.container.classList.contains('not-pip')).toBe(false);
+
+			player._boundPipClass(false);
+			expect(player.container.classList.contains('pip')).toBe(false);
+			expect(player.container.classList.contains('not-pip')).toBe(true);
+		});
+
+		it('theater class handler toggles theater/not-theater classes', () => {
+			const player = createMockPlayer();
+			player._addEvents();
+
+			player._boundTheaterClass(true);
+			expect(player.container.classList.contains('theater')).toBe(true);
+			expect(player.container.classList.contains('not-theater')).toBe(false);
+
+			player._boundTheaterClass(false);
+			expect(player.container.classList.contains('theater')).toBe(false);
+			expect(player.container.classList.contains('not-theater')).toBe(true);
+		});
+
+		it('float class handler toggles floating/not-floating classes', () => {
+			const player = createMockPlayer();
+			player._addEvents();
+
+			player._boundFloatClass(true);
+			expect(player.container.classList.contains('floating')).toBe(true);
+			expect(player.container.classList.contains('not-floating')).toBe(false);
+
+			player._boundFloatClass(false);
+			expect(player.container.classList.contains('floating')).toBe(false);
+			expect(player.container.classList.contains('not-floating')).toBe(true);
+		});
 	});
 
 	describe('videoPlayer_onPlayingEvent()', () => {

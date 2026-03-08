@@ -39,22 +39,17 @@ describe('theaterMethods', () => {
 	});
 
 	describe('theater() setter', () => {
-		it('sets theater mode and adds CSS class', () => {
+		it('sets theater mode and emits event', () => {
 			const player = createMockPlayer();
 			player.theater(true);
 			expect(player._theaterMode).toBe(true);
-			expect(player.container.classList.contains('theater')).toBe(true);
-			expect(player.container.classList.contains('not-theater')).toBe(false);
 			expect(player.emit).toHaveBeenCalledWith('theater', true);
 		});
 
-		it('removes theater mode and adds not-theater class', () => {
+		it('removes theater mode and emits event', () => {
 			const player = createMockPlayer({ _theaterMode: true });
-			player.container.classList.add('theater');
 			player.theater(false);
 			expect(player._theaterMode).toBe(false);
-			expect(player.container.classList.contains('not-theater')).toBe(true);
-			expect(player.container.classList.contains('theater')).toBe(false);
 			expect(player.emit).toHaveBeenCalledWith('theater', false);
 		});
 

@@ -37,22 +37,17 @@ describe('floatMethods', () => {
 	});
 
 	describe('float() setter', () => {
-		it('sets floating state and adds CSS class', () => {
+		it('sets floating state and emits event', () => {
 			const player = createMockPlayer();
 			player.float(true);
 			expect(player.shouldFloat).toBe(true);
-			expect(player.container.classList.contains('floating')).toBe(true);
-			expect(player.container.classList.contains('not-floating')).toBe(false);
 			expect(player.emit).toHaveBeenCalledWith('float', true);
 		});
 
-		it('removes floating state and adds not-floating class', () => {
+		it('removes floating state and emits event', () => {
 			const player = createMockPlayer({ shouldFloat: true });
-			player.container.classList.add('floating');
 			player.float(false);
 			expect(player.shouldFloat).toBe(false);
-			expect(player.container.classList.contains('not-floating')).toBe(true);
-			expect(player.container.classList.contains('floating')).toBe(false);
 			expect(player.emit).toHaveBeenCalledWith('float', false);
 		});
 
