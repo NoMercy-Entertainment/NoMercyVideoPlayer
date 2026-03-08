@@ -136,8 +136,16 @@ export class Base<T = Record<string, any>> {
 	once<K extends keyof PlayerEventMap>(event: K, callback: (data: PlayerEventMap[K]) => void): void;
 	once(event: string, callback: (data: any) => void): void;
 	once(event: any, callback: (arg: any) => any) {
-		const cb = (e: Event) => callback((e as CustomEvent).detail);
+		const cb = (e: Event) => {
+			callback((e as CustomEvent).detail);
+			const index = this.events.findIndex(entry => entry.fn === cb);
+			if (index > -1) {
+				this.events.splice(index, 1);
+			}
+		};
+		cb.original = callback;
 		this.eventTarget.addEventListener(event, cb, { once: true });
+		this.events.push({ type: event, fn: cb });
 	}
 
 	/**
