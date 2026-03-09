@@ -1,5 +1,17 @@
 import type { NMPlayer } from '../types';
 
+/** All built-in locale files bundled at build time — no network request needed. */
+const builtInLocales = import.meta.glob<Record<string, string>>(
+	'../../public/locales/*.json',
+	{ eager: true, import: 'default' },
+);
+
+/** Retrieve a bundled locale record by resolved locale tag (e.g. 'en', 'pt-BR'). */
+function getBuiltInLocale(resolved: string): Record<string, string> | null {
+	const key = `../../public/locales/${resolved}.json`;
+	return builtInLocales[key] ?? null;
+}
+
 /**
  * Maps non-standard language codes (used in some media container formats)
  * to their BCP-47 equivalents, which `Intl.DisplayNames` would not otherwise recognise.
@@ -137,21 +149,23 @@ export const translationMethods = {
 	async fetchTranslationsFile(this: NMPlayer): Promise<void> {
 		const language = this.options.language ?? navigator.language;
 		const resolved = resolveLocale(language);
-		const baseUrl = 'https://raw.githubusercontent.com/NoMercy-Entertainment/NoMercyVideoPlayer/refs/heads/master/public/locales';
 
 		const loadedFiles: string[] = [];
 
-		// 1. Load built-in locale file (single fetch, guaranteed to exist)
-		const builtInUrl = `${baseUrl}/${resolved}.json`;
-		const builtInLoaded = await this._tryFetchTranslation(builtInUrl);
-		if (builtInLoaded) {
-			loadedFiles.push(builtInLoaded);
+		// 1. Load built-in locale from bundled data — no network request, no CORS.
+		const builtInData = getBuiltInLocale(resolved);
+		if (builtInData) {
+			this.translations = { ...this.translations, ...builtInData };
+			this.emit('translations', { source: `builtin:${resolved}`, data: builtInData });
+			loadedFiles.push(`builtin:${resolved}`);
 		}
 
 		// 2. Load each custom translation file or inline record from config
 		if (Array.isArray(this.options.translations) && this.options.translations.length) {
 			for (const pattern of this.options.translations) {
-				const url = pattern.replace('{lang}', resolved);
+				const raw = pattern.replace('{lang}', resolved);
+				// Resolve relative paths against the page origin, not basePath (which is the media server).
+				const url = raw.startsWith('http') ? raw : `${location.origin}/${raw.replace(/^\//, '')}`;
 				const loaded = await this._tryFetchTranslation(url);
 				if (loaded) {
 					loadedFiles.push(loaded);
@@ -180,7 +194,7 @@ export const translationMethods = {
 		try {
 			await this.getFileContents<string>({
 				url,
-				options: {},
+				options: { anonymous: true },
 				callback: (data) => {
 					const parsed: Record<string, string> = JSON.parse(data);
 					this.translations = { ...this.translations, ...parsed };
