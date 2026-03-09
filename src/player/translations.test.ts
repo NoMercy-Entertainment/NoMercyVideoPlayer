@@ -152,165 +152,109 @@ describe('translationMethods', () => {
 	});
 
 	describe('fetchTranslationsFile()', () => {
-		it('loads built-in locale file', async () => {
-			const player = createMockPlayer({
-				getFileContents: vi.fn(({ callback }: any) => {
-					callback(JSON.stringify({ eng: 'English' }));
-					return Promise.resolve();
-				}),
-			});
+		it('loads built-in locale from bundled data without network request', async () => {
+			const player = createMockPlayer();
 			await player.fetchTranslationsFile();
-			expect(player.getFileContents).toHaveBeenCalledWith(
-				expect.objectContaining({
-					url: expect.stringContaining('/en.json'),
-				}),
-			);
-			expect(player.translations.eng).toBe('English');
+			// Bundled locale — getFileContents must NOT be called for built-in
+			expect(player.getFileContents).not.toHaveBeenCalled();
+			expect(player.translations.off).toBe('Off'); // key present in en.json
 		});
 
-		it('emits translations per file with source and data', async () => {
-			const player = createMockPlayer({
-				getFileContents: vi.fn(({ callback }: any) => {
-					callback(JSON.stringify({ eng: 'English' }));
-					return Promise.resolve();
-				}),
-			});
+		it('emits translations with builtin source', async () => {
+			const player = createMockPlayer();
 			await player.fetchTranslationsFile();
 			expect(player.emit).toHaveBeenCalledWith(
 				'translations',
 				expect.objectContaining({
-					source: expect.stringContaining('/en.json'),
-					data: { eng: 'English' },
+					source: 'builtin:en',
 				}),
 			);
 		});
 
 		it('emits translationsLoaded with language and files', async () => {
-			const player = createMockPlayer({
-				getFileContents: vi.fn(({ callback }: any) => {
-					callback(JSON.stringify({ eng: 'English' }));
-					return Promise.resolve();
-				}),
-			});
+			const player = createMockPlayer();
 			await player.fetchTranslationsFile();
 			expect(player.emit).toHaveBeenCalledWith(
 				'translationsLoaded',
 				expect.objectContaining({
 					language: 'en',
-					files: expect.arrayContaining([expect.stringContaining('/en.json')]),
+					files: ['builtin:en'],
 				}),
 			);
 		});
 
-		it('resolves regional locale to base file (no 404)', async () => {
-			const urls: string[] = [];
-			const player = createMockPlayer({
-				options: { language: 'nl-NL' },
-				getFileContents: vi.fn(({ url, callback }: any) => {
-					urls.push(url);
-					callback(JSON.stringify({ dut: 'Nederlands' }));
-					return Promise.resolve();
-				}),
-			});
+		it('resolves regional locale to base bundled file (no 404)', async () => {
+			const player = createMockPlayer({ options: { language: 'nl-NL' } });
 			await player.fetchTranslationsFile();
-			// Should fetch nl.json directly, not nl-NL.json
-			expect(urls[0]).toContain('/nl.json');
-			expect(urls).toHaveLength(1);
-			expect(player.translations.dut).toBe('Nederlands');
+			// nl.json is bundled — no network request, nl locale data applied
+			expect(player.getFileContents).not.toHaveBeenCalled();
+			expect(player.translations.off).toBe('Uit'); // key from nl.json
 		});
 
-		it('fetches pt-BR.json for Brazilian Portuguese', async () => {
-			const urls: string[] = [];
-			const player = createMockPlayer({
-				options: { language: 'pt-BR' },
-				getFileContents: vi.fn(({ url, callback }: any) => {
-					urls.push(url);
-					callback(JSON.stringify({ por: 'Português' }));
-					return Promise.resolve();
-				}),
-			});
+		it('loads pt-BR bundled locale for Brazilian Portuguese', async () => {
+			const player = createMockPlayer({ options: { language: 'pt-BR' } });
 			await player.fetchTranslationsFile();
-			expect(urls[0]).toContain('/pt-BR.json');
+			expect(player.getFileContents).not.toHaveBeenCalled();
+			expect(player.translations.off).toBe('Desligado'); // key from pt-BR.json
 		});
 
-		it('fetches zh-TW.json for Traditional Chinese', async () => {
-			const urls: string[] = [];
-			const player = createMockPlayer({
-				options: { language: 'zh-TW' },
-				getFileContents: vi.fn(({ url, callback }: any) => {
-					urls.push(url);
-					callback(JSON.stringify({ chi: '中文' }));
-					return Promise.resolve();
-				}),
-			});
+		it('loads zh-TW bundled locale for Traditional Chinese', async () => {
+			const player = createMockPlayer({ options: { language: 'zh-TW' } });
 			await player.fetchTranslationsFile();
-			expect(urls[0]).toContain('/zh-TW.json');
+			expect(player.getFileContents).not.toHaveBeenCalled();
+			expect(player.emit).toHaveBeenCalledWith(
+				'translationsLoaded',
+				expect.objectContaining({ language: 'zh-TW' }),
+			);
 		});
 
 		it('falls back to en for unknown locales', async () => {
-			const player = createMockPlayer({
-				options: { language: 'xx-YY' },
-				getFileContents: vi.fn(({ _url, callback }: any) => {
-					callback(JSON.stringify({ eng: 'English' }));
-					return Promise.resolve();
-				}),
-			});
+			const player = createMockPlayer({ options: { language: 'xx-YY' } });
 			await player.fetchTranslationsFile();
-			expect(player.getFileContents).toHaveBeenCalledWith(
-				expect.objectContaining({ url: expect.stringContaining('/en.json') }),
+			expect(player.getFileContents).not.toHaveBeenCalled();
+			expect(player.translations.off).toBe('Off'); // en.json data
+			expect(player.emit).toHaveBeenCalledWith(
+				'translationsLoaded',
+				expect.objectContaining({ language: 'en' }),
 			);
-			expect(player.translations.eng).toBe('English');
 		});
 
-		it('loads custom translation files from config', async () => {
+		it('loads custom translation files from config via getFileContents', async () => {
 			const player = createMockPlayer({
 				options: {
 					language: 'en',
-					translations: ['/locales/{lang}/ui.json'],
+					translations: ['http://example.com/locales/{lang}/ui.json'],
 				},
-				getFileContents: vi.fn(({ url, callback }: any) => {
-					if (url.includes('/ui.json')) {
-						callback(JSON.stringify({ Play: 'Play', Pause: 'Pause' }));
-					}
-					else {
-						callback(JSON.stringify({ eng: 'English' }));
-					}
+				getFileContents: vi.fn(({ callback }: any) => {
+					callback(JSON.stringify({ Play: 'Play', Pause: 'Pause' }));
 					return Promise.resolve();
 				}),
 			});
 			await player.fetchTranslationsFile();
 			expect(player.translations.Play).toBe('Play');
-			expect(player.translations.eng).toBe('English');
+			// Built-in bundled data also present
+			expect(player.translations.off).toBe('Off');
 		});
 
 		it('custom translations override built-in translations', async () => {
 			const player = createMockPlayer({
 				options: {
 					language: 'en',
-					translations: ['/locales/{lang}/custom.json'],
+					translations: ['http://example.com/locales/{lang}/custom.json'],
 				},
-				getFileContents: vi.fn(({ url, callback }: any) => {
-					if (url.includes('/custom.json')) {
-						callback(JSON.stringify({ eng: 'Custom English' }));
-					}
-					else {
-						callback(JSON.stringify({ eng: 'English' }));
-					}
+				getFileContents: vi.fn(({ callback }: any) => {
+					callback(JSON.stringify({ off: 'Custom Off' }));
 					return Promise.resolve();
 				}),
 			});
 			await player.fetchTranslationsFile();
-			expect(player.translations.eng).toBe('Custom English');
+			expect(player.translations.off).toBe('Custom Off');
 		});
 
-		it('logs warning when no translations found', async () => {
-			const player = createMockPlayer({
-				getFileContents: vi.fn(() => Promise.reject(new Error('Network error'))),
-			});
+		it('does not warn when built-in translations load successfully', async () => {
+			const player = createMockPlayer();
 			await player.fetchTranslationsFile();
-			expect(player.logger.warn).toHaveBeenCalledWith(
-				'No translations file found, using key passthrough',
-			);
+			expect(player.logger.warn).not.toHaveBeenCalled();
 		});
 	});
 });
