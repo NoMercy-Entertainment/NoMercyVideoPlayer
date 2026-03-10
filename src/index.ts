@@ -261,7 +261,9 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		this.setupTime = Date.now();
 
-		queueMicrotask(() => { this.fetchTranslationsFile(); });
+		queueMicrotask(() => {
+			this.fetchTranslationsFile();
+		});
 		this.loadPlaylist();
 
 		return this as unknown as NMPlayer<U>;
