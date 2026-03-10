@@ -119,5 +119,5 @@ player.on('time', (data) => {
 ## Links
 
 - [NPM Package](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-video-player)
-- [GitHub Repository](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer)
+- [GitHub Repository](https://github.com/NoMercy-Entertainment/nomercy-video-player)
 - [NoMercyTV](https://nomercy.tv/)

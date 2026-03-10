@@ -4,9 +4,9 @@ A headless, plugin-based HTML5 video player engine built with TypeScript. No UI 
 
 [![NPM Version](https://img.shields.io/npm/v/@nomercy-entertainment/nomercy-video-player?style=flat&logo=npm&logoColor=white&color=cb3837)](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-video-player)
 [![NPM Downloads](https://img.shields.io/npm/dm/@nomercy-entertainment/nomercy-video-player?style=flat&logo=npm&logoColor=white&color=cb3837)](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-video-player)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/NoMercy-Entertainment/NoMercyVideoPlayer/release.yml?style=flat&logo=github&logoColor=white)](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/actions)
-[![Tests](https://img.shields.io/github/actions/workflow/status/NoMercy-Entertainment/NoMercyVideoPlayer/test-reports.yml?style=flat&logo=vitest&logoColor=white&label=tests)](https://nomercy-entertainment.github.io/NoMercyVideoPlayer/)
-[![License](https://img.shields.io/github/license/NoMercy-Entertainment/NoMercyVideoPlayer?style=flat&color=green)](./LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/NoMercy-Entertainment/nomercy-video-player/release.yml?style=flat&logo=github&logoColor=white)](https://github.com/NoMercy-Entertainment/nomercy-video-player/actions)
+[![Tests](https://img.shields.io/github/actions/workflow/status/NoMercy-Entertainment/nomercy-video-player/test-reports.yml?style=flat&logo=vitest&logoColor=white&label=tests)](https://nomercy-entertainment.github.io/nomercy-video-player/)
+[![License](https://img.shields.io/github/license/NoMercy-Entertainment/nomercy-video-player?style=flat&color=green)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
 ## Why?
@@ -151,20 +151,20 @@ class MyUIPlugin extends Plugin {
 }
 ```
 
-See the [Plugin Development Guide](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Plugin-Development) for complete examples.
+See the [Plugin Development Guide](https://github.com/NoMercy-Entertainment/nomercy-video-player/wiki/Plugin-Development) for complete examples.
 
 ## Documentation
 
 | Guide                                                                                                               | Description                             |
 | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| [Getting Started](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Quick-Start-Guide)               | Installation, setup, and first plugin   |
-| [Configuration](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Configuration)                     | All PlayerConfig options                |
-| [Plugin Development](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Plugin-Development)           | Extending the player with plugins       |
-| [Building a Player UI](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Building-a-Video-Player-UI) | 10-step tutorial from scratch           |
-| [API Reference](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/API-Reference)                     | Types and interfaces                    |
-| [Methods](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/API-Reference-Methods)                   | All NMPlayer methods                    |
-| [Events](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Events)                                   | All events with data types              |
-| [Framework Integration](https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer/wiki/Framework-Integration)     | Vue, React, Svelte, Angular, Vanilla JS |
+| [Getting Started](https://github.com/NoMercy-Entertainment/nomercy-video-player/wiki/Quick-Start-Guide)               | Installation, setup, and first plugin   |
+| [Configuration](https://github.com/NoMercy-Entertainment/nomercy-video-player/wiki/Configuration)                     | All PlayerConfig options                |
+| [Plugin Development](https://github.com/NoMercy-Entertainment/nomercy-video-player/wiki/Plugin-Development)           | Extending the player with plugins       |
+| [Building a Player UI](https://github.com/NoMercy-Entertainment/nomercy-video-player/wiki/Building-a-Video-Player-UI) | 10-step tutorial from scratch           |
+| [API Reference](https://github.com/NoMercy-Entertainment/nomercy-video-player/wiki/API-Reference)                     | Types and interfaces                    |
+| [Methods](https://github.com/NoMercy-Entertainment/nomercy-video-player/wiki/API-Reference-Methods)                   | All NMPlayer methods                    |
+| [Events](https://github.com/NoMercy-Entertainment/nomercy-video-player/wiki/Events)                                   | All events with data types              |
+| [Framework Integration](https://github.com/NoMercy-Entertainment/nomercy-video-player/wiki/Framework-Integration)     | Vue, React, Svelte, Angular, Vanilla JS |
 
 ## Browser Support
 
@@ -178,8 +178,8 @@ See the [Plugin Development Guide](https://github.com/NoMercy-Entertainment/NoMe
 ## Contributing
 
 ```bash
-git clone https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer.git
-cd NoMercyVideoPlayer
+git clone https://github.com/NoMercy-Entertainment/nomercy-video-player.git
+cd nomercy-video-player
 npm install
 npm run dev
 npm run build
@@ -193,4 +193,4 @@ npm run build
 
 Built by the [NoMercy Entertainment](https://github.com/NoMercy-Entertainment) team. Powers video playback in [NoMercyTV](https://nomercy.tv/).
 
-See also: [NoMercy MusicPlayer](https://github.com/NoMercy-Entertainment/NoMercyMusicPlayer) | [NoMercy MediaServer](https://github.com/NoMercy-Entertainment/NoMercyMediaServer)
+See also: [NoMercy MusicPlayer](https://github.com/NoMercy-Entertainment/nomercy-music-player) | [NoMercy MediaServer](https://github.com/NoMercy-Entertainment/nomercy-media-server)

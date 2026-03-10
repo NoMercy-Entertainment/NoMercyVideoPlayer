@@ -253,4 +253,4 @@ player.dispose();
 - [Events](Events) — Full event reference
 - [Methods](API-Reference-Methods) — All player methods
 - [Framework Integration](Framework-Integration) — React, Vue, Angular, Svelte patterns
-- [Live Examples](https://github.com/NoMercy-Entertainment/Examples) — Working example project
+- [Live Examples](https://github.com/NoMercy-Entertainment/nomercy-examples) — Working example project

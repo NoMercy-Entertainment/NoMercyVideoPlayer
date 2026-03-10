@@ -12,10 +12,10 @@
 		"Stoney Eagle <stoney@nomercy.tv>"
 	],
 	"license": "Apache-2.0",
-	"homepage": "https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer",
+	"homepage": "https://github.com/NoMercy-Entertainment/nomercy-video-player",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer.git"
+		"url": "git+https://github.com/NoMercy-Entertainment/nomercy-video-player.git"
 	},
 	"keywords": [
 		"video",

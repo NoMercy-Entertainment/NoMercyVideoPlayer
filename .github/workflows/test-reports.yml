@@ -46,7 +46,7 @@ jobs:
             <head>
               <meta charset="UTF-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              <title>NoMercyVideoPlayer — Test Reports</title>
+              <title>nomercy-video-player — Test Reports</title>
               <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body {
@@ -97,7 +97,7 @@ jobs:
               </style>
             </head>
             <body>
-              <h1>NoMercyVideoPlayer</h1>
+              <h1>nomercy-video-player</h1>
               <p class="subtitle">Test Reports</p>
               <div class="cards">
                 <a class="card" href="./vitest/">
@@ -112,7 +112,7 @@ jobs:
                 </a>
               </div>
               <footer>
-                <a href="https://github.com/NoMercy-Entertainment/NoMercyVideoPlayer">GitHub</a>
+                <a href="https://github.com/NoMercy-Entertainment/nomercy-video-player">GitHub</a>
               </footer>
             </body>
           </html>
