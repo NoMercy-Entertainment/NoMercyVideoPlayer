@@ -68,6 +68,21 @@ export interface NMPlayerPlugins {
 	setConfig<Conf>(options: Partial<Conf & PlayerConfig<any>>): void;
 
 	/**
+	 * Resolves the current access token.
+	 * If a getter function was provided, it is called to retrieve the latest value.
+	 * @returns The current access token string, or `undefined` if not set.
+	 */
+	getAccessToken(): string | undefined;
+
+	/**
+	 * Updates the access token at runtime.
+	 * Accepts a static string or a getter function that is called on each request,
+	 * allowing automatic token refresh without re-initializing the player.
+	 * @param accessToken - A token string or a function that returns one.
+	 */
+	setAccessToken(accessToken: string | (() => string)): void;
+
+	/**
 	 * Destroys the player instance and cleans up all resources.
 	 * Removes event listeners, detaches HLS, disconnects the gain node,
 	 * removes DOM elements, and emits a `'dispose'` event.

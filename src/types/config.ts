@@ -17,7 +17,7 @@ export interface PlayerConfig<T = Record<string, any>> {
 	preload?: 'auto' | 'metadata' | 'none';
 	stretching?: StretchOptions;
 	playbackRates?: number[];
-	accessToken?: string;
+	accessToken?: string | (() => string);
 	basePath?: string;
 	imageBasePath?: string;
 	language?: string;

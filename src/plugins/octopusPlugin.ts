@@ -127,7 +127,7 @@ export class OctopusPlugin extends Plugin {
 				subUrl: encodeURI(subtitleURL),
 				fonts: fontFiles,
 				lossyRender: this.pluginOptions.lossyRender,
-				accessToken: this.player.options.accessToken,
+				accessToken: this.player.getAccessToken(),
 				targetFps: this.pluginOptions.targetFps,
 				debug: this.player.options.debug,
 				blendRender: this.pluginOptions.blendRender,

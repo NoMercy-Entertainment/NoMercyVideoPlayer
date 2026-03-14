@@ -62,6 +62,23 @@ export class Base<T = Record<string, any>> {
 	}
 
 	/**
+	 * Resolves the current access token, whether it was provided as a
+	 * static string or as a getter function.
+	 */
+	getAccessToken(): string | undefined {
+		const t = this.options.accessToken;
+		return typeof t === 'function' ? t() : t;
+	}
+
+	/**
+	 * Updates the access token at runtime.
+	 * Accepts a static string or a getter function for automatic refresh.
+	 */
+	setAccessToken(accessToken: string | (() => string)): void {
+		this.options.accessToken = accessToken;
+	}
+
+	/**
 	 * Trigger an event on the player.
 	 * @param event type of event to trigger
 	 * @param data  data to pass with the event

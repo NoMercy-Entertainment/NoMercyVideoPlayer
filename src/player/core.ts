@@ -457,8 +457,9 @@ export const coreMethods = {
 					preferHDR: this.hdrSupported(),
 				},
 				xhrSetup: (xhr) => {
-					if (this.options.accessToken) {
-						xhr.setRequestHeader('authorization', `Bearer ${this.options.accessToken}`);
+					const token = this.getAccessToken();
+					if (token) {
+						xhr.setRequestHeader('authorization', `Bearer ${token}`);
 					}
 				},
 			});
@@ -471,8 +472,8 @@ export const coreMethods = {
 		else {
 			this.hls?.destroy();
 			this.hls = undefined;
-			const appendToken = this.options.accessToken;
-			this.videoElement.src = appendToken ? `${url}${url.includes('?') ? '&' : '?'}token=${this.options.accessToken}` : url;
+			const token = this.getAccessToken();
+			this.videoElement.src = token ? `${url}${url.includes('?') ? '&' : '?'}token=${token}` : url;
 		}
 
 		if (this.options.disableAutoPlayback || !this.options.autoPlay)
@@ -542,8 +543,9 @@ export const coreMethods = {
 		const headers: { [arg: string]: string } = {
 			'Accept-Language': options.language || navigator.language,
 		};
-		if (this.options.accessToken && !options.anonymous) {
-			headers.Authorization = `Bearer ${this.options.accessToken}`;
+		const token = this.getAccessToken();
+		if (token && !options.anonymous) {
+			headers.Authorization = `Bearer ${token}`;
 		}
 
 		let basePath = '';

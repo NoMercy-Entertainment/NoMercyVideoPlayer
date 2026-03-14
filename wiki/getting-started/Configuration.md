@@ -9,7 +9,7 @@ All `PlayerConfig` options for NoMercy Video Player. See the [Quick Start Guide]
 | `playlist`             | `string \| PlaylistItem[]`                    | `[]`                 | **Required.** Array of playlist items or a URL to a JSON playlist endpoint.                                                           |
 | `basePath`             | `string`                                      | `undefined`          | Base URL prepended to relative `file`, subtitle, and font paths.                                                                      |
 | `imageBasePath`        | `string`                                      | `undefined`          | Base URL for images. Falls back to `basePath` when not set.                                                                           |
-| `accessToken`          | `string`                                      | `undefined`          | Auth token: sent as `Authorization: Bearer` header on fetch/XHR requests, and appended as `?token=` query param on video source URLs. |
+| `accessToken`          | `string \| () => string`                      | `undefined`          | Auth token: sent as `Authorization: Bearer` header on fetch/XHR requests, and appended as `?token=` query param on video source URLs. Accepts a getter function for automatic token refresh. |
 | `muted`                | `boolean`                                     | `false`              | Start playback muted.                                                                                                                 |
 | `autoPlay`             | `boolean`                                     | `false`              | Begin playback automatically on setup.                                                                                                |
 | `controls`             | `boolean`                                     | `false`              | Enable the built-in control layer.                                                                                                    |
@@ -353,12 +353,32 @@ const serverStorage = {
 
 Set `accessToken` to attach a `Bearer` token to all fetch requests the player makes (playlist loading, subtitle files, font files).
 
+You can pass a **static string** or a **getter function**. A getter is called on every request, so token refreshes are picked up automatically without re-initializing the player.
+
 ```typescript
+// Static string (token is fixed for the lifetime of the player)
 const config: PlayerConfig = {
 	accessToken: 'eyJhbGciOiJIUzI1NiIs...',
 	basePath: 'https://secure-cdn.example.com/media',
 	playlist: 'https://api.example.com/playlist.json',
 };
+
+// Getter function (token is resolved fresh on every request)
+const config: PlayerConfig = {
+	accessToken: () => authStore.currentToken,
+	basePath: 'https://secure-cdn.example.com/media',
+	playlist: 'https://api.example.com/playlist.json',
+};
+```
+
+The token can also be updated at runtime via `setAccessToken()`:
+
+```typescript
+// Update with a new static token
+player.setAccessToken('eyJhbGciOiJSUzI1NiIs...');
+
+// Switch to a getter for automatic refresh
+player.setAccessToken(() => authStore.currentToken);
 ```
 
 The token is sent as:

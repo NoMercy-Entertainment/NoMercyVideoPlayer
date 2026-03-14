@@ -72,8 +72,9 @@ export const playlistMethods = {
 			'Content-Type': 'application/json',
 		};
 
-		if (this.options.accessToken) {
-			headers.Authorization = `Bearer ${this.options.accessToken}`;
+		const token = this.getAccessToken();
+		if (token) {
+			headers.Authorization = `Bearer ${token}`;
 		}
 		const response = await fetch(encodeURI(url), {
 			headers,

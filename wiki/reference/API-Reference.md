@@ -63,7 +63,7 @@ interface PlayerConfig<T = Record<string, any>> {
 | `preload`              | `'auto' \| 'metadata' \| 'none'` | `'auto'`             | Media preload behavior                                                                                                    |
 | `stretching`           | `StretchOptions`                 | `'uniform'`          | Video scaling/stretching mode                                                                                             |
 | `playbackRates`        | `number[]`                       | `[0.5, 1, 1.5, 2]`   | Available playback speeds                                                                                                 |
-| `accessToken`          | `string`                         | `undefined`          | Access token for authenticated requests                                                                                   |
+| `accessToken`          | `string \| () => string`         | `undefined`          | Access token for authenticated requests. Accepts a getter function for automatic token refresh.                            |
 | `basePath`             | `string`                         | `undefined`          | Base URL for media files                                                                                                  |
 | `imageBasePath`        | `string`                         | `undefined`          | Base URL for images (poster, artwork)                                                                                     |
 | `language`             | `string`                         | `undefined`          | Player interface language (falls back to `navigator.language`)                                                            |
