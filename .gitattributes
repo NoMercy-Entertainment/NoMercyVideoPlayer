@@ -1,0 +1,36 @@
+# Auto-detect and normalize
+* text=auto eol=lf
+
+# Source code
+*.ts            text
+*.js            text
+*.mjs           text
+*.cjs           text
+*.html          text diff=html
+
+# Config / data
+*.json          text
+*.yml           text
+*.yaml          text
+*.md            text diff=markdown
+*.txt           text
+*.lock          text -diff
+*.editorconfig  text
+*.gitignore     text
+
+# Shell scripts (force LF)
+*.sh            text eol=lf
+
+# Windows batch files (force CRLF)
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+
+# Binary
+*.wasm          binary
+*.ttf           binary
+*.data          binary
+*.map           binary
+*.png           binary
+
+# Linguist
+*.ts            linguist-language=TypeScript
