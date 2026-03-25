@@ -5,7 +5,7 @@ on:
 
 jobs:
   create-release:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Check out the code
