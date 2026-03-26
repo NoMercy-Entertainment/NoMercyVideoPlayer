@@ -3,12 +3,14 @@
 Headless, event-driven video player engine. No UI - consumers build their own.
 
 ## Tech Stack
+
 - TypeScript (ES2022), Vite (library mode), outputs ESM + CJS + IIFE
 - Testing: Vitest (unit) + Playwright (e2e)
 - Linting: @antfu/eslint-config (ESLint 9 flat config)
 - Formatting: Prettier - tabs, 4-width, single quotes, semicolons, printWidth 150
 
 ## Structure
+
 ```
 src/
   player/       # Core modules (base, playback, volume, subtitles, etc.)
@@ -19,6 +21,7 @@ src/
 ```
 
 ## Conventions
+
 - Files: camelCase (`playerStorage.ts`)
 - Classes/Types: PascalCase
 - Functions/Variables: camelCase
@@ -27,6 +30,7 @@ src/
 - Module type: ESM (`"type": "module"`)
 
 ## Rules
+
 - This is a headless library. Never add UI elements or DOM manipulation beyond the video element.
 - All player features are exposed through events. New functionality must emit events.
 - Public API is exported from `src/index.ts`. Don't export internal modules directly.
