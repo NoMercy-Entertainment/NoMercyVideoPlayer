@@ -25,9 +25,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-
-      - name: Upgrade npm for trusted publishing
-        run: npm install -g npm@latest
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: rm -rf node_modules package-lock.json && npm install
