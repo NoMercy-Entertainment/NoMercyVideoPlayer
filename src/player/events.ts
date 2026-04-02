@@ -146,6 +146,8 @@ export const eventMethods = {
 
 	_playerEvents: [] as { type: string; handler: (e?: any) => void }[],
 	_containerEvents: [] as { type: string; handler: (e?: any) => void }[],
+	_hlsRecoveryAttempts: 0,
+	_hlsRecoveryTimer: null as ReturnType<typeof setTimeout> | null,
 	_boundEmitPlay: null as ((data?: any) => void) | null,
 	_boundEmitPaused: null as ((data?: any) => void) | null,
 	_boundInteraction: null as ((data?: any) => void) | null,
@@ -271,8 +273,57 @@ export const eventMethods = {
 
 			this.hls.on(HLS.Events.ERROR, (error, errorData) => {
 				this.logger.error('HLS error', { error, details: errorData.details, fatal: errorData.fatal });
+
 				if (errorData.details === 'bufferNudgeOnStall') {
 					this.seek(this.videoElement.currentTime + 1);
+				}
+
+				if (!errorData.fatal)
+					return;
+
+				const MAX_RECOVERY_ATTEMPTS = 3;
+
+				if (this._hlsRecoveryAttempts >= MAX_RECOVERY_ATTEMPTS) {
+					this.logger.error('HLS fatal error: max recovery attempts reached', {
+						attempts: this._hlsRecoveryAttempts,
+						details: errorData.details,
+					});
+					this.emit('error', new MediaError());
+					this.container.classList.add('error');
+					return;
+				}
+
+				this._hlsRecoveryAttempts += 1;
+				this.logger.warn('HLS fatal error: attempting recovery', {
+					attempt: this._hlsRecoveryAttempts,
+					type: errorData.type,
+					details: errorData.details,
+				});
+
+				this.emit('recovering', { attempt: this._hlsRecoveryAttempts, details: errorData.details } as any);
+
+				if (errorData.type === HLS.ErrorTypes.NETWORK_ERROR) {
+					// Exponential back-off before retrying the load
+					const delay = Math.min(1000 * 2 ** (this._hlsRecoveryAttempts - 1), 8000);
+					if (this._hlsRecoveryTimer !== null) {
+						clearTimeout(this._hlsRecoveryTimer);
+					}
+					this._hlsRecoveryTimer = setTimeout(() => {
+						this._hlsRecoveryTimer = null;
+						this.hls?.startLoad();
+					}, delay);
+				}
+				else if (errorData.type === HLS.ErrorTypes.MEDIA_ERROR) {
+					this.hls?.recoverMediaError();
+				}
+				else {
+					// Unknown fatal error: destroy and re-attach
+					const currentSrc = this.videoElement.currentSrc || this.videoElement.src;
+					if (currentSrc) {
+						this.hls?.destroy();
+						this.hls = undefined;
+						this.loadSource(currentSrc);
+					}
 				}
 			});
 
@@ -420,6 +471,12 @@ export const eventMethods = {
 		this.on('play', () => {
 			this.container.classList.remove('buffering');
 			this.container.classList.remove('error');
+			// Reset HLS recovery counter on successful playback
+			this._hlsRecoveryAttempts = 0;
+			if (this._hlsRecoveryTimer !== null) {
+				clearTimeout(this._hlsRecoveryTimer);
+				this._hlsRecoveryTimer = null;
+			}
 		});
 
 		this.on('time', () => {

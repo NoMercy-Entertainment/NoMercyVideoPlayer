@@ -13,6 +13,9 @@ function createMockPlayer(overrides: Record<string, any> = {}) {
 		emit: vi.fn(),
 		on: vi.fn(),
 		logger: { warn: vi.fn() },
+		_pipEnterHandler: undefined as (() => void) | undefined,
+		_pipLeaveHandler: undefined as (() => void) | undefined,
+		_pipVisibilityHandler: undefined as (() => void) | undefined,
 		...overrides,
 	};
 
@@ -72,6 +75,13 @@ describe('pipMethods', () => {
 			expect(events).toContain('leavepictureinpicture');
 		});
 
+		it('stores _pipEnterHandler and _pipLeaveHandler references', () => {
+			const player = createMockPlayer({ options: { pip: { enabled: true } } });
+			player._initPipListeners();
+			expect(player._pipEnterHandler).toBeTypeOf('function');
+			expect(player._pipLeaveHandler).toBeTypeOf('function');
+		});
+
 		it('adds visibilitychange listener for tab-hidden trigger', () => {
 			const spy = vi.spyOn(document, 'addEventListener');
 			const player = createMockPlayer({
@@ -105,7 +115,20 @@ describe('pipMethods', () => {
 			spy.mockRestore();
 		});
 
-		it('does nothing when no handler exists', () => {
+		it('removes enterpictureinpicture and leavepictureinpicture listeners', () => {
+			const player = createMockPlayer({ options: { pip: { enabled: true } } });
+			const removeSpy = vi.spyOn(player.videoElement, 'removeEventListener');
+			player._initPipListeners();
+			const enterHandler = player._pipEnterHandler;
+			const leaveHandler = player._pipLeaveHandler;
+			player._destroyPipListeners();
+			expect(removeSpy).toHaveBeenCalledWith('enterpictureinpicture', enterHandler);
+			expect(removeSpy).toHaveBeenCalledWith('leavepictureinpicture', leaveHandler);
+			expect(player._pipEnterHandler).toBeUndefined();
+			expect(player._pipLeaveHandler).toBeUndefined();
+		});
+
+		it('does nothing when no handlers exist', () => {
 			const player = createMockPlayer();
 			expect(() => player._destroyPipListeners()).not.toThrow();
 		});

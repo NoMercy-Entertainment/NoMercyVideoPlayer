@@ -42,14 +42,39 @@ export const playbackMethods = {
 			arg = Math.max(0, Math.min(arg, duration));
 		}
 
+		const fromTime = this.videoElement.currentTime;
 		this.lastTime = 0;
 
-		this.emit('seek');
+		this.emit('seek', {
+			currentTime: fromTime,
+			duration: this.videoElement.duration,
+			percentage: Number.isFinite(this.videoElement.duration) && this.videoElement.duration > 0
+				? (fromTime / this.videoElement.duration) * 100
+				: 0,
+			remaining: Number.isFinite(this.videoElement.duration)
+				? this.videoElement.duration - fromTime
+				: 0,
+			currentTimeHuman: fromTime.toString(),
+			durationHuman: this.videoElement.duration?.toString() ?? '0',
+			remainingHuman: (Number.isFinite(this.videoElement.duration) ? this.videoElement.duration - fromTime : 0).toString(),
+			playbackRate: this.videoElement.playbackRate,
+		});
 
 		this.videoElement.currentTime = arg;
 
 		setTimeout(() => {
-			this.emit('seeked');
+			const toTime = this.videoElement.currentTime;
+			const dur = this.videoElement.duration;
+			this.emit('seeked', {
+				currentTime: toTime,
+				duration: dur,
+				percentage: Number.isFinite(dur) && dur > 0 ? (toTime / dur) * 100 : 0,
+				remaining: Number.isFinite(dur) ? dur - toTime : 0,
+				currentTimeHuman: toTime.toString(),
+				durationHuman: dur?.toString() ?? '0',
+				remainingHuman: (Number.isFinite(dur) ? dur - toTime : 0).toString(),
+				playbackRate: this.videoElement.playbackRate,
+			});
 		}, 10);
 
 		return this.videoElement.currentTime;

@@ -5,8 +5,11 @@ export interface KeyHandlerPluginArgs {
 }
 
 export class KeyHandlerPlugin extends Plugin {
+	static readonly id = 'key-handler';
+
 	declare player: NMPlayer<KeyHandlerPluginArgs>;
 	private boundKeyHandler: (event: KeyboardEvent) => void = () => { };
+	private keyTimeout = false;
 
 	initialize(player: NMPlayer<KeyHandlerPluginArgs>) {
 		this.player = player;
@@ -31,29 +34,29 @@ export class KeyHandlerPlugin extends Plugin {
 		if (document.activeElement?.nodeName === 'INPUT')
 			return;
 
-		const keys = this.keyBindings();
-		let keyTimeout = false;
-
 		if (this.player.container.getBoundingClientRect().width === 0)
 			return;
 
-		if (!keyTimeout && this.player) {
-			keyTimeout = true;
+		if (this.keyTimeout || !this.player)
+			return;
 
-			const match = keys.find(k =>
-				k.key === event.key
-				&& k.control === event.ctrlKey
-				&& k.shift === event.shiftKey
-				&& k.alt === event.altKey,
-			);
+		this.keyTimeout = true;
 
-			if (match) {
-				event.preventDefault();
-				match.function();
-			}
+		const keys = this.keyBindings();
+		const match = keys.find(k =>
+			k.key === event.key
+			&& k.control === event.ctrlKey
+			&& k.shift === event.shiftKey
+			&& k.alt === event.altKey,
+		);
+
+		if (match) {
+			event.preventDefault();
+			match.function();
 		}
+
 		setTimeout(() => {
-			keyTimeout = false;
+			this.keyTimeout = false;
 		}, 300);
 	}
 

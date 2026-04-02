@@ -17,6 +17,8 @@ export interface OctopusPluginOptions {
 }
 
 export class OctopusPlugin extends Plugin {
+	static readonly id = 'octopus';
+
 	declare player: NMPlayer;
 	resizeObserver!: ResizeObserver;
 	private pluginOptions: OctopusPluginOptions;

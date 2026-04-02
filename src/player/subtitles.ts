@@ -171,33 +171,59 @@ export const subtitleMethods = {
 
 	buildSubtitleFragment(this: NMPlayer, text: string): DocumentFragment {
 		const fragment = document.createDocumentFragment();
-		const parts = text?.split(/(<\/?i>|<\/?b>|<\/?u>)/gu) ?? [];
 
-		let currentElement: HTMLElement | null = null;
+		if (!text)
+			return fragment;
 
-		parts.forEach((part) => {
-			if (part === '<i>') {
-				currentElement = document.createElement('i');
+		// Strip unrecognised VTT inline tags: <c.classname>, <v Name>, <ruby>, <rt>, <lang>,
+		// and WebVTT timestamp tags like <00:01:23.456>. Keep <i>, <b>, <u> and their
+		// closing counterparts so they go through the HTML parser below.
+		const cleaned = text
+			.replace(/<\d{2}:\d{2}:\d{2}\.\d{3}>/g, '')
+			.replace(/<\/?(?:c(?:\.[^>]*)?|v(?:\s[^>]*)?|ruby|rt|lang(?:\.[^>]*)?)>/gi, '');
+
+		// Use a lightweight recursive parser so that nested tags like <b><i>x</i></b>
+		// are handled correctly instead of the previous flat split approach.
+		const TAG_RE = /(<\/?(i|b|u)>)/gi;
+		const stack: (DocumentFragment | HTMLElement)[] = [fragment];
+
+		let lastIndex = 0;
+		let match: RegExpExecArray | null;
+
+		TAG_RE.lastIndex = 0;
+		while ((match = TAG_RE.exec(cleaned)) !== null) {
+			const before = cleaned.slice(lastIndex, match.index);
+			if (before) {
+				stack.at(-1)!.appendChild(document.createTextNode(before));
 			}
-			else if (part === '<b>') {
-				currentElement = document.createElement('b');
-			}
-			else if (part === '<u>') {
-				currentElement = document.createElement('u');
-			}
-			else if (part === '</i>' || part === '</b>' || part === '</u>') {
-				if (currentElement) {
-					fragment.appendChild(currentElement);
-					currentElement = null;
-				}
-			}
-			else if (currentElement) {
-				currentElement.appendChild(document.createTextNode(part));
+
+			const fullTag = match[1];
+			const tagName = match[2].toLowerCase();
+			const isClosing = fullTag.startsWith('</');
+
+			if (!isClosing) {
+				const el = document.createElement(tagName);
+				stack.at(-1)!.appendChild(el);
+				stack.push(el);
 			}
 			else {
-				fragment.appendChild(document.createTextNode(part));
+				// Pop back to the matching open tag; gracefully ignore unmatched closers
+				for (let i = stack.length - 1; i > 0; i--) {
+					const top = stack[i] as HTMLElement;
+					if (top.tagName && top.tagName.toLowerCase() === tagName) {
+						stack.splice(i, 1);
+						break;
+					}
+				}
 			}
-		});
+
+			lastIndex = match.index + fullTag.length;
+		}
+
+		const tail = cleaned.slice(lastIndex);
+		if (tail) {
+			stack.at(-1)!.appendChild(document.createTextNode(tail));
+		}
 
 		return fragment;
 	},

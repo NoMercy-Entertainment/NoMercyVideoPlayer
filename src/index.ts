@@ -136,6 +136,14 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 	_playerEvents: { type: string; handler: EventListener }[] = [];
 	_containerEvents: { type: string; handler: EventListener }[] = [];
 
+	// HLS recovery state
+	_hlsRecoveryAttempts = 0;
+	_hlsRecoveryTimer: ReturnType<typeof setTimeout> | null = null;
+
+	// PIP listener references (for cleanup)
+	_pipEnterHandler: (() => void) | undefined;
+	_pipLeaveHandler: (() => void) | undefined;
+
 	constructor(id?: string | number) {
 		super();
 
@@ -284,6 +292,10 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 		clearTimeout(this.rightTap);
 		if (this.inactivityTimeout) {
 			clearTimeout(this.inactivityTimeout);
+		}
+		if (this._hlsRecoveryTimer !== null) {
+			clearTimeout(this._hlsRecoveryTimer);
+			this._hlsRecoveryTimer = null;
 		}
 
 		this._removeEvents();

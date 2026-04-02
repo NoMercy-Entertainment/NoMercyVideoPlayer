@@ -24,13 +24,15 @@ export const pipMethods = {
 		if (!pipConfig)
 			return;
 
-		this.videoElement.addEventListener('enterpictureinpicture', () => {
+		this._pipEnterHandler = () => {
 			this.emit('pip', true);
-		});
-
-		this.videoElement.addEventListener('leavepictureinpicture', () => {
+		};
+		this._pipLeaveHandler = () => {
 			this.emit('pip', false);
-		});
+		};
+
+		this.videoElement.addEventListener('enterpictureinpicture', this._pipEnterHandler);
+		this.videoElement.addEventListener('leavepictureinpicture', this._pipLeaveHandler);
 
 		if (typeof pipConfig === 'object' && pipConfig.trigger === 'tab-hidden') {
 			this._pipVisibilityHandler = () => {
@@ -57,6 +59,14 @@ export const pipMethods = {
 	},
 
 	_destroyPipListeners(this: NMPlayer): void {
+		if (this._pipEnterHandler) {
+			this.videoElement.removeEventListener('enterpictureinpicture', this._pipEnterHandler);
+			this._pipEnterHandler = undefined;
+		}
+		if (this._pipLeaveHandler) {
+			this.videoElement.removeEventListener('leavepictureinpicture', this._pipLeaveHandler);
+			this._pipLeaveHandler = undefined;
+		}
 		if (this._pipVisibilityHandler) {
 			document.removeEventListener('visibilitychange', this._pipVisibilityHandler);
 			this._pipVisibilityHandler = undefined;

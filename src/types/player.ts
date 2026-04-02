@@ -119,6 +119,10 @@ export interface NMPlayer<T extends Record<string, any> = Record<string, any>> e
 	_boundPipClass: ((enabled: boolean) => void) | null;
 	_boundTheaterClass: ((enabled: boolean) => void) | null;
 	_boundFloatClass: ((enabled: boolean) => void) | null;
+	_hlsRecoveryAttempts: number;
+	_hlsRecoveryTimer: ReturnType<typeof setTimeout> | null;
+	_pipEnterHandler: (() => void) | undefined;
+	_pipLeaveHandler: (() => void) | undefined;
 	_theaterMode: boolean;
 	_floatObserver: IntersectionObserver | undefined;
 	_pipVisibilityHandler: (() => void) | undefined;

@@ -130,10 +130,13 @@ describe('playbackMethods', () => {
 			expect(player.lastTime).toBe(0);
 		});
 
-		it('emits seek event', () => {
+		it('emits seek event with TimeData payload', () => {
 			const player = createMockPlayer();
 			player.seek(60);
-			expect(player.emit).toHaveBeenCalledWith('seek');
+			expect(player.emit).toHaveBeenCalledWith('seek', expect.objectContaining({
+				currentTime: expect.any(Number),
+				duration: expect.any(Number),
+			}));
 		});
 
 		it('returns currentTime', () => {

@@ -1,6 +1,7 @@
 import Plugin from './plugin';
 
 class MessagePlugin extends Plugin {
+	static readonly id = 'message';
 	private messageElement: HTMLButtonElement | null = null;
 	private onMessage = (val: string) => {
 		if (this.messageElement) {
