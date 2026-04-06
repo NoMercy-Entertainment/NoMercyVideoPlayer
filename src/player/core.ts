@@ -522,11 +522,19 @@ export const coreMethods = {
 
 		this.setTitle(`${data.season ? `${data.show} -` : ''} ${parsedTitle}`);
 
+		const chapters = this.chapters();
+
 		this.mediaSession.setMetadata({
 			title: parsedTitle,
 			artist: data.show,
 			album: data.season ? `S${pad(data.season, 2)}E${pad(data.episode ?? 0, 2)}` : '',
 			artwork: this.resolveImageUrl(data.image),
+			chapters: chapters.length > 0
+				? chapters.map(ch => ({
+					title: ch.title,
+					startTime: ch.startTime,
+				}))
+				: undefined,
 		});
 	},
 

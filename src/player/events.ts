@@ -246,6 +246,10 @@ export const eventMethods = {
 			this.emit('audioTracks', this.audioTracks());
 		});
 
+		this.on('chapters', () => {
+			this.setMediaAPI();
+		});
+
 		this.once('hls', () => {
 			if (!this.hls)
 				return;

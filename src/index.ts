@@ -326,6 +326,7 @@ class NMPlayer<T = Record<string, any>> extends Base<T> {
 
 		instances.delete(this.playerId);
 
+		this.mediaSession?.clearActionHandler();
 		this.mediaSession?.setPlaybackState('none');
 
 		this.resizeObserver.disconnect();
