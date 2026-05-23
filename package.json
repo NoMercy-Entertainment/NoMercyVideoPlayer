@@ -118,7 +118,7 @@
 		"vitest": "^4.1.2",
 		"webpack": "^5.105.4",
 		"webpack-cli": "5.1.4",
-		"webpack-dev-server": "5.2.3"
+		"webpack-dev-server": "5.2.4"
 	},
 	"overrides": {
 		"minimatch": "10.2.4",
