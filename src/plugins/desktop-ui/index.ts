@@ -424,7 +424,7 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
     ]);
 
     override use(): void {
-        this.appendStyles('./styles.css', 'desktop-ui-styles');
+        this.appendStyles(new URL('./styles.css', import.meta.url).href, 'desktop-ui-styles');
         this.buildDom();
         this.wireTooltips();
         this.wireEvents();

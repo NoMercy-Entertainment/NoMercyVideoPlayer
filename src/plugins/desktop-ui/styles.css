@@ -870,6 +870,9 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
+	}
+	
+	.language-button:not(:has(.menu-button-subtext)) .menu-button-chevron{
 		margin-left: auto;
 	}
 
@@ -896,6 +899,7 @@
 		padding-right: 8px;
 		white-space: nowrap;
 		line-height: 100%;
+		margin-left: auto;
 	}
 
 	.sub-menu-content {
