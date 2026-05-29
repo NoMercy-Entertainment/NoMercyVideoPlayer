@@ -372,8 +372,6 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		try { this.element.removeAttribute('src'); this.element.load(); }
 		catch { /* defensive */ }
 		this.currentUrl = undefined;
-		// Reset any renderers consuming our cue stream — the next track
-		// selection will repopulate.
 		this.emit('subtitleCue', { cues: [], language: undefined } as SubtitleCueChange);
 		this.emit('waiting');
 	}
@@ -533,7 +531,6 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				default: t.default === true,
 			}));
 		}
-		// Native: HTMLMediaElement.textTracks
 		const tt = this.element.textTracks;
 		if (!tt || tt.length === 0) return [];
 		const out: SubtitleTrack[] = [];
@@ -563,8 +560,6 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		// element's textTrack list).
 		if (this.hls) this.hls.subtitleTrack = idx ?? -1;
 
-		// "Off" — disable every subtitle/caption textTrack and emit an
-		// empty cue list so renderers clear their overlays.
 		if (idx === null || idx < 0) {
 			this.disableAllSubtitleTextTracks();
 			this.emit('subtitleCue', { cues: [], language: undefined } as SubtitleCueChange);
@@ -860,9 +855,6 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	}
 
 	private wireElementEvents(): void {
-		// Forward DOM media events 1:1 onto the backend's typed channel.
-		// Each forwarded name matches a key in `BackendEventPayload`,
-		// and the DOM payload type matches the channel's payload type.
 		this.addElementListener('loadstart', e => this.emit('loadstart', e));
 		this.addElementListener('loadeddata', e => this.emit('loadeddata', e));
 		this.addElementListener('canplay', e => this.emit('canplay', e));

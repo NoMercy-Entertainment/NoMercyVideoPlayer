@@ -1461,4 +1461,109 @@
 	.nomercyplayer .btn:hover .icon-hover {
 		display: none !important;
 	}
+
+	/* ── Keyboard shortcuts overlay ───────────────────────────────────── */
+	.keybinds-dialog {
+		display: none;
+		position: absolute;
+		inset: 0;
+		z-index: 200;
+		background: rgba(0, 0, 0, 0.85);
+		align-items: center;
+		justify-content: center;
+		pointer-events: auto;
+
+		&.keybinds-dialog-visible {
+			display: flex;
+		}
+
+		.keybinds-card {
+			background: rgba(25, 25, 25, 0.95);
+			border-radius: 14px;
+			padding: 24px 28px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.keybinds-heading {
+			margin: 0 0 14px 0;
+			font-size: 19px;
+			font-weight: 600;
+			text-align: center;
+		}
+
+		.keybinds-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 28px 60px;
+		}
+
+		.keybinds-column {
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+		}
+
+		.keybinds-group-title {
+			margin: 0 0 3px 0;
+			font-size: 14px;
+			font-weight: 600;
+			color: rgba(255, 255, 255, 0.5);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+
+		.keybinds-row {
+			display: flex;
+			flex-direction: row-reverse;
+			align-items: center;
+			justify-content: space-between;
+			padding: 3px 0;
+			gap: 14px;
+		}
+
+		.keybinds-keys {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			white-space: nowrap;
+		}
+
+		.keybinds-plus {
+			font-size: 12px;
+			color: rgba(255, 255, 255, 0.4);
+		}
+
+		kbd.keybinds-key {
+			background: rgba(255, 255, 255, 0.12);
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			border-radius: 5px;
+			padding: 2px 7px;
+			font-size: 13px;
+			font-family: monospace;
+			white-space: nowrap;
+		}
+
+		.keybinds-label {
+			font-size: 14px;
+			color: rgba(255, 255, 255, 0.85);
+			text-align: left;
+		}
+
+		.keybinds-decoration {
+			position: absolute;
+			bottom: 48px;
+			right: -114px;
+			pointer-events: none;
+			transform: rotate(-8deg);
+			opacity: 0.04;
+		}
+
+		.keybinds-hint {
+			margin: 12px 0 0 0;
+			font-size: 13px;
+			color: rgba(255, 255, 255, 0.35);
+			text-align: center;
+		}
+	}
 }

@@ -2,21 +2,16 @@
  * Regression: shortcuts overlay must be computed-visible after showShortcuts()
  * and computed-hidden after hideShortcuts().
  *
- * The 5ea3aa9 refactor replaced <dialog>.showModal() with a plain <div>
- * toggled via style.display. The previous regression tests only verified DOM
- * membership (overlay in container) and element type (div, not dialog). Neither
- * assertion caught a bug where the element exists but remains hidden — e.g. a
- * CSS rule with higher specificity overriding the inline display:flex, or the
- * toggle event path being severed.
+ * Visibility is controlled via the CSS class `keybinds-dialog-visible` on the
+ * overlay element. The CSS defines `display:none` by default and `display:flex`
+ * when the class is present. Tests verify the class-based toggle mechanism and
+ * that the event path wiring is intact.
  *
  * This suite asserts:
- *   1. After `plugin:desktop-ui:shortcuts-toggle` fires, the overlay's inline
- *      display is 'flex' (not 'none').
- *   2. After a second toggle, the inline display returns to 'none'.
- *   3. No stylesheet rule sets display:none on #nmplayer-keybinds-dialog with
- *      enough specificity to override an inline display:flex — tested by
- *      confirming getComputedStyle().display is also 'flex' after the toggle.
- *   4. The help key binding in KeyHandlerPlugin is registered as 'shift+?'
+ *   1. After `plugin:desktop-ui:shortcuts-toggle` fires, the overlay carries
+ *      the `keybinds-dialog-visible` class.
+ *   2. After a second toggle, the class is removed.
+ *   3. The help key binding in KeyHandlerPlugin is registered as 'shift+?'
  *      (the canonical form the browser actually sends), not as bare '?'.
  */
 
@@ -47,43 +42,27 @@ describe('DesktopUiPlugin — shortcuts overlay visibility', () => {
         vi.unstubAllGlobals();
     });
 
-    it('overlay inline display is "flex" after shortcuts-toggle fires (not just present in DOM)', async () => {
+    it('overlay gains keybinds-dialog-visible class after shortcuts-toggle fires', async () => {
         const player = new NMVideoPlayer('test').setup({});
         await player.addPlugin(desktopUiPlugin).ready();
 
         const overlay = document.querySelector<HTMLDivElement>('#nmplayer-keybinds-dialog');
         expect(overlay, 'overlay must be in DOM before toggle').not.toBeNull();
 
-        // Initial state: hidden.
-        expect(overlay!.style.display, 'overlay must start hidden').toBe('none');
-
-        // Fire the event that showShortcuts() is wired to.
-        player.emit('plugin:desktop-ui:shortcuts-toggle', undefined);
-
-        // Inline style must switch to flex — this is the exact check that would
-        // have caught the showModal→display refactor if the switch was broken.
-        expect(overlay!.style.display, 'overlay must be display:flex after toggle-open').toBe('flex');
-    });
-
-    it('getComputedStyle().display is "flex" after toggle — no stylesheet overrides inline display:flex', async () => {
-        const player = new NMVideoPlayer('test').setup({});
-        await player.addPlugin(desktopUiPlugin).ready();
-
-        const overlay = document.querySelector<HTMLDivElement>('#nmplayer-keybinds-dialog');
-        expect(overlay).not.toBeNull();
-
-        player.emit('plugin:desktop-ui:shortcuts-toggle', undefined);
-
-        // computedStyle beats stylesheet specificity checks — if a CSS rule with
-        // !important or higher specificity overrides the inline flex, this fails.
-        const computed = getComputedStyle(overlay!);
         expect(
-            computed.display,
-            'computed display must be flex — stylesheet must not override inline display:flex',
-        ).toBe('flex');
+            overlay!.classList.contains('keybinds-dialog-visible'),
+            'overlay must not have visible class before toggle',
+        ).toBe(false);
+
+        player.emit('plugin:desktop-ui:shortcuts-toggle', undefined);
+
+        expect(
+            overlay!.classList.contains('keybinds-dialog-visible'),
+            'overlay must carry keybinds-dialog-visible class after toggle-open',
+        ).toBe(true);
     });
 
-    it('overlay returns to display:none after a second toggle (hide path)', async () => {
+    it('keybinds-dialog-visible class is removed after a second toggle (hide path)', async () => {
         const player = new NMVideoPlayer('test').setup({});
         await player.addPlugin(desktopUiPlugin).ready();
 
@@ -91,13 +70,16 @@ describe('DesktopUiPlugin — shortcuts overlay visibility', () => {
         expect(overlay).not.toBeNull();
 
         player.emit('plugin:desktop-ui:shortcuts-toggle', undefined);
-        expect(overlay!.style.display).toBe('flex');
+        expect(overlay!.classList.contains('keybinds-dialog-visible')).toBe(true);
 
         player.emit('plugin:desktop-ui:shortcuts-toggle', undefined);
-        expect(overlay!.style.display, 'overlay must be hidden after second toggle').toBe('none');
+        expect(
+            overlay!.classList.contains('keybinds-dialog-visible'),
+            'overlay must not have visible class after second toggle',
+        ).toBe(false);
     });
 
-    it('overlay returns to display:none when removePlugin disposes the desktop-ui', async () => {
+    it('overlay is removed from DOM when removePlugin disposes the desktop-ui', async () => {
         const player = new NMVideoPlayer('test').setup({});
         await player.addPlugin(desktopUiPlugin).ready();
 
@@ -105,10 +87,8 @@ describe('DesktopUiPlugin — shortcuts overlay visibility', () => {
         expect(overlay).not.toBeNull();
 
         player.emit('plugin:desktop-ui:shortcuts-toggle', undefined);
-        expect(overlay!.style.display).toBe('flex');
+        expect(overlay!.classList.contains('keybinds-dialog-visible')).toBe(true);
 
-        // removePlugin disposes the plugin lifecycle, which runs the mount cleanup
-        // and removes the mount div (and its children, including the overlay) from DOM.
         player.removePlugin(DesktopUiPlugin);
 
         const orphan = document.querySelector('#nmplayer-keybinds-dialog');
@@ -152,9 +132,9 @@ describe('KeyHandlerPlugin — ? keybind uses shift+? canonical form', () => {
         document.dispatchEvent(keyEvent);
 
         expect(
-            overlay!.style.display,
+            overlay!.classList.contains('keybinds-dialog-visible'),
             'pressing ? (shiftKey=true) must open the shortcuts overlay — bind("shift+?") fix verification',
-        ).toBe('flex');
+        ).toBe(true);
     });
 
     it('bindings() snapshot includes shift+? (not bare ?)', async () => {

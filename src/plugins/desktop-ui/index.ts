@@ -496,38 +496,17 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
     private buildShortcutsOverlay(parent: HTMLElement): HTMLDivElement {
         const overlay = document.createElement('div');
         overlay.id = 'nmplayer-keybinds-dialog';
+        overlay.className = 'keybinds-dialog';
         overlay.setAttribute('role', 'dialog');
         overlay.setAttribute('aria-modal', 'true');
         overlay.setAttribute('aria-label', this.t('shortcuts.title'));
 
-        Object.assign(overlay.style, {
-            display: 'none',
-            position: 'absolute',
-            inset: '0',
-            zIndex: '200',
-            background: 'rgba(0, 0, 0, 0.85)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'auto',
-        });
-
         const card = document.createElement('div');
-        Object.assign(card.style, {
-            background: 'rgba(25, 25, 25, 0.95)',
-            borderRadius: '14px',
-            padding: '24px 28px',
-            position: 'relative',
-            overflow: 'hidden',
-        });
+        card.className = 'keybinds-card';
 
         const heading = document.createElement('h2');
+        heading.className = 'keybinds-heading';
         heading.textContent = this.t('shortcuts.title');
-        Object.assign(heading.style, {
-            margin: '0 0 14px 0',
-            fontSize: '19px',
-            fontWeight: '600',
-            textAlign: 'center',
-        });
         card.appendChild(heading);
 
         const sections: ReadonlyArray<ReadonlyArray<{
@@ -615,86 +594,44 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
         ];
 
         const grid = document.createElement('div');
-        Object.assign(grid.style, {
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '28px 60px',
-        });
+        grid.className = 'keybinds-grid';
 
         for (const column of sections) {
             const cell = document.createElement('div');
-            Object.assign(cell.style, {
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-            });
+            cell.className = 'keybinds-column';
 
             for (const group of column) {
                 const groupEl = document.createElement('div');
 
                 const groupTitle = document.createElement('h3');
+                groupTitle.className = 'keybinds-group-title';
                 groupTitle.textContent = group.title;
-                Object.assign(groupTitle.style, {
-                    margin: '0 0 3px 0',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: 'rgba(255, 255, 255, 0.5)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                });
                 groupEl.appendChild(groupTitle);
 
                 for (const entry of group.entries) {
                     const row = document.createElement('div');
-                    Object.assign(row.style, {
-                        display: 'flex',
-                        flexDirection: 'row-reverse',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '3px 0',
-                        gap: '14px',
-                    });
+                    row.className = 'keybinds-row';
 
                     const keysContainer = document.createElement('span');
-                    Object.assign(keysContainer.style, {
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        whiteSpace: 'nowrap',
-                    });
+                    keysContainer.className = 'keybinds-keys';
 
-                    for (let ki = 0; ki < entry.keys.length; ki++) {
-                        if (ki > 0) {
+                    for (let keyIndex = 0; keyIndex < entry.keys.length; keyIndex++) {
+                        if (keyIndex > 0) {
                             const plus = document.createElement('span');
+                            plus.className = 'keybinds-plus';
                             plus.textContent = '+';
-                            Object.assign(plus.style, {
-                                fontSize: '12px',
-                                color: 'rgba(255, 255, 255, 0.4)',
-                            });
                             keysContainer.appendChild(plus);
                         }
 
                         const kbd = document.createElement('kbd');
-                        kbd.textContent = entry.keys[ki]!;
-                        Object.assign(kbd.style, {
-                            background: 'rgba(255, 255, 255, 0.12)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            borderRadius: '5px',
-                            padding: '2px 7px',
-                            fontSize: '13px',
-                            fontFamily: 'monospace',
-                            whiteSpace: 'nowrap',
-                        });
+                        kbd.className = 'keybinds-key';
+                        kbd.textContent = entry.keys[keyIndex]!;
                         keysContainer.appendChild(kbd);
                     }
 
                     const labelEl = document.createElement('span');
+                    labelEl.className = 'keybinds-label';
                     labelEl.textContent = entry.label;
-                    Object.assign(labelEl.style, {
-                        fontSize: '14px',
-                        color: 'rgba(255, 255, 255, 0.85)',
-                        textAlign: 'left',
-                    });
 
                     row.appendChild(keysContainer);
                     row.appendChild(labelEl);
@@ -708,17 +645,28 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
         }
 
         card.appendChild(grid);
+        card.appendChild(this._buildKeyboardDecoration());
 
-        // Background keyboard SVG decoration
-        const bgKeyboard = document.createElement('div');
-        Object.assign(bgKeyboard.style, {
-            position: 'absolute',
-            bottom: '48px',
-            right: '-114px',
-            pointerEvents: 'none',
-            transform: 'rotate(-8deg)',
-            opacity: '0.04',
+        const hintEl = document.createElement('p');
+        hintEl.className = 'keybinds-hint';
+        hintEl.textContent = this.t('shortcuts.hint');
+        card.appendChild(hintEl);
+
+        overlay.appendChild(card);
+
+        this.listen(overlay, 'click', (e: Event) => {
+            if (e.target === overlay) this.hideShortcuts();
         });
+
+        parent.appendChild(overlay);
+        this.shortcutsOverlay = overlay;
+        return overlay;
+    }
+
+    private _buildKeyboardDecoration(): HTMLDivElement {
+        const wrap = document.createElement('div');
+        wrap.className = 'keybinds-decoration';
+
         const highlighted = new Set('NOMERCY'.split(''));
         const keyRows = [
             '1234567890-='.split(''),
@@ -734,37 +682,16 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
                 const kx = keyIdx * 28 + rowOffsets[rowIdx]!;
                 const ky = rowIdx * 30;
                 const letter = row[keyIdx]!;
-                const isHighlit = highlighted.has(letter);
-                const opacity = isHighlit ? '1' : '0.35';
+                const opacity = highlighted.has(letter) ? '1' : '0.35';
                 svgKeys += `<rect x="${kx}" y="${ky}" width="24" height="24" rx="4" fill="white" opacity="${opacity}"/>`;
-                if (isHighlit) {
+                if (highlighted.has(letter)) {
                     svgKeys += `<text x="${kx + 12}" y="${ky + 16}" text-anchor="middle" fill="black" font-size="11" font-family="monospace" font-weight="700" opacity="0.7">${letter}</text>`;
                 }
             }
         }
         svgKeys += '<rect x="110" y="120" width="160" height="24" rx="4" fill="white" opacity="0.35"/>';
-        bgKeyboard.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 412 164" width="450" height="180">${svgKeys}</svg>`;
-        card.appendChild(bgKeyboard);
-
-        const hintEl = document.createElement('p');
-        hintEl.textContent = this.t('shortcuts.hint');
-        Object.assign(hintEl.style, {
-            margin: '12px 0 0 0',
-            fontSize: '13px',
-            color: 'rgba(255, 255, 255, 0.35)',
-            textAlign: 'center',
-        });
-        card.appendChild(hintEl);
-
-        overlay.appendChild(card);
-
-        this.listen(overlay, 'click', (e: Event) => {
-            if (e.target === overlay) this.hideShortcuts();
-        });
-
-        parent.appendChild(overlay);
-        this.shortcutsOverlay = overlay;
-        return overlay;
+        wrap.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 412 164" width="450" height="180">${svgKeys}</svg>`;
+        return wrap;
     }
 
     private toggleShortcuts(): void {
@@ -778,16 +705,12 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
 
     private showShortcuts(): void {
         this._shortcutsVisible = true;
-        if (this.shortcutsOverlay) {
-            this.shortcutsOverlay.style.display = 'flex';
-        }
+        this.shortcutsOverlay?.classList.add('keybinds-dialog-visible');
     }
 
     private hideShortcuts(): void {
         this._shortcutsVisible = false;
-        if (this.shortcutsOverlay) {
-            this.shortcutsOverlay.style.display = 'none';
-        }
+        this.shortcutsOverlay?.classList.remove('keybinds-dialog-visible');
     }
 
     private buildBottomBar(parent: HTMLElement): HTMLDivElement {
@@ -1145,9 +1068,6 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
         };
 
         this.listen(mql as unknown as EventTarget, 'change', onChange);
-        this.lifecycle.addCleanup(() => {
-            mql.removeEventListener('change', onChange);
-        });
     }
 
     /**
@@ -1169,9 +1089,6 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
         };
 
         this.listen(mql as unknown as EventTarget, 'change', onChange);
-        this.lifecycle.addCleanup(() => {
-            mql.removeEventListener('change', onChange);
-        });
     }
 
     /**
