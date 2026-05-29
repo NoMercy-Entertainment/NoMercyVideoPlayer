@@ -12,6 +12,7 @@ export default antfu({
 	],
 	typescript: {
 		overrides: {
+			'no-nested-ternary': 'error',
 			'no-async-promise-executor': 'off',
 			'no-extend-native': 'off',
 			'ts/method-signature-style': 'off',

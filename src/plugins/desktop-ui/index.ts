@@ -969,11 +969,13 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
 		const clampedLeft = Math.max(boundsRect.left, rawLeft);
 		const clampedRight = Math.min(boundsRect.right, rawRight);
 
-		const actualLeft = rawLeft < clampedLeft
-			? clampedLeft
-			: rawRight > clampedRight
-				? clampedRight - tipWidth
-				: rawLeft;
+		let actualLeft: number;
+		if (rawLeft < clampedLeft)
+			actualLeft = clampedLeft;
+		else if (rawRight > clampedRight)
+			actualLeft = clampedRight - tipWidth;
+		else
+			actualLeft = rawLeft;
 
 		const shift = actualLeft - btnCenter + halfTip;
 		tip.style.transform = `translateX(calc(-50% + ${shift}px))`;

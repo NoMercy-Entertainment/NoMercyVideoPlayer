@@ -52,13 +52,15 @@ export function applyMutedIcon(
 ): void {
 	const muted = player.volumeState() === VolumeState.MUTED;
 	const v = player.volume?.() ?? 100;
-	const icon = muted || v === 0
-		? fluentIcons.volumeMuted
-		: v < 34
-			? fluentIcons.volumeLow
-			: v < 67
-				? fluentIcons.volumeMedium
-				: fluentIcons.volumeHigh;
+	let icon: typeof fluentIcons.volumeMuted;
+	if (muted || v === 0)
+		icon = fluentIcons.volumeMuted;
+	else if (v < 34)
+		icon = fluentIcons.volumeLow;
+	else if (v < 67)
+		icon = fluentIcons.volumeMedium;
+	else
+		icon = fluentIcons.volumeHigh;
 	setBtnIcon(volBtn, svgFromIcon(icon));
 	volBtn.setAttribute('aria-label', t('tooltip.mute'));
 }

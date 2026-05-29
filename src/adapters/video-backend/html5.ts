@@ -943,14 +943,21 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				//   2 MEDIA_ERR_NETWORK   → media/network
 				//   3 MEDIA_ERR_DECODE    → media/decode-fatal-variant (try next rendition)
 				//   4 MEDIA_ERR_SRC_NOT_SUPPORTED → media/decode-fatal-all
-				const v2Code
-					= code === 1
-						? 'media/aborted'
-						: code === 2
-							? 'media/network'
-							: code === 3
-								? 'media/decode-fatal-variant'
-								: 'media/decode-fatal-all';
+				let v2Code: string;
+				switch (code) {
+					case 1:
+						v2Code = 'media/aborted';
+						break;
+					case 2:
+						v2Code = 'media/network';
+						break;
+					case 3:
+						v2Code = 'media/decode-fatal-variant';
+						break;
+					default:
+						v2Code = 'media/decode-fatal-all';
+						break;
+				}
 				(e as Event & { mediaErrorCode?: number; v2ErrorCode?: string }).mediaErrorCode = code;
 				(e as Event & { mediaErrorCode?: number; v2ErrorCode?: string }).v2ErrorCode = v2Code;
 			}
