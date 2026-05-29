@@ -53,7 +53,7 @@
  */
 
 import type { Translations } from '@nomercy-entertainment/nomercy-player-core';
-import type { NMVideoPlayer, VideoEventMap, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
+import type { NMVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 import type { MenuFrameRefs, MenuRenderState, SubMenuId } from './menus';
 
 import type { ChapterMarkerRef, SliderBarRefs } from './progressBar';
@@ -1563,7 +1563,7 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
 			this.repaintAudioIfOpen();
 		});
 
-		this.onVideo('quality:requested', (d) => {
+		this.on('quality:requested', (d) => {
 			this.activeQualityIdx = d.level;
 			this._userPickedQuality = d.level !== 'auto';
 			this.applyQualityIcon();
@@ -1588,21 +1588,21 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
 
 		// Track lists arrive asynchronously after HLS manifest parse — may be
 		// empty at mediaReady. Refresh capability visibility when they land.
-		this.onVideo('levels', () => { this.refreshCapabilityVisibility(); });
-		this.onVideo('audioTracks', () => { this.refreshCapabilityVisibility(); });
+		this.on('levels', () => { this.refreshCapabilityVisibility(); });
+		this.on('audioTracks', () => { this.refreshCapabilityVisibility(); });
 
-		this.onVideo('fullscreen', () => {
+		this.on('fullscreen', () => {
 			this.applyFullscreen();
 		});
-		this.onVideo('pip', () => {
+		this.on('pip', () => {
 			this.applyPipIcon(Boolean(document.pictureInPictureElement));
 		});
-		this.onVideo('theater', (d) => {
+		this.on('theater', (d) => {
 			this.applyTheaterIcon(d.active);
 			this.player.container.classList.toggle('theater', d.active);
 		});
 
-		this.onVideo('aspectRatio', () => {
+		this.on('aspectRatio', () => {
 			this.applyAspectRatioIcon();
 			this.repaintAspectRatioIfOpen();
 		});
@@ -1823,21 +1823,6 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
 		this.playBtn.setAttribute('aria-label', this.t('tooltip.play'));
 	}
 
-	/**
-	 * Subscribe to a video-specific player event (`VideoEventMap` key that is
-	 * not part of `BaseEventMap`). TypeScript's conditional-type inference cannot
-	 * resolve `PlayerEventMap<NMVideoPlayer<any>>` to `VideoEventMap` inside
-	 * `Plugin.on()` due to class-complexity limitations, so this helper types the
-	 * call directly against `VideoEventMap` and registers the same lifecycle
-	 * cleanup that `Plugin.on()` would.
-	 */
-	private onVideo<K extends keyof VideoEventMap>(
-		event: K,
-		fn: (data: VideoEventMap[K]) => void,
-	): void {
-		this.player.on(event, fn);
-		this.lifecycle.addCleanup(() => { this.player.off(event, fn); });
-	}
 
 	private handleCurrentChange(item: VideoPlaylistItem | undefined | null): void {
 		if (this.topBarRefs)

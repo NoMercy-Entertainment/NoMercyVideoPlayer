@@ -8,25 +8,22 @@ import { MediaSessionPlugin as BaseMediaSession } from '@nomercy-entertainment/n
  * artwork resolution lives in the kit base class and flows through
  * `resolveUrl(url, 'poster')`, which consults `imageBasePath`.
  *
- * Fills `artist` with the show name (or year as fallback) and `album` with
- * the season label so OS "Now Playing" surfaces TV-style metadata for series.
+ * Fills `artist` with the show name and `album` with the season label so the
+ * OS "Now Playing" surface shows TV-style metadata for series. Reads only
+ * fields on the canonical `VideoPlaylistItem` (T). Consumers that carry
+ * server-specific fields (e.g. `year`, `name`) should subclass and override
+ * `getMetadata()` — do NOT cast to a richer intersection in this built-in.
  */
-export class MediaSessionPlugin extends BaseMediaSession<NMVideoPlayer<any>, VideoPlaylistItem> {
+export class MediaSessionPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends BaseMediaSession<NMVideoPlayer<T>, T> {
 	static override readonly id: string = 'media-session';
 
-	protected override getMetadata(item: VideoPlaylistItem): MediaSessionMetadata {
-		const x = item as VideoPlaylistItem & {
-			name?: string;
-			show?: string;
-			season?: number | string;
-			year?: number | string;
-		};
-		const seasonText = x.season !== undefined && x.season !== null && String(x.season) !== ''
-			? `Season ${x.season}`
+	protected override getMetadata(item: T): MediaSessionMetadata {
+		const seasonText = item.season !== undefined && item.season !== null && String(item.season) !== ''
+			? `Season ${item.season}`
 			: '';
 		return {
-			title: item.title ?? x.name ?? '',
-			artist: x.show ?? (x.year !== undefined ? String(x.year) : ''),
+			title: item.title ?? '',
+			artist: item.show ?? '',
 			album: seasonText,
 		};
 	}

@@ -9,7 +9,7 @@
  * and the plugin lifecycle (`this.listen`, `this.timeout`).
  */
 
-import type { NMVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
+import type { NMVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
 // ── Time formatting ────────────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ export interface SliderBarRefs {
  * Build the slider-bar subtree and return all named refs.
  *  Mirrors v1's `createProgressBar()`. The caller appends to its parent.
  */
-export function buildSliderBar(player: NMVideoPlayer<any>): SliderBarRefs {
+export function buildSliderBar(player: NMVideoPlayer<VideoPlaylistItem>): SliderBarRefs {
 	const sliderBar = player
 		.createElement('div', 'slider-bar')
 		.addClasses(['slider-bar'])

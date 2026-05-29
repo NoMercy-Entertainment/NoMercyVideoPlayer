@@ -45,6 +45,7 @@
  */
 
 import type { NMVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
+import type { VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 export interface TouchZonesOptions {
@@ -140,7 +141,7 @@ interface SeekIndicatorState {
 	hideTimer: ReturnType<typeof setTimeout> | null;
 }
 
-export class TouchZonesPlugin extends Plugin<NMVideoPlayer<any>, TouchZonesOptions> {
+export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends Plugin<NMVideoPlayer<T>, TouchZonesOptions> {
 	static override readonly id: string = 'touch-zones';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'Tap-zone overlay: double-tap to seek, single-tap to toggle playback';

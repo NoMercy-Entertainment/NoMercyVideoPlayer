@@ -31,7 +31,7 @@ export interface TopBarRefs {
 // ── DOM construction ───────────────────────────────────────────────────────────
 
 /** Build the top bar (back/close buttons + show info + title + TV current item) and return named refs. */
-export function buildTitleBar(player: NMVideoPlayer<any>, parent: HTMLElement): TopBarRefs {
+export function buildTitleBar(player: NMVideoPlayer<VideoPlaylistItem>, parent: HTMLElement): TopBarRefs {
 	const bar = player.createElement('div', 'top-bar')
 		.addClasses(['top-bar'])
 		.appendTo(parent)
@@ -132,14 +132,14 @@ export function updateTitleBar(refs: TopBarRefs, item: VideoPlaylistItem | undef
 }
 
 /** Show or hide the back button based on whether the player has 'back' listeners. */
-export function refreshBackButton(refs: TopBarRefs, player: NMVideoPlayer<any>): void {
+export function refreshBackButton(refs: TopBarRefs, player: NMVideoPlayer<VideoPlaylistItem>): void {
 	if (!refs.backBtn)
 		return;
 	refs.backBtn.hidden = !player.hasListeners('back');
 }
 
 /** Show or hide the close button based on whether the player has 'close' listeners. */
-export function refreshCloseButton(refs: TopBarRefs, player: NMVideoPlayer<any>): void {
+export function refreshCloseButton(refs: TopBarRefs, player: NMVideoPlayer<VideoPlaylistItem>): void {
 	if (!refs.closeBtn)
 		return;
 	refs.closeBtn.hidden = !player.hasListeners('close');

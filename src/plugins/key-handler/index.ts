@@ -1,4 +1,5 @@
 import type { NMVideoPlayer, VideoPlayerConfig } from '../../index';
+import type { VideoPlaylistItem } from '../../types';
 import { KeyHandlerPlugin as BaseKeyHandler } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
 
 function fmtTime(s: number): string {
@@ -10,7 +11,7 @@ function fmtTime(s: number): string {
 		: `${m}:${String(sec).padStart(2, '0')}`;
 }
 
-function hasDisplayMessage(p: NMVideoPlayer<any>): p is NMVideoPlayer<any> & { displayMessage: (text: string, ms?: number) => void } {
+function hasDisplayMessage<T extends VideoPlaylistItem>(p: NMVideoPlayer<T>): p is NMVideoPlayer<T> & { displayMessage: (text: string, ms?: number) => void } {
 	return typeof (p as unknown as { displayMessage?: unknown }).displayMessage === 'function';
 }
 
@@ -23,13 +24,13 @@ function hasDisplayMessage(p: NMVideoPlayer<any>): p is NMVideoPlayer<any> & { d
  * group without rewriting the rest. Override `addDefaults()` to drop the
  * whole video set and start fresh.
  */
-export class KeyHandlerPlugin extends BaseKeyHandler<NMVideoPlayer<any>> {
+export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends BaseKeyHandler<NMVideoPlayer<T>> {
 	static override readonly id: string = 'video-key-handler';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'Video keyboard shortcuts — playback, media keys, modifier-aware seeks, TV color buttons, chapters, subs/audio, fullscreen, speed, frame-advance, time, subtitle-size, aspect-ratio';
 
-	private get cfg(): VideoPlayerConfig {
-		return this.player.options as VideoPlayerConfig;
+	private get cfg(): VideoPlayerConfig<T> {
+		return this.player.options;
 	}
 
 	protected mediaControlsAllowed(): boolean {

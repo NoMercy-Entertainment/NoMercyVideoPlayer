@@ -98,7 +98,7 @@ export interface OctopusOptions {
  * When the package is absent, the plugin logs a warning and marks itself as
  * degraded — ASS/SSA subtitles will not render, but playback continues normally.
  */
-export class OctopusPlugin extends Plugin<NMVideoPlayer<any>, OctopusOptions> {
+export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends Plugin<NMVideoPlayer<T>, OctopusOptions> {
 	static override readonly id: string = 'octopus';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'libass / SubtitleOctopus integration for ASS/SSA subtitle rendering';
@@ -257,7 +257,7 @@ export class OctopusPlugin extends Plugin<NMVideoPlayer<any>, OctopusOptions> {
 		if (this._availableFontsForCurrent)
 			return this._availableFontsForCurrent;
 
-		const item = this.player.current?.() as VideoPlaylistItem | undefined;
+		const item = this.player.current?.();
 
 		// Prefer the typed `fonts` field; fall back to the deprecated
 		// generic `tracks[].kind === 'fonts'` path for items that have not

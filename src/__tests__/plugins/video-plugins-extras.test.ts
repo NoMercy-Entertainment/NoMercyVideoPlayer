@@ -56,16 +56,16 @@ describe('video-plugins (extras)', () => {
 			expect(meta.artwork).toBeUndefined();
 		});
 
-		it('getMetadata falls back to year when show is absent', async () => {
+		it('getMetadata returns empty artist when show is absent (year is not a canonical field)', async () => {
 			const p = setup();
 			p.addPlugin(mediaSessionPlugin);
 			await p.ready();
 			const inst = p.getPlugin(MediaSessionPlugin)!;
 
-			const item = { id: 'm-001', title: 'Movie', year: 2024 } as any;
+			const item = { id: 'm-001', title: 'Movie' } as any;
 			const meta = (inst as unknown as { getMetadata: (i: any) => any }).getMetadata(item);
 			expect(meta.title).toBe('Movie');
-			expect(meta.artist).toBe('2024');
+			expect(meta.artist).toBe('');
 			expect(meta.album).toBe('');
 			expect(meta.artwork).toBeUndefined();
 		});

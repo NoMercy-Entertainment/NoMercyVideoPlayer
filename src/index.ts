@@ -164,6 +164,14 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		return this.playerId;
 	}
 
+	/**
+	 * Phantom brand — never assigned at runtime. Declared explicitly here so
+	 * `PlayerEventMap<NMVideoPlayer<T>>` resolves to `VideoEventMap` without
+	 * TypeScript having to walk the `EventEmitter` inheritance chain (which
+	 * stalls in conditional-type inference for complex class hierarchies).
+	 */
+	declare readonly __eventMap__: VideoEventMap;
+
 	declare options: VideoPlayerConfig<T>;
 
 	// Kit-managed state fields — set by initPlayerCoreState, declared here

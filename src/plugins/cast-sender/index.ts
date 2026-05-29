@@ -21,7 +21,7 @@ export type { CastSenderEvents, CastSenderOptions } from '@nomercy-entertainment
  * Everything else — SDK probe, session lifecycle, RemotePlayer event
  * mirroring, forward* helpers, resume-on-disconnect — lives in the kit.
  */
-export class CastSenderPlugin extends BaseCastSenderPlugin<NMVideoPlayer<any>, VideoPlaylistItem> {
+export class CastSenderPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends BaseCastSenderPlugin<NMVideoPlayer<T>, T> {
 	static override readonly id: string = 'cast-sender';
 	static override readonly description: string = 'Chromecast sender — full media bridge for video';
 	static override readonly translations: Translations = translationsFromGlob('./i18n/*.ts');
@@ -33,18 +33,13 @@ export class CastSenderPlugin extends BaseCastSenderPlugin<NMVideoPlayer<any>, V
 
 	/** Builds a `TvShowMediaMetadata` or `GenericMediaMetadata` from the video item. */
 	protected override async buildMetadata(
-		item: VideoPlaylistItem,
+		item: T,
 		ctors: ChromeCastMediaCtors & {
 			TvShowMediaMetadata?: new () => Record<string, unknown>;
 			MovieMediaMetadata?: new () => Record<string, unknown>;
 		},
 	): Promise<unknown> {
-		const x = item as VideoPlaylistItem & {
-			show?: string;
-			season?: number | string;
-			episode?: number | string;
-		};
-		const isEpisode = x.show !== undefined && x.show !== '';
+		const isEpisode = item.show !== undefined && item.show !== '';
 		const Ctor = isEpisode
 			? (ctors.TvShowMediaMetadata ?? ctors.GenericMediaMetadata)
 			: ctors.GenericMediaMetadata;
@@ -52,14 +47,14 @@ export class CastSenderPlugin extends BaseCastSenderPlugin<NMVideoPlayer<any>, V
 
 		meta.title = item.title ?? '';
 		if (isEpisode) {
-			meta.seriesTitle = x.show;
-			if (x.season !== undefined)
-				meta.season = Number(x.season);
-			if (x.episode !== undefined)
-				meta.episode = Number(x.episode);
+			meta.seriesTitle = item.show;
+			if (item.season !== undefined)
+				meta.season = Number(item.season);
+			if (item.episode !== undefined)
+				meta.episode = Number(item.episode);
 		}
-		else if (x.show) {
-			meta.subtitle = x.show;
+		else if (item.show) {
+			meta.subtitle = item.show;
 		}
 		if (item.poster) {
 			const posterUrl = (await this.resolveUrl(item.poster, 'poster')).href;

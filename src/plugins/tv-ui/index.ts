@@ -30,7 +30,7 @@
  */
 
 import type { Chapter, Translations } from '@nomercy-entertainment/nomercy-player-core';
-import type { NMVideoPlayer, VideoPlaylistItem } from '../../index';
+import type { VideoPlaylistItem } from '../../types';
 
 import { translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import { KeyHandlerPlugin } from '../key-handler';
@@ -47,7 +47,7 @@ export interface TvUiOptions {
 	infoDisplayMs?: number;
 }
 
-interface TvUiPlayer extends NMVideoPlayer<any> {
+interface DisplayMessageCapable {
 	displayMessage?: (text: string, ms?: number) => void;
 }
 
@@ -61,7 +61,7 @@ function fmtTime(totalSeconds: number): string {
 		: `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
-export class TvUiPlugin extends KeyHandlerPlugin {
+export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends KeyHandlerPlugin<T> {
 	static override readonly id: string = 'tv-ui';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'TV remote control bindings — Color buttons, Info OSD, MediaRecord bookmark, TV-aware Arrow seek and volume';
@@ -69,10 +69,6 @@ export class TvUiPlugin extends KeyHandlerPlugin {
 
 	private get tvOpts(): TvUiOptions {
 		return (this.opts as TvUiOptions | undefined) ?? {};
-	}
-
-	private get tvPlayer(): TvUiPlayer {
-		return this.player as TvUiPlayer;
 	}
 
 	/**
@@ -195,7 +191,7 @@ export class TvUiPlugin extends KeyHandlerPlugin {
 	}
 
 	private resolveTitle(): string {
-		const item = this.player.current?.() as VideoPlaylistItem | undefined;
+		const item = this.player.current?.();
 
 		if (typeof item?.title === 'string' && item.title.length > 0)
 			return item.title;
@@ -228,8 +224,9 @@ export class TvUiPlugin extends KeyHandlerPlugin {
 	 * prefer the event surface.
 	 */
 	private osdMessage(text: string, durationMs?: number): void {
+		const capable = this.player as unknown as DisplayMessageCapable;
 		try {
-			this.tvPlayer.displayMessage?.(text, durationMs);
+			capable.displayMessage?.(text, durationMs);
 		}
 		catch { /* displayMessage not mounted */ }
 

@@ -1,5 +1,6 @@
 import type { IRealtimeChannel } from '@nomercy-entertainment/nomercy-player-core';
 import type { NMVideoPlayer } from '../../index';
+import type { VideoPlaylistItem } from '../../types';
 import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 /** Options for the video {@link LiveTranscodingPlugin}. */
@@ -52,7 +53,7 @@ interface ServerStatusMessage {
  * and gates `beforeLoad` / `beforeSeek` until the server reports the
  * requested timestamp is encoded. Without a server URL the plugin is inert.
  */
-export class LiveTranscodingPlugin extends Plugin<NMVideoPlayer<any>, LiveTranscodingOptions, LiveTranscodingEvents> {
+export class LiveTranscodingPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends Plugin<NMVideoPlayer<T>, LiveTranscodingOptions, LiveTranscodingEvents> {
 	static override readonly id: string = 'live-transcoding';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'Server-coordinated live video transcoding — variant gating + loader backpressure';

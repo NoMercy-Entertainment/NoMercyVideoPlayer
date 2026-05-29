@@ -1,4 +1,5 @@
 import type { NMVideoPlayer } from '../../index';
+import type { VideoPlaylistItem } from '../../types';
 import { DrmError, Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 /** Options for the video {@link DrmPlugin}. */
@@ -49,7 +50,7 @@ interface DrmItemHint {
  * environments without EME stay quiet. When the API is missing, an
  * `unsupported` event is emitted and the plugin exits cleanly.
  */
-export class DrmPlugin extends Plugin<NMVideoPlayer<any>, DrmOptions, DrmEvents> {
+export class DrmPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends Plugin<NMVideoPlayer<T>, DrmOptions, DrmEvents> {
 	static override readonly id: string = 'drm';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'EME DRM coordination — Widevine / FairPlay / PlayReady with HDCP signalling';
