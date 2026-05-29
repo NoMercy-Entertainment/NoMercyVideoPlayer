@@ -141,26 +141,25 @@
 	},
 	"dependencies": {
 		"@nomercy-entertainment/nomercy-player-core": "file:../nomercy-player-kit",
-		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
-		"hls.js": ">=1.6.0"
+		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0"
 	},
 	"devDependencies": {
-		"@antfu/eslint-config": "5.3.0",
-		"@playwright/test": "^1.59.1",
-		"@types/node": "^22.0.0",
-		"@vitest/coverage-v8": "^4.1.2",
-		"@vitest/ui": "^4.1.2",
-		"eslint": "^9.0.0",
-		"eslint-plugin-format": "1.0.1",
-		"happy-dom": "^20.8.9",
-		"hls.js": "1.6.15",
-		"playwright": "^1.59.1",
-		"prettier": "3.3.3",
+		"@antfu/eslint-config": "^9.0.0",
+		"@playwright/test": "^1.60.0",
+		"@types/node": "^25.9.0",
+		"@vitest/coverage-v8": "^4.1.6",
+		"@vitest/ui": "^4.1.6",
+		"eslint": "^10.4.0",
+		"eslint-plugin-format": "^1.0.1",
+		"happy-dom": "^20.9.0",
+		"hls.js": "^1.6.0",
+		"playwright": "^1.60.0",
+		"prettier": "^3.3.3",
 		"prettier-eslint": "^16.4.2",
-		"typescript": "5.8.3",
-		"vite": "7.3.2",
-		"vite-plugin-dts": "4.5.4",
-		"vitest": "^4.1.2"
+		"typescript": "^6.0.3",
+		"vite": "^8.0.13",
+		"vite-plugin-dts": "^5.0.0",
+		"vitest": "^4.1.6"
 	},
 	"overrides": {
 		"fast-uri": "^3.1.2",
