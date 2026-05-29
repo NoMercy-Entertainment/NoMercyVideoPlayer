@@ -30,7 +30,7 @@ export interface Icon {
 /**
  * An object containing Fluent UI icon definitions.
  */
-export const fluentIcons: Icon = {
+export const fluentIcons = {
 	back: {
 		classes: [],
 		hover: 'M10.2949 19.7162C10.6883 20.1038 11.3215 20.0991 11.7091 19.7057C12.0967 19.3123 12.092 18.6792 11.6986 18.2915L6.32827 13.0001H19.9995C20.5517 13.0001 20.9995 12.5524 20.9995 12.0001C20.9995 11.4479 20.5517 11.0001 19.9995 11.0001H6.33488L11.6986 5.71525C12.092 5.32763 12.0967 4.69448 11.7091 4.30108C11.3215 3.90767 10.6883 3.90298 10.2949 4.29061L3.37073 11.113C2.87382 11.6026 2.87382 12.4042 3.37073 12.8938L10.2949 19.7162Z',
@@ -289,7 +289,7 @@ export const fluentIcons: Icon = {
 		normal: '',
 		title: 'Template',
 	},
-};
+} satisfies Icon;
 
 /**
  * Returns an object containing button icons for the video player.

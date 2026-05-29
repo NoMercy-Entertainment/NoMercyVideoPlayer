@@ -1,10 +1,8 @@
 
 
-import { BrowserPolicyError, EventEmitter, MediaFormatError } from '@nomercy-entertainment/nomercy-player-core';
+import { BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError } from '@nomercy-entertainment/nomercy-player-core';
 import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 import type { BackendEventPayload, BackendLoaderState, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
-
-const HLS_EXT_RE = /\.m3u8(\?|$)/i;
 
 interface HlsLevel {
 	attrs?: { CODECS?: string; 'VIDEO-RANGE'?: string };

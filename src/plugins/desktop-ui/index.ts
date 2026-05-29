@@ -944,7 +944,7 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
         parent.appendChild(this.fsBtn);
     }
 
-    private iconBtn(id: string, iconName: string): HTMLButtonElement {
+    private iconBtn(id: string, iconName: keyof typeof fluentIcons): HTMLButtonElement {
         const icon = fluentIcons[iconName];
         const btn = this.player.createButton(id, icon.title || iconName, () => {});
         this.player.addClasses(btn, ['btn']);
