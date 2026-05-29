@@ -1,4 +1,4 @@
-import type { NMVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
+import type { IVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
 
 /**
  * v1 player exposed `subtitleStyle({...})`; v2 hasn't shipped that method
@@ -18,7 +18,7 @@ export interface SubtitleStyle {
 	windowOpacity: number;
 }
 
-type NMPlayer = NMVideoPlayer & { subtitleStyle?: (style: Partial<SubtitleStyle>) => void };
+type NMPlayer = IVideoPlayer & { subtitleStyle?: (style: Partial<SubtitleStyle>) => void };
 
 export interface Icon {
 	[key: string]: {

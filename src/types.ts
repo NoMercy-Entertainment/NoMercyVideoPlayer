@@ -197,12 +197,24 @@ export interface VideoEventMap extends BaseEventMap {
 	// consumer (overlay plugins, debug widgets, a11y tooling) can subscribe
 	// without depending on a specific player package.
 
+	// OSD toast request — plugins emit this instead of rendering text themselves.
+	// The active UI plugin (DesktopUiPlugin, TvUiPlugin) subscribes and renders.
+	// `ms` is the display duration in milliseconds; omit for the UI's default.
+	'display-message': { text: string; ms?: number };
+
 	// Navigation intent emitted by the DesktopUiPlugin back button.
 	// The player itself has no navigation stack — consumers wire a listener
 	// and handle routing (e.g. router.back(), close the player modal).
 	// The back button in the UI is only visible when at least one listener
 	// is registered (checked via `player.hasListeners('back')` at ready time).
 	'back': void;
+
+	// Close intent emitted by the DesktopUiPlugin close button.
+	// The player itself has no window/modal concept — consumers wire a listener
+	// and handle dismissal (e.g. hide the player overlay).
+	// The close button is only visible when at least one listener is registered
+	// (checked via `player.hasListeners('close')` at ready time).
+	'close': void;
 }
 
 /**
@@ -264,6 +276,15 @@ export type Stretching = NonNullable<VideoPlayerConfig['stretching']>;
  */
 export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	extends IPlayer<VideoEventMap> {
+
+	/**
+	 * Phantom brand — mirrors the declaration on `NMVideoPlayer`. Declared
+	 * directly on the interface so `PlayerEventMap<IVideoPlayer>` resolves to
+	 * `VideoEventMap` without TypeScript having to walk the `extends
+	 * IPlayer<VideoEventMap>` generic-instantiation chain (which stalls in
+	 * conditional-type inference for interface types).
+	 */
+	readonly __eventMap__: VideoEventMap;
 
 	// ── Video element ──
 
@@ -331,6 +352,43 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	currentQuality(): CurrentQualitySelection | 'auto';
 	currentQuality(idx: number | 'auto'): void;
 
+	// ── Playback — required overrides of IPlayer optionals ──
+	// IPlayer marks these optional for cross-library compatibility.
+	// NMVideoPlayer always implements them; IVideoPlayer makes them required.
+
+	currentTime(): number;
+	currentTime(seconds: number, opts?: ActionOptions): void;
+
+	duration(): number;
+
+	playbackRate(): number;
+	playbackRate(rate: number): void;
+
+	togglePlayback(opts?: ActionOptions): Promise<void>;
+	toggleMute(): void;
+
+	rewind(seconds?: number, opts?: ActionOptions): void;
+	forward(seconds?: number, opts?: ActionOptions): void;
+
+	// ── Playback state ──
+
+	/** Top-level playback state (`'idle'`, `'playing'`, `'paused'`, `'buffering'`, `'ended'`). */
+	playState(): PlayState;
+
+	/** Volume gain stage (`'unmuted'`, `'muted'`). */
+	volumeState(): VolumeState;
+
+	/**
+	 * Read or write the volume level.
+	 * `volume()` — current level in [0, 100].
+	 * `volume(v)` — set level, clamped to [0, 100].
+	 */
+	volume(): number;
+	volume(v: number): void;
+
+	/** Buffered fraction in [0, 1]. `0` when no backend is active. */
+	buffered(): number;
+
 	// ── Transport ──
 
 	play(opts?: ActionOptions): Promise<void>;
@@ -343,4 +401,28 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	current(): T | undefined;
 	current(target: T | string | number, opts?: ActionOptions): void;
+
+	/** Number of items in the active queue. */
+	queueLength(): number;
+
+	/** Zero-based index of the currently active queue item. `-1` when no item is active. */
+	currentIndex(): number;
+
+	// ── Queue accessors ──
+
+	/**
+	 * Read or replace the queue.
+	 * `queue()` — current items as a readonly array.
+	 * `queue(items)` — replace queue contents.
+	 */
+	queue(): ReadonlyArray<T>;
+	queue(items: T[], opts?: ActionOptions): void;
+
+	/** Available playback rates exposed by this player instance. */
+	playbackRates(): number[];
+
+	// ── Chapters ──
+
+	/** Jump to the chapter at `idx`. Emits `'chapter'`. */
+	seekToChapter(idx: number, opts?: ActionOptions): void;
 }

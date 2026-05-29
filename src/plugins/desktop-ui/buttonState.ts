@@ -8,7 +8,7 @@
  */
 
 import type { ITranslator } from '@nomercy-entertainment/nomercy-player-core';
-import type { NMVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
+import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 import { VolumeState } from '@nomercy-entertainment/nomercy-video-player';
 
 import { fluentIcons, svgFromIcon } from './icons';
@@ -47,7 +47,7 @@ export function applyMuted(volBtn: HTMLButtonElement, applyMutedIconFn: () => vo
 /** Update the volume button icon and aria-label to reflect current mute + level. */
 export function applyMutedIcon(
 	volBtn: HTMLButtonElement,
-	player: NMVideoPlayer<VideoPlaylistItem>,
+	player: IVideoPlayer<VideoPlaylistItem>,
 	t: ITranslator['t'],
 ): void {
 	const muted = player.volumeState() === VolumeState.MUTED;

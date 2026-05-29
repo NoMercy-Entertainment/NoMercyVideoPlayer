@@ -53,7 +53,7 @@
  */
 
 import type { Translations } from '@nomercy-entertainment/nomercy-player-core';
-import type { NMVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
+import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 import type { MenuFrameRefs, MenuRenderState, SubMenuId } from './menus';
 
 import type { ChapterMarkerRef, SliderBarRefs } from './progressBar';
@@ -302,7 +302,7 @@ export interface DesktopUiEvents {
 	'opts:changed': DesktopUiOptions;
 }
 
-export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, DesktopUiOptions, DesktopUiEvents> {
+export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, DesktopUiOptions, DesktopUiEvents> {
 	static override readonly id: string = 'desktop-ui';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'Official desktop UI overlay (v2 rewrite)';
@@ -1822,7 +1822,6 @@ export class DesktopUiPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, De
 		centerIconHolder.innerHTML = svgFromIcon(playing ? fluentIcons.pause : fluentIcons.bigPlay, 32);
 		this.playBtn.setAttribute('aria-label', this.t('tooltip.play'));
 	}
-
 
 	private handleCurrentChange(item: VideoPlaylistItem | undefined | null): void {
 		if (this.topBarRefs)

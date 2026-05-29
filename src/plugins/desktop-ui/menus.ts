@@ -18,7 +18,7 @@
  * builder takes a `listen` helper and a small action-callback bag.
  */
 
-import type { NMVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
+import type { IVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
 import type { SubtitleStyle } from './buttons';
 import {
 	colors,
@@ -92,7 +92,7 @@ export interface MenuFrameRefs {
 }
 
 export function buildMenuFrame(
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	parent: HTMLElement,
 	listen: MenuListen,
 	actions: MenuActions,
@@ -155,7 +155,7 @@ export function buildMenuFrame(
 }
 
 function buildMainMenu(
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	parent: HTMLElement,
 	listen: MenuListen,
 	actions: MenuActions,
@@ -224,7 +224,7 @@ function buildMainMenu(
  * structurally with v1's `createEpisodeMenu`.
  */
 function buildPlaylistPaneShell(
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	parent: HTMLElement,
 	listen: MenuListen,
 	actions: MenuActions,
@@ -285,7 +285,7 @@ function buildPlaylistPaneShell(
 }
 
 function buildSubMenuPane(
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	parent: HTMLElement,
 	id: SubMenuId,
 	title: string,
@@ -346,7 +346,7 @@ export interface MenuRenderState {
 
 export function renderSpeedPane(
 	pane: HTMLDivElement,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	listen: MenuListen,
 	onPick: () => void,
 ): void {
@@ -372,7 +372,7 @@ export function renderSpeedPane(
 
 export function renderQualityPane(
 	pane: HTMLDivElement,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	listen: MenuListen,
 	onPick: () => void,
 	state: MenuRenderState,
@@ -424,7 +424,7 @@ export function renderQualityPane(
 
 export function renderSubsPane(
 	pane: HTMLDivElement,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	listen: MenuListen,
 	onPick: () => void,
 	state: MenuRenderState,
@@ -463,7 +463,7 @@ export function renderSubsPane(
  * the pane's body to a property-specific picker (rendered by
  * `renderSubtitlePropertyPane`). The back arrow returns to this list.
  *
- * v2's `NMVideoPlayer` doesn't expose a `subtitleStyle()` API, so we
+ * v2's `IVideoPlayer` doesn't expose a `subtitleStyle()` API, so we
  * keep the active style in module state and write through to the
  * player only when it does (older v1-style consumers).
  */
@@ -485,7 +485,7 @@ const SETTING_ROWS: Array<{ label: string; property: keyof SubtitleStyle | '' }>
  * lazily seeds defaults on first read, so consumers never have to
  * worry about an uninitialized state.
  */
-function readSubtitleStyle(player: NMVideoPlayer): SubtitleStyle {
+function readSubtitleStyle(player: IVideoPlayer): SubtitleStyle {
 	const raw = coerceSubtitleStyle(player.subtitleStyle?.());
 	const base: SubtitleStyle = { ...defaultSubtitleStyles };
 	for (const key of Object.keys(base) as Array<keyof SubtitleStyle>) {
@@ -496,12 +496,12 @@ function readSubtitleStyle(player: NMVideoPlayer): SubtitleStyle {
 	return base;
 }
 
-function writeSubtitleStyle(player: NMVideoPlayer, patch: Partial<SubtitleStyle>): void {
+function writeSubtitleStyle(player: IVideoPlayer, patch: Partial<SubtitleStyle>): void {
 	player.subtitleStyle?.(patch);
 }
 
 function writeSubtitleStyleKey<K extends keyof SubtitleStyle>(
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	key: K,
 	value: SubtitleStyle[K],
 ): void {
@@ -543,7 +543,7 @@ function toTitleCase(s: string): string {
 
 export function renderSubtitleSettingsPane(
 	pane: HTMLDivElement,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	listen: MenuListen,
 	onPick: () => void,
 ): void {
@@ -593,7 +593,7 @@ export function renderSubtitleSettingsPane(
  */
 function renderSubtitlePropertyPane(
 	pane: HTMLDivElement,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	listen: MenuListen,
 	onPick: () => void,
 	label: string,
@@ -693,7 +693,7 @@ export interface PlaylistRenderOptions {
  */
 export function renderPlaylistPane(
 	pane: HTMLDivElement,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	listen: MenuListen,
 	onPick: () => void,
 	opts: PlaylistRenderOptions = {},
@@ -753,7 +753,7 @@ export function renderPlaylistPane(
 
 function renderSeasonEpisodes(
 	scroll: HTMLDivElement,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	queue: PlaylistItemLite[],
 	season: number,
 	curIdx: number,
@@ -770,7 +770,7 @@ function renderSeasonEpisodes(
 }
 
 function buildPlaylistCard(
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	item: PlaylistItemLite,
 	index: number,
 	active: boolean,
@@ -878,7 +878,7 @@ function formatDuration(d: number | string | undefined): string {
 
 export function renderAudioPane(
 	pane: HTMLDivElement,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	listen: MenuListen,
 	onPick: () => void,
 	state: MenuRenderState,
@@ -909,7 +909,7 @@ function appendChoice(
 	active: boolean,
 	onClick: () => void,
 	listen: MenuListen,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	opts?: {
 		/**
 		 * Optional lower-importance text rendered between the label and the
@@ -957,7 +957,7 @@ const ASPECT_RATIO_OPTIONS: Array<{ value: AspectRatioValue; label: string }> = 
 
 export function renderAspectRatioPane(
 	pane: HTMLDivElement,
-	player: NMVideoPlayer,
+	player: IVideoPlayer,
 	listen: MenuListen,
 	onPick: () => void,
 ): void {

@@ -44,8 +44,7 @@
  * in/out is handled entirely by CSS (no JS animation frames).
  */
 
-import type { NMVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
-import type { VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
+import type { NMVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 export interface TouchZonesOptions {
