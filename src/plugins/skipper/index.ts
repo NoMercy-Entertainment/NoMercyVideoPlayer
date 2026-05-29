@@ -2,8 +2,14 @@ import type { NMVideoPlayer } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
 import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
+export const SKIPPER_KIND = {
+	INTRO: 'intro',
+	RECAP: 'recap',
+	CREDITS: 'credits',
+} as const;
+
 /** Identifies which segment type the skipper acts on. */
-export type SkipperKind = 'intro' | 'recap' | 'credits';
+export type SkipperKind = typeof SKIPPER_KIND[keyof typeof SKIPPER_KIND];
 
 /** Start and end timestamps (in seconds) of a skippable segment. */
 export interface SkipperRange {
@@ -32,7 +38,7 @@ export interface SkipperEvents {
 	'skipper:skipped': { kind: SkipperKind; range: SkipperRange; auto: boolean };
 }
 
-const KINDS: ReadonlyArray<SkipperKind> = ['intro', 'recap', 'credits'];
+const KINDS: ReadonlyArray<SkipperKind> = [SKIPPER_KIND.INTRO, SKIPPER_KIND.RECAP, SKIPPER_KIND.CREDITS];
 
 /**
  * Skip-intro / skip-recap / skip-credits plugin.

@@ -84,14 +84,34 @@ export type BackendEvent = keyof BackendEventPayload;
 // for ergonomic access from backend implementations.
 export type { SubtitleCue, SubtitleCueChange } from '@nomercy-entertainment/nomercy-player-core';
 
+export const BACKEND_STATE = {
+	IDLE: 'idle',
+	LOADING: 'loading',
+	READY: 'ready',
+	PLAYING: 'playing',
+	PAUSED: 'paused',
+	ERROR: 'error',
+} as const;
+
 /** Backend lifecycle state. Returned by `state()`. */
-export type BackendState = 'idle' | 'loading' | 'ready' | 'playing' | 'paused' | 'error';
+export type BackendState = typeof BACKEND_STATE[keyof typeof BACKEND_STATE];
+
+export const BACKEND_LOADER_STATE = {
+	RUNNING: 'running',
+	PAUSED: 'paused',
+} as const;
 
 /** Loader state — used for backpressure when an upstream gate needs the buffer to drain. */
-export type BackendLoaderState = 'running' | 'paused';
+export type BackendLoaderState = typeof BACKEND_LOADER_STATE[keyof typeof BACKEND_LOADER_STATE];
+
+export const VIDEO_BACKEND_KIND = {
+	HTML5: 'html5',
+	MSE: 'mse',
+	WEBCODECS: 'webcodecs',
+} as const;
 
 /** Video backend kind. */
-export type VideoBackendKind = 'html5' | 'mse' | 'webcodecs';
+export type VideoBackendKind = typeof VIDEO_BACKEND_KIND[keyof typeof VIDEO_BACKEND_KIND];
 
 /**
  * Contract every video backend implements. Parallels the audio backend

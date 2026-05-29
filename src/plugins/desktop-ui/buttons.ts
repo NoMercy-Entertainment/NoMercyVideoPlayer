@@ -296,15 +296,24 @@ export const fluentIcons = {
 /** Returns the full set of built-in button icons for the video player. */
 export const buttons = (): Icon => ({ ...fluentIcons });
 
-export type EdgeStyle = 'none' | 'depressed' | 'dropShadow' | 'textShadow' | 'raised' | 'uniform';
+export const EDGE_STYLE = {
+	NONE: 'none',
+	DEPRESSED: 'depressed',
+	DROP_SHADOW: 'dropShadow',
+	TEXT_SHADOW: 'textShadow',
+	RAISED: 'raised',
+	UNIFORM: 'uniform',
+} as const;
+
+export type EdgeStyle = typeof EDGE_STYLE[keyof typeof EDGE_STYLE];
 
 export const edgeStyles: readonly { name: string; value: EdgeStyle }[] = Object.freeze([
-	{ name: 'None', value: 'none' },
-	{ name: 'Depressed', value: 'depressed' },
-	{ name: 'Drop Shadow', value: 'dropShadow' },
-	{ name: 'Text Shadow', value: 'textShadow' },
-	{ name: 'Raised', value: 'raised' },
-	{ name: 'Uniform', value: 'uniform' },
+	{ name: 'None', value: EDGE_STYLE.NONE },
+	{ name: 'Depressed', value: EDGE_STYLE.DEPRESSED },
+	{ name: 'Drop Shadow', value: EDGE_STYLE.DROP_SHADOW },
+	{ name: 'Text Shadow', value: EDGE_STYLE.TEXT_SHADOW },
+	{ name: 'Raised', value: EDGE_STYLE.RAISED },
+	{ name: 'Uniform', value: EDGE_STYLE.UNIFORM },
 ]);
 
 export const fontFamilies: readonly { name: string; value: string }[] = Object.freeze([

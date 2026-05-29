@@ -32,7 +32,17 @@ import { fluentIcons, svgFromIcon } from './icons';
 
 export type MenuListen = (target: EventTarget, event: string, fn: (e: Event) => void) => void;
 
-export type SubMenuId = 'language' | 'subtitles' | 'quality' | 'speed' | 'playlist' | 'subtitleSettings' | 'aspectRatio';
+export const SUB_MENU_ID = {
+	LANGUAGE: 'language',
+	SUBTITLES: 'subtitles',
+	QUALITY: 'quality',
+	SPEED: 'speed',
+	PLAYLIST: 'playlist',
+	SUBTITLE_SETTINGS: 'subtitleSettings',
+	ASPECT_RATIO: 'aspectRatio',
+} as const;
+
+export type SubMenuId = typeof SUB_MENU_ID[keyof typeof SUB_MENU_ID];
 
 export interface SubtitleTrackLite { id?: string | number; label?: string; language?: string; kind?: string }
 export interface AudioTrackLite { id?: string | number; name?: string; language?: string; label?: string; default?: boolean }
@@ -929,13 +939,20 @@ function appendChoice(
 	listen(btn, 'click', () => onClick());
 }
 
-export type AspectRatioValue = 'uniform' | 'fill' | 'exactfit' | 'none';
+export const ASPECT_RATIO_VALUE = {
+	UNIFORM: 'uniform',
+	FILL: 'fill',
+	EXACTFIT: 'exactfit',
+	NONE: 'none',
+} as const;
+
+export type AspectRatioValue = typeof ASPECT_RATIO_VALUE[keyof typeof ASPECT_RATIO_VALUE];
 
 const ASPECT_RATIO_OPTIONS: Array<{ value: AspectRatioValue; label: string }> = [
-	{ value: 'uniform', label: 'Original' },
-	{ value: 'fill', label: 'Stretch' },
-	{ value: 'exactfit', label: 'Crop' },
-	{ value: 'none', label: 'Native' },
+	{ value: ASPECT_RATIO_VALUE.UNIFORM, label: 'Original' },
+	{ value: ASPECT_RATIO_VALUE.FILL, label: 'Stretch' },
+	{ value: ASPECT_RATIO_VALUE.EXACTFIT, label: 'Crop' },
+	{ value: ASPECT_RATIO_VALUE.NONE, label: 'Native' },
 ];
 
 export function renderAspectRatioPane(
