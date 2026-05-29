@@ -1462,7 +1462,10 @@
 		display: none !important;
 	}
 
-	/* ── Keyboard shortcuts overlay ───────────────────────────────────── */
+}
+
+/* ── Keyboard shortcuts overlay ──────────────────────────────────────────── */
+.nomercyplayer {
 	.keybinds-dialog {
 		display: none;
 		position: absolute;
