@@ -9,8 +9,6 @@ export default antfu({
 		// on save (~70s on Windows with antfu's plugin set). Run `npx eslint
 		// eslint.config.js` manually when editing this file.
 		'eslint.config.js',
-		// Has a pending uncommitted design tweak — CSS formatter must not touch it
-		'src/plugins/desktop-ui/styles.css',
 	],
 	typescript: {
 		overrides: {
