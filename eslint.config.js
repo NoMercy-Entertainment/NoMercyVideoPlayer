@@ -9,6 +9,8 @@ export default antfu({
 		// on save (~70s on Windows with antfu's plugin set). Run `npx eslint
 		// eslint.config.js` manually when editing this file.
 		'eslint.config.js',
+		// Has a pending uncommitted design tweak — CSS formatter must not touch it
+		'src/plugins/desktop-ui/styles.css',
 	],
 	typescript: {
 		overrides: {
@@ -23,6 +25,10 @@ export default antfu({
 	test: {
 		overrides: {
 			'test/prefer-lowercase-title': 'off',
+			// vi.fn(function(this: unknown) {}) needs function for `this` context
+			'prefer-arrow-callback': 'off',
+			// Test mock constructors legitimately capture `this` for fixture access
+			'ts/no-this-alias': 'off',
 		},
 	},
 	stylistic: {
@@ -37,8 +43,9 @@ export default antfu({
 		svg: false,
 	},
 }, {
-	files: ['e2e/**/*.ts'],
+	// Project uses `{ void expr; }` arrow bodies and one-liner stubs throughout
 	rules: {
 		'style/max-statements-per-line': 'off',
+		'node/prefer-global/process': 'off',
 	},
 });
