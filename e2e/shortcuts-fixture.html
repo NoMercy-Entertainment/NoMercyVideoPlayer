@@ -30,7 +30,7 @@
 				await player.addPlugin(DesktopUiPlugin).ready();
 				window.__desktopUiReady = true;
 			} catch (e) {
-				window.__initError = (e && e.message) ? e.message : String(e);
+				window.__initError = e && e.message ? e.message : String(e);
 				window.__desktopUiReady = false;
 				console.error('Fixture init error:', e);
 			}

@@ -1,5 +1,3 @@
-
-
 import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 
 /**
@@ -12,33 +10,37 @@ import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertain
  * we keep the `?` optional in the listener signature for that case).
  */
 export interface BackendEventPayload {
-	loadstart: Event;
-	loadedmetadata: { url: string; kind: string; duration: number };
-	loadeddata: Event;
-	canplay: Event;
-	play: Event;
+	'loadstart': Event;
+	'loadedmetadata': { url: string; kind: string; duration: number };
+	'loadeddata': Event;
+	'canplay': Event;
+	'play': Event;
 	/**
 	 * Fires when media is actually rendering — after buffering resolves, not
 	 * just on element.play(). Use this to hide buffering spinners.
 	 */
-	playing: Event;
-	pause: Event;
-	ended: Event;
-	timeupdate: Event;
-	waiting: Event;
-	stalled: Event;
-	ratechange: Event;
-	resize: Event;
-	encrypted: Event;
-	error: Event;
-	/** Element src cleared (manual unload, HMR remount). Listeners use
+	'playing': Event;
+	'pause': Event;
+	'ended': Event;
+	'timeupdate': Event;
+	'waiting': Event;
+	'stalled': Event;
+	'ratechange': Event;
+	'resize': Event;
+	'encrypted': Event;
+	'error': Event;
+	/**
+	 * Element src cleared (manual unload, HMR remount). Listeners use
 	 *  this to reset "we're playing" state — element is paused at
-	 *  currentTime=0 after this fires. */
-	emptied: Event;
-	/** Active subtitle cues changed. Payload mirrors the kit's
+	 *  currentTime=0 after this fires.
+	 */
+	'emptied': Event;
+	/**
+	 * Active subtitle cues changed. Payload mirrors the kit's
 	 *  `SubtitleCueChange`. Fires with `cues: []` when subtitles are
-	 *  turned off / between cues. */
-	subtitleCue: import('@nomercy-entertainment/nomercy-player-core').SubtitleCueChange;
+	 *  turned off / between cues.
+	 */
+	'subtitleCue': import('@nomercy-entertainment/nomercy-player-core').SubtitleCueChange;
 	/**
 	 * A non-fatal or escalated HLS error. `fatal: false` means the stream
 	 * is continuing; `fatal: true` means recovery was attempted but all

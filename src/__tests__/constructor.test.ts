@@ -7,15 +7,15 @@
  * by both libraries simultaneously without collision.
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { PlayerError, ResourceError, StateError } from '@nomercy-entertainment/nomercy-player-core';
-import { NMVideoPlayer, nmplayer } from '../index';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { nmplayer, NMVideoPlayer } from '../index';
 
-const catchError = (fn: () => unknown): PlayerError => {
+function catchError(fn: () => unknown): PlayerError {
 	try { fn(); }
 	catch (e) { return e as PlayerError; }
 	throw new Error('catchError: fn did not throw');
-};
+}
 
 describe('NMVideoPlayer constructor', () => {
 	beforeEach(() => {

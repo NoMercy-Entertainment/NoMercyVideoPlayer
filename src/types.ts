@@ -1,22 +1,20 @@
-
-
-import type { IVideoBackend, VideoBackendKind } from './adapters/video-backend/IVideoBackend';
 import type {
 	ActionOptions,
-	AudioTrack as KitAudioTrack,
 	AudioTrackState,
 	BaseEventMap,
 	BasePlayerConfig,
 	BasePlaylistItem,
-	Chapter as KitChapter,
 	CurrentAudioTrackSelection,
 	CurrentQualitySelection,
 	CurrentSubtitleSelection,
 	IPlayer,
+	AudioTrack as KitAudioTrack,
+	Chapter as KitChapter,
+	SubtitleTrack as KitSubtitleTrack,
 	QualityLevel,
 	SubtitleStyle,
-	SubtitleTrack as KitSubtitleTrack,
 } from '@nomercy-entertainment/nomercy-player-core';
+import type { IVideoBackend, VideoBackendKind } from './adapters/video-backend/IVideoBackend';
 
 export type { QualityLevel };
 
@@ -170,15 +168,15 @@ export interface VideoEventMap extends BaseEventMap {
 	'current': { item: VideoPlaylistItem | undefined; index: number };
 
 	'quality:requested': { level: number | 'auto' };
-	chapter: { index: number; title: string };
-	pip: { active: boolean };
-	theater: { active: boolean };
-	fullscreen: { active: boolean };
-	mute: { muted: boolean };
-	volume: { level: number };
-	repeat: { state: RepeatState };
-	shuffle: { state: ShuffleState };
-	aspectRatio: { value: 'uniform' | 'fill' | 'exactfit' | 'none' };
+	'chapter': { index: number; title: string };
+	'pip': { active: boolean };
+	'theater': { active: boolean };
+	'fullscreen': { active: boolean };
+	'mute': { muted: boolean };
+	'volume': { level: number };
+	'repeat': { state: RepeatState };
+	'shuffle': { state: ShuffleState };
+	'aspectRatio': { value: 'uniform' | 'fill' | 'exactfit' | 'none' };
 
 	// Buffering / network-readiness signals forwarded from the HTML5 backend.
 	// Overlay plugins use these to show / hide the spinner without polling.
@@ -254,7 +252,6 @@ export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistIte
 }
 
 export type Stretching = NonNullable<VideoPlayerConfig['stretching']>;
-
 
 /**
  * Typed contract for the video player's video-specific surface. Extends the

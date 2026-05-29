@@ -1,4 +1,3 @@
-
 import type { SubtitleStyle } from '@nomercy-entertainment/nomercy-player-core';
 
 /**

@@ -1,4 +1,3 @@
-
 import type { BasePlaylistItem, Chapter } from '@nomercy-entertainment/nomercy-player-core';
 
 import type { IChapterSource } from './IChapterSource';
@@ -37,7 +36,8 @@ export class VttChapterSource implements IChapterSource {
 
 	current(timeSeconds: number): Chapter | null {
 		for (const chapter of this._chapters) {
-			if (timeSeconds >= chapter.start && timeSeconds < chapter.end) return chapter;
+			if (timeSeconds >= chapter.start && timeSeconds < chapter.end)
+				return chapter;
 		}
 		return null;
 	}

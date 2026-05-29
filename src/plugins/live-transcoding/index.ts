@@ -1,8 +1,6 @@
-
-
-import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 import type { IRealtimeChannel } from '@nomercy-entertainment/nomercy-player-core';
 import type { NMVideoPlayer } from '../../index';
+import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 /** Options for the video {@link LiveTranscodingPlugin}. */
 export interface LiveTranscodingOptions {
@@ -66,7 +64,8 @@ export class LiveTranscodingPlugin extends Plugin<NMVideoPlayer<any>, LiveTransc
 	/** Opens the control WebSocket and wires `beforeLoad` / `beforeSeek` transcoder-ready gates. */
 	override use(): void {
 		const url = this.opts?.wsUrl ?? this.opts?.controlUrl;
-		if (!url) return;
+		if (!url)
+			return;
 
 		this.channel = this.websocket(url);
 		this.channel.on('message', (data: unknown) => {
@@ -81,7 +80,8 @@ export class LiveTranscodingPlugin extends Plugin<NMVideoPlayer<any>, LiveTransc
 
 		this.on('beforeLoad', async (event) => {
 			const item = event?.data?.item;
-			if (!item) return;
+			if (!item)
+				return;
 			this._transcodedTo = 0;
 			this.currentJobId = String((item as { id?: unknown }).id ?? '');
 			// Gate is best-effort — when the server is offline we don't block
@@ -91,7 +91,8 @@ export class LiveTranscodingPlugin extends Plugin<NMVideoPlayer<any>, LiveTransc
 
 		this.on('beforeSeek', async (event) => {
 			const target = event?.data?.time ?? 0;
-			if (target <= this._transcodedTo) return;
+			if (target <= this._transcodedTo)
+				return;
 			await this.waitFor(target);
 		});
 	}
@@ -113,19 +114,21 @@ export class LiveTranscodingPlugin extends Plugin<NMVideoPlayer<any>, LiveTransc
 		if (typeof raw === 'string') {
 			try {
 				const parsed: unknown = JSON.parse(raw);
-				if (parsed !== null && typeof parsed === 'object') msg = parsed as ServerStatusMessage;
+				if (parsed !== null && typeof parsed === 'object')
+					msg = parsed as ServerStatusMessage;
 			}
 			catch { return; }
 		}
 		else if (raw !== null && typeof raw === 'object') {
 			msg = raw as ServerStatusMessage;
 		}
-		if (!msg) return;
+		if (!msg)
+			return;
 
 		switch (msg.type) {
 			case 'started':
 				this.currentJobId = msg.jobId ?? this.currentJobId;
-				this.emit('job:started', { jobId: this.currentJobId ?? '', sourceUrl: String(msg['sourceUrl'] ?? '') });
+				this.emit('job:started', { jobId: this.currentJobId ?? '', sourceUrl: String(msg.sourceUrl ?? '') });
 				break;
 			case 'progress':
 				if (typeof msg.transcodedSeconds === 'number') {
@@ -133,8 +136,8 @@ export class LiveTranscodingPlugin extends Plugin<NMVideoPlayer<any>, LiveTransc
 					this.emit('job:progress', {
 						jobId: msg.jobId ?? this.currentJobId ?? '',
 						transcodedSeconds: msg.transcodedSeconds,
-						totalSeconds: msg['totalSeconds'] as number | undefined,
-						variantsReady: (msg['variantsReady'] as string[]) ?? [],
+						totalSeconds: msg.totalSeconds as number | undefined,
+						variantsReady: (msg.variantsReady as string[]) ?? [],
 					});
 				}
 				break;
@@ -150,15 +153,18 @@ export class LiveTranscodingPlugin extends Plugin<NMVideoPlayer<any>, LiveTransc
 	}
 
 	private async waitFor(target: number): Promise<void> {
-		if (target <= this._transcodedTo) return;
+		if (target <= this._transcodedTo)
+			return;
 		const timeoutMs = this.opts?.seekTimeoutMs ?? 10_000;
 		const start = Date.now();
 		// Poll our own transcodedTo state — populated by onServerMessage. Bail
 		// when the timeout is reached to avoid hanging the player.
 		await new Promise<void>((resolve) => {
 			const tick = () => {
-				if (target <= this._transcodedTo) return resolve();
-				if (Date.now() - start >= timeoutMs) return resolve();
+				if (target <= this._transcodedTo)
+					return resolve();
+				if (Date.now() - start >= timeoutMs)
+					return resolve();
 				this.timeout(tick, 100);
 			};
 			tick();

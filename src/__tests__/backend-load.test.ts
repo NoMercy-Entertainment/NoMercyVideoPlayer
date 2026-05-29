@@ -33,11 +33,12 @@ vi.mock('hls.js', () => {
 			LEVEL_SWITCHED: 'hlsLevelSwitched',
 			FRAG_CHANGED: 'hlsFragChanged',
 		};
+
 		static ErrorTypes: Record<string, string> = {
 			NETWORK_ERROR: 'networkError',
 			MEDIA_ERROR: 'mediaError',
 		};
-		// eslint-disable-next-line ts/no-explicit-any
+
 		on(_event: string, _fn: (...args: any[]) => void): void { /* stub */ }
 		attachMedia(_el: HTMLVideoElement): void { /* stub */ }
 		loadSource(_url: string): void { /* stub */ }

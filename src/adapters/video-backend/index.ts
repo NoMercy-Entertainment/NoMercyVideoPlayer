@@ -1,3 +1,4 @@
+export { Html5VideoBackend } from './html5';
 
 export type {
 	BackendEvent,
@@ -9,5 +10,3 @@ export type {
 	SubtitleCueChange,
 	VideoBackendKind,
 } from './IVideoBackend';
-
-export { Html5VideoBackend } from './html5';

@@ -1,15 +1,3 @@
-
-
-import {
-	BrowserPolicyError,
-	composeMixins,
-	EventEmitter,
-	initPlayerCoreState,
-	playerCoreMethods,
-	resolvePlayerConstructor,
-} from '@nomercy-entertainment/nomercy-player-core';
-
-export { NotImplementedError } from '@nomercy-entertainment/nomercy-player-core';
 import type {
 	ActionOptions,
 	AudioTrack,
@@ -26,6 +14,7 @@ import type {
 	DeviceCapabilities,
 	IPlatform,
 	IPlayer,
+	TimeState as KitTimeState,
 	LoadOptions,
 	NetworkState,
 	PlaybackMetrics,
@@ -33,6 +22,7 @@ import type {
 	PlayerPhase,
 	Plugin,
 	PluginCtorWithId,
+	PreloadStrategy,
 	QualityLevel,
 	ResolvedUrl,
 	SetupState,
@@ -40,31 +30,55 @@ import type {
 	SubtitleCueChange,
 	SubtitleStyle,
 	SubtitleTrack,
-	TimeState as KitTimeState,
+	TransitionStrategy,
 	Translations,
 	UrlCategory,
 	UrlResolver,
 	VisibilityState,
 } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoBackend } from './adapters/video-backend/IVideoBackend';
+import type { AudioTrackState, IVideoPlayer, PlayState, QualityState,	RepeatState,	ShuffleState,	VideoEventMap,	VideoPlayerConfig,	VideoPlaylistItem,	VolumeState } from './types';
+import {
+	BrowserPolicyError,
+	composeMixins,
+	EventEmitter,
+	GaplessTransitionStrategy,
+	initPlayerCoreState,
+	playerCoreMethods,
+	resolvePlayerConstructor,
+} from '@nomercy-entertainment/nomercy-player-core';
 import { Html5VideoBackend } from './adapters/video-backend/html5';
-import type { IVideoPlayer, VideoEventMap, VideoPlayerConfig, VideoPlaylistItem } from './types';
-import type { PreloadStrategy, TransitionStrategy } from '@nomercy-entertainment/nomercy-player-core';
-import { GaplessTransitionStrategy } from '@nomercy-entertainment/nomercy-player-core';
 import { VideoPreloadStrategy } from './player/preload';
 import {
-	AudioTrackState,
 	FullscreenState,
 	PipState,
-	PlayState,
-	QualityState,
-	RepeatState,
-	ShuffleState,
 	SubtitleState,
 	TheaterState,
-	VolumeState,
 } from './types';
 
+export type { IChapterSource } from './adapters/chapter-source/IChapterSource';
+
+export { VttChapterSource } from './adapters/chapter-source/vtt-chapters';
+export type { ISubtitleStyleStore } from './adapters/subtitle-style-store/ISubtitleStyleStore';
+export { StorageBackedSubtitleStyleStore } from './adapters/subtitle-style-store/storage-backed';
+
+export type { IThumbnailSource, ThumbnailFrame } from './adapters/thumbnail-source/IThumbnailSource';
+export { VttSpriteThumbnailSource } from './adapters/thumbnail-source/vtt-sprite';
+
+export { Html5VideoBackend } from './adapters/video-backend/html5';
+// Adapter ports + default implementations.
+export type {
+	BackendEvent,
+	BackendEventPayload,
+	BackendLoaderState,
+	BackendState,
+	IVideoBackend,
+	SubtitleCue,
+	SubtitleCueChange,
+	VideoBackendKind,
+} from './adapters/video-backend/IVideoBackend';
+
+export { VideoPreloadStrategy } from './player/preload';
 export type {
 	FontTrackRef,
 	IVideoPlayer,
@@ -74,7 +88,7 @@ export type {
 	VideoPlaylistItem,
 	WatchProgress,
 } from './types';
-export { VideoPreloadStrategy } from './player/preload';
+
 export {
 	AudioTrackState,
 	FullscreenState,
@@ -87,31 +101,9 @@ export {
 	TheaterState,
 	VolumeState,
 } from './types';
-
-// Adapter ports + default implementations.
-export type {
-	BackendEvent,
-	BackendEventPayload,
-	BackendLoaderState,
-	BackendState,
-	IVideoBackend,
-	SubtitleCue,
-	SubtitleCueChange,
-	VideoBackendKind,
-} from './adapters/video-backend/IVideoBackend';
-export { Html5VideoBackend } from './adapters/video-backend/html5';
-
-export type { IThumbnailSource, ThumbnailFrame } from './adapters/thumbnail-source/IThumbnailSource';
-export { VttSpriteThumbnailSource } from './adapters/thumbnail-source/vtt-sprite';
-
-export type { IChapterSource } from './adapters/chapter-source/IChapterSource';
-export { VttChapterSource } from './adapters/chapter-source/vtt-chapters';
-
-export type { ISubtitleStyleStore } from './adapters/subtitle-style-store/ISubtitleStyleStore';
-export { StorageBackedSubtitleStyleStore } from './adapters/subtitle-style-store/storage-backed';
+export { NotImplementedError } from '@nomercy-entertainment/nomercy-player-core';
 
 const _instances: Map<string, NMVideoPlayer<BasePlaylistItem>> = new Map();
-
 
 /**
  * Match a target language tag against a list of candidate tags.
@@ -124,9 +116,11 @@ function _matchLanguage(candidates: Array<string | undefined>, target: string): 
 	let prefixMatch = -1;
 	for (let i = 0; i < candidates.length; i++) {
 		const lang = candidates[i]?.toLowerCase();
-		if (!lang) continue;
-		if (lang === lower) return i;
-		if (prefixMatch < 0 && (lang.startsWith(lower + '-') || lower.startsWith(lang + '-'))) {
+		if (!lang)
+			continue;
+		if (lang === lower)
+			return i;
+		if (prefixMatch < 0 && (lang.startsWith(`${lower}-`) || lower.startsWith(`${lang}-`))) {
 			prefixMatch = i;
 		}
 	}
@@ -134,7 +128,8 @@ function _matchLanguage(candidates: Array<string | undefined>, target: string): 
 }
 
 function _readImageField(item: unknown): string | undefined {
-	if (!item || typeof item !== 'object') return undefined;
+	if (!item || typeof item !== 'object')
+		return undefined;
 	for (const key of ['image', 'poster', 'thumbnail'] as const) {
 		if (key in item && typeof (item as Record<string, unknown>)[key] === 'string') {
 			return (item as Record<string, unknown>)[key] as string;
@@ -192,6 +187,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): string | undefined;
 		(url: string): void;
 	};
+
 	declare audioContext: () => AudioContext | undefined;
 	declare experimental: PlayerExperimental;
 
@@ -199,15 +195,18 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(key: string, vars?: Record<string, string>): string;
 		(PluginClass: PluginCtorWithId, key: string, vars?: Record<string, string>): string;
 	};
+
 	declare language: {
 		(): string;
 		(lang: string): Promise<void>;
 	};
+
 	declare addTranslations: (bundle: Translations) => void;
 	declare translation: {
 		(lang: string, key: string): string | undefined;
 		(lang: string, key: string, value: string): void;
 	};
+
 	declare removeTranslations: (prefix: string, lang?: string) => void;
 
 	declare registerCueParser: (parser: CueParser, prepend?: boolean) => void;
@@ -228,6 +227,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): number;
 		(t: number, opts?: ActionOptions): Promise<void>;
 	};
+
 	declare duration: () => number;
 	declare buffered: () => number;
 	declare bufferedRanges: () => TimeRanges;
@@ -240,12 +240,14 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): number;
 		(rate: number): void;
 	};
+
 	declare playbackRates: () => number[];
 
 	declare volume: {
 		(): number;
 		(v: number): void;
 	};
+
 	declare mute: () => void;
 	declare unmute: () => void;
 	declare toggleMute: () => void;
@@ -258,6 +260,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): RepeatState;
 		(state: RepeatState): void;
 	};
+
 	declare shuffleState: {
 		(): ShuffleState;
 		(state: ShuffleState | boolean): void;
@@ -267,6 +270,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): ReadonlyArray<T>;
 		(items: T[], opts?: ActionOptions): void;
 	};
+
 	declare queueAppend: (item: T | T[], opts?: ActionOptions) => void;
 	declare queuePrepend: (item: T | T[], opts?: ActionOptions) => void;
 	declare queueInsert: (item: T | T[], index: number, opts?: ActionOptions) => void;
@@ -285,6 +289,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): T | undefined;
 		(target: T | string | number, opts?: ActionOptions): void;
 	};
+
 	declare currentIndex: () => number;
 	declare seekToIndex: (position: number, opts?: ActionOptions) => void;
 
@@ -292,6 +297,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): ReadonlyArray<T>;
 		(items: T[]): void;
 	};
+
 	declare backlogAppend: (item: T | T[]) => void;
 	declare backlogRemove: (id: string | number) => void;
 	declare backlogClear: () => void;
@@ -311,7 +317,6 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		// fully constructed and possibly mid-pipeline.
 		const resolved = resolvePlayerConstructor(id, _instances, 'NMVideoPlayer');
 		if (resolved.kind === 'existing') {
-			// eslint-disable-next-line no-constructor-return
 			return resolved.instance as unknown as this;
 		}
 
@@ -320,7 +325,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		this.container = resolved.div;
 		_instances.set(resolved.id, this as unknown as NMVideoPlayer<BasePlaylistItem>);
 
-		this.on('current', data => {
+		this.on('current', (data) => {
 			const item = data?.item;
 			const raw: string | undefined = item?.image ?? item?.poster ?? item?.thumbnail;
 			this._applyPosterForRaw(raw);
@@ -330,7 +335,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		// element src — this ensures the browser shows the new poster image
 		// during the blank window between the old source being removed and the
 		// first frame of the new source painting.
-		this.on('beforeLoad', event => {
+		this.on('beforeLoad', (event) => {
 			const item: unknown = event?.data?.item;
 			const raw = item ? _readImageField(item) : undefined;
 			this._applyPosterForRaw(raw);
@@ -345,9 +350,11 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		// Apply defaultQuality once after the first manifest parse. Guarded
 		// so that interactive quality changes persist across item transitions.
 		this.on('levels', () => {
-			if (this._defaultQualityApplied) return;
+			if (this._defaultQualityApplied)
+				return;
 			const quality = this.options?.defaultQuality;
-			if (quality === undefined) return;
+			if (quality === undefined)
+				return;
 			this._defaultQualityApplied = true;
 			try {
 				this.currentQuality(quality);
@@ -393,8 +400,9 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 		// Then upgrade async — only commit if a custom urlResolver returned
 		// something different from the basePath concat.
-		void this.resolveUrl(raw, 'poster').then(resolved => {
-			if (resolved.href === syncGuess) return;
+		void this.resolveUrl(raw, 'poster').then((resolved) => {
+			if (resolved.href === syncGuess)
+				return;
 			this._wantedPoster = resolved.href;
 			this._applyPoster();
 		});
@@ -408,7 +416,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	private _applyPoster(): void {
 		const queried = this.container?.querySelector?.('video');
-		if (!(queried instanceof HTMLVideoElement)) return;
+		if (!(queried instanceof HTMLVideoElement))
+			return;
 		const el = queried;
 		const want = this._wantedPoster;
 		if (want)
@@ -429,7 +438,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		const subtitleLang = this.options?.defaultSubtitleLanguage;
 		if (subtitleLang) {
 			let tracks: SubtitleTrack[] = [];
-			try { tracks = this.subtitles(); } catch { /* not yet available */ }
+			try { tracks = this.subtitles(); }
+			catch { /* not yet available */ }
 			const matchIdx = _matchLanguage(tracks.map(t => t.language), subtitleLang);
 			if (matchIdx >= 0) {
 				this.currentSubtitle(matchIdx);
@@ -439,7 +449,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		const audioLang = this.options?.defaultAudioLanguage;
 		if (audioLang) {
 			let tracks: AudioTrack[] = [];
-			try { tracks = this.audioTracks(); } catch { /* not yet available */ }
+			try { tracks = this.audioTracks(); }
+			catch { /* not yet available */ }
 			const matchIdx = _matchLanguage(tracks.map(t => t.language), audioLang);
 			if (matchIdx >= 0) {
 				this.currentAudioTrack(matchIdx);
@@ -461,7 +472,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	// ── Backend ──
 	private _backend: IVideoBackend | undefined;
 	backend(): IVideoBackend {
-		if (this._backend) return this._backend;
+		if (this._backend)
+			return this._backend;
 		const factory = this.options?.backendFactory;
 		const instance = factory
 			? factory('html5', this.options)
@@ -505,7 +517,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		// the `firstFrame` / `ended` events the player surface promises.
 		let firstFrameEmitted = false;
 		instance.on('canplay', () => {
-			if (firstFrameEmitted) return;
+			if (firstFrameEmitted)
+				return;
 			firstFrameEmitted = true;
 			performance.mark('nm:player:firstFrame');
 			if (this._phase === 'starting') {
@@ -567,7 +580,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		// the cue originated from a native HLS textTrack, a sidecar
 		// VTT (kit-driven), or a future MSE/WebCodecs backend.
 		instance.on('subtitleCue', (data?: SubtitleCueChange) => {
-			if (!data) return;
+			if (!data)
+				return;
 			this.emit('subtitleCue', data);
 		});
 
@@ -586,7 +600,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 			}
 		});
 		instance.on('loadedmetadata', (data?: { duration: number }) => {
-			if (!data) return;
+			if (!data)
+				return;
 			this.emit('duration', { duration: data.duration });
 		});
 
@@ -599,15 +614,18 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		// Bridge track-list availability signals so overlay plugins can
 		// update button visibility after the HLS manifest is parsed.
 		instance.on('levels', (data) => {
-			if (!data) return;
+			if (!data)
+				return;
 			this.emit('levels', data);
 		});
 		instance.on('level-switched', (data) => {
-			if (!data) return;
+			if (!data)
+				return;
 			this.emit('level-switched', data);
 		});
 		instance.on('audioTracks', (data) => {
-			if (!data) return;
+			if (!data)
+				return;
 			this.emit('audioTracks', data);
 		});
 
@@ -627,6 +645,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): QualityState;
 		(target: number | 'auto'): void;
 	};
+
 	declare audioTrackState: {
 		(): AudioTrackState;
 		(idx: number): void;
@@ -644,7 +663,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		if (state === undefined) {
 			// Prefer browser truth when available; fall back to tracked state for
 			// environments where requestFullscreen is rejected (headless, sandboxed).
-			if (ctrl?.isActive()) return FullscreenState.ON;
+			if (ctrl?.isActive())
+				return FullscreenState.ON;
 			return this._fullscreenActive ? FullscreenState.ON : FullscreenState.OFF;
 		}
 		const wantActive = typeof state === 'boolean' ? state : state === FullscreenState.ON;
@@ -672,7 +692,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		const platform = this.platform();
 		const ctrl = platform.pip;
 		if (state === undefined) {
-			if (ctrl?.isActive()) return PipState.ON;
+			if (ctrl?.isActive())
+				return PipState.ON;
 			return this._pipActive ? PipState.ON : PipState.OFF;
 		}
 		const wantActive = typeof state === 'boolean' ? state : state === PipState.ON;
@@ -702,6 +723,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		this._theaterActive = wantActive;
 		this.emit('theater', { active: wantActive });
 	}
+
 	/**
 	 * Whether any subtitle track is currently active.
 	 *
@@ -714,58 +736,70 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	 */
 	subtitleState(): SubtitleState {
 		const idx = this.currentSubtitle();
-		if (typeof idx === 'number' && idx >= 0) return SubtitleState.ON;
+		if (typeof idx === 'number' && idx >= 0)
+			return SubtitleState.ON;
 
 		const tracks = this._backend?.mediaElement?.()?.textTracks;
 		if (tracks) {
 			for (let i = 0; i < tracks.length; i++) {
-				if (tracks[i]!.mode === 'showing') return SubtitleState.ON;
+				if (tracks[i]!.mode === 'showing')
+					return SubtitleState.ON;
 			}
 		}
 		return SubtitleState.OFF;
 	}
+
 	// ── Video-specific actions ──
 	toggleFullscreen(): void {
 		const isActive = this.fullscreenState() === FullscreenState.ON;
 		this.fullscreenState(!isActive);
 	}
+
 	togglePip(): void {
 		const isActive = this.pipState() === PipState.ON;
 		this.pipState(!isActive);
 	}
+
 	toggleTheater(): void {
 		const isActive = this.theaterState() === TheaterState.ON;
 		this.theaterState(!isActive);
 	}
+
 	cycleSubtitles(): void {
 		let list: SubtitleTrack[] = [];
 		try { list = this.subtitles(); }
 		catch { /* tracks API not implemented yet — treat as empty */ }
-		if (!list || list.length === 0) return;
+		if (!list || list.length === 0)
+			return;
 		let current = -1;
 		try {
 			const idx = this.currentSubtitle();
-			if (typeof idx === 'number') current = idx;
+			if (typeof idx === 'number')
+				current = idx;
 		}
 		catch { /* state unavailable — start from off */ }
 		// Walk: -1 (off) → 0 → 1 → ... → list.length-1 → -1 (off)
 		const next = current >= list.length - 1 ? -1 : current + 1;
 		this.currentSubtitle(next === -1 ? null : next);
 	}
+
 	cycleAudioTracks(): void {
 		let list: AudioTrack[] = [];
 		try { list = this.audioTracks(); }
 		catch { /* tracks API not implemented yet — treat as empty */ }
-		if (!list || list.length === 0) return;
+		if (!list || list.length === 0)
+			return;
 		let current = -1;
 		try {
 			const idx = this.currentAudioTrack();
-			if (typeof idx === 'number') current = idx;
+			if (typeof idx === 'number')
+				current = idx;
 		}
 		catch { /* state unavailable — start from 0 */ }
 		const next = current >= list.length - 1 ? 0 : current + 1;
 		this.currentAudioTrack(next);
 	}
+
 	private _aspectRatio: 'uniform' | 'fill' | 'exactfit' | 'none' = 'uniform';
 
 	private static readonly _OBJECT_FIT_MAP: Record<'uniform' | 'fill' | 'exactfit' | 'none', string> = {
@@ -778,7 +812,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	aspectRatio(): 'uniform' | 'fill' | 'exactfit' | 'none';
 	aspectRatio(value: 'uniform' | 'fill' | 'exactfit' | 'none'): void;
 	aspectRatio(value?: 'uniform' | 'fill' | 'exactfit' | 'none'): 'uniform' | 'fill' | 'exactfit' | 'none' | void {
-		if (value === undefined) return this._aspectRatio;
+		if (value === undefined)
+			return this._aspectRatio;
 
 		this._aspectRatio = value;
 		this._applyObjectFit(value);
@@ -796,7 +831,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	private _applyObjectFit(value: 'uniform' | 'fill' | 'exactfit' | 'none'): void {
 		const el = this.videoElement;
-		if (!el || !el.style) return;
+		if (!el || !el.style)
+			return;
 		el.style.objectFit = NMVideoPlayer._OBJECT_FIT_MAP[value];
 	}
 
@@ -806,6 +842,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): CurrentSubtitleSelection | null;
 		(idx: number | null): void;
 	};
+
 	/**
 	 * Read or write the user's subtitle style. Read returns a copy of
 	 * the current `SubtitleStyle`; write merges the patch onto the
@@ -817,24 +854,29 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(): SubtitleStyle;
 		(patch: Partial<SubtitleStyle>): void;
 	};
+
 	declare audioTracks: () => AudioTrack[];
 	declare currentAudioTrack: {
 		(): CurrentAudioTrackSelection | null;
 		(idx: number): void;
 	};
+
 	declare qualityLevels: {
 		(): QualityLevel[];
 		(opts: { includeUnsupported: true }): QualityLevel[];
 	};
+
 	declare currentQuality: {
 		(): CurrentQualitySelection | 'auto';
 		(idx: number | 'auto'): void;
 	};
+
 	declare chapters: () => Chapter[];
 	declare currentChapter: {
 		(): Chapter | null;
 		(idx: number): void;
 	};
+
 	declare seekToChapter: (idx: number, opts?: ActionOptions) => void;
 	declare nextChapter: (opts?: ActionOptions) => void;
 	declare previousChapter: (opts?: ActionOptions) => void;
@@ -871,6 +913,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		(config: AuthConfig): void;
 		(partial: Partial<AuthConfig>): void;
 	};
+
 	declare refreshAuth: () => Promise<void>;
 	declare resolveUrl: (url: string, category?: UrlCategory) => Promise<ResolvedUrl>;
 	declare urlResolver: {
@@ -942,7 +985,6 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 	});
 }
 
-
 /**
  * Factory entry point. Returns the existing instance for a given div id, or
  * mounts a fresh one. Mirrors the v1 video-player wiki contract.
@@ -951,7 +993,7 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
  * `window.nmplayer` is set to this factory for console access alongside
  * `window.player` (wired by the kit). Cleaned up on `dispose()`.
  */
-export const nmplayer = <T extends BasePlaylistItem = VideoPlaylistItem>(id?: string | number): NMVideoPlayer<T> => {
+export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: string | number): NMVideoPlayer<T> {
 	const instance = new NMVideoPlayer<T>(id);
 
 	const originalSetup = instance.setup.bind(instance);
@@ -983,7 +1025,8 @@ export const nmplayer = <T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 		if (enrichedConfig.autoPlay) {
 			let autoPlayFired = false;
 			const onFirstReady = () => {
-				if (autoPlayFired) return;
+				if (autoPlayFired)
+					return;
 				autoPlayFired = true;
 				void result.play({ source: 'auto-play' });
 			};
@@ -1004,6 +1047,6 @@ export const nmplayer = <T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 	};
 
 	return instance;
-};
+}
 
 export default nmplayer;

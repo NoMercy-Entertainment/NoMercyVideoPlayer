@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import type { VideoEventMap } from '../types';
+import { describe, expect, it } from 'vitest';
 
 // Compile-time assertions: 'waiting' and 'fullscreen' must be present in
 // VideoEventMap so DesktopUiPlugin can subscribe to them via Plugin.on().

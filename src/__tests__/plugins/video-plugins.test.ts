@@ -6,8 +6,8 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NMVideoPlayer } from '../../index';
-import { SkipperPlugin, skipperPlugin } from '../../plugins/skipper';
 import { KeyHandlerPlugin } from '../../plugins/key-handler';
+import { SkipperPlugin, skipperPlugin } from '../../plugins/skipper';
 
 describe('video-plugins', () => {
 	beforeEach(() => {
@@ -228,7 +228,8 @@ describe('video-plugins', () => {
 			});
 			// Replace currentTime with an overloaded stub.
 			(p as unknown as { currentTime: unknown }).currentTime = ((t?: number): number | void => {
-				if (typeof t === 'number') seek(t);
+				if (typeof t === 'number')
+					seek(t);
 				return 0;
 			}) as unknown;
 			p.addPlugin(KeyHandlerPlugin);

@@ -19,134 +19,134 @@ import { desktopUiPlugin } from '../../plugins/desktop-ui';
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 
 const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
-    return {
-        observe: vi.fn(),
-        disconnect: vi.fn(),
-        unobserve: vi.fn(),
-    };
+	return {
+		observe: vi.fn(),
+		disconnect: vi.fn(),
+		unobserve: vi.fn(),
+	};
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const CONTAINER_ID = 'vol-popup-mute-test';
 
-const setup = (opts?: Record<string, unknown>): NMVideoPlayer => {
-    const player = new NMVideoPlayer(CONTAINER_ID).setup({});
-    player.addPlugin(desktopUiPlugin, opts);
-    return player;
-};
+function setup(opts?: Record<string, unknown>): NMVideoPlayer {
+	const player = new NMVideoPlayer(CONTAINER_ID).setup({});
+	player.addPlugin(desktopUiPlugin, opts);
+	return player;
+}
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('DesktopUiPlugin — vertical popup mute button', () => {
-    beforeEach(() => {
-        (NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 
-        const div = document.createElement('div');
-        div.id = CONTAINER_ID;
-        div.className = 'nomercyplayer';
-        document.body.appendChild(div);
+		const div = document.createElement('div');
+		div.id = CONTAINER_ID;
+		div.className = 'nomercyplayer';
+		document.body.appendChild(div);
 
-        (globalThis as unknown as Record<string, unknown>).ResizeObserver = MockResizeObserver;
-    });
+		(globalThis as unknown as Record<string, unknown>).ResizeObserver = MockResizeObserver;
+	});
 
-    afterEach(() => {
-        (NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
-        document.body.innerHTML = '';
-        delete (globalThis as unknown as Record<string, unknown>).ResizeObserver;
-    });
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+		delete (globalThis as unknown as Record<string, unknown>).ResizeObserver;
+	});
 
-    // ── Presence ──────────────────────────────────────────────────────────────
+	// ── Presence ──────────────────────────────────────────────────────────────
 
-    describe('popup mute button presence', () => {
-        it('renders a .vol-popup-mute button inside .volume-slider-vertical', async () => {
-            const player = setup({ volumeSlider: 'vertical' });
-            await player.ready();
+	describe('popup mute button presence', () => {
+		it('renders a .vol-popup-mute button inside .volume-slider-vertical', async () => {
+			const player = setup({ volumeSlider: 'vertical' });
+			await player.ready();
 
-            const popup = document.querySelector('.volume-slider-vertical');
-            expect(popup).not.toBeNull();
+			const popup = document.querySelector('.volume-slider-vertical');
+			expect(popup).not.toBeNull();
 
-            const muteBtn = popup!.querySelector('.vol-popup-mute');
-            expect(muteBtn).not.toBeNull();
-        });
+			const muteBtn = popup!.querySelector('.vol-popup-mute');
+			expect(muteBtn).not.toBeNull();
+		});
 
-        it('is present in auto mode (always constructed, shown when popup opens)', async () => {
-            const player = setup({ volumeSlider: 'auto' });
-            await player.ready();
+		it('is present in auto mode (always constructed, shown when popup opens)', async () => {
+			const player = setup({ volumeSlider: 'auto' });
+			await player.ready();
 
-            const popup = document.querySelector('.volume-slider-vertical');
-            expect(popup).not.toBeNull();
+			const popup = document.querySelector('.volume-slider-vertical');
+			expect(popup).not.toBeNull();
 
-            const muteBtn = popup!.querySelector('.vol-popup-mute');
-            expect(muteBtn).not.toBeNull();
-        });
-    });
+			const muteBtn = popup!.querySelector('.vol-popup-mute');
+			expect(muteBtn).not.toBeNull();
+		});
+	});
 
-    // ── Click behaviour ───────────────────────────────────────────────────────
+	// ── Click behaviour ───────────────────────────────────────────────────────
 
-    describe('popup mute button click', () => {
-        it('calls player.toggleMute when clicked', async () => {
-            const player = setup({ volumeSlider: 'vertical' });
-            await player.ready();
+	describe('popup mute button click', () => {
+		it('calls player.toggleMute when clicked', async () => {
+			const player = setup({ volumeSlider: 'vertical' });
+			await player.ready();
 
-            const toggleMuteSpy = vi.spyOn(player, 'toggleMute');
-            const muteBtn = document.querySelector<HTMLButtonElement>('.vol-popup-mute');
-            expect(muteBtn).not.toBeNull();
+			const toggleMuteSpy = vi.spyOn(player, 'toggleMute');
+			const muteBtn = document.querySelector<HTMLButtonElement>('.vol-popup-mute');
+			expect(muteBtn).not.toBeNull();
 
-            muteBtn!.click();
+			muteBtn!.click();
 
-            expect(toggleMuteSpy).toHaveBeenCalledOnce();
-        });
+			expect(toggleMuteSpy).toHaveBeenCalledOnce();
+		});
 
-        it('stops click propagation so the popup does not close', async () => {
-            const player = setup({ volumeSlider: 'vertical' });
-            await player.ready();
+		it('stops click propagation so the popup does not close', async () => {
+			const player = setup({ volumeSlider: 'vertical' });
+			await player.ready();
 
-            // Open the popup via the volume button.
-            const volBtn = document.querySelector<HTMLButtonElement>('#volume');
-            volBtn?.click();
+			// Open the popup via the volume button.
+			const volBtn = document.querySelector<HTMLButtonElement>('#volume');
+			volBtn?.click();
 
-            const popup = document.querySelector('.volume-slider-vertical')!;
-            expect(popup.classList.contains('volume-slider-vertical-open')).toBe(true);
+			const popup = document.querySelector('.volume-slider-vertical')!;
+			expect(popup.classList.contains('volume-slider-vertical-open')).toBe(true);
 
-            // Simulate a click on the in-popup mute button.
-            // If propagation is NOT stopped, the document listener closes the popup.
-            const muteBtn = popup.querySelector<HTMLButtonElement>('.vol-popup-mute')!;
-            muteBtn.click();
+			// Simulate a click on the in-popup mute button.
+			// If propagation is NOT stopped, the document listener closes the popup.
+			const muteBtn = popup.querySelector<HTMLButtonElement>('.vol-popup-mute')!;
+			muteBtn.click();
 
-            // Popup must still be open — the click was contained.
-            expect(popup.classList.contains('volume-slider-vertical-open')).toBe(true);
-        });
-    });
+			// Popup must still be open — the click was contained.
+			expect(popup.classList.contains('volume-slider-vertical-open')).toBe(true);
+		});
+	});
 
-    // ── Icon sync via mute event ──────────────────────────────────────────────
+	// ── Icon sync via mute event ──────────────────────────────────────────────
 
-    describe('icon sync on mute event', () => {
-        it('updates aria-label when mute event fires with muted=true', async () => {
-            const player = setup({ volumeSlider: 'vertical' });
-            await player.ready();
+	describe('icon sync on mute event', () => {
+		it('updates aria-label when mute event fires with muted=true', async () => {
+			const player = setup({ volumeSlider: 'vertical' });
+			await player.ready();
 
-            const muteBtn = document.querySelector<HTMLButtonElement>('.vol-popup-mute')!;
+			const muteBtn = document.querySelector<HTMLButtonElement>('.vol-popup-mute')!;
 
-            player.emit('mute', { muted: true });
+			player.emit('mute', { muted: true });
 
-            // The aria-label should still be the "Mute / Unmute" label.
-            expect(muteBtn.getAttribute('aria-label')).toBeTruthy();
-        });
+			// The aria-label should still be the "Mute / Unmute" label.
+			expect(muteBtn.getAttribute('aria-label')).toBeTruthy();
+		});
 
-        it('icon SVG changes when mute event fires (muted → unmuted)', async () => {
-            const player = setup({ volumeSlider: 'vertical' });
-            await player.ready();
+		it('icon SVG changes when mute event fires (muted → unmuted)', async () => {
+			const player = setup({ volumeSlider: 'vertical' });
+			await player.ready();
 
-            const muteBtn = document.querySelector<HTMLButtonElement>('.vol-popup-mute')!;
+			const muteBtn = document.querySelector<HTMLButtonElement>('.vol-popup-mute')!;
 
-            player.emit('mute', { muted: true });
-            const mutedHtml = muteBtn.querySelector('.btn-icon')?.innerHTML ?? '';
+			player.emit('mute', { muted: true });
+			const mutedHtml = muteBtn.querySelector('.btn-icon')?.innerHTML ?? '';
 
-            player.emit('mute', { muted: false });
-            const unmutedHtml = muteBtn.querySelector('.btn-icon')?.innerHTML ?? '';
+			player.emit('mute', { muted: false });
+			const unmutedHtml = muteBtn.querySelector('.btn-icon')?.innerHTML ?? '';
 
-            expect(mutedHtml).not.toBe(unmutedHtml);
-        });
-    });
+			expect(mutedHtml).not.toBe(unmutedHtml);
+		});
+	});
 });

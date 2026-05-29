@@ -11,8 +11,8 @@ const idx: number | null = player.currentSubtitle();
 
 // After (beta.1)
 const sel = player.currentSubtitle(); // CurrentSubtitleSelection | null
-sel?.index;  // number
-sel?.track;  // SubtitleTrack
+sel?.index; // number
+sel?.track; // SubtitleTrack
 ```
 
 Setter forms are unchanged. Full details in the kit migration guide.

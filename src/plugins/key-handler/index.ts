@@ -1,14 +1,14 @@
-import { KeyHandlerPlugin as BaseKeyHandler } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
 import type { NMVideoPlayer, VideoPlayerConfig } from '../../index';
+import { KeyHandlerPlugin as BaseKeyHandler } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
 
-const fmtTime = (s: number): string => {
+function fmtTime(s: number): string {
 	const h = Math.floor(s / 3600);
 	const m = Math.floor((s % 3600) / 60);
 	const sec = Math.floor(s % 60);
 	return h > 0
 		? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
 		: `${m}:${String(sec).padStart(2, '0')}`;
-};
+}
 
 function hasDisplayMessage(p: NMVideoPlayer<any>): p is NMVideoPlayer<any> & { displayMessage: (text: string, ms?: number) => void } {
 	return typeof (p as unknown as { displayMessage?: unknown }).displayMessage === 'function';
@@ -47,7 +47,8 @@ export class KeyHandlerPlugin extends BaseKeyHandler<NMVideoPlayer<any>> {
 	}
 
 	protected override addDefaults(): void {
-		if (this.cfg.disableControls) return;
+		if (this.cfg.disableControls)
+			return;
 		this.addPlaybackKeys();
 		this.addNavigationKeys();
 		this.addVolumeKeys();
@@ -72,25 +73,51 @@ export class KeyHandlerPlugin extends BaseKeyHandler<NMVideoPlayer<any>> {
 
 	protected override addPlaybackKeys(): void {
 		this.bind(' ', () => { void this.player.togglePlayback?.(); });
-		this.bind('MediaPlay', () => { if (this.mediaControlsAllowed()) void this.player.play?.(); });
-		this.bind('MediaPause', () => { if (this.mediaControlsAllowed()) void this.player.pause?.(); });
-		this.bind('MediaPlayPause', () => { if (this.mediaControlsAllowed()) void this.player.togglePlayback?.(); });
-		this.bind('MediaStop', () => { if (this.mediaControlsAllowed()) void this.player.stop?.(); });
-		this.bind('MediaRewind', () => { if (this.mediaControlsAllowed()) void this.player.rewind?.(); });
-		this.bind('MediaFastForward', () => { if (this.mediaControlsAllowed()) void this.player.forward?.(); });
+		this.bind('MediaPlay', () => {
+			if (this.mediaControlsAllowed())
+				void this.player.play?.();
+		});
+		this.bind('MediaPause', () => {
+			if (this.mediaControlsAllowed())
+				void this.player.pause?.();
+		});
+		this.bind('MediaPlayPause', () => {
+			if (this.mediaControlsAllowed())
+				void this.player.togglePlayback?.();
+		});
+		this.bind('MediaStop', () => {
+			if (this.mediaControlsAllowed())
+				void this.player.stop?.();
+		});
+		this.bind('MediaRewind', () => {
+			if (this.mediaControlsAllowed())
+				void this.player.rewind?.();
+		});
+		this.bind('MediaFastForward', () => {
+			if (this.mediaControlsAllowed())
+				void this.player.forward?.();
+		});
 	}
 
 	protected override addNavigationKeys(): void {
-		this.bind('ArrowLeft', () => { if (!this.player.isTv?.()) void this.player.rewind?.(); });
-		this.bind('ArrowRight', () => { if (!this.player.isTv?.()) void this.player.forward?.(); });
+		this.bind('ArrowLeft', () => {
+			if (!this.player.isTv?.())
+				void this.player.rewind?.();
+		});
+		this.bind('ArrowRight', () => {
+			if (!this.player.isTv?.())
+				void this.player.forward?.();
+		});
 	}
 
 	protected override addVolumeKeys(): void {
 		this.bind('ArrowUp', () => {
-			if (!this.player.isTv?.() && !this.player.isMobile?.()) void this.player.volumeUp?.();
+			if (!this.player.isTv?.() && !this.player.isMobile?.())
+				void this.player.volumeUp?.();
 		});
 		this.bind('ArrowDown', () => {
-			if (!this.player.isTv?.() && !this.player.isMobile?.()) void this.player.volumeDown?.();
+			if (!this.player.isTv?.() && !this.player.isMobile?.())
+				void this.player.volumeDown?.();
 		});
 		this.bind('m', () => { void this.player.toggleMute?.(); });
 	}
@@ -107,7 +134,8 @@ export class KeyHandlerPlugin extends BaseKeyHandler<NMVideoPlayer<any>> {
 	/** VLC-style modifier seeks: shift = ±3s, alt = ±10s, ctrl = ±60s. */
 	protected addModifierSeekKeys(): void {
 		const seek = (delta: number): void => {
-			if (delta > 0) void this.player.forward?.(delta);
+			if (delta > 0)
+				void this.player.forward?.(delta);
 			else void this.player.rewind?.(Math.abs(delta));
 		};
 		this.bind('shift+ArrowLeft', () => seek(-3));
@@ -131,8 +159,14 @@ export class KeyHandlerPlugin extends BaseKeyHandler<NMVideoPlayer<any>> {
 	}
 
 	protected addNextPrevKeys(): void {
-		this.bind('MediaTrackNext', () => { if (this.mediaControlsAllowed()) void this.player.next?.(); });
-		this.bind('MediaTrackPrevious', () => { if (this.mediaControlsAllowed()) void this.player.previous?.(); });
+		this.bind('MediaTrackNext', () => {
+			if (this.mediaControlsAllowed())
+				void this.player.next?.();
+		});
+		this.bind('MediaTrackPrevious', () => {
+			if (this.mediaControlsAllowed())
+				void this.player.previous?.();
+		});
 		this.bind('n', () => { void this.player.next?.(); });
 		this.bind('p', () => { void this.player.previous?.(); });
 	}
@@ -148,7 +182,8 @@ export class KeyHandlerPlugin extends BaseKeyHandler<NMVideoPlayer<any>> {
 		this.bind('F11', () => { void this.player.toggleFullscreen?.(); });
 		this.bind('Escape', () => {
 			const inFs = this.player.fullscreenState?.() === 'on';
-			if (inFs) this.player.fullscreenState?.(false);
+			if (inFs)
+				this.player.fullscreenState?.(false);
 		});
 	}
 
@@ -164,13 +199,15 @@ export class KeyHandlerPlugin extends BaseKeyHandler<NMVideoPlayer<any>> {
 			const rates = this.player.playbackRates?.() ?? [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 			const cur = currentRate();
 			const idx = rates.indexOf(cur);
-			if (idx >= 0 && idx < rates.length - 1) setRate(rates[idx + 1]!);
+			if (idx >= 0 && idx < rates.length - 1)
+				setRate(rates[idx + 1]!);
 		});
 		this.bind('[', () => {
 			const rates = this.player.playbackRates?.() ?? [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 			const cur = currentRate();
 			const idx = rates.indexOf(cur);
-			if (idx > 0) setRate(rates[idx - 1]!);
+			if (idx > 0)
+				setRate(rates[idx - 1]!);
 		});
 		this.bind('=', () => setRate(1));
 	}
@@ -179,7 +216,8 @@ export class KeyHandlerPlugin extends BaseKeyHandler<NMVideoPlayer<any>> {
 	protected addFrameAdvanceKey(): void {
 		this.bind('e', () => {
 			const ps = this.player.playState?.();
-			if (ps === 'playing' || ps === 'loading') return;
+			if (ps === 'playing' || ps === 'loading')
+				return;
 			const t = this.player.currentTime?.() ?? 0;
 			void this.player.currentTime?.(t + (1 / 30));
 		});
@@ -227,7 +265,8 @@ export class KeyHandlerPlugin extends BaseKeyHandler<NMVideoPlayer<any>> {
 		this.bind('shift+?', () => {
 			try {
 				this.player.emit('plugin:desktop-ui:shortcuts-toggle', undefined);
-			} catch { /* desktop-ui not mounted — no-op */ }
+			}
+			catch { /* desktop-ui not mounted — no-op */ }
 		});
 	}
 }

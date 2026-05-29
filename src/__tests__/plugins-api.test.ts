@@ -2,8 +2,8 @@
  * Plugin-registration API tests for NMVideoPlayer. Mirrors music.
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { NMVideoPlayer } from '../index';
 
 class HelloPlugin extends Plugin {

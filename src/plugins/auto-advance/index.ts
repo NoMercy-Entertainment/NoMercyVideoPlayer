@@ -1,12 +1,12 @@
-import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
-
 import type { NMVideoPlayer } from '../../index';
+
 import type { VideoPlaylistItem } from '../../types';
+import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 /** Options for {@link AutoAdvancePlugin}. */
 export interface AutoAdvanceOptions {
-    /** Master toggle. Default `true`. */
-    enabled?: boolean;
+	/** Master toggle. Default `true`. */
+	enabled?: boolean;
 }
 
 /**
@@ -21,33 +21,34 @@ export interface AutoAdvanceOptions {
  * advance without unregistering the plugin, so it can be re-enabled later.
  */
 export class AutoAdvancePlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, AutoAdvanceOptions> {
-    static override readonly id: string = 'auto-advance';
-    static override readonly version: string = '2.0.0';
-    static override readonly description: string = 'Advance to the next queue item on natural end';
-    static override readonly moduleUrl: string = import.meta.url;
+	static override readonly id: string = 'auto-advance';
+	static override readonly version: string = '2.0.0';
+	static override readonly description: string = 'Advance to the next queue item on natural end';
+	static override readonly moduleUrl: string = import.meta.url;
 
-    override use(): void {
-        this.on('ended', () => {
-            if (this.opts?.enabled === false) return;
-            performance.mark('nm:auto-advance:ended');
-            void this.onEnded();
-        });
-    }
+	override use(): void {
+		this.on('ended', () => {
+			if (this.opts?.enabled === false)
+				return;
+			performance.mark('nm:auto-advance:ended');
+			void this.onEnded();
+		});
+	}
 
-    /** Force-advance to the next item immediately, regardless of `ended` state. */
-    advance(): Promise<void> {
-        return this.player.next({ source: 'auto-advance' });
-    }
+	/** Force-advance to the next item immediately, regardless of `ended` state. */
+	advance(): Promise<void> {
+		return this.player.next({ source: 'auto-advance' });
+	}
 
-    private async onEnded(): Promise<void> {
-        try {
-            await this.player.next({ source: 'auto-advance' });
-            performance.mark('nm:auto-advance:next-complete');
-        }
-        catch (err) {
-            this.logger.warn('next() failed on ended', err);
-        }
-    }
+	private async onEnded(): Promise<void> {
+		try {
+			await this.player.next({ source: 'auto-advance' });
+			performance.mark('nm:auto-advance:next-complete');
+		}
+		catch (err) {
+			this.logger.warn('next() failed on ended', err);
+		}
+	}
 }
 
 /** Plugin alias for {@link AutoAdvancePlugin}. Pass to `addPlugin(autoAdvancePlugin)`. */

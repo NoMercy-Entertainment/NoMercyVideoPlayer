@@ -12,7 +12,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NMVideoPlayer } from '../../index';
 import { AutoAdvancePlugin, autoAdvancePlugin } from '../../plugins/auto-advance';
 
-
 // ── shared setup ──────────────────────────────────────────────────────────────
 
 function resetRegistry(): void {
@@ -28,7 +27,6 @@ function mountDiv(id: string): void {
 function setup(id: string): NMVideoPlayer<{ id: string; url: string }> {
 	return new NMVideoPlayer(id).setup({}) as NMVideoPlayer<{ id: string; url: string }>;
 }
-
 
 // ── Bug 4 — AutoAdvancePlugin ─────────────────────────────────────────────────
 
@@ -107,7 +105,6 @@ describe('AutoAdvancePlugin (video)', () => {
 	});
 });
 
-
 // ── Bug 1 — HLS.js startFragPrefetch ─────────────────────────────────────────
 
 describe('Html5VideoBackend HLS config', () => {
@@ -122,16 +119,15 @@ describe('Html5VideoBackend HLS config', () => {
 		// module directly — the config object must include startFragPrefetch:true.
 		// This test is intentionally a static-analysis guard: if someone removes
 		// the option, this test breaks immediately rather than at playback time.
-		const { readFileSync } = await import('fs');
-		const { resolve, dirname } = await import('path');
-		const { fileURLToPath } = await import('url');
+		const { readFileSync } = await import('node:fs');
+		const { resolve, dirname } = await import('node:path');
+		const { fileURLToPath } = await import('node:url');
 		const dir = dirname(fileURLToPath(import.meta.url));
 		const hlsPath = resolve(dir, '../../adapters/video-backend/html5.ts');
 		const src = readFileSync(hlsPath, 'utf8');
 		expect(src).toContain('startFragPrefetch: true');
 	});
 });
-
 
 // ── Bug 2 + Bug 3 — wireSliderBar touch wiring ───────────────────────────────
 

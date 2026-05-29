@@ -1,9 +1,8 @@
-import { mergeConfig, Plugin } from '@nomercy-entertainment/nomercy-player-core';
-import type { OctopusOptions as NMOctopusOptions } from '@nomercy-entertainment/nomercy-subtitle-octopus';
 import type { ResolvedUrl } from '@nomercy-entertainment/nomercy-player-core';
+import type { OctopusOptions as NMOctopusOptions } from '@nomercy-entertainment/nomercy-subtitle-octopus';
 import type { NMVideoPlayer } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
-
+import { mergeConfig, Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 interface FontManifestEntry {
 	file: string;
@@ -15,7 +14,7 @@ function isFontEntry(value: unknown): value is FontManifestEntry {
 		value !== null
 		&& typeof value === 'object'
 		&& 'file' in value
-		&& typeof (value as Record<string, unknown>)['file'] === 'string'
+		&& typeof (value as Record<string, unknown>).file === 'string'
 	);
 }
 
@@ -44,7 +43,6 @@ interface SubtitleOctopusCtorOptions {
 
 /** Minimal constructor signature resolved from the dynamic import. */
 type SubtitleOctopusCtor = new (opts: SubtitleOctopusCtorOptions) => SubtitleOctopusInstance;
-
 
 /** Options for {@link OctopusPlugin}. */
 export interface OctopusOptions {
@@ -164,10 +162,11 @@ export class OctopusPlugin extends Plugin<NMVideoPlayer<any>, OctopusOptions> {
 	fonts(): readonly string[];
 	fonts(urls: string[]): Promise<void>;
 	fonts(urls?: string[]): readonly string[] | Promise<void> {
-		if (urls === undefined)
+		if (urls === undefined) {
 			return Object.keys(this._availableFontsForCurrent ?? {}).length > 0
 				? Object.values(this._availableFontsForCurrent ?? {})
 				: (this.opts?.fonts ?? []);
+		}
 		this.opts = mergeConfig<OctopusOptions>(this.opts ?? {}, { fonts: urls });
 		this._availableFontsForCurrent = null;
 		const url = this.currentLoadedUrl;
@@ -223,7 +222,8 @@ export class OctopusPlugin extends Plugin<NMVideoPlayer<any>, OctopusOptions> {
 	 * plugin degrades gracefully on every future call.
 	 */
 	private async loadCtor(): Promise<SubtitleOctopusCtor | null> {
-		if (this._ctor !== undefined) return this._ctor;
+		if (this._ctor !== undefined)
+			return this._ctor;
 
 		try {
 			const mod = await import('@nomercy-entertainment/nomercy-subtitle-octopus');
@@ -254,7 +254,8 @@ export class OctopusPlugin extends Plugin<NMVideoPlayer<any>, OctopusOptions> {
 	 * is torn down. Memoised per item — the `current` event resets the cache.
 	 */
 	private async resolveFontsForCurrent(): Promise<Record<string, string>> {
-		if (this._availableFontsForCurrent) return this._availableFontsForCurrent;
+		if (this._availableFontsForCurrent)
+			return this._availableFontsForCurrent;
 
 		const item = this.player.current?.() as VideoPlaylistItem | undefined;
 
@@ -332,7 +333,8 @@ export class OctopusPlugin extends Plugin<NMVideoPlayer<any>, OctopusOptions> {
 	}
 
 	private async load(url: string, prefetched?: ResolvedUrl): Promise<void> {
-		if (url === this.currentLoadedUrl && this.instance) return;
+		if (url === this.currentLoadedUrl && this.instance)
+			return;
 
 		this.destroy();
 		this.currentLoadedUrl = url;
@@ -345,14 +347,16 @@ export class OctopusPlugin extends Plugin<NMVideoPlayer<any>, OctopusOptions> {
 		}
 
 		try {
-			if (this.currentLoadedUrl !== url) return;
+			if (this.currentLoadedUrl !== url)
+				return;
 
 			const subResolved = prefetched ?? (await this.resolveUrl(url, 'subtitle'));
 			const subContent = await this.fetch(subResolved.href);
 			const availableFonts = await this.resolveFontsForCurrent();
 
 			const videoEl = this.player.videoElement;
-			if (!videoEl) return;
+			if (!videoEl)
+				return;
 
 			const opts: SubtitleOctopusCtorOptions = {
 				video: videoEl,
@@ -400,7 +404,8 @@ export class OctopusPlugin extends Plugin<NMVideoPlayer<any>, OctopusOptions> {
 		this._availableFontsForCurrent = null;
 		const inst = this.instance;
 		this.instance = null;
-		if (!inst) return;
+		if (!inst)
+			return;
 		try {
 			inst.dispose();
 		}

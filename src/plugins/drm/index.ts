@@ -1,5 +1,5 @@
-import { DrmError, Plugin } from '@nomercy-entertainment/nomercy-player-core';
 import type { NMVideoPlayer } from '../../index';
+import { DrmError, Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 /** Options for the video {@link DrmPlugin}. */
 export interface DrmOptions {
@@ -28,7 +28,7 @@ export interface DrmEvents {
 	'key:error': { sessionId: string; error: Error };
 	'output:restricted': { reason: string };
 	'output:downgraded': { from: string; to: string };
-	unsupported: { reason: string };
+	'unsupported': { reason: string };
 }
 
 interface DrmItemHint {
@@ -68,7 +68,8 @@ export class DrmPlugin extends Plugin<NMVideoPlayer<any>, DrmOptions, DrmEvents>
 		this.on('current', (payload) => {
 			const item = payload?.item as DrmItemHint | undefined;
 			const drm = item?.drm;
-			if (!drm) return;
+			if (!drm)
+				return;
 			void this.tryHandshake(drm.keySystem ?? this.opts?.keySystem);
 		});
 	}
@@ -129,19 +130,21 @@ export class DrmPlugin extends Plugin<NMVideoPlayer<any>, DrmOptions, DrmEvents>
 
 	/** Returns the backend's `mediaKeys` if EME is supported and bound. */
 	mediaKeys(): MediaKeys | null {
-		if (!this.supported) return null;
+		if (!this.supported)
+			return null;
 		const ve = this.player.videoElement;
 		return ve?.mediaKeys ?? null;
 	}
 
 	private async tryHandshake(keySystem: string | undefined): Promise<void> {
-		if (!this.supported || !keySystem) return;
+		if (!this.supported || !keySystem)
+			return;
 		const nav = navigator as Navigator & {
 			requestMediaKeySystemAccess?: (keySystem: string, configs: MediaKeySystemConfiguration[]) => Promise<unknown>;
 		};
 		if (typeof nav.requestMediaKeySystemAccess !== 'function') {
-			this.emit('unsupported', { 
-				reason: 'requestMediaKeySystemAccess unavailable at handshake time' 
+			this.emit('unsupported', {
+				reason: 'requestMediaKeySystemAccess unavailable at handshake time',
 			});
 			return;
 		}
@@ -156,11 +159,11 @@ export class DrmPlugin extends Plugin<NMVideoPlayer<any>, DrmOptions, DrmEvents>
 			}]);
 		}
 		catch (err) {
-			this.emit('key:error', { 
-				sessionId: 'init', 
-				error: err instanceof Error 
-					? err 
-					: new Error(String(err)) 
+			this.emit('key:error', {
+				sessionId: 'init',
+				error: err instanceof Error
+					? err
+					: new Error(String(err)),
 			});
 		}
 	}

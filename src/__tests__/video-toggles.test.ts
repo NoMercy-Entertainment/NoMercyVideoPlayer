@@ -3,9 +3,9 @@
  * Mirrors `transport.test.ts` setup conventions.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BrowserPolicyError } from '@nomercy-entertainment/nomercy-player-core';
 import type { IPlatform } from '@nomercy-entertainment/nomercy-player-core';
+import { BrowserPolicyError } from '@nomercy-entertainment/nomercy-player-core';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FullscreenState, NMVideoPlayer, PipState, TheaterState } from '../index';
 
 interface FakeFsHandles {
@@ -15,9 +15,7 @@ interface FakeFsHandles {
 }
 interface FakePipHandles extends FakeFsHandles {}
 
-const buildFakePlatform = (
-	opts: { fullscreen?: boolean; pip?: boolean } = { fullscreen: true, pip: true },
-): { platform: IPlatform; fs: FakeFsHandles; pip: FakePipHandles } => {
+function buildFakePlatform(opts: { fullscreen?: boolean; pip?: boolean } = { fullscreen: true, pip: true }): { platform: IPlatform; fs: FakeFsHandles; pip: FakePipHandles } {
 	let fsActive = false;
 	let pipActive = false;
 
@@ -79,7 +77,7 @@ const buildFakePlatform = (
 			setActive: (a) => { pipActive = a; },
 		},
 	};
-};
+}
 
 describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 	beforeEach(() => {

@@ -1,10 +1,9 @@
-
 import type { BasePlaylistItem } from '@nomercy-entertainment/nomercy-player-core';
 
-import { loadSpriteSet, lookupCue } from '../../plugins/desktop-ui/sprite';
 import type { SpriteSet } from '../../plugins/desktop-ui/sprite';
-
 import type { IThumbnailSource, ThumbnailFrame } from './IThumbnailSource';
+
+import { loadSpriteSet, lookupCue } from '../../plugins/desktop-ui/sprite';
 
 /**
  * Default thumbnail source. Fetches a WebVTT sprite manifest from
@@ -25,20 +24,24 @@ export class VttSpriteThumbnailSource implements IThumbnailSource {
 		this._cache = null;
 
 		const spriteUrl = this._resolveSpriteUrl(item);
-		if (!spriteUrl) return false;
+		if (!spriteUrl)
+			return false;
 
 		const spriteSet = await loadSpriteSet(spriteUrl);
-		if (!spriteSet) return false;
+		if (!spriteSet)
+			return false;
 
 		this._cache = spriteSet;
 		return true;
 	}
 
 	lookup(timeSeconds: number): ThumbnailFrame | null {
-		if (!this._cache) return null;
+		if (!this._cache)
+			return null;
 
 		const cue = lookupCue(this._cache, timeSeconds);
-		if (!cue) return null;
+		if (!cue)
+			return null;
 
 		return {
 			spriteUrl: cue.url,

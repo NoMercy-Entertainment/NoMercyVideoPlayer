@@ -1,82 +1,90 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>Keybinds CSS Proof</title>
-    <link rel="stylesheet" href="/src/plugins/desktop-ui/styles.css" />
-    <style>
-        body { margin: 0; background: #222; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #player {
-            width: 800px;
-            height: 450px;
-            background: #000;
-            position: relative;
-        }
-    </style>
-</head>
-<body>
-    <div id="player" class="nomercyplayer">
-        <div class="nmplayer-desktop-ui-overlay overlay">
-            <div id="nmplayer-keybinds-dialog"
-                 class="keybinds-dialog keybinds-dialog-visible"
-                 role="dialog"
-                 aria-modal="true"
-                 aria-label="Keyboard shortcuts">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Keybinds CSS Proof</title>
+		<link rel="stylesheet" href="/src/plugins/desktop-ui/styles.css" />
+		<style>
+			body {
+				margin: 0;
+				background: #222;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+			}
+			#player {
+				width: 800px;
+				height: 450px;
+				background: #000;
+				position: relative;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="player" class="nomercyplayer">
+			<div class="nmplayer-desktop-ui-overlay overlay">
+				<div
+					id="nmplayer-keybinds-dialog"
+					class="keybinds-dialog keybinds-dialog-visible"
+					role="dialog"
+					aria-modal="true"
+					aria-label="Keyboard shortcuts"
+				>
+					<div class="keybinds-card">
+						<h2 class="keybinds-heading">Keyboard shortcuts</h2>
 
-                <div class="keybinds-card">
-                    <h2 class="keybinds-heading">Keyboard shortcuts</h2>
+						<div class="keybinds-grid">
+							<div class="keybinds-column">
+								<div>
+									<h3 class="keybinds-group-title">Playback</h3>
+									<div class="keybinds-row">
+										<span class="keybinds-keys"><kbd class="keybinds-key">Space</kbd></span>
+										<span class="keybinds-label">Play / Pause</span>
+									</div>
+									<div class="keybinds-row">
+										<span class="keybinds-keys"><kbd class="keybinds-key">K</kbd></span>
+										<span class="keybinds-label">Play / Pause</span>
+									</div>
+								</div>
+							</div>
 
-                    <div class="keybinds-grid">
-                        <div class="keybinds-column">
-                            <div>
-                                <h3 class="keybinds-group-title">Playback</h3>
-                                <div class="keybinds-row">
-                                    <span class="keybinds-keys"><kbd class="keybinds-key">Space</kbd></span>
-                                    <span class="keybinds-label">Play / Pause</span>
-                                </div>
-                                <div class="keybinds-row">
-                                    <span class="keybinds-keys"><kbd class="keybinds-key">K</kbd></span>
-                                    <span class="keybinds-label">Play / Pause</span>
-                                </div>
-                            </div>
-                        </div>
+							<div class="keybinds-column">
+								<div>
+									<h3 class="keybinds-group-title">Navigation</h3>
+									<div class="keybinds-row">
+										<span class="keybinds-keys"><kbd class="keybinds-key">←</kbd></span>
+										<span class="keybinds-label">Seek back 5s</span>
+									</div>
+									<div class="keybinds-row">
+										<span class="keybinds-keys"><kbd class="keybinds-key">→</kbd></span>
+										<span class="keybinds-label">Seek forward 5s</span>
+									</div>
+								</div>
+							</div>
 
-                        <div class="keybinds-column">
-                            <div>
-                                <h3 class="keybinds-group-title">Navigation</h3>
-                                <div class="keybinds-row">
-                                    <span class="keybinds-keys"><kbd class="keybinds-key">←</kbd></span>
-                                    <span class="keybinds-label">Seek back 5s</span>
-                                </div>
-                                <div class="keybinds-row">
-                                    <span class="keybinds-keys"><kbd class="keybinds-key">→</kbd></span>
-                                    <span class="keybinds-label">Seek forward 5s</span>
-                                </div>
-                            </div>
-                        </div>
+							<div class="keybinds-column">
+								<div>
+									<h3 class="keybinds-group-title">Volume</h3>
+									<div class="keybinds-row">
+										<span class="keybinds-keys"><kbd class="keybinds-key">↑</kbd></span>
+										<span class="keybinds-label">Volume up</span>
+									</div>
+									<div class="keybinds-row">
+										<span class="keybinds-keys"><kbd class="keybinds-key">M</kbd></span>
+										<span class="keybinds-label">Mute</span>
+									</div>
+								</div>
+							</div>
+						</div>
 
-                        <div class="keybinds-column">
-                            <div>
-                                <h3 class="keybinds-group-title">Volume</h3>
-                                <div class="keybinds-row">
-                                    <span class="keybinds-keys"><kbd class="keybinds-key">↑</kbd></span>
-                                    <span class="keybinds-label">Volume up</span>
-                                </div>
-                                <div class="keybinds-row">
-                                    <span class="keybinds-keys"><kbd class="keybinds-key">M</kbd></span>
-                                    <span class="keybinds-label">Mute</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p class="keybinds-hint">Press ? to toggle this dialog</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        window.__cssProofReady = true;
-    </script>
-</body>
+						<p class="keybinds-hint">Press ? to toggle this dialog</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			window.__cssProofReady = true;
+		</script>
+	</body>
 </html>

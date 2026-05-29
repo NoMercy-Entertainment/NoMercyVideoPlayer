@@ -5,8 +5,8 @@
  * which are tested separately.
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { PlayerError, StateError } from '@nomercy-entertainment/nomercy-player-core';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { NMVideoPlayer } from '../index';
 
 describe('NMVideoPlayer — transport', () => {

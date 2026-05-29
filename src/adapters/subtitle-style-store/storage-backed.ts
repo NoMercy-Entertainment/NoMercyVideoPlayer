@@ -1,4 +1,3 @@
-
 import type { IStorage, SubtitleStyle } from '@nomercy-entertainment/nomercy-player-core';
 
 import type { ISubtitleStyleStore } from './ISubtitleStyleStore';

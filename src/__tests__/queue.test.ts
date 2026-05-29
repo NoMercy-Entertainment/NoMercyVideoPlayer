@@ -3,9 +3,9 @@
  * same delegation to MediaList<T>, same re-emit contract.
  */
 
+import type { VideoPlaylistItem } from '../types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { NMVideoPlayer } from '../index';
-import type { VideoPlaylistItem } from '../types';
 
 const item = (id: string): VideoPlaylistItem => ({ id, title: `episode ${id}` } as VideoPlaylistItem);
 

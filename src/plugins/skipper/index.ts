@@ -1,6 +1,6 @@
-import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 import type { NMVideoPlayer } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
+import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 /** Identifies which segment type the skipper acts on. */
 export type SkipperKind = 'intro' | 'recap' | 'credits';
@@ -73,7 +73,8 @@ export class SkipperPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, Skip
 	skippers(): SkipperEntry[] {
 		const item = this.currentItem();
 		const data = item?.skippers;
-		if (!data) return [];
+		if (!data)
+			return [];
 		const out: SkipperEntry[] = [];
 		for (const kind of KINDS) {
 			const range = data[kind];
@@ -87,9 +88,11 @@ export class SkipperPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, Skip
 	/** Jump the player past the named skipper range, or the active one if no kind given. */
 	skip(kind?: SkipperKind): void {
 		const target = kind ?? this.active;
-		if (!target) return;
+		if (!target)
+			return;
 		const entry = this.skippers().find(e => e.kind === target);
-		if (!entry) return;
+		if (!entry)
+			return;
 		void this.player.currentTime(entry.range.end);
 		this.emit('skipper:skipped', { kind: entry.kind, range: entry.range, auto: false });
 		if (this.active === target) {
@@ -131,7 +134,8 @@ export class SkipperPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, Skip
 			return;
 		}
 
-		if (this.active === matching.kind) return;
+		if (this.active === matching.kind)
+			return;
 
 		this.active = matching.kind;
 		const auto = (this.opts?.autoSkip ?? []).includes(matching.kind);

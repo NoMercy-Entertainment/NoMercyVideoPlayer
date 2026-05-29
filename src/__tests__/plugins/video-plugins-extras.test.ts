@@ -211,6 +211,7 @@ describe('video-plugins (extras)', () => {
 				addEventListener = (event: string, handler: (e: { value: unknown }) => void): void => {
 					handlers[event] = handler;
 				};
+
 				removeEventListener = vi.fn();
 				playOrPause = vi.fn();
 				stop = vi.fn();
@@ -251,8 +252,9 @@ describe('video-plugins (extras)', () => {
 				const seenPause: any[] = [];
 				p.on('pause' as any, (data: any) => { seenPause.push(data); });
 
-				if (stubRemoteRef) (stubRemoteRef as StubRemote).isPaused = true;
-				handlers['isPausedChanged']?.({ value: true });
+				if (stubRemoteRef)
+					(stubRemoteRef as StubRemote).isPaused = true;
+				handlers.isPausedChanged?.({ value: true });
 
 				expect(seenPause.length).toBeGreaterThan(0);
 				expect(seenPause[0]).toMatchObject({ source: 'cast', silent: true });
@@ -286,9 +288,11 @@ describe('video-plugins (extras)', () => {
 				send(_data: unknown): void { /* no-op */ }
 				close(): void { this.readyState = 'closed'; }
 				on(event: string, fn: (d?: unknown) => void): void {
-					if (!this.listeners.has(event)) this.listeners.set(event, new Set());
+					if (!this.listeners.has(event))
+						this.listeners.set(event, new Set());
 					this.listeners.get(event)!.add(fn);
 				}
+
 				off(event: string, fn: (d?: unknown) => void): void {
 					this.listeners.get(event)?.delete(fn);
 				}

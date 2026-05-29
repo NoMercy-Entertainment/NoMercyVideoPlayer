@@ -1,1 +1,1 @@
-export { hlsFactory, default } from '@nomercy-entertainment/nomercy-player-core/streams/hls';
+export { default, hlsFactory } from '@nomercy-entertainment/nomercy-player-core/streams/hls';

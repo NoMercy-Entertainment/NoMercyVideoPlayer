@@ -1,6 +1,6 @@
-import { afterEach, beforeEach } from 'vitest';
 import { runIPlayerContract } from '@nomercy-entertainment/nomercy-player-core/testing';
-import { NMVideoPlayer, nmplayer } from '../../index';
+import { afterEach, beforeEach } from 'vitest';
+import { nmplayer, NMVideoPlayer } from '../../index';
 
 /**
  * Validates that `NMVideoPlayer` satisfies the `IPlayer` **behavior** contract.

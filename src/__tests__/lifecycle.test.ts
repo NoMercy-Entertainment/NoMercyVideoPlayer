@@ -4,9 +4,9 @@
  * setupState(), dispatching().
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { PlayerError, StateError } from '@nomercy-entertainment/nomercy-player-core';
-import { NMVideoPlayer, nmplayer } from '../index';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { nmplayer, NMVideoPlayer } from '../index';
 
 describe('NMVideoPlayer — lifecycle', () => {
 	beforeEach(() => {

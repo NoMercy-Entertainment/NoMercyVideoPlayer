@@ -1,4 +1,3 @@
-
 import type { BasePlaylistItem, Chapter } from '@nomercy-entertainment/nomercy-player-core';
 
 /**

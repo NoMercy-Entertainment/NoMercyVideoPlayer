@@ -1,8 +1,8 @@
 /// <reference types="vitest" />
 import { resolve } from 'node:path';
+import { nomercyTranslationsPlugin } from '@nomercy-entertainment/nomercy-player-core/vite-plugin';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import { nomercyTranslationsPlugin } from '@nomercy-entertainment/nomercy-player-core/vite-plugin';
 
 export default defineConfig({
 	base: '/',

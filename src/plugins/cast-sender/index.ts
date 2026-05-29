@@ -1,9 +1,7 @@
-
-
-import { CastSenderPlugin as BaseCastSenderPlugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import type { ChromeCastMediaCtors, Translations } from '@nomercy-entertainment/nomercy-player-core';
 import type { NMVideoPlayer } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
+import { CastSenderPlugin as BaseCastSenderPlugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 
 export type { CastSenderEvents, CastSenderOptions } from '@nomercy-entertainment/nomercy-player-core';
 
@@ -52,14 +50,16 @@ export class CastSenderPlugin extends BaseCastSenderPlugin<NMVideoPlayer<any>, V
 			: ctors.GenericMediaMetadata;
 		const meta = new Ctor() as Record<string, unknown> & { images?: Array<{ url: string }> };
 
-		meta['title'] = item.title ?? '';
+		meta.title = item.title ?? '';
 		if (isEpisode) {
-			meta['seriesTitle'] = x.show;
-			if (x.season !== undefined) meta['season'] = Number(x.season);
-			if (x.episode !== undefined) meta['episode'] = Number(x.episode);
+			meta.seriesTitle = x.show;
+			if (x.season !== undefined)
+				meta.season = Number(x.season);
+			if (x.episode !== undefined)
+				meta.episode = Number(x.episode);
 		}
 		else if (x.show) {
-			meta['subtitle'] = x.show;
+			meta.subtitle = x.show;
 		}
 		if (item.poster) {
 			const posterUrl = (await this.resolveUrl(item.poster, 'poster')).href;

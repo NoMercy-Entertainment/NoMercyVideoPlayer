@@ -1,7 +1,6 @@
-import type { PreloadAsset } from '@nomercy-entertainment/nomercy-player-core';
-import { DefaultPreloadStrategy } from '@nomercy-entertainment/nomercy-player-core';
-import type { BasePlaylistItem } from '@nomercy-entertainment/nomercy-player-core';
+import type { BasePlaylistItem, PreloadAsset } from '@nomercy-entertainment/nomercy-player-core';
 import type { VideoPlaylistItem } from '../types';
+import { DefaultPreloadStrategy } from '@nomercy-entertainment/nomercy-player-core';
 
 /**
  * Video-domain preload strategy. Extends the kit's `DefaultPreloadStrategy`

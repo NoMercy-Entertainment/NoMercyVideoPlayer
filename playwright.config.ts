@@ -11,6 +11,6 @@ export default defineConfig({
 	webServer: {
 		command: 'node ../../node_modules/vite/bin/vite.js --port 5503 --force',
 		port: 5503,
-		reuseExistingServer: !process.env['CI'],
+		reuseExistingServer: !process.env.CI,
 	},
 });

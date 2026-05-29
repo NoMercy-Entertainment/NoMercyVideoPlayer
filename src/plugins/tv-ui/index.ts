@@ -29,11 +29,11 @@
  * through the socket instead.
  */
 
-import { translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import type { Chapter, Translations } from '@nomercy-entertainment/nomercy-player-core';
-
-import { KeyHandlerPlugin } from '../key-handler';
 import type { NMVideoPlayer, VideoPlaylistItem } from '../../index';
+
+import { translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
+import { KeyHandlerPlugin } from '../key-handler';
 
 export interface TvUiOptions {
 	/**
@@ -51,7 +51,6 @@ interface TvUiPlayer extends NMVideoPlayer<any> {
 	displayMessage?: (text: string, ms?: number) => void;
 }
 
-
 function fmtTime(totalSeconds: number): string {
 	const hours = Math.floor(totalSeconds / 3600);
 	const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -61,7 +60,6 @@ function fmtTime(totalSeconds: number): string {
 		? `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 		: `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
-
 
 export class TvUiPlugin extends KeyHandlerPlugin {
 	static override readonly id: string = 'tv-ui';
@@ -187,8 +185,10 @@ export class TvUiPlugin extends KeyHandlerPlugin {
 
 		const parts: string[] = [];
 
-		if (title) parts.push(title);
-		if (chapterLabel) parts.push(chapterLabel);
+		if (title)
+			parts.push(title);
+		if (chapterLabel)
+			parts.push(chapterLabel);
 		parts.push(`${fmtTime(currentTime)} / -${fmtTime(remaining)}`);
 
 		this.osdMessage(parts.join('  ·  '), displayMs);
@@ -197,20 +197,23 @@ export class TvUiPlugin extends KeyHandlerPlugin {
 	private resolveTitle(): string {
 		const item = this.player.current?.() as VideoPlaylistItem | undefined;
 
-		if (typeof item?.title === 'string' && item.title.length > 0) return item.title;
+		if (typeof item?.title === 'string' && item.title.length > 0)
+			return item.title;
 
 		return this.t('info.noTitle');
 	}
 
 	private resolveChapterLabel(currentTime: number): string {
 		const chapters = this.player.chapters?.() ?? [];
-		if (chapters.length === 0) return '';
+		if (chapters.length === 0)
+			return '';
 
 		const active = [...chapters]
 			.reverse()
 			.find((chapter: Chapter) => currentTime >= chapter.start);
 
-		if (!active) return '';
+		if (!active)
+			return '';
 
 		const chapterNumber = active.index + 1;
 
@@ -236,6 +239,5 @@ export class TvUiPlugin extends KeyHandlerPlugin {
 		catch { /* swallow */ }
 	}
 }
-
 
 export const tvUiPlugin = TvUiPlugin;
