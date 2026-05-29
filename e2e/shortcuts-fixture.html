@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Shortcuts Dialog E2E Fixture</title>
+		<style>
+			body {
+				margin: 0;
+				background: #111;
+			}
+			#player {
+				width: 800px;
+				height: 450px;
+				background: #000;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="player"></div>
+		<script type="module">
+			window.__initError = null;
+			window.__desktopUiReady = undefined;
+
+			try {
+				const { default: nmplayer } = await import('/src/index.ts');
+				const { DesktopUiPlugin } = await import('/src/plugins/desktop-ui/index.ts');
+				const player = nmplayer('player');
+				window.player = player;
+				await player.addPlugin(DesktopUiPlugin).ready();
+				window.__desktopUiReady = true;
+			} catch (e) {
+				window.__initError = (e && e.message) ? e.message : String(e);
+				window.__desktopUiReady = false;
+				console.error('Fixture init error:', e);
+			}
+		</script>
+	</body>
+</html>
