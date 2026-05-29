@@ -62,7 +62,7 @@ interface HlsInstance {
 	 * `nextLevel` force-switch when the current level is an HDR variant.
 	 */
 	autoLevelCapping: number;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// eslint-disable-next-line ts/no-explicit-any
 	on(event: string, fn: (event: string, data: any) => void): void;
 	attachMedia(el: HTMLVideoElement): void;
 	loadSource(url: string): void;

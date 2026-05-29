@@ -37,7 +37,7 @@ vi.mock('hls.js', () => {
 			NETWORK_ERROR: 'networkError',
 			MEDIA_ERROR: 'mediaError',
 		};
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// eslint-disable-next-line ts/no-explicit-any
 		on(_event: string, _fn: (...args: any[]) => void): void { /* stub */ }
 		attachMedia(_el: HTMLVideoElement): void { /* stub */ }
 		loadSource(_url: string): void { /* stub */ }
