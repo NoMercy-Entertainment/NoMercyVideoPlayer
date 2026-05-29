@@ -296,15 +296,7 @@ export const fluentIcons = {
  * @param options - The options for the video player.
  * @returns An object containing button icons.
  */
-export const buttons = () => {
-	const buttons: Icon = {};
-
-	for (const icon of Object.keys(fluentIcons)) {
-		buttons[icon] = fluentIcons[icon];
-	}
-
-	return buttons;
-};
+export const buttons = (): Icon => ({ ...fluentIcons });
 
 export type EdgeStyle = 'none' | 'depressed' | 'dropShadow' | 'textShadow' | 'raised' | 'uniform';
 
