@@ -1,11 +1,9 @@
-
-
-import { BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError } from '@nomercy-entertainment/nomercy-player-core';
 import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 import type { BackendEventPayload, BackendLoaderState, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
+import { BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError } from '@nomercy-entertainment/nomercy-player-core';
 
 interface HlsLevel {
-	attrs?: { CODECS?: string; 'VIDEO-RANGE'?: string };
+	attrs?: { 'CODECS'?: string; 'VIDEO-RANGE'?: string };
 	bitrate?: number;
 	height?: number;
 	width?: number;
@@ -41,9 +39,11 @@ interface HlsInstance {
 	audioTrack: number;
 	subtitleTrack: number;
 	currentLevel: number;
-	/** Level being loaded right now. Populated earlier than `currentLevel`
+	/**
+	 * Level being loaded right now. Populated earlier than `currentLevel`
 	 *  (set when ABR picks; `currentLevel` only updates after the fragment
-	 *  finishes loading). Used as a fallback for `currentLevel === -1`. */
+	 *  finishes loading). Used as a fallback for `currentLevel === -1`.
+	 */
 	loadLevel: number;
 	/**
 	 * Forces the next segment fetch to the given level index regardless of
@@ -62,7 +62,7 @@ interface HlsInstance {
 	 * `nextLevel` force-switch when the current level is an HDR variant.
 	 */
 	autoLevelCapping: number;
-	// eslint-disable-next-line ts/no-explicit-any
+
 	on(event: string, fn: (event: string, data: any) => void): void;
 	attachMedia(el: HTMLVideoElement): void;
 	loadSource(url: string): void;
@@ -74,36 +74,39 @@ interface HlsInstance {
 }
 
 const CODEC_LABELS: Array<[RegExp, string]> = [
-    [/avc1|h264/i, 'H.264'],
-    [/hvc1|hev1|h265/i, 'H.265 (HEVC)'],
-    [/av01/i, 'AV1'],
-    [/vp09|vp9/i, 'VP9'],
-    [/vp8/i, 'VP8'],
-    [/mp4a\.40/i, 'AAC'],
-    [/mp4a\.6b/i, 'MP3'],
-    [/ac-3|ec-3/i, 'Dolby Audio'],
-    [/opus/i, 'Opus'],
-    [/flac/i, 'FLAC'],
+	[/avc1|h264/i, 'H.264'],
+	[/hvc1|hev1|h265/i, 'H.265 (HEVC)'],
+	[/av01/i, 'AV1'],
+	[/vp09|vp9/i, 'VP9'],
+	[/vp8/i, 'VP8'],
+	[/mp4a\.40/i, 'AAC'],
+	[/mp4a\.6b/i, 'MP3'],
+	[/ac-3|ec-3/i, 'Dolby Audio'],
+	[/opus/i, 'Opus'],
+	[/flac/i, 'FLAC'],
 ];
 
 function humanCodec(raw: string): string {
-    const parts = raw.split(',').map(s => s.trim());
-    const labels = parts.map(part => {
-        for (const [re, label] of CODEC_LABELS) {
-            if (re.test(part)) return label;
-        }
-        return part;
-    });
-    const unique = Array.from(new Set(labels));
-    return unique.join(' + ');
+	const parts = raw.split(',').map(s => s.trim());
+	const labels = parts.map((part) => {
+		for (const [re, label] of CODEC_LABELS) {
+			if (re.test(part))
+				return label;
+		}
+		return part;
+	});
+	const unique = Array.from(new Set(labels));
+	return unique.join(' + ');
 }
 
-const policy = (code: string, message: string): BrowserPolicyError => new BrowserPolicyError({
-	code,
-	severity: 'error',
-	scope: { kind: 'backend', id: 'html5' },
-	message,
-});
+function policy(code: string, message: string): BrowserPolicyError {
+	return new BrowserPolicyError({
+		code,
+		severity: 'error',
+		scope: { kind: 'backend', id: 'html5' },
+		message,
+	});
+}
 
 /**
  * Default video backend. Wraps an `<HTMLVideoElement>` for transport.
@@ -133,23 +136,33 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	private _hadError = false;
 	private _ended = false;
 	private _loaderState: BackendLoaderState = 'running';
-	/** Currently-driving native `TextTrack`. Set by `setSubtitleTrack`
-	 *  after we hide a track and start listening to its `cuechange`. */
+	/**
+	 * Currently-driving native `TextTrack`. Set by `setSubtitleTrack`
+	 *  after we hide a track and start listening to its `cuechange`.
+	 */
 	private activeTextTrack: TextTrack | null = null;
-	/** Listener attached to `activeTextTrack` so we can detach on track
-	 *  switch / dispose without rebuilding the rest of the listeners map. */
+	/**
+	 * Listener attached to `activeTextTrack` so we can detach on track
+	 *  switch / dispose without rebuilding the rest of the listeners map.
+	 */
 	private cueChangeHandler: (() => void) | null = null;
 
-	/** Codec → supported flag. Populated asynchronously after MANIFEST_PARSED.
-	 *  Keys are CODECS attribute strings from HLS level attributes. */
+	/**
+	 * Codec → supported flag. Populated asynchronously after MANIFEST_PARSED.
+	 *  Keys are CODECS attribute strings from HLS level attributes.
+	 */
 	private _capabilityCache = new Map<string, boolean>();
 
 	// ── HLS error-recovery state ──
-	/** Retry count for the current fatal network-error sequence. Reset on
-	 *  successful playback resume. */
+	/**
+	 * Retry count for the current fatal network-error sequence. Reset on
+	 *  successful playback resume.
+	 */
 	private _netRetryCount = 0;
-	/** Timestamp (ms) when the first media-error recovery was attempted.
-	 *  Used to detect a second media error within the 5-second escalation window. */
+	/**
+	 * Timestamp (ms) when the first media-error recovery was attempted.
+	 *  Used to detect a second media error within the 5-second escalation window.
+	 */
 	private _mediaRecoveryStartMs = 0;
 	/** Timer handle for exponential back-off retries. Cleared on unload/dispose. */
 	private _retryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -187,11 +200,15 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	 * Index matches `hls.levels[i]`. `true` = HDR (PQ or HLG), `false` = SDR.
 	 */
 	private _levelIsHdr: boolean[] = [];
-	/** matchMedia query for display HDR capability. Tracked so we can remove
-	 *  the listener on dispose without leaking the closure. */
+	/**
+	 * matchMedia query for display HDR capability. Tracked so we can remove
+	 *  the listener on dispose without leaking the closure.
+	 */
 	private _hdrMql: MediaQueryList | undefined;
-	/** Bound listener for `_hdrMql` change events. Stored so we can call
-	 *  `removeEventListener` with the same reference on dispose. */
+	/**
+	 * Bound listener for `_hdrMql` change events. Stored so we can call
+	 *  `removeEventListener` with the same reference on dispose.
+	 */
 	private _hdrMqlListener: ((e: MediaQueryListEvent) => void) | undefined;
 
 	constructor(container: HTMLElement) {
@@ -219,7 +236,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		this._state = 'loading';
 		this.emit('loadstart');
 
-		if (opts?.preload) this.element.preload = opts.preload;
+		if (opts?.preload)
+			this.element.preload = opts.preload;
 
 		const isHls = HLS_EXT_RE.test(url);
 		const probe = this.element.canPlayType('application/vnd.apple.mpegurl');
@@ -250,7 +268,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			for (let i = 0; i < tt.length; i++) {
 				const track = tt[i]!;
 				const cues = track.cues;
-				if (!cues) continue;
+				if (!cues)
+					continue;
 				// removeCue mutates the live list — snapshot first.
 				const snap = Array.from(cues);
 				for (const cue of snap) {
@@ -418,7 +437,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	currentTime(): number;
 	currentTime(t: number): void;
 	currentTime(t?: number): number | void {
-		if (t === undefined) return this.element.currentTime;
+		if (t === undefined)
+			return this.element.currentTime;
 		this.element.currentTime = t;
 	}
 
@@ -431,7 +451,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		const ranges = this.element.buffered;
 		const t = this.element.currentTime;
 		for (let i = 0; i < ranges.length; i += 1) {
-			if (t >= ranges.start(i) && t <= ranges.end(i)) return ranges.end(i);
+			if (t >= ranges.start(i) && t <= ranges.end(i))
+				return ranges.end(i);
 		}
 		return ranges.length > 0 ? ranges.end(ranges.length - 1) : 0;
 	}
@@ -447,7 +468,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	playbackRate(): number;
 	playbackRate(rate: number): void;
 	playbackRate(rate?: number): number | void {
-		if (rate === undefined) return this.element.playbackRate;
+		if (rate === undefined)
+			return this.element.playbackRate;
 		this.element.playbackRate = rate;
 	}
 
@@ -456,7 +478,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	volume(): number;
 	volume(v: number): void;
 	volume(v?: number): number | void {
-		if (v === undefined) return this.element.volume;
+		if (v === undefined)
+			return this.element.volume;
 		this.element.volume = Math.min(1, Math.max(0, v));
 	}
 
@@ -532,11 +555,13 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			}));
 		}
 		const tt = this.element.textTracks;
-		if (!tt || tt.length === 0) return [];
+		if (!tt || tt.length === 0)
+			return [];
 		const out: SubtitleTrack[] = [];
 		for (let i = 0; i < tt.length; i++) {
 			const t = tt[i]!;
-			if (t.kind !== 'subtitles' && t.kind !== 'captions') continue;
+			if (t.kind !== 'subtitles' && t.kind !== 'captions')
+				continue;
 			out.push({
 				id: t.id || `subtitle-${i}`,
 				language: t.language || undefined,
@@ -558,7 +583,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		// Tell HLS.js which subtitle track to demux. `-1` disables the
 		// HLS subtitle pipeline entirely (cues stop being fed into the
 		// element's textTrack list).
-		if (this.hls) this.hls.subtitleTrack = idx ?? -1;
+		if (this.hls)
+			this.hls.subtitleTrack = idx ?? -1;
 
 		if (idx === null || idx < 0) {
 			this.disableAllSubtitleTextTracks();
@@ -576,7 +602,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		if (tt) {
 			for (let i = 0; i < tt.length; i++) {
 				const t = tt[i]!;
-				if (t.kind !== 'subtitles' && t.kind !== 'captions') continue;
+				if (t.kind !== 'subtitles' && t.kind !== 'captions')
+					continue;
 				t.mode = t === target ? 'hidden' : 'disabled';
 			}
 		}
@@ -617,19 +644,24 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	 */
 	private resolveSubtitleTextTrack(idx: number): TextTrack | null {
 		const tt = this.element.textTracks;
-		if (!tt || tt.length === 0) return null;
+		if (!tt || tt.length === 0)
+			return null;
 
 		if (this.hls?.subtitleTracks?.[idx]) {
 			const want = this.hls.subtitleTracks[idx];
 			let captionsFallback: TextTrack | null = null;
 			for (let i = 0; i < tt.length; i++) {
 				const t = tt[i]!;
-				if (t.kind !== 'subtitles' && t.kind !== 'captions') continue;
+				if (t.kind !== 'subtitles' && t.kind !== 'captions')
+					continue;
 				const langOk = !want.lang || t.language === want.lang;
 				const labelOk = !want.name || t.label === want.name;
-				if (!langOk || !labelOk) continue;
-				if (t.kind === 'subtitles') return t;
-				if (!captionsFallback) captionsFallback = t;
+				if (!langOk || !labelOk)
+					continue;
+				if (t.kind === 'subtitles')
+					return t;
+				if (!captionsFallback)
+					captionsFallback = t;
 			}
 			return captionsFallback;
 		}
@@ -638,19 +670,23 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		let nth = -1;
 		for (let i = 0; i < tt.length; i++) {
 			const t = tt[i]!;
-			if (t.kind !== 'subtitles' && t.kind !== 'captions') continue;
+			if (t.kind !== 'subtitles' && t.kind !== 'captions')
+				continue;
 			nth++;
-			if (nth === idx) return t;
+			if (nth === idx)
+				return t;
 		}
 		return null;
 	}
 
 	private disableAllSubtitleTextTracks(): void {
 		const tt = this.element.textTracks;
-		if (!tt) return;
+		if (!tt)
+			return;
 		for (let i = 0; i < tt.length; i++) {
 			const t = tt[i]!;
-			if (t.kind === 'subtitles' || t.kind === 'captions') t.mode = 'disabled';
+			if (t.kind === 'subtitles' || t.kind === 'captions')
+				t.mode = 'disabled';
 		}
 	}
 
@@ -658,7 +694,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		const fn = this.cueChangeHandler;
 		this.cueChangeHandler = null;
 		this.activeTextTrack = null;
-		if (fn) fn();
+		if (fn)
+			fn();
 	}
 
 	/**
@@ -682,7 +719,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	qualityLevels(): QualityLevel[];
 	qualityLevels(opts: { includeUnsupported: true }): QualityLevel[];
 	qualityLevels(opts?: { includeUnsupported?: true }): QualityLevel[] {
-		if (!this.hls?.levels?.length) return [];
+		if (!this.hls?.levels?.length)
+			return [];
 
 		type QL = QualityLevel & { supported: boolean };
 
@@ -702,19 +740,23 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			};
 		});
 
-		if (opts?.includeUnsupported) return all;
+		if (opts?.includeUnsupported)
+			return all;
 
 		return all.filter(l => l.supported);
 	}
 
 	private async _probeCodecCapabilities(): Promise<void> {
-		if (!this.hls?.levels?.length) return;
-		if (typeof navigator?.mediaCapabilities?.decodingInfo !== 'function') return;
+		if (!this.hls?.levels?.length)
+			return;
+		if (typeof navigator?.mediaCapabilities?.decodingInfo !== 'function')
+			return;
 
 		const seen = new Set<string>();
 		for (const level of this.hls.levels) {
 			const codec: string = level.attrs?.CODECS ?? '';
-			if (!codec || seen.has(codec) || this._capabilityCache.has(codec)) continue;
+			if (!codec || seen.has(codec) || this._capabilityCache.has(codec))
+				continue;
 			seen.add(codec);
 
 			const height: number = level.height ?? 1080;
@@ -742,18 +784,21 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	}
 
 	setQuality(idx: number | 'auto'): void {
-		if (!this.hls) return;
+		if (!this.hls)
+			return;
 		this.hls.currentLevel = idx === 'auto' ? -1 : idx;
 	}
 
 	currentLevel(): number {
-		if (!this.hls) return -1;
+		if (!this.hls)
+			return -1;
 		// hls.currentLevel returns the variant being played. It can be -1 in
 		// the brief window between manifest parse and the first fragment
 		// landing; loadLevel is populated earlier (it's the level being
 		// fetched right now) so it covers the gap.
 		const current = this.hls.currentLevel;
-		if (current >= 0) return current;
+		if (current >= 0)
+			return current;
 		const loading = this.hls.loadLevel;
 		return typeof loading === 'number' ? loading : -1;
 	}
@@ -761,12 +806,18 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	// ── State ──
 
 	state(): BackendState {
-		if (this._hadError) return 'error';
-		if (!this.currentUrl) return 'idle';
-		if (this._state === 'loading') return 'loading';
-		if (!this.element.paused && !this.element.ended) return 'playing';
-		if (this.element.paused && this.element.readyState >= 2 && !this._ended) return 'paused';
-		if (this.element.readyState >= 1) return 'ready';
+		if (this._hadError)
+			return 'error';
+		if (!this.currentUrl)
+			return 'idle';
+		if (this._state === 'loading')
+			return 'loading';
+		if (!this.element.paused && !this.element.ended)
+			return 'playing';
+		if (this.element.paused && this.element.readyState >= 2 && !this._ended)
+			return 'paused';
+		if (this.element.readyState >= 1)
+			return 'ready';
 		return this._state;
 	}
 
@@ -893,10 +944,13 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				//   3 MEDIA_ERR_DECODE    → media/decode-fatal-variant (try next rendition)
 				//   4 MEDIA_ERR_SRC_NOT_SUPPORTED → media/decode-fatal-all
 				const v2Code
-					= code === 1 ? 'media/aborted'
-					: code === 2 ? 'media/network'
-					: code === 3 ? 'media/decode-fatal-variant'
-					: 'media/decode-fatal-all';
+					= code === 1
+						? 'media/aborted'
+						: code === 2
+							? 'media/network'
+							: code === 3
+								? 'media/decode-fatal-variant'
+								: 'media/decode-fatal-all';
 				(e as Event & { mediaErrorCode?: number; v2ErrorCode?: string }).mediaErrorCode = code;
 				(e as Event & { mediaErrorCode?: number; v2ErrorCode?: string }).v2ErrorCode = v2Code;
 			}
@@ -951,7 +1005,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	 * @param url   - The manifest URL, needed for MUX destroy-reload.
 	 */
 	private _attachHlsErrorHandler(Hls: HlsConstructor, url: string): void {
-		if (!this.hls) return;
+		if (!this.hls)
+			return;
 		const MAX_NET_RETRIES = 3;
 
 		this.hls.on(Hls.Events.ERROR, (_e: unknown, data: {
@@ -988,7 +1043,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				this.emit('stream:recovering', { details: data.details, attempt: this._netRetryCount, maxAttempts: MAX_NET_RETRIES });
 				this._retryTimer = setTimeout(() => {
 					this._retryTimer = undefined;
-					if (!this.hls) return;
+					if (!this.hls)
+						return;
 					try { this.hls.startLoad(); }
 					catch { this._escalateHlsError(data.details, `HLS startLoad failed: ${data.details}`); }
 				}, delayMs);
@@ -1008,8 +1064,10 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			else {
 				// MUX_ERROR or unknown fatal — destroy + reload.
 				this.emit('stream:recovering', { details: data.details, attempt: 1, maxAttempts: 1 });
-				try { this.hls?.detachMedia(); } catch { /* defensive */ }
-				try { this.hls?.destroy(); } catch { /* defensive */ }
+				try { this.hls?.detachMedia(); }
+				catch { /* defensive */ }
+				try { this.hls?.destroy(); }
+				catch { /* defensive */ }
 				this.hls = undefined;
 				// Re-attach via the existing load path. If load() throws, escalate.
 				this.load(url).catch(() => {
@@ -1021,7 +1079,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		// Reset net-retry counter on any successful fragment load — the stream
 		// is healthy again, so prior retry attempts shouldn't count toward the cap.
 		this.hls.on(Hls.Events.FRAG_LOADED, () => {
-			if (this._netRetryCount > 0) this._netRetryCount = 0;
+			if (this._netRetryCount > 0)
+				this._netRetryCount = 0;
 		});
 	}
 
@@ -1034,7 +1093,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	 * applies the dynamic-range ABR constraint for the current display.
 	 */
 	private _emitHlsTrackLists(): void {
-		if (!this.hls) return;
+		if (!this.hls)
+			return;
 
 		this._classifyHdrLevels();
 		this._applyHdrConstraint(this._displayHdr);
@@ -1045,14 +1105,16 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		});
 
 		const tracks = this.audioTracks();
-		if (tracks.length > 0) this.emit('audioTracks', { tracks });
+		if (tracks.length > 0)
+			this.emit('audioTracks', { tracks });
 	}
 
 	// ── HDR-aware ABR helpers ──
 
 	/** Wire the `matchMedia('(dynamic-range: high)')` change listener once. */
 	private _wireHdrMatchMedia(): void {
-		if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+		if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
+			return;
 
 		this._displayHdr = window.matchMedia('(dynamic-range: high)').matches;
 
@@ -1111,7 +1173,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	 */
 	private _applyHdrConstraint(displayHdr: boolean): void {
 		this._displayHdr = displayHdr;
-		if (!this.hls || this._levelIsHdr.length === 0) return;
+		if (!this.hls || this._levelIsHdr.length === 0)
+			return;
 
 		if (displayHdr) {
 			// Lift the cap — ABR can now pick HDR variants.
@@ -1125,14 +1188,16 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				const hdrPeerIdx = this.hls.levels.findIndex(
 					(level, idx) => this._levelIsHdr[idx] && level.height === currentHeight,
 				);
-				if (hdrPeerIdx >= 0) this.hls.nextLevel = hdrPeerIdx;
+				if (hdrPeerIdx >= 0)
+					this.hls.nextLevel = hdrPeerIdx;
 			}
 		}
 		else {
 			// Find the highest-indexed SDR level — cap ABR there.
 			let maxSdrIdx = -1;
 			for (let idx = 0; idx < this._levelIsHdr.length; idx++) {
-				if (!this._levelIsHdr[idx]) maxSdrIdx = idx;
+				if (!this._levelIsHdr[idx])
+					maxSdrIdx = idx;
 			}
 			this.hls.autoLevelCapping = maxSdrIdx;
 
@@ -1144,7 +1209,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 					(level, idx) => !this._levelIsHdr[idx] && level.height === currentHeight,
 				);
 				const targetIdx = sdrPeerIdx >= 0 ? sdrPeerIdx : maxSdrIdx;
-				if (targetIdx >= 0) this.hls.nextLevel = targetIdx;
+				if (targetIdx >= 0)
+					this.hls.nextLevel = targetIdx;
 			}
 		}
 
@@ -1178,10 +1244,12 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	 * `level-switched` emissions for the same actual level.
 	 */
 	private _attachHlsLevelSwitchedHandler(Hls: HlsConstructor): void {
-		if (!this.hls) return;
+		if (!this.hls)
+			return;
 		let lastLevel = -1;
 		const emitIfChanged = (level: number): void => {
-			if (level < 0 || level === lastLevel) return;
+			if (level < 0 || level === lastLevel)
+				return;
 			lastLevel = level;
 			this.emit('level-switched', { level });
 		};
@@ -1190,19 +1258,33 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		});
 		this.hls.on(Hls.Events.FRAG_CHANGED, (_e: unknown, data: { frag?: { level?: number } }) => {
 			const level = data?.frag?.level;
-			if (typeof level === 'number') emitIfChanged(level);
+			if (typeof level === 'number')
+				emitIfChanged(level);
 		});
 	}
 
 	private waitForLoadedMetadata(): Promise<void> {
-		if (this.element.readyState >= 1 /* HAVE_METADATA */) return Promise.resolve();
+		if (this.element.readyState >= 1 /* HAVE_METADATA */)
+			return Promise.resolve();
 
 		const METADATA_TIMEOUT_MS = 10_000;
 
 		return new Promise<void>((resolve, reject) => {
-			const onLoad = (): void => { cleanup(); resolve(); };
+			let timer: ReturnType<typeof setTimeout>;
+			let onLoad: () => void;
+			let onElementError: () => void;
+			let onStreamError: (data?: BackendEventPayload['stream:error']) => void;
 
-			const onElementError = (): void => {
+			const cleanup = (): void => {
+				clearTimeout(timer);
+				this.element.removeEventListener('loadedmetadata', onLoad);
+				this.element.removeEventListener('error', onElementError);
+				this.off('stream:error', onStreamError);
+			};
+
+			onLoad = (): void => { cleanup(); resolve(); };
+
+			onElementError = (): void => {
 				cleanup();
 				reject(this.element.error ?? new Error('media element error'));
 			};
@@ -1213,7 +1295,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			// HLS.js pipeline before any media element interaction. Without this
 			// listener the waitForLoadedMetadata promise would hang indefinitely,
 			// leaving load() suspended and the error invisible to the consumer.
-			const onStreamError = (data?: BackendEventPayload['stream:error']): void => {
+			onStreamError = (data?: BackendEventPayload['stream:error']): void => {
 				if (data?.fatal) {
 					cleanup();
 					reject(new Error(`HLS fatal: ${data.details}`));
@@ -1225,17 +1307,10 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			// This catches the case where HLS.js retries exhaust slowly (the default
 			// three-retry back-off takes 7 s on manifest 404s) or where a non-fatal
 			// error loop never escalates to fatal at all.
-			const timer = setTimeout(() => {
+			timer = setTimeout(() => {
 				cleanup();
 				reject(new Error(`waitForLoadedMetadata timed out after ${METADATA_TIMEOUT_MS} ms`));
 			}, METADATA_TIMEOUT_MS);
-
-			const cleanup = (): void => {
-				clearTimeout(timer);
-				this.element.removeEventListener('loadedmetadata', onLoad);
-				this.element.removeEventListener('error', onElementError);
-				this.off('stream:error', onStreamError);
-			};
 
 			this.element.addEventListener('loadedmetadata', onLoad, { once: true });
 			this.element.addEventListener('error', onElementError, { once: true });
@@ -1248,8 +1323,10 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 // Cue normalisation
 // ─────────────────────────────────────────────────────────────────────────
 
-/** Tags renderers know how to draw safely. Everything else is stripped at
- *  parse time so consumers never need to re-sanitise downstream. */
+/**
+ * Tags renderers know how to draw safely. Everything else is stripped at
+ *  parse time so consumers never need to re-sanitise downstream.
+ */
 const UNRECOGNISED_INLINE_TAG_RE = /<\/?(?:c(?:\.[^>]*)?|v(?:\s[^>]*)?|ruby|rt|lang(?:\.[^>]*)?)>/gi;
 const TIMESTAMP_TAG_RE = /<\d{2}:\d{2}:\d{2}\.\d{3}>/g;
 const ALL_TAG_RE = /<[^>]+>/g;
@@ -1284,12 +1361,14 @@ function normaliseVttCue(cue: VTTCue): SubtitleCue {
 	const rawLine = cue.line;
 	if (typeof rawLine === 'number') {
 		if (cue.snapToLines === false) {
-			if (rawLine >= 0 && rawLine <= 100) line = rawLine;
+			if (rawLine >= 0 && rawLine <= 100)
+				line = rawLine;
 		}
 		else {
 			const ROWS = 15;
 			let row: number;
-			if (rawLine >= 0) row = Math.max(1, Math.min(ROWS, rawLine));
+			if (rawLine >= 0)
+				row = Math.max(1, Math.min(ROWS, rawLine));
 			else row = Math.max(1, Math.min(ROWS, ROWS + 1 + rawLine));
 			line = ((row - 1) * 100) / (ROWS - 1);
 		}
@@ -1297,8 +1376,10 @@ function normaliseVttCue(cue: VTTCue): SubtitleCue {
 
 	let align: 'start' | 'center' | 'end' = 'center';
 	const a = cue.align;
-	if (a === 'start' || a === 'left') align = 'start';
-	else if (a === 'end' || a === 'right') align = 'end';
+	if (a === 'start' || a === 'left')
+		align = 'start';
+	else if (a === 'end' || a === 'right')
+		align = 'end';
 
 	const size = typeof cue.size === 'number' ? cue.size : 100;
 
@@ -1307,7 +1388,8 @@ function normaliseVttCue(cue: VTTCue): SubtitleCue {
 	// align-derived defaults.
 	let position: number | undefined;
 	const p = cue.position;
-	if (typeof p === 'number' && p >= 0 && p <= 100) position = p;
+	if (typeof p === 'number' && p >= 0 && p <= 100)
+		position = p;
 
 	return { text: safe, plainText: plain, line, align, size, position };
 }

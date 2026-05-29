@@ -8,7 +8,6 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { PlayerError, StateError } from '@nomercy-entertainment/nomercy-player-core';
 import { NMVideoPlayer } from '../index';
 
 describe('NMVideoPlayer — still-unimplemented method inventory', () => {
@@ -25,28 +24,6 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 	});
 
 	const player = (): NMVideoPlayer => new NMVideoPlayer('test').setup({});
-
-	const expectNotImplemented = (fn: () => unknown): void => {
-		let err: unknown;
-		try { fn(); }
-		catch (e) { err = e; }
-		expect(err).toBeInstanceOf(PlayerError);
-		expect(err).toBeInstanceOf(StateError);
-		expect((err as PlayerError).code).toBe('core:player/not-implemented');
-		expect((err as PlayerError).severity).toBe('error');
-		expect((err as PlayerError).scope).toEqual({ kind: 'core' });
-	};
-
-	const expectNotImplementedAsync = async (fn: () => unknown): Promise<void> => {
-		let err: unknown;
-		try {
-			const ret = fn();
-			if (ret instanceof Promise) await ret;
-		}
-		catch (e) { err = e; }
-		expect(err).toBeInstanceOf(StateError);
-		expect((err as PlayerError).code).toBe('core:player/not-implemented');
-	};
 
 	describe('streams (now implemented)', () => {
 		it('registerStream returns the player and adds to the registry', async () => {

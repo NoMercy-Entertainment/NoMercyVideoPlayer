@@ -1,19 +1,21 @@
 import type { NMVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
 
-/** v1 player exposed `subtitleStyle({...})`; v2 hasn't shipped that method
+/**
+ * v1 player exposed `subtitleStyle({...})`; v2 hasn't shipped that method
  *  yet, so `SubtitleStyle` lives here as plugin-domain data. The settings
  *  menu calls `player.subtitleStyle?.(...)` so it no-ops gracefully when the
- *  player doesn't implement it. */
+ *  player doesn't implement it.
+ */
 export interface SubtitleStyle {
-    fontSize: number;
-    fontFamily: string;
-    textColor: string;
-    textOpacity: number;
-    backgroundColor: string;
-    backgroundOpacity: number;
-    edgeStyle: 'none' | 'depressed' | 'dropShadow' | 'textShadow' | 'raised' | 'uniform';
-    areaColor: string;
-    windowOpacity: number;
+	fontSize: number;
+	fontFamily: string;
+	textColor: string;
+	textOpacity: number;
+	backgroundColor: string;
+	backgroundOpacity: number;
+	edgeStyle: 'none' | 'depressed' | 'dropShadow' | 'textShadow' | 'raised' | 'uniform';
+	areaColor: string;
+	windowOpacity: number;
 }
 
 type NMPlayer = NMVideoPlayer & { subtitleStyle?: (style: Partial<SubtitleStyle>) => void };
@@ -291,25 +293,21 @@ export const fluentIcons = {
 	},
 } satisfies Icon;
 
-/**
- * Returns an object containing button icons for the video player.
- * @param options - The options for the video player.
- * @returns An object containing button icons.
- */
+/** Returns the full set of built-in button icons for the video player. */
 export const buttons = (): Icon => ({ ...fluentIcons });
 
 export type EdgeStyle = 'none' | 'depressed' | 'dropShadow' | 'textShadow' | 'raised' | 'uniform';
 
-export const edgeStyles: readonly { name: string, value: EdgeStyle }[] = Object.freeze([
+export const edgeStyles: readonly { name: string; value: EdgeStyle }[] = Object.freeze([
 	{ name: 'None', value: 'none' },
 	{ name: 'Depressed', value: 'depressed' },
 	{ name: 'Drop Shadow', value: 'dropShadow' },
 	{ name: 'Text Shadow', value: 'textShadow' },
 	{ name: 'Raised', value: 'raised' },
-	{ name: 'Uniform', value: 'uniform' }
+	{ name: 'Uniform', value: 'uniform' },
 ]);
 
-export const fontFamilies: readonly { name: string, value: string }[] = Object.freeze([
+export const fontFamilies: readonly { name: string; value: string }[] = Object.freeze([
 	{ name: 'ReithSans', value: 'ReithSans, sans-serif' },
 	{ name: 'Arial', value: 'Arial, sans-serif' },
 	{ name: 'Courier New', value: 'Courier New, monospace' },
@@ -326,7 +324,7 @@ export const defaultSubtitleStyles: SubtitleStyle = Object.freeze({
 	backgroundOpacity: 0,
 	edgeStyle: 'textShadow',
 	areaColor: 'black',
-	windowOpacity: 0
+	windowOpacity: 0,
 });
 
 export interface SubtitleSettingAction {
@@ -336,65 +334,65 @@ export interface SubtitleSettingAction {
 	action: () => void;
 }
 
-export const colors: { label: string, value: string }[] = [
+export const colors: { label: string; value: string }[] = [
 	{
 		label: 'Black',
-		value: 'black'
+		value: 'black',
 	},
 	{
 		label: 'Blue',
-		value: 'blue'
+		value: 'blue',
 	},
 	{
 		label: 'Cyan',
-		value: 'cyan'
+		value: 'cyan',
 	},
 	{
 		label: 'Green',
-		value: 'green'
+		value: 'green',
 	},
 	{
 		label: 'Magenta',
-		value: 'magenta'
+		value: 'magenta',
 	},
 	{
 		label: 'Red',
-		value: 'red'
+		value: 'red',
 	},
 	{
 		label: 'Yellow',
-		value: 'yellow'
+		value: 'yellow',
 	},
 	{
 		label: 'White',
-		value: 'white'
+		value: 'white',
 	},
 ];
 
-export const opacities: { label: string, value: number }[] = [
+export const opacities: { label: string; value: number }[] = [
 	{
 		label: '0%',
-		value: 0
+		value: 0,
 	},
 	{
 		label: '25%',
-		value: 25
+		value: 25,
 	},
 	{
 		label: '50%',
-		value: 50
+		value: 50,
 	},
 	{
 		label: '75%',
-		value: 75
+		value: 75,
 	},
 	{
 		label: '100%',
-		value: 100
+		value: 100,
 	},
 ];
 
-export const textSizes: { label: string, value: number }[] = [
+export const textSizes: { label: string; value: number }[] = [
 	{
 		label: '50%',
 		value: 50,
@@ -425,65 +423,67 @@ export const textSizes: { label: string, value: number }[] = [
 	},
 ];
 
-export const subtitleSettingActions = (player: NMPlayer): SubtitleSettingAction[] => [
-	...fontFamilies.map(f => ({
-		label: f.name,
-		property: 'fontFamily' as keyof SubtitleStyle,
-		value: f.value,
-		action: () => player.subtitleStyle?.({ fontFamily: f.value }),
-	})),
-	...textSizes.map((size) => ({
-		label: size.label,
-		property: 'fontSize' as keyof SubtitleStyle,
-		value: size.value,
-		action: () => player.subtitleStyle?.({ fontSize: size.value }),
-	})),
-	...colors.map((color) => ({
-		label: color.label,
-		property: 'textColor' as keyof SubtitleStyle,
-		value: color.value,
-		action: () => player.subtitleStyle?.({ textColor: color.value }),
-	})),
-	...opacities.map((opacity) => ({
-		label: opacity.label,
-		property: 'textOpacity' as keyof SubtitleStyle,
-		value: opacity.value,
-		action: () => player.subtitleStyle?.({ textOpacity: opacity.value }),
-	})),
-	...edgeStyles.map(e => ({
-		label: e.name,
-		property: 'edgeStyle' as keyof SubtitleStyle,
-		value: e.value,
-		action: () => player.subtitleStyle?.({ edgeStyle: e.value }),
-	})),
-	...colors.map((color) => ({
-		label: color.label,
-		property: 'backgroundColor' as keyof SubtitleStyle,
-		value: color.value,
-		action: () => player.subtitleStyle?.({ backgroundColor: color.value }),
-	})),
-	...opacities.map((opacity) => ({
-		label: opacity.label,
-		property: 'backgroundOpacity' as keyof SubtitleStyle,
-		value: opacity.value,
-		action: () => player.subtitleStyle?.({ backgroundOpacity: opacity.value }),
-	})),
-	...colors.map((color) => ({
-		label: color.label,
-		property: 'areaColor' as keyof SubtitleStyle,
-		value: color.value,
-		action: () => player.subtitleStyle?.({ areaColor: color.value }),
-	})),
-	...opacities.map((opacity) => ({
-		label: opacity.label,
-		property: 'windowOpacity' as keyof SubtitleStyle,
-		value: opacity.value,
-		action: () => player.subtitleStyle?.({ windowOpacity: opacity.value }),
-	})),
-	{
-		label: 'Reset',
-		property: '',
-		value: '',
-		action: () => player.subtitleStyle?.(defaultSubtitleStyles),
-	},
-];
+export function subtitleSettingActions(player: NMPlayer): SubtitleSettingAction[] {
+	return [
+		...fontFamilies.map(f => ({
+			label: f.name,
+			property: 'fontFamily' as keyof SubtitleStyle,
+			value: f.value,
+			action: () => player.subtitleStyle?.({ fontFamily: f.value }),
+		})),
+		...textSizes.map(size => ({
+			label: size.label,
+			property: 'fontSize' as keyof SubtitleStyle,
+			value: size.value,
+			action: () => player.subtitleStyle?.({ fontSize: size.value }),
+		})),
+		...colors.map(color => ({
+			label: color.label,
+			property: 'textColor' as keyof SubtitleStyle,
+			value: color.value,
+			action: () => player.subtitleStyle?.({ textColor: color.value }),
+		})),
+		...opacities.map(opacity => ({
+			label: opacity.label,
+			property: 'textOpacity' as keyof SubtitleStyle,
+			value: opacity.value,
+			action: () => player.subtitleStyle?.({ textOpacity: opacity.value }),
+		})),
+		...edgeStyles.map(e => ({
+			label: e.name,
+			property: 'edgeStyle' as keyof SubtitleStyle,
+			value: e.value,
+			action: () => player.subtitleStyle?.({ edgeStyle: e.value }),
+		})),
+		...colors.map(color => ({
+			label: color.label,
+			property: 'backgroundColor' as keyof SubtitleStyle,
+			value: color.value,
+			action: () => player.subtitleStyle?.({ backgroundColor: color.value }),
+		})),
+		...opacities.map(opacity => ({
+			label: opacity.label,
+			property: 'backgroundOpacity' as keyof SubtitleStyle,
+			value: opacity.value,
+			action: () => player.subtitleStyle?.({ backgroundOpacity: opacity.value }),
+		})),
+		...colors.map(color => ({
+			label: color.label,
+			property: 'areaColor' as keyof SubtitleStyle,
+			value: color.value,
+			action: () => player.subtitleStyle?.({ areaColor: color.value }),
+		})),
+		...opacities.map(opacity => ({
+			label: opacity.label,
+			property: 'windowOpacity' as keyof SubtitleStyle,
+			value: opacity.value,
+			action: () => player.subtitleStyle?.({ windowOpacity: opacity.value }),
+		})),
+		{
+			label: 'Reset',
+			property: '',
+			value: '',
+			action: () => player.subtitleStyle?.(defaultSubtitleStyles),
+		},
+	];
+}

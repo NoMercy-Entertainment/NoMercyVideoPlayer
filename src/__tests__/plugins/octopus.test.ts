@@ -24,6 +24,11 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+// ── Test helpers ──────────────────────────────────────────────────────────────
+
+import { NMVideoPlayer } from '../../index';
+import { OctopusPlugin, octopusPlugin } from '../../plugins/octopus';
+
 // ── Mock NMSubtitleOctopus ────────────────────────────────────────────────────
 
 const octopusCalls: any[] = [];
@@ -33,9 +38,11 @@ vi.mock('@nomercy-entertainment/nomercy-subtitle-octopus', () => {
 	function MockOctopus(this: any, options: any) {
 		octopusCalls.push(options);
 		this._options = options;
-		this._listeners = {} as Record<string, Function[]>;
-		this.on = (event: string, fn: Function) => {
-			if (!this._listeners[event]) this._listeners[event] = [];
+		type AnyListener = (...args: unknown[]) => void;
+		this._listeners = {} as Record<string, AnyListener[]>;
+		this.on = (event: string, fn: AnyListener) => {
+			if (!this._listeners[event])
+				this._listeners[event] = [];
 			this._listeners[event].push(fn);
 		};
 		this.dispose = () => {
@@ -43,7 +50,7 @@ vi.mock('@nomercy-entertainment/nomercy-subtitle-octopus', () => {
 		};
 		// Fire rendererReady asynchronously so load() resolves cleanly.
 		Promise.resolve().then(() => {
-			this._listeners['rendererReady']?.forEach((fn: Function) => fn({ url: options.trackContent ? '[inline]' : '' }));
+			this._listeners.rendererReady?.forEach((fn: AnyListener) => fn({ url: options.trackContent ? '[inline]' : '' }));
 		});
 	}
 	return { NMSubtitleOctopus: MockOctopus };
@@ -64,11 +71,6 @@ function mockJson(obj: unknown): void {
 function mockBinary(bytes: number[]): void {
 	(fetchSpy as any).mockResolvedValueOnce(new Response(new Uint8Array(bytes), { status: 200, headers: { 'Content-Type': 'font/ttf' } }));
 }
-
-// ── Test helpers ──────────────────────────────────────────────────────────────
-
-import { NMVideoPlayer } from '../../index';
-import { OctopusPlugin, octopusPlugin } from '../../plugins/octopus';
 
 const blobUrls: string[] = [];
 
@@ -104,7 +106,8 @@ describe('OctopusPlugin', () => {
 		});
 		vi.spyOn(URL, 'revokeObjectURL').mockImplementation((url) => {
 			const idx = blobUrls.indexOf(url);
-			if (idx !== -1) blobUrls.splice(idx, 1);
+			if (idx !== -1)
+				blobUrls.splice(idx, 1);
 		});
 	});
 
