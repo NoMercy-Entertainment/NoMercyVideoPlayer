@@ -1634,8 +1634,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			this.player.toggleMute?.();
 		});
 		this.listen(this.volSlider, 'input', () => {
-			const v = Number(this.volSlider.value);
-			this.player.volume?.(v);
+			const volume = Number(this.volSlider.value);
+			this.player.volume?.(volume);
 		});
 
 		this.listen(this.remainingTimeEl, 'click', () => {

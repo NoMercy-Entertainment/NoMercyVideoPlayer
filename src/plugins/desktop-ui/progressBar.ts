@@ -14,15 +14,15 @@ import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nom
 // ── Time formatting ────────────────────────────────────────────────────────────
 
 /** Format a duration in seconds as `M:SS` or `H:MM:SS`. */
-export function fmt(s: number): string {
-	if (!Number.isFinite(s) || s < 0)
+export function fmt(seconds: number): string {
+	if (!Number.isFinite(seconds) || seconds < 0)
 		return '0:00';
-	const h = Math.floor(s / 3600);
-	const m = Math.floor((s % 3600) / 60);
-	const sec = Math.floor(s % 60);
-	return h > 0
-		? `${h}:${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`
-		: `${m}:${sec.toString().padStart(2, '0')}`;
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const secs = Math.floor(seconds % 60);
+	return hours > 0
+		? `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+		: `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
 
 // ── Slider bar DOM ─────────────────────────────────────────────────────────────

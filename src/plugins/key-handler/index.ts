@@ -1,15 +1,7 @@
 import type { NMVideoPlayer, VideoPlayerConfig } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
 import { KeyHandlerPlugin as BaseKeyHandler } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
-
-function fmtTime(s: number): string {
-	const h = Math.floor(s / 3600);
-	const m = Math.floor((s % 3600) / 60);
-	const sec = Math.floor(s % 60);
-	return h > 0
-		? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
-		: `${m}:${String(sec).padStart(2, '0')}`;
-}
+import { fmt as fmtTime } from '../desktop-ui/progressBar';
 
 function hasDisplayMessage<T extends VideoPlaylistItem>(p: NMVideoPlayer<T>): p is NMVideoPlayer<T> & { displayMessage: (text: string, ms?: number) => void } {
 	return typeof (p as unknown as { displayMessage?: unknown }).displayMessage === 'function';
@@ -219,8 +211,8 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 			const ps = this.player.playState?.();
 			if (ps === 'playing' || ps === 'loading')
 				return;
-			const t = this.player.currentTime?.() ?? 0;
-			void this.player.currentTime?.(t + (1 / 30));
+			const currentTime = this.player.currentTime?.() ?? 0;
+			void this.player.currentTime?.(currentTime + (1 / 30));
 		});
 	}
 

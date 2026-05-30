@@ -320,9 +320,6 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	constructor(id?: string | number) {
 		super();
-		// Resolve FIRST so the existing-instance path doesn't waste state init.
-		// Spec §AB: avoid re-initializing core state on a player that's already
-		// fully constructed and possibly mid-pipeline.
 		const resolved = resolvePlayerConstructor(id, _instances, 'NMVideoPlayer');
 		if (resolved.kind === 'existing') {
 			return resolved.instance as unknown as this;

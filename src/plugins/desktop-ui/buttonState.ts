@@ -26,13 +26,13 @@ function setBtnIcon(btn: HTMLElement, html: string): void {
 
 // ── Volume ─────────────────────────────────────────────────────────────────────
 
-/** Sync the volume slider value and CSS custom property. `v` is 0-100 (kit scale). */
+/** Sync the volume slider value and CSS custom property. `volume` is 0-100 (kit scale). */
 export function applyVolume(
 	volSlider: HTMLInputElement,
 	applyMutedIconFn: () => void,
-	v: number,
+	volume: number,
 ): void {
-	const clamped = Math.round(Math.max(0, Math.min(100, v)));
+	const clamped = Math.round(Math.max(0, Math.min(100, volume)));
 	volSlider.value = String(clamped);
 	volSlider.style.setProperty('--vol-pct', `${clamped}%`);
 	applyMutedIconFn();
@@ -51,13 +51,13 @@ export function applyMutedIcon(
 	t: ITranslator['t'],
 ): void {
 	const muted = player.volumeState() === VolumeState.MUTED;
-	const v = player.volume?.() ?? 100;
+	const volume = player.volume?.() ?? 100;
 	let icon: typeof fluentIcons.volumeMuted;
-	if (muted || v === 0)
+	if (muted || volume === 0)
 		icon = fluentIcons.volumeMuted;
-	else if (v < 34)
+	else if (volume < 34)
 		icon = fluentIcons.volumeLow;
-	else if (v < 67)
+	else if (volume < 67)
 		icon = fluentIcons.volumeMedium;
 	else
 		icon = fluentIcons.volumeHigh;

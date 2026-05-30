@@ -70,23 +70,23 @@ export function parseSpriteVtt(text: string, baseUrl: string): SpriteCue[] {
 }
 
 function parseTimestamp(s: string): number {
-	const m = s.match(/(?:(\d+):)?(\d+):(\d+)\.(\d{1,3})/);
-	if (!m)
+	const match = s.match(/(?:(\d+):)?(\d+):(\d+)\.(\d{1,3})/);
+	if (!match)
 		return Number.NaN;
-	const h = m[1] ? Number(m[1]) : 0;
-	const min = Number(m[2]);
-	const sec = Number(m[3]);
-	const ms = Number(m[4]!.padEnd(3, '0'));
-	return h * 3600 + min * 60 + sec + ms / 1000;
+	const hours = match[1] ? Number(match[1]) : 0;
+	const min = Number(match[2]);
+	const sec = Number(match[3]);
+	const ms = Number(match[4]!.padEnd(3, '0'));
+	return hours * 3600 + min * 60 + sec + ms / 1000;
 }
 
 /** Load + parse a sprite VTT, then preload its sprite image. */
 export async function loadSpriteSet(vttUrl: string): Promise<SpriteSet | null> {
 	try {
-		const r = await fetch(vttUrl);
-		if (!r.ok)
+		const response = await fetch(vttUrl);
+		if (!response.ok)
 			return null;
-		const text = await r.text();
+		const text = await response.text();
 		const cues = parseSpriteVtt(text, vttUrl);
 		if (cues.length === 0)
 			return null;

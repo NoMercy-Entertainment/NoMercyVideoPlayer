@@ -443,15 +443,15 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	}
 
 	duration(): number {
-		const d = this.element.duration;
-		return Number.isFinite(d) ? d : 0;
+		const duration = this.element.duration;
+		return Number.isFinite(duration) ? duration : 0;
 	}
 
 	buffered(): number {
 		const ranges = this.element.buffered;
-		const t = this.element.currentTime;
+		const currentTime = this.element.currentTime;
 		for (let i = 0; i < ranges.length; i += 1) {
-			if (t >= ranges.start(i) && t <= ranges.end(i))
+			if (currentTime >= ranges.start(i) && currentTime <= ranges.end(i))
 				return ranges.end(i);
 		}
 		return ranges.length > 0 ? ranges.end(ranges.length - 1) : 0;
@@ -476,11 +476,11 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	// ── Volume ──
 
 	volume(): number;
-	volume(v: number): void;
-	volume(v?: number): number | void {
-		if (v === undefined)
+	volume(value: number): void;
+	volume(value?: number): number | void {
+		if (value === undefined)
 			return this.element.volume;
-		this.element.volume = Math.min(1, Math.max(0, v));
+		this.element.volume = Math.min(1, Math.max(0, value));
 	}
 
 	mute(): void {
@@ -543,7 +543,6 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	}
 
 	subtitleTracks(): SubtitleTrack[] {
-		// HLS-managed subtitles
 		if (this.hls?.subtitleTracks?.length) {
 			return this.hls.subtitleTracks.map((t: any, index: number) => ({
 				id: `subtitle-${index}`,
@@ -559,16 +558,16 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			return [];
 		const out: SubtitleTrack[] = [];
 		for (let i = 0; i < tt.length; i++) {
-			const t = tt[i]!;
-			if (t.kind !== 'subtitles' && t.kind !== 'captions')
+			const track = tt[i]!;
+			if (track.kind !== 'subtitles' && track.kind !== 'captions')
 				continue;
 			out.push({
-				id: t.id || `subtitle-${i}`,
-				language: t.language || undefined,
-				label: t.label || `Subtitles ${i + 1}`,
-				kind: t.kind === 'captions' ? 'captions' : 'subtitles',
+				id: track.id || `subtitle-${i}`,
+				language: track.language || undefined,
+				label: track.label || `Subtitles ${i + 1}`,
+				kind: track.kind === 'captions' ? 'captions' : 'subtitles',
 				url: '',
-				default: t.mode === 'showing',
+				default: track.mode === 'showing',
 			});
 		}
 		return out;
@@ -601,10 +600,10 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		const tt = this.element.textTracks;
 		if (tt) {
 			for (let i = 0; i < tt.length; i++) {
-				const t = tt[i]!;
-				if (t.kind !== 'subtitles' && t.kind !== 'captions')
+				const track = tt[i]!;
+				if (track.kind !== 'subtitles' && track.kind !== 'captions')
 					continue;
-				t.mode = t === target ? 'hidden' : 'disabled';
+				track.mode = track === target ? 'hidden' : 'disabled';
 			}
 		}
 		if (!target) {
@@ -651,17 +650,17 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			const want = this.hls.subtitleTracks[idx];
 			let captionsFallback: TextTrack | null = null;
 			for (let i = 0; i < tt.length; i++) {
-				const t = tt[i]!;
-				if (t.kind !== 'subtitles' && t.kind !== 'captions')
+				const track = tt[i]!;
+				if (track.kind !== 'subtitles' && track.kind !== 'captions')
 					continue;
-				const langOk = !want.lang || t.language === want.lang;
-				const labelOk = !want.name || t.label === want.name;
+				const langOk = !want.lang || track.language === want.lang;
+				const labelOk = !want.name || track.label === want.name;
 				if (!langOk || !labelOk)
 					continue;
-				if (t.kind === 'subtitles')
-					return t;
+				if (track.kind === 'subtitles')
+					return track;
 				if (!captionsFallback)
-					captionsFallback = t;
+					captionsFallback = track;
 			}
 			return captionsFallback;
 		}
@@ -669,12 +668,12 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		// Native: walk subtitle/caption tracks in order and pick the Nth.
 		let nth = -1;
 		for (let i = 0; i < tt.length; i++) {
-			const t = tt[i]!;
-			if (t.kind !== 'subtitles' && t.kind !== 'captions')
+			const track = tt[i]!;
+			if (track.kind !== 'subtitles' && track.kind !== 'captions')
 				continue;
 			nth++;
 			if (nth === idx)
-				return t;
+				return track;
 		}
 		return null;
 	}
@@ -684,9 +683,9 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		if (!tt)
 			return;
 		for (let i = 0; i < tt.length; i++) {
-			const t = tt[i]!;
-			if (t.kind === 'subtitles' || t.kind === 'captions')
-				t.mode = 'disabled';
+			const track = tt[i]!;
+			if (track.kind === 'subtitles' || track.kind === 'captions')
+				track.mode = 'disabled';
 		}
 	}
 

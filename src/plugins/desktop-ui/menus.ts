@@ -29,6 +29,7 @@ import {
 
 } from './buttons';
 import { fluentIcons, svgFromIcon } from './icons';
+import { fmt } from './progressBar';
 
 export type MenuListen = (target: EventTarget, event: string, fn: (e: Event) => void) => void;
 
@@ -861,19 +862,14 @@ function buildPlaylistCard(
 	return btn;
 }
 
-function formatDuration(d: number | string | undefined): string {
-	if (d == null)
+function formatDuration(duration: number | string | undefined): string {
+	if (duration == null)
 		return '';
-	if (typeof d === 'string')
-		return d.replace(/^00:/u, '');
-	if (!Number.isFinite(d) || d <= 0)
+	if (typeof duration === 'string')
+		return duration.replace(/^00:/u, '');
+	if (!Number.isFinite(duration) || duration <= 0)
 		return '';
-	const h = Math.floor(d / 3600);
-	const m = Math.floor((d % 3600) / 60);
-	const s = Math.floor(d % 60);
-	return h > 0
-		? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-		: `${m}:${s.toString().padStart(2, '0')}`;
+	return fmt(duration);
 }
 
 export function renderAudioPane(

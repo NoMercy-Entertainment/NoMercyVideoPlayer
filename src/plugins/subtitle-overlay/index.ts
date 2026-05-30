@@ -304,18 +304,16 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 		if (!style)
 			return;
 
-		const t = text.style;
-		const a = area.style;
+		const textStyle = text.style;
+		const areaStyle = area.style;
 
-		// User scale (e.g. 150 → 1.5) drives the CSS variable that feeds
-		// the container-relative clamp formula on .subtitle-area.
-		a.setProperty('--subtitle-scale', String(style.fontSize / 100));
+		areaStyle.setProperty('--subtitle-scale', String(style.fontSize / 100));
 
-		t.fontFamily = style.fontFamily;
-		t.color = parseColorToHex(style.textColor, style.textOpacity / 100);
-		t.textShadow = getEdgeStyle(style.edgeStyle, style.textOpacity / 100);
-		t.backgroundColor = parseColorToHex(style.backgroundColor, style.backgroundOpacity / 100);
-		a.backgroundColor = parseColorToHex(style.areaColor, style.windowOpacity / 100);
+		textStyle.fontFamily = style.fontFamily;
+		textStyle.color = parseColorToHex(style.textColor, style.textOpacity / 100);
+		textStyle.textShadow = getEdgeStyle(style.edgeStyle, style.textOpacity / 100);
+		textStyle.backgroundColor = parseColorToHex(style.backgroundColor, style.backgroundOpacity / 100);
+		areaStyle.backgroundColor = parseColorToHex(style.areaColor, style.windowOpacity / 100);
 	}
 
 	/**
@@ -346,7 +344,7 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 	 * combination would overflow the safezone by 3% on the right.
 	 */
 	private applyCuePositioningTo(area: HTMLDivElement, cue: SubtitleCue): void {
-		const a = area.style;
+		const areaStyle = area.style;
 
 		// Vertical anchor — `line` is the cue's anchor position as a
 		// percentage of the safezone. Native VTT renderers default
@@ -358,17 +356,17 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 		// edge while preserving the gradient between them.
 		if (typeof cue.line === 'number' && cue.line >= 0 && cue.line <= 100) {
 			if (cue.line > 50) {
-				a.top = '';
-				a.bottom = `${100 - cue.line}%`;
+				areaStyle.top = '';
+				areaStyle.bottom = `${100 - cue.line}%`;
 			}
 			else {
-				a.bottom = '';
-				a.top = `${cue.line}%`;
+				areaStyle.bottom = '';
+				areaStyle.top = `${cue.line}%`;
 			}
 		}
 		else {
-			a.top = '';
-			a.bottom = '0';
+			areaStyle.top = '';
+			areaStyle.bottom = '0';
 		}
 
 		// Text alignment inside the cue box.
@@ -403,11 +401,11 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 		const left = Math.max(0, Math.min(100 - 0, rawLeft));
 		const width = Math.max(0, Math.min(100 - left, size));
 
-		a.left = `${left}%`;
-		a.width = `${width}%`;
+		areaStyle.left = `${left}%`;
+		areaStyle.width = `${width}%`;
 		// Clear any prior `right` so width-from-(left,right) computation
 		// never fights the explicit width.
-		a.right = '';
+		areaStyle.right = '';
 	}
 }
 
@@ -453,12 +451,12 @@ function rgbToHex(rgb: string, opacity: number): string {
 	const match = rgb.match(/\d+/g);
 	if (!match)
 		return '#00000000';
-	const [r, g, b] = match.map(Number);
-	const a = Math.round(opacity * 255);
-	return `#${r!.toString(16).padStart(2, '0').toUpperCase()}`
-		+ `${g!.toString(16).padStart(2, '0').toUpperCase()}`
-		+ `${b!.toString(16).padStart(2, '0').toUpperCase()}`
-		+ `${a.toString(16).padStart(2, '0').toUpperCase()}`;
+	const [red, green, blue] = match.map(Number);
+	const alpha = Math.round(opacity * 255);
+	return `#${red!.toString(16).padStart(2, '0').toUpperCase()}`
+		+ `${green!.toString(16).padStart(2, '0').toUpperCase()}`
+		+ `${blue!.toString(16).padStart(2, '0').toUpperCase()}`
+		+ `${alpha.toString(16).padStart(2, '0').toUpperCase()}`;
 }
 
 function normalizeHex(hex: string, opacity: number): string {
