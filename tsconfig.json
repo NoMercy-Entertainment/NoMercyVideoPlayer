@@ -8,6 +8,7 @@
 		"paths": {
 			"@nomercy-entertainment/nomercy-video-player": ["./src/index.ts"],
 			"@nomercy-entertainment/nomercy-player-core": ["../nomercy-player-kit/dist/index.d.ts"],
+			"@nomercy-entertainment/nomercy-player-core/compat": ["../nomercy-player-kit/dist/compat.d.ts"],
 			"@nomercy-entertainment/nomercy-player-core/testing": ["../nomercy-player-kit/dist/testing/index.d.ts"],
 			"@nomercy-entertainment/nomercy-player-core/plugins/key-handler": ["../nomercy-player-kit/dist/plugins/key-handler/index.d.ts"],
 			"@nomercy-entertainment/nomercy-player-core/plugins/media-session": ["../nomercy-player-kit/dist/plugins/media-session/index.d.ts"],

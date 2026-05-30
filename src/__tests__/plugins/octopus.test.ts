@@ -14,7 +14,7 @@
  *
  * Real ASS rendering (ResizeObserver, canvas geometry, Worker + WASM) is
  * exercised by the Playwright e2e matrix against playlist items with `.ass` +
- * `fonts.json` tracks.
+ * `fonts.json` entries.
  *
  * NMSubtitleOctopus forwarding regression (availableFonts → upstream):
  * tested in packages/nomercy-subtitle-octopus/src/__tests__/octopus.test.ts.
@@ -174,7 +174,7 @@ describe('OctopusPlugin', () => {
 			expect(octopusCalls[0].trackUrl).toBeUndefined();
 		});
 
-		it('fetches fonts manifest with responseType: json when fonts track present', async () => {
+		it('fetches fonts manifest with responseType: json when fonts field present', async () => {
 			const assBody = '[Script Info]\n\n[Events]\n';
 			mockText(assBody);
 			mockJson([{ file: 'Inter.ttf', mimeType: 'font/ttf' }]);
@@ -184,9 +184,9 @@ describe('OctopusPlugin', () => {
 			player.addPlugin(octopusPlugin);
 			await player.ready();
 
-			// Inject a fonts track onto the player's current item.
+			// Inject a fonts entry onto the player's current item.
 			(player as any)._current = {
-				tracks: [{ kind: 'fonts', file: 'https://cdn.example.com/fonts/fonts.json' }],
+				fonts: [{ file: 'https://cdn.example.com/fonts/fonts.json' }],
 			};
 			(player as any).current = () => (player as any)._current;
 
@@ -207,7 +207,7 @@ describe('OctopusPlugin', () => {
 			await player.ready();
 
 			(player as any)._current = {
-				tracks: [{ kind: 'fonts', file: 'https://cdn.example.com/fonts/fonts.json' }],
+				fonts: [{ file: 'https://cdn.example.com/fonts/fonts.json' }],
 			};
 			(player as any).current = () => (player as any)._current;
 
@@ -235,7 +235,7 @@ describe('OctopusPlugin', () => {
 			await player.ready();
 
 			(player as any)._current = {
-				tracks: [{ kind: 'fonts', file: 'https://cdn.example.com/fonts/fonts.json' }],
+				fonts: [{ file: 'https://cdn.example.com/fonts/fonts.json' }],
 			};
 			(player as any).current = () => (player as any)._current;
 
@@ -254,7 +254,7 @@ describe('OctopusPlugin', () => {
 			await player.ready();
 
 			(player as any)._current = {
-				tracks: [{ kind: 'fonts', file: 'https://cdn.example.com/fonts/fonts.json' }],
+				fonts: [{ file: 'https://cdn.example.com/fonts/fonts.json' }],
 			};
 			(player as any).current = () => (player as any)._current;
 

@@ -82,16 +82,6 @@ export interface VideoPlaylistItem extends BasePlaylistItem {
 	 * Canonical alternative to `tracks[].kind === 'fonts'`.
 	 */
 	fonts?: FontTrackRef[];
-	/**
-	 * Generic sidecar track list — escape hatch for track kinds without a
-	 * typed field (`subtitles`, `chapters`, `previewSpriteUrl`, `fonts`
-	 * cover all built-in cases).
-	 *
-	 * @deprecated Use the typed fields (`subtitles`, `chapters`,
-	 * `previewSpriteUrl`, `fonts`) instead. `tracks` will be removed in a
-	 * future major release.
-	 */
-	tracks?: Array<{ id?: number | string; kind?: string; file?: string; label?: string; language?: string }>;
 	/** Series / show title displayed in the top-bar when season/episode are present. */
 	show?: string;
 	/** Season number (1-based). Combined with `episode` to render "S01E03" label. */

@@ -259,14 +259,9 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 
 		const item = this.player.current?.();
 
-		// Prefer the typed `fonts` field; fall back to the deprecated
-		// generic `tracks[].kind === 'fonts'` path for items that have not
-		// yet migrated.
+		// Read font manifests from the typed `fonts` field.
 		const typedFonts = Array.isArray(item?.fonts) ? item!.fonts : null;
-		const legacyFontsTrack = typedFonts === null && Array.isArray(item?.tracks)
-			? (item!.tracks as Array<{ kind?: string; file?: string }>).find(t => t?.kind === 'fonts')
-			: null;
-		const manifestUrl = typedFonts?.[0]?.file ?? legacyFontsTrack?.file;
+		const manifestUrl = typedFonts?.[0]?.file;
 
 		if (!manifestUrl) {
 			const fallbackMap = await this.buildFontMap(this.opts?.fonts ?? []);

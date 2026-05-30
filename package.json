@@ -111,6 +111,10 @@
 			"types": "./dist/streams/hls.d.ts",
 			"import": "./dist/streams/hls.js"
 		},
+		"./compat": {
+			"types": "./dist/compat.d.ts",
+			"import": "./dist/compat.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"main": "./dist/index.js",

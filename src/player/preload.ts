@@ -39,13 +39,6 @@ export class VideoPreloadStrategy extends DefaultPreloadStrategy {
 			}
 		}
 
-		for (const track of videoItem.tracks ?? []) {
-			const trackUrl = track.file;
-			if (trackUrl && typeof trackUrl === 'string') {
-				assets.push({ url: trackUrl, category: 'subtitle', mode: 'auto' });
-			}
-		}
-
 		return assets;
 	}
 }
