@@ -49,6 +49,7 @@ import {
 } from '@nomercy-entertainment/nomercy-player-core';
 import { Html5VideoBackend } from './adapters/video-backend/html5';
 import { VideoPreloadStrategy } from './player/preload';
+import { normalizeVideoConfig } from './player/v1-config-normalizer';
 import {
 	FullscreenState,
 	PipState,
@@ -1003,18 +1004,23 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 
 	const originalSetup = instance.setup.bind(instance);
 	instance.setup = function (config: VideoPlayerConfig<T>): NMVideoPlayer<T> {
+		// Normalise v1 legacy fields (accessToken → auth.bearerToken,
+		// debug: true → logLevel: 'debug') at the library boundary so core
+		// never sees them and carries no compat knowledge.
+		const normalizedConfig = normalizeVideoConfig(config);
+
 		// Apply video-domain strategy defaults before delegating to the kit pipeline.
 		// Consumer-supplied strategies always win — only inject when absent.
 		// Video defaults to crossfadeEnabled: false (gapless hard-cut transition)
 		// while still preloading assets so the next item starts instantly.
-		const leadSeconds = config.preloadLeadSeconds ?? 10;
+		const leadSeconds = normalizedConfig.preloadLeadSeconds ?? 10;
 
 		const enrichedConfig: VideoPlayerConfig<T> = {
 			crossfadeEnabled: false,
-			...config,
+			...normalizedConfig,
 			preloadLeadSeconds: leadSeconds,
-			preloadStrategy: config.preloadStrategy ?? new VideoPreloadStrategy(leadSeconds),
-			transitionStrategy: config.transitionStrategy ?? new GaplessTransitionStrategy(),
+			preloadStrategy: normalizedConfig.preloadStrategy ?? new VideoPreloadStrategy(leadSeconds),
+			transitionStrategy: normalizedConfig.transitionStrategy ?? new GaplessTransitionStrategy(),
 		};
 
 		const result = originalSetup(enrichedConfig);

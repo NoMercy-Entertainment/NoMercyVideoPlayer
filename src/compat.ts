@@ -18,7 +18,7 @@
 
 import type { BasePlaylistItem } from '@nomercy-entertainment/nomercy-player-core';
 import type { VideoPlayerConfig, VideoPlaylistItem } from './types';
-import { applyKitV1Compat } from '@nomercy-entertainment/nomercy-player-core/compat';
+import { normalizeVideoConfig } from './player/v1-config-normalizer';
 
 export type { NMVideoPlayer } from './index';
 
@@ -118,5 +118,5 @@ export function normalizeVideoItem<T extends VideoPlaylistItemV1Compat>(item: T)
 export function applyVideoV1Compat<T extends BasePlaylistItem = VideoPlaylistItem>(
 	config: VideoPlayerConfig<T> & { accessToken?: string | (() => string); debug?: boolean },
 ): VideoPlayerConfig<T> {
-	return applyKitV1Compat(config) as VideoPlayerConfig<T>;
+	return normalizeVideoConfig(config);
 }
