@@ -48,6 +48,7 @@ import {
 	resolvePlayerConstructor,
 } from '@nomercy-entertainment/nomercy-player-core';
 import { Html5VideoBackend } from './adapters/video-backend/html5';
+import { readItemImage } from './player/itemImage';
 import { VideoPreloadStrategy } from './player/preload';
 import { normalizeVideoConfig } from './player/v1-config-normalizer';
 import {
@@ -126,17 +127,6 @@ function _matchLanguage(candidates: Array<string | undefined>, target: string): 
 		}
 	}
 	return prefixMatch;
-}
-
-function _readImageField(item: unknown): string | undefined {
-	if (!item || typeof item !== 'object')
-		return undefined;
-	for (const key of ['image', 'poster', 'thumbnail'] as const) {
-		if (key in item && typeof (item as Record<string, unknown>)[key] === 'string') {
-			return (item as Record<string, unknown>)[key] as string;
-		}
-	}
-	return undefined;
 }
 
 /**
@@ -333,8 +323,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 		this.on('current', (data) => {
 			const item = data?.item;
-			const raw: string | undefined = item?.image ?? item?.poster ?? item?.thumbnail;
-			this._applyPosterForRaw(raw);
+			this._applyPosterForRaw(readItemImage(item));
 		});
 
 		// Apply the incoming item's poster BEFORE backend.load() clears the
@@ -343,7 +332,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		// first frame of the new source painting.
 		this.on('beforeLoad', (event) => {
 			const item: unknown = event?.data?.item;
-			const raw = item ? _readImageField(item) : undefined;
+			const raw = item ? readItemImage(item) : undefined;
 			this._applyPosterForRaw(raw);
 		});
 
@@ -416,7 +405,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	private _applyPosterFromCurrentItem(): void {
 		const item: unknown = this.current();
-		const raw = _readImageField(item);
+		const raw = readItemImage(item);
 		this._applyPosterForRaw(raw);
 	}
 

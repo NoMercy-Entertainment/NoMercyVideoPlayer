@@ -71,6 +71,8 @@ export interface VideoPlaylistItem extends BasePlaylistItem {
 	image?: string;
 	poster?: string;
 	thumbnail?: string;
+	/** Short description or synopsis displayed in the playlist episode card. */
+	description?: string;
 	duration?: number;
 	subtitles?: SubtitleTrackRef[];
 	chapters?: ChapterRef[];

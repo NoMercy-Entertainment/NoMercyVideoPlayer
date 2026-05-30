@@ -33,6 +33,7 @@ import type { Chapter, Translations } from '@nomercy-entertainment/nomercy-playe
 import type { VideoPlaylistItem } from '../../types';
 
 import { translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
+import { fmt } from '../desktop-ui/progressBar';
 import { KeyHandlerPlugin } from '../key-handler';
 
 export interface TvUiOptions {
@@ -49,16 +50,6 @@ export interface TvUiOptions {
 
 interface DisplayMessageCapable {
 	displayMessage?: (text: string, ms?: number) => void;
-}
-
-function fmtTime(totalSeconds: number): string {
-	const hours = Math.floor(totalSeconds / 3600);
-	const minutes = Math.floor((totalSeconds % 3600) / 60);
-	const seconds = Math.floor(totalSeconds % 60);
-
-	return hours > 0
-		? `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-		: `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
 export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends KeyHandlerPlugin<T> {
@@ -185,7 +176,7 @@ export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends
 			parts.push(title);
 		if (chapterLabel)
 			parts.push(chapterLabel);
-		parts.push(`${fmtTime(currentTime)} / -${fmtTime(remaining)}`);
+		parts.push(`${fmt(currentTime)} / -${fmt(remaining)}`);
 
 		this.osdMessage(parts.join('  ·  '), displayMs);
 	}

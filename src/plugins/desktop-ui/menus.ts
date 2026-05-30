@@ -18,8 +18,10 @@
  * builder takes a `listen` helper and a small action-callback bag.
  */
 
-import type { IVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
+import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
+import type { AudioTrackRef, QualityLevel, SubtitleTrackRef } from '../../types';
 import type { SubtitleStyle } from './buttons';
+import { readItemImage } from '../../player/itemImage';
 import {
 	colors,
 	defaultSubtitleStyles,
@@ -44,27 +46,6 @@ export const SUB_MENU_ID = {
 } as const;
 
 export type SubMenuId = typeof SUB_MENU_ID[keyof typeof SUB_MENU_ID];
-
-export interface SubtitleTrackLite { id?: string | number; label?: string; language?: string; kind?: string }
-export interface AudioTrackLite { id?: string | number; name?: string; language?: string; label?: string; default?: boolean }
-export interface QualityLevelLite { id?: string | number; index?: number; height?: number; width?: number; name?: string; label?: string; bitrate?: number; dynamicRange?: 'sdr' | 'hdr' }
-export interface ChapterLite { index: number; start: number; end: number; title: string }
-
-/**
- * Coerce an unknown array-returning getter into `T[]`. Each element is an
- *  object with at least one property — the Lite interfaces are all optional-
- *  field shapes, so any non-null object satisfies them structurally.
- */
-function coerceArray<T>(value: unknown): T[] {
-	return Array.isArray(value) ? (value as T[]) : [];
-}
-
-/** Coerce a possibly-unknown subtitle style object. Falls back to empty. */
-function coerceSubtitleStyle(value: unknown): Record<string, unknown> {
-	if (value !== null && typeof value === 'object')
-		return value as Record<string, unknown>;
-	return {};
-}
 
 export interface MenuActions {
 	closeMenu: () => void;
@@ -127,13 +108,13 @@ export function buildMenuFrame(
 		.get();
 
 	const panes: Record<SubMenuId, HTMLDivElement> = {
-		language: buildSubMenuPane(player, sub, 'language', 'Audio', listen, actions),
-		subtitles: buildSubMenuPane(player, sub, 'subtitles', 'Subtitles', listen, actions),
-		quality: buildSubMenuPane(player, sub, 'quality', 'Quality', listen, actions),
-		speed: buildSubMenuPane(player, sub, 'speed', 'Speed', listen, actions),
+		language: buildSubMenuPane(player, sub, 'language', player.t('plugin.desktop-ui.menu.audio'), listen, actions),
+		subtitles: buildSubMenuPane(player, sub, 'subtitles', player.t('plugin.desktop-ui.menu.subtitles'), listen, actions),
+		quality: buildSubMenuPane(player, sub, 'quality', player.t('plugin.desktop-ui.menu.quality'), listen, actions),
+		speed: buildSubMenuPane(player, sub, 'speed', player.t('plugin.desktop-ui.menu.speed'), listen, actions),
 		playlist: buildPlaylistPaneShell(player, sub, listen, actions),
-		subtitleSettings: buildSubMenuPane(player, sub, 'subtitleSettings', 'Subtitle Settings', listen, actions),
-		aspectRatio: buildSubMenuPane(player, sub, 'aspectRatio', 'Aspect Ratio', listen, actions),
+		subtitleSettings: buildSubMenuPane(player, sub, 'subtitleSettings', player.t('plugin.desktop-ui.menu.subtitleSettings'), listen, actions),
+		aspectRatio: buildSubMenuPane(player, sub, 'aspectRatio', player.t('plugin.desktop-ui.menu.aspectRatio'), listen, actions),
 	};
 
 	return {
@@ -175,7 +156,7 @@ function buildMainMenu(
 
 	const titleSpan = document.createElement('span');
 	titleSpan.className = 'menu-button-text';
-	titleSpan.textContent = 'Settings';
+	titleSpan.textContent = player.t('plugin.desktop-ui.menu.settings');
 	header.appendChild(titleSpan);
 
 	const closeBtn = player.createButton('menu-close', 'Close', () => {});
@@ -192,21 +173,22 @@ function buildMainMenu(
 
 	// Category buttons. v1 order: language, subtitles, subtitle settings,
 	// quality, speed, aspect ratio, playlist.
-	const cats: { id: SubMenuId; label: string; iconKey: keyof typeof fluentIcons }[] = [
-		{ id: 'language', label: 'Audio', iconKey: 'language' },
-		{ id: 'subtitles', label: 'Subtitles', iconKey: 'subtitles' },
-		{ id: 'subtitleSettings', label: 'Subtitle Settings', iconKey: 'subtitleSettings' },
-		{ id: 'quality', label: 'Quality', iconKey: 'quality' },
-		{ id: 'speed', label: 'Speed', iconKey: 'speed' },
-		{ id: 'aspectRatio', label: 'Aspect Ratio', iconKey: 'aspectFit' },
-		{ id: 'playlist', label: 'Playlist', iconKey: 'playlist' },
+	const cats: { id: SubMenuId; labelKey: string; iconKey: keyof typeof fluentIcons }[] = [
+		{ id: 'language', labelKey: 'plugin.desktop-ui.menu.audio', iconKey: 'language' },
+		{ id: 'subtitles', labelKey: 'plugin.desktop-ui.menu.subtitles', iconKey: 'subtitles' },
+		{ id: 'subtitleSettings', labelKey: 'plugin.desktop-ui.menu.subtitleSettings', iconKey: 'subtitleSettings' },
+		{ id: 'quality', labelKey: 'plugin.desktop-ui.menu.quality', iconKey: 'quality' },
+		{ id: 'speed', labelKey: 'plugin.desktop-ui.menu.speed', iconKey: 'speed' },
+		{ id: 'aspectRatio', labelKey: 'plugin.desktop-ui.menu.aspectRatio', iconKey: 'aspectFit' },
+		{ id: 'playlist', labelKey: 'plugin.desktop-ui.menu.playlist', iconKey: 'playlist' },
 	];
 	for (const c of cats) {
-		const btn = player.createButton(`menu-button-${c.id}`, c.label, () => {});
+		const label = player.t(c.labelKey);
+		const btn = player.createButton(`menu-button-${c.id}`, label, () => {});
 		btn.classList.add('language-button');
 		btn.innerHTML = `
             <span class="menu-button-icon-left">${svgFromIcon(fluentIcons[c.iconKey])}</span>
-            <span class="menu-button-text">${c.label}</span>
+            <span class="menu-button-text">${label}</span>
             <span class="menu-button-chevron">${svgFromIcon(fluentIcons.chevronR)}</span>
         `;
 		scroll.appendChild(btn);
@@ -249,7 +231,7 @@ function buildPlaylistPaneShell(
 
 	const title = document.createElement('span');
 	title.className = 'menu-button-text playlist-title';
-	title.textContent = 'Playlist';
+	title.textContent = player.t('plugin.desktop-ui.menu.playlist');
 	header.appendChild(title);
 
 	const close = player.createButton('playlist-close', 'Close', () => {});
@@ -355,7 +337,7 @@ export function renderSpeedPane(
 	if (!scroll)
 		return;
 	scroll.replaceChildren();
-	const rates = coerceArray<number>(player.playbackRates?.() ?? [0.5, 0.75, 1, 1.25, 1.5, 2]);
+	const rates: number[] = player.playbackRates?.() ?? [0.5, 0.75, 1, 1.25, 1.5, 2];
 	const cur = player.playbackRate?.() ?? 1;
 	for (const r of rates) {
 		const btn = player.createButton(`speed-button-${r}`, `${r}×`, () => {});
@@ -363,7 +345,7 @@ export function renderSpeedPane(
 		if (r === cur)
 			btn.classList.add('is-active');
 		btn.innerHTML = `
-            <span class="menu-button-text">${r === 1 ? 'Normal' : `${r}×`}</span>
+            <span class="menu-button-text">${r === 1 ? player.t('plugin.desktop-ui.menu.normal') : `${r}×`}</span>
             <span class="menu-button-check">${svgFromIcon(fluentIcons.checkmark, 18)}</span>
         `;
 		scroll.appendChild(btn);
@@ -382,7 +364,7 @@ export function renderQualityPane(
 	if (!scroll)
 		return;
 	scroll.replaceChildren();
-	const allLevels = coerceArray<QualityLevelLite>(player.qualityLevels?.() ?? []);
+	const allLevels: QualityLevel[] = player.qualityLevels?.() ?? [];
 	// Drop HDR levels when the active display can't render HDR — the browser
 	// would decode them but the colours would map back to SDR and look wrong.
 	const displayHdr = typeof window !== 'undefined'
@@ -403,13 +385,13 @@ export function renderQualityPane(
 		? levels.find(q => q.index === playingIdx)
 		: undefined;
 	const playingLabel = playingLevel
-		? (playingLevel.label ?? playingLevel.name ?? (playingLevel.height ? `${playingLevel.height}p` : undefined))
+		? (playingLevel.label || (playingLevel.height ? `${playingLevel.height}p` : undefined))
 		: undefined;
-	appendChoice(scroll, 'quality-auto', 'Auto', auto, () => { player.currentQuality?.('auto'); onPick(); }, listen, player, {
+	appendChoice(scroll, 'quality-auto', player.t('plugin.desktop-ui.menu.auto'), auto, () => { player.currentQuality?.('auto'); onPick(); }, listen, player, {
 		sublabel: auto && playingLabel ? playingLabel : undefined,
 	});
 	levels.forEach((q, i) => {
-		const label = q.label ?? q.name ?? (q.height ? `${q.height}p` : `Level ${i + 1}`);
+		const label = q.label || (q.height ? `${q.height}p` : `Level ${i + 1}`);
 		const id = `quality-${q.height ?? '?'}-${q.bitrate ?? i}`;
 		appendChoice(
 			scroll,
@@ -436,11 +418,11 @@ export function renderSubsPane(
 	scroll.replaceChildren();
 	// The kit's `subtitles()` returns the union of HLS-managed and
 	// sidecar VTT tracks, so the renderer just consumes one flat list.
-	const subs = coerceArray<SubtitleTrackLite>(player.subtitles?.() ?? []);
+	const subs: SubtitleTrackRef[] = player.subtitles?.() ?? [];
 	const off = state.subtitleIdx === null || state.subtitleIdx === -1;
-	appendChoice(scroll, 'off-button-', 'Off', off, () => { player.currentSubtitle?.(null); onPick(); }, listen, player);
+	appendChoice(scroll, 'off-button-', player.t('plugin.desktop-ui.menu.off'), off, () => { player.currentSubtitle?.(null); onPick(); }, listen, player);
 	subs.forEach((s, i) => {
-		const langSlug = (s.language ?? String(s.id ?? i)).replace(/\W+/g, '-').toLowerCase();
+		const langSlug = (s.language ?? s.id).replace(/\W+/g, '-').toLowerCase();
 		const kind = (s.kind ?? 'full').replace(/\W+/g, '-').toLowerCase();
 		appendChoice(
 			scroll,
@@ -468,17 +450,17 @@ export function renderSubsPane(
  * keep the active style in module state and write through to the
  * player only when it does (older v1-style consumers).
  */
-const SETTING_ROWS: Array<{ label: string; property: keyof SubtitleStyle | '' }> = [
-	{ label: 'Font', property: 'fontFamily' },
-	{ label: 'Text size', property: 'fontSize' },
-	{ label: 'Text color', property: 'textColor' },
-	{ label: 'Text opacity', property: 'textOpacity' },
-	{ label: 'Edge style', property: 'edgeStyle' },
-	{ label: 'Area color', property: 'backgroundColor' },
-	{ label: 'Area opacity', property: 'backgroundOpacity' },
-	{ label: 'Background color', property: 'areaColor' },
-	{ label: 'Background opacity', property: 'windowOpacity' },
-	{ label: 'Reset', property: '' },
+const SETTING_ROWS: Array<{ labelKey: string; property: keyof SubtitleStyle | '' }> = [
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.font', property: 'fontFamily' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.textSize', property: 'fontSize' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.textColor', property: 'textColor' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.textOpacity', property: 'textOpacity' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.edgeStyle', property: 'edgeStyle' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.areaColor', property: 'backgroundColor' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.areaOpacity', property: 'backgroundOpacity' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.backgroundColor', property: 'areaColor' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.backgroundOpacity', property: 'windowOpacity' },
+	{ labelKey: 'plugin.desktop-ui.menu.reset', property: '' },
 ];
 
 /**
@@ -487,14 +469,7 @@ const SETTING_ROWS: Array<{ label: string; property: keyof SubtitleStyle | '' }>
  * worry about an uninitialized state.
  */
 function readSubtitleStyle(player: IVideoPlayer): SubtitleStyle {
-	const raw = coerceSubtitleStyle(player.subtitleStyle?.());
-	const base: SubtitleStyle = { ...defaultSubtitleStyles };
-	for (const key of Object.keys(base) as Array<keyof SubtitleStyle>) {
-		if (key in raw) {
-			(base as unknown as Record<string, unknown>)[key] = raw[key];
-		}
-	}
-	return base;
+	return player.subtitleStyle?.() ?? { ...defaultSubtitleStyles };
 }
 
 function writeSubtitleStyle(player: IVideoPlayer, patch: Partial<SubtitleStyle>): void {
@@ -556,8 +531,9 @@ export function renderSubtitleSettingsPane(
 	const style = readSubtitleStyle(player);
 
 	for (const row of SETTING_ROWS) {
-		const id = `subtitleSetting-button-${row.label.replace(/\W+/g, '-').toLowerCase()}`;
-		const btn = player.createButton(id, row.label, () => {});
+		const rowLabel = player.t(row.labelKey);
+		const id = `subtitleSetting-button-${row.labelKey.replace(/\W+/g, '-').toLowerCase()}`;
+		const btn = player.createButton(id, rowLabel, () => {});
 		btn.classList.add('language-button');
 		const valueText = row.property
 			? formatSettingValue(row.property, style[row.property as keyof SubtitleStyle])
@@ -566,7 +542,7 @@ export function renderSubtitleSettingsPane(
 			? `<span class="menu-button-chevron">${svgFromIcon(fluentIcons.chevronR, 18)}</span>`
 			: '';
 		btn.innerHTML = `
-            <span class="menu-button-text">${escapeHtml(row.label)}</span>
+            <span class="menu-button-text">${escapeHtml(rowLabel)}</span>
             ${valueText ? `<span class="menu-button-subtext">${escapeHtml(valueText)}</span>` : ''}
             ${chevronOrEmpty}
         `;
@@ -575,7 +551,7 @@ export function renderSubtitleSettingsPane(
 		listen(btn, 'click', (e: Event) => {
 			e.stopPropagation();
 			if (row.property) {
-				renderSubtitlePropertyPane(pane, player, listen, onPick, row.label, row.property);
+				renderSubtitlePropertyPane(pane, player, listen, onPick, rowLabel, row.property);
 			}
 			else {
 				// Reset writes back the defaults, then repaints the row list
@@ -614,7 +590,7 @@ function renderSubtitlePropertyPane(
 		listen(fresh, 'click', (e: Event) => {
 			e.stopPropagation();
 			if (titleEl)
-				titleEl.textContent = 'Subtitle Settings';
+				titleEl.textContent = player.t('plugin.desktop-ui.menu.subtitleSettings');
 			renderSubtitleSettingsPane(pane, player, listen, onPick);
 			// Restore the default back-to-main behavior on the next
 			// mount of the back button (handled by buildSubMenuPane on
@@ -656,24 +632,6 @@ function renderSubtitlePropertyPane(
 	}
 }
 
-interface WatchProgressLite {
-	timestamp: number;
-	percentage: number;
-}
-
-interface PlaylistItemLite {
-	id?: string | number;
-	title?: string;
-	description?: string;
-	image?: string;
-	poster?: string;
-	thumbnail?: string;
-	duration?: number | string;
-	season?: number;
-	episode?: number;
-	progress?: WatchProgressLite;
-}
-
 /**
  * Optional image base — pass via `imageBaseUrl` if your playlist items
  *  carry relative TMDB-style paths (e.g. `/w780/abc.jpg`).
@@ -699,7 +657,7 @@ export function renderPlaylistPane(
 	onPick: () => void,
 	opts: PlaylistRenderOptions = {},
 ): void {
-	const queue = coerceArray<PlaylistItemLite>(player.queue?.() ?? []);
+	const queue: ReadonlyArray<VideoPlaylistItem> = player.queue?.() ?? [];
 	const curIdx = player.currentIndex?.() ?? 0;
 
 	const hasSeason = queue.some(item => typeof item.season === 'number');
@@ -710,7 +668,7 @@ export function renderPlaylistPane(
 	const title = pane.querySelector<HTMLSpanElement>('.playlist-title');
 
 	if (title)
-		title.textContent = hasSeason ? 'Episodes' : 'Playlist';
+		title.textContent = hasSeason ? player.t('plugin.desktop-ui.menu.episodes') : player.t('plugin.desktop-ui.menu.playlist');
 
 	if (!scroll || !episodePane)
 		return;
@@ -733,11 +691,12 @@ export function renderPlaylistPane(
 	if (seasonScroll) {
 		seasonScroll.replaceChildren();
 		for (const sNum of seasons) {
-			const btn = player.createButton(`season-button-${sNum}`, `Season ${sNum}`, () => {});
+			const seasonLabel = player.t('plugin.desktop-ui.menu.season', { number: String(sNum) });
+			const btn = player.createButton(`season-button-${sNum}`, seasonLabel, () => {});
 			btn.classList.add('language-button');
 			if (sNum === activeSeason)
 				btn.classList.add('is-active');
-			btn.innerHTML = `<span class="menu-button-text">Season ${sNum}</span>`;
+			btn.innerHTML = `<span class="menu-button-text">${escapeHtml(seasonLabel)}</span>`;
 			seasonScroll.appendChild(btn);
 			listen(btn, 'click', () => {
 				renderSeasonEpisodes(scroll, player, queue, sNum, curIdx, listen, onPick, opts);
@@ -755,7 +714,7 @@ export function renderPlaylistPane(
 function renderSeasonEpisodes(
 	scroll: HTMLDivElement,
 	player: IVideoPlayer,
-	queue: PlaylistItemLite[],
+	queue: ReadonlyArray<VideoPlaylistItem>,
 	season: number,
 	curIdx: number,
 	listen: MenuListen,
@@ -772,7 +731,7 @@ function renderSeasonEpisodes(
 
 function buildPlaylistCard(
 	player: IVideoPlayer,
-	item: PlaylistItemLite,
+	item: VideoPlaylistItem,
 	index: number,
 	active: boolean,
 	listen: MenuListen,
@@ -789,7 +748,7 @@ function buildPlaylistCard(
 	left.className = 'episode-menu-button-left';
 	btn.appendChild(left);
 
-	const thumbUrl = item.image ?? item.poster ?? item.thumbnail;
+	const thumbUrl = readItemImage(item);
 	if (thumbUrl) {
 		const img = document.createElement('img');
 		img.className = 'episode-menu-button-image';
@@ -883,13 +842,13 @@ export function renderAudioPane(
 	if (!scroll)
 		return;
 	scroll.replaceChildren();
-	const tracks = coerceArray<AudioTrackLite>(player.audioTracks?.() ?? []);
+	const tracks: AudioTrackRef[] = player.audioTracks?.() ?? [];
 	tracks.forEach((t, i) => {
-		const langSlug = (t.language ?? String(t.id ?? i)).replace(/\W+/g, '-').toLowerCase();
+		const langSlug = (t.language ?? t.id).replace(/\W+/g, '-').toLowerCase();
 		appendChoice(
 			scroll,
 			`audio-button-${langSlug}-${i}`,
-			t.name ?? t.label ?? t.language ?? `Track ${i + 1}`,
+			t.label ?? t.language ?? `Track ${i + 1}`,
 			state.audioIdx === i,
 			() => { player.currentAudioTrack?.(i); onPick(); },
 			listen,
@@ -944,11 +903,11 @@ export const ASPECT_RATIO_VALUE = {
 
 export type AspectRatioValue = typeof ASPECT_RATIO_VALUE[keyof typeof ASPECT_RATIO_VALUE];
 
-const ASPECT_RATIO_OPTIONS: Array<{ value: AspectRatioValue; label: string }> = [
-	{ value: ASPECT_RATIO_VALUE.UNIFORM, label: 'Original' },
-	{ value: ASPECT_RATIO_VALUE.FILL, label: 'Stretch' },
-	{ value: ASPECT_RATIO_VALUE.EXACTFIT, label: 'Crop' },
-	{ value: ASPECT_RATIO_VALUE.NONE, label: 'Native' },
+const ASPECT_RATIO_OPTIONS: Array<{ value: AspectRatioValue; labelKey: string }> = [
+	{ value: ASPECT_RATIO_VALUE.UNIFORM, labelKey: 'plugin.desktop-ui.menu.original' },
+	{ value: ASPECT_RATIO_VALUE.FILL, labelKey: 'plugin.desktop-ui.menu.stretch' },
+	{ value: ASPECT_RATIO_VALUE.EXACTFIT, labelKey: 'plugin.desktop-ui.menu.crop' },
+	{ value: ASPECT_RATIO_VALUE.NONE, labelKey: 'plugin.desktop-ui.menu.native' },
 ];
 
 export function renderAspectRatioPane(
@@ -965,12 +924,13 @@ export function renderAspectRatioPane(
 	const current = player.aspectRatio?.() ?? 'uniform';
 
 	for (const opt of ASPECT_RATIO_OPTIONS) {
-		const btn = player.createButton(`aspect-ratio-${opt.value}`, opt.label, () => {});
+		const label = player.t(opt.labelKey);
+		const btn = player.createButton(`aspect-ratio-${opt.value}`, label, () => {});
 		btn.classList.add('language-button');
 		if (opt.value === current)
 			btn.classList.add('is-active');
 		btn.innerHTML = `
-            <span class="menu-button-text">${escapeHtml(opt.label)}</span>
+            <span class="menu-button-text">${escapeHtml(label)}</span>
             <span class="menu-button-check">${svgFromIcon(fluentIcons.checkmark, 18)}</span>
         `;
 		scroll.appendChild(btn);

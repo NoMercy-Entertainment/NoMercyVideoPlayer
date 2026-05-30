@@ -542,7 +542,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		}>> = [
 			[
 				{
-					title: 'Playback',
+					title: this.t('shortcuts.group.playback'),
 					entries: [
 						{ keys: ['Space'], label: this.t('shortcuts.playPause') },
 						{ keys: ['S'], label: this.t('shortcuts.stop') },
@@ -550,7 +550,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 					],
 				},
 				{
-					title: 'Speed',
+					title: this.t('shortcuts.group.speed'),
 					entries: [
 						{ keys: [']'], label: this.t('shortcuts.speedUp') },
 						{ keys: ['['], label: this.t('shortcuts.speedDown') },
@@ -558,7 +558,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 					],
 				},
 				{
-					title: 'Volume',
+					title: this.t('shortcuts.group.volume'),
 					entries: [
 						{ keys: ['↑'], label: this.t('shortcuts.volumeUp') },
 						{ keys: ['↓'], label: this.t('shortcuts.volumeDown') },
@@ -568,7 +568,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			],
 			[
 				{
-					title: 'Seeking',
+					title: this.t('shortcuts.group.seeking'),
 					entries: [
 						{ keys: ['←'], label: this.t('shortcuts.seekBack5') },
 						{ keys: ['→'], label: this.t('shortcuts.seekForward5') },
@@ -578,7 +578,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 					],
 				},
 				{
-					title: 'Quick Seek',
+					title: this.t('shortcuts.group.quickSeek'),
 					entries: [
 						{ keys: ['3'], label: this.t('shortcuts.seek30s') },
 						{ keys: ['6'], label: this.t('shortcuts.seek60sKey') },
@@ -587,7 +587,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 					],
 				},
 				{
-					title: 'Navigation',
+					title: this.t('shortcuts.group.navigation'),
 					entries: [
 						{ keys: ['N'], label: this.t('shortcuts.next') },
 						{ keys: ['P'], label: this.t('shortcuts.previous') },
@@ -598,7 +598,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			],
 			[
 				{
-					title: 'Tracks & Subtitles',
+					title: this.t('shortcuts.group.tracksAndSubtitles'),
 					entries: [
 						{ keys: ['V'], label: this.t('shortcuts.cycleSubs') },
 						{ keys: ['B'], label: this.t('shortcuts.cycleAudio') },
@@ -608,7 +608,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 					],
 				},
 				{
-					title: 'Display',
+					title: this.t('shortcuts.group.display'),
 					entries: [
 						{ keys: ['F'], label: this.t('shortcuts.fullscreen') },
 						{ keys: ['F11'], label: this.t('shortcuts.fullscreen') },
