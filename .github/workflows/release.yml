@@ -35,10 +35,10 @@ jobs:
 
       # Step 5: Create GitHub release
       - name: Create GitHub Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: '${{ env.PACKAGE_VERSION }}'
-          release_name: 'Release ${{ env.PACKAGE_VERSION }}'
+          tag_name: ${{ env.PACKAGE_VERSION }}
+          name: Release ${{ env.PACKAGE_VERSION }}
           draft: false
           prerelease: ${{ contains(env.PACKAGE_VERSION, '-') }}
         env:

@@ -12,6 +12,7 @@ on:
 
 jobs:
   publish-npm:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -30,6 +31,15 @@ jobs:
       - name: Install dependencies
         run: rm -rf node_modules package-lock.json && npm install
 
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
       - name: Build package
         run: npm run build
 
@@ -44,3 +54,5 @@ jobs:
           else
             npm publish --provenance --access public
           fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
