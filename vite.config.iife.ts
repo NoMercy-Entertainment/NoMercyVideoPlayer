@@ -1,3 +1,7 @@
+/**
+ * NOT the publish build. The IIFE format was dropped in v2 (ESM-only). This file is
+ * retained for reference only and must not be run against a publish.
+ */
 /// <reference types="vitest" />
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';

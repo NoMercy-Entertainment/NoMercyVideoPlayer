@@ -1,3 +1,8 @@
+/**
+ * NOT the publish build. The publish pipeline runs `tsc -p tsconfig.build.json` (see
+ * package.json "build" script and prepublishOnly). This file was the old Vite bundler
+ * config; it is retained for reference only and must not be run against a publish.
+ */
 /// <reference types="vitest" />
 import { resolve } from 'node:path';
 import { nomercyTranslationsPlugin } from '@nomercy-entertainment/nomercy-player-core/vite-plugin';

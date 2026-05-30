@@ -1,5 +1,20 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-beta.1] — 2026-05-30
+
+### Changed
+
+- Dependency on `@nomercy-entertainment/nomercy-player-core` changed from `file:` local
+  path to `^2.0.0-beta.0` semver range — resolves correctly from the npm registry.
+- `exports` map corrected: all directory-based plugins (`drm`, `embed`, `key-handler`,
+  `live-transcoding`, `media-session`, `message`, `octopus`, `skipper`, `tab-leader`,
+  `touch-zones`) now point to `./dist/plugins/<name>/index.js` matching tsc output layout.
+- Build pipeline clarified as tsc-only; `vite.config.ts` and `vite.config.iife.ts` marked
+  as non-publish reference files.
+- `contributors` email updated to GitHub noreply address.
+
+---
+
 ## [2.0.0-beta.0] — 2026-05-16
 
 Rebuilt on `@nomercy-entertainment/nomercy-player-core` 2.0.0. The shared player
