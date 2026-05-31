@@ -4,7 +4,7 @@ Headless, event-driven video player engine. No UI - consumers build their own.
 
 ## Tech Stack
 
-- TypeScript (ES2022), Vite (library mode), outputs ESM + CJS + IIFE
+- TypeScript (ES2022), `tsc` for ESM dist, Vite IIFE build for CDN bundle (`nomercy-video-player.iife.js`)
 - Testing: Vitest (unit) + Playwright (e2e)
 - Linting: @antfu/eslint-config (ESLint 9 flat config)
 - Formatting: Prettier - tabs, 4-width, single quotes, semicolons, printWidth 150
