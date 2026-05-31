@@ -42,7 +42,7 @@ describe('normalizeVideoItem', () => {
 	it('does not overwrite existing subtitles when tracks is also present', () => {
 		const result = normalizeVideoItem({
 			id: '1',
-			subtitles: [{ file: 'winner.vtt', label: 'Winner' }],
+			subtitles: [{ id: 'sub-winner', url: 'winner.vtt', label: 'Winner' }],
 			tracks: [{ kind: 'subtitles', file: 'loser.vtt', label: 'Loser' }],
 		});
 		expect(result.subtitles).toHaveLength(1);
@@ -50,7 +50,7 @@ describe('normalizeVideoItem', () => {
 	});
 
 	it('strips tracks field from output', () => {
-		const result = normalizeVideoItem({ id: '1', tracks: [] }) as Record<string, unknown>;
+		const result = normalizeVideoItem({ id: '1', tracks: [] });
 		expect('tracks' in result).toBe(false);
 	});
 
