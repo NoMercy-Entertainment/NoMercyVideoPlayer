@@ -45,7 +45,8 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js"
+			"import": "./dist/index.js",
+			"browser": "./dist/nomercy-video-player.iife.js"
 		},
 		"./plugins": {
 			"types": "./dist/plugins/index.d.ts",
@@ -120,6 +121,8 @@
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
+	"unpkg": "./dist/nomercy-video-player.iife.js",
+	"jsdelivr": "./dist/nomercy-video-player.iife.js",
 	"files": [
 		"CHANGELOG.md",
 		"CODE_OF_CONDUCT.md",
@@ -134,6 +137,8 @@
 	},
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
+		"build:iife": "vite build --config vite.iife.config.ts",
+		"build:all": "npm run build && npm run build:iife",
 		"dev": "tsc -p tsconfig.build.json --watch",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint --fix .",
@@ -143,7 +148,7 @@
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "npx playwright test",
 		"test:e2e:report": "npx playwright show-report reports/playwright",
-		"prepublishOnly": "npm run build"
+		"prepublishOnly": "npm run build:all"
 	},
 	"dependencies": {
 		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-beta.0",
