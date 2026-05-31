@@ -27,7 +27,7 @@ export interface SkipperEntry {
 export interface SkipperOptions {
 	/** Auto-skip these kinds without user intervention. */
 	autoSkip?: ReadonlyArray<SkipperKind>;
-	/** Show "Skip Intro" button N seconds after the range starts. Default 0. */
+	/** Show "Skip Intro" button N milliseconds after the range starts. Default 0. */
 	revealAfterMs?: number;
 }
 

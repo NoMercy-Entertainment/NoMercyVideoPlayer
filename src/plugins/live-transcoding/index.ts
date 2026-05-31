@@ -17,7 +17,7 @@ export interface LiveTranscodingOptions {
 	/** How many seconds of buffer must exist beyond `currentTime` before resuming. */
 	resumeAheadSeconds?: number;
 
-	/** When seeking, max seconds we'll wait for the transcoder to reach the target. */
+	/** When seeking, max milliseconds we'll wait for the transcoder to reach the target. */
 	seekTimeoutMs?: number;
 
 	/** Quality / bitrate preference hint sent to the encoder. */
@@ -28,12 +28,9 @@ export interface LiveTranscodingOptions {
 export interface LiveTranscodingEvents {
 	'job:started': { jobId: string; sourceUrl: string };
 	'job:progress': { jobId: string; transcodedSeconds: number; totalSeconds?: number; variantsReady: string[] };
-	'job:variant-ready': { jobId: string; variant: string; bandwidth: number };
 	'job:ready-to-play': { jobId: string };
 	'job:error': { jobId: string; error: Error };
 	'job:complete': { jobId: string };
-	'backpressure:apply': { reason: 'buffer-full' | 'encoder-stall' };
-	'backpressure:release': void;
 }
 
 interface ServerStatusMessage {

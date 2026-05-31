@@ -310,6 +310,9 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 	static override readonly translations: Translations = translationsFromGlob('./i18n/*.ts');
 
+	// ── overlay root ────────────────────────────────────────────────
+	private overlayRoot!: HTMLElement;
+
 	// ── top bar ─────────────────────────────────────────────────────
 	private topBarRefs!: TopBarRefs;
 
@@ -478,6 +481,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	// ── DOM construction ─────────────────────────────────────────────────
 	private buildDom(): void {
 		const root = this.mount('overlay');
+		this.overlayRoot = root;
 		this.player.addClasses(root, ['overlay']);
 
 		this.topBarRefs = buildTitleBar(this.player, root);
@@ -1461,6 +1465,14 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 					void this.player.togglePlayback();
 				}
 			});
+
+			// Only a genuine background tap reaches overlayRoot as the target;
+			// child controls consume the event first and never let it bubble here.
+			this.listen(this.overlayRoot, 'click', (e: Event) => {
+				if ((e.target as Node) === this.overlayRoot) {
+					this.dismissOverlay();
+				}
+			});
 		}
 
 		// Hovering over the bottom bar or the menu frame suspends the inactivity
@@ -2380,6 +2392,17 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		if (this.menuOpen)
 			return;
 		if (this._isControlsHovered)
+			return;
+
+		this.player.emit('activity', { active: false });
+	}
+
+	// Deliberate paused-state dismiss; bypasses maybeHide()'s playing-only guard.
+	// Skips when a menu is open or a scrub is releasing.
+	private dismissOverlay(): void {
+		if (this.menuOpen)
+			return;
+		if (this.isScrubbing)
 			return;
 
 		this.player.emit('activity', { active: false });

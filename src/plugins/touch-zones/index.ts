@@ -30,7 +30,7 @@
  * on the first double-tap of that side and remains in the DOM for the plugin's
  * lifetime.
  *
- * Layout: a half-pill pinned to the player edge (left/right), containing an SVG
+ * Layout: a circle pinned to the player edge (left/right), containing an SVG
  * chevron set and a text label showing the accumulated seek seconds for the
  * current burst (e.g. "−30s" after three rapid left-taps).
  *

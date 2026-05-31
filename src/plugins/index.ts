@@ -8,7 +8,7 @@ export type { DesktopUiOptions } from './desktop-ui/index';
 export { drmPlugin, DrmPlugin } from './drm';
 export type { DrmEvents, DrmOptions } from './drm';
 export { embedPlugin, EmbedPlugin } from './embed';
-export type { EmbedCommand, EmbedEventMessage, EmbedOptions } from './embed';
+export type { EmbedCommand, EmbedEventMessage, EmbedForwardedEvent, EmbedOptions, EmbedSerializedError } from './embed';
 
 // Cross-library plugins (from the kit, with video-specific defaults where applicable)
 export { keyHandlerPlugin, KeyHandlerPlugin } from './key-handler';

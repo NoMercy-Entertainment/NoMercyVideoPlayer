@@ -504,8 +504,8 @@ function ensureStyles(): void {
 .subtitle-overlay .subtitle-safezone {
     position: absolute;
     inset: 0;
-    /* Action-safe inset for captions. WCAG 2.1 SC 1.2.2 / FCC 47 CFR
-     * 79.4 only require captions to be "viewable in their entirety" -
+    /* Action-safe inset for captions. FCC 47 CFR
+     * 79.4 only requires captions to be "viewable in their entirety" -
      * they don't pin a specific percentage. SMPTE RP 27.3's 5%/5% rule
      * was calibrated to CRT overscan, which doesn't exist for web
      * delivery. Modern streamers (Netflix, YouTube, Apple TV+) ship

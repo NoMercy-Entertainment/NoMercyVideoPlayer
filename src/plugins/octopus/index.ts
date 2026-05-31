@@ -56,7 +56,7 @@ export interface OctopusOptions {
 	fonts?: string[];
 	/** Renderer target FPS. */
 	targetFps?: number;
-	/** Render mode — `wasm-blend` (default), `js-blend`, or `lossy`. */
+	/** Render mode. Default `'wasm-blend'`. */
 	renderMode?: NMOctopusOptions['renderMode'];
 	/** Lazy-load subtitle file chunks — useful for huge ASS files. */
 	lazyFileLoading?: boolean;
@@ -358,7 +358,7 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 				trackContent: subContent,
 				availableFonts,
 				targetFps: this.opts?.targetFps,
-				renderMode: this.opts?.renderMode,
+				renderMode: this.opts?.renderMode ?? 'wasm-blend',
 				lazyFileLoading: this.opts?.lazyFileLoading,
 				prescaleFactor: this.opts?.prescaleFactor,
 				renderAhead: this.opts?.renderAhead ?? 10,

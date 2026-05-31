@@ -22,13 +22,7 @@ export interface DrmOptions {
 
 /** Events emitted by the video {@link DrmPlugin}. */
 export interface DrmEvents {
-	'key:requested': { sessionId: string; initData: ArrayBuffer };
-	'key:granted': { sessionId: string };
-	'key:expired': { sessionId: string };
-	'key:revoked': { sessionId: string };
 	'key:error': { sessionId: string; error: Error };
-	'output:restricted': { reason: string };
-	'output:downgraded': { from: string; to: string };
 	'unsupported': { reason: string };
 }
 
@@ -150,14 +144,19 @@ export class DrmPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends 
 			return;
 		}
 		try {
-			// Minimal config — real EME negotiation is consumer-extensible. We
-			// only verify the key system is reachable; full key-session handling
-			// belongs in a future iteration.
-			await nav.requestMediaKeySystemAccess(keySystem, [{
-				initDataTypes: ['cenc'],
-				audioCapabilities: [{ contentType: 'audio/mp4;codecs="mp4a.40.2"' }],
-				videoCapabilities: [{ contentType: 'video/mp4;codecs="avc1.42E01E"' }],
-			}]);
+			const isFairPlay = keySystem.startsWith('com.apple.fps');
+			const config: MediaKeySystemConfiguration = isFairPlay
+				? {
+						initDataTypes: ['skd'],
+						audioCapabilities: [{ contentType: 'audio/mp4;codecs="mp4a.40.2"' }],
+						videoCapabilities: [{ contentType: 'video/mp4;codecs="avc1.42E01E"' }],
+					}
+				: {
+						initDataTypes: ['cenc'],
+						audioCapabilities: [{ contentType: 'audio/mp4;codecs="mp4a.40.2"' }],
+						videoCapabilities: [{ contentType: 'video/mp4;codecs="avc1.42E01E"' }],
+					};
+			await nav.requestMediaKeySystemAccess(keySystem, [config]);
 		}
 		catch (err) {
 			this.emit('key:error', {
