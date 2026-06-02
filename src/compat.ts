@@ -54,9 +54,9 @@ export interface VideoPlaylistItemV1Compat extends VideoPlaylistItem {
 	 * `VideoPlaylistItem` in v2.
 	 *
 	 * The normalizer maps `tracks` entries to their typed counterparts based
-	 * on the `kind` field: `'subtitles'` → `subtitles[]`, `'chapters'` →
-	 * `chapters[]`, `'fonts'` → `fonts[]`. Unrecognised kinds are silently
-	 * dropped.
+	 * on the `kind` field: `'subtitles'` → `subtitles[]`, `'thumbnails'` →
+	 * `previewSpriteUrl`, `'chapters'` → `previewSpriteUrl` (legacy fallback),
+	 * `'fonts'` → `fonts[]`. Unrecognised kinds are silently dropped.
 	 */
 	tracks?: LegacyTrackRef[];
 }
@@ -82,14 +82,22 @@ export function normalizeVideoItem<T extends VideoPlaylistItemV1Compat>(item: T)
 			}));
 		}
 
-		// Chapter tracks — kind === 'chapters'.
+		// Thumbnail sprite tracks — kind === 'thumbnails' (canonical v1 kind).
+		const thumbnailEntries = legacyTracks.filter(t => t.kind === 'thumbnails');
+		if (thumbnailEntries.length > 0 && result.previewSpriteUrl === undefined) {
+			const first = thumbnailEntries[0];
+			if (first?.file) {
+				result.previewSpriteUrl = first.file;
+			}
+		}
+
+		// Chapter tracks — kind === 'chapters'. Some v1 consumers stored the
+		// sprite VTT URL here (misuse of the kind field). Promote to
+		// previewSpriteUrl only when the canonical field is still unset.
 		const chapterEntries = legacyTracks.filter(t => t.kind === 'chapters');
-		if (chapterEntries.length > 0 && result.chapters === undefined) {
-			// Chapters need a VTT URL — promote the file field to previewSpriteUrl
-			// when kind is exactly 'chapters'. Consumers should prefer the typed
-			// fields but this preserves runtime data.
+		if (chapterEntries.length > 0 && result.previewSpriteUrl === undefined) {
 			const first = chapterEntries[0];
-			if (first?.file && result.previewSpriteUrl === undefined) {
+			if (first?.file) {
 				result.previewSpriteUrl = first.file;
 			}
 		}

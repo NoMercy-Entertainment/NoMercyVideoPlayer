@@ -49,6 +49,52 @@ describe('normalizeVideoItem', () => {
 		expect(result.subtitles?.[0]?.label).toBe('Winner');
 	});
 
+	it('maps thumbnails-kind tracks to previewSpriteUrl', () => {
+		const result = normalizeVideoItem({
+			id: '1',
+			tracks: [{ kind: 'thumbnails', file: 'sprites.vtt' }],
+		});
+		expect(result.previewSpriteUrl).toBe('sprites.vtt');
+		expect('tracks' in result).toBe(false);
+	});
+
+	it('does not overwrite existing previewSpriteUrl with thumbnails track', () => {
+		const result = normalizeVideoItem({
+			id: '1',
+			previewSpriteUrl: 'canonical.vtt',
+			tracks: [{ kind: 'thumbnails', file: 'legacy.vtt' }],
+		});
+		expect(result.previewSpriteUrl).toBe('canonical.vtt');
+	});
+
+	it('thumbnails track takes priority over chapters track for previewSpriteUrl', () => {
+		const result = normalizeVideoItem({
+			id: '1',
+			tracks: [
+				{ kind: 'thumbnails', file: 'sprites.vtt' },
+				{ kind: 'chapters', file: 'chapters.vtt' },
+			],
+		});
+		expect(result.previewSpriteUrl).toBe('sprites.vtt');
+	});
+
+	it('chapters track still promotes to previewSpriteUrl when no thumbnails track present', () => {
+		const result = normalizeVideoItem({
+			id: '1',
+			tracks: [{ kind: 'chapters', file: 'chapters.vtt' }],
+		});
+		expect(result.previewSpriteUrl).toBe('chapters.vtt');
+	});
+
+	it('chapters track does not overwrite previewSpriteUrl already set on item', () => {
+		const result = normalizeVideoItem({
+			id: '1',
+			previewSpriteUrl: 'canonical.vtt',
+			tracks: [{ kind: 'chapters', file: 'chapters.vtt' }],
+		});
+		expect(result.previewSpriteUrl).toBe('canonical.vtt');
+	});
+
 	it('strips tracks field from output', () => {
 		const result = normalizeVideoItem({ id: '1', tracks: [] });
 		expect('tracks' in result).toBe(false);

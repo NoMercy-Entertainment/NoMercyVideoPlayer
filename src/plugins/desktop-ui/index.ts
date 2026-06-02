@@ -1871,14 +1871,13 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.sliderRefs.sliderPopImage.style.width = '';
 		this.sliderRefs.sliderPopImage.style.height = '';
 
-		const tracks = readSidecarTracks(item);
-		if (!tracks)
-			return;
-		const thumbsTrack = tracks.find(t => t?.kind === 'thumbnails' && typeof t.file === 'string');
-		if (!thumbsTrack?.file)
+		// Canonical path: typed previewSpriteUrl field (v2 items + normalizeVideoItem output).
+		// Legacy fallback: raw tracks[].kind==='thumbnails' for un-normalised v1 items.
+		const spriteUrl = this._resolveSpriteUrl(item);
+		if (!spriteUrl)
 			return;
 
-		const set = await loadSpriteSet(thumbsTrack.file);
+		const set = await loadSpriteSet(spriteUrl);
 		if (myToken !== this.spriteLoadId)
 			return;
 		if (!set)
@@ -1886,6 +1885,21 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 		this.spriteSet = set;
 		this.sliderRefs.sliderPopImage.style.backgroundImage = `url('${set.spriteUrl}')`;
+	}
+
+	private _resolveSpriteUrl(item: VideoPlaylistItem | undefined | null): string | undefined {
+		if (!item)
+			return undefined;
+
+		if (typeof item.previewSpriteUrl === 'string' && item.previewSpriteUrl)
+			return item.previewSpriteUrl;
+
+		const tracks = readSidecarTracks(item);
+		if (!tracks)
+			return undefined;
+
+		const thumbsTrack = tracks.find(t => t?.kind === 'thumbnails' && typeof t.file === 'string');
+		return thumbsTrack?.file ?? undefined;
 	}
 
 	private paintSpriteAt(time: number): void {
@@ -2280,17 +2294,19 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	 */
 	private syncActiveIndexes(): void {
 		const audios = this.player.audioTracks?.() ?? [];
-		const audioIdx = this.player.audioTrack?.();
-		if (typeof audioIdx === 'number' && audioIdx >= 0) {
-			this.activeAudioIdx = audioIdx;
+		const audioSelection = this.player.audioTrack?.();
+		if (audioSelection != null && typeof audioSelection.index === 'number' && audioSelection.index >= 0) {
+			this.activeAudioIdx = audioSelection.index;
 		}
 		else if (audios.length > 0) {
 			const defIdx = audios.findIndex(t => t.default === true);
 			this.activeAudioIdx = defIdx >= 0 ? defIdx : 0;
 		}
 
-		const subIdx = this.player.subtitle?.();
-		this.activeSubtitleIdx = typeof subIdx === 'number' && subIdx >= 0 ? subIdx : -1;
+		const subSelection = this.player.subtitle?.();
+		this.activeSubtitleIdx = (subSelection != null && typeof subSelection.index === 'number' && subSelection.index >= 0)
+			? subSelection.index
+			: -1;
 
 		// Read the kit's canonical selection. `quality()` returns either
 		// a number (manual pick) or `'auto'` (auto mode); reflect both straight
