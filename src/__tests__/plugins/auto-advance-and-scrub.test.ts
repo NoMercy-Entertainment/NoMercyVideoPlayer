@@ -4,13 +4,12 @@
  * Bug 1 — startFragPrefetch flag is present in HLS.js config.
  * Bug 2 — wireSliderBar wires touchend for scrub-finalization.
  * Bug 3 — touchmove sets sliderPop --visibility to 1 while scrubbing.
- * Bug 4 — AutoAdvancePlugin for video registers and calls next() on ended.
+ * Bug 4 — Core autoAdvance option calls next() on ended.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
-import { AutoAdvancePlugin, autoAdvancePlugin } from '../../plugins/auto-advance';
 
 // ── shared setup ──────────────────────────────────────────────────────────────
 
@@ -28,9 +27,9 @@ function setup(id: string): NMVideoPlayer<{ id: string; url: string }> {
 	return new NMVideoPlayer(id).setup({}) as NMVideoPlayer<{ id: string; url: string }>;
 }
 
-// ── Bug 4 — AutoAdvancePlugin ─────────────────────────────────────────────────
+// ── Bug 4 — core autoAdvance ──────────────────────────────────────────────────
 
-describe('AutoAdvancePlugin (video)', () => {
+describe('core autoAdvance option (video)', () => {
 	beforeEach(() => {
 		resetRegistry();
 		mountDiv('aa-video');
@@ -40,21 +39,8 @@ describe('AutoAdvancePlugin (video)', () => {
 		document.body.innerHTML = '';
 	});
 
-	it('registers without throwing and use() succeeds', async () => {
+	it('calls next() on ended when autoAdvance is not set (defaults to true)', async () => {
 		const player = setup('aa-video');
-		expect(() => player.addPlugin(autoAdvancePlugin)).not.toThrow();
-		await player.ready();
-		const inst = player.getPlugin(AutoAdvancePlugin);
-		expect(inst).toBeDefined();
-	});
-
-	it('plugin id is "auto-advance"', () => {
-		expect(AutoAdvancePlugin.id).toBe('auto-advance');
-	});
-
-	it('calls next() on ended when enabled', async () => {
-		const player = setup('aa-video');
-		player.addPlugin(autoAdvancePlugin);
 		await player.ready();
 
 		const nextSpy = vi.spyOn(player, 'next').mockResolvedValue(undefined);
@@ -71,13 +57,9 @@ describe('AutoAdvancePlugin (video)', () => {
 		expect(nextSpy).toHaveBeenCalledWith({ source: 'auto-advance' });
 	});
 
-	it('does NOT call next() on ended when opts.enabled is false', async () => {
-		const player = setup('aa-video');
-		player.addPlugin(autoAdvancePlugin);
+	it('does NOT call next() on ended when autoAdvance: false', async () => {
+		const player = new NMVideoPlayer('aa-video').setup({ autoAdvance: false });
 		await player.ready();
-
-		const inst = player.getPlugin(AutoAdvancePlugin)!;
-		inst.options({ enabled: false });
 
 		const nextSpy = vi.spyOn(player, 'next').mockResolvedValue(undefined);
 
@@ -90,18 +72,6 @@ describe('AutoAdvancePlugin (video)', () => {
 		await new Promise(resolve => setTimeout(resolve, 20));
 
 		expect(nextSpy).not.toHaveBeenCalled();
-	});
-
-	it('advance() calls next() directly', async () => {
-		const player = setup('aa-video');
-		player.addPlugin(autoAdvancePlugin);
-		await player.ready();
-
-		const nextSpy = vi.spyOn(player, 'next').mockResolvedValue(undefined);
-		const inst = player.getPlugin(AutoAdvancePlugin)!;
-		await inst.advance();
-
-		expect(nextSpy).toHaveBeenCalledWith({ source: 'auto-advance' });
 	});
 });
 

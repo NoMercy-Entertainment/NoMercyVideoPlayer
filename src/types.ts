@@ -191,7 +191,7 @@ export interface VideoEventMap extends BaseEventMap {
 	// without depending on a specific player package.
 
 	// OSD toast request — plugins emit this instead of rendering text themselves.
-	// The active UI plugin (DesktopUiPlugin, TvUiPlugin) subscribes and renders.
+	// The active UI plugin (DesktopUiPlugin, TvKeyHandlerPlugin) subscribes and renders.
 	// `ms` is the display duration in milliseconds; omit for the UI's default.
 	'display-message': { text: string; ms?: number };
 
@@ -268,13 +268,19 @@ export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistIte
 	/** Start in theater mode. */
 	theaterDefault?: boolean;
 	/**
+	 * Automatically advance to the next queue item when the current item ends.
+	 * Default `true`. Set to `false` when an external orchestrator (Cast sync,
+	 * WebSocket) drives `next()` — duplicate advances would result otherwise.
+	 */
+	autoAdvance?: boolean;
+	/**
 	 * Base URL prepended to relative `image` / `poster` / `thumbnail` paths on
 	 * playlist items. Useful when the item shape carries TMDB-style relative
 	 * paths (`/abc.jpg`) — set this to `'https://image.tmdb.org/t/p/original'`
 	 * (or your own CDN) and the player resolves the poster URL automatically.
 	 * Absolute URLs (any scheme) pass through unchanged.
 	 */
-	imageBasePath?: string;
+	baseImageUrl?: string;
 	/** Initial playlist — items inline OR a URL fetched and parsed at setup. */
 	playlist?: T[] | string;
 }

@@ -113,8 +113,10 @@ function policy(code: string, message: string): BrowserPolicyError {
  * Default video backend. Wraps an `<HTMLVideoElement>` for transport.
  *
  * HLS support: native pass-through when `canPlayType` reports support
- * (Safari / iOS), otherwise dynamically imports `hls.js` (bundled as a
- * regular dep) and attaches it. MSE / WebCodecs backends ship later.
+ * (Safari / iOS), otherwise dynamically imports `hls.js` (peer dep — not
+ * bundled; IIFE build externalises it as `window.Hls`, ESM build resolves
+ * it from the consumer's node_modules) and attaches it. MSE / WebCodecs
+ * backends ship later.
  */
 export class Html5VideoBackend extends EventEmitter<BackendEventPayload> implements IVideoBackend {
 	readonly kind = 'html5' as const;

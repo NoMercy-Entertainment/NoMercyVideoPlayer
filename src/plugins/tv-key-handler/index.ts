@@ -1,5 +1,5 @@
 /**
- * TV-UI plugin — keyboard-binding layer for TV remote controls.
+ * TV key-handler plugin — keyboard-binding layer for TV remote controls.
  *
  * Subclasses the video-v2 KeyHandlerPlugin to inherit the full default binding
  * set (Color F0-F3, BrowserFavorites, all universal media keys, modifier seeks,
@@ -16,11 +16,13 @@
  *  - Info key: wired to an OSD overlay showing title / chapter / time instead of
  *    the commented-out stub in the base handler.
  *
- *  - MediaRecord: emits `plugin:tv-ui:bookmark` with the current time so the
- *    consumer can decide what to persist; the player itself does not store bookmarks.
+ *  - MediaRecord: emits `plugin:tv-key-handler:bookmark` with the current time so
+ *    the consumer can decide what to persist; the player itself does not store
+ *    bookmarks.
  *
- *  - Help key: emits `plugin:tv-ui:shortcuts-toggle` (not `plugin:desktop-ui:…`)
- *    so a TV shortcuts overlay can be registered independently.
+ *  - Help key: emits `plugin:tv-key-handler:shortcuts-toggle` (not
+ *    `plugin:desktop-ui:…`) so a TV shortcuts overlay can be registered
+ *    independently.
  *
  * NoMercy Connect routing
  * ───────────────────────
@@ -33,10 +35,11 @@ import type { Chapter, Translations } from '@nomercy-entertainment/nomercy-playe
 import type { VideoPlaylistItem } from '../../types';
 
 import { translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
+import { MessagePlugin } from '@nomercy-entertainment/nomercy-player-core/plugins/message';
 import { fmt } from '../desktop-ui/progressBar';
 import { KeyHandlerPlugin } from '../key-handler';
 
-export interface TvUiOptions {
+export interface TvKeyHandlerOptions {
 	/**
 	 * Seconds to seek when ArrowLeft / ArrowRight are pressed on TV. Default 5.
 	 * (Color-button seeks are fixed at 30/60/90/120 s — not affected by this.)
@@ -48,18 +51,14 @@ export interface TvUiOptions {
 	infoDisplayMs?: number;
 }
 
-interface DisplayMessageCapable {
-	displayMessage?: (text: string, ms?: number) => void;
-}
-
-export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends KeyHandlerPlugin<T> {
-	static override readonly id: string = 'tv-ui';
+export class TvKeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends KeyHandlerPlugin<T> {
+	static override readonly id: string = 'tv-key-handler';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'TV remote control bindings — Color buttons, Info OSD, MediaRecord bookmark, TV-aware Arrow seek and volume';
 	static override readonly translations: Translations = translationsFromGlob('./i18n/*.ts');
 
-	private get tvOpts(): TvUiOptions {
-		return (this.opts as TvUiOptions | undefined) ?? {};
+	private get tvOpts(): TvKeyHandlerOptions {
+		return (this.opts as TvKeyHandlerOptions | undefined) ?? {};
 	}
 
 	/**
@@ -111,45 +110,46 @@ export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends
 
 	/**
 	 * Info key — shows a brief OSD with title, chapter, current time and
-	 * time remaining. Also emits `plugin:tv-ui:info` so a TV shell can render
-	 * its own overlay. The OSD message fires unconditionally as a fallback.
+	 * time remaining. Also emits `plugin:tv-key-handler:info` so a TV shell can
+	 * render its own overlay. The OSD message fires unconditionally as a fallback.
 	 */
 	protected addInfoKey(): void {
 		this.bind('Info', () => { this.showInfoOsd(); });
 	}
 
 	/**
-	 * MediaRecord — emits `plugin:tv-ui:bookmark` with the current time so the
-	 * consumer can persist the bookmark. No-ops silently when no listener is
-	 * registered.
+	 * MediaRecord — emits `plugin:tv-key-handler:bookmark` with the current time
+	 * so the consumer can persist the bookmark. No-ops silently when no listener
+	 * is registered.
 	 */
 	protected addMediaRecordKey(): void {
 		this.bind('MediaRecord', () => {
 			const currentTime = this.player.time?.() ?? 0;
 
 			try {
-				this.player.emit('plugin:tv-ui:bookmark', { time: currentTime });
+				this.player.emit('plugin:tv-key-handler:bookmark', { time: currentTime });
 			}
 			catch { /* consumer may not listen — safe no-op */ }
 		});
 	}
 
 	/**
-	 * Help key — emits `plugin:tv-ui:shortcuts-toggle` so a TV shortcuts overlay
-	 * can be registered independently from the desktop-ui overlay.
+	 * Help key — emits `plugin:tv-key-handler:shortcuts-toggle` so a TV shortcuts
+	 * overlay can be registered independently from the desktop-ui overlay.
 	 */
 	protected override addHelpKey(): void {
 		this.bind('?', () => {
 			try {
-				this.player.emit('plugin:tv-ui:shortcuts-toggle', undefined);
+				this.player.emit('plugin:tv-key-handler:shortcuts-toggle', undefined);
 			}
-			catch { /* tv-ui shortcuts overlay not mounted — no-op */ }
+			catch { /* tv-key-handler shortcuts overlay not mounted — no-op */ }
 		});
 	}
 
 	/**
-	 * Builds and displays the Info OSD. Fires `plugin:tv-ui:info` for an external
-	 * TV shell overlay, then also calls `osdMessage` as the built-in fallback.
+	 * Builds and displays the Info OSD. Fires `plugin:tv-key-handler:info` for an
+	 * external TV shell overlay, then also calls `osdMessage` as the built-in
+	 * fallback.
 	 */
 	private showInfoOsd(): void {
 		const currentTime = this.player.time?.() ?? 0;
@@ -160,7 +160,7 @@ export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends
 		const displayMs = this.tvOpts.infoDisplayMs ?? 5000;
 
 		try {
-			this.player.emit('plugin:tv-ui:info', {
+			this.player.emit('plugin:tv-key-handler:info', {
 				title,
 				currentTime,
 				duration,
@@ -210,22 +210,21 @@ export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends
 	}
 
 	/**
-	 * Sends a message to the OSD. Calls `player.displayMessage` when the message
-	 * plugin is mounted, then also emits `display-message` for listeners that
+	 * Sends a message to the OSD. Routes through `MessagePlugin` when it is
+	 * mounted on the player, then also emits `display-message` for consumers that
 	 * prefer the event surface.
 	 */
 	private osdMessage(text: string, durationMs?: number): void {
-		const capable = this.player as unknown as DisplayMessageCapable;
-		try {
-			capable.displayMessage?.(text, durationMs);
+		const msg = this.player.getPlugin(MessagePlugin);
+		if (msg) {
+			msg.show(text, durationMs ?? 3000);
 		}
-		catch { /* displayMessage not mounted */ }
 
 		try {
-			this.player.emit('display-message', { text });
+			this.player.emit('display-message', { text, ms: durationMs });
 		}
-		catch { /* swallow */ }
+		catch { /* swallow — consumer may not listen */ }
 	}
 }
 
-export const tvUiPlugin = TvUiPlugin;
+export const tvKeyHandlerPlugin = TvKeyHandlerPlugin;

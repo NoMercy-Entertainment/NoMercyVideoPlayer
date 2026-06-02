@@ -152,7 +152,8 @@
 	},
 	"dependencies": {
 		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-beta.0",
-		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0"
+		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
+		"hls.js": "^1.6.0"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^9.0.0",
@@ -163,7 +164,6 @@
 		"eslint": "^10.4.0",
 		"eslint-plugin-format": "^1.0.1",
 		"happy-dom": "^20.9.0",
-		"hls.js": "^1.6.0",
 		"playwright": "^1.60.0",
 		"prettier": "^3.3.3",
 		"prettier-eslint": "^16.4.2",

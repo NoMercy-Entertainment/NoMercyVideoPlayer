@@ -287,8 +287,8 @@ describe('NMVideoPlayer — poster before source swap (Bug 2)', () => {
 		expect(posterSnapshots).toContain('https://cdn/b.jpg');
 	});
 
-	it('poster from beforeLoad uses imageBasePath resolution', async () => {
-		// Relative URLs go through the async resolveUrl path so imageBasePath
+	it('poster from beforeLoad uses baseImageUrl resolution', async () => {
+		// Relative URLs go through the async resolveUrl path so baseImageUrl
 		// applies correctly. The poster value is not available synchronously
 		// inside the beforeLoad callback for relative URLs — check it after
 		// awaiting the microtask queue to drain.
@@ -298,7 +298,7 @@ describe('NMVideoPlayer — poster before source swap (Bug 2)', () => {
 		];
 
 		const player = new NMVideoPlayer<TestItem>('poster-swap-test').setup({
-			imageBasePath: 'https://img.cdn/t/p',
+			baseImageUrl: 'https://img.cdn/t/p',
 			playlist: items,
 		});
 		player.backend();

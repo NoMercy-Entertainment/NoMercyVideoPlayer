@@ -115,13 +115,13 @@ describe('NMVideoPlayer poster sync', () => {
 		expect(videoEl!.getAttribute('poster')).toBe('https://cdn/a.jpg');
 	});
 
-	it('resolves relative image paths against imageBasePath', async () => {
+	it('resolves relative image paths against baseImageUrl', async () => {
 		const relItems: ItemShape[] = [
 			{ id: 'r1', url: '/r1.m3u8', image: '/w780/abc.jpg' },
 		];
 
 		const p = new NMVideoPlayer<ItemShape>('poster-test').setup({
-			imageBasePath: 'https://image.tmdb.org/t/p',
+			baseImageUrl: 'https://image.tmdb.org/t/p',
 			playlist: relItems,
 		});
 		p.backend();
@@ -133,13 +133,13 @@ describe('NMVideoPlayer poster sync', () => {
 		expect(videoEl.getAttribute('poster')).toBe('https://image.tmdb.org/t/p/w780/abc.jpg');
 	});
 
-	it('passes absolute image URLs through unchanged when imageBasePath is set', async () => {
+	it('passes absolute image URLs through unchanged when baseImageUrl is set', async () => {
 		const absItems: ItemShape[] = [
 			{ id: 'abs', url: '/abs.m3u8', image: 'https://other.cdn/img.jpg' },
 		];
 
 		const p = new NMVideoPlayer<ItemShape>('poster-test').setup({
-			imageBasePath: 'https://image.tmdb.org/t/p',
+			baseImageUrl: 'https://image.tmdb.org/t/p',
 			playlist: absItems,
 		});
 		p.backend();
