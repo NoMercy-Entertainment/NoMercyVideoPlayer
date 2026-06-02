@@ -6,7 +6,7 @@ import { MediaSessionPlugin as BaseMediaSession } from '@nomercy-entertainment/n
 /**
  * Video-specific MediaSession integration. Overrides text metadata only —
  * artwork resolution lives in the kit base class and flows through
- * `resolveUrl(url, 'poster')`, which consults `imageBasePath`.
+ * `resolveUrl(url, 'poster')`, which consults `baseImageUrl`.
  *
  * Fills `artist` with the show name and `album` with the season label so the
  * OS "Now Playing" surface shows TV-style metadata for series. Reads only
@@ -14,7 +14,7 @@ import { MediaSessionPlugin as BaseMediaSession } from '@nomercy-entertainment/n
  * server-specific fields (e.g. `year`, `name`) should subclass and override
  * `getMetadata()` — do NOT cast to a richer intersection in this built-in.
  */
-export class MediaSessionPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends BaseMediaSession<NMVideoPlayer<T>, T> {
+export class MediaSessionPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends BaseMediaSession<T, NMVideoPlayer<T>> {
 	static override readonly id: string = 'media-session';
 
 	protected override getMetadata(item: T): MediaSessionMetadata {
