@@ -95,29 +95,29 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 	// ── theater ──
 
 	describe('theater', () => {
-		it('theaterState() reads OFF by default', async () => {
+		it('theater() reads OFF by default', async () => {
 			const p = new NMVideoPlayer('test').setup({});
 			await p.ready();
-			expect(p.theaterState()).toBe(TheaterState.OFF);
+			expect(p.theater()).toBe(TheaterState.OFF);
 		});
 
-		it('theaterState(true) flips on and emits theater { active }', async () => {
+		it('theater(true) flips on and emits theater { active }', async () => {
 			const p = new NMVideoPlayer('test').setup({});
 			await p.ready();
 			let payload: { active: boolean } | undefined;
 			p.on('theater' as any, (data: any) => { payload = data; });
 
-			(p as any).theaterState(true);
+			p.theater(true);
 
-			expect(p.theaterState()).toBe(TheaterState.ON);
+			expect(p.theater()).toBe(TheaterState.ON);
 			expect(payload).toEqual({ active: true });
 		});
 
-		it('theaterState(TheaterState.ON) accepts the enum form', async () => {
+		it('theater(TheaterState.ON) accepts the enum form', async () => {
 			const p = new NMVideoPlayer('test').setup({});
 			await p.ready();
-			(p as any).theaterState(TheaterState.ON);
-			expect(p.theaterState()).toBe(TheaterState.ON);
+			p.theater(TheaterState.ON);
+			expect(p.theater()).toBe(TheaterState.ON);
 		});
 
 		it('toggleTheater() flips off → on → off and emits theater per call', async () => {
@@ -127,9 +127,9 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 			p.on('theater' as any, (data: any) => { events.push(data.active); });
 
 			p.toggleTheater();
-			expect(p.theaterState()).toBe(TheaterState.ON);
+			expect(p.theater()).toBe(TheaterState.ON);
 			p.toggleTheater();
-			expect(p.theaterState()).toBe(TheaterState.OFF);
+			expect(p.theater()).toBe(TheaterState.OFF);
 
 			expect(events).toEqual([true, false]);
 		});
@@ -138,13 +138,13 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 	// ── fullscreen ──
 
 	describe('fullscreen', () => {
-		it('fullscreenState() reads via platform.fullscreen.isActive', async () => {
+		it('fullscreen() reads via platform.fullscreen.isActive', async () => {
 			const fake = buildFakePlatform();
 			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
 			await p.ready();
-			expect(p.fullscreenState()).toBe(FullscreenState.OFF);
+			expect(p.fullscreen()).toBe(FullscreenState.OFF);
 			fake.fs.setActive(true);
-			expect(p.fullscreenState()).toBe(FullscreenState.ON);
+			expect(p.fullscreen()).toBe(FullscreenState.ON);
 		});
 
 		it('without platform.fullscreen → throws BrowserPolicyError when toggled', async () => {
@@ -152,7 +152,7 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
 			await p.ready();
 			let err: unknown;
-			try { (p as any).fullscreenState(true); }
+			try { p.fullscreen(true); }
 			catch (e) { err = e; }
 			expect(err).toBeInstanceOf(BrowserPolicyError);
 			expect((err as BrowserPolicyError).code).toBe('core:policy/fullscreenUnsupported');
@@ -180,13 +180,13 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 	// ── pip ──
 
 	describe('pip', () => {
-		it('pipState() reads via platform.pip.isActive', async () => {
+		it('pip() reads via platform.pip.isActive', async () => {
 			const fake = buildFakePlatform();
 			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
 			await p.ready();
-			expect(p.pipState()).toBe(PipState.OFF);
+			expect(p.pip()).toBe(PipState.OFF);
 			fake.pip.setActive(true);
-			expect(p.pipState()).toBe(PipState.ON);
+			expect(p.pip()).toBe(PipState.ON);
 		});
 
 		it('without platform.pip → throws when toggled', async () => {
@@ -194,7 +194,7 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
 			await p.ready();
 			let err: unknown;
-			try { (p as any).pipState(true); }
+			try { p.pip(true); }
 			catch (e) { err = e; }
 			expect(err).toBeInstanceOf(BrowserPolicyError);
 			expect((err as BrowserPolicyError).code).toBe('core:policy/pipUnsupported');

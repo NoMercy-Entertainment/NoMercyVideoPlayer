@@ -174,9 +174,9 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		this.bind('f', () => { void this.player.toggleFullscreen?.(); });
 		this.bind('F11', () => { void this.player.toggleFullscreen?.(); });
 		this.bind('Escape', () => {
-			const inFs = this.player.fullscreenState?.() === 'on';
+			const inFs = this.player.fullscreen?.() === 'on';
 			if (inFs)
-				this.player.fullscreenState?.(false);
+				this.player.fullscreen?.(false);
 		});
 	}
 
@@ -211,15 +211,15 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 			const ps = this.player.playState?.();
 			if (ps === 'playing' || ps === 'loading')
 				return;
-			const currentTime = this.player.currentTime?.() ?? 0;
-			void this.player.currentTime?.(currentTime + (1 / 30));
+			const currentTime = this.player.time?.() ?? 0;
+			void this.player.time?.(currentTime + (1 / 30));
 		});
 	}
 
 	/** Show current time / remaining time as an OSD message. */
 	protected addShowTimeKey(): void {
 		this.bind('t', () => {
-			const cur = this.player.currentTime?.() ?? 0;
+			const cur = this.player.time?.() ?? 0;
 			const dur = this.player.duration?.() ?? 0;
 			const remaining = Math.max(0, dur - cur);
 			this.message(`${fmtTime(cur)} / -${fmtTime(remaining)}`);

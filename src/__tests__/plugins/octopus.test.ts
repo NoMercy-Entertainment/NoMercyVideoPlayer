@@ -188,7 +188,7 @@ describe('OctopusPlugin', () => {
 			(player as any)._current = {
 				fonts: [{ file: 'https://cdn.example.com/fonts/fonts.json' }],
 			};
-			(player as any).current = () => (player as any)._current;
+			(player as any).item = () => (player as any)._current;
 
 			await player.getPlugin(OctopusPlugin)!.subtitle('https://cdn.example.com/sub.ass');
 
@@ -209,7 +209,7 @@ describe('OctopusPlugin', () => {
 			(player as any)._current = {
 				fonts: [{ file: 'https://cdn.example.com/fonts/fonts.json' }],
 			};
-			(player as any).current = () => (player as any)._current;
+			(player as any).item = () => (player as any)._current;
 
 			await player.getPlugin(OctopusPlugin)!.subtitle('https://cdn.example.com/sub.ass');
 
@@ -237,7 +237,7 @@ describe('OctopusPlugin', () => {
 			(player as any)._current = {
 				fonts: [{ file: 'https://cdn.example.com/fonts/fonts.json' }],
 			};
-			(player as any).current = () => (player as any)._current;
+			(player as any).item = () => (player as any)._current;
 
 			await player.getPlugin(OctopusPlugin)!.subtitle('https://cdn.example.com/sub.ass');
 
@@ -256,7 +256,7 @@ describe('OctopusPlugin', () => {
 			(player as any)._current = {
 				fonts: [{ file: 'https://cdn.example.com/fonts/fonts.json' }],
 			};
-			(player as any).current = () => (player as any)._current;
+			(player as any).item = () => (player as any)._current;
 
 			const inst = player.getPlugin(OctopusPlugin)!;
 			await inst.subtitle('https://cdn.example.com/sub.ass');

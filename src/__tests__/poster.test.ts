@@ -39,7 +39,7 @@ describe('NMVideoPlayer poster sync', () => {
 		expect(videoEl).not.toBeNull();
 
 		p.queue(items);
-		p.current('a');
+		p.item('a');
 		await flushMicrotasks();
 
 		expect(videoEl!.getAttribute('poster')).toBe('https://cdn/a.jpg');
@@ -52,7 +52,7 @@ describe('NMVideoPlayer poster sync', () => {
 		// current() during setup phase defers the load until ready(); calling
 		// backend() before that deferred load fires still applies the poster.
 		p.queue(items);
-		p.current('a');
+		p.item('a');
 
 		// Allocating the backend after cursor move should apply the poster.
 		p.backend();
@@ -67,12 +67,12 @@ describe('NMVideoPlayer poster sync', () => {
 		p.backend();
 		p.queue(items);
 
-		p.current('a');
+		p.item('a');
 		await flushMicrotasks();
 		const videoEl = document.querySelector<HTMLVideoElement>('#poster-test video')!;
 		expect(videoEl.getAttribute('poster')).toBe('https://cdn/a.jpg');
 
-		p.current('c');
+		p.item('c');
 		await flushMicrotasks();
 		expect(videoEl.hasAttribute('poster')).toBe(false);
 	});
@@ -82,12 +82,12 @@ describe('NMVideoPlayer poster sync', () => {
 		p.backend();
 		p.queue(items);
 
-		p.current('a');
+		p.item('a');
 		await flushMicrotasks();
 		const videoEl = document.querySelector<HTMLVideoElement>('#poster-test video')!;
 		expect(videoEl.getAttribute('poster')).toBe('https://cdn/a.jpg');
 
-		p.current('b');
+		p.item('b');
 		await flushMicrotasks();
 		expect(videoEl.getAttribute('poster')).toBe('https://cdn/b.jpg');
 	});
@@ -126,7 +126,7 @@ describe('NMVideoPlayer poster sync', () => {
 		});
 		p.backend();
 		p.queue(relItems);
-		p.current('r1');
+		p.item('r1');
 		await flushMicrotasks();
 
 		const videoEl = document.querySelector<HTMLVideoElement>('#poster-test video')!;
@@ -144,7 +144,7 @@ describe('NMVideoPlayer poster sync', () => {
 		});
 		p.backend();
 		p.queue(absItems);
-		p.current('abs');
+		p.item('abs');
 		await flushMicrotasks();
 
 		const videoEl = document.querySelector<HTMLVideoElement>('#poster-test video')!;

@@ -1,5 +1,6 @@
 import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 import type { BackendEventPayload, BackendLoaderState, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
+import type { HtmlPreloadMode } from '../../types';
 import { BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError } from '@nomercy-entertainment/nomercy-player-core';
 
 interface HlsLevel {
@@ -229,7 +230,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 
 	// ── Lifecycle ──
 
-	async load(url: string, opts?: { preload: 'auto' | 'metadata' | 'none' }): Promise<void> {
+	async load(url: string, opts?: { preload: HtmlPreloadMode }): Promise<void> {
 		this.currentUrl = url;
 		this._hadError = false;
 		this._ended = false;

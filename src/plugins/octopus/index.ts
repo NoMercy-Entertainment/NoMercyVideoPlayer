@@ -94,9 +94,8 @@ export interface OctopusOptions {
  * (`public/subtitles-octopus-worker*.js`) in a follow-up to close the
  * remaining surface in the vendored WASM bundle.
  *
- * Optional peer dependency: `@nomercy-entertainment/nomercy-subtitle-octopus`.
- * When the package is absent, the plugin logs a warning and marks itself as
- * degraded — ASS/SSA subtitles will not render, but playback continues normally.
+ * Bundled dependency: `@nomercy-entertainment/nomercy-subtitle-octopus` is a
+ * regular `dependency` — it ships with the package, not as an optional peer.
  */
 export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends Plugin<NMVideoPlayer<T>, OctopusOptions> {
 	static override readonly id: string = 'octopus';
@@ -257,7 +256,7 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 		if (this._availableFontsForCurrent)
 			return this._availableFontsForCurrent;
 
-		const item = this.player.current?.();
+		const item = this.player.item?.();
 
 		// Read font manifests from the typed `fonts` field.
 		const typedFonts = Array.isArray(item?.fonts) ? item!.fonts : null;

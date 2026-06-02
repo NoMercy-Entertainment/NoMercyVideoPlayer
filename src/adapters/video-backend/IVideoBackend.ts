@@ -1,4 +1,6 @@
-import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
+import type { AudioTrack, QualityLevel, SubtitleCueChange, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
+
+import type { HtmlPreloadMode } from '../../types';
 
 /**
  * Per-event payload map. Each backend event has a fixed payload shape so
@@ -40,7 +42,7 @@ export interface BackendEventPayload {
 	 *  `SubtitleCueChange`. Fires with `cues: []` when subtitles are
 	 *  turned off / between cues.
 	 */
-	'subtitleCue': import('@nomercy-entertainment/nomercy-player-core').SubtitleCueChange;
+	'subtitleCue': SubtitleCueChange;
 	/**
 	 * A non-fatal or escalated HLS error. `fatal: false` means the stream
 	 * is continuing; `fatal: true` means recovery was attempted but all
@@ -127,7 +129,7 @@ export interface IVideoBackend {
 	readonly kind: VideoBackendKind;
 
 	// Lifecycle
-	load(url: string, opts?: { preload: 'auto' | 'metadata' | 'none' }): Promise<void>;
+	load(url: string, opts?: { preload: HtmlPreloadMode }): Promise<void>;
 	unload(): void;
 	dispose(): void;
 

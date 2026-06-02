@@ -333,7 +333,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private spriteLoadId = 0;
 
 	/**
-	 * v2's subtitleState/audioTrackState/qualityState methods return
+	 * v2's subtitleState/audioTrackMode/qualityMode methods return
 	 *  ON/OFF/AUTO/MANUAL enums — not the active track index. The menu
 	 *  panes need to know which entry to mark active, so we track the
 	 *  selected indexes ourselves from the player's `subtitle` /
@@ -1025,7 +1025,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 		this.addTooltip(this.chapBackBtn, () => {
 			const chapters = this.player.chapters();
-			const time = this.player.currentTime?.() ?? 0;
+			const time = this.player.time?.() ?? 0;
 			const prev = [...chapters].reverse().find(ch => ch.start < time - 1);
 			if (prev?.title) {
 				return this.t('tooltip.previousChapterWithTitle', { title: prev.title });
@@ -1035,7 +1035,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 		this.addTooltip(this.chapFwdBtn, () => {
 			const chapters = this.player.chapters();
-			const time = this.player.currentTime?.() ?? 0;
+			const time = this.player.time?.() ?? 0;
 			const next = chapters.find(ch => ch.start > time + 1);
 			if (next?.title) {
 				return this.t('tooltip.nextChapterWithTitle', { title: next.title });
@@ -1653,7 +1653,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.listen(this.remainingTimeEl, 'click', () => {
 			this._showRemaining = !this._showRemaining;
 			void Promise.resolve(this.storage.setJSON('showRemaining', this._showRemaining));
-			this.applyTime(this.player.currentTime?.() ?? 0);
+			this.applyTime(this.player.time?.() ?? 0);
 		});
 
 		this.wireSliderBar();
@@ -1718,7 +1718,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			this.sliderRefs.sliderPop.style.setProperty('--visibility', '0');
 			const scrub = this.getScrubTime(e);
 			this.sliderRefs.sliderNipple.style.left = `${scrub.scrubTime}%`;
-			void this.player.currentTime?.(scrub.scrubTimePlayer);
+			void this.player.time?.(scrub.scrubTimePlayer);
 			this.bumpActivity();
 		};
 
@@ -1809,10 +1809,10 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.applyQualityIcon();
 		this.applyAspectRatioIcon();
 		this.applyPipIcon(Boolean(document.pictureInPictureElement));
-		const theaterActive = this.player.theaterState() === TheaterState.ON;
+		const theaterActive = this.player.theater() === TheaterState.ON;
 		this.applyTheaterIcon(theaterActive);
 		this.player.container.classList.toggle('theater', theaterActive);
-		const cur = this.player.current?.();
+		const cur = this.player.item?.();
 		if (cur)
 			this.handleCurrentChange(cur);
 		const dur = this.player.duration?.();
@@ -1980,7 +1980,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 	private applyDuration(dur: number): void {
 		this.cachedDuration = dur;
-		const cur = this.player.currentTime?.() ?? 0;
+		const cur = this.player.time?.() ?? 0;
 		this.currentTimeEl.textContent = fmt(cur);
 		this.remainingTimeEl.textContent = this._formatRemaining(cur, dur);
 		this.renderChapterMarkers();
@@ -2172,7 +2172,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.setDisabled(this.prevBtn, onFirst);
 		this.setDisabled(this.nextBtn, onLast);
 
-		const t = this.player.currentTime?.() ?? 0;
+		const t = this.player.time?.() ?? 0;
 		const dur = this.resolveDuration();
 		this.setDisabled(this.rewindBtn, t <= 0);
 		this.setDisabled(this.forwardBtn, dur > 0 && t >= dur - 0.25);
@@ -2197,7 +2197,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 	private safeCurrentIndex(): number {
 		try {
-			return this.player.currentIndex();
+			return this.player.index();
 		}
 		catch { /* not implemented */ }
 		return 0;
@@ -2213,18 +2213,18 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 	private previousChapter(): void {
 		const chapters = this.player.chapters();
-		const t = this.player.currentTime?.() ?? 0;
+		const t = this.player.time?.() ?? 0;
 		for (let i = chapters.length - 1; i >= 0; i--) {
-			if (chapters[i]!.start < t - 1) { void this.player.currentTime?.(chapters[i]!.start); return; }
+			if (chapters[i]!.start < t - 1) { void this.player.time?.(chapters[i]!.start); return; }
 		}
-		void this.player.currentTime?.(0);
+		void this.player.time?.(0);
 	}
 
 	private nextChapter(): void {
 		const chapters = this.player.chapters();
-		const t = this.player.currentTime?.() ?? 0;
+		const t = this.player.time?.() ?? 0;
 		for (let i = 0; i < chapters.length; i++) {
-			if (chapters[i]!.start > t + 1) { void this.player.currentTime?.(chapters[i]!.start); return; }
+			if (chapters[i]!.start > t + 1) { void this.player.time?.(chapters[i]!.start); return; }
 		}
 	}
 
@@ -2272,15 +2272,15 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	 * Reconcile our locally-cached active indexes with the kit's canonical
 	 * state after a new item has finished loading (`mediaReady`).
 	 *
-	 * Reads the kit's actual selection via `currentSubtitle()` /
-	 * `currentAudioTrack()` first — those are the source of truth and stay
+	 * Reads the kit's actual selection via `subtitle()` /
+	 * `audioTrack()` first — those are the source of truth and stay
 	 * correct for plugin-rendered tracks (ASS via Octopus, etc.) that never
 	 * appear in the backend's native track lists. Only falls back to a
 	 * default-track heuristic when the kit has no selection yet.
 	 */
 	private syncActiveIndexes(): void {
 		const audios = this.player.audioTracks?.() ?? [];
-		const audioIdx = this.player.currentAudioTrack?.();
+		const audioIdx = this.player.audioTrack?.();
 		if (typeof audioIdx === 'number' && audioIdx >= 0) {
 			this.activeAudioIdx = audioIdx;
 		}
@@ -2289,14 +2289,14 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			this.activeAudioIdx = defIdx >= 0 ? defIdx : 0;
 		}
 
-		const subIdx = this.player.currentSubtitle?.();
+		const subIdx = this.player.subtitle?.();
 		this.activeSubtitleIdx = typeof subIdx === 'number' && subIdx >= 0 ? subIdx : -1;
 
-		// Read the kit's canonical selection. `currentQuality()` returns either
+		// Read the kit's canonical selection. `quality()` returns either
 		// a number (manual pick) or `'auto'` (auto mode); reflect both straight
 		// into our cache so a late-attached plugin doesn't have to wait for
 		// a level-switched event to converge.
-		const qualityChoice = this.player.currentQuality?.();
+		const qualityChoice = this.player.quality?.();
 		if (qualityChoice === 'auto' || qualityChoice == null) {
 			this.activeQualityIdx = 'auto';
 			this._userPickedQuality = false;

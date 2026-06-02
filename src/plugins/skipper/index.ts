@@ -99,7 +99,7 @@ export class SkipperPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, Skip
 		const entry = this.skippers().find(e => e.kind === target);
 		if (!entry)
 			return;
-		void this.player.currentTime(entry.range.end);
+		void this.player.time(entry.range.end);
 		this.emit('skipper:skipped', { kind: entry.kind, range: entry.range, auto: false });
 		if (this.active === target) {
 			this.active = null;
@@ -119,7 +119,7 @@ export class SkipperPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, Skip
 
 	private currentItem(): VideoPlaylistItem | undefined {
 		try {
-			return this.player.current();
+			return this.player.item();
 		}
 		catch {
 			return undefined;
@@ -147,7 +147,7 @@ export class SkipperPlugin extends Plugin<NMVideoPlayer<VideoPlaylistItem>, Skip
 		const auto = (this.opts?.autoSkip ?? []).includes(matching.kind);
 
 		if (auto) {
-			void this.player.currentTime(matching.range.end);
+			void this.player.time(matching.range.end);
 			this.emit('skipper:skipped', { kind: matching.kind, range: matching.range, auto: true });
 			this.active = null;
 			return;

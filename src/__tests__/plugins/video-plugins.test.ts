@@ -224,10 +224,10 @@ describe('video-plugins', () => {
 			const seek = vi.fn();
 			Object.assign(p as object, {
 				playState: () => 'playing',
-				currentTime: Object.assign(seek, { call: seek }),
+				time: Object.assign(seek, { call: seek }),
 			});
-			// Replace currentTime with an overloaded stub.
-			(p as unknown as { currentTime: unknown }).currentTime = ((t?: number): number | void => {
+			// Replace time with an overloaded stub.
+			(p as unknown as { time: unknown }).time = ((t?: number): number | void => {
 				if (typeof t === 'number')
 					seek(t);
 				return 0;

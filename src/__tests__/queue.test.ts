@@ -33,10 +33,10 @@ describe('NMVideoPlayer — queue', () => {
 			expect(setup().queueLength()).toBe(0);
 		});
 
-		it('current()/currentIndex() reflect empty queue', () => {
+		it('item()/index() reflect empty queue', () => {
 			const p = setup();
-			expect(p.current()).toBeUndefined();
-			expect(p.currentIndex()).toBe(-1);
+			expect(p.item()).toBeUndefined();
+			expect(p.index()).toBe(-1);
 		});
 	});
 
@@ -80,13 +80,13 @@ describe('NMVideoPlayer — queue', () => {
 	});
 
 	describe('cursor', () => {
-		it('current moves the cursor and emits "current"', () => {
+		it('item() moves the cursor and emits "current"', () => {
 			const p = setup();
 			p.queue([item('a'), item('b'), item('c')]);
 			let payload: { index: number } | undefined;
 			p.on('current' as any, (data: any) => { payload = data; });
-			p.current('c');
-			expect(p.current()?.id).toBe('c');
+			p.item('c');
+			expect(p.item()?.id).toBe('c');
 			expect(payload?.index).toBe(2);
 		});
 	});

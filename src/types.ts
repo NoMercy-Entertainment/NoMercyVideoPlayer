@@ -1,5 +1,6 @@
 import type {
 	ActionOptions,
+	AudioTrack,
 	AudioTrackState,
 	BaseEventMap,
 	BasePlayerConfig,
@@ -114,19 +115,19 @@ export enum VolumeState {
 	MUTED = 'muted',
 }
 
-/** Returned by `player.fullscreenState()`. */
+/** Returned by `player.fullscreen()`. */
 export enum FullscreenState {
 	OFF = 'off',
 	ON = 'on',
 }
 
-/** Returned by `player.pipState()`. */
+/** Returned by `player.pip()`. */
 export enum PipState {
 	OFF = 'off',
 	ON = 'on',
 }
 
-/** Returned by `player.theaterState()`. */
+/** Returned by `player.theater()`. */
 export enum TheaterState {
 	OFF = 'off',
 	ON = 'on',
@@ -168,7 +169,7 @@ export interface VideoEventMap extends BaseEventMap {
 	'volume': { level: number };
 	'repeat': { state: RepeatState };
 	'shuffle': { state: ShuffleState };
-	'aspectRatio': { value: 'uniform' | 'fill' | 'exactfit' | 'none' };
+	'aspectRatio': { value: Stretching };
 
 	// Buffering / network-readiness signals forwarded from the HTML5 backend.
 	// Overlay plugins use these to show / hide the spinner without polling.
@@ -182,7 +183,7 @@ export interface VideoEventMap extends BaseEventMap {
 	// visibility rather than polling the getter at startup.
 	'levels': { levels: QualityLevel[] };
 	'level-switched': { level: number };
-	'audioTracks': { tracks: import('@nomercy-entertainment/nomercy-player-core').AudioTrack[] };
+	'audioTracks': { tracks: AudioTrack[] };
 
 	// `subtitle` (track index) and `subtitleCue` (active cue stream) are
 	// inherited from `BaseEventMap` — the kit owns those signals so any
@@ -210,6 +211,29 @@ export interface VideoEventMap extends BaseEventMap {
 }
 
 /**
+ * Video aspect-ratio / object-fit mode passed to `player.aspectRatio()` and
+ * the `stretching` config field. Values mirror the JW Player / Shaka Player
+ * convention so existing configs migrate unchanged.
+ *
+ * - `'uniform'`  — letterbox / pillarbox to fit (CSS `object-fit: contain`).
+ * - `'fill'`     — stretch to fill, ignoring aspect ratio (`object-fit: fill`).
+ * - `'exactfit'` — cover-crop, preserving aspect ratio (`object-fit: cover`).
+ * - `'none'`     — no scaling; native video dimensions.
+ */
+export type Stretching = 'uniform' | 'fill' | 'exactfit' | 'none';
+
+/**
+ * HTML `<video>` preload hint passed to the `preload` config field and the
+ * backend `load()` call. Maps directly to the `HTMLMediaElement.preload`
+ * attribute values defined in HTML 5.2.
+ *
+ * - `'auto'`     — browser decides how much to preload.
+ * - `'metadata'` — preload dimensions + duration only.
+ * - `'none'`     — no preloading until playback begins.
+ */
+export type HtmlPreloadMode = 'auto' | 'metadata' | 'none';
+
+/**
  * Custom video-backend factory. Receives the resolved backend kind and the
  * player options; returns an `IVideoBackend` impl. Use this to inject
  * WebCodecs, native-shell `<video>` bridges, or experimental backends without
@@ -224,9 +248,9 @@ export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistIte
 	muted?: boolean;
 	autoPlay?: boolean;
 	controls?: boolean;
-	stretching?: 'uniform' | 'fill' | 'exactfit' | 'none';
+	stretching?: Stretching;
 	playbackRates?: number[];
-	preload?: 'auto' | 'metadata' | 'none';
+	preload?: HtmlPreloadMode;
 	disableMediaControls?: boolean;
 	disableControls?: boolean;
 	/**
@@ -254,8 +278,6 @@ export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistIte
 	/** Initial playlist — items inline OR a URL fetched and parsed at setup. */
 	playlist?: T[] | string;
 }
-
-export type Stretching = NonNullable<VideoPlayerConfig['stretching']>;
 
 /**
  * Typed contract for the video player's video-specific surface. Extends the
@@ -290,14 +312,14 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	// ── Fullscreen / PiP / Theater ──
 
-	fullscreenState(): FullscreenState;
-	fullscreenState(state: FullscreenState | boolean): void;
+	fullscreen(): FullscreenState;
+	fullscreen(state: FullscreenState | boolean): void;
 
-	pipState(): PipState;
-	pipState(state: PipState | boolean): void;
+	pip(): PipState;
+	pip(state: PipState | boolean): void;
 
-	theaterState(): TheaterState;
-	theaterState(state: TheaterState | boolean): void;
+	theater(): TheaterState;
+	theater(state: TheaterState | boolean): void;
 
 	/** Whether any subtitle track is currently active. */
 	subtitleState(): SubtitleState;
@@ -314,8 +336,8 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	// ── Aspect ratio ──
 
-	aspectRatio(): 'uniform' | 'fill' | 'exactfit' | 'none';
-	aspectRatio(value: 'uniform' | 'fill' | 'exactfit' | 'none'): void;
+	aspectRatio(): Stretching;
+	aspectRatio(value: Stretching): void;
 
 	/** Step through `['uniform', 'fill', 'exactfit', 'none']` in order. */
 	cycleAspectRatio(): void;
@@ -324,32 +346,32 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	subtitles(): KitSubtitleTrack[];
 
-	currentSubtitle(): CurrentSubtitleSelection | null;
-	currentSubtitle(idx: number | null): void;
+	subtitle(): CurrentSubtitleSelection | null;
+	subtitle(idx: number | null): void;
 
 	subtitleStyle(): SubtitleStyle;
 	subtitleStyle(patch: Partial<SubtitleStyle>): void;
 
 	audioTracks(): KitAudioTrack[];
 
-	currentAudioTrack(): CurrentAudioTrackSelection | null;
-	currentAudioTrack(idx: number): void;
+	audioTrack(): CurrentAudioTrackSelection | null;
+	audioTrack(idx: number): void;
 
-	audioTrackState(): AudioTrackState;
-	audioTrackState(idx: number): void;
+	audioTrackMode(): AudioTrackState;
+	audioTrackMode(idx: number): void;
 
 	qualityLevels(): QualityLevel[];
 	qualityLevels(opts: { includeUnsupported: true }): QualityLevel[];
 
-	currentQuality(): CurrentQualitySelection | 'auto';
-	currentQuality(idx: number | 'auto'): void;
+	quality(): CurrentQualitySelection | 'auto';
+	quality(idx: number | 'auto'): void;
 
 	// ── Playback — required overrides of IPlayer optionals ──
 	// IPlayer marks these optional for cross-library compatibility.
 	// NMVideoPlayer always implements them; IVideoPlayer makes them required.
 
-	currentTime(): number;
-	currentTime(seconds: number, opts?: ActionOptions): void;
+	time(): number;
+	time(seconds: number, opts?: ActionOptions): Promise<void>;
 
 	duration(): number;
 
@@ -359,8 +381,8 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	togglePlayback(opts?: ActionOptions): Promise<void>;
 	toggleMute(): void;
 
-	rewind(seconds?: number, opts?: ActionOptions): void;
-	forward(seconds?: number, opts?: ActionOptions): void;
+	rewind(seconds?: number, opts?: ActionOptions): Promise<void>;
+	forward(seconds?: number, opts?: ActionOptions): Promise<void>;
 
 	// ── Playback state ──
 
@@ -391,14 +413,14 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	// ── Queue ──
 
-	current(): T | undefined;
-	current(target: T | string | number, opts?: ActionOptions): void;
+	item(): T | undefined;
+	item(target: T | string | number, opts?: ActionOptions): void;
 
 	/** Number of items in the active queue. */
 	queueLength(): number;
 
 	/** Zero-based index of the currently active queue item. `-1` when no item is active. */
-	currentIndex(): number;
+	index(): number;
 
 	// ── Queue accessors ──
 

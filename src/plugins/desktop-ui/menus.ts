@@ -387,7 +387,7 @@ export function renderQualityPane(
 	const playingLabel = playingLevel
 		? (playingLevel.label || (playingLevel.height ? `${playingLevel.height}p` : undefined))
 		: undefined;
-	appendChoice(scroll, 'quality-auto', player.t('plugin.desktop-ui.menu.auto'), auto, () => { player.currentQuality?.('auto'); onPick(); }, listen, player, {
+	appendChoice(scroll, 'quality-auto', player.t('plugin.desktop-ui.menu.auto'), auto, () => { player.quality?.('auto'); onPick(); }, listen, player, {
 		sublabel: auto && playingLabel ? playingLabel : undefined,
 	});
 	levels.forEach((q, i) => {
@@ -398,7 +398,7 @@ export function renderQualityPane(
 			id,
 			label,
 			!auto && state.qualityIdx === i,
-			() => { player.currentQuality?.(i); onPick(); },
+			() => { player.quality?.(i); onPick(); },
 			listen,
 			player,
 		);
@@ -420,7 +420,7 @@ export function renderSubsPane(
 	// sidecar VTT tracks, so the renderer just consumes one flat list.
 	const subs: SubtitleTrackRef[] = player.subtitles?.() ?? [];
 	const off = state.subtitleIdx === null || state.subtitleIdx === -1;
-	appendChoice(scroll, 'off-button-', player.t('plugin.desktop-ui.menu.off'), off, () => { player.currentSubtitle?.(null); onPick(); }, listen, player);
+	appendChoice(scroll, 'off-button-', player.t('plugin.desktop-ui.menu.off'), off, () => { player.subtitle?.(null); onPick(); }, listen, player);
 	subs.forEach((s, i) => {
 		const langSlug = (s.language ?? s.id).replace(/\W+/g, '-').toLowerCase();
 		const kind = (s.kind ?? 'full').replace(/\W+/g, '-').toLowerCase();
@@ -429,7 +429,7 @@ export function renderSubsPane(
 			`${kind}-button-${langSlug}`,
 			s.label ?? s.language ?? `Track ${i + 1}`,
 			!off && state.subtitleIdx === i,
-			() => { player.currentSubtitle?.(i); onPick(); },
+			() => { player.subtitle?.(i); onPick(); },
 			listen,
 			player,
 		);
@@ -658,7 +658,7 @@ export function renderPlaylistPane(
 	opts: PlaylistRenderOptions = {},
 ): void {
 	const queue: ReadonlyArray<VideoPlaylistItem> = player.queue?.() ?? [];
-	const curIdx = player.currentIndex?.() ?? 0;
+	const curIdx = player.index?.() ?? 0;
 
 	const hasSeason = queue.some(item => typeof item.season === 'number');
 
@@ -814,7 +814,7 @@ function buildPlaylistCard(
 	btn.appendChild(right);
 
 	listen(btn, 'click', () => {
-		player.current?.(index, { source: 'user', autoplay: true });
+		player.item?.(index, { source: 'user', autoplay: true });
 		onPick();
 	});
 
@@ -850,7 +850,7 @@ export function renderAudioPane(
 			`audio-button-${langSlug}-${i}`,
 			t.label ?? t.language ?? `Track ${i + 1}`,
 			state.audioIdx === i,
-			() => { player.currentAudioTrack?.(i); onPick(); },
+			() => { player.audioTrack?.(i); onPick(); },
 			listen,
 			player,
 		);

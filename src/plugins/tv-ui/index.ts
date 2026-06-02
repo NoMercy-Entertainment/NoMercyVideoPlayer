@@ -125,7 +125,7 @@ export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends
 	 */
 	protected addMediaRecordKey(): void {
 		this.bind('MediaRecord', () => {
-			const currentTime = this.player.currentTime?.() ?? 0;
+			const currentTime = this.player.time?.() ?? 0;
 
 			try {
 				this.player.emit('plugin:tv-ui:bookmark', { time: currentTime });
@@ -152,7 +152,7 @@ export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends
 	 * TV shell overlay, then also calls `osdMessage` as the built-in fallback.
 	 */
 	private showInfoOsd(): void {
-		const currentTime = this.player.currentTime?.() ?? 0;
+		const currentTime = this.player.time?.() ?? 0;
 		const duration = this.player.duration?.() ?? 0;
 		const remaining = Math.max(0, duration - currentTime);
 		const title = this.resolveTitle();
@@ -182,7 +182,7 @@ export class TvUiPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends
 	}
 
 	private resolveTitle(): string {
-		const item = this.player.current?.();
+		const item = this.player.item?.();
 
 		if (typeof item?.title === 'string' && item.title.length > 0)
 			return item.title;

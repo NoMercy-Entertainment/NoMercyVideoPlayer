@@ -110,37 +110,37 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 			await p.ready();
 			expect(['visible', 'hidden']).toContain(p.visibilityState());
 		});
-		it('fullscreenState reads off when no fullscreen is active', async () => {
+		it('fullscreen() reads off when no fullscreen is active', async () => {
 			const p = player();
 			await p.ready();
-			expect(p.fullscreenState()).toBe('off');
+			expect(p.fullscreen()).toBe('off');
 		});
-		it('pipState reads off when no PiP is active', async () => {
+		it('pip() reads off when no PiP is active', async () => {
 			const p = player();
 			await p.ready();
-			expect(p.pipState()).toBe('off');
+			expect(p.pip()).toBe('off');
 		});
-		it('theaterState reads off by default; setter flips', async () => {
+		it('theater() reads off by default; setter flips', async () => {
 			const p = player();
 			await p.ready();
-			expect(p.theaterState()).toBe('off');
-			p.theaterState(true as any);
-			expect(p.theaterState()).toBe('on');
+			expect(p.theater()).toBe('off');
+			p.theater(true);
+			expect(p.theater()).toBe('on');
 		});
 		it('subtitleState() defaults to off', async () => {
 			const p = player();
 			await p.ready();
 			expect(p.subtitleState()).toBe('off');
 		});
-		it('qualityState() defaults to auto', async () => {
+		it('qualityMode() defaults to auto', async () => {
 			const p = player();
 			await p.ready();
-			expect(p.qualityState()).toBe('auto');
+			expect(p.qualityMode()).toBe('auto');
 		});
-		it('audioTrackState() defaults to default', async () => {
+		it('audioTrackMode() defaults to default', async () => {
 			const p = player();
 			await p.ready();
-			expect(p.audioTrackState()).toBe('default');
+			expect(p.audioTrackMode()).toBe('default');
 		});
 	});
 
@@ -161,7 +161,7 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 			// throwing (browserPlatform.fullscreen swallows internal failures).
 			expect(typeof didCall).toBe('boolean');
 		});
-		it('togglePip flips pipState (or throws on unsupported)', async () => {
+		it('togglePip flips pip() (or throws on unsupported)', async () => {
 			const p = player();
 			await p.ready();
 			let didCall = false;
@@ -171,14 +171,14 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 			}
 			expect(typeof didCall).toBe('boolean');
 		});
-		it('toggleTheater flips theaterState', async () => {
+		it('toggleTheater flips theater()', async () => {
 			const p = player();
 			await p.ready();
-			expect(p.theaterState()).toBe('off');
+			expect(p.theater()).toBe('off');
 			p.toggleTheater();
-			expect(p.theaterState()).toBe('on');
+			expect(p.theater()).toBe('on');
 			p.toggleTheater();
-			expect(p.theaterState()).toBe('off');
+			expect(p.theater()).toBe('off');
 		});
 		it('cycleSubtitles no-ops when track list is empty (subtitles() throws)', async () => {
 			const p = player();
@@ -210,30 +210,30 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 			// backend instantiation reads element.textTracks which is empty before load.
 			expect(p.subtitles()).toEqual([]);
 		});
-		it('currentSubtitle on a fresh player is a no-op (backend has setSubtitleTrack but no tracks loaded)', async () => {
+		it('subtitle on a fresh player is a no-op (backend has setSubtitleTrack but no tracks loaded)', async () => {
 			const p = player();
 			await p.ready();
-			expect(() => p.currentSubtitle(null)).not.toThrow();
+			expect(() => p.subtitle(null)).not.toThrow();
 		});
 		it('audioTracks returns [] when no source has been loaded', async () => {
 			const p = player();
 			await p.ready();
 			expect(p.audioTracks()).toEqual([]);
 		});
-		it('currentAudioTrack on a fresh player is a no-op (no tracks loaded)', async () => {
+		it('audioTrack on a fresh player is a no-op (no tracks loaded)', async () => {
 			const p = player();
 			await p.ready();
-			expect(() => p.currentAudioTrack(0)).not.toThrow();
+			expect(() => p.audioTrack(0)).not.toThrow();
 		});
 		it('qualityLevels returns [] when no HLS source loaded', async () => {
 			const p = player();
 			await p.ready();
 			expect(p.qualityLevels()).toEqual([]);
 		});
-		it('currentQuality on a fresh player is a no-op (no hls instance)', async () => {
+		it('quality on a fresh player is a no-op (no hls instance)', async () => {
 			const p = player();
 			await p.ready();
-			expect(() => p.currentQuality('auto')).not.toThrow();
+			expect(() => p.quality('auto')).not.toThrow();
 		});
 		it('chapters returns [] (chapter pipeline not wired yet)', async () => {
 			const p = player();

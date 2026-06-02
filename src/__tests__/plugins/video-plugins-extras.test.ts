@@ -163,7 +163,7 @@ describe('video-plugins (extras)', () => {
 					url: 'https://cdn/ep1.mp4',
 					poster: 'https://cdn/poster.jpg',
 				};
-				(p as any).current = (): unknown => episode;
+				(p as any).item = (): unknown => episode;
 
 				inst.connect();
 				// connect() resolves async; let the promise chain settle.
@@ -243,7 +243,7 @@ describe('video-plugins (extras)', () => {
 				p.addPlugin(castSenderPlugin);
 				await p.ready();
 				const inst = p.getPlugin(CastSenderPlugin)!;
-				(p as any).current = (): unknown => undefined;
+				(p as any).item = (): unknown => undefined;
 
 				inst.connect();
 				await new Promise(resolve => setTimeout(resolve, 0));

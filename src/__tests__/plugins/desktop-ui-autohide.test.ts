@@ -202,7 +202,7 @@ describe('NMVideoPlayer — poster before source swap (Bug 2)', () => {
 
 		// Move cursor to ep1 — this is the currently-playing item.
 		player.queue(items);
-		player.current('ep1');
+		player.item('ep1');
 		expect(videoEl!.getAttribute('poster')).toBe('https://cdn/ep1-poster.jpg');
 
 		// Capture poster value at beforeLoad time — should already reflect ep2.
@@ -236,7 +236,7 @@ describe('NMVideoPlayer — poster before source swap (Bug 2)', () => {
 		const videoEl = document.querySelector<HTMLVideoElement>('#poster-swap-test video')!;
 
 		player.queue(items);
-		player.current('ep1');
+		player.item('ep1');
 		expect(videoEl.getAttribute('poster')).toBe('https://cdn/ep1-poster.jpg');
 
 		let posterAtBeforeLoad: string | null = 'NOT_SET';
@@ -265,7 +265,7 @@ describe('NMVideoPlayer — poster before source swap (Bug 2)', () => {
 		const videoEl = document.querySelector<HTMLVideoElement>('#poster-swap-test video')!;
 
 		player.queue(items);
-		player.current('a');
+		player.item('a');
 
 		// The beforeLoad listener (added in the NMVideoPlayer constructor) must
 		// update the poster before any handler we attach here.
@@ -306,7 +306,7 @@ describe('NMVideoPlayer — poster before source swap (Bug 2)', () => {
 		const videoEl = document.querySelector<HTMLVideoElement>('#poster-swap-test video')!;
 
 		player.queue(items);
-		player.current('a');
+		player.item('a');
 		await new Promise<void>(resolve => setTimeout(resolve, 0));
 
 		const bItem = items[1]!;
