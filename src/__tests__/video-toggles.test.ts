@@ -1,9 +1,10 @@
 /**
- * Locks the video-only toggle methods: theater / fullscreen / pip.
+ * Locks the video-only toggle methods: theater / fullscreen / pip /
+ * cycleSubtitles / cycleAudioTracks.
  * Mirrors `transport.test.ts` setup conventions.
  */
 
-import type { IPlatform } from '@nomercy-entertainment/nomercy-player-core';
+import type { AudioTrack, IPlatform, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 import { BrowserPolicyError } from '@nomercy-entertainment/nomercy-player-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FullscreenState, NMVideoPlayer, PipState, TheaterState } from '../index';
@@ -306,5 +307,170 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 			// User's choice must win over options.stretching.
 			expect(videoEl!.style.objectFit).toBe('fill');
 		});
+	});
+});
+
+
+// ── Regression: cycleSubtitles / cycleAudioTracks selection-object bug ────────
+//
+// Before fix: both cycle methods tested `typeof this.subtitle() === 'number'`
+// (or audioTrack). Those getters return CurrentSubtitleSelection|null and
+// CurrentAudioTrackSelection|null — objects, never numbers. The check was always
+// false, current stayed -1, and every call selected the first track indefinitely.
+
+const SUBTITLE_TRACKS: SubtitleTrack[] = [
+	{ id: 'en', language: 'en', label: 'English', kind: 'subtitles', url: 'en.vtt', default: false },
+	{ id: 'nl', language: 'nl', label: 'Dutch', kind: 'subtitles', url: 'nl.vtt', default: false },
+	{ id: 'de', language: 'de', label: 'German', kind: 'subtitles', url: 'de.vtt', default: false },
+];
+
+const AUDIO_TRACKS: AudioTrack[] = [
+	{ id: 'en', language: 'en', label: 'English', default: true },
+	{ id: 'nl', language: 'nl', label: 'Dutch', default: false },
+	{ id: 'de', language: 'de', label: 'German', default: false },
+];
+
+describe('NMVideoPlayer — cycleSubtitles / cycleAudioTracks advance through list', () => {
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		const div = document.createElement('div');
+		div.id = 'test';
+		document.body.appendChild(div);
+	});
+
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+	});
+
+	// ── cycleSubtitles ──────────────────────────────────────────────────────────
+
+	it('cycleSubtitles advances: off → 0 → 1 → 2 → off → 0', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		let currentSub: { index: number; track: SubtitleTrack } | null = null;
+		const subtitleCalls: Array<number | null> = [];
+
+		Object.assign(player, {
+			subtitles: () => SUBTITLE_TRACKS,
+			subtitle: (idx?: number | null) => {
+				if (idx === undefined) {
+					return currentSub;
+				}
+				currentSub = idx === null ? null : { index: idx, track: SUBTITLE_TRACKS[idx]! };
+				subtitleCalls.push(idx ?? null);
+			},
+		});
+
+		// Start: off (currentSub = null) → should select 0
+		player.cycleSubtitles();
+		expect(subtitleCalls).toEqual([0]);
+
+		// Now at 0 → should select 1
+		player.cycleSubtitles();
+		expect(subtitleCalls).toEqual([0, 1]);
+
+		// Now at 1 → should select 2
+		player.cycleSubtitles();
+		expect(subtitleCalls).toEqual([0, 1, 2]);
+
+		// Now at 2 (= list.length - 1) → should go off (null)
+		player.cycleSubtitles();
+		expect(subtitleCalls).toEqual([0, 1, 2, null]);
+
+		// Now off again → back to 0
+		player.cycleSubtitles();
+		expect(subtitleCalls).toEqual([0, 1, 2, null, 0]);
+	});
+
+	it('cycleSubtitles does nothing when the tracks list is empty', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const subtitleCalls: Array<number | null> = [];
+		Object.assign(player, {
+			subtitles: () => [],
+			subtitle: (idx?: number | null) => {
+				if (idx !== undefined) subtitleCalls.push(idx ?? null);
+				return null;
+			},
+		});
+
+		player.cycleSubtitles();
+		expect(subtitleCalls).toHaveLength(0);
+	});
+
+	// ── cycleAudioTracks ────────────────────────────────────────────────────────
+
+	it('cycleAudioTracks advances: 0 → 1 → 2 → 0 (wraps, no off state)', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		let currentAudio: { index: number; track: AudioTrack } | null = { index: 0, track: AUDIO_TRACKS[0]! };
+		const audioCalls: number[] = [];
+
+		Object.assign(player, {
+			audioTracks: () => AUDIO_TRACKS,
+			audioTrack: (idx?: number) => {
+				if (idx === undefined) {
+					return currentAudio;
+				}
+				currentAudio = { index: idx, track: AUDIO_TRACKS[idx]! };
+				audioCalls.push(idx);
+			},
+		});
+
+		// Start at 0 → should select 1
+		player.cycleAudioTracks();
+		expect(audioCalls).toEqual([1]);
+
+		// Now at 1 → should select 2
+		player.cycleAudioTracks();
+		expect(audioCalls).toEqual([1, 2]);
+
+		// Now at 2 (= list.length - 1) → should wrap to 0
+		player.cycleAudioTracks();
+		expect(audioCalls).toEqual([1, 2, 0]);
+
+		// Confirm wrap was to 0, not stuck at 2 again (the pre-fix bug)
+		expect(audioCalls[2]).toBe(0);
+	});
+
+	it('cycleAudioTracks does nothing when the tracks list is empty', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const audioCalls: number[] = [];
+		Object.assign(player, {
+			audioTracks: () => [],
+			audioTrack: (idx?: number) => {
+				if (idx !== undefined) audioCalls.push(idx);
+				return null;
+			},
+		});
+
+		player.cycleAudioTracks();
+		expect(audioCalls).toHaveLength(0);
+	});
+
+	it('cycleAudioTracks from null selection starts at 0', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		let currentAudio: { index: number; track: AudioTrack } | null = null;
+		const audioCalls: number[] = [];
+
+		Object.assign(player, {
+			audioTracks: () => AUDIO_TRACKS,
+			audioTrack: (idx?: number) => {
+				if (idx === undefined) return currentAudio;
+				currentAudio = { index: idx, track: AUDIO_TRACKS[idx]! };
+				audioCalls.push(idx);
+			},
+		});
+
+		player.cycleAudioTracks();
+		expect(audioCalls).toEqual([0]);
 	});
 });

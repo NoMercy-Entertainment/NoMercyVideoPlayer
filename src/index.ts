@@ -347,6 +347,17 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 			this._applyPosterForRaw(raw);
 		});
 
+		// Auto-advance on natural end — enabled by default, disabled when an
+		// external orchestrator (Cast sync, WebSocket) drives next() instead.
+		this.on('ended', () => {
+			if (this.options?.autoAdvance === false)
+				return;
+			performance.mark('nm:auto-advance:ended');
+			void this.next({ source: 'auto-advance' }).catch((err: unknown) => {
+				this.options?.logger?.warn?.('[autoAdvance] next() failed on ended', err);
+			});
+		});
+
 		// Auto-select default subtitle / audio language tracks once the
 		// backend has populated its track lists (signalled by mediaReady).
 		this.on('mediaReady', () => {
@@ -378,7 +389,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	 * Sync first — the poster MUST be on the `<video>` element before the
 	 * backend starts loading the new source, otherwise the user sees a black
 	 * frame between source-clear and first-frame-paint. We prepend
-	 * `imageBasePath` (when set) for relative URLs immediately, then kick off
+	 * `baseImageUrl` (when set) for relative URLs immediately, then kick off
 	 * `resolveUrl(raw, 'poster')` to upgrade to whatever a custom resolver
 	 * returns — only writing the async result if it actually differs from
 	 * the sync guess (avoids a redundant attribute set + repaint flash).
@@ -397,9 +408,9 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 			return;
 		}
 
-		// Sync best-effort against imageBasePath so the poster is on the element
+		// Sync best-effort against baseImageUrl so the poster is on the element
 		// the same tick beforeLoad fires.
-		const base = this.options?.imageBasePath ?? '';
+		const base = this.options?.baseImageUrl ?? '';
 		const syncGuess = base ? base + raw : raw;
 		this._wantedPoster = syncGuess;
 		this._applyPoster();
@@ -495,7 +506,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		}
 
 		// Native <video controls> — useful when no UI plugin is loaded.
-		// Note: loading DesktopUiPlugin or TvUiPlugin alongside controls:true
+		// Note: loading DesktopUiPlugin or TvKeyHandlerPlugin alongside controls:true
 		// results in doubled UI; disable one or the other.
 		if (this.options?.controls) {
 			instance.mediaElement().controls = true;
@@ -741,8 +752,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	 * routing through `subtitle()`.
 	 */
 	subtitleState(): SubtitleState {
-		const idx = this.subtitle();
-		if (typeof idx === 'number' && idx >= 0)
+		const sel = this.subtitle();
+		if (sel != null && typeof sel.index === 'number' && sel.index >= 0)
 			return SubtitleState.ON;
 
 		const tracks = this._backend?.mediaElement?.()?.textTracks;
@@ -779,9 +790,9 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 			return;
 		let current = -1;
 		try {
-			const idx = this.subtitle();
-			if (typeof idx === 'number')
-				current = idx;
+			const sel = this.subtitle();
+			if (sel != null && typeof sel.index === 'number' && sel.index >= 0)
+				current = sel.index;
 		}
 		catch { /* state unavailable — start from off */ }
 		// Walk: -1 (off) → 0 → 1 → ... → list.length-1 → -1 (off)
@@ -797,9 +808,9 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 			return;
 		let current = -1;
 		try {
-			const idx = this.audioTrack();
-			if (typeof idx === 'number')
-				current = idx;
+			const sel = this.audioTrack();
+			if (sel != null && typeof sel.index === 'number' && sel.index >= 0)
+				current = sel.index;
 		}
 		catch { /* state unavailable — start from 0 */ }
 		const next = current >= list.length - 1 ? 0 : current + 1;
@@ -1032,8 +1043,8 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 			result.theater(true);
 		}
 
-		// Auto-play on the first mediaReady event only. AutoAdvancePlugin
-		// handles subsequent item transitions — this only fires the opening shot.
+		// Auto-play on the first mediaReady event only. The core autoAdvance
+		// option handles subsequent item transitions — this only fires the opening shot.
 		if (enrichedConfig.autoPlay) {
 			let autoPlayFired = false;
 			const onFirstReady = () => {
