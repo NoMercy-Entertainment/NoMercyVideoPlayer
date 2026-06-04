@@ -10,6 +10,12 @@
 		pointer-events: none;
 	}
 
+	/* Disabling the plugin hides its whole overlay (a peer owns the screen). The
+	* scoped .overlay selector outranks the UA `[hidden]` rule, so pin it here. */
+	.overlay[hidden] {
+		display: none;
+	}
+
 	/* ── Top bar ──────────────────────────────────────────────────────── */
 	.top-bar {
 		position: absolute;

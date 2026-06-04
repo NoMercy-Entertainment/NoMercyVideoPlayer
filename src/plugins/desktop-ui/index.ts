@@ -465,6 +465,34 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.wireKeybindHint();
 	}
 
+	/**
+	 * Disabling hides the overlay outright, not just its handlers. A peer that
+	 * owns the screen (e.g. a disc-menu interpreter painting the disc's own
+	 * chrome) disables this plugin to take over; leaving the rendered control
+	 * bar on top would double up the chrome. The inactivity timer is cancelled
+	 * and one final `activity:false` is emitted so nothing re-shows it while off.
+	 */
+	override disable(reason?: string): void {
+		if (!this.enabled())
+			return;
+		super.disable(reason);
+		if (this.inactivityToken !== null) {
+			clearTimeout(this.inactivityToken);
+			this.inactivityToken = null;
+		}
+		this.overlayRoot.hidden = true;
+		this.player.emit('activity', { active: false });
+	}
+
+	/** Re-enabling restores the overlay and re-arms the auto-hide cycle. */
+	override enable(): void {
+		if (this.enabled())
+			return;
+		super.enable();
+		this.overlayRoot.hidden = false;
+		this.bumpActivity();
+	}
+
 	/** Show a one-shot hint on first play so users discover the shortcuts overlay. */
 	private wireKeybindHint(): void {
 		if (typeof sessionStorage === 'undefined')

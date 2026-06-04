@@ -155,6 +155,113 @@ export enum ShuffleState {
 	ON = 'on',
 }
 
+/**
+ * The displayed video content rectangle relative to the player container.
+ * Computed from `object-fit: contain` geometry — the area actually painted
+ * by the video inside the letterbox / pillarbox padding.
+ *
+ * All values are in CSS pixels. `scale` is the ratio of displayed width to
+ * native video width (useful for converting pixel offsets between coordinate
+ * spaces, e.g. subtitle positioning).
+ *
+ * `null` when the video has no loaded metadata yet (videoWidth / videoHeight
+ * are both 0) or when the container dimensions are unknown.
+ */
+export interface VideoRect {
+	/** Left offset of the video content area inside the container. */
+	x: number;
+	/** Top offset of the video content area inside the container. */
+	y: number;
+	/** Displayed width of the video content area in CSS pixels. */
+	width: number;
+	/** Displayed height of the video content area in CSS pixels. */
+	height: number;
+	/** Ratio of displayed width to native video width. */
+	scale: number;
+}
+
+/**
+ * Pure helper — compute the `object-fit: contain` displayed rect for a video
+ * with native dimensions `videoW × videoH` inside a container of `containerW × containerH`.
+ *
+ * Returns `null` when any dimension is zero (pre-metadata or zero-size container).
+ * This is the single implementation shared by `NMVideoPlayer.videoRect()`,
+ * `SubtitleOverlayPlugin`, and consumer plugins that need the same geometry.
+ */
+export function containedRect(
+	videoW: number,
+	videoH: number,
+	containerW: number,
+	containerH: number,
+): VideoRect | null {
+	if (!videoW || !videoH || !containerW || !containerH) {
+		return null;
+	}
+
+	const containerAR = containerW / containerH;
+	const videoAR = videoW / videoH;
+	let width: number;
+	let height: number;
+
+	if (videoAR > containerAR) {
+		width = containerW;
+		height = containerW / videoAR;
+	}
+	else {
+		height = containerH;
+		width = containerH * videoAR;
+	}
+
+	width = Math.round(width);
+	height = Math.round(height);
+
+	const x = Math.round((containerW - width) / 2);
+	const y = Math.round((containerH - height) / 2);
+	const scale = width / videoW;
+
+	return { x, y, width, height, scale };
+}
+
+/**
+ * The behaviour when a segment window's `endSec` is reached.
+ *
+ * - `'loop'`    — seek back to `startSec` and continue playing.
+ * - `'hold'`    — pause at `endSec` (last frame stays visible).
+ * - `'advance'` — emit `'segmentBoundary'` and let playback continue naturally.
+ */
+export type SegmentEndBehaviour = 'loop' | 'hold' | 'advance';
+
+/**
+ * Options for `NMVideoPlayer.playSegment()`.
+ *
+ * All time values are in seconds, matching `player.time()` and the `'time'`
+ * event payload. The player seeks to `startSec` immediately and installs a
+ * `'time'`-event watcher that fires when `currentTime >= endSec`.
+ */
+export interface SegmentOptions {
+	/** Start of the playback window, in seconds. Player seeks here immediately. */
+	startSec: number;
+	/** End of the playback window, in seconds. Triggers `onEnd` behaviour. */
+	endSec: number;
+	/** What to do when `endSec` is reached. */
+	onEnd: SegmentEndBehaviour;
+}
+
+/**
+ * Payload emitted on the `'segmentBoundary'` event.
+ *
+ * Fired each time the `endSec` boundary of the active segment window is
+ * reached — regardless of `onEnd` mode. Generic for intros, chapter loops, etc.
+ */
+export interface SegmentBoundaryPayload {
+	/** The `startSec` value from the `playSegment()` call that reached its end. */
+	startSec: number;
+	/** The `endSec` value that was reached. */
+	endSec: number;
+	/** The `onEnd` mode that was applied after the boundary fired. */
+	onEnd: SegmentEndBehaviour;
+}
+
 export interface VideoEventMap extends BaseEventMap {
 	// Narrow the kit's BasePlaylistItem to the video-specific item type so
 	// video plugins receive a typed item without casts.
@@ -171,6 +278,15 @@ export interface VideoEventMap extends BaseEventMap {
 	'shuffle': { state: ShuffleState };
 	'aspectRatio': { value: Stretching };
 
+	// Fired whenever the displayed video content rectangle changes — driven by
+	// mediaReady, duration, fullscreen, and ResizeObserver on container + videoElement.
+	// Overlay plugins subscribe here instead of maintaining their own observers.
+	'videoRect': { rect: VideoRect | null };
+
+	// Fired when the active segment window's endSec is reached — regardless of
+	// the onEnd mode applied. Generic for intros, chapter loops, etc.
+	'segmentBoundary': SegmentBoundaryPayload;
+
 	// Buffering / network-readiness signals forwarded from the HTML5 backend.
 	// Overlay plugins use these to show / hide the spinner without polling.
 	'waiting': void;
@@ -184,11 +300,6 @@ export interface VideoEventMap extends BaseEventMap {
 	'levels': { levels: QualityLevel[] };
 	'level-switched': { level: number };
 	'audioTracks': { tracks: AudioTrack[] };
-
-	// `subtitle` (track index) and `subtitleCue` (active cue stream) are
-	// inherited from `BaseEventMap` — the kit owns those signals so any
-	// consumer (overlay plugins, debug widgets, a11y tooling) can subscribe
-	// without depending on a specific player package.
 
 	// OSD toast request — plugins emit this instead of rendering text themselves.
 	// The active UI plugin (DesktopUiPlugin, TvKeyHandlerPlugin) subscribes and renders.
@@ -310,6 +421,18 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	/** Raw `<video>` element. `undefined` until the first `backend()` call. */
 	readonly videoElement: HTMLVideoElement | undefined;
+
+	// ── Video geometry ──
+
+	/**
+	 * The displayed video content rectangle relative to the player container,
+	 * computed from `object-fit: contain` geometry. Returns `null` when video
+	 * dimensions are not yet known (pre-metadata). Overlay plugins use this
+	 * instead of computing their own letterbox math.
+	 *
+	 * Changes are signalled by the `'videoRect'` event.
+	 */
+	videoRect(): VideoRect | null;
 
 	// ── Backend ──
 
@@ -445,4 +568,30 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	/** Jump to the chapter at `idx`. Emits `'chapter'`. */
 	seekToChapter(idx: number, opts?: ActionOptions): void;
+
+	// ── Segment / window playback ──
+
+	/**
+	 * Seek to `startSec` and play; watch for `endSec`, then apply `onEnd`:
+	 *
+	 * - `'loop'`    — seek back to `startSec`.
+	 * - `'hold'`    — pause at `endSec`.
+	 * - `'advance'` — emit `'segmentBoundary'` and let playback continue.
+	 *
+	 * `'segmentBoundary'` is always emitted when the boundary is reached,
+	 * regardless of `onEnd` mode. Any previously active segment window is
+	 * replaced immediately (no overlap). Call `clearSegment()` to stop
+	 * watching without seeking or pausing.
+	 *
+	 * Designed for: disc-menu state windows (skipToMark equivalent), intro
+	 * loops, chapter-range playback, and any other bounded-window use case.
+	 * Not disc-specific — the primitive is generic.
+	 */
+	playSegment(opts: SegmentOptions): void;
+
+	/**
+	 * Stop watching the active segment window without seeking or pausing.
+	 * A no-op when no segment window is active.
+	 */
+	clearSegment(): void;
 }

@@ -39,7 +39,8 @@ import type {
 	VisibilityState,
 } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoBackend } from './adapters/video-backend/IVideoBackend';
-import type { AudioTrackState, IVideoPlayer, PlayState, QualityState, RepeatState, ShuffleState, Stretching, VideoEventMap, VideoPlayerConfig, VideoPlaylistItem, VolumeState } from './types';
+import type { AudioTrackState, IVideoPlayer, PlayState, QualityState, RepeatState, SegmentBoundaryPayload, SegmentEndBehaviour, SegmentOptions, ShuffleState, Stretching, VideoEventMap, VideoPlayerConfig, VideoPlaylistItem, VideoRect, VolumeState } from './types';
+import { containedRect } from './types';
 import {
 	BrowserPolicyError,
 	composeMixins,
@@ -91,6 +92,9 @@ export type {
 	HtmlPreloadMode,
 	IVideoPlayer,
 	QualityLevel,
+	SegmentBoundaryPayload,
+	SegmentEndBehaviour,
+	SegmentOptions,
 	SkipperData,
 	SkipperRange,
 	Stretching,
@@ -99,8 +103,11 @@ export type {
 	VideoEventMap,
 	VideoPlayerConfig,
 	VideoPlaylistItem,
+	VideoRect,
 	WatchProgress,
 } from './types';
+
+export { containedRect } from './types';
 
 export {
 	AudioTrackState,
@@ -362,7 +369,12 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		// backend has populated its track lists (signalled by mediaReady).
 		this.on('mediaReady', () => {
 			this._applyDefaultTracks();
+			this._emitVideoRect();
 		});
+
+		// Re-emit videoRect on signals that change the displayed content rect.
+		this.on('duration', () => { this._emitVideoRect(); });
+		this.on('fullscreen', () => { this._emitVideoRect(); });
 
 		// Apply defaultQuality once after the first manifest parse. Guarded
 		// so that interactive quality changes persist across item transitions.
@@ -497,6 +509,10 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 			: new Html5VideoBackend(this.container);
 		this._backend = instance;
 		this.videoElement = instance.mediaElement();
+
+		// Mount the ResizeObserver that keeps videoRect() fresh. Done here so
+		// the observer sees the real video element immediately after backend init.
+		this._mountVideoRectObserver();
 
 		// Seed muted state from config before any play() call to satisfy
 		// the browser's autoplay-with-sound policy. The consumer can
@@ -853,6 +869,124 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		el.style.objectFit = NMVideoPlayer._OBJECT_FIT_MAP[value];
 	}
 
+	// ── Video geometry ──
+
+	private _videoRectCache: VideoRect | null = null;
+	private _videoRectObserver: ResizeObserver | null = null;
+
+	/**
+	 * The displayed video content rectangle relative to the player container,
+	 * computed from `object-fit: contain` geometry.
+	 *
+	 * Returns `null` when the video has no loaded metadata yet.
+	 * Changes are signalled by the `'videoRect'` event — fired on `mediaReady`,
+	 * `duration`, `fullscreen`, and a `ResizeObserver` on the container and
+	 * video element.
+	 */
+	videoRect(): VideoRect | null {
+		const video = this.videoElement;
+		if (!video) {
+			return null;
+		}
+
+		const container = this.container;
+		const rect = containedRect(
+			video.videoWidth,
+			video.videoHeight,
+			container.clientWidth,
+			container.clientHeight,
+		);
+
+		return rect;
+	}
+
+	private _emitVideoRect(): void {
+		const rect = this.videoRect();
+		this._videoRectCache = rect;
+		this.emit('videoRect', { rect });
+	}
+
+	private _mountVideoRectObserver(): void {
+		if (this._videoRectObserver) {
+			return;
+		}
+
+		const observer = new ResizeObserver(() => { this._emitVideoRect(); });
+		observer.observe(this.container);
+
+		const video = this.videoElement;
+		if (video) {
+			observer.observe(video);
+		}
+
+		this._videoRectObserver = observer;
+	}
+
+	private _teardownVideoRectObserver(): void {
+		this._videoRectObserver?.disconnect();
+		this._videoRectObserver = null;
+	}
+
+	// ── Segment / window playback ──
+
+	private _activeSegment: SegmentOptions | null = null;
+	private _segmentUnlisten: (() => void) | null = null;
+
+	/**
+	 * Seek to `opts.startSec` and begin watching for `opts.endSec` on every
+	 * `'time'` event. When the boundary is reached:
+	 *
+	 *   - `'segmentBoundary'` is always emitted first.
+	 *   - `'loop'`    → seeks back to `startSec`.
+	 *   - `'hold'`    → pauses at `endSec`.
+	 *   - `'advance'` → no extra action; playback continues naturally.
+	 *
+	 * Replaces any previously active segment window immediately.
+	 */
+	playSegment(opts: SegmentOptions): void {
+		this._clearSegmentInternal();
+
+		this._activeSegment = opts;
+
+		const { startSec, endSec, onEnd } = opts;
+
+		void this.time(startSec);
+
+		const onTime = ({ time }: { time: number }): void => {
+			if (time < endSec) {
+				return;
+			}
+
+			const payload: SegmentBoundaryPayload = { startSec, endSec, onEnd };
+
+			this.emit('segmentBoundary', payload);
+
+			if (onEnd === 'loop') {
+				void this.time(startSec);
+			}
+			else if (onEnd === 'hold') {
+				void this.pause();
+			}
+		};
+
+		this.on('time', onTime);
+
+		this._segmentUnlisten = (): void => {
+			this.off('time', onTime);
+		};
+	}
+
+	/** Stop watching the active segment window without seeking or pausing. */
+	clearSegment(): void {
+		this._clearSegmentInternal();
+	}
+
+	private _clearSegmentInternal(): void {
+		this._segmentUnlisten?.();
+		this._segmentUnlisten = null;
+		this._activeSegment = null;
+	}
+
 	// ── Tracks / chapters / quality ── composed in via `mediaTracksMethods` mixin.
 	declare subtitles: () => SubtitleTrack[];
 	declare subtitle: {
@@ -959,6 +1093,9 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	declare removeClasses: IPlayer<VideoEventMap>['removeClasses'];
 
 	_disposeBackend(): void {
+		this._clearSegmentInternal();
+		this._teardownVideoRectObserver();
+		this._videoRectCache = null;
 		try { this._backend?.dispose?.(); }
 		catch { /* defensive — kit must still finish disposing */ }
 		this._backend = undefined;

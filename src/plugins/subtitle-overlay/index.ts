@@ -242,19 +242,15 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 	 * font size scales with the overlay rectangle because cqi units resolve
 	 * against the nearest container-query ancestor (.nomercyplayer), and
 	 * the overlay dimensions are driven by the letterbox-fit calculation.
+	 *
+	 * Consumes `player.videoRect()` and the `'videoRect'` event — single
+	 * source of truth for the contained-rect math, shared with other plugins.
 	 */
 	private bindOverlayToVideo(): void {
-		const fit = (): void => {
-			const video = this.player.videoElement as HTMLVideoElement | undefined;
-			const container = this.player.container as HTMLElement | undefined;
-			if (!video || !container)
-				return;
+		const applyRect = (): void => {
+			const rect = this.player.videoRect();
 
-			const containerW = container.clientWidth;
-			const containerH = container.clientHeight;
-			const videoW = video.videoWidth;
-			const videoH = video.videoHeight;
-			if (!videoW || !videoH || !containerW || !containerH) {
+			if (!rect) {
 				this.overlay.style.width = '100%';
 				this.overlay.style.height = '100%';
 				this.overlay.style.top = '0';
@@ -263,33 +259,15 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 				return;
 			}
 
-			const containerAR = containerW / containerH;
-			const videoAR = videoW / videoH;
-			let w: number;
-			let h: number;
-			if (videoAR > containerAR) { w = containerW; h = containerW / videoAR; }
-			else { h = containerH; w = containerH * videoAR; }
-
-			this.overlay.style.width = `${Math.round(w)}px`;
-			this.overlay.style.height = `${Math.round(h)}px`;
+			this.overlay.style.width = `${rect.width}px`;
+			this.overlay.style.height = `${rect.height}px`;
 			this.overlay.style.top = '50%';
 			this.overlay.style.left = '50%';
 			this.overlay.style.transform = 'translate(-50%, -50%)';
 		};
 
-		fit();
-		this.on('mediaReady', fit);
-		this.on('duration', fit);
-		this.on('fullscreen', fit);
-
-		const ro = new ResizeObserver(fit);
-		const container = this.player.container as HTMLElement | undefined;
-		if (container)
-			ro.observe(container);
-		const video = this.player.videoElement as HTMLVideoElement | undefined;
-		if (video)
-			ro.observe(video);
-		this.lifecycle?.addCleanup?.(() => ro.disconnect());
+		applyRect();
+		this.on('videoRect', applyRect);
 	}
 
 	/**
