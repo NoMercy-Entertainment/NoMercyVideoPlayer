@@ -1,6 +1,6 @@
 import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
-import type { BackendEventPayload, BackendLoaderState, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
 import type { HtmlPreloadMode } from '../../types';
+import type { BackendEventPayload, BackendLoaderState, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
 import { BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError } from '@nomercy-entertainment/nomercy-player-core';
 
 interface HlsLevel {

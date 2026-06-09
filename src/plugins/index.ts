@@ -1,15 +1,16 @@
 // Video-specific plugins
 export { castSenderPlugin, CastSenderPlugin } from './cast-sender';
 export type { CastSenderEvents, CastSenderOptions } from './cast-sender';
+
 export { desktopUiPlugin, DesktopUiPlugin } from './desktop-ui/index';
 export type { DesktopUiOptions } from './desktop-ui/index';
 export { drmPlugin, DrmPlugin } from './drm';
 export type { DrmEvents, DrmOptions } from './drm';
-
 // Cross-library plugins (from the kit, with video-specific defaults where applicable)
 export { keyHandlerPlugin, KeyHandlerPlugin } from './key-handler';
 // Heavy orchestration plugins — server coordination, DRM, cast handoff, skip ranges
 export { liveTranscodingPlugin, LiveTranscodingPlugin } from './live-transcoding';
+
 export type { LiveTranscodingEvents, LiveTranscodingOptions } from './live-transcoding';
 export { mediaSessionPlugin, MediaSessionPlugin } from './media-session';
 export { octopusPlugin, OctopusPlugin } from './octopus';
@@ -23,6 +24,9 @@ export type { TouchZonesOptions } from './touch-zones';
 // TV remote control plugin — subclasses KeyHandlerPlugin with TV-specific bindings
 export { tvKeyHandlerPlugin, TvKeyHandlerPlugin } from './tv-key-handler';
 export type { TvKeyHandlerOptions } from './tv-key-handler';
+// Migration shim — TEMPORARY, remove after v1→v2 migration window closes
+export { v1VideoCompatPlugin, V1VideoCompatPlugin } from './v1-compat';
+export type { V1VideoCompatEvents } from './v1-compat';
 
 // Cross-library kit plugins re-exported for ergonomic imports.
 export {

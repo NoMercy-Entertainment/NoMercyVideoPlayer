@@ -310,7 +310,6 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 	});
 });
 
-
 // ── Regression: cycleSubtitles / cycleAudioTracks selection-object bug ────────
 //
 // Before fix: both cycle methods tested `typeof this.subtitle() === 'number'`
@@ -392,7 +391,8 @@ describe('NMVideoPlayer — cycleSubtitles / cycleAudioTracks advance through li
 		Object.assign(player, {
 			subtitles: () => [],
 			subtitle: (idx?: number | null) => {
-				if (idx !== undefined) subtitleCalls.push(idx ?? null);
+				if (idx !== undefined)
+					subtitleCalls.push(idx ?? null);
 				return null;
 			},
 		});
@@ -445,7 +445,8 @@ describe('NMVideoPlayer — cycleSubtitles / cycleAudioTracks advance through li
 		Object.assign(player, {
 			audioTracks: () => [],
 			audioTrack: (idx?: number) => {
-				if (idx !== undefined) audioCalls.push(idx);
+				if (idx !== undefined)
+					audioCalls.push(idx);
 				return null;
 			},
 		});
@@ -464,7 +465,8 @@ describe('NMVideoPlayer — cycleSubtitles / cycleAudioTracks advance through li
 		Object.assign(player, {
 			audioTracks: () => AUDIO_TRACKS,
 			audioTrack: (idx?: number) => {
-				if (idx === undefined) return currentAudio;
+				if (idx === undefined)
+					return currentAudio;
 				currentAudio = { index: idx, track: AUDIO_TRACKS[idx]! };
 				audioCalls.push(idx);
 			},

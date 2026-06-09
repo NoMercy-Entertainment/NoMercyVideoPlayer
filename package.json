@@ -52,6 +52,10 @@
 			"types": "./dist/plugins/index.d.ts",
 			"import": "./dist/plugins/index.js"
 		},
+		"./plugins/v1-compat": {
+			"types": "./dist/plugins/v1-compat/index.d.ts",
+			"import": "./dist/plugins/v1-compat/index.js"
+		},
 		"./plugins/cast-sender": {
 			"types": "./dist/plugins/cast-sender/index.d.ts",
 			"import": "./dist/plugins/cast-sender/index.js"
@@ -120,9 +124,9 @@
 	},
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
-	"types": "./dist/index.d.ts",
 	"unpkg": "./dist/nomercy-video-player.iife.js",
 	"jsdelivr": "./dist/nomercy-video-player.iife.js",
+	"types": "./dist/index.d.ts",
 	"files": [
 		"CHANGELOG.md",
 		"CODE_OF_CONDUCT.md",
