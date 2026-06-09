@@ -851,7 +851,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.volSlider.min = '0';
 		this.volSlider.max = '100';
 		this.volSlider.value = '100';
-		this.volSlider.setAttribute('aria-label', 'Volume');
+		this.volSlider.setAttribute('aria-label', this.t('a11y.volume'));
 		this.volSlider.hidden = !show('volume');
 
 		// Vertical slider popup (hidden initially; activated by wireVolumeSlider).
@@ -867,7 +867,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		vertInput.min = '0';
 		vertInput.max = '100';
 		vertInput.value = '100';
-		vertInput.setAttribute('aria-label', 'Volume');
+		vertInput.setAttribute('aria-label', this.t('a11y.volume'));
 		vertInput.setAttribute('orient', 'vertical');
 
 		const volPopupMuteBtn = this.iconBtn('vol-popup-mute', 'volumeHigh');
@@ -895,6 +895,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.remainingTimeEl.textContent = '0:00';
 
 		this.aspectRatioBtn = this.iconBtn('aspect-ratio', 'aspectFit');
+		this.aspectRatioBtn.setAttribute('aria-expanded', 'false');
 		this.aspectRatioBtn.hidden = !show('aspectRatio');
 		parent.appendChild(this.aspectRatioBtn);
 
@@ -907,27 +908,33 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		parent.appendChild(this.pipBtn);
 
 		this.speedBtn = this.iconBtn('speed', 'speed');
-		this.speedBtn.setAttribute('aria-label', 'Speed (1x)');
+		this.speedBtn.setAttribute('aria-label', this.t('tooltip.speed'));
+		this.speedBtn.setAttribute('aria-expanded', 'false');
 		this.speedBtn.hidden = !show('speed');
 		parent.appendChild(this.speedBtn);
 
 		this.subsBtn = this.iconBtn('subtitles', 'subtitles');
+		this.subsBtn.setAttribute('aria-expanded', 'false');
 		this.subsBtn.hidden = !show('subtitles');
 		parent.appendChild(this.subsBtn);
 
 		this.audioBtn = this.iconBtn('audio', 'language');
+		this.audioBtn.setAttribute('aria-expanded', 'false');
 		this.audioBtn.hidden = !show('audio');
 		parent.appendChild(this.audioBtn);
 
 		this.qualityBtn = this.iconBtn('quality', 'quality');
+		this.qualityBtn.setAttribute('aria-expanded', 'false');
 		this.qualityBtn.hidden = !show('quality');
 		parent.appendChild(this.qualityBtn);
 
 		this.playlistBtn = this.iconBtn('playlist', 'playlist');
+		this.playlistBtn.setAttribute('aria-expanded', 'false');
 		this.playlistBtn.hidden = !show('playlist');
 		parent.appendChild(this.playlistBtn);
 
 		this.settingsBtn = this.iconBtn('settings', 'settings');
+		this.settingsBtn.setAttribute('aria-expanded', 'false');
 		this.settingsBtn.hidden = !show('settings');
 		parent.appendChild(this.settingsBtn);
 
@@ -1480,6 +1487,10 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 					ke.preventDefault();
 					this.toggleShortcuts();
 				}
+				else if (ke.key === 'Escape' && this.menuOpen) {
+					ke.preventDefault();
+					this.closeAllMenus();
+				}
 				else if (ke.key === 'Escape' && this._shortcutsVisible) {
 					ke.preventDefault();
 					this.hideShortcuts();
@@ -1750,8 +1761,14 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			this.bumpActivity();
 		};
 
-		// Mouse: click on the bottom bar finalizes the scrub so dragging off
-		// the slider before releasing still seeks (matches v1 behavior).
+		// Mouse: document-level mouseup finalizes the scrub regardless of where
+		// the cursor is when the button is released. Without this, releasing
+		// outside the slider leaves isMouseDown=true and the seek-preview
+		// reappears on the next mousemove over the bar.
+		this.listen(document, 'mouseup', finalizeScrub);
+
+		// Mouse: click on the bottom bar also finalizes — keeps v1 seek-on-click
+		// behavior for the case where no drag preceded the click.
 		this.listen(this.bottomBar, 'click', finalizeScrub);
 
 		// Touch: touchend on the slider bar finalizes the seek. Without this,
@@ -2271,7 +2288,46 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	// ── Menu state ──────────────────────────────────────────────────
+
+	private _menuTriggerBtn(id: SubMenuId): HTMLButtonElement | null {
+		const map: Partial<Record<SubMenuId, HTMLButtonElement>> = {
+			speed: this.speedBtn,
+			quality: this.qualityBtn,
+			subtitles: this.subsBtn,
+			language: this.audioBtn,
+			playlist: this.playlistBtn,
+			aspectRatio: this.aspectRatioBtn,
+		};
+		return map[id] ?? null;
+	}
+
+	private _setMenuTriggerExpanded(id: SubMenuId | null, expanded: boolean): void {
+		if (id !== null) {
+			this._menuTriggerBtn(id)?.setAttribute('aria-expanded', String(expanded));
+		}
+		else {
+			this.settingsBtn.setAttribute('aria-expanded', String(expanded));
+		}
+	}
+
+	private _collapseAllTriggers(): void {
+		for (const btn of [
+			this.settingsBtn,
+			this.speedBtn,
+			this.qualityBtn,
+			this.subsBtn,
+			this.audioBtn,
+			this.playlistBtn,
+			this.aspectRatioBtn,
+		]) {
+			btn.setAttribute('aria-expanded', 'false');
+		}
+	}
+
 	private openMainMenu(): void {
+		this._collapseAllTriggers();
+		this._setMenuTriggerExpanded(null, true);
+
 		this.menuOpen = true;
 		this.currentSubMenu = null;
 		this.menus.frame.classList.add('open');
@@ -2282,6 +2338,9 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private openSubMenu(id: SubMenuId): void {
+		this._collapseAllTriggers();
+		this._setMenuTriggerExpanded(id, true);
+
 		this.menuOpen = true;
 		this.currentSubMenu = id;
 		this.menus.frame.classList.add('open');
@@ -2296,6 +2355,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private closeAllMenus(): void {
+		this._collapseAllTriggers();
+
 		this.menuOpen = false;
 		this.currentSubMenu = null;
 		this.menus.frame.classList.remove('open');

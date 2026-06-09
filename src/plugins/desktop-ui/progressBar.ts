@@ -49,7 +49,7 @@ export function buildSliderBar(player: IVideoPlayer<VideoPlaylistItem>): SliderB
 		.createElement('div', 'slider-bar')
 		.addClasses(['slider-bar'])
 		.setAttribute('role', 'slider')
-		.setAttribute('aria-label', 'Seek')
+		.setAttribute('aria-label', player.t('plugin.desktop-ui.a11y.seek'))
 		.setAttribute('aria-valuemin', '0')
 		.setAttribute('aria-valuemax', '100')
 		.setAttribute('aria-valuenow', '0')

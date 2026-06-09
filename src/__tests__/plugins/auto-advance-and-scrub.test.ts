@@ -1,10 +1,11 @@
 /**
- * Regression tests for the lifecycle wave sprint (Bug 1 / Bug 2 / Bug 3 / Bug 4):
+ * Regression tests for the lifecycle wave sprint (Bug 1 / Bug 2 / Bug 3 / Bug 4 / Bug 5):
  *
  * Bug 1 — startFragPrefetch flag is present in HLS.js config.
  * Bug 2 — wireSliderBar wires touchend for scrub-finalization.
  * Bug 3 — touchmove sets sliderPop --visibility to 1 while scrubbing.
  * Bug 4 — Core autoAdvance option calls next() on ended.
+ * Bug 5 — Seek-preview reappears after mouseup outside the slider bar.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -159,5 +160,30 @@ describe('wireSliderBar touch handling', () => {
 		sliderBar.dispatchEvent(new Event('touchmove', { bubbles: true }));
 
 		expect(sliderPop.style.getPropertyValue('--visibility')).toBe('1');
+	});
+
+	// Bug 5 — seek-preview reappears after releasing the mouse outside the bar.
+	it('document mouseup finalizes scrub and hides seek-preview (Bug 5)', async () => {
+		const { DesktopUiPlugin } = await import('../../plugins/desktop-ui/index');
+		const player = setup('scrub-test');
+		player.addPlugin(DesktopUiPlugin);
+		await player.ready();
+
+		const sliderBar = player.container.querySelector('.slider-bar') as HTMLElement;
+		const sliderPop = player.container.querySelector('.slider-pop') as HTMLElement;
+
+		// Drag starts on the slider.
+		sliderBar.dispatchEvent(new Event('mousedown', { bubbles: true }));
+		expect(sliderBar.classList.contains('slider-scrubbing')).toBe(true);
+
+		// Mouse moves over bar — pop becomes visible.
+		sliderBar.dispatchEvent(new MouseEvent('touchmove', { bubbles: true }));
+
+		// User releases outside the slider — only document mouseup fires.
+		document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+
+		// Scrub must be finalized: class gone, pop hidden.
+		expect(sliderBar.classList.contains('slider-scrubbing')).toBe(false);
+		expect(sliderPop.style.getPropertyValue('--visibility')).toBe('0');
 	});
 });

@@ -7,13 +7,13 @@ export default {
 	'plugin.desktop-ui.tooltip.next': 'Volgende',
 	'plugin.desktop-ui.tooltip.seekBack': '10 s terugspoelen',
 	'plugin.desktop-ui.tooltip.seekForward': '10 s vooruitspoelen',
-	'plugin.desktop-ui.tooltip.chapterPrev': 'Vorige hoofdstuk',
-	'plugin.desktop-ui.tooltip.chapterNext': 'Volgende hoofdstuk',
+	'plugin.desktop-ui.tooltip.chapterPrev': 'Vorig hoofdstuk',
+	'plugin.desktop-ui.tooltip.chapterNext': 'Volgend hoofdstuk',
 	'plugin.desktop-ui.tooltip.mute': 'Dempen / Dempen opheffen',
 	'plugin.desktop-ui.tooltip.aspectRatio': 'Beeldverhouding',
 	'plugin.desktop-ui.tooltip.theater': 'Theatermodus',
 	'plugin.desktop-ui.tooltip.pip': 'Beeld-in-beeld',
-	'plugin.desktop-ui.tooltip.speed': 'Afspelsnelheid',
+	'plugin.desktop-ui.tooltip.speed': 'Afspeelsnelheid',
 	'plugin.desktop-ui.tooltip.subtitles': 'Ondertitels',
 	'plugin.desktop-ui.tooltip.audio': 'Audiotrack',
 	'plugin.desktop-ui.tooltip.quality': 'Kwaliteit',
@@ -48,15 +48,15 @@ export default {
 	// Zoeken
 	'plugin.desktop-ui.shortcuts.seekBack5': '5 s terugspoelen',
 	'plugin.desktop-ui.shortcuts.seekForward5': '5 s vooruitspoelen',
-	'plugin.desktop-ui.shortcuts.seek3s': '±3 seconden zoeken',
-	'plugin.desktop-ui.shortcuts.seek10s': '±10 seconden zoeken',
-	'plugin.desktop-ui.shortcuts.seek60s': '±1 minuut zoeken',
+	'plugin.desktop-ui.shortcuts.seek3s': '±3 seconden doorspoelen',
+	'plugin.desktop-ui.shortcuts.seek10s': '±10 seconden doorspoelen',
+	'plugin.desktop-ui.shortcuts.seek60s': '±1 minuut doorspoelen',
 
-	// Snel zoeken
-	'plugin.desktop-ui.shortcuts.seek30s': '+30 seconden zoeken',
-	'plugin.desktop-ui.shortcuts.seek60sKey': '+60 seconden zoeken',
-	'plugin.desktop-ui.shortcuts.seek90s': '+90 seconden zoeken',
-	'plugin.desktop-ui.shortcuts.seek120s': '+120 seconden zoeken',
+	// Snel doorspoelen
+	'plugin.desktop-ui.shortcuts.seek30s': '+30 seconden doorspoelen',
+	'plugin.desktop-ui.shortcuts.seek60sKey': '+60 seconden doorspoelen',
+	'plugin.desktop-ui.shortcuts.seek90s': '+90 seconden doorspoelen',
+	'plugin.desktop-ui.shortcuts.seek120s': '+120 seconden doorspoelen',
 
 	// Navigatie
 	'plugin.desktop-ui.shortcuts.next': 'Volgende item',
@@ -82,7 +82,7 @@ export default {
 	'plugin.desktop-ui.shortcuts.volumeUpDown': 'Volume +10% / −10%',
 	'plugin.desktop-ui.shortcuts.theater': 'Theatermodus',
 	'plugin.desktop-ui.shortcuts.pip': 'Beeld-in-beeld',
-	'plugin.desktop-ui.shortcuts.chapters': 'Vorige / Volgende hoofdstuk',
+	'plugin.desktop-ui.shortcuts.chapters': 'Vorig / Volgend hoofdstuk',
 
 	// Sneltoetsgroep titels
 	'plugin.desktop-ui.shortcuts.group.playback': 'Afspelen',
@@ -93,6 +93,15 @@ export default {
 	'plugin.desktop-ui.shortcuts.group.navigation': 'Navigatie',
 	'plugin.desktop-ui.shortcuts.group.tracksAndSubtitles': 'Tracks en ondertitels',
 	'plugin.desktop-ui.shortcuts.group.display': 'Weergave',
+
+	// Menunavigatie
+	'plugin.desktop-ui.menu.back': 'Terug',
+	'plugin.desktop-ui.menu.close': 'Sluiten',
+
+	// A11y labels voor interactieve bedieningselementen
+	'plugin.desktop-ui.a11y.seek': 'Doorspoelen',
+	'plugin.desktop-ui.a11y.volume': 'Volume',
+	'plugin.desktop-ui.a11y.speed': 'Snelheid ({rate}×)',
 
 	// Instellingenmenu
 	'plugin.desktop-ui.menu.settings': 'Instellingen',
@@ -109,8 +118,8 @@ export default {
 	'plugin.desktop-ui.menu.normal': 'Normaal',
 	'plugin.desktop-ui.menu.original': 'Origineel',
 	'plugin.desktop-ui.menu.stretch': 'Uitrekken',
-	'plugin.desktop-ui.menu.crop': 'Uitvullen',
-	'plugin.desktop-ui.menu.native': 'Pixel voor pixel',
+	'plugin.desktop-ui.menu.crop': 'Bijsnijden',
+	'plugin.desktop-ui.menu.native': 'Ware grootte',
 	'plugin.desktop-ui.menu.reset': 'Herstellen',
 	'plugin.desktop-ui.menu.season': 'Seizoen {number}',
 

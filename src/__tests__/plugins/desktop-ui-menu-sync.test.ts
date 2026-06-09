@@ -15,9 +15,9 @@
  *   - Audio menu equivalent
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
 import type { SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NMVideoPlayer } from '../../index';
 import { desktopUiPlugin } from '../../plugins/desktop-ui';
 
@@ -27,8 +27,8 @@ const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
 });
 
 const SUBTITLE_TRACKS: SubtitleTrack[] = [
-	{ id: 'en', language: 'en', label: 'English', kind: 'subtitles', default: false, forced: false },
-	{ id: 'nl', language: 'nl', label: 'Dutch', kind: 'subtitles', default: false, forced: false },
+	{ id: 'en', language: 'en', label: 'English', kind: 'subtitles', default: false, url: '' },
+	{ id: 'nl', language: 'nl', label: 'Dutch', kind: 'subtitles', default: false, url: '' },
 ];
 
 async function makePlayer(): Promise<NMVideoPlayer> {

@@ -42,7 +42,7 @@ export function buildTitleBar(player: IVideoPlayer<VideoPlaylistItem>, parent: H
 		.appendTo(bar)
 		.get();
 
-	const backBtn = player.createButton('back-btn', 'Back', () => {
+	const backBtn = player.createButton('back-btn', player.t('plugin.desktop-ui.menu.back'), () => {
 		player.emit('back', undefined);
 	});
 	player.addClasses(backBtn, ['back-btn']);
@@ -50,7 +50,7 @@ export function buildTitleBar(player: IVideoPlayer<VideoPlaylistItem>, parent: H
 	backBtn.hidden = true;
 	left.appendChild(backBtn);
 
-	const closeBtn = player.createButton('close-btn', 'Close', () => {
+	const closeBtn = player.createButton('close-btn', player.t('plugin.desktop-ui.menu.close'), () => {
 		player.emit('close', undefined);
 	});
 	player.addClasses(closeBtn, ['close-btn']);

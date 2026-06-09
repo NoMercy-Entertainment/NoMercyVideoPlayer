@@ -159,7 +159,7 @@ function buildMainMenu(
 	titleSpan.textContent = player.t('plugin.desktop-ui.menu.settings');
 	header.appendChild(titleSpan);
 
-	const closeBtn = player.createButton('menu-close', 'Close', () => {});
+	const closeBtn = player.createButton('menu-close', player.t('plugin.desktop-ui.menu.close'), () => {});
 	closeBtn.classList.add('menu-header-close');
 	closeBtn.innerHTML = svgFromIcon(fluentIcons.close);
 	header.appendChild(closeBtn);
@@ -223,7 +223,7 @@ function buildPlaylistPaneShell(
 		.appendTo(root)
 		.get();
 
-	const back = player.createButton('playlist-back', 'Back', () => {});
+	const back = player.createButton('playlist-back', player.t('plugin.desktop-ui.menu.back'), () => {});
 	back.classList.add('menu-header-back');
 	back.innerHTML = svgFromIcon(fluentIcons.chevronL);
 	header.appendChild(back);
@@ -234,7 +234,7 @@ function buildPlaylistPaneShell(
 	title.textContent = player.t('plugin.desktop-ui.menu.playlist');
 	header.appendChild(title);
 
-	const close = player.createButton('playlist-close', 'Close', () => {});
+	const close = player.createButton('playlist-close', player.t('plugin.desktop-ui.menu.close'), () => {});
 	close.classList.add('menu-header-close');
 	close.innerHTML = svgFromIcon(fluentIcons.close);
 	header.appendChild(close);
@@ -284,7 +284,7 @@ function buildSubMenuPane(
 		.addClasses(['menu-header'])
 		.appendTo(pane)
 		.get();
-	const back = player.createButton(`menu-back-${id}`, 'Back', () => {});
+	const back = player.createButton(`menu-back-${id}`, player.t('plugin.desktop-ui.menu.back'), () => {});
 	back.classList.add('menu-header-back');
 	back.innerHTML = svgFromIcon(fluentIcons.chevronL);
 	header.appendChild(back);
@@ -295,7 +295,7 @@ function buildSubMenuPane(
 	titleSpan.textContent = title;
 	header.appendChild(titleSpan);
 
-	const close = player.createButton(`menu-close-${id}`, 'Close', () => {});
+	const close = player.createButton(`menu-close-${id}`, player.t('plugin.desktop-ui.menu.close'), () => {});
 	close.classList.add('menu-header-close');
 	close.innerHTML = svgFromIcon(fluentIcons.close);
 	header.appendChild(close);
@@ -456,10 +456,10 @@ const SETTING_ROWS: Array<{ labelKey: string; property: keyof SubtitleStyle | ''
 	{ labelKey: 'plugin.desktop-ui.menu.subtitle.textColor', property: 'textColor' },
 	{ labelKey: 'plugin.desktop-ui.menu.subtitle.textOpacity', property: 'textOpacity' },
 	{ labelKey: 'plugin.desktop-ui.menu.subtitle.edgeStyle', property: 'edgeStyle' },
-	{ labelKey: 'plugin.desktop-ui.menu.subtitle.areaColor', property: 'backgroundColor' },
-	{ labelKey: 'plugin.desktop-ui.menu.subtitle.areaOpacity', property: 'backgroundOpacity' },
-	{ labelKey: 'plugin.desktop-ui.menu.subtitle.backgroundColor', property: 'areaColor' },
-	{ labelKey: 'plugin.desktop-ui.menu.subtitle.backgroundOpacity', property: 'windowOpacity' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.backgroundColor', property: 'backgroundColor' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.backgroundOpacity', property: 'backgroundOpacity' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.areaColor', property: 'areaColor' },
+	{ labelKey: 'plugin.desktop-ui.menu.subtitle.areaOpacity', property: 'windowOpacity' },
 	{ labelKey: 'plugin.desktop-ui.menu.reset', property: '' },
 ];
 

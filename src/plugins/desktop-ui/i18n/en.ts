@@ -95,6 +95,15 @@ export default {
 	'plugin.desktop-ui.shortcuts.group.tracksAndSubtitles': 'Tracks & Subtitles',
 	'plugin.desktop-ui.shortcuts.group.display': 'Display',
 
+	// Menu navigation
+	'plugin.desktop-ui.menu.back': 'Back',
+	'plugin.desktop-ui.menu.close': 'Close',
+
+	// A11y labels for interactive controls
+	'plugin.desktop-ui.a11y.seek': 'Seek',
+	'plugin.desktop-ui.a11y.volume': 'Volume',
+	'plugin.desktop-ui.a11y.speed': 'Speed ({rate}×)',
+
 	// Settings menu
 	'plugin.desktop-ui.menu.settings': 'Settings',
 	'plugin.desktop-ui.menu.audio': 'Audio',
