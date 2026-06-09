@@ -39,8 +39,7 @@ import type {
 	VisibilityState,
 } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoBackend } from './adapters/video-backend/IVideoBackend';
-import type { AudioTrackState, IVideoPlayer, PlayState, QualityState, RepeatState, SegmentBoundaryPayload, SegmentEndBehaviour, SegmentOptions, ShuffleState, Stretching, VideoEventMap, VideoPlayerConfig, VideoPlaylistItem, VideoRect, VolumeState } from './types';
-import { containedRect } from './types';
+import type { AudioTrackState, IVideoPlayer, PlayState, QualityState, RepeatState, SegmentBoundaryPayload, SegmentOptions, ShuffleState, Stretching, VideoEventMap, VideoPlayerConfig, VideoPlaylistItem, VideoRect, VolumeState } from './types';
 import {
 	BrowserPolicyError,
 	composeMixins,
@@ -54,24 +53,18 @@ import { Html5VideoBackend } from './adapters/video-backend/html5';
 import { readItemImage } from './player/itemImage';
 import { VideoPreloadStrategy } from './player/preload';
 import { normalizeVideoConfig } from './player/v1-config-normalizer';
-import {
-	FullscreenState,
-	PipState,
-	SubtitleState,
-	TheaterState,
-} from './types';
+import { containedRect,	FullscreenState,	PipState,	SubtitleState,	TheaterState } from './types';
 
 export type { IChapterSource } from './adapters/chapter-source/IChapterSource';
-export type { Chapter } from '@nomercy-entertainment/nomercy-player-core';
-
 export { VttChapterSource } from './adapters/chapter-source/vtt-chapters';
+
 export type { ISubtitleStyleStore } from './adapters/subtitle-style-store/ISubtitleStyleStore';
 export { StorageBackedSubtitleStyleStore } from './adapters/subtitle-style-store/storage-backed';
-
 export type { IThumbnailSource, ThumbnailFrame } from './adapters/thumbnail-source/IThumbnailSource';
-export { VttSpriteThumbnailSource } from './adapters/thumbnail-source/vtt-sprite';
 
+export { VttSpriteThumbnailSource } from './adapters/thumbnail-source/vtt-sprite';
 export { Html5VideoBackend } from './adapters/video-backend/html5';
+
 // Adapter ports + default implementations.
 export type {
 	BackendEvent,
@@ -83,8 +76,8 @@ export type {
 	SubtitleCueChange,
 	VideoBackendKind,
 } from './adapters/video-backend/IVideoBackend';
-
 export { VideoPreloadStrategy } from './player/preload';
+
 export type {
 	AudioTrackRef,
 	ChapterRef,
@@ -106,7 +99,6 @@ export type {
 	VideoRect,
 	WatchProgress,
 } from './types';
-
 export { containedRect } from './types';
 
 export {
@@ -121,6 +113,8 @@ export {
 	TheaterState,
 	VolumeState,
 } from './types';
+
+export type { Chapter } from '@nomercy-entertainment/nomercy-player-core';
 export { NotImplementedError } from '@nomercy-entertainment/nomercy-player-core';
 
 const _instances: Map<string, NMVideoPlayer<BasePlaylistItem>> = new Map();
@@ -908,6 +902,10 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	private _mountVideoRectObserver(): void {
 		if (this._videoRectObserver) {
+			return;
+		}
+
+		if (typeof ResizeObserver === 'undefined') {
 			return;
 		}
 

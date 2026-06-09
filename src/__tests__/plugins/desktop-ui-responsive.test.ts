@@ -19,14 +19,19 @@ import { DesktopUiPlugin, desktopUiPlugin } from '../../plugins/desktop-ui';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 
-let _observedCallback: ResizeCallback | null = null;
+// Collect every callback registered across all ResizeObserver instances so
+// simulateWidth drives ALL observers (plugin + player videoRect observer).
+const _observedCallbacks: ResizeCallback[] = [];
 
 function simulateWidth(width: number): void {
-	_observedCallback?.([{ contentRect: { width } }]);
+	const entry = [{ contentRect: { width } }];
+	for (const cb of _observedCallbacks) {
+		cb(entry);
+	}
 }
 
 const MockResizeObserver = vi.fn(function (this: unknown, callback: ResizeCallback) {
-	_observedCallback = callback;
+	_observedCallbacks.push(callback);
 	return {
 		observe: vi.fn(),
 		disconnect: vi.fn(),
@@ -38,7 +43,7 @@ const MockResizeObserver = vi.fn(function (this: unknown, callback: ResizeCallba
 
 describe('DesktopUiPlugin — progressive breakpoint system', () => {
 	beforeEach(() => {
-		_observedCallback = null;
+		_observedCallbacks.length = 0;
 
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		const div = document.createElement('div');
