@@ -186,4 +186,30 @@ describe('wireSliderBar touch handling', () => {
 		expect(sliderBar.classList.contains('slider-scrubbing')).toBe(false);
 		expect(sliderPop.style.getPropertyValue('--visibility')).toBe('0');
 	});
+
+	// Bug 6 — after click-to-seek the preview must come back on the next
+	// mousemove over the bar, without leaving and re-entering first.
+	it('seek-preview reappears on mousemove after click-to-seek (Bug 6)', async () => {
+		const { DesktopUiPlugin } = await import('../../plugins/desktop-ui/index');
+		const player = setup('scrub-test');
+		player.addPlugin(DesktopUiPlugin);
+		await player.ready();
+
+		const sliderBar = player.container.querySelector('.slider-bar') as HTMLElement;
+		const sliderPop = player.container.querySelector('.slider-pop') as HTMLElement;
+
+		// Pointer enters the bar — pop shows.
+		sliderBar.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		expect(sliderPop.style.getPropertyValue('--visibility')).toBe('1');
+
+		// Single click on the bar to seek: mousedown then mouseup (bubbles to
+		// document). Finalize hides the pop at the seek moment.
+		sliderBar.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+		sliderBar.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+		expect(sliderPop.style.getPropertyValue('--visibility')).toBe('0');
+
+		// Pointer never left the bar; the next mousemove must bring it back.
+		sliderBar.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+		expect(sliderPop.style.getPropertyValue('--visibility')).toBe('1');
+	});
 });

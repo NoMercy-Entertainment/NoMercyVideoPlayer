@@ -1784,11 +1784,10 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			const popOffsetPct = this.clampPopOffset(scrub.scrubTime);
 			this.sliderRefs.sliderPop.style.left = `${popOffsetPct}%`;
 
-			// Show the sprite pop during touch scrub — mouseover does not fire
-			// on touch so the pop must become visible here.
-			if (this.isMouseDown) {
-				this.sliderRefs.sliderPop.style.setProperty('--visibility', '1');
-			}
+			// Always show the pop here: mousemove only fires while hovering the
+			// bar, touchmove only during an active scrub. Also brings the pop
+			// back after a click-to-seek hid it without leaving the bar first.
+			this.sliderRefs.sliderPop.style.setProperty('--visibility', '1');
 
 			const chapters = this.player.chapters();
 			if (chapters.length === 0) {
