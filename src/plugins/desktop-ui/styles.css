@@ -234,7 +234,7 @@
 		border-radius: 9999px;
 		pointer-events: auto;
 		cursor: pointer;
-		transition: height 80ms ease-out;
+		transition: height 140ms ease-out;
 	}
 
 	/* Pointer devices grow when hovering anywhere in the top-row strip
@@ -553,13 +553,6 @@
 		width: 80px;
 		opacity: 1;
 		margin: 0 8px;
-	}
-
-	@media (hover: hover) {
-		.volume-container:hover .volume-slider,
-		.volume-container:focus-within .volume-slider {
-			height: 12px;
-		}
 	}
 
 	.volume-slider::-webkit-slider-thumb {
