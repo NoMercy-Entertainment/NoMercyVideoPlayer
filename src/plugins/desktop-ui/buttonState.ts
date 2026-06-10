@@ -9,7 +9,7 @@
 
 import type { ITranslator } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
-import { VolumeState } from '@nomercy-entertainment/nomercy-video-player';
+import { VolumeState } from '../../types';
 
 import { fluentIcons, svgFromIcon } from './icons';
 

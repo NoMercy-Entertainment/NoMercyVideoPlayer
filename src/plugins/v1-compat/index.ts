@@ -97,6 +97,9 @@ function _makeTimeData(time: number, duration: number): V1TimeData {
 	};
 }
 
+/** Module-level mutable duration tracker — updated by each plugin instance's duration listener. */
+let _currentDuration = 0;
+
 /** Build the v1→v2 event bridge table. Constructed lazily per player instance. */
 function _buildEventMap(): Record<string, V1EventMapping> {
 	return {
@@ -111,11 +114,12 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 			reshape: _data => _makeTimeData(0, 0),
 		},
 		// v1 'time' payload was TimeData; v2 'time' payload is { time: number }.
+		// Duration is injected from the plugin's tracked _currentDuration.
 		time: {
 			v2Event: 'time',
 			reshape: (data) => {
 				const v2 = data as { time?: number } | undefined;
-				return _makeTimeData(v2?.time ?? 0, 0);
+				return _makeTimeData(v2?.time ?? 0, _currentDuration);
 			},
 		},
 		// v1 'seek' / 'seeked' — same shape change.
@@ -123,30 +127,46 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 			v2Event: 'time',
 			reshape: (data) => {
 				const v2 = data as { time?: number } | undefined;
-				return _makeTimeData(v2?.time ?? 0, 0);
+				return _makeTimeData(v2?.time ?? 0, _currentDuration);
 			},
 		},
 		seeked: {
 			v2Event: 'time',
 			reshape: (data) => {
 				const v2 = data as { time?: number } | undefined;
-				return _makeTimeData(v2?.time ?? 0, 0);
+				return _makeTimeData(v2?.time ?? 0, _currentDuration);
 			},
 		},
-		// v1 'volume' payload was VolumeState object; v2 'volume' is { level }.
+		// v1 'volume' payload was { volume, muted }; v2 'volume' is { level }.
 		volume: {
 			v2Event: 'volume',
 			reshape: (data) => {
 				const v2 = data as { level?: number } | undefined;
-				return { isMuted: false, volume: v2?.level ?? 100 };
+				return { volume: v2?.level ?? 100, muted: false };
 			},
 		},
-		// v1 'mute' payload was VolumeState; v2 'mute' is { muted: boolean }.
+		// v1 'mute' payload was { volume, muted }; v2 'mute' is { muted: boolean }.
 		mute: {
 			v2Event: 'mute',
 			reshape: (data) => {
 				const v2 = data as { muted?: boolean } | undefined;
-				return { isMuted: v2?.muted ?? false };
+				return { volume: 0, muted: v2?.muted ?? false };
+			},
+		},
+		// v1 'chapters' payload was { cues: Chapter[] }; v2 is { chapters: Chapter[] }.
+		chapters: {
+			v2Event: 'chapters',
+			reshape: (data) => {
+				const v2 = data as { chapters?: unknown[] } | undefined;
+				return { cues: v2?.chapters ?? [] };
+			},
+		},
+		// v1 'audioTracks' payload was AudioTrack[] directly; v2 is { tracks: AudioTrack[] }.
+		audioTracks: {
+			v2Event: 'audioTracks',
+			reshape: (data) => {
+				const v2 = data as { tracks?: unknown[] } | undefined;
+				return v2?.tracks ?? [];
 			},
 		},
 		// v1 'item' fired with the PlaylistItem directly; v2 uses 'current' with { item, index }.
@@ -157,8 +177,18 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 				return v2?.item;
 			},
 		},
-		// v1 'playlist' fired with array; v2 uses 'queue:changed' (no payload).
-		// Cannot bridge automatically — consumer must use queue() getter.
+		// v1 'playlist' fired with array; v2 uses 'queueChanged' — the handler
+		// must pull the actual list from player.queue() since v2 fires no payload.
+		playlist: {
+			v2Event: 'queueChanged',
+			reshape: (_data) => {
+				// Payload is unavailable at bridge time; return empty sentinel.
+				// The player instance reference is not in scope here; consumers
+				// should call player.queue() inside the callback in new code.
+				return [];
+			},
+		},
+		// v1 'item' fired with the PlaylistItem directly; v2 uses 'current' with { item, index }.
 		// Map to a no-op rather than bridging incorrectly.
 		complete: { v2Event: 'ended' },
 		finished: { v2Event: 'ended' },
@@ -200,8 +230,21 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 				return data ? undefined : null;
 			},
 		},
-		captionsChanged: { v2Event: 'subtitleCue' },
-		captionsList: { v2Event: 'ready' },
+		captionsChanged: {
+			v2Event: 'subtitleChanged',
+			reshape: (data) => {
+				const v2 = data as { index?: number; track?: { id?: string | number; language?: string; label?: string; type?: string } } | undefined;
+				if (!v2) return null;
+				return { id: v2.track?.id ?? v2.index ?? -1, language: v2.track?.language, label: v2.track?.label, type: v2.track?.type };
+			},
+		},
+		captionsList: {
+			v2Event: 'subtitleTracks',
+			reshape: (data) => {
+				const v2 = data as { tracks?: unknown[] } | undefined;
+				return v2?.tracks ?? [];
+			},
+		},
 		levels: {
 			v2Event: 'levels',
 			reshape: (data) => {
@@ -259,6 +302,11 @@ export class V1VideoCompatPlugin extends Plugin<
 	override use(): void {
 		this._installOnInterceptor();
 		this._attachMethodShims();
+
+		// Track current duration so the time event reshaper can include remaining/percentage.
+		this.player.on('duration', (data: { duration: number }) => {
+			_currentDuration = data.duration;
+		});
 	}
 
 	override dispose(): void {
@@ -1092,6 +1140,150 @@ export class V1VideoCompatPlugin extends Plugin<
 				player.seekToIndex(idx);
 			}
 		});
+
+		this._patchMethod('enterFullscreen', () => {
+			_warnDeprecated('enterFullscreen()', 'fullscreen(true)');
+			player.fullscreen(true);
+		});
+
+		this._patchMethod('exitFullscreen', () => {
+			_warnDeprecated('exitFullscreen()', 'fullscreen(false)');
+			player.fullscreen(false);
+		});
+
+		this._patchMethod('currentTime', () => {
+			_warnDeprecated('currentTime()', 'time()');
+			return player.time();
+		});
+
+		this._patchMethod('isTv', () => {
+			_warnDeprecated('isTv()', 'check navigator.userAgent for Leanback');
+			const ua = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
+			return ua.includes('tv') || ua.includes('smarttv') || ua.includes('leanback');
+		});
+
+		this._patchMethod('isMobile', () => {
+			_warnDeprecated('isMobile()', 'check window.matchMedia for pointer:coarse');
+			const ua = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
+			return /android|iphone|ipad|ipod/u.test(ua);
+		});
+
+		this._patchMethod('element', () => {
+			_warnDeprecated('element()', 'container');
+			return player.container;
+		});
+
+		// ── UI helpers ────────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Build tap logic directly in new code.
+		 * Returns a DOM EventListener that distinguishes single vs double tap.
+		 */
+		this._patchMethod('doubleTap', (primary: unknown, secondary?: unknown) => {
+			_warnDeprecated('doubleTap(primary, secondary?)', 'build tap logic directly');
+			let timer: ReturnType<typeof setTimeout> | null = null;
+			const delay = (this.player as unknown as Record<string, unknown>).options
+				? ((this.player as unknown as Record<string, unknown>).options as Record<string, unknown>).doubleClickDelay as number ?? 300
+				: 300;
+			return (event: Event): void => {
+				if (timer !== null) {
+					clearTimeout(timer);
+					timer = null;
+					if (typeof primary === 'function') {
+						(primary as () => void)();
+					}
+					return;
+				}
+				timer = setTimeout(() => {
+					timer = null;
+					if (typeof secondary === 'function') {
+						(secondary as () => void)();
+					}
+				}, delay);
+			};
+		});
+
+		/**
+		 * @deprecated Use player.chapters() + find() in new code.
+		 * Returns the chapter title for the given playback time.
+		 */
+		this._patchMethod('chapterText', (time: unknown) => {
+			_warnDeprecated('chapterText(time)', 'player.chapters() + find()');
+			try {
+				const targetTime = Number(time ?? 0);
+				const chapters = player.chapters();
+				const chapter = chapters.find(ch => targetTime >= ch.start && targetTime < ch.end);
+				return chapter?.title ?? undefined;
+			}
+			catch {
+				return undefined;
+			}
+		});
+
+		/**
+		 * @deprecated Build key-label logic in your UI code.
+		 * Returns a display string for the given navigation direction key.
+		 */
+		this._patchMethod('getButtonKeyCode', (direction: unknown) => {
+			_warnDeprecated('getButtonKeyCode(direction)', 'build key-label logic in your UI code');
+			const dir = String(direction ?? '').toLowerCase();
+			const map: Record<string, string> = {
+				left: '←',
+				right: '→',
+				up: '↑',
+				down: '↓',
+				next: '→',
+				prev: '←',
+				previous: '←',
+				forward: '→',
+				backward: '←',
+			};
+			return map[dir] ?? dir;
+		});
+
+		/**
+		 * @deprecated Use el.closest(selector) or container.querySelector(selector).
+		 * Finds the nearest matching element relative to the player container.
+		 */
+		this._patchMethod('getClosestElement', (el: unknown, selector: unknown) => {
+			_warnDeprecated('getClosestElement(el, selector)', 'el.closest(selector)');
+			if (el instanceof Element) {
+				const byAncestor = el.closest(String(selector));
+				if (byAncestor) return byAncestor;
+				const container = player.container;
+				return container.querySelector(String(selector));
+			}
+			return null;
+		});
+
+		/**
+		 * @deprecated Manage tip state in your UI plugin.
+		 * Settable flag indicating that a "next episode" tip button has been created.
+		 */
+		const target = player as unknown as Record<string, unknown>;
+		if (!('hasNextTip' in target)) {
+			target['hasNextTip'] = false;
+			this._patchedMethods.push('hasNextTip');
+		}
+
+		/**
+		 * @deprecated Use player.t(key) in new code.
+		 * i18n translation bundle accessor — v1 consumers accessed player.translations.
+		 */
+		this._patchMethod('translations', () => {
+			_warnDeprecated('translations', 't(key)');
+			return {};
+		});
+
+		// Also expose as a getter-like property (v1 accessed it as player.translations directly)
+		if (!('translations' in target) || typeof target['translations'] !== 'object') {
+			Object.defineProperty(target, 'translations', {
+				get: () => ({}),
+				configurable: true,
+				enumerable: false,
+			});
+			this._patchedMethods.push('translations');
+		}
 	}
 }
 

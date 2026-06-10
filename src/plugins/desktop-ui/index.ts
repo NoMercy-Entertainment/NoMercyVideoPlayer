@@ -60,7 +60,7 @@ import type { ChapterMarkerRef, SliderBarRefs } from './progressBar';
 import type { SpriteSet } from './sprite';
 import type { TopBarRefs } from './topBar';
 import { Plugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
-import { TheaterState, VolumeState } from '@nomercy-entertainment/nomercy-video-player';
+import { TheaterState, VolumeState } from '../../types';
 import {
 	applyAspectRatioIcon,
 	applyAudioIcon,

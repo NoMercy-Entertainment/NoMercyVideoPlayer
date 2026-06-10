@@ -111,6 +111,33 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 	/** Blob URLs created during load — revoked in destroy() to avoid memory leaks. */
 	private ownedBlobs: string[] = [];
 
+	/**
+	 * v1-compat constructor. In v1, plugins were instantiated with their
+	 * configuration: `new OctopusPlugin(opts)`. In v2, opts are passed to
+	 * `player.addPlugin(OctopusPlugin, opts)`. When the v1 pattern is used, the
+	 * constructor stores the opts so they survive the kit's `initialize()` call
+	 * (which would otherwise overwrite them with `undefined`).
+	 */
+	constructor(opts?: OctopusOptions) {
+		super();
+		this._ctorOpts = opts;
+	}
+
+	private _ctorOpts: OctopusOptions | undefined;
+
+	/**
+	 * v1-compat: when called via the `registerPlugin` shim, `opts` and
+	 * `lifecycle` arrive as `undefined`. Fall back to constructor-supplied opts
+	 * so the plugin still gets its configuration.
+	 */
+	override initialize(
+		player: NMVideoPlayer<T>,
+		opts: OctopusOptions,
+		lifecycle: Parameters<Plugin<NMVideoPlayer<T>, OctopusOptions>['initialize']>[2],
+	): void {
+		super.initialize(player, opts ?? this._ctorOpts ?? ({} as OctopusOptions), lifecycle);
+	}
+
 	/** Wires `subtitle` and `current` listeners to load ASS/SSA tracks into the libass renderer. */
 	override use(): void {
 		this.on('subtitle', (data) => {

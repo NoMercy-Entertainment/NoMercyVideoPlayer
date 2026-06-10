@@ -53,7 +53,11 @@ import { Html5VideoBackend } from './adapters/video-backend/html5';
 import { readItemImage } from './player/itemImage';
 import { VideoPreloadStrategy } from './player/preload';
 import { normalizeVideoConfig } from './player/v1-config-normalizer';
+import type { V1VideoConfig } from './player/v1-config-normalizer';
+import { V1VideoCompatPlugin } from './plugins/v1-compat';
 import { containedRect,	FullscreenState,	PipState,	SubtitleState,	TheaterState } from './types';
+import type { Plugin as V1PluginBase } from './v1-plugin-base';
+
 
 export type { IChapterSource } from './adapters/chapter-source/IChapterSource';
 export { VttChapterSource } from './adapters/chapter-source/vtt-chapters';
@@ -84,7 +88,6 @@ export type {
 	FontTrackRef,
 	HtmlPreloadMode,
 	IVideoPlayer,
-	QualityLevel,
 	SegmentBoundaryPayload,
 	SegmentEndBehaviour,
 	SegmentOptions,
@@ -111,11 +114,90 @@ export {
 	ShuffleState,
 	SubtitleState,
 	TheaterState,
-	VolumeState,
 } from './types';
 
-export type { Chapter } from '@nomercy-entertainment/nomercy-player-core';
+// VolumeState is exported as a v1-compat payload interface ({ volume, muted })
+// rather than the internal enum — consumer UI plugins receive this shape from
+// the 'volume' and 'mute' events and access .volume / .muted directly.
+export type { VolumeState } from './v1-types';
+
 export { NotImplementedError } from '@nomercy-entertainment/nomercy-player-core';
+
+// ── v1 re-exports — widened types ─────────────────────────────────────────────
+// Chapter, QualityLevel, SubtitleTrack, and AudioTrack are exported from
+// v1-types.ts (which extends the kit base types with v1-era optional fields).
+// This lets consumer code that accesses .id / .left / .width / .ext compile
+// without changes during the migration window.
+
+export type { SubtitleStyle } from '@nomercy-entertainment/nomercy-player-core';
+
+export type { Chapter, QualityLevel, SubtitleTrack, AudioTrack } from './v1-types';
+
+// ── v1 data types ─────────────────────────────────────────────────────────────
+
+/**
+ * v1 time data shape emitted on the `'time'` event.
+ * @deprecated Use `TimeState` from `@nomercy-entertainment/nomercy-player-core`.
+ */
+export interface TimeData {
+	currentTime: number;
+	duration: number;
+	percentage: number;
+	remaining: number;
+	currentTimeHuman: string;
+	durationHuman: string;
+	remainingHuman: string;
+	playbackRate: number;
+}
+
+/**
+ * v1 position descriptor for pointer/touch interactions.
+ * @deprecated Declare in your own code if needed.
+ */
+export interface Position {
+	x: { start: number; end: number };
+	y: { start: number; end: number };
+}
+
+// ── Additional v1 utility functions ───────────────────────────────────────────
+
+/** @deprecated v1 display helper. Converts `HH:MM:SS` string to seconds. */
+export function convertToSeconds(hms: string | number | null | undefined): number {
+	if (!hms && hms !== 0) {
+		return 0;
+	}
+	if (typeof hms === 'number') {
+		return hms;
+	}
+	const parts: number[] = hms.split(':').map(segment => Number.parseInt(segment, 10));
+	if (parts.length < 3) {
+		parts.unshift(0);
+	}
+	return (parts[0] ?? 0) * 3600 + (parts[1] ?? 0) * 60 + (parts[2] ?? 0);
+}
+
+/** @deprecated v1 display helper. Truncates a sentence at a word boundary near `characters` chars. */
+export function limitSentenceByCharacters(str: string | null | undefined, characters = 360): string {
+	if (!str) {
+		return '';
+	}
+	const arr = str.substring(0, characters).split('.');
+	arr.pop();
+	return `${arr.join('.')}.`;
+}
+
+/** @deprecated v1 display helper. Inserts a line break into a show title with season/episode prefix. */
+export function lineBreakShowTitle(str: string, removeShow = false): string {
+	if (!str) {
+		return '';
+	}
+	const match = str.match(/^(.*?)\s*[-–]\s*S\d+E\d+\s*[-–]?\s*(.*)/u);
+	if (!match) {
+		return str;
+	}
+	const [, show, rest] = match;
+	return removeShow ? (rest ?? str) : `${show}\n${rest ?? ''}`.trim();
+}
 
 const _instances: Map<string, NMVideoPlayer<BasePlaylistItem>> = new Map();
 
@@ -1142,15 +1224,68 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
  * Factory entry point. Returns the existing instance for a given div id, or
  * mounts a fresh one. Mirrors the v1 video-player wiki contract.
  *
+ * This factory also serves as the v1 migration entry point. It:
+ *  1. Attaches `registerPlugin(name, instance)` and `usePlugin(name)` shims to
+ *     the instance so v1-style plugin registration works without code changes.
+ *  2. Auto-installs `V1VideoCompatPlugin` at the first `setup()` call so all
+ *     v1 API shims (event bridges, renamed methods) activate automatically.
+ *  3. Bridges the v1 `'playlistComplete'` event — fired when the last item ends.
+ *
+ * The `nmVideoPlayer` export is the clean v2 entry point; `nmplayer` is the
+ * migration-compatible entry point. Both point to the same underlying class.
+ *
  * When `setup({ expose: true })` is called on the returned instance,
  * `window.nmplayer` is set to this factory for console access alongside
  * `window.player` (wired by the kit). Cleaned up on `dispose()`.
  */
-export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: string | number): NMVideoPlayer<T> {
+/**
+ * v1-compat player instance. Extends `NMVideoPlayer<T>` with widened `setup()` /
+ * `registerPlugin()` / `usePlugin()` signatures so v1 consumer code compiles
+ * without changes. Do not use this type in new code — use `NMVideoPlayer<T>`.
+ */
+type NMPlayerInstance<T extends VideoPlaylistItem> = Omit<NMVideoPlayer<T>, 'setup'> & {
+	setup(config: V1VideoConfig<T>): NMPlayerInstance<T>;
+	registerPlugin(name: string, plugin: unknown): void;
+	usePlugin(name: string): void;
+};
+
+export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: string | number): NMPlayerInstance<T extends VideoPlaylistItem ? T : VideoPlaylistItem> {
 	const instance = new NMVideoPlayer<T>(id);
 
+	// v1 string-keyed plugin registry — keyed by the name passed to registerPlugin().
+	// Supports the v1 pattern: player.registerPlugin('name', new MyPlugin()).
+	const _v1PluginMap = new Map<string, V1PluginBase>();
+
+	// Attach v1 registerPlugin / usePlugin shims to this instance.
+	// These are NOT on the NMVideoPlayer prototype — they are per-instance
+	// so they can close over the _v1PluginMap for this specific player.
+	(instance as unknown as Record<string, unknown>)['registerPlugin'] = (
+		name: string,
+		pluginInstance: unknown,
+	): void => {
+		const plugin = pluginInstance as V1PluginBase;
+		_v1PluginMap.set(name, plugin);
+		if (typeof plugin.initialize === 'function') {
+			plugin.initialize(instance as unknown as Parameters<typeof plugin.initialize>[0]);
+		}
+	};
+
+	(instance as unknown as Record<string, unknown>)['usePlugin'] = (name: string): void => {
+		const found = _v1PluginMap.get(name);
+		if (found) {
+			found.use();
+		}
+	};
+
+	// Expose the v1 plugin registry as a Map-like `plugins` property so that
+	// v1 consumer code calling `player.plugins.has('name')` / `.get('name')` compiles.
+	(instance as unknown as Record<string, unknown>)['plugins'] = _v1PluginMap;
+
 	const originalSetup = instance.setup.bind(instance);
-	instance.setup = function (config: VideoPlayerConfig<T>): NMVideoPlayer<T> {
+
+	// Widen setup to accept the v1-compat V1VideoConfig shape (extra fields like
+	// disableTouchControls, basePath, accessToken, wider playlist). normalizeVideoConfig strips them.
+	(instance as unknown as Record<string, unknown>)['setup'] = function (config: V1VideoConfig<T extends VideoPlaylistItem ? T : VideoPlaylistItem>): NMVideoPlayer<T> {
 		// Normalise v1 legacy fields (accessToken → auth.bearerToken,
 		// debug: true → logLevel: 'debug') at the library boundary so core
 		// never sees them and carries no compat knowledge.
@@ -1162,15 +1297,37 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 		// while still preloading assets so the next item starts instantly.
 		const leadSeconds = normalizedConfig.preloadLeadSeconds ?? 10;
 
-		const enrichedConfig: VideoPlayerConfig<T> = {
+		const enrichedConfig = {
 			crossfadeEnabled: false,
 			...normalizedConfig,
 			preloadLeadSeconds: leadSeconds,
 			preloadStrategy: normalizedConfig.preloadStrategy ?? new VideoPreloadStrategy(leadSeconds),
 			transitionStrategy: normalizedConfig.transitionStrategy ?? new GaplessTransitionStrategy(),
-		};
+		} as VideoPlayerConfig<T>;
 
 		const result = originalSetup(enrichedConfig);
+
+		// Auto-install V1VideoCompatPlugin so the app's on('back'),
+		// on('playlistComplete'), seek(), playlistItem() etc. all work without
+		// the consumer explicitly adding the plugin.
+		if (!instance.getPlugin(V1VideoCompatPlugin)) {
+			instance.addPlugin(V1VideoCompatPlugin);
+		}
+
+		// Bridge v1 'playlistComplete' — fires when the last item in the queue
+		// ends. In v2 the player just emits 'ended'; existing v1 handlers use
+		// player.on('playlistComplete', fn) which now resolves correctly.
+		let _playlistCompleteFired = false;
+		instance.on('ended', () => {
+			const currentIndex = instance.index();
+			const queueLen = instance.queue().length;
+			if ((currentIndex >= queueLen - 1 || queueLen === 0) && !_playlistCompleteFired) {
+				_playlistCompleteFired = true;
+				(instance as unknown as { emit: (ev: string, data: unknown) => void }).emit('playlistComplete', undefined);
+			}
+		});
+		// Reset the gate when a new item starts so subsequent playlists fire again.
+		instance.on('current', () => { _playlistCompleteFired = false; });
 
 		// Seed theater mode from config default. Done after setup() so the
 		// player is in the 'ready' phase before emitting the theater event.
@@ -1204,7 +1361,7 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 		return result;
 	};
 
-	return instance;
+	return instance as unknown as NMPlayerInstance<T extends VideoPlaylistItem ? T : VideoPlaylistItem>;
 }
 
 /**
@@ -1220,3 +1377,75 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 export const nmVideoPlayer = nmplayer;
 
 export default nmplayer;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// v1 compatibility re-exports
+//
+// All items below are @deprecated. They exist so that existing v1-era consumer
+// code compiles against v2 without source changes during the migration window.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Plugin class — v1 consumers extend this. New code uses Plugin from core.
+export { Plugin } from './v1-plugin-base';
+
+// Plugins — v1 consumers imported these directly from the main barrel.
+export { KeyHandlerPlugin } from './plugins/key-handler';
+export { OctopusPlugin } from './plugins/octopus';
+
+// Type aliases
+export type {
+	Icon,
+	Level,
+	NMPlayer,
+	PlayerConfig,
+	PlaylistItem,
+	PluginRegistry,
+	PreviewTime,
+	Track,
+	VTTData,
+} from './v1-types';
+
+// ── v1 utility functions ──────────────────────────────────────────────────────
+// These were exported from v1's barrel and are used by v1-era consumer plugins.
+// The implementations are intentionally minimal shims — UI plugins should
+// re-implement display logic in their own codebase for v2.
+
+/** @deprecated v1 display helper. Formats seconds into a human-readable time string. */
+export function humanTime(time: string | number): string {
+	const secs = Number.parseInt(String(time), 10);
+	if (Number.isNaN(secs)) {
+		return '00:00';
+	}
+	const days = Math.floor(secs / 86400);
+	const hours = Math.floor((secs % 86400) / 3600);
+	const minutes = Math.floor((secs % 3600) / 60);
+	const seconds = secs % 60;
+
+	const pad = (n: number): string => String(n).padStart(2, '0');
+	const hh = hours > 0 || days > 0 ? `${pad(hours)}:` : '';
+	const dd = days > 0 ? `${days}:` : '';
+	return `${dd}${hh}${pad(minutes)}:${pad(seconds)}`;
+}
+
+/** @deprecated v1 display helper. Inserts a line-break before the first punctuation character in a title. */
+export function breakLogoTitle(str: string, characters: string[] = [':', '!', '?']): string {
+	if (!str) {
+		return '';
+	}
+	const reg = new RegExp(characters.map(ch => (ch === '?' ? `\\${ch}` : ch)).join('|'), 'u');
+	const reg2 = new RegExp(characters.map(ch => (ch === '?' ? `\\${ch}\\s` : `${ch}\\s`)).join('|'), 'u');
+	const m2 = str.match(reg2);
+	const m1 = str.match(reg);
+	if (m2 && m1) {
+		return str.replace(m2[0], `${m1[0]}\n`);
+	}
+	return str;
+}
+
+/** @deprecated v1 display helper. Replaces `/` separators in episode titles with a line break. */
+export function breakEpisodeTitle(str: string): string {
+	if (!str) {
+		return '';
+	}
+	return str.split('/').join('\\\n');
+}

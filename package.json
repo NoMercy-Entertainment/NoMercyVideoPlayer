@@ -120,6 +120,14 @@
 			"types": "./dist/compat.d.ts",
 			"import": "./dist/compat.js"
 		},
+		"./player/utils": {
+			"types": "./dist/player/utils.d.ts",
+			"import": "./dist/player/utils.js"
+		},
+		"./src/player/utils": {
+			"types": "./dist/player/utils.d.ts",
+			"import": "./dist/player/utils.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"main": "./dist/index.js",
@@ -157,7 +165,9 @@
 	"dependencies": {
 		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-beta.0",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
-		"hls.js": "^1.6.0"
+		"@types/webvtt-parser": "^2.2.0",
+		"hls.js": "^1.6.0",
+		"webvtt-parser": "^2.2.0"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^9.0.0",

@@ -330,7 +330,7 @@ describe('V1VideoCompatPlugin', () => {
 			player.dispose();
 		});
 
-		it('on("volume", fn) receives { isMuted, volume } shaped payload', async () => {
+		it('on("volume", fn) receives { volume, muted } shaped payload', async () => {
 			const player = setup();
 			player.addPlugin(V1VideoCompatPlugin);
 			await player.ready();
@@ -344,11 +344,11 @@ describe('V1VideoCompatPlugin', () => {
 			expect(received).toHaveLength(1);
 			const payload = received[0] as Record<string, unknown>;
 			expect(payload.volume).toBe(75);
-			expect(payload.isMuted).toBe(false);
+			expect(payload.muted).toBe(false);
 			player.dispose();
 		});
 
-		it('on("mute", fn) receives { isMuted } shaped payload', async () => {
+		it('on("mute", fn) receives { muted } shaped payload', async () => {
 			const player = setup();
 			player.addPlugin(V1VideoCompatPlugin);
 			await player.ready();
@@ -361,7 +361,7 @@ describe('V1VideoCompatPlugin', () => {
 
 			expect(received).toHaveLength(1);
 			const payload = received[0] as Record<string, unknown>;
-			expect(payload.isMuted).toBe(true);
+			expect(payload.muted).toBe(true);
 			player.dispose();
 		});
 

@@ -58,6 +58,8 @@ export interface WatchProgress {
 	timestamp: number;
 	/** 0–100 percent watched (0 = unwatched, 100 = fully watched). */
 	percentage: number;
+	/** Playback position in seconds at the time of last watch. @deprecated Use `timestamp` + consumer lookup instead. */
+	time?: number;
 }
 
 export interface VideoPlaylistItem extends BasePlaylistItem {
@@ -97,6 +99,31 @@ export interface VideoPlaylistItem extends BasePlaylistItem {
 	 * write to this field; persistence is the consumer's responsibility.
 	 */
 	progress?: WatchProgress;
+
+	// ── Consumer-supplied application fields ────────────────────────────────────
+	// These are not used by the player core — they are preserved so that consumer
+	// code passing application-specific playlist items compiles without casts.
+
+	/** Human-readable season label (e.g. `"Season 1"`). Consumer-supplied display field. */
+	seasonName?: string;
+	/** Stable item UUID. Consumer-supplied identifier used by sync/connect plugins. */
+	uuid?: string;
+	/** Channel or network logo URL. Consumer-supplied display field. */
+	logo?: string;
+	/** Content rating label (e.g. `"PG-13"`, `"TV-MA"`). Consumer-supplied display field. */
+	rating?: string | number;
+	/** Audio track list from the consumer's API response. Consumer-supplied field. */
+	audio?: unknown;
+	/** Playlist type discriminator (e.g. `"episode"`, `"movie"`). Consumer-supplied field. */
+	playlist_type?: string;
+	/** Consumer-supplied TMDB identifier. */
+	tmdb_id?: number | string;
+	/** Consumer-supplied internal video record ID. */
+	video_id?: number | string;
+	/** Consumer-supplied media type discriminator (e.g. `"movie"`, `"tv"`). */
+	video_type?: string;
+	/** Media release year. Consumer-supplied display field. */
+	year?: number;
 }
 
 /** Top-level playback state. Returned by `player.playState()`. */
@@ -364,6 +391,12 @@ export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistIte
 	preload?: HtmlPreloadMode;
 	disableMediaControls?: boolean;
 	disableControls?: boolean;
+	/** @deprecated v1 convenience field — accepted but ignored in v2 (touch zones are handled by plugins). */
+	disableTouchControls?: boolean;
+	/** @deprecated v1 convenience field — controls timeout in ms before UI auto-hides. Passed to UI plugins. */
+	controlsTimeout?: number;
+	/** @deprecated v1 convenience field — double-click delay in ms. Passed to UI plugins. */
+	doubleClickDelay?: number;
 	/**
 	 * Custom backend factory. Overrides the kit's default backend resolution
 	 * (`html5` / `mse` / `webcodecs`). Receives the resolved kind so factories
