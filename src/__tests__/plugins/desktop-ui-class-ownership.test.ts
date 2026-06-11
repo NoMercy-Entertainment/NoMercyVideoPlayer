@@ -12,7 +12,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
-import { desktopUiPlugin } from '../../plugins/desktop-ui';
+import { DesktopUiPlugin, desktopUiPlugin } from '../../plugins/desktop-ui';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
@@ -42,6 +42,16 @@ describe('DesktopUiPlugin — nomercyplayer class ownership', () => {
 		const container = player.container;
 		const count = [...container.classList].filter(cls => cls === 'nomercyplayer').length;
 		expect(count).toBe(1);
+	});
+
+	it('overlay() exposes the overlay root for other plugins to mount into', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin).ready();
+
+		const overlay = player.getPlugin(DesktopUiPlugin)!.overlay();
+		expect(overlay).toBeInstanceOf(HTMLElement);
+		expect(overlay!.classList.contains('overlay')).toBe(true);
+		expect(player.container.contains(overlay)).toBe(true);
 	});
 
 	it('desktop-ui plugin itself does not add nomercyplayer (class is present pre-mount)', async () => {

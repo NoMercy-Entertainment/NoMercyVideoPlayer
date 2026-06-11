@@ -511,6 +511,18 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.bumpActivity();
 	}
 
+	/**
+	 * The overlay root — the auto-hiding chrome layer this plugin owns.
+	 * Other plugins mount their UI here (via
+	 * `player.getPlugin(DesktopUiPlugin)?.overlay()`) so their elements
+	 * inherit the overlay's show/hide lifecycle instead of floating over a
+	 * hidden chrome. Returns `null` before `use()` has built the DOM — a
+	 * field initializer would capture `undefined` forever, hence the method.
+	 */
+	overlay(): HTMLElement | null {
+		return this.overlayRoot ?? null;
+	}
+
 	/** Show a one-shot hint on first play so users discover the shortcuts overlay. */
 	private wireKeybindHint(): void {
 		if (typeof sessionStorage === 'undefined')
