@@ -84,6 +84,37 @@ describe('normalizeVideoPlaylistItem()', () => {
 		expect(item.progress).toBeUndefined();
 		expect(item.chapters).toBeUndefined();
 	});
+
+	it('maps wire font descriptors (file_name) to FontTrackRef — the no-fonts regression', () => {
+		// The server ships BOTH a typed fonts list (file descriptors) and a
+		// fonts.json track. The typed list wins; its file_name must become
+		// `file` or the octopus plugin sees no usable URLs at all.
+		const item = normalizeVideoPlaylistItem({
+			id: 1,
+			url: 'https://cdn.test/a.m3u8',
+			fonts: [
+				{ file_name: '/lib/Show.S01E03/fonts/Albino.TTF', file_hash: 'dd9c', file_size: 30752 },
+				{ file_name: '/lib/Show.S01E03/fonts/GandhiSans-Bold.otf', file_hash: '1dd7', file_size: 106728 },
+			],
+			tracks: [{ file: 'https://cdn.test/fonts.json', kind: 'fonts' }],
+		} as never);
+
+		expect(item.fonts).toEqual([
+			{ file: '/lib/Show.S01E03/fonts/Albino.TTF' },
+			{ file: '/lib/Show.S01E03/fonts/GandhiSans-Bold.otf' },
+		]);
+	});
+
+	it('falls back to the fonts.json track when descriptors carry no usable path', () => {
+		const item = normalizeVideoPlaylistItem({
+			id: 1,
+			url: 'https://cdn.test/a.m3u8',
+			fonts: [{ file_hash: 'dd9c' }],
+			tracks: [{ file: 'https://cdn.test/fonts.json', kind: 'fonts' }],
+		} as never);
+
+		expect(item.fonts).toEqual([{ file: 'https://cdn.test/fonts.json' }]);
+	});
 });
 
 describe('pickStartItem()', () => {

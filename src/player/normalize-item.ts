@@ -8,7 +8,7 @@
  * the `transformPlaylistItem` config callback instead.
  */
 
-import type { ChapterRef, VideoPlaylistItem, WatchProgress } from '../types';
+import type { ChapterRef, FontTrackRef, VideoPlaylistItem, WatchProgress } from '../types';
 
 interface LegacyTrackEntry {
 	id?: string | number;
@@ -33,13 +33,21 @@ interface LegacyProgressEntry {
 	percentage?: number;
 }
 
+interface LegacyFontEntry {
+	file?: string;
+	file_name?: string;
+	file_hash?: string;
+	file_size?: number;
+}
+
 /** The loose wire shape: canonical v2 fields plus every v1 spelling. */
-type LooseVideoItem = Omit<VideoPlaylistItem, 'duration' | 'chapters' | 'progress'> & {
+type LooseVideoItem = Omit<VideoPlaylistItem, 'duration' | 'chapters' | 'progress' | 'fonts'> & {
 	file?: string;
 	duration?: number | string;
 	tracks?: LegacyTrackEntry[];
 	chapters?: ChapterRef[] | LegacyChapterEntry[];
 	progress?: WatchProgress | LegacyProgressEntry | null;
+	fonts?: Array<FontTrackRef | LegacyFontEntry>;
 };
 
 /** Parse `"1:24:14"` / `"24:14"` style durations to seconds. */
@@ -115,6 +123,21 @@ function normalizeTracks(tracks: LegacyTrackEntry[] | undefined): LegacyTrackEnt
 		: track);
 }
 
+/**
+ * Normalize the typed `fonts` field. The wire sends file descriptors
+ * (`{ file_name, file_hash, file_size }`); the canonical `FontTrackRef`
+ * carries the path in `file`. Canonical entries pass through.
+ */
+function normalizeFonts(fonts: LooseVideoItem['fonts']): FontTrackRef[] | undefined {
+	if (!Array.isArray(fonts) || fonts.length === 0)
+		return undefined;
+	const mapped = fonts
+		.map(entry => (entry as FontTrackRef).file ?? (entry as LegacyFontEntry).file_name)
+		.filter((file): file is string => typeof file === 'string' && file.length > 0)
+		.map(file => ({ file }));
+	return mapped.length > 0 ? mapped : undefined;
+}
+
 function fontsFromTracks(tracks: LegacyTrackEntry[] | undefined): Array<{ file: string }> | undefined {
 	const files = [...new Set(
 		tracks
@@ -141,7 +164,7 @@ export function normalizeVideoPlaylistItem(item: VideoPlaylistItem): VideoPlayli
 		chapters: normalizeChapters(loose.chapters),
 		previewSpriteUrl: loose.previewSpriteUrl
 			?? tracks?.find(track => track.kind === 'thumbnails')?.file,
-		fonts: loose.fonts ?? fontsFromTracks(tracks),
+		fonts: normalizeFonts(loose.fonts) ?? fontsFromTracks(tracks),
 		progress: normalizeProgress(loose.progress, durationSeconds),
 	} as VideoPlaylistItem;
 }

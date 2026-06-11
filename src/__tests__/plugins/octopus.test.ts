@@ -196,6 +196,58 @@ describe('OctopusPlugin', () => {
 			expect(fetchSpy).toHaveBeenCalledTimes(3);
 		});
 
+		it('loads direct font file URLs from the typed fonts field — no manifest fetch', async () => {
+			mockText('[Script Info]\n\n[Events]\n');
+			mockBinary([1, 2, 3]);
+			mockBinary([4, 5, 6]);
+
+			const player = setup();
+			player.addPlugin(octopusPlugin);
+			await player.ready();
+
+			(player as any)._current = {
+				fonts: [
+					{ file: 'https://cdn.example.com/fonts/Albino.TTF' },
+					{ file: 'https://cdn.example.com/fonts/GandhiSans-Bold.otf' },
+				],
+			};
+			(player as any).item = () => (player as any)._current;
+
+			await player.getPlugin(OctopusPlugin)!.subtitle('https://cdn.example.com/sub.ass');
+
+			// Three fetches: subtitle body + two font binaries — no fonts.json request.
+			expect(fetchSpy).toHaveBeenCalledTimes(3);
+			expect(Object.keys(octopusCalls[0].availableFonts)).toEqual(
+				expect.arrayContaining(['albino', 'gandhisans-bold']),
+			);
+		});
+
+		it('combines a manifest entry with direct font files', async () => {
+			mockText('[Script Info]\n\n[Events]\n');
+			mockJson([{ file: 'Inter.ttf' }]);
+			mockBinary([1, 2]);
+			mockBinary([3, 4]);
+
+			const player = setup();
+			player.addPlugin(octopusPlugin);
+			await player.ready();
+
+			(player as any)._current = {
+				fonts: [
+					{ file: 'https://cdn.example.com/fonts/fonts.json' },
+					{ file: 'https://cdn.example.com/fonts/Albino.TTF' },
+				],
+			};
+			(player as any).item = () => (player as any)._current;
+
+			await player.getPlugin(OctopusPlugin)!.subtitle('https://cdn.example.com/sub.ass');
+
+			expect(fetchSpy).toHaveBeenCalledTimes(4);
+			expect(Object.keys(octopusCalls[0].availableFonts)).toEqual(
+				expect.arrayContaining(['inter', 'albino']),
+			);
+		});
+
 		it('fetches each font binary with responseType: arrayBuffer', async () => {
 			const assBody = '[Script Info]\n\n[Events]\n';
 			mockText(assBody);

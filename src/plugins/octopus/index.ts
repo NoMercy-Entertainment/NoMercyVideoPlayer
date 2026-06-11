@@ -283,38 +283,56 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 
 		const item = this.player.item?.();
 
-		// Read font manifests from the typed `fonts` field.
-		const typedFonts = Array.isArray(item?.fonts) ? item!.fonts : null;
-		const manifestUrl = typedFonts?.[0]?.file;
+		// The typed `fonts` field carries either a `fonts.json` manifest URL or
+		// direct font file URLs (the FontTrackRef contract allows both — NoMercy
+		// items ship the direct list, the track-derived fallback the manifest).
+		const typedFonts = (Array.isArray(item?.fonts) ? item!.fonts : [])
+			.filter(entry => typeof entry?.file === 'string' && entry.file.length > 0);
+		const isManifest = (file: string): boolean => /\.json(?:$|\?)/iu.test(file);
+		const manifestUrl = typedFonts.find(entry => isManifest(entry.file))?.file;
+		const directFiles = typedFonts.filter(entry => !isManifest(entry.file)).map(entry => entry.file);
 
-		if (!manifestUrl) {
+		if (!manifestUrl && directFiles.length === 0) {
 			const fallbackMap = await this.buildFontMap(this.opts?.fonts ?? []);
 			this._availableFontsForCurrent = fallbackMap;
 			return this._availableFontsForCurrent;
 		}
 
-		try {
-			const resolved = await this.resolveUrl(manifestUrl, 'font');
-			const rawEntries = await this.fetch<FontManifestEntry[]>(resolved.href, { responseType: 'json' });
-			const validEntries: FontManifestEntry[] = Array.isArray(rawEntries)
-				? rawEntries.filter(isFontEntry)
-				: [];
+		const fontUrls: string[] = [];
 
-			const baseFolder = manifestUrl.replace(/\/[^/]*$/u, '');
-			const manifestFontUrls = validEntries.map(entry => `${baseFolder}/${entry.file}`);
-			const allUrls = [...manifestFontUrls, ...(this.opts?.fonts ?? [])];
-			this._availableFontsForCurrent = await this.buildFontMap(allUrls);
-		}
-		catch (error) {
-			this.report({
-				code: 'plugin:octopus/fonts-manifest-failed',
-				severity: 'warning',
-				context: { manifestUrl },
-				cause: error,
-			});
-			this._availableFontsForCurrent = await this.buildFontMap(this.opts?.fonts ?? []);
+		if (manifestUrl) {
+			try {
+				const resolved = await this.resolveUrl(manifestUrl, 'font');
+				const rawEntries = await this.fetch<FontManifestEntry[]>(resolved.href, { responseType: 'json' });
+				const validEntries: FontManifestEntry[] = Array.isArray(rawEntries)
+					? rawEntries.filter(isFontEntry)
+					: [];
+
+				const baseFolder = manifestUrl.replace(/\/[^/]*$/u, '');
+				fontUrls.push(...validEntries.map(entry => `${baseFolder}/${entry.file}`));
+			}
+			catch (error) {
+				this.report({
+					code: 'plugin:octopus/fonts-manifest-failed',
+					severity: 'warning',
+					context: { manifestUrl },
+					cause: error,
+				});
+			}
 		}
 
+		// Direct font paths are server-relative on the wire — resolve through
+		// the player's url pipeline (baseUrl + auth transform) before fetching.
+		for (const file of directFiles) {
+			try {
+				fontUrls.push((await this.resolveUrl(file, 'font')).href);
+			}
+			catch {
+				fontUrls.push(file);
+			}
+		}
+
+		this._availableFontsForCurrent = await this.buildFontMap([...fontUrls, ...(this.opts?.fonts ?? [])]);
 		return this._availableFontsForCurrent;
 	}
 
