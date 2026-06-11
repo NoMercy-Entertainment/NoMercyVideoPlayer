@@ -394,7 +394,7 @@
 
 	.slider-pop {
 		position: absolute;
-		bottom: 16px;
+		bottom: 24px;
 		left: 0;
 		transform: translateX(-50%);
 		background: rgba(20, 20, 25, 0.95);
