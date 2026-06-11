@@ -331,6 +331,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	/** Sprite preview thumbnails for the current playlist item. */
 	private spriteSet: SpriteSet | null = null;
 	private spriteLoadId = 0;
+	private spriteObjectUrl: string | null = null;
 
 	/**
 	 * v2's subtitleState/audioTrackMode/qualityMode methods return
@@ -1908,6 +1909,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private async loadSpritesForItem(item: VideoPlaylistItem | undefined | null): Promise<void> {
 		const myToken = ++this.spriteLoadId;
 		this.spriteSet = null;
+		this._revokeSpriteObjectUrl();
 
 		this.sliderRefs.sliderPopImage.style.backgroundImage = '';
 		this.sliderRefs.sliderPopImage.style.backgroundPosition = '';
@@ -1916,18 +1918,56 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 		// Canonical path: typed previewSpriteUrl field on the playlist item.
 		// Legacy fallback: tracks[].kind==='thumbnails' for un-normalised items.
-		const spriteUrl = this._resolveSpriteUrl(item);
-		if (!spriteUrl)
+		const rawSpriteUrl = this._resolveSpriteUrl(item);
+		if (!rawSpriteUrl)
 			return;
 
-		const set = await loadSpriteSet(spriteUrl);
-		if (myToken !== this.spriteLoadId)
+		// Server-relative paths must resolve against the player's media base,
+		// not the page origin — an SPA fallback would feed HTML to the parser.
+		const spriteUrl = (await this.resolveUrl(rawSpriteUrl, 'image')).href;
+
+		const set = await loadSpriteSet(spriteUrl, {
+			fetchText: async (url) => {
+				try {
+					return await this.fetch<string>(url);
+				}
+				catch {
+					return null;
+				}
+			},
+			fetchImageUrl: async (url) => {
+				try {
+					const buffer = await this.fetch<ArrayBuffer>(url, { responseType: 'arrayBuffer' });
+					return URL.createObjectURL(new Blob([buffer]));
+				}
+				catch {
+					return null;
+				}
+			},
+		});
+		if (myToken !== this.spriteLoadId) {
+			if (set?.spriteUrl.startsWith('blob:'))
+				URL.revokeObjectURL(set.spriteUrl);
 			return;
+		}
 		if (!set)
 			return;
 
+		if (set.spriteUrl.startsWith('blob:'))
+			this.spriteObjectUrl = set.spriteUrl;
 		this.spriteSet = set;
 		this.sliderRefs.sliderPopImage.style.backgroundImage = `url('${set.spriteUrl}')`;
+	}
+
+	private _revokeSpriteObjectUrl(): void {
+		if (this.spriteObjectUrl) {
+			URL.revokeObjectURL(this.spriteObjectUrl);
+			this.spriteObjectUrl = null;
+		}
+	}
+
+	override dispose(): void {
+		this._revokeSpriteObjectUrl();
 	}
 
 	private _resolveSpriteUrl(item: VideoPlaylistItem | undefined | null): string | undefined {

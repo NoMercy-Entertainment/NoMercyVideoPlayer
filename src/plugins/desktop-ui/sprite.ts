@@ -80,24 +80,54 @@ function parseTimestamp(s: string): number {
 	return hours * 3600 + min * 60 + sec + ms / 1000;
 }
 
+/**
+ * Pluggable transports for sprite loading. Auth-protected backends route both
+ * requests through the plugin's authenticated fetch — a bare `fetch` / `Image`
+ * src can't carry an `Authorization` header.
+ */
+export interface SpriteFetchers {
+	/** Fetch the VTT body. Return `null` on failure. */
+	fetchText?: (url: string) => Promise<string | null>;
+	/**
+	 * Resolve the sprite image to a paintable URL (typically a `blob:` URL
+	 * created from an authenticated download). Return `null` to fall back to
+	 * the raw URL.
+	 */
+	fetchImageUrl?: (url: string) => Promise<string | null>;
+}
+
+async function defaultFetchText(url: string): Promise<string | null> {
+	const response = await fetch(url);
+	if (!response.ok)
+		return null;
+	return response.text();
+}
+
+/** Preload so the first hover paints instantly. Resolves on error too. */
+function preloadImage(url: string): Promise<void> {
+	return new Promise<void>((resolve) => {
+		const img = new Image();
+		img.onload = () => resolve();
+		img.onerror = () => resolve();
+		img.src = url;
+	});
+}
+
 /** Load + parse a sprite VTT, then preload its sprite image. */
-export async function loadSpriteSet(vttUrl: string): Promise<SpriteSet | null> {
+export async function loadSpriteSet(vttUrl: string, fetchers?: SpriteFetchers): Promise<SpriteSet | null> {
 	try {
-		const response = await fetch(vttUrl);
-		if (!response.ok)
+		const text = fetchers?.fetchText
+			? await fetchers.fetchText(vttUrl)
+			: await defaultFetchText(vttUrl);
+		if (!text)
 			return null;
-		const text = await response.text();
 		const cues = parseSpriteVtt(text, vttUrl);
 		if (cues.length === 0)
 			return null;
-		const spriteUrl = cues[0]!.url;
-		// Preload the sprite so the first hover paints instantly.
-		await new Promise<void>((resolve) => {
-			const img = new Image();
-			img.onload = () => resolve();
-			img.onerror = () => resolve();
-			img.src = spriteUrl;
-		});
+		const rawUrl = cues[0]!.url;
+		const resolvedUrl = fetchers?.fetchImageUrl ? await fetchers.fetchImageUrl(rawUrl) : null;
+		const spriteUrl = resolvedUrl ?? rawUrl;
+		await preloadImage(spriteUrl);
 		return { cues, spriteUrl };
 	}
 	catch {

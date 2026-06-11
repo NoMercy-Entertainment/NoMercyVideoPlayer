@@ -66,7 +66,7 @@ describe('DesktopUiPlugin — sprite URL resolution', () => {
 		await new Promise(resolve => setTimeout(resolve, 20));
 
 		expect(loadSpy).toHaveBeenCalledOnce();
-		expect(loadSpy).toHaveBeenCalledWith('http://example.test/sprites.vtt');
+		expect(loadSpy).toHaveBeenCalledWith('http://example.test/sprites.vtt', expect.objectContaining({ fetchText: expect.any(Function), fetchImageUrl: expect.any(Function) }));
 	});
 
 	it('calls loadSpriteSet with legacy tracks file when no previewSpriteUrl present', async () => {
@@ -85,7 +85,7 @@ describe('DesktopUiPlugin — sprite URL resolution', () => {
 		await new Promise(resolve => setTimeout(resolve, 20));
 
 		expect(loadSpy).toHaveBeenCalledOnce();
-		expect(loadSpy).toHaveBeenCalledWith('http://example.test/legacy-sprites.vtt');
+		expect(loadSpy).toHaveBeenCalledWith('http://example.test/legacy-sprites.vtt', expect.objectContaining({ fetchText: expect.any(Function), fetchImageUrl: expect.any(Function) }));
 	});
 
 	it('previewSpriteUrl takes precedence over a legacy tracks entry', async () => {
@@ -102,7 +102,7 @@ describe('DesktopUiPlugin — sprite URL resolution', () => {
 		await new Promise(resolve => setTimeout(resolve, 20));
 
 		expect(loadSpy).toHaveBeenCalledOnce();
-		expect(loadSpy).toHaveBeenCalledWith('http://example.test/canonical.vtt');
+		expect(loadSpy).toHaveBeenCalledWith('http://example.test/canonical.vtt', expect.objectContaining({ fetchText: expect.any(Function), fetchImageUrl: expect.any(Function) }));
 	});
 
 	it('does not call loadSpriteSet when item has neither previewSpriteUrl nor thumbnails track', async () => {
