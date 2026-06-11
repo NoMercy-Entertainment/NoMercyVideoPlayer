@@ -73,11 +73,25 @@ export interface MenuFrameRefs {
 	mainButtons: Record<SubMenuId, HTMLButtonElement>;
 }
 
+/**
+ * Consumer-supplied toggle row for the settings main menu — the menu
+ * counterpart of the `buttons` map. `label` resolves at render time so
+ * i18n applies; `get`/`set` bind the row to wherever the state lives
+ * (a plugin, app storage, ...).
+ */
+export interface SettingsToggleItem {
+	id: string;
+	label: () => string;
+	get: () => boolean;
+	set: (value: boolean) => void;
+}
+
 export function buildMenuFrame(
 	player: IVideoPlayer,
 	parent: HTMLElement,
 	listen: MenuListen,
 	actions: MenuActions,
+	settingsItems?: ReadonlyArray<SettingsToggleItem>,
 ): MenuFrameRefs {
 	const frameDialog = player.createElement('dialog', 'menu-frame-dialog')
 		.addClasses(['menu-frame-dialog'])
@@ -101,7 +115,7 @@ export function buildMenuFrame(
 		.appendTo(frame)
 		.get();
 
-	const main = buildMainMenu(player, content, listen, actions);
+	const main = buildMainMenu(player, content, listen, actions, settingsItems);
 	const sub = player.createElement('div', 'sub-menu')
 		.addClasses(['sub-menu'])
 		.appendTo(content)
@@ -141,6 +155,7 @@ function buildMainMenu(
 	parent: HTMLElement,
 	listen: MenuListen,
 	actions: MenuActions,
+	settingsItems?: ReadonlyArray<SettingsToggleItem>,
 ): HTMLDivElement {
 	const main = player.createElement('div', 'main-menu')
 		.addClasses(['main-menu'])
@@ -194,6 +209,35 @@ function buildMainMenu(
 		scroll.appendChild(btn);
 		listen(btn, 'click', (e: Event) => { e.stopPropagation(); actions.openSubMenu(c.id); });
 	}
+
+	// Consumer toggle rows — same row chrome as category buttons, with the
+	// checkmark reflecting the bound state instead of a chevron.
+	for (const item of settingsItems ?? []) {
+		const btn = player.createButton(`menu-toggle-${item.id}`, item.label(), () => {});
+		btn.classList.add('language-button');
+		btn.setAttribute('role', 'switch');
+		const paint = (): void => {
+			const on = item.get();
+			btn.classList.toggle('is-active', on);
+			btn.setAttribute('aria-checked', String(on));
+			btn.innerHTML = `
+            <span class="menu-button-text">${item.label()}</span>
+            <span class="menu-button-check">${svgFromIcon(fluentIcons.checkmark, 18)}</span>
+        `;
+		};
+		paint();
+		// The menu builds at plugin registration, often before the consumer
+		// plugin owning the label's bundle has loaded — repaint on language
+		// load so the row never shows a raw key.
+		player.on?.('language', paint);
+		scroll.appendChild(btn);
+		listen(btn, 'click', (e: Event) => {
+			e.stopPropagation();
+			item.set(!item.get());
+			paint();
+		});
+	}
+
 	return main;
 }
 

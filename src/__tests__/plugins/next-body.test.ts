@@ -37,7 +37,9 @@ describe('next() advances cursor + loads + plays', () => {
 		expect(loadSpy).toHaveBeenCalledTimes(1);
 		expect((loadSpy.mock.calls[0]![0] as { id: string }).id).toBe('b');
 		expect(playSpy).toHaveBeenCalledTimes(1);
-		// Cursor moves inside the real load() continuation (mocked here) — the
-		// load/play targets above are the advance proof at this layer.
+		// next() moves the cursor BEFORE the load — state reflects the incoming
+		// item immediately, independent of media load completion.
+		expect(player.index()).toBe(1);
+		expect(player.item()?.id).toBe('b');
 	});
 });

@@ -54,7 +54,7 @@
 
 import type { Translations } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
-import type { MenuFrameRefs, MenuRenderState, SubMenuId } from './menus';
+import type { MenuFrameRefs, MenuRenderState, SettingsToggleItem, SubMenuId } from './menus';
 
 import type { ChapterMarkerRef, SliderBarRefs } from './progressBar';
 import type { SpriteSet } from './sprite';
@@ -210,6 +210,13 @@ export interface DesktopUiOptions {
 	 * buttonOrder: ['playlist', 'subtitles', 'audio', 'quality', 'pip', 'settings', 'fullscreen']
 	 */
 	buttonOrder?: ReadonlyArray<keyof DesktopUiButtonOptions>;
+
+	/**
+	 * Consumer toggle rows appended to the settings main menu (e.g. an
+	 * app's auto-skip switch). Labels resolve at render time; `get`/`set`
+	 * bind each row to wherever the state lives.
+	 */
+	settingsItems?: ReadonlyArray<SettingsToggleItem>;
 
 	/**
 	 * Priority order for responsive removal when the container is narrow.
@@ -535,7 +542,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			closeMenu: () => this.closeAllMenus(),
 			openSubMenu: id => this.openSubMenu(id),
 			backToMain: () => this.openMainMenu(),
-		});
+		}, this.opts?.settingsItems);
 
 		this.buildShortcutsOverlay(root);
 	}
