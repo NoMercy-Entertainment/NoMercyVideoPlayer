@@ -51,7 +51,9 @@ import {
 } from '@nomercy-entertainment/nomercy-player-core';
 import { Html5VideoBackend } from './adapters/video-backend/html5';
 import { readItemImage } from './player/itemImage';
+import { normalizeVideoPlaylistItem } from './player/normalize-item';
 import { VideoPreloadStrategy } from './player/preload';
+import { pickStartItem } from './player/start-selection';
 import { normalizeVideoConfig } from './player/v1-config-normalizer';
 import type { V1VideoConfig } from './player/v1-config-normalizer';
 import { V1VideoCompatPlugin } from './plugins/v1-compat';
@@ -1078,6 +1080,18 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		this._activeSegment = null;
 	}
 
+	/**
+	 * Built-in wire-format adapter, called by the kit's queue ingest pipeline
+	 * on every item. Accepts the v1 / NoMercy server playlist format (`file`,
+	 * ms-based `chapters`, `{time, date}` progress, `tracks[]`) and reshapes
+	 * to the canonical `VideoPlaylistItem` — idempotently, so canonical items
+	 * pass through unchanged. Consumers reshape app-specific fields with the
+	 * `transformPlaylistItem` config callback instead of overriding this.
+	 */
+	normalizePlaylistItem(item: BasePlaylistItem): BasePlaylistItem {
+		return normalizeVideoPlaylistItem(item as VideoPlaylistItem);
+	}
+
 	// ── Tracks / chapters / quality ── composed in via `mediaTracksMethods` mixin.
 	declare subtitles: () => SubtitleTrack[];
 	declare subtitle: {
@@ -1253,16 +1267,34 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 
 		const result = kitSetup.call(this, enrichedConfig);
 
-		// autoPlay: load the current queue item once the setup pipeline settles
-		// and start playback when the load resolves. Nothing else issues the
-		// first load — setup() only arms the queue, and play() does not
-		// lazy-load — so waiting for mediaReady here would deadlock.
+		// autoPlay: pick the start item once the setup pipeline settles and
+		// start playback when the load resolves. Progress-aware (v1 parity):
+		// items carrying `progress` resume at the most recent position, >90%
+		// watched rolls to the next item. Nothing else issues the first
+		// load — setup() only arms the queue, and play() does not lazy-load —
+		// so waiting for mediaReady here would deadlock.
 		if (enrichedConfig.autoPlay) {
 			void this.ready()
 				.then(() => {
-					if (this.queue().length === 0)
+					const items = this.queue();
+					if (items.length === 0)
 						return;
-					this.item(this.item() ?? 0, { autoplay: true, source: 'auto-play' });
+
+					// A consumer that pre-picked an item between setup() and
+					// ready() keeps its choice — no progress override.
+					const preselected = this.item();
+					if (preselected) {
+						this.item(preselected, { autoplay: true, source: 'auto-play' });
+						return;
+					}
+
+					const { index, resumeTime } = pickStartItem(items);
+					if (resumeTime) {
+						this.once('firstFrame', () => {
+							void this.time(resumeTime);
+						});
+					}
+					this.item(index, { autoplay: true, source: 'auto-play' });
 				})
 				.catch(() => { /* setup failed — error surfaced via the 'error' event */ });
 		}

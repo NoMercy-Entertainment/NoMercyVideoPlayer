@@ -65,6 +65,13 @@ export interface VideoPlaylistItemV1Compat extends VideoPlaylistItem {
  * Normalise a v1 `VideoPlaylistItem` with the deprecated `tracks[]` field to
  * the v2 canonical shape. Safe on already-normalised items — existing typed
  * fields are never overwritten.
+ *
+ * @deprecated The player normalizes the v1 / server wire format internally
+ * on every queue entry path — pass raw items to `setup({ playlist })` or
+ * `queue()` directly. For app-specific reshaping use the
+ * `transformPlaylistItem` config callback. Note this helper also DROPS the
+ * `tracks[]` field, which the current kit still reads for sidecar subtitles;
+ * the built-in normalizer keeps it.
  */
 export function normalizeVideoItem<T extends VideoPlaylistItemV1Compat>(item: T): Omit<T, 'tracks'> & VideoPlaylistItem {
 	const result = { ...item } as Record<string, unknown>;
