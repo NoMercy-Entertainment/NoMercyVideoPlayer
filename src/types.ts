@@ -37,17 +37,6 @@ export interface FontTrackRef {
 	label?: string;
 }
 
-export interface SkipperRange {
-	start: number;
-	end: number;
-}
-
-export interface SkipperData {
-	intro?: SkipperRange;
-	recap?: SkipperRange;
-	credits?: SkipperRange;
-}
-
 /**
  * Continue-watching progress state for a playlist item. Consumers ship this
  * alongside each item so the playlist menu can render a watched-percentage bar
@@ -80,7 +69,6 @@ export interface VideoPlaylistItem extends BasePlaylistItem {
 	subtitles?: SubtitleTrackRef[];
 	chapters?: ChapterRef[];
 	previewSpriteUrl?: string;
-	skippers?: SkipperData;
 	/**
 	 * Font manifests for ASS/SSA subtitle rendering via `OctopusPlugin`.
 	 * Each entry is a `fonts.json` manifest URL or a direct font file URL.

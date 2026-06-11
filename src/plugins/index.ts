@@ -17,8 +17,6 @@ export { mediaSessionPlugin, MediaSessionPlugin } from './media-session';
 export type { MediaSessionMetadata, MediaSessionOptions } from '@nomercy-entertainment/nomercy-player-core/plugins/media-session';
 export { octopusPlugin, OctopusPlugin } from './octopus';
 export type { OctopusOptions } from './octopus';
-export { skipperPlugin, SkipperPlugin } from './skipper';
-export type { SkipperEvents, SkipperKind, SkipperOptions, SkipperRange } from './skipper';
 export { subtitleOverlayPlugin, SubtitleOverlayPlugin } from './subtitle-overlay/index';
 export type { SubtitleOverlayOptions } from './subtitle-overlay/index';
 export { touchZonesPlugin, TouchZonesPlugin } from './touch-zones';

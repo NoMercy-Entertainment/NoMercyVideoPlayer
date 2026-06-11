@@ -92,10 +92,6 @@
 			"types": "./dist/plugins/octopus/index.d.ts",
 			"import": "./dist/plugins/octopus/index.js"
 		},
-		"./plugins/skipper": {
-			"types": "./dist/plugins/skipper/index.d.ts",
-			"import": "./dist/plugins/skipper/index.js"
-		},
 		"./plugins/subtitle-overlay": {
 			"types": "./dist/plugins/subtitle-overlay/index.d.ts",
 			"import": "./dist/plugins/subtitle-overlay/index.js"

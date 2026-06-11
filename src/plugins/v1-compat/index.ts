@@ -1031,18 +1031,18 @@ export class V1VideoCompatPlugin extends Plugin<
 		// ── Removed APIs (no v2 equivalent) ──────────────────────────────
 
 		/**
-		 * @deprecated Removed in v2, no replacement — use `SkipperPlugin.skippers()`.
+		 * @deprecated Removed in v2, no replacement — skip-segment handling is application-level.
 		 */
 		this._patchMethod('getSkippers', () => {
-			_warnRemoved('getSkippers()', 'use SkipperPlugin.skippers() instead');
+			_warnRemoved('getSkippers()', 'skip-segment handling is application-level in v2');
 			return [];
 		});
 
 		/**
-		 * @deprecated Removed in v2, no replacement — use `SkipperPlugin.skip()`.
+		 * @deprecated Removed in v2, no replacement — skip-segment handling is application-level.
 		 */
 		this._patchMethod('getSkip', () => {
-			_warnRemoved('getSkip()', 'use SkipperPlugin.skip() instead');
+			_warnRemoved('getSkip()', 'skip-segment handling is application-level in v2');
 			return undefined;
 		});
 

@@ -93,8 +93,6 @@ export type {
 	SegmentBoundaryPayload,
 	SegmentEndBehaviour,
 	SegmentOptions,
-	SkipperData,
-	SkipperRange,
 	Stretching,
 	SubtitleTrackRef,
 	VideoBackendFactory,

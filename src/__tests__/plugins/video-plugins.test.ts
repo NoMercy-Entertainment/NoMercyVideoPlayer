@@ -1,13 +1,11 @@
 /**
  * Smoke tests for video-specific plugins:
- *   - SkipperPlugin (registers, no-throw use(), empty list when item lacks data)
  *   - KeyHandlerPlugin (subclass extends parent + adds video keys)
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NMVideoPlayer } from '../../index';
 import { KeyHandlerPlugin } from '../../plugins/key-handler';
-import { SkipperPlugin, skipperPlugin } from '../../plugins/skipper';
 
 describe('video-plugins', () => {
 	beforeEach(() => {
@@ -23,24 +21,6 @@ describe('video-plugins', () => {
 	});
 
 	const setup = () => new NMVideoPlayer('test').setup({});
-
-	describe('SkipperPlugin', () => {
-		it('registers without throwing and use() succeeds', async () => {
-			const p = setup();
-			expect(() => p.addPlugin(skipperPlugin)).not.toThrow();
-			await p.ready();
-			const inst = p.getPlugin(SkipperPlugin);
-			expect(inst).toBeDefined();
-		});
-
-		it('skippers() returns [] when current item has no skipper data', async () => {
-			const p = setup();
-			p.addPlugin(skipperPlugin);
-			await p.ready();
-			const inst = p.getPlugin(SkipperPlugin)!;
-			expect(inst.skippers()).toEqual([]);
-		});
-	});
 
 	describe('KeyHandlerPlugin (video)', () => {
 		it('registers full v1-parity binding set', async () => {
