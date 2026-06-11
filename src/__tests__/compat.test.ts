@@ -144,8 +144,26 @@ describe('factory aliases', () => {
 		expect(nmVideoPlayer).toBe(canonicalNmVideoPlayer);
 	});
 
-	it('nmplayer (compat re-export) is the same as nmVideoPlayer', () => {
-		expect(nmplayer).toBe(nmVideoPlayer);
+	it('nmplayer (compat factory) is distinct from the clean nmVideoPlayer', () => {
+		// Sharing one function deprecated the canonical name and attached v1
+		// shims to v2-native players. The factories must stay separate.
+		expect(nmplayer).not.toBe(nmVideoPlayer);
+	});
+
+	it('nmVideoPlayer instances carry no v1 shims; nmplayer instances do', () => {
+		for (const id of ['compat-clean', 'compat-shimmed']) {
+			const div = document.createElement('div');
+			div.id = id;
+			document.body.appendChild(div);
+		}
+
+		const clean = nmVideoPlayer('compat-clean');
+		expect('registerPlugin' in clean).toBe(false);
+		clean.dispose();
+
+		const compat = nmplayer('compat-shimmed');
+		expect('registerPlugin' in compat).toBe(true);
+		compat.dispose();
 	});
 
 	it('nmVideoPlayer (compat) creates a working NMVideoPlayer instance', () => {

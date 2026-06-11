@@ -1,12 +1,9 @@
 /**
  * Render official Fluent UI icons (from `./buttons.ts`) into SVG markup.
  *
- * Why this exists: the v1 player drew each icon as two stacked <path>s
- * (`normal` + `hover`) and toggled them via CSS `group-hover` classes.
- * The v2 testbed UI uses a flat hover style (color shift) so a single
- * path is enough — but we still pull the path data verbatim from the
- * official fluentIcons table so nothing diverges from the canonical
- * design system.
+ * Each icon is rendered as two stacked `<path>` elements (`icon-normal` +
+ * `icon-hover`) toggled by CSS. Path data is pulled verbatim from the
+ * `fluentIcons` table so nothing diverges from the canonical design system.
  */
 
 import type { Icon } from './buttons';

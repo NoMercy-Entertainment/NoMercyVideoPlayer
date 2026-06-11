@@ -3,13 +3,13 @@
  * onto a positioned DOM tree above the video element.
  *
  * Pure consumer: every piece of "where do cues come from" logic lives in
- * the kit (sidecar VTT fetch + parse + tracker) and the v2 video
- * player's backend (native `TextTrack` cuechange forwarding). The
- * overlay subscribes to a single event — `subtitleCue` — and renders
- * one positioned `.subtitle-area` per active cue, with the user's
- * `subtitleStyle` settings applied to every `.subtitle-text` span.
+ * the kit (sidecar VTT fetch + parse + tracker) and the video player's
+ * backend (native `TextTrack` cuechange forwarding). The overlay subscribes
+ * to a single event — `subtitleCue` — and renders one positioned
+ * `.subtitle-area` per active cue, with the user's `subtitleStyle` settings
+ * applied to every `.subtitle-text` span.
  *
- * The DOM mirrors v1's tree:
+ * DOM tree:
  *   subtitle-overlay > subtitle-safezone > subtitle-area.sized.<aligned>
  *                                          > subtitle-text<span data-language=…>
  *
@@ -25,9 +25,7 @@ import {
 	Plugin,
 } from '@nomercy-entertainment/nomercy-player-core';
 
-// SubtitleOverlayPlugin has no configurable options. The interface is kept
-// as an empty stub so the Plugin<…, SubtitleOverlayOptions> generic still
-// resolves cleanly for consumers who pass `{}` as the options argument.
+/** Options for {@link SubtitleOverlayPlugin}. Currently no configurable options. */
 export interface SubtitleOverlayOptions {}
 
 // `SubtitleCueChange` and `SubtitleStyle` are imported above from the
@@ -35,6 +33,12 @@ export interface SubtitleOverlayOptions {}
 // from the canonical source. No local re-declarations.
 type SubtitleCue = SubtitleCueChange['cues'][number];
 
+/**
+ * Subtitle overlay plugin — renders the player's `subtitleCue` stream onto a
+ * positioned DOM tree above the video element. Pools `.subtitle-area` nodes so
+ * multiple simultaneous cues render as independently-positioned boxes.
+ * Add via `player.addPlugin(subtitleOverlayPlugin)`.
+ */
 export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlayOptions> {
 	static override readonly id: string = 'subtitle-overlay';
 	static override readonly version: string = '1.0.0';
@@ -237,11 +241,11 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 	}
 
 	/**
-	 * Mirror v1's `resize()`: size the overlay to the actual video
-	 * display rectangle (letterbox-fit), not the player container. Cue
-	 * font size scales with the overlay rectangle because cqi units resolve
-	 * against the nearest container-query ancestor (.nomercyplayer), and
-	 * the overlay dimensions are driven by the letterbox-fit calculation.
+	 * Sizes the overlay to the actual video display rectangle (letterbox-fit),
+	 * not the player container. Cue font size scales with the overlay rectangle
+	 * because cqi units resolve against the nearest container-query ancestor
+	 * (`.nomercyplayer`), and the overlay dimensions are driven by the
+	 * letterbox-fit calculation.
 	 *
 	 * Consumes `player.videoRect()` and the `'videoRect'` event — single
 	 * source of truth for the contained-rect math, shared with other plugins.
@@ -272,10 +276,8 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 
 	/**
 	 * Apply the cached subtitle-style to a specific area+text pair.
-	 * Port of v1's `applySubtitleStyle` (see
-	 * `nomercy-video-player/src/player/core.ts`). Colors run through
-	 * `parseColorToHex` which yields `#RRGGBBAA` so the alpha byte is
-	 * correct even when `textOpacity` / `windowOpacity` is 0.
+	 * Colors run through `parseColorToHex` which yields `#RRGGBBAA` so the
+	 * alpha byte is correct even when `textOpacity` / `windowOpacity` is 0.
 	 */
 	private applyStyleTo(text: HTMLSpanElement, area: HTMLDivElement): void {
 		const style = this.currentStyle;
@@ -400,12 +402,11 @@ const NAMED_COLORS: Record<string, string> = {
 };
 
 /**
- * Color → `#RRGGBBAA` ported verbatim from the v1 player's
- * `parseColorToHex` (utils.ts). Uses a 2D canvas to normalise any CSS
- * color string the browser understands, then folds the 0–1 opacity
- * into the alpha byte. `'transparent'` short-circuits to `#00000000`,
- * and `NAMED_COLORS` is consulted first so common menu values
- * (`'white'`, `'black'`, …) resolve without spinning up a canvas.
+ * Converts a CSS color string + opacity to `#RRGGBBAA`. Uses a 2D canvas to
+ * normalise any CSS color the browser understands, then folds the 0–1 opacity
+ * into the alpha byte. `'transparent'` short-circuits to `'#00000000'`.
+ * `NAMED_COLORS` is consulted first so common menu values (`'white'`, `'black'`,
+ * …) resolve without spinning up a canvas.
  */
 function parseColorToHex(color: string, opacity: number = 1): string {
 	if (color.toLowerCase() === 'transparent')
@@ -449,9 +450,9 @@ function normalizeHex(hex: string, opacity: number): string {
 }
 
 /**
- * Edge style → CSS `text-shadow` ported verbatim from v1's `getEdgeStyle`.
- * Values are not arbitrary — they're what users picked in the original
- * settings menu, so deviating would surprise anyone migrating saved prefs.
+ * Maps a subtitle edge-style string to a CSS `text-shadow` value. These
+ * exact shadow values match what users configured via the settings menu —
+ * deviating would break saved preferences.
  */
 function getEdgeStyle(edgeStyle: string, opacity: number): string {
 	const black = parseColorToHex('black', opacity);

@@ -8,11 +8,13 @@ export { drmPlugin, DrmPlugin } from './drm';
 export type { DrmEvents, DrmOptions } from './drm';
 // Cross-library plugins (from the kit, with video-specific defaults where applicable)
 export { keyHandlerPlugin, KeyHandlerPlugin } from './key-handler';
+export type { KeyBindings, KeyHandlerOptions } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
 // Heavy orchestration plugins — server coordination, DRM, cast handoff, skip ranges
 export { liveTranscodingPlugin, LiveTranscodingPlugin } from './live-transcoding';
 
 export type { LiveTranscodingEvents, LiveTranscodingOptions } from './live-transcoding';
 export { mediaSessionPlugin, MediaSessionPlugin } from './media-session';
+export type { MediaSessionMetadata, MediaSessionOptions } from '@nomercy-entertainment/nomercy-player-core/plugins/media-session';
 export { octopusPlugin, OctopusPlugin } from './octopus';
 export type { OctopusOptions } from './octopus';
 export { skipperPlugin, SkipperPlugin } from './skipper';

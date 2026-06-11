@@ -1,10 +1,9 @@
 import type { IVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
 
 /**
- * v1 player exposed `subtitleStyle({...})`; v2 hasn't shipped that method
- *  yet, so `SubtitleStyle` lives here as plugin-domain data. The settings
- *  menu calls `player.subtitleStyle?.(...)` so it no-ops gracefully when the
- *  player doesn't implement it.
+ * Subtitle style data. Lives here as plugin-domain data. The settings
+ * menu calls `player.subtitleStyle?.(...)` so it no-ops gracefully when the
+ * player doesn't implement it.
  */
 export interface SubtitleStyle {
 	fontSize: number;

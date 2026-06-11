@@ -136,7 +136,7 @@ export type { Chapter, QualityLevel, SubtitleTrack, AudioTrack } from './v1-type
 // ── v1 data types ─────────────────────────────────────────────────────────────
 
 /**
- * v1 time data shape emitted on the `'time'` event.
+ * Time data shape emitted on the `'time'` event.
  * @deprecated Use `TimeState` from `@nomercy-entertainment/nomercy-player-core`.
  */
 export interface TimeData {
@@ -151,7 +151,7 @@ export interface TimeData {
 }
 
 /**
- * v1 position descriptor for pointer/touch interactions.
+ * Position descriptor for pointer/touch interactions.
  * @deprecated Declare in your own code if needed.
  */
 export interface Position {
@@ -161,7 +161,7 @@ export interface Position {
 
 // ── Additional v1 utility functions ───────────────────────────────────────────
 
-/** @deprecated v1 display helper. Converts `HH:MM:SS` string to seconds. */
+/** @deprecated Converts an `HH:MM:SS` string to seconds. */
 export function convertToSeconds(hms: string | number | null | undefined): number {
 	if (!hms && hms !== 0) {
 		return 0;
@@ -176,7 +176,7 @@ export function convertToSeconds(hms: string | number | null | undefined): numbe
 	return (parts[0] ?? 0) * 3600 + (parts[1] ?? 0) * 60 + (parts[2] ?? 0);
 }
 
-/** @deprecated v1 display helper. Truncates a sentence at a word boundary near `characters` chars. */
+/** @deprecated Truncates a sentence at a word boundary near `characters` chars. */
 export function limitSentenceByCharacters(str: string | null | undefined, characters = 360): string {
 	if (!str) {
 		return '';
@@ -186,7 +186,7 @@ export function limitSentenceByCharacters(str: string | null | undefined, charac
 	return `${arr.join('.')}.`;
 }
 
-/** @deprecated v1 display helper. Inserts a line break into a show title with season/episode prefix. */
+/** @deprecated Inserts a line break into a show title with season/episode prefix. */
 export function lineBreakShowTitle(str: string, removeShow = false): string {
 	if (!str) {
 		return '';
@@ -326,7 +326,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	declare bufferedRanges: () => TimeRanges;
 	declare seekable: () => TimeRanges;
 	declare timeData: () => KitTimeState;
-	/** Seek to a position expressed as a percentage (0–100) of total duration. V1 parity. */
+	/** Seek to a position expressed as a percentage (0–100) of total duration. */
 	declare seekByPercentage: (pct: number, opts?: ActionOptions) => void;
 
 	declare playbackRate: {
@@ -1222,9 +1222,10 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 
 /**
  * Factory entry point. Returns the existing instance for a given div id, or
- * mounts a fresh one. Mirrors the v1 video-player wiki contract.
+ * mounts a fresh one.
  *
- * This factory also serves as the v1 migration entry point. It:
+ * This factory also serves as the migration entry point for consumers upgrading
+ * from the previous major version. It:
  *  1. Attaches `registerPlugin(name, instance)` and `usePlugin(name)` shims to
  *     the instance so v1-style plugin registration works without code changes.
  *  2. Auto-installs `V1VideoCompatPlugin` at the first `setup()` call so all
@@ -1377,15 +1378,25 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 /**
  * Canonical v2 entry point. Use this name in all new code.
  *
+ * Returns a clean `NMVideoPlayer` instance — no compat shims, no compat plugin,
+ * the fully typed v2 surface and nothing else.
+ *
  * ```ts
  * import { nmVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
  * const player = nmVideoPlayer('my-div');
  * ```
- *
- * `nmplayer` is the deprecated v1-compat alias; it exists only for migration.
  */
-export const nmVideoPlayer = nmplayer;
+export function nmVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: string | number): NMVideoPlayer<T> {
+	return new NMVideoPlayer<T>(id);
+}
 
+/**
+ * @deprecated Default-importing the factory is the migration pattern — it
+ * returns the compat factory with v1 shims attached so existing
+ * `import nmplayer from '...'` consumers keep working unchanged during the
+ * 2.x beta window. New code imports the named `nmVideoPlayer`. Flips to the
+ * clean factory when the compat layer is removed in the first stable 2.x.
+ */
 export default nmplayer;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1420,7 +1431,7 @@ export type {
 // The implementations are intentionally minimal shims — UI plugins should
 // re-implement display logic in their own codebase for v2.
 
-/** @deprecated v1 display helper. Formats seconds into a human-readable time string. */
+/** @deprecated Formats seconds into a human-readable time string (`HH:MM:SS`). */
 export function humanTime(time: string | number): string {
 	const secs = Number.parseInt(String(time), 10);
 	if (Number.isNaN(secs)) {
@@ -1437,7 +1448,7 @@ export function humanTime(time: string | number): string {
 	return `${dd}${hh}${pad(minutes)}:${pad(seconds)}`;
 }
 
-/** @deprecated v1 display helper. Inserts a line-break before the first punctuation character in a title. */
+/** @deprecated Inserts a line-break before the first punctuation character (`:`/`!`/`?`) in a title. */
 export function breakLogoTitle(str: string, characters: string[] = [':', '!', '?']): string {
 	if (!str) {
 		return '';
@@ -1452,7 +1463,7 @@ export function breakLogoTitle(str: string, characters: string[] = [':', '!', '?
 	return str;
 }
 
-/** @deprecated v1 display helper. Replaces `/` separators in episode titles with a line break. */
+/** @deprecated Replaces `/` separators in episode titles with a line break. */
 export function breakEpisodeTitle(str: string): string {
 	if (!str) {
 		return '';

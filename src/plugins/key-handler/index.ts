@@ -8,9 +8,9 @@ function hasDisplayMessage<T extends VideoPlaylistItem>(p: NMVideoPlayer<T>): p 
 }
 
 /**
- * Video key handler — full v1 binding parity, modifier-aware. Subclasses
- * the kit base for cooldown / scope / `when` / cleanup; adds video-specific
- * groups on top via `addDefaults()`.
+ * Video key handler — modifier-aware keyboard bindings for the video player.
+ * Subclasses the kit base for cooldown / scope / `when` / cleanup; adds
+ * video-specific groups on top via `addDefaults()`.
  *
  * Group methods are protected so vendors can subclass and override one
  * group without rewriting the rest. Override `addDefaults()` to drop the
@@ -139,7 +139,7 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		this.bind('ctrl+ArrowRight', () => seek(60));
 	}
 
-	/** Numeric quick-skip + TV remote color buttons (v1 parity). */
+	/** Numeric quick-skip keys (1/3/6/9) and TV remote color buttons (F0–F3). */
 	protected addQuickSkipKeys(): void {
 		this.bind('1', () => { void this.player.forward?.(120); });
 		this.bind('3', () => { void this.player.forward?.(30); });
@@ -164,7 +164,7 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		this.bind('p', () => { void this.player.previous?.(); });
 	}
 
-	/** Chapter cycling — Shift+N forward, Shift+P backward (matches v1). */
+	/** Chapter cycling — Shift+N forward, Shift+P backward. */
 	protected addChapterKeys(): void {
 		this.bind('shift+n', () => { void this.player.nextChapter?.(); });
 		this.bind('shift+p', () => { void this.player.previousChapter?.(); });
@@ -205,7 +205,7 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		this.bind('=', () => setRate(1));
 	}
 
-	/** Frame-advance ('e') — only when paused, advance ~1 frame at 30fps (v1 parity). */
+	/** Frame-advance (`e`) — only when paused; advances ~1 frame at 30fps. */
 	protected addFrameAdvanceKey(): void {
 		this.bind('e', () => {
 			const ps = this.player.playState?.();

@@ -1,10 +1,9 @@
 /**
- * @module player/utils — v1 utility function re-exports for backward compatibility.
+ * @module player/utils — utility function re-exports for backward compatibility.
  *
- * v1 consumer code imported these helpers from
- * `@nomercy-entertainment/nomercy-video-player/src/player/utils`.
- * The subpath export `./player/utils` in package.json points here so those
- * imports continue to resolve without source changes during the migration window.
+ * The subpath export `./player/utils` in `package.json` points here so
+ * consumer imports from that path continue to resolve without source changes
+ * during the migration window.
  *
  * @deprecated Import utilities from the package root in new code.
  */

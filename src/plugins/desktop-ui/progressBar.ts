@@ -42,7 +42,7 @@ export interface SliderBarRefs {
 
 /**
  * Build the slider-bar subtree and return all named refs.
- *  Mirrors v1's `createProgressBar()`. The caller appends to its parent.
+ * The caller appends to its parent.
  */
 export function buildSliderBar(player: IVideoPlayer<VideoPlaylistItem>): SliderBarRefs {
 	const sliderBar = player
@@ -139,9 +139,9 @@ export interface ChapterLite {
 }
 
 /**
- * Build segmented chapter-marker DOM inside `chapterBar`, mirroring v1's
- *  `createChapterMarker`. Returns the new chapter refs array. The caller
- *  must wire click listeners via their own `listen` helper after calling this.
+ * Build segmented chapter-marker DOM inside `chapterBar`. Returns the new
+ * chapter refs array. The caller must wire click listeners via their own
+ * `listen` helper after calling this.
  */
 export function buildChapterMarkers(
 	chapterBar: HTMLDivElement,

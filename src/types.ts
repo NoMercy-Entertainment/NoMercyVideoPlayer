@@ -391,11 +391,11 @@ export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistIte
 	preload?: HtmlPreloadMode;
 	disableMediaControls?: boolean;
 	disableControls?: boolean;
-	/** @deprecated v1 convenience field — accepted but ignored in v2 (touch zones are handled by plugins). */
+	/** @deprecated Accepted but ignored — touch zones are handled by plugins. */
 	disableTouchControls?: boolean;
-	/** @deprecated v1 convenience field — controls timeout in ms before UI auto-hides. Passed to UI plugins. */
+	/** @deprecated Timeout in ms before UI auto-hides. Passed to UI plugins. Use plugin options directly. */
 	controlsTimeout?: number;
-	/** @deprecated v1 convenience field — double-click delay in ms. Passed to UI plugins. */
+	/** @deprecated Double-click delay in ms. Passed to UI plugins. Use plugin options directly. */
 	doubleClickDelay?: number;
 	/**
 	 * Custom backend factory. Overrides the kit's default backend resolution

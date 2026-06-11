@@ -1,7 +1,7 @@
 /**
  * Menu DOM builders for the desktop UI plugin.
  *
- * Mirrors the v1 plugin's menu-frame structure div-by-div:
+ * Menu-frame structure:
  *
  *   menu-frame-dialog (<dialog>)
  *     └─ menu-wrapper
@@ -171,7 +171,7 @@ function buildMainMenu(
 		.appendTo(main)
 		.get();
 
-	// Category buttons. v1 order: language, subtitles, subtitle settings,
+	// Category buttons: language, subtitles, subtitle settings,
 	// quality, speed, aspect ratio, playlist.
 	const cats: { id: SubMenuId; labelKey: string; iconKey: keyof typeof fluentIcons }[] = [
 		{ id: 'language', labelKey: 'plugin.desktop-ui.menu.audio', iconKey: 'language' },
@@ -198,13 +198,12 @@ function buildMainMenu(
 }
 
 /**
- * Build the v1 two-pane playlist shell: a Seasons rail on the left
+ * Build the two-pane playlist shell: a Seasons rail on the left
  * (with its own back/title/close header and an empty scroll container
  * for season buttons) and a wider Episodes rail on the right (with a
  * close-only header and the rich-card episode list).
  *
- * The empty rails are populated by `renderPlaylistPane`. Stays in sync
- * structurally with v1's `createEpisodeMenu`.
+ * The empty rails are populated by `renderPlaylistPane`.
  */
 function buildPlaylistPaneShell(
 	player: IVideoPlayer,
@@ -437,18 +436,17 @@ export function renderSubsPane(
 }
 
 /**
- * Subtitle Settings sub-menu — mirrors v1's `createSubtitleSettingsMenu`.
- * Lists the configurable subtitle properties (Font, Text size, Text
- * color, Text opacity, Edge style, Area color, Area opacity, Background
- * color, Background opacity) plus a Reset row.
+ * Subtitle Settings sub-menu. Lists the configurable subtitle properties
+ * (Font, Text size, Text color, Text opacity, Edge style, Area color,
+ * Area opacity, Background color, Background opacity) plus a Reset row.
  *
  * Each row shows the current value and a chevron — clicking it swaps
  * the pane's body to a property-specific picker (rendered by
  * `renderSubtitlePropertyPane`). The back arrow returns to this list.
  *
- * v2's `IVideoPlayer` doesn't expose a `subtitleStyle()` API, so we
- * keep the active style in module state and write through to the
- * player only when it does (older v1-style consumers).
+ * `IVideoPlayer` doesn't expose a `subtitleStyle()` API, so the active
+ * style is kept in module state and written through to the player only
+ * when the method is present.
  */
 const SETTING_ROWS: Array<{ labelKey: string; property: keyof SubtitleStyle | '' }> = [
 	{ labelKey: 'plugin.desktop-ui.menu.subtitle.font', property: 'fontFamily' },
@@ -487,18 +485,15 @@ function writeSubtitleStyleKey<K extends keyof SubtitleStyle>(
 }
 
 /**
- * Format a subtitle-style value the same way the v1 plugin does in
- * `createSubtitleSettingMenuButton`:
- *   - fontFamily / edgeStyle  → look up the human-readable `name` in
- *                                fontFamilies / edgeStyles
+ * Format a subtitle-style value for display in the settings menu:
+ *   - fontFamily / edgeStyle  → human-readable `name` from `fontFamilies` / `edgeStyles`
  *   - {textColor,
  *      backgroundColor,
- *      areaColor}             → look up the title-cased `label` in the
- *                                shared `colors` table (so 'white' →
- *                                'White', 'black' → 'Black', etc.)
- *   - any other number         → append '%' (covers fontSize, textOpacity,
+ *      areaColor}             → title-cased `label` from the shared `colors` table
+ *                               (e.g. `'white'` → `'White'`)
+ *   - any other number         → append `'%'` (covers fontSize, textOpacity,
  *                                backgroundOpacity, windowOpacity — all
- *                                percentage scales in v1)
+ *                                percentage scales)
  */
 function formatSettingValue(prop: keyof SubtitleStyle, value: unknown): string {
 	if (prop === 'fontFamily')
@@ -620,9 +615,8 @@ function renderSubtitlePropertyPane(
 		scroll.appendChild(btn);
 		listen(btn, 'click', (e: Event) => {
 			e.stopPropagation();
-			// Mirror v1's subtitleSettingActions: each action calls the
-			// player API. We also update our local fallback state and
-			// repaint the picker so the checkmark moves.
+			// Each action calls the player API, updates local fallback state,
+			// and repaints the picker so the checkmark moves.
 			try { action.action?.(); }
 			catch { /* tolerate */ }
 			if (property)
@@ -641,7 +635,7 @@ export interface PlaylistRenderOptions {
 }
 
 /**
- * Playlist sub-menu — mirrors v1's `createEpisodeMenu` rich-card layout.
+ * Playlist sub-menu — rich-card layout.
  *
  * Adaptive layout:
  *   - Flat playlist (no `season` field on any item): the seasons rail is

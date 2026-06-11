@@ -1,5 +1,5 @@
 /**
- * Desktop UI overlay plugin — v2-native rewrite of the v1 examples plugin.
+ * Desktop UI overlay plugin for the video player.
  *
  * File map (desktop-ui/ folder):
  *
@@ -24,7 +24,7 @@
  *   speed, and aspect-ratio are all menu-driven on click. Theater / PiP /
  *   Fullscreen are binary toggles — direct action on click is correct for those.
  *
- * DOM tree (mirrors v1 div-by-div):
+ * DOM tree:
  *
  *   overlay
  *     ├─ top-bar > title              (topBar.ts)
@@ -1732,7 +1732,6 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		});
 	}
 
-	/** v1 scrub behavior — see desktopUIPlugin.createProgressBar. */
 	private wireSliderBar(): void {
 		// Prevent the browser from intercepting touchmove as a scroll gesture
 		// while the user drags over the slider bar.
@@ -1767,8 +1766,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		// reappears on the next mousemove over the bar.
 		this.listen(document, 'mouseup', finalizeScrub);
 
-		// Mouse: click on the bottom bar also finalizes — keeps v1 seek-on-click
-		// behavior for the case where no drag preceded the click.
+		// Mouse: click on the bottom bar also finalizes the seek for the case
+		// where no drag preceded the click.
 		this.listen(this.bottomBar, 'click', finalizeScrub);
 
 		// Touch: touchend on the slider bar finalizes the seek. Without this,
@@ -1915,8 +1914,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.sliderRefs.sliderPopImage.style.width = '';
 		this.sliderRefs.sliderPopImage.style.height = '';
 
-		// Canonical path: typed previewSpriteUrl field (v2 items + normalizeVideoItem output).
-		// Legacy fallback: raw tracks[].kind==='thumbnails' for un-normalised v1 items.
+		// Canonical path: typed previewSpriteUrl field on the playlist item.
+		// Legacy fallback: tracks[].kind==='thumbnails' for un-normalised items.
 		const spriteUrl = this._resolveSpriteUrl(item);
 		if (!spriteUrl)
 			return;

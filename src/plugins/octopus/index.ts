@@ -74,9 +74,9 @@ export interface OctopusOptions {
 
 /**
  * libass-based ASS/SSA subtitle renderer. Thin bridge over
- * `@nomercy-entertainment/nomercy-subtitle-octopus` — the fork carries the
- * five v1 patches (auth pre-fetch, cross-origin worker, canvas geometry,
- * lifecycle race-guard, URL resolution) clean-room reimplemented.
+ * `@nomercy-entertainment/nomercy-subtitle-octopus` — the NoMercy fork
+ * with auth pre-fetch, cross-origin worker support, canvas geometry fixes,
+ * lifecycle race-guard, and URL resolution built in.
  *
  * Activation flow:
  *  - Listens to the player's `subtitle` event. When a track is selected,
@@ -112,11 +112,10 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 	private ownedBlobs: string[] = [];
 
 	/**
-	 * v1-compat constructor. In v1, plugins were instantiated with their
-	 * configuration: `new OctopusPlugin(opts)`. In v2, opts are passed to
-	 * `player.addPlugin(OctopusPlugin, opts)`. When the v1 pattern is used, the
-	 * constructor stores the opts so they survive the kit's `initialize()` call
-	 * (which would otherwise overwrite them with `undefined`).
+	 * Accepts constructor-supplied opts for callers that instantiate the plugin
+	 * directly (`new OctopusPlugin(opts)`). Stores them so they survive the
+	 * kit's `initialize()` call, which would otherwise overwrite them with
+	 * `undefined` when opts aren't passed through `addPlugin`.
 	 */
 	constructor(opts?: OctopusOptions) {
 		super();
@@ -126,9 +125,8 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 	private _ctorOpts: OctopusOptions | undefined;
 
 	/**
-	 * v1-compat: when called via the `registerPlugin` shim, `opts` and
-	 * `lifecycle` arrive as `undefined`. Fall back to constructor-supplied opts
-	 * so the plugin still gets its configuration.
+	 * Falls back to constructor-supplied opts when `opts` arrives as `undefined`
+	 * (e.g. when the plugin is registered via the `registerPlugin` shim).
 	 */
 	override initialize(
 		player: NMVideoPlayer<T>,
@@ -323,7 +321,7 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 	/**
 	 * Fetch each font URL as an ArrayBuffer, create a blob URL, and return a
 	 * libass name→blobUrl map. Font name is derived from the file path basename
-	 * minus extension, lowercased — matching v1's convention and libass expectations.
+	 * minus extension, lowercased — as libass expects.
 	 */
 	private async buildFontMap(urls: string[]): Promise<Record<string, string>> {
 		const entries = await Promise.allSettled(

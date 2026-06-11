@@ -1,9 +1,9 @@
 /**
  * Sprite thumbnail loader for the slider-pop preview.
  *
- * Mirrors v1's `fetchPreviewTime` + `loadSliderPopImage`: parses a sprite
- * VTT (cue body = `image.webp#xywh=x,y,w,h`), preloads the sprite image,
- * and exposes a `lookup(time)` that returns the cue covering that time.
+ * Parses a sprite VTT (cue body = `image.webp#xywh=x,y,w,h`), preloads
+ * the sprite image, and exposes a `lookup(time)` that returns the cue
+ * covering that time.
  */
 
 export interface SpriteCue {
