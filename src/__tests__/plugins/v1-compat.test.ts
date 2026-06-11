@@ -435,8 +435,9 @@ describe('V1VideoCompatPlugin', () => {
 
 			const compat = player as unknown as Record<string, (ev: string, fn: (d: unknown) => void) => void>;
 
-			const eventKey = '"on(\'fullscreen\')"' + '"on(\'fullscreen\')';
-			const fullscreenKey = '"on(\'fullscreen\')';
+			// 'fullscreen' keeps its name in v2 but its payload is reshaped, so
+			// the once-guard applies to the payload-bridged message.
+			const fullscreenKey = `on('fullscreen') is delivered with its v1 payload shape`;
 			const countBefore = (console.warn as ReturnType<typeof vi.spyOn>).mock.calls.filter((args: unknown[]) => String(args[0]).includes(fullscreenKey)).length;
 
 			compat.on('fullscreen', () => undefined);
@@ -445,12 +446,48 @@ describe('V1VideoCompatPlugin', () => {
 			const countAfter = (console.warn as ReturnType<typeof vi.spyOn>).mock.calls.filter((args: unknown[]) => String(args[0]).includes(fullscreenKey)).length;
 
 			expect(countAfter - countBefore).toBe(1);
-			void eventKey;
 			player.dispose();
 		});
 	});
 
 	// ── (d) Removed-API no-ops ───────────────────────────────────────────────
+
+	describe('(c2) event-subscription warning wording', () => {
+		const warnsFor = (needle: string): number =>
+			(console.warn as ReturnType<typeof vi.spyOn>).mock.calls.filter((args: unknown[]) => String(args[0]).includes(needle)).length;
+
+		it('renamed event warns with the v2 name', async () => {
+			const player = setup();
+			player.addPlugin(V1VideoCompatPlugin);
+			await player.ready();
+
+			player.on('seek' as never, () => undefined);
+			expect(warnsFor(`DEPRECATED "on('seek')" — use "on('time')"`)).toBe(1);
+			player.dispose();
+		});
+
+		it('same-name reshaped event warns about the payload, never "use X instead of X"', async () => {
+			const player = setup();
+			player.addPlugin(V1VideoCompatPlugin);
+			await player.ready();
+
+			player.on('play' as never, () => undefined);
+			expect(warnsFor(`use "on('play')" instead`)).toBe(0);
+			expect(warnsFor(`on('play') is delivered with its v1 payload shape`)).toBe(1);
+			player.dispose();
+		});
+
+		it('same-name passthrough event produces no warning at all', async () => {
+			const player = setup();
+			player.addPlugin(V1VideoCompatPlugin);
+			await player.ready();
+
+			const before = warnsFor(`on('ready')`);
+			player.on('ready' as never, () => undefined);
+			expect(warnsFor(`on('ready')`)).toBe(before);
+			player.dispose();
+		});
+	});
 
 	describe('(d) removed-in-v2 shims warn once and do not throw', () => {
 		const removedMethods = [

@@ -1242,13 +1242,23 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
  * v1-compat player instance. Extends `NMVideoPlayer<T>` with widened `setup()` /
  * `registerPlugin()` / `usePlugin()` signatures so v1 consumer code compiles
  * without changes. Do not use this type in new code — use `NMVideoPlayer<T>`.
+ *
+ * @deprecated Use `NMVideoPlayer<T>` in new code.
  */
 type NMPlayerInstance<T extends VideoPlaylistItem> = Omit<NMVideoPlayer<T>, 'setup'> & {
+	/** @deprecated Use the typed `VideoPlayerConfig<T>` shape with `nmVideoPlayer()`. */
 	setup(config: V1VideoConfig<T>): NMPlayerInstance<T>;
+	/** @deprecated Use `player.addPlugin(PluginClass)` in v2. */
 	registerPlugin(name: string, plugin: unknown): void;
+	/** @deprecated Use `player.getPlugin(PluginClass)` in v2. */
 	usePlugin(name: string): void;
 };
 
+/**
+ * @deprecated Use `nmVideoPlayer` instead. This factory is kept for v1 migration
+ * compatibility only — it attaches `registerPlugin` / `usePlugin` shims and
+ * auto-installs `V1VideoCompatPlugin`. New code should call `nmVideoPlayer(id)`.
+ */
 export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: string | number): NMPlayerInstance<T extends VideoPlaylistItem ? T : VideoPlaylistItem> {
 	const instance = new NMVideoPlayer<T>(id);
 
@@ -1365,14 +1375,14 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 }
 
 /**
- * Canonical symmetric named export. Consumers can bind their own name via the
- * default export; use this when you want an explicit import that mirrors the
- * music package's `nmMusicPlayer` naming:
+ * Canonical v2 entry point. Use this name in all new code.
  *
  * ```ts
  * import { nmVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
  * const player = nmVideoPlayer('my-div');
  * ```
+ *
+ * `nmplayer` is the deprecated v1-compat alias; it exists only for migration.
  */
 export const nmVideoPlayer = nmplayer;
 

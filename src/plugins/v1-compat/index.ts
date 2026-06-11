@@ -53,6 +53,18 @@ function _warnRemoved(v1Name: string, reason: string): void {
 	);
 }
 
+function _warnPayloadBridged(eventName: string): void {
+	const key = `payload:${eventName}`;
+	if (_warnedSet.has(key)) {
+		return;
+	}
+	_warnedSet.add(key);
+	console.warn(
+		`[nomercy-video-player] on('${eventName}') is delivered with its v1 payload shape by V1VideoCompatPlugin. `
+		+ `The v2 payload differs — update the listener before the plugin is removed in the first stable 2.x release.`,
+	);
+}
+
 // ---------------------------------------------------------------------------
 // v1 event → v2 event mapping
 // ---------------------------------------------------------------------------
@@ -352,8 +364,18 @@ export class V1VideoCompatPlugin extends Plugin<
 			callback: (data: unknown) => void,
 		): void => {
 			const mapping = eventMap[event];
+			// Same name, no reshape: nothing to bridge — plain subscription.
+			if (mapping && event === mapping.v2Event && !mapping.reshape) {
+				(originalOn as (event: string, cb: (d: unknown) => void) => void)(event, callback);
+				return;
+			}
 			if (mapping) {
-				_warnDeprecated(`on('${event}')`, `on('${mapping.v2Event}')`);
+				if (event === mapping.v2Event) {
+					_warnPayloadBridged(event);
+				}
+				else {
+					_warnDeprecated(`on('${event}')`, `on('${mapping.v2Event}')`);
+				}
 				const listener = (v2Data: unknown): void => {
 					const payload = mapping.reshape ? mapping.reshape(v2Data) : v2Data;
 					// Skip null payloads used as filtering signals (showControls bridge).
