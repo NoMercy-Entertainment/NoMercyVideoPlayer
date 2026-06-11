@@ -1,11 +1,12 @@
 /**
- * Top-bar concern — title bar DOM construction, title/show-info update,
- * and back-button / close-button refresh logic. Also owns the TV current-item
- * info block (show title, episode, episode title) in the top-right corner.
+ * Top-bar concern — title bar DOM construction and title/show-info update.
+ * Also owns the TV current-item info block (show title, episode, episode
+ * title) in the top-right corner.
  *
  * Integration: `buildTitleBar()` is called from `DesktopUiPlugin.buildDom()`.
  * It returns `TopBarRefs` which the plugin stores for later updates via
- * `updateTitleBar()`, `refreshBackButton()`, and `refreshCloseButton()`.
+ * `updateTitleBar()`; back/close visibility is the plugin's
+ * `applyStateVisibility()` (listener gate composed with PiP hiding).
  */
 
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
@@ -131,16 +132,3 @@ export function updateTitleBar(refs: TopBarRefs, item: VideoPlaylistItem | undef
 	refs.showInfoText.hidden = secondary.length === 0;
 }
 
-/** Show or hide the back button based on whether the player has 'back' listeners. */
-export function refreshBackButton(refs: TopBarRefs, player: IVideoPlayer<VideoPlaylistItem>): void {
-	if (!refs.backBtn)
-		return;
-	refs.backBtn.hidden = !player.hasListeners('back');
-}
-
-/** Show or hide the close button based on whether the player has 'close' listeners. */
-export function refreshCloseButton(refs: TopBarRefs, player: IVideoPlayer<VideoPlaylistItem>): void {
-	if (!refs.closeBtn)
-		return;
-	refs.closeBtn.hidden = !player.hasListeners('close');
-}

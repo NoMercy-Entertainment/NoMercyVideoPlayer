@@ -98,8 +98,6 @@ import {
 import { loadSpriteSet, lookupCue } from './sprite';
 import {
 	buildTitleBar,
-	refreshBackButton,
-	refreshCloseButton,
 	updateTitleBar,
 
 } from './topBar';
@@ -336,6 +334,11 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private centerWrap!: HTMLDivElement;
 	private centerBtn!: HTMLButtonElement;
 	private spinner!: HTMLDivElement;
+	/** Center toast / status line — `display-message` renderer + loading/buffering/error feedback. Lives on the container so it survives overlay auto-hide. */
+	private messageEl: HTMLDivElement | null = null;
+	private messageTimer: ReturnType<typeof setTimeout> | null = null;
+	/** `true` while the current message is playback feedback (loading/buffering/error) rather than a consumer toast — feedback clears automatically when playback recovers. */
+	private messageIsFeedback = false;
 
 	private bottomBar!: HTMLDivElement;
 	private topRow!: HTMLDivElement;
@@ -406,6 +409,10 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private subsBtn!: HTMLButtonElement;
 	private audioBtn!: HTMLButtonElement;
 	private theaterBtn!: HTMLButtonElement;
+	/** Theater's config-level visibility, captured at build — state hiding (fullscreen/PiP) composes on top, never overrides an opt-out. */
+	private theaterConfigHidden = false;
+	private fsActive = false;
+	private pipActive = false;
 	private pipBtn!: HTMLButtonElement;
 	private playlistBtn!: HTMLButtonElement;
 	private settingsBtn!: HTMLButtonElement;
@@ -472,6 +479,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.buildDom();
 		this.wireTooltips();
 		this.wireEvents();
+		this.wireFeedback();
+		this.wireMenuKeyboardNav();
 		this.wireOrientation();
 		this.wireNoHover();
 		this.wireResponsive();
@@ -521,6 +530,90 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	 */
 	overlay(): HTMLElement | null {
 		return this.overlayRoot ?? null;
+	}
+
+	// ── Playback feedback: spinner, loading/buffering/error, toasts ──────
+
+	/**
+	 * The user must never stare at a silent black frame. Spinner + status
+	 * line on load and on every buffer stall, an error line when playback
+	 * dies, and the `display-message` / `remove-message` toast contract for
+	 * plugins and consumers (the v1 surface).
+	 */
+	private wireFeedback(): void {
+		const container = this.player.container;
+
+		const showBuffer = (textKey: string): void => {
+			container.classList.add('buffering');
+			this.showMessage(this.t(textKey), undefined, true);
+		};
+		const clearFeedback = (): void => {
+			container.classList.remove('buffering');
+			if (this.messageIsFeedback)
+				this.hideMessage();
+		};
+
+		// Initial load — the player is mounting media right now.
+		showBuffer('message.loading');
+
+		this.on('waiting', () => showBuffer('message.buffering'));
+		this.on('stalled', () => showBuffer('message.buffering'));
+		this.on('current', () => showBuffer('message.loading'));
+		this.on('playing', clearFeedback);
+		this.on('time', clearFeedback);
+
+		this.on('error', () => {
+			container.classList.remove('buffering');
+			this.showMessage(this.t('message.error'), undefined, true);
+		});
+
+		this.on('display-message', (data) => {
+			const payload = data as { text?: string; ms?: number } | undefined;
+			if (payload?.text)
+				this.showMessage(payload.text, payload.ms);
+		});
+		this.on('remove-message', () => this.hideMessage());
+	}
+
+	private showMessage(text: string, ms?: number, isFeedback = false): void {
+		if (!this.messageEl) {
+			const el = document.createElement('div');
+			el.className = 'player-message';
+			this.player.container.appendChild(el);
+			this.messageEl = el;
+		}
+		this.messageEl.textContent = text;
+		this.messageEl.classList.add('visible');
+		this.messageIsFeedback = isFeedback;
+
+		if (this.messageTimer !== null) {
+			clearTimeout(this.messageTimer);
+			this.messageTimer = null;
+		}
+		if (typeof ms === 'number' && ms > 0) {
+			this.messageTimer = this.timeout(() => {
+				this.messageTimer = null;
+				this.hideMessage();
+			}, ms) as unknown as ReturnType<typeof setTimeout>;
+		}
+	}
+
+	private hideMessage(): void {
+		this.messageIsFeedback = false;
+		this.messageEl?.classList.remove('visible');
+	}
+
+	/**
+	 * Display-state visibility: theater is meaningless inside fullscreen or
+	 * PiP, and PiP chrome floats over another window — navigation buttons
+	 * there act on the wrong surface. Config opt-outs always win.
+	 */
+	private applyStateVisibility(): void {
+		this.theaterBtn.hidden = this.theaterConfigHidden || this.fsActive || this.pipActive;
+		if (this.topBarRefs) {
+			this.topBarRefs.backBtn.hidden = this.pipActive || !this.player.hasListeners('back');
+			this.topBarRefs.closeBtn.hidden = this.pipActive || !this.player.hasListeners('close');
+		}
 	}
 
 	/** Show a one-shot hint on first play so users discover the shortcuts overlay. */
@@ -869,6 +962,15 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			.get();
 		volContainer.hidden = !show('mute') && !show('volume');
 
+		// Scroll over the volume cluster adjusts volume (v1: ±delta * 0.5).
+		this.listen(volContainer, 'wheel', (e: Event) => {
+			const wheel = e as WheelEvent;
+			wheel.preventDefault();
+			const current = this.player.volume?.() ?? 100;
+			const next = Math.min(100, Math.max(0, current - wheel.deltaY * 0.5));
+			this.player.volume?.(next);
+		});
+
 		this.volBtn = this.iconBtn('volume', 'volumeHigh');
 		this.volBtn.hidden = !show('mute');
 		volContainer.appendChild(this.volBtn);
@@ -931,6 +1033,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 		this.theaterBtn = this.iconBtn('theater', 'theater');
 		this.theaterBtn.hidden = !show('theater');
+		this.theaterConfigHidden = this.theaterBtn.hidden;
 		parent.appendChild(this.theaterBtn);
 
 		this.pipBtn = this.iconBtn('pip', 'pipEnter');
@@ -1630,10 +1733,10 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.on('current', d => this.handleCurrentChange(d.item));
 
 		this.on('listeners-changed', (d) => {
-			if (d.name === 'back' && this.topBarRefs)
-				refreshBackButton(this.topBarRefs, this.player);
-			if (d.name === 'close' && this.topBarRefs)
-				refreshCloseButton(this.topBarRefs, this.player);
+			// applyStateVisibility composes the listener gate with PiP hiding —
+			// a bare refresh here would unhide back/close mid-PiP.
+			if ((d.name === 'back' || d.name === 'close') && this.topBarRefs)
+				this.applyStateVisibility();
 		});
 
 		// mediaReady: refresh chapters + duration, then sync all track lists
@@ -1715,9 +1818,13 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 		this.on('fullscreen', () => {
 			this.applyFullscreen();
+			this.fsActive = Boolean(document.fullscreenElement);
+			this.applyStateVisibility();
 		});
 		this.on('pip', () => {
-			this.applyPipIcon(Boolean(document.pictureInPictureElement));
+			this.pipActive = Boolean(document.pictureInPictureElement);
+			this.applyPipIcon(this.pipActive);
+			this.applyStateVisibility();
 		});
 		this.on('theater', (d) => {
 			this.applyTheaterIcon(d.active);
@@ -1933,10 +2040,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		if (dur)
 			this.applyDuration(dur);
 		this.refreshCapabilityVisibility();
-		if (this.topBarRefs)
-			refreshBackButton(this.topBarRefs, this.player);
-		if (this.topBarRefs)
-			refreshCloseButton(this.topBarRefs, this.player);
+		this.applyStateVisibility();
 	}
 
 	private setPlayingState(playing: boolean): void {
@@ -2322,6 +2426,16 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.menus.mainButtons.quality.style.display = levels.length < 2 ? 'none' : 'flex';
 		this.menus.mainButtons.playlist.style.display = queueLen < 2 ? 'none' : 'flex';
 
+		// A settings menu with nothing in it is noise — hide the button when
+		// every section it would show is empty (v1 rule, extended with the
+		// consumer-supplied settingsItems rows).
+		const speeds = this.player.playbackRates?.() ?? [];
+		const settingsEmpty = speeds.length <= 1
+			&& audios.length <= 1
+			&& subsCount === 0
+			&& (this.opts?.settingsItems?.length ?? 0) === 0;
+		this.setContentHidden(this.settingsBtn, settingsEmpty);
+
 		// Re-run fit pass now that content-gating may have freed space.
 		if (this._lastContainerWidth > 0) {
 			this._applyAllVisibilityRules(this._lastContainerWidth);
@@ -2460,6 +2574,37 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		try { this.menus.frameDialog.show?.(); }
 		catch { /* not supported */ }
 		this.bumpActivity();
+	}
+
+	/**
+	 * Up/Down moves focus through the open pane's rows (wrapping), keeping
+	 * the focused row centered in the scroll container. Handled on the menu
+	 * frame with propagation stopped so the player-level key handler never
+	 * seeks or changes volume while the user is navigating a menu.
+	 */
+	private wireMenuKeyboardNav(): void {
+		this.listen(this.menus.frame, 'keydown', (e: Event) => {
+			const key = (e as KeyboardEvent).key;
+			if (key !== 'ArrowDown' && key !== 'ArrowUp')
+				return;
+
+			const scope = (this.currentSubMenu && this.menus.panes[this.currentSubMenu]) || this.menus.frame;
+			const rows = [...scope.querySelectorAll<HTMLButtonElement>('button:not([hidden]):not([disabled])')]
+				.filter(button => button.offsetParent !== null);
+			if (rows.length === 0)
+				return;
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			const activeIdx = rows.indexOf(document.activeElement as HTMLButtonElement);
+			const nextIdx = key === 'ArrowDown'
+				? (activeIdx + 1) % rows.length
+				: (activeIdx - 1 + rows.length) % rows.length;
+			const next = rows[nextIdx]!;
+			next.focus();
+			next.scrollIntoView({ block: 'center' });
+		});
 	}
 
 	private closeAllMenus(): void {

@@ -321,6 +321,8 @@ export interface VideoEventMap extends BaseEventMap {
 	// The active UI plugin (DesktopUiPlugin, TvKeyHandlerPlugin) subscribes and renders.
 	// `ms` is the display duration in milliseconds; omit for the UI's default.
 	'display-message': { text: string; ms?: number };
+	// Dismiss the active toast before its duration elapses (v1 surface).
+	'remove-message': undefined;
 
 	// Navigation intent emitted by the DesktopUiPlugin back button.
 	// The player itself has no navigation stack — consumers wire a listener

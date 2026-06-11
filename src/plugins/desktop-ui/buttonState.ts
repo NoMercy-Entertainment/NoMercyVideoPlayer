@@ -55,9 +55,9 @@ export function applyMutedIcon(
 	let icon: typeof fluentIcons.volumeMuted;
 	if (muted || volume === 0)
 		icon = fluentIcons.volumeMuted;
-	else if (volume < 34)
+	else if (volume < 30)
 		icon = fluentIcons.volumeLow;
-	else if (volume < 67)
+	else if (volume <= 60)
 		icon = fluentIcons.volumeMedium;
 	else
 		icon = fluentIcons.volumeHigh;
