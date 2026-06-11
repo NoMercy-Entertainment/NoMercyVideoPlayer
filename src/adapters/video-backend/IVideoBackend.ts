@@ -128,8 +128,12 @@ export type VideoBackendKind = typeof VIDEO_BACKEND_KIND[keyof typeof VIDEO_BACK
 export interface IVideoBackend {
 	readonly kind: VideoBackendKind;
 
+	/** `true` when the backend consumes `startTime` natively (the kit then skips its post-load seek fallback). */
+	readonly canStartAt?: boolean;
+
 	// Lifecycle
-	load(url: string, opts?: { preload: HtmlPreloadMode }): Promise<void>;
+	/** `opts.startTime` — begin playback at this offset (seconds); the engine fetches its first data AT the offset rather than seeking after the fact. */
+	load(url: string, opts?: { preload?: HtmlPreloadMode; startTime?: number }): Promise<void>;
 	unload(): void;
 	dispose(): void;
 

@@ -12,6 +12,7 @@ import type {
 	AudioTrack as KitAudioTrack,
 	Chapter as KitChapter,
 	SubtitleTrack as KitSubtitleTrack,
+	LoadOptions,
 	QualityLevel,
 	SubtitleStyle,
 } from '@nomercy-entertainment/nomercy-player-core';
@@ -558,13 +559,14 @@ export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	play(opts?: ActionOptions): Promise<void>;
 	pause(opts?: ActionOptions): Promise<void>;
 	stop(opts?: ActionOptions): Promise<void>;
-	next(opts?: ActionOptions): Promise<void>;
-	previous(opts?: ActionOptions): Promise<void>;
+	/** `opts.startAt` begins the incoming item at an offset (seconds) — the backend starts fetching there. */
+	next(opts?: LoadOptions): Promise<void>;
+	previous(opts?: LoadOptions): Promise<void>;
 
 	// ── Queue ──
 
 	item(): T | undefined;
-	item(target: T | string | number, opts?: ActionOptions): void;
+	item(target: T | string | number, opts?: LoadOptions): void;
 
 	/** Number of items in the active queue. */
 	queueLength(): number;

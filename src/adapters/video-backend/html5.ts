@@ -246,7 +246,15 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 
 	// ── Lifecycle ──
 
-	async load(url: string, opts?: { preload: HtmlPreloadMode }): Promise<void> {
+	/**
+	 * `startTime` is consumed natively (declared via `canStartAt`): the hls.js
+	 * path maps it to `startPosition` so the FIRST fragment fetched is the one
+	 * containing the offset — fragment 0 is never requested. The native /
+	 * progressive path sets `element.currentTime` once metadata arrives.
+	 */
+	readonly canStartAt: boolean = true;
+
+	async load(url: string, opts?: { preload?: HtmlPreloadMode; startTime?: number }): Promise<void> {
 		this.currentUrl = url;
 		this._hadError = false;
 		this._ended = false;
@@ -349,6 +357,11 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				enableWorker: true,
 				lowLatencyMode: false,
 				enableCEA708Captions: true,
+				// Begin at the resume offset: hls.js fetches the fragment
+				// CONTAINING this position as its first fragment, so resuming
+				// never downloads/decodes the start of the stream. -1 = default
+				// start (live edge for live, 0 for VOD).
+				startPosition: typeof opts?.startTime === 'number' && opts.startTime > 0 ? opts.startTime : -1,
 				// Begin fetching the first segment during manifest parsing so the
 				// browser has data buffered by the time play() is called. Without
 				// this the segment fetch only starts after MANIFEST_PARSED, adding
@@ -395,6 +408,15 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		performance.mark('nm:backend:waitForLoadedMetadata:start');
 		await this.waitForLoadedMetadata();
 		performance.mark('nm:backend:waitForLoadedMetadata:end');
+
+		// Native-HLS / progressive path: no hls.js startPosition available, so
+		// position the element as soon as metadata is in. The browser then only
+		// fetches data around the offset (range requests / native HLS engine).
+		if (!this.hls && typeof opts?.startTime === 'number' && opts.startTime > 0) {
+			try { this.element.currentTime = opts.startTime; }
+			catch { /* defensive — some engines refuse pre-canplay seeks */ }
+		}
+
 		this._state = 'ready';
 		this.emit('loadedmetadata', { url, kind: this.kind, duration: this.element.duration });
 	}
@@ -1098,13 +1120,16 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			else {
 				// MUX_ERROR or unknown fatal — destroy + reload.
 				this.emit('stream:recovering', { details: data.details, attempt: 1, maxAttempts: 1 });
+				// Capture the playback position BEFORE the teardown wipes it so
+				// the reload resumes where the error hit, not at 0.
+				const resumeAt = this.element.currentTime;
 				try { this.hls?.detachMedia(); }
 				catch { /* defensive */ }
 				try { this.hls?.destroy(); }
 				catch { /* defensive */ }
 				this.hls = undefined;
 				// Re-attach via the existing load path. If load() throws, escalate.
-				this.load(url).catch(() => {
+				this.load(url, resumeAt > 0 ? { startTime: resumeAt } : undefined).catch(() => {
 					this._escalateHlsError(data.details, `HLS fatal after destroy-reload: ${data.details}`);
 				});
 			}

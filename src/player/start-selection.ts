@@ -8,7 +8,7 @@ import type { VideoPlaylistItem } from '../types';
 
 export interface StartSelection {
 	index: number;
-	/** Seconds to seek to once the first frame paints. Absent = start at 0. */
+	/** Offset (seconds) the item should START at — passed as `startAt` so the backend begins fetching there. Absent = start at 0. */
 	resumeTime?: number;
 }
 

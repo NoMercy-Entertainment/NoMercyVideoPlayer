@@ -263,6 +263,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	// so class methods can access them without casts.
 	private declare _phase: string;
 	private declare _playState: string;
+	/** Bumped only by `item(target)` navigations — distinguishes a real consumer preselection from the queue's default cursor. */
+	declare _currentEpoch: number | undefined;
 
 	// ── Type-only declarations for the methods composed in from the kit's
 	// `playerCoreMethods`. The bodies live in the kit; these declarations let
@@ -310,8 +312,8 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	declare pause: (opts?: ActionOptions) => Promise<void>;
 	declare stop: (opts?: ActionOptions) => Promise<void>;
 	declare togglePlayback: (opts?: ActionOptions) => Promise<void>;
-	declare next: (opts?: ActionOptions) => Promise<void>;
-	declare previous: (opts?: ActionOptions) => Promise<void>;
+	declare next: (opts?: LoadOptions) => Promise<void>;
+	declare previous: (opts?: LoadOptions) => Promise<void>;
 	declare rewind: (seconds?: number, opts?: ActionOptions) => Promise<void>;
 	declare forward: (seconds?: number, opts?: ActionOptions) => Promise<void>;
 	declare restart: (opts?: ActionOptions) => Promise<void>;
@@ -380,7 +382,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	declare item: {
 		(): T | undefined;
-		(target: T | string | number, opts?: ActionOptions): void;
+		(target: T | string | number, opts?: LoadOptions): void;
 	};
 
 	declare index: () => number;
@@ -1279,20 +1281,24 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 						return;
 
 					// A consumer that pre-picked an item between setup() and
-					// ready() keeps its choice — no progress override.
-					const preselected = this.item();
+					// ready() keeps its choice — no progress override. The
+					// queue cursor DEFAULTS to item 0 the moment items exist,
+					// so `item()` alone can't tell a real choice from the
+					// default; only an explicit `item(target)` navigation
+					// bumps `_currentEpoch`. Without this gate every session
+					// "preselected" item 0 and resume never ran.
+					const preselected = this._currentEpoch ? this.item() : undefined;
 					if (preselected) {
 						this.item(preselected, { autoplay: true, source: 'auto-play' });
 						return;
 					}
 
+					// `startAt` rides the load down to the backend (hls.js
+					// `startPosition`), so resume begins AT the offset — the
+					// old firstFrame-then-seek approach downloaded and decoded
+					// the start of the stream just to discard it.
 					const { index, resumeTime } = pickStartItem(items);
-					if (resumeTime) {
-						this.once('firstFrame', () => {
-							void this.time(resumeTime);
-						});
-					}
-					this.item(index, { autoplay: true, source: 'auto-play' });
+					this.item(index, { autoplay: true, source: 'auto-play', startAt: resumeTime });
 				})
 				.catch(() => { /* setup failed — error surfaced via the 'error' event */ });
 		}

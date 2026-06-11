@@ -25,6 +25,13 @@ vi.mock('hls.js', () => {
 		loadLevel = -1;
 		nextLevel = -1;
 		autoLevelCapping = -1;
+		/** Config the most recent instance was constructed with — lets tests assert startPosition. */
+		static lastConfig: Record<string, unknown> | undefined;
+
+		constructor(config?: Record<string, unknown>) {
+			FakeHls.lastConfig = config;
+		}
+
 		static isSupported = (): boolean => true;
 		static Events: Record<string, string> = {
 			MANIFEST_PARSED: 'hlsManifestParsed',
@@ -162,5 +169,62 @@ describe('Html5VideoBackend — load() error propagation', () => {
 		videoEl.dispatchEvent(new Event('error'));
 
 		await expect(loadPromise).rejects.toBeDefined();
+	});
+});
+
+describe('Html5VideoBackend — startTime load hint', () => {
+	let container: HTMLDivElement;
+	let backend: Html5VideoBackend;
+
+	beforeEach(() => {
+		container = document.createElement('div');
+		document.body.appendChild(container);
+		backend = new Html5VideoBackend(container);
+	});
+
+	afterEach(() => {
+		try { backend.dispose(); }
+		catch { /* defensive */ }
+		document.body.innerHTML = '';
+	});
+
+	async function resolveMetadata(): Promise<void> {
+		await flushMicrotasks();
+		const videoEl = container.querySelector('video') as HTMLVideoElement;
+		Object.defineProperty(videoEl, 'readyState', { value: 1, configurable: true });
+		videoEl.dispatchEvent(new Event('loadedmetadata'));
+	}
+
+	it('declares canStartAt so the kit skips its post-load seek fallback', () => {
+		expect(backend.canStartAt).toBe(true);
+	});
+
+	it('maps startTime to hls.js startPosition', async () => {
+		const HlsDefault = (await import('hls.js')).default as unknown as { lastConfig?: Record<string, unknown> };
+
+		const loadPromise = backend.load('https://example.invalid/test.m3u8', { startTime: 300 });
+		await resolveMetadata();
+		await loadPromise;
+
+		expect(HlsDefault.lastConfig?.startPosition).toBe(300);
+	});
+
+	it('defaults startPosition to -1 without a startTime', async () => {
+		const HlsDefault = (await import('hls.js')).default as unknown as { lastConfig?: Record<string, unknown> };
+
+		const loadPromise = backend.load('https://example.invalid/test.m3u8');
+		await resolveMetadata();
+		await loadPromise;
+
+		expect(HlsDefault.lastConfig?.startPosition).toBe(-1);
+	});
+
+	it('positions the element at startTime for progressive sources', async () => {
+		const loadPromise = backend.load('https://example.invalid/test.mp4', { startTime: 120 });
+		await resolveMetadata();
+		await loadPromise;
+
+		const videoEl = container.querySelector('video') as HTMLVideoElement;
+		expect(videoEl.currentTime).toBe(120);
 	});
 });
