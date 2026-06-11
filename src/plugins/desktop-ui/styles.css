@@ -559,9 +559,8 @@
 		appearance: none;
 		width: 12px;
 		height: 12px;
-		/* Center on the 8px track: (track - thumb) / 2. WebKit top-aligns
-		   appearance:none thumbs to the input's content box. */
-		margin-top: -2px;
+		/* Chromium centers appearance:none thumbs on the track — any margin
+		   offset pushes it off-center (pixel-verified). */
 		background: #fff;
 		border-radius: 50%;
 	}
@@ -637,8 +636,7 @@
 		appearance: none;
 		width: 12px;
 		height: 12px;
-		/* Center on the 4px track: (track - thumb) / 2. */
-		margin-left: -4px;
+		/* Chromium centers appearance:none thumbs — see horizontal slider. */
 		background: #fff;
 		border-radius: 50%;
 	}
