@@ -215,6 +215,19 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	 */
 	private _hdrMqlListener: ((e: MediaQueryListEvent) => void) | undefined;
 
+	/** Resolves the full `Authorization` header value, or undefined when unauthenticated. */
+	private _authHeaderProvider: (() => string | undefined | Promise<string | undefined>) | undefined;
+
+	/**
+	 * Wire the provider whose return value goes into the `Authorization`
+	 * header of every hls.js manifest/segment request. Called by the player
+	 * at backend init from the `auth` config; consumers with a custom backend
+	 * factory can wire their own.
+	 */
+	setAuthHeaderProvider(provider: () => string | undefined | Promise<string | undefined>): void {
+		this._authHeaderProvider = provider;
+	}
+
 	constructor(container: HTMLElement) {
 		super();
 		const existing = container.querySelector<HTMLVideoElement>('video');
@@ -341,6 +354,15 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				// this the segment fetch only starts after MANIFEST_PARSED, adding
 				// a full round-trip before the first frame can render.
 				startFragPrefetch: true,
+				// Authenticated media servers reject manifest/segment requests
+				// without the Authorization header the player's auth config
+				// carries. The provider is wired by the player at backend init.
+				xhrSetup: async (xhr: XMLHttpRequest) => {
+					const headerValue = await this._authHeaderProvider?.();
+					if (headerValue) {
+						xhr.setRequestHeader('Authorization', headerValue);
+					}
+				},
 			});
 			this.hls = hlsInstance;
 			hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {

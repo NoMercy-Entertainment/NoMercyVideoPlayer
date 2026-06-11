@@ -586,6 +586,17 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		this._backend = instance;
 		this.videoElement = instance.mediaElement();
 
+		// Authenticated media servers need the Authorization header on every
+		// hls.js manifest/segment request. The provider reads the auth config
+		// lazily so getter-style tokens (Vue refs, stores) stay live.
+		instance.setAuthHeaderProvider?.(async () => {
+			const bearer = this.options?.auth?.bearerToken;
+			if (!bearer)
+				return undefined;
+			const token = typeof bearer === 'function' ? await bearer() : bearer;
+			return token ? `Bearer ${token}` : undefined;
+		});
+
 		// Mount the ResizeObserver that keeps videoRect() fresh. Done here so
 		// the observer sees the real video element immediately after backend init.
 		this._mountVideoRectObserver();

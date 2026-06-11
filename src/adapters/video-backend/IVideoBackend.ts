@@ -133,6 +133,14 @@ export interface IVideoBackend {
 	unload(): void;
 	dispose(): void;
 
+	/**
+	 * Wire the provider whose return value goes into the `Authorization`
+	 * header of network requests the backend issues itself (hls.js
+	 * manifests/segments). Optional — backends without their own network
+	 * stack omit it.
+	 */
+	setAuthHeaderProvider?(provider: () => string | undefined | Promise<string | undefined>): void;
+
 	// Transport
 	play(): Promise<void>;
 	pause(): void;
