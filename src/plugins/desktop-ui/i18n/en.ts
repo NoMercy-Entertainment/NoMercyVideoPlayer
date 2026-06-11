@@ -115,6 +115,8 @@ export default {
 	'plugin.desktop-ui.menu.playlist': 'Playlist',
 	'plugin.desktop-ui.menu.episodes': 'Episodes',
 	'plugin.desktop-ui.menu.off': 'Off',
+	'plugin.desktop-ui.menu.subtitleType.full': 'Full',
+	'plugin.desktop-ui.menu.subtitleType.sign': 'Sign',
 	'plugin.desktop-ui.menu.auto': 'Auto',
 	'plugin.desktop-ui.menu.normal': 'Normal',
 	'plugin.desktop-ui.menu.original': 'Original',

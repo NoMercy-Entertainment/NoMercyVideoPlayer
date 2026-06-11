@@ -76,9 +76,9 @@ describe('DesktopUiPlugin — menu sync with programmatic track selection', () =
 		(player.getPlugin(desktopUiPlugin) as unknown as { openSubMenu: (id: string) => void })
 			.openSubMenu('subtitles');
 
-		// kind='subtitles' → id prefix 'subtitles-button-nl' (menus.ts: kind from s.kind)
+		// No `type` on the track → variant slug defaults to 'full' (menus.ts).
 		const offBtn = document.querySelector<HTMLButtonElement>('[id^="off-button-"]');
-		const dutchBtn = document.querySelector<HTMLButtonElement>('[id^="subtitles-button-nl"]');
+		const dutchBtn = document.querySelector<HTMLButtonElement>('[id^="full-button-nl"]');
 
 		expect(offBtn).toBeTruthy();
 		expect(dutchBtn).toBeTruthy();
@@ -110,7 +110,7 @@ describe('DesktopUiPlugin — menu sync with programmatic track selection', () =
 			.openSubMenu('subtitles');
 
 		const offBtn = document.querySelector<HTMLButtonElement>('[id^="off-button-"]');
-		const dutchBtn = document.querySelector<HTMLButtonElement>('[id^="subtitles-button-nl"]');
+		const dutchBtn = document.querySelector<HTMLButtonElement>('[id^="full-button-nl"]');
 
 		expect(offBtn!.classList.contains('is-active')).toBe(false);
 		expect(dutchBtn!.classList.contains('is-active')).toBe(true);

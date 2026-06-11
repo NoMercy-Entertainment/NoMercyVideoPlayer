@@ -21,6 +21,7 @@
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 import type { AudioTrackRef, QualityLevel, SubtitleTrackRef } from '../../types';
 import type { SubtitleStyle } from './buttons';
+import { languageDisplayName, subtitleTrackLabel } from './language-names';
 import { readItemImage } from '../../player/itemImage';
 import {
 	colors,
@@ -463,14 +464,17 @@ export function renderSubsPane(
 	// sidecar VTT tracks, so the renderer just consumes one flat list.
 	const subs: SubtitleTrackRef[] = player.subtitles?.() ?? [];
 	const off = state.subtitleIdx === null || state.subtitleIdx === -1;
+	const uiLanguage = typeof player.language?.() === 'string' ? player.language() as unknown as string : 'en';
 	appendChoice(scroll, 'off-button-', player.t('plugin.desktop-ui.menu.off'), off, () => { player.subtitle?.(null); onPick(); }, listen, player);
 	subs.forEach((s, i) => {
 		const langSlug = (s.language ?? s.id).replace(/\W+/g, '-').toLowerCase();
-		const kind = (s.kind ?? 'full').replace(/\W+/g, '-').toLowerCase();
+		// The variant lives in `type` ('full' / 'sign' / 'sdh' …); `kind` is the
+		// WebVTT kind ('subtitles' / 'captions') and never distinguishes rows.
+		const variantSlug = (s.type ?? 'full').replace(/\W+/g, '-').toLowerCase();
 		appendChoice(
 			scroll,
-			`${kind}-button-${langSlug}`,
-			s.label ?? s.language ?? `Track ${i + 1}`,
+			`${variantSlug}-button-${langSlug}`,
+			subtitleTrackLabel(s, uiLanguage, key => player.t(key), `Track ${i + 1}`),
 			!off && state.subtitleIdx === i,
 			() => { player.subtitle?.(i); onPick(); },
 			listen,
@@ -881,12 +885,13 @@ export function renderAudioPane(
 		return;
 	scroll.replaceChildren();
 	const tracks: AudioTrackRef[] = player.audioTracks?.() ?? [];
+	const uiLanguage = typeof player.language?.() === 'string' ? player.language() as unknown as string : 'en';
 	tracks.forEach((t, i) => {
 		const langSlug = (t.language ?? t.id).replace(/\W+/g, '-').toLowerCase();
 		appendChoice(
 			scroll,
 			`audio-button-${langSlug}-${i}`,
-			t.label ?? t.language ?? `Track ${i + 1}`,
+			t.label ?? languageDisplayName(t.language, uiLanguage) ?? t.language ?? `Track ${i + 1}`,
 			state.audioIdx === i,
 			() => { player.audioTrack?.(i); onPick(); },
 			listen,

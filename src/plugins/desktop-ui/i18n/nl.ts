@@ -114,6 +114,8 @@ export default {
 	'plugin.desktop-ui.menu.playlist': 'Afspeellijst',
 	'plugin.desktop-ui.menu.episodes': 'Afleveringen',
 	'plugin.desktop-ui.menu.off': 'Uit',
+	'plugin.desktop-ui.menu.subtitleType.full': 'Volledig',
+	'plugin.desktop-ui.menu.subtitleType.sign': 'Tekens',
 	'plugin.desktop-ui.menu.auto': 'Automatisch',
 	'plugin.desktop-ui.menu.normal': 'Normaal',
 	'plugin.desktop-ui.menu.original': 'Origineel',
