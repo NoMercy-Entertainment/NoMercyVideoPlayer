@@ -2,6 +2,7 @@ import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertain
 import type { HtmlPreloadMode } from '../../types';
 import type { BackendEventPayload, BackendLoaderState, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
 import { BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError } from '@nomercy-entertainment/nomercy-player-core';
+import HlsDefault from 'hls.js';
 
 interface HlsLevel {
 	attrs?: { 'CODECS'?: string; 'VIDEO-RANGE'?: string };
@@ -306,12 +307,11 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		performance.mark('nm:backend:load:start');
 
 		if (isHls && !nativeHls) {
-			// Dynamic import keeps hls.js out of the initial bundle when not
-			// needed. The specifier must stay statically analyzable — an
-			// indirect/@vite-ignore form leaves a bare 'hls.js' unresolvable in
-			// the browser and silently kills playback for bundled consumers.
-			const mod: { default?: HlsConstructor } & Partial<HlsConstructor> = await import('hls.js');
-			const Hls = (mod.default ?? mod) as HlsConstructor;
+			// hls.js is the PRIMARY engine, not a fallback — every NoMercy
+			// stream is HLS and Chromium cannot demux it natively. Statically
+			// imported so it is ready before the first load, never fetched on
+			// the critical play path.
+			const Hls = HlsDefault as unknown as HlsConstructor;
 			if (!Hls?.isSupported?.()) {
 				this._state = 'error';
 				throw new MediaFormatError({
