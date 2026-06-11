@@ -581,8 +581,9 @@
 		appearance: none;
 		width: 12px;
 		height: 12px;
-		/* Chromium centers appearance:none thumbs on the track — any margin
-		   offset pushes it off-center (pixel-verified). */
+		/* Chromium centers appearance:none thumbs on the track; Stoney wants
+		   the knob to sit a touch lower than geometric center. */
+		margin-top: 2px;
 		background: #fff;
 		border-radius: 50%;
 	}

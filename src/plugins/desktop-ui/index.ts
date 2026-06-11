@@ -1763,8 +1763,15 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.on('volume', (d) => {
 			const level = typeof d?.level === 'number' ? d.level : this.player.volume?.() ?? 100;
 			this.applyVolume(level);
+			// Every volume change toasts the new level — same affordance as
+			// cycling aspect / audio / subtitles (v1 behaviour).
+			this.showMessage(this.t('message.volume', { level: String(Math.round(level)) }), 1200);
 		});
-		this.on('mute', d => this.applyMuted(d?.muted ?? this.player.volumeState?.() === 'muted'));
+		this.on('mute', (d) => {
+			const muted = d?.muted ?? this.player.volumeState?.() === 'muted';
+			this.applyMuted(muted);
+			this.showMessage(this.t(muted ? 'message.muted' : 'message.unmuted'), 1200);
+		});
 
 		// 'backend:ratechange' is the correct player-level event — emitted by
 		// base-player.ts:playbackRate() and carried on the typed event map.
@@ -2305,11 +2312,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private applyAudioIcon(): void {
-		const tracks = this.player.audioTracks?.() ?? [];
-		const defaultIdx = tracks.findIndex(track => track.default === true);
-		const resolvedDefault = defaultIdx >= 0 ? defaultIdx : 0;
-		const isDefaultTrack = this.activeAudioIdx < 0 || this.activeAudioIdx === resolvedDefault;
-		applyAudioIcon(this.audioBtn, isDefaultTrack, this.t.bind(this));
+		applyAudioIcon(this.audioBtn, this.t.bind(this));
 	}
 
 	private applyQualityIcon(): void {

@@ -132,13 +132,14 @@ export function applyPipIcon(pipBtn: HTMLButtonElement, active: boolean, t: ITra
 // ── Audio track ────────────────────────────────────────────────────────────────
 
 /**
- * Update the audio button icon and aria-label.
- * Adds `is-active` when the selected track is not the manifest default, which
- * forces the filled icon variant via the CSS `.btn.is-active` rule.
+ * Update the audio button icon and aria-label. NEVER marks the button
+ * `is-active`: exactly one audio track is always playing, so unlike
+ * subtitles (off/on) or quality (auto/manual) there is no non-default
+ * state to advertise — preference-restored languages lit it permanently.
  */
-export function applyAudioIcon(audioBtn: HTMLButtonElement, isDefaultTrack: boolean, t: ITranslator['t']): void {
+export function applyAudioIcon(audioBtn: HTMLButtonElement, t: ITranslator['t']): void {
 	setBtnIcon(audioBtn, svgFromIcon(fluentIcons.language));
-	audioBtn.classList.toggle('is-active', !isDefaultTrack);
+	audioBtn.classList.remove('is-active');
 	audioBtn.setAttribute('aria-label', t('tooltip.audio'));
 }
 

@@ -129,7 +129,9 @@ describe('DesktopUiPlugin — icon state (is-active divergence)', () => {
 
 	// ── Audio track ───────────────────────────────────────────────────────────
 
-	it('audio button has no is-active when the default track is selected', async () => {
+	it('audio button NEVER gains is-active — even on a non-default track', async () => {
+		// Exactly one audio track is always playing; preference-restored
+		// languages lit the button permanently. There is no active state.
 		const player = await makePlayer();
 
 		const tracks = [
@@ -138,47 +140,13 @@ describe('DesktopUiPlugin — icon state (is-active divergence)', () => {
 		];
 		Object.assign(player, { audioTracks: () => tracks });
 
-		// Emit audioTrack selecting index 0 (the default track).
-		player.emit('audioTrack' as never, { id: 0 } as never);
-
 		const audioBtn = document.querySelector<HTMLButtonElement>('#audio');
 		expect(audioBtn).toBeTruthy();
+
+		player.emit('audioTrack' as never, { id: 0 } as never);
 		expect(audioBtn!.classList.contains('is-active')).toBe(false);
-	});
-
-	it('audio button gains is-active when a non-default track is selected', async () => {
-		const player = await makePlayer();
-
-		const tracks = [
-			{ id: 'en', label: 'English', default: true },
-			{ id: 'nl', label: 'Dutch', default: false },
-		];
-		Object.assign(player, { audioTracks: () => tracks });
-
-		// Emit audioTrack selecting index 1 (not the default).
-		player.emit('audioTrack' as never, { id: 1 } as never);
-
-		const audioBtn = document.querySelector<HTMLButtonElement>('#audio');
-		expect(audioBtn).toBeTruthy();
-		expect(audioBtn!.classList.contains('is-active')).toBe(true);
-	});
-
-	it('audio button loses is-active when returning to the default track', async () => {
-		const player = await makePlayer();
-
-		const tracks = [
-			{ id: 'en', label: 'English', default: true },
-			{ id: 'nl', label: 'Dutch', default: false },
-		];
-		Object.assign(player, { audioTracks: () => tracks });
 
 		player.emit('audioTrack' as never, { id: 1 } as never);
-
-		const audioBtn = document.querySelector<HTMLButtonElement>('#audio');
-		expect(audioBtn!.classList.contains('is-active')).toBe(true);
-
-		player.emit('audioTrack' as never, { id: 0 } as never);
-
 		expect(audioBtn!.classList.contains('is-active')).toBe(false);
 	});
 });
