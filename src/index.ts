@@ -1220,6 +1220,53 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 	});
 }
 
+// Wrap the kit-composed `setup` with the video-domain behavior every entry
+// point must get — strategy defaults, autoPlay, theaterDefault. This lives on
+// the class, not in a factory, so `nmVideoPlayer()`, `new NMVideoPlayer()` and
+// the compat `nmplayer()` all behave identically.
+{
+	type _KitSetupFn = (config: VideoPlayerConfig<VideoPlaylistItem>) => NMVideoPlayer<VideoPlaylistItem>;
+	const kitSetup: _KitSetupFn = NMVideoPlayer.prototype.setup as _KitSetupFn;
+	const wrappedSetup: _KitSetupFn = function (this: NMVideoPlayer<VideoPlaylistItem>, config: VideoPlayerConfig<VideoPlaylistItem>): NMVideoPlayer<VideoPlaylistItem> {
+		// Video defaults to a hard cut between items (no crossfade) while still
+		// preloading so the next item starts instantly. Consumer-supplied
+		// strategies always win — only inject when absent.
+		const leadSeconds = config.preloadLeadSeconds ?? 10;
+		const enrichedConfig = {
+			crossfadeEnabled: false,
+			...config,
+			preloadLeadSeconds: leadSeconds,
+			preloadStrategy: config.preloadStrategy ?? new VideoPreloadStrategy(leadSeconds),
+			transitionStrategy: config.transitionStrategy ?? new GaplessTransitionStrategy(),
+		} as VideoPlayerConfig<VideoPlaylistItem>;
+
+		const result = kitSetup.call(this, enrichedConfig);
+
+		// Auto-play on the first mediaReady only; the core autoAdvance option
+		// handles subsequent item transitions.
+		if (enrichedConfig.autoPlay) {
+			let autoPlayFired = false;
+			this.on('mediaReady', () => {
+				if (autoPlayFired)
+					return;
+				autoPlayFired = true;
+				void this.play({ source: 'auto-play' });
+			});
+		}
+
+		if (enrichedConfig.theaterDefault) {
+			this.theater(true);
+		}
+
+		return result;
+	};
+	Object.defineProperty(NMVideoPlayer.prototype, 'setup', {
+		value: wrappedSetup,
+		writable: true,
+		configurable: true,
+	});
+}
+
 /**
  * Factory entry point. Returns the existing instance for a given div id, or
  * mounts a fresh one.
@@ -1299,24 +1346,12 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 	(instance as unknown as Record<string, unknown>)['setup'] = function (config: V1VideoConfig<T extends VideoPlaylistItem ? T : VideoPlaylistItem>): NMVideoPlayer<T> {
 		// Normalise v1 legacy fields (accessToken → auth.bearerToken,
 		// debug: true → logLevel: 'debug') at the library boundary so core
-		// never sees them and carries no compat knowledge.
+		// never sees them and carries no compat knowledge. Strategy defaults,
+		// autoPlay and theaterDefault are applied by the class setup wrapper —
+		// shared with the clean factory, never duplicated here.
 		const normalizedConfig = normalizeVideoConfig(config);
 
-		// Apply video-domain strategy defaults before delegating to the kit pipeline.
-		// Consumer-supplied strategies always win — only inject when absent.
-		// Video defaults to crossfadeEnabled: false (gapless hard-cut transition)
-		// while still preloading assets so the next item starts instantly.
-		const leadSeconds = normalizedConfig.preloadLeadSeconds ?? 10;
-
-		const enrichedConfig = {
-			crossfadeEnabled: false,
-			...normalizedConfig,
-			preloadLeadSeconds: leadSeconds,
-			preloadStrategy: normalizedConfig.preloadStrategy ?? new VideoPreloadStrategy(leadSeconds),
-			transitionStrategy: normalizedConfig.transitionStrategy ?? new GaplessTransitionStrategy(),
-		} as VideoPlayerConfig<T>;
-
-		const result = originalSetup(enrichedConfig);
+		const result = originalSetup(normalizedConfig as VideoPlayerConfig<T>);
 
 		// Auto-install V1VideoCompatPlugin so the app's on('back'),
 		// on('playlistComplete'), seek(), playlistItem() etc. all work without
@@ -1339,25 +1374,6 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 		});
 		// Reset the gate when a new item starts so subsequent playlists fire again.
 		instance.on('current', () => { _playlistCompleteFired = false; });
-
-		// Seed theater mode from config default. Done after setup() so the
-		// player is in the 'ready' phase before emitting the theater event.
-		if (enrichedConfig.theaterDefault) {
-			result.theater(true);
-		}
-
-		// Auto-play on the first mediaReady event only. The core autoAdvance
-		// option handles subsequent item transitions — this only fires the opening shot.
-		if (enrichedConfig.autoPlay) {
-			let autoPlayFired = false;
-			const onFirstReady = () => {
-				if (autoPlayFired)
-					return;
-				autoPlayFired = true;
-				void result.play({ source: 'auto-play' });
-			};
-			result.on('mediaReady', onFirstReady);
-		}
 
 		if (config.expose === true && typeof window !== 'undefined') {
 			Object.assign(window, { nmplayer });

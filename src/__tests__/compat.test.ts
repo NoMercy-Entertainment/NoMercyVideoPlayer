@@ -150,6 +150,29 @@ describe('factory aliases', () => {
 		expect(nmplayer).not.toBe(nmVideoPlayer);
 	});
 
+	it('clean factory honors autoPlay and video strategy defaults (class-level setup)', async () => {
+		const div = document.createElement('div');
+		div.id = 'clean-autoplay';
+		document.body.appendChild(div);
+
+		const player = nmVideoPlayer('clean-autoplay');
+		const playSpy = vi.spyOn(player, 'play').mockResolvedValue(undefined);
+
+		player.setup({ autoPlay: true });
+
+		// Domain defaults must come from the class, not the compat factory.
+		expect(player.options.crossfadeEnabled).toBe(false);
+		expect(player.options.transitionStrategy).toBeDefined();
+		expect(player.options.preloadStrategy).toBeDefined();
+
+		player.emit('mediaReady', undefined as never);
+		expect(playSpy).toHaveBeenCalledWith({ source: 'auto-play' });
+
+		player.emit('mediaReady', undefined as never);
+		expect(playSpy).toHaveBeenCalledTimes(1);
+		player.dispose();
+	});
+
 	it('nmVideoPlayer instances carry no v1 shims; nmplayer instances do', () => {
 		for (const id of ['compat-clean', 'compat-shimmed']) {
 			const div = document.createElement('div');
