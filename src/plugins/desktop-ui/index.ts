@@ -202,6 +202,16 @@ export interface DesktopUiOptions {
 	buttons?: DesktopUiButtonOptions;
 
 	/**
+	 * Visual order override. Buttons named here are re-anchored to the end
+	 * of the bar in the given sequence; unnamed buttons keep their natural
+	 * position. Independent of `buttonPriority` (responsive removal order).
+	 *
+	 * @example
+	 * buttonOrder: ['playlist', 'subtitles', 'audio', 'quality', 'pip', 'settings', 'fullscreen']
+	 */
+	buttonOrder?: ReadonlyArray<keyof DesktopUiButtonOptions>;
+
+	/**
 	 * Priority order for responsive removal when the container is narrow.
 	 * Buttons at the end are removed first. Override to change the default order.
 	 *
@@ -942,6 +952,47 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.fsBtn = this.iconBtn('fullscreen', 'fullscreen');
 		this.fsBtn.hidden = !show('fullscreen');
 		parent.appendChild(this.fsBtn);
+
+		this.applyButtonOrder(parent);
+	}
+
+	/**
+	 * Apply the consumer's `buttonOrder`: every named button is re-anchored
+	 * to the end of the bar in the given sequence; unnamed buttons keep their
+	 * natural position. Visual order only — removal priority during resize
+	 * stays governed by `buttonPriority`.
+	 */
+	private applyButtonOrder(parent: HTMLElement): void {
+		const order = this.opts?.buttonOrder;
+		if (!order || order.length === 0)
+			return;
+
+		const byKey: Partial<Record<keyof DesktopUiButtonOptions, HTMLButtonElement | null>> = {
+			play: this.playBtn,
+			mute: this.volBtn,
+			fullscreen: this.fsBtn,
+			settings: this.settingsBtn,
+			next: this.nextBtn,
+			previous: this.prevBtn,
+			seekBack: this.rewindBtn,
+			seekForward: this.forwardBtn,
+			chapterPrev: this.chapBackBtn,
+			chapterNext: this.chapFwdBtn,
+			theater: this.theaterBtn,
+			pip: this.pipBtn,
+			speed: this.speedBtn,
+			quality: this.qualityBtn,
+			subtitles: this.subsBtn,
+			audio: this.audioBtn,
+			aspectRatio: this.aspectRatioBtn,
+			playlist: this.playlistBtn,
+		};
+
+		for (const key of order) {
+			const btn = byKey[key];
+			if (btn)
+				parent.appendChild(btn);
+		}
 	}
 
 	private iconBtn(id: string, iconName: keyof typeof fluentIcons): HTMLButtonElement {

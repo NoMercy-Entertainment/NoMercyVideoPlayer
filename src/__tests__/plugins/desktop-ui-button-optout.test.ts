@@ -78,4 +78,20 @@ describe('DesktopUiPlugin — partial buttons map opt-out', () => {
 		expect(byId('seek-forward')?.hidden).toBe(true);
 		expect(byId('settings')?.hidden).toBe(false);
 	});
+
+	it('buttonOrder re-anchors named buttons to the end in sequence', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		player.addPlugin(desktopUiPlugin, {
+			buttonOrder: ['playlist', 'subtitles', 'audio', 'quality', 'pip', 'settings', 'fullscreen'],
+		});
+		await player.ready();
+
+		const container = document.getElementById('test')!;
+		const ids = [...container.querySelectorAll('.bottom-row button')].map(button => button.id);
+		const tail = ids.slice(-7);
+
+		expect(tail).toEqual(['playlist', 'subtitles', 'audio', 'quality', 'pip', 'settings', 'fullscreen']);
+		// Unnamed buttons keep their natural leading positions.
+		expect(ids[0]).toBe('playback');
+	});
 });
