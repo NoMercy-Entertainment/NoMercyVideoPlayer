@@ -243,8 +243,11 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			this.element.preload = opts.preload;
 
 		const isHls = HLS_EXT_RE.test(url);
+		// Chromium answers 'maybe' for HLS but cannot actually demux it. Trust
+		// 'maybe' only where MSE is absent (iOS Safari) — hls.js cannot run
+		// there anyway, so native is the only option.
 		const probe = this.element.canPlayType('application/vnd.apple.mpegurl');
-		const nativeHls = probe === 'maybe' || probe === 'probably';
+		const nativeHls = probe === 'probably' || (probe === 'maybe' && typeof MediaSource === 'undefined');
 
 		// Tear down any previous Hls instance BEFORE wiring a new source.
 		// Without this, every load() leaks an Hls that keeps polling segment 0
@@ -303,11 +306,11 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		performance.mark('nm:backend:load:start');
 
 		if (isHls && !nativeHls) {
-			// Dynamic import keeps hls.js out of the initial bundle when not needed.
-			// Indirect specifier sidesteps TS module resolution — hls.js is a
-			// transitive dep via @nomercy-entertainment/nomercy-player-core.
-			const hlsSpec = 'hls.js';
-			const mod: { default?: HlsConstructor } & Partial<HlsConstructor> = await import(/* @vite-ignore */ hlsSpec);
+			// Dynamic import keeps hls.js out of the initial bundle when not
+			// needed. The specifier must stay statically analyzable — an
+			// indirect/@vite-ignore form leaves a bare 'hls.js' unresolvable in
+			// the browser and silently kills playback for bundled consumers.
+			const mod: { default?: HlsConstructor } & Partial<HlsConstructor> = await import('hls.js');
 			const Hls = (mod.default ?? mod) as HlsConstructor;
 			if (!Hls?.isSupported?.()) {
 				this._state = 'error';

@@ -1242,16 +1242,18 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 
 		const result = kitSetup.call(this, enrichedConfig);
 
-		// Auto-play on the first mediaReady only; the core autoAdvance option
-		// handles subsequent item transitions.
+		// autoPlay: load the current queue item once the setup pipeline settles
+		// and start playback when the load resolves. Nothing else issues the
+		// first load — setup() only arms the queue, and play() does not
+		// lazy-load — so waiting for mediaReady here would deadlock.
 		if (enrichedConfig.autoPlay) {
-			let autoPlayFired = false;
-			this.on('mediaReady', () => {
-				if (autoPlayFired)
-					return;
-				autoPlayFired = true;
-				void this.play({ source: 'auto-play' });
-			});
+			void this.ready()
+				.then(() => {
+					if (this.queue().length === 0)
+						return;
+					this.item(this.item() ?? 0, { autoplay: true, source: 'auto-play' });
+				})
+				.catch(() => { /* setup failed — error surfaced via the 'error' event */ });
 		}
 
 		if (enrichedConfig.theaterDefault) {

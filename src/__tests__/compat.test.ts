@@ -156,20 +156,26 @@ describe('factory aliases', () => {
 		document.body.appendChild(div);
 
 		const player = nmVideoPlayer('clean-autoplay');
+		const loadSpy = vi.spyOn(player, 'load').mockResolvedValue(undefined);
 		const playSpy = vi.spyOn(player, 'play').mockResolvedValue(undefined);
 
-		player.setup({ autoPlay: true });
+		player.setup({
+			autoPlay: true,
+			playlist: [{ id: 1, title: 'First', url: 'https://example.test/first.m3u8' }],
+		});
 
 		// Domain defaults must come from the class, not the compat factory.
 		expect(player.options.crossfadeEnabled).toBe(false);
 		expect(player.options.transitionStrategy).toBeDefined();
 		expect(player.options.preloadStrategy).toBeDefined();
 
-		player.emit('mediaReady', undefined as never);
-		expect(playSpy).toHaveBeenCalledWith({ source: 'auto-play' });
-
-		player.emit('mediaReady', undefined as never);
-		expect(playSpy).toHaveBeenCalledTimes(1);
+		// autoPlay must issue the FIRST load itself (setup only arms the queue;
+		// play() never lazy-loads — waiting for mediaReady would deadlock).
+		await player.ready();
+		await vi.waitFor(() => {
+			expect(loadSpy).toHaveBeenCalled();
+			expect(playSpy).toHaveBeenCalled();
+		});
 		player.dispose();
 	});
 
