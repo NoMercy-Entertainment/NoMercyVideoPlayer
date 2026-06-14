@@ -7,10 +7,12 @@
 // -----------------------------------------------------------------------------
 
 /**
- * English video-specific cast translations. Picked up by the plugin's glob
- * discovery — drop a sibling `<tag>.ts` to add a language.
+ * English desktop-ui translations and the canonical key schema. This file is
+ * the source of truth: every other `<tag>.ts` in this folder is typed against
+ * `DesktopUiTranslationKey`, so a missing or stray key in any language is a
+ * compile error. The plugin's glob discovery picks up each sibling language.
  */
-export default {
+const translations = {
 	'plugin.desktop-ui.tooltip.play': 'Play / Pause',
 	'plugin.desktop-ui.tooltip.previous': 'Previous',
 	'plugin.desktop-ui.tooltip.next': 'Next',
@@ -150,4 +152,9 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Area opacity',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Background color',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Background opacity',
-} satisfies Record<string, string>;
+};
+
+/** Canonical translation key set for the desktop-ui plugin, derived from English. */
+export type DesktopUiTranslationKey = keyof typeof translations;
+
+export default translations;

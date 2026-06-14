@@ -6,9 +6,8 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
-/**
- * Dutch video-specific cast translations.
- */
+import type { DesktopUiTranslationKey } from './en';
+
 export default {
 	'plugin.desktop-ui.tooltip.play': 'Afspelen / Pauzeren',
 	'plugin.desktop-ui.tooltip.previous': 'Vorige',
@@ -32,67 +31,45 @@ export default {
 	'plugin.desktop-ui.tooltip.previousWithTitle': 'Vorige: {title}',
 	'plugin.desktop-ui.tooltip.nextChapterWithTitle': 'Volgend hoofdstuk: {title}',
 	'plugin.desktop-ui.tooltip.previousChapterWithTitle': 'Vorig hoofdstuk: {title}',
-
-	// Sneltoetsen overlay
 	'plugin.desktop-ui.shortcuts.title': 'Sneltoetsen',
 	'plugin.desktop-ui.shortcuts.hint': 'Druk op ? of Esc om te sluiten',
 	'plugin.desktop-ui.shortcuts.hintToast': 'Druk op ? voor sneltoetsen',
-
-	// Afspelen
 	'plugin.desktop-ui.shortcuts.playPause': 'Afspelen / Pauzeren',
 	'plugin.desktop-ui.shortcuts.stop': 'Stoppen',
 	'plugin.desktop-ui.shortcuts.frameAdvance': 'Volgend frame (gepauzeerd)',
-
-	// Snelheid
 	'plugin.desktop-ui.shortcuts.speedUp': 'Sneller',
 	'plugin.desktop-ui.shortcuts.speedDown': 'Langzamer',
 	'plugin.desktop-ui.shortcuts.normalSpeed': 'Normale snelheid (1×)',
-
-	// Volume
 	'plugin.desktop-ui.shortcuts.volumeUp': 'Volume omhoog',
 	'plugin.desktop-ui.shortcuts.volumeDown': 'Volume omlaag',
 	'plugin.desktop-ui.shortcuts.mute': 'Dempen / Dempen opheffen',
-
-	// Zoeken
 	'plugin.desktop-ui.shortcuts.seekBack5': '5 s terugspoelen',
 	'plugin.desktop-ui.shortcuts.seekForward5': '5 s vooruitspoelen',
 	'plugin.desktop-ui.shortcuts.seek3s': '±3 seconden doorspoelen',
 	'plugin.desktop-ui.shortcuts.seek10s': '±10 seconden doorspoelen',
 	'plugin.desktop-ui.shortcuts.seek60s': '±1 minuut doorspoelen',
-
-	// Snel doorspoelen
 	'plugin.desktop-ui.shortcuts.seek30s': '+30 seconden doorspoelen',
 	'plugin.desktop-ui.shortcuts.seek60sKey': '+60 seconden doorspoelen',
 	'plugin.desktop-ui.shortcuts.seek90s': '+90 seconden doorspoelen',
 	'plugin.desktop-ui.shortcuts.seek120s': '+120 seconden doorspoelen',
-
-	// Navigatie
 	'plugin.desktop-ui.shortcuts.next': 'Volgende item',
 	'plugin.desktop-ui.shortcuts.previous': 'Vorige item',
 	'plugin.desktop-ui.shortcuts.nextChapter': 'Volgend hoofdstuk',
 	'plugin.desktop-ui.shortcuts.previousChapter': 'Vorig hoofdstuk',
-
-	// Tracks en ondertitels
 	'plugin.desktop-ui.shortcuts.cycleSubs': 'Ondertitels wisselen',
 	'plugin.desktop-ui.shortcuts.cycleAudio': 'Audiotrack wisselen',
 	'plugin.desktop-ui.shortcuts.cycleAspect': 'Beeldverhouding wisselen',
 	'plugin.desktop-ui.shortcuts.subSizeUp': 'Ondertitelgrootte groter',
 	'plugin.desktop-ui.shortcuts.subSizeDown': 'Ondertitelgrootte kleiner',
-
-	// Weergave
 	'plugin.desktop-ui.shortcuts.fullscreen': 'Volledig scherm in-/uitschakelen',
 	'plugin.desktop-ui.shortcuts.exitFullscreen': 'Volledig scherm verlaten',
 	'plugin.desktop-ui.shortcuts.showTime': 'Tijd weergeven',
 	'plugin.desktop-ui.shortcuts.help': 'Sneltoetsen',
-
-	// Legacy keys
 	'plugin.desktop-ui.shortcuts.seekBackForward': 'Terugspoelen −10 s / Vooruitspoelen +10 s',
 	'plugin.desktop-ui.shortcuts.volumeUpDown': 'Volume +10% / −10%',
 	'plugin.desktop-ui.shortcuts.theater': 'Theatermodus',
 	'plugin.desktop-ui.shortcuts.pip': 'Beeld-in-beeld',
 	'plugin.desktop-ui.shortcuts.chapters': 'Vorig / Volgend hoofdstuk',
-
-	// Sneltoetsgroep titels
 	'plugin.desktop-ui.shortcuts.group.playback': 'Afspelen',
 	'plugin.desktop-ui.shortcuts.group.speed': 'Snelheid',
 	'plugin.desktop-ui.shortcuts.group.volume': 'Volume',
@@ -101,17 +78,11 @@ export default {
 	'plugin.desktop-ui.shortcuts.group.navigation': 'Navigatie',
 	'plugin.desktop-ui.shortcuts.group.tracksAndSubtitles': 'Tracks en ondertitels',
 	'plugin.desktop-ui.shortcuts.group.display': 'Weergave',
-
-	// Menunavigatie
 	'plugin.desktop-ui.menu.back': 'Terug',
 	'plugin.desktop-ui.menu.close': 'Sluiten',
-
-	// A11y labels voor interactieve bedieningselementen
 	'plugin.desktop-ui.a11y.seek': 'Doorspoelen',
 	'plugin.desktop-ui.a11y.volume': 'Volume',
 	'plugin.desktop-ui.a11y.speed': 'Snelheid ({rate}×)',
-
-	// Instellingenmenu
 	'plugin.desktop-ui.menu.settings': 'Instellingen',
 	'plugin.desktop-ui.menu.audio': 'Audio',
 	'plugin.desktop-ui.menu.subtitles': 'Ondertiteling',
@@ -138,8 +109,6 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Ware grootte',
 	'plugin.desktop-ui.menu.reset': 'Herstellen',
 	'plugin.desktop-ui.menu.season': 'Seizoen {number}',
-
-	// Rijen voor ondertitelinstellingen
 	'plugin.desktop-ui.menu.subtitle.font': 'Lettertype',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Tekstgrootte',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Tekstkleur',
@@ -149,4 +118,4 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Transparantie achtergrondvak',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Achtergrondkleur',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Achtergrondtransparantie',
-} satisfies Record<string, string>;
+} satisfies Record<DesktopUiTranslationKey, string>;

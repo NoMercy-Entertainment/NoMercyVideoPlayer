@@ -9,7 +9,7 @@
 /**
  * English strings for the tv-key-handler plugin. Drop a sibling `<tag>.ts` to add a language.
  */
-export default {
+const translations = {
 	'plugin.tv-key-handler.info.chapter': 'Chapter',
 	'plugin.tv-key-handler.info.noTitle': 'No title',
 	'plugin.tv-key-handler.info.timeRemaining': 'remaining',
@@ -19,4 +19,9 @@ export default {
 	'plugin.tv-key-handler.seek.blue': '+120s',
 	'plugin.tv-key-handler.aspectRatio.cycled': 'Aspect ratio',
 	'plugin.tv-key-handler.bookmark.added': 'Bookmark added',
-} satisfies Record<string, string>;
+};
+
+/** Canonical translation key set for the tv-key-handler plugin, derived from English. */
+export type TvKeyHandlerTranslationKey = keyof typeof translations;
+
+export default translations;
