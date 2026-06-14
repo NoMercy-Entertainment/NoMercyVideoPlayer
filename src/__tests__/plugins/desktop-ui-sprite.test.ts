@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+//  Copyright (c) NoMercy Entertainment
+//
+//  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+//
+//  SPDX-License-Identifier: Apache-2.0
+// -----------------------------------------------------------------------------
+
 /**
  * Regression: DesktopUiPlugin must resolve hover-thumbnail sprites from
  * VideoPlaylistItem.previewSpriteUrl (the canonical v2 field) and must NOT

@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+//  Copyright (c) NoMercy Entertainment
+//
+//  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+//
+//  SPDX-License-Identifier: Apache-2.0
+// -----------------------------------------------------------------------------
+
 /**
  * Built-in playlist-item normalizer — accepts the v1 / NoMercy server wire
  * format and reshapes it to the v2 canonical `VideoPlaylistItem`, per field

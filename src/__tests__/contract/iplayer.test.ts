@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+//  Copyright (c) NoMercy Entertainment
+//
+//  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+//
+//  SPDX-License-Identifier: Apache-2.0
+// -----------------------------------------------------------------------------
+
 import { runIPlayerContract } from '@nomercy-entertainment/nomercy-player-core/testing';
 import { afterEach, beforeEach } from 'vitest';
 import { nmplayer, NMVideoPlayer } from '../../index';

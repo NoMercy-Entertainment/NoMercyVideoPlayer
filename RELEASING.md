@@ -25,7 +25,7 @@ before `npm publish`.
 
 ## Stable 2.0.0 flip checklist
 
-See `packages/nomercy-player-kit/RELEASING.md` for the full trio checklist. Steps specific
+See `packages/nomercy-player-core/RELEASING.md` for the full trio checklist. Steps specific
 to this package:
 
 1. Bump version to `2.0.0` in `package.json`.

@@ -1,14 +1,22 @@
+// -----------------------------------------------------------------------------
+//  Copyright (c) NoMercy Entertainment
+//
+//  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+//
+//  SPDX-License-Identifier: Apache-2.0
+// -----------------------------------------------------------------------------
+
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { nomercyTranslationsPlugin } from '@nomercy-entertainment/nomercy-player-core/vite-plugin';
 import { defineConfig } from 'vitest/config';
 
-const kitRoot = fileURLToPath(new URL('../nomercy-player-kit/src', import.meta.url));
+const coreRoot = fileURLToPath(new URL('../nomercy-player-core/src', import.meta.url));
 const selfRoot = fileURLToPath(new URL('./src', import.meta.url));
 const octopusSrc = fileURLToPath(new URL('../nomercy-subtitle-octopus/src', import.meta.url));
 // Monorepo: alias siblings to their live TypeScript source so tests pick up
 // unbuilt changes. Standalone / CI: resolve them from node_modules instead.
-const useKitSource = existsSync(kitRoot);
+const useCoreSource = existsSync(coreRoot);
 const useOctopusSource = existsSync(octopusSrc);
 
 export default defineConfig({
@@ -22,28 +30,28 @@ export default defineConfig({
 			...(useOctopusSource
 				? [{ find: '@nomercy-entertainment/nomercy-subtitle-octopus', replacement: `${octopusSrc}/index.ts` }]
 				: []),
-			...(useKitSource
+			...(useCoreSource
 				? [
-						{ find: '@nomercy-entertainment/nomercy-player-core/testing', replacement: `${kitRoot}/testing/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/vite-plugin', replacement: `${kitRoot}/vite-plugin.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/testing', replacement: `${coreRoot}/testing/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/vite-plugin', replacement: `${coreRoot}/vite-plugin.ts` },
 						// Directory-based plugins whose entry is index.ts, not a bare file.
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/key-handler', replacement: `${kitRoot}/plugins/key-handler/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/media-session', replacement: `${kitRoot}/plugins/media-session/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/tab-leader', replacement: `${kitRoot}/plugins/tab-leader/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/embed', replacement: `${kitRoot}/plugins/embed/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/message', replacement: `${kitRoot}/plugins/message/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/audio-graph', replacement: `${kitRoot}/plugins/audio-graph/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/canvas', replacement: `${kitRoot}/plugins/canvas/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/mixer', replacement: `${kitRoot}/plugins/mixer/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/equalizer', replacement: `${kitRoot}/plugins/equalizer/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/spectrum', replacement: `${kitRoot}/plugins/spectrum/index.ts` },
-						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/visualization', replacement: `${kitRoot}/plugins/visualization/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/key-handler', replacement: `${coreRoot}/plugins/key-handler/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/media-session', replacement: `${coreRoot}/plugins/media-session/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/tab-leader', replacement: `${coreRoot}/plugins/tab-leader/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/embed', replacement: `${coreRoot}/plugins/embed/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/message', replacement: `${coreRoot}/plugins/message/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/audio-graph', replacement: `${coreRoot}/plugins/audio-graph/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/canvas', replacement: `${coreRoot}/plugins/canvas/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/mixer', replacement: `${coreRoot}/plugins/mixer/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/equalizer', replacement: `${coreRoot}/plugins/equalizer/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/spectrum', replacement: `${coreRoot}/plugins/spectrum/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/visualization', replacement: `${coreRoot}/plugins/visualization/index.ts` },
 						{
 							// Remaining subpath imports that resolve to bare .ts files (streams/*, cues/*).
 							find: /^@nomercy-entertainment\/nomercy-player-core\/(.*)$/,
-							replacement: `${kitRoot}/$1.ts`,
+							replacement: `${coreRoot}/$1.ts`,
 						},
-						{ find: '@nomercy-entertainment/nomercy-player-core', replacement: `${kitRoot}/index.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core', replacement: `${coreRoot}/index.ts` },
 					]
 				: []),
 		],

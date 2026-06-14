@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+//  Copyright (c) NoMercy Entertainment
+//
+//  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+//
+//  SPDX-License-Identifier: Apache-2.0
+// -----------------------------------------------------------------------------
+
 /**
  * Lifecycle tests for NMVideoPlayer — mirrors the music player's lifecycle
  * suite. Covers: construction, phase(), setup(), ready(), dispose(),

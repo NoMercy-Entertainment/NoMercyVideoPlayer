@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+//  Copyright (c) NoMercy Entertainment
+//
+//  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+//
+//  SPDX-License-Identifier: Apache-2.0
+// -----------------------------------------------------------------------------
+
 /**
  * Subtitle menu row labels — v1 parity. Sidecar tracks arrive with raw wire
  * values (`language: 'eng'`, `type: 'full'`); the menu must show the

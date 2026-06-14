@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+//  Copyright (c) NoMercy Entertainment
+//
+//  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+//
+//  SPDX-License-Identifier: Apache-2.0
+// -----------------------------------------------------------------------------
+
 // Video-specific plugins
 export { castSenderPlugin, CastSenderPlugin } from './cast-sender';
 export type { CastSenderEvents, CastSenderOptions } from './cast-sender';

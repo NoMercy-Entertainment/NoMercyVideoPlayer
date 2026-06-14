@@ -1,7 +1,7 @@
 {
 	"name": "@nomercy-entertainment/nomercy-video-player",
 	"type": "module",
-	"version": "2.0.0-rc.3",
+	"version": "2.0.0-rc.4",
 	"description": "Headless, event-driven HTML5 video player with HLS streaming, subtitle rendering (VTT/ASS/SSA), and a plugin system. No UI — you build your own.",
 	"author": {
 		"name": "NoMercy Entertainment",
@@ -147,7 +147,7 @@
 		"prepublishOnly": "npm run build:all"
 	},
 	"dependencies": {
-		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.3",
+		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.4",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
 		"@types/webvtt-parser": "^2.2.0",
 		"hls.js": "^1.6.0",

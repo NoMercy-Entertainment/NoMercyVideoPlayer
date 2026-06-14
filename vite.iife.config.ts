@@ -1,29 +1,44 @@
+// -----------------------------------------------------------------------------
+//  Copyright (c) NoMercy Entertainment
+//
+//  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+//
+//  SPDX-License-Identifier: Apache-2.0
+// -----------------------------------------------------------------------------
+
 /// <reference types="vitest" />
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { nomercyTranslationsPlugin } from '@nomercy-entertainment/nomercy-player-core/vite-plugin';
 import { defineConfig } from 'vite';
 
-const kitRoot = fileURLToPath(new URL('../nomercy-player-kit/src', import.meta.url));
+const coreRoot = fileURLToPath(new URL('../nomercy-player-core/src', import.meta.url));
+// Monorepo: bundle the core from its live TypeScript source. Standalone / CI:
+// no sibling checkout, so resolve the core from the installed
+// @nomercy-entertainment/nomercy-player-core package and bundle that.
+const useCoreSource = existsSync(coreRoot);
 
 export default defineConfig({
 	base: '/',
 	plugins: [nomercyTranslationsPlugin()],
 	resolve: {
-		alias: [
-			{
-				find: '@nomercy-entertainment/nomercy-player-core/vite-plugin',
-				replacement: `${kitRoot}/vite-plugin.ts`,
-			},
-			{
-				find: /^@nomercy-entertainment\/nomercy-player-core\/(.*)$/,
-				replacement: `${kitRoot}/$1.ts`,
-			},
-			{
-				find: '@nomercy-entertainment/nomercy-player-core',
-				replacement: `${kitRoot}/index.ts`,
-			},
-		],
+		alias: useCoreSource
+			? [
+					{
+						find: '@nomercy-entertainment/nomercy-player-core/vite-plugin',
+						replacement: `${coreRoot}/vite-plugin.ts`,
+					},
+					{
+						find: /^@nomercy-entertainment\/nomercy-player-core\/(.*)$/,
+						replacement: `${coreRoot}/$1.ts`,
+					},
+					{
+						find: '@nomercy-entertainment/nomercy-player-core',
+						replacement: `${coreRoot}/index.ts`,
+					},
+				]
+			: [],
 	},
 	build: {
 		outDir: 'dist',

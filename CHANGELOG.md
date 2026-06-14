@@ -1,5 +1,16 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-rc.4] — 2026-06-14
+
+### Fixed
+
+- The standalone build resolves the player core from `node_modules` instead of
+  a sibling monorepo checkout, so `build:all` (including the IIFE bundle) runs
+  in a clean CI checkout. The vite and vitest configs guard the source aliases
+  behind `existsSync` and follow the core's repository rename. The stale
+  tsconfig `paths` that pointed at sibling kit/octopus dist were removed.
+- Every source file carries the `Apache-2.0` license header.
+
 ## [2.0.0-rc.2] — 2026-06-14
 
 ### Changed
