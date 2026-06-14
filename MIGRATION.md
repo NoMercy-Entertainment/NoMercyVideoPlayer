@@ -28,33 +28,33 @@ then remove it and update call sites to the v2 names.
 
 ### Renamed methods
 
-| v1 1.2.7 | v2 | Notes |
-|---|---|---|
-| `current()` | `item()` | getter/setter overload |
-| `current(target, opts)` | `item(target, opts)` | setter form |
-| `currentTime()` | `time()` | getter form |
-| `currentTime(t, opts)` | `time(t, opts)` | setter/seek form |
-| `currentIndex()` | `index()` | getter only |
-| `currentAudioTrack()` | `audioTrack()` | getter/setter overload |
-| `currentAudioTrack(idx)` | `audioTrack(idx)` | setter form |
-| `currentQuality()` | `quality()` | getter/setter overload |
-| `currentQuality(idx)` | `quality(idx)` | setter form |
-| `currentSubtitle()` | `subtitle()` | getter/setter overload; return type changed (see beta.0→beta.1 above) |
-| `currentSubtitle(idx)` | `subtitle(idx)` | setter form |
-| `currentAudioOutput()` | `audioOutput()` | getter/setter overload |
-| `currentAudioOutput(deviceId)` | `audioOutput(deviceId)` | setter form |
-| `currentChapter()` | `chapter()` | getter/setter overload |
-| `currentChapter(idx)` | `chapter(idx)` | setter form |
-| `audioTrackState()` | `audioTrackMode()` | getter/setter overload |
-| `audioTrackState(idx)` | `audioTrackMode(idx)` | setter form |
-| `qualityState()` | `qualityMode()` | getter/setter overload |
-| `qualityState(target)` | `qualityMode(target)` | setter form |
-| `fullscreenState()` | `fullscreen()` | getter/setter overload |
-| `fullscreenState(state)` | `fullscreen(state)` | setter form |
-| `pipState()` | `pip()` | getter/setter overload |
-| `pipState(state)` | `pip(state)` | setter form |
-| `theaterState()` | `theater()` | getter/setter overload |
-| `theaterState(state)` | `theater(state)` | setter form |
+| v1 1.2.7                       | v2                      | Notes                                                                 |
+| ------------------------------ | ----------------------- | --------------------------------------------------------------------- |
+| `current()`                    | `item()`                | getter/setter overload                                                |
+| `current(target, opts)`        | `item(target, opts)`    | setter form                                                           |
+| `currentTime()`                | `time()`                | getter form                                                           |
+| `currentTime(t, opts)`         | `time(t, opts)`         | setter/seek form                                                      |
+| `currentIndex()`               | `index()`               | getter only                                                           |
+| `currentAudioTrack()`          | `audioTrack()`          | getter/setter overload                                                |
+| `currentAudioTrack(idx)`       | `audioTrack(idx)`       | setter form                                                           |
+| `currentQuality()`             | `quality()`             | getter/setter overload                                                |
+| `currentQuality(idx)`          | `quality(idx)`          | setter form                                                           |
+| `currentSubtitle()`            | `subtitle()`            | getter/setter overload; return type changed (see beta.0→beta.1 above) |
+| `currentSubtitle(idx)`         | `subtitle(idx)`         | setter form                                                           |
+| `currentAudioOutput()`         | `audioOutput()`         | getter/setter overload                                                |
+| `currentAudioOutput(deviceId)` | `audioOutput(deviceId)` | setter form                                                           |
+| `currentChapter()`             | `chapter()`             | getter/setter overload                                                |
+| `currentChapter(idx)`          | `chapter(idx)`          | setter form                                                           |
+| `audioTrackState()`            | `audioTrackMode()`      | getter/setter overload                                                |
+| `audioTrackState(idx)`         | `audioTrackMode(idx)`   | setter form                                                           |
+| `qualityState()`               | `qualityMode()`         | getter/setter overload                                                |
+| `qualityState(target)`         | `qualityMode(target)`   | setter form                                                           |
+| `fullscreenState()`            | `fullscreen()`          | getter/setter overload                                                |
+| `fullscreenState(state)`       | `fullscreen(state)`     | setter form                                                           |
+| `pipState()`                   | `pip()`                 | getter/setter overload                                                |
+| `pipState(state)`              | `pip(state)`            | setter form                                                           |
+| `theaterState()`               | `theater()`             | getter/setter overload                                                |
+| `theaterState(state)`          | `theater(state)`        | setter form                                                           |
 
 ### Migration path
 
