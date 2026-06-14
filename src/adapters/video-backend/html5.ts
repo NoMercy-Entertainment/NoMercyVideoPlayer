@@ -1,8 +1,8 @@
 import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 import type { HtmlPreloadMode } from '../../types';
 import type { BackendEventPayload, BackendLoaderState, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
-import { BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError } from '@nomercy-entertainment/nomercy-player-core';
-import HlsDefault from 'hls.js';
+import { appendAuthTokenParam, BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError, perceptualGain } from '@nomercy-entertainment/nomercy-player-core';
+import Hls from 'hls.js';
 
 interface HlsLevel {
 	attrs?: { 'CODECS'?: string; 'VIDEO-RANGE'?: string };
@@ -326,13 +326,9 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		catch { /* defensive */ }
 
 		performance.mark('nm:backend:load:start');
+		const headerValue = await this._authHeaderProvider?.();
 
 		if (isHls && !nativeHls) {
-			// hls.js is the PRIMARY engine, not a fallback — every NoMercy
-			// stream is HLS and Chromium cannot demux it natively. Statically
-			// imported so it is ready before the first load, never fetched on
-			// the critical play path.
-			const Hls = HlsDefault as unknown as HlsConstructor;
 			if (!Hls?.isSupported?.()) {
 				this._state = 'error';
 				throw new MediaFormatError({
@@ -343,35 +339,14 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 					suggestion: 'Use a Chromium-based browser, Safari, or Firefox 119+ for HLS support.',
 				});
 			}
-			// Enable CEA-608/CEA-708 always so pure-CEA streams (no WebVTT
-			// renditions in the manifest) still surface captions. When a
-			// stream ALSO carries WebVTT, `resolveSubtitleTextTrack` prefers
-			// `kind:'subtitles'` over `kind:'captions'` (line 563-580), so
-			// the user never sees a duplicated cue stream. The old destroy-
-			// reload pattern broke playback for the majority case (streams
-			// with 0 SUBTITLES renditions) because the fallback instance's
-			// streamController never received a valid MEDIA_ATTACHED event
-			// and parked in IDLE indefinitely.
 			const hlsInstance: HlsInstance = new Hls({
 				autoStartLoad: true,
 				enableWorker: true,
 				lowLatencyMode: false,
 				enableCEA708Captions: true,
-				// Begin at the resume offset: hls.js fetches the fragment
-				// CONTAINING this position as its first fragment, so resuming
-				// never downloads/decodes the start of the stream. -1 = default
-				// start (live edge for live, 0 for VOD).
 				startPosition: typeof opts?.startTime === 'number' && opts.startTime > 0 ? opts.startTime : -1,
-				// Begin fetching the first segment during manifest parsing so the
-				// browser has data buffered by the time play() is called. Without
-				// this the segment fetch only starts after MANIFEST_PARSED, adding
-				// a full round-trip before the first frame can render.
 				startFragPrefetch: true,
-				// Authenticated media servers reject manifest/segment requests
-				// without the Authorization header the player's auth config
-				// carries. The provider is wired by the player at backend init.
-				xhrSetup: async (xhr: XMLHttpRequest) => {
-					const headerValue = await this._authHeaderProvider?.();
+				xhrSetup: (xhr: XMLHttpRequest) => {
 					if (headerValue) {
 						xhr.setRequestHeader('Authorization', headerValue);
 					}
@@ -382,14 +357,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				performance.mark('nm:backend:manifest-parsed');
 				this._emitHlsTrackLists();
 			});
-			// loadSource BEFORE attachMedia — matches v1's order. attaching first
-			// makes hls.js bind to the element while it still holds the previous
-			// source's last frame, which the browser then has to clear before
-			// rendering the new manifest's first frame (the gap users see as
-			// black). Loading the manifest first lets hls.js parse + queue the
-			// first fragment in parallel with the attach handshake, so the
-			// element transitions from previous-frame → new-first-frame without
-			// a visible black hop.
+
 			performance.mark('nm:backend:loadSource');
 			hlsInstance.loadSource(url);
 			performance.mark('nm:backend:attachMedia');
@@ -398,9 +366,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			this._attachHlsLevelSwitchedHandler(Hls);
 		}
 		else {
-			// Previous src was already cleared at the top of load() — just
-			// assign + reload for the new source.
-			this.element.src = url;
+			this.element.src = appendAuthTokenParam(url, headerValue);
 			try { this.element.load(); }
 			catch { /* defensive */ }
 		}
@@ -528,9 +494,14 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	volume(): number;
 	volume(value: number): void;
 	volume(value?: number): number | void {
-		if (value === undefined)
+		if (value === undefined) {
+			// Returns the curved gain amplitude on element.volume — NOT the 0..1
+			// slider position. The player mixin owns the position in _internalVolume.
 			return this.element.volume;
-		this.element.volume = Math.min(1, Math.max(0, value));
+		}
+
+		const clamped = Math.min(1, Math.max(0, value));
+		this.element.volume = perceptualGain(clamped);
 	}
 
 	mute(): void {
@@ -594,7 +565,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 
 	subtitleTracks(): SubtitleTrack[] {
 		if (this.hls?.subtitleTracks?.length) {
-			return this.hls.subtitleTracks.map((t: any, index: number) => ({
+			return this.hls.subtitleTracks.map((t, index) => ({
 				id: `subtitle-${index}`,
 				language: t.lang ?? undefined,
 				label: t.name ?? `Subtitles ${index + 1}`,

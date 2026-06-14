@@ -298,7 +298,7 @@ describe('V1VideoCompatPlugin', () => {
 			player.dispose();
 		});
 
-		it('on("item", fn) receives the item object from v2 "current" event', async () => {
+		it('on("item", fn) receives the item object from v2 "item" event', async () => {
 			const player = setup();
 			player.addPlugin(V1VideoCompatPlugin);
 			await player.ready();
@@ -308,7 +308,7 @@ describe('V1VideoCompatPlugin', () => {
 			compat.on('item', (data) => { received.push(data); });
 
 			const fakeItem = { id: 'test-item', url: 'test.mp4' };
-			player.emit('current' as never, { item: fakeItem, index: 0 } as never);
+			player.emit('item' as never, { item: fakeItem, index: 0 } as never);
 
 			expect(received).toHaveLength(1);
 			expect(received[0]).toEqual(fakeItem);

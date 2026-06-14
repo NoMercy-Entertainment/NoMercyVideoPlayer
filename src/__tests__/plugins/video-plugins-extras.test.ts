@@ -163,7 +163,7 @@ describe('video-plugins (extras)', () => {
 					url: 'https://cdn/ep1.mp4',
 					poster: 'https://cdn/poster.jpg',
 				};
-				(p as any).item = (): unknown => episode;
+				(p as unknown as { item(): typeof episode }).item = () => episode;
 
 				inst.connect();
 				// connect() resolves async; let the promise chain settle.
@@ -171,7 +171,7 @@ describe('video-plugins (extras)', () => {
 				await new Promise(resolve => setTimeout(resolve, 0));
 				expect(inst.isConnected()).toBe(true);
 
-				(p as any).emit('current', { item: episode, index: 0 });
+				p.emit('item', { item: episode, index: 0 });
 				await new Promise(resolve => setTimeout(resolve, 0));
 
 				expect(loadMedia).toHaveBeenCalled();
@@ -243,14 +243,14 @@ describe('video-plugins (extras)', () => {
 				p.addPlugin(castSenderPlugin);
 				await p.ready();
 				const inst = p.getPlugin(CastSenderPlugin)!;
-				(p as any).item = (): unknown => undefined;
+				(p as unknown as { item(): undefined }).item = () => undefined;
 
 				inst.connect();
 				await new Promise(resolve => setTimeout(resolve, 0));
 				await new Promise(resolve => setTimeout(resolve, 0));
 
-				const seenPause: any[] = [];
-				p.on('pause' as any, (data: any) => { seenPause.push(data); });
+				const seenPause: unknown[] = [];
+				p.on('pause', (data: unknown) => { seenPause.push(data); });
 
 				if (stubRemoteRef)
 					(stubRemoteRef as StubRemote).isPaused = true;

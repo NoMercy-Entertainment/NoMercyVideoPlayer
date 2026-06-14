@@ -131,4 +131,3 @@ export function updateTitleBar(refs: TopBarRefs, item: VideoPlaylistItem | undef
 	refs.showInfoText.textContent = secondary;
 	refs.showInfoText.hidden = secondary.length === 0;
 }
-

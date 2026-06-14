@@ -10,10 +10,12 @@ import type { SubtitleTrackRef } from '../../types';
 import { describe, expect, it } from 'vitest';
 import { languageDisplayName, subtitleTrackLabel } from '../../plugins/desktop-ui/language-names';
 
-const t = (key: string): string => ({
-	'plugin.desktop-ui.menu.subtitleType.full': 'Full',
-	'plugin.desktop-ui.menu.subtitleType.sign': 'Sign',
-} as Record<string, string>)[key] ?? key;
+function t(key: string): string {
+	return ({
+		'plugin.desktop-ui.menu.subtitleType.full': 'Full',
+		'plugin.desktop-ui.menu.subtitleType.sign': 'Sign',
+	} as Record<string, string>)[key] ?? key;
+}
 
 function track(overrides: Partial<SubtitleTrackRef>): SubtitleTrackRef {
 	return { id: 'subtitle-sidecar-0', label: 'full', url: 'https://x.test/s.ass', ...overrides };

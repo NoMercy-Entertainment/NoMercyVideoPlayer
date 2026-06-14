@@ -142,7 +142,7 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 			void this.applyActive(data?.track);
 		});
 
-		this.on('current', () => {
+		this.on('item', () => {
 			this.destroy();
 			this._availableFontsForCurrent = null;
 		});

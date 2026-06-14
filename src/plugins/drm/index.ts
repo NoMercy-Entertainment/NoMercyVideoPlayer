@@ -60,7 +60,7 @@ export class DrmPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends 
 		}
 		this.supported = true;
 
-		this.on('current', (payload) => {
+		this.on('item', (payload) => {
 			const item = payload?.item as DrmItemHint | undefined;
 			const drm = item?.drm;
 			if (!drm)

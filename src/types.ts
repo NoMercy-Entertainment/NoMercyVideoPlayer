@@ -156,20 +156,7 @@ export enum SubtitleState {
 }
 
 /** Re-exported from kit — canonical definition lives in nomercy-player-core. */
-export { AudioTrackState, QualityState } from '@nomercy-entertainment/nomercy-player-core';
-
-/** Returned by `player.repeatState()`. */
-export enum RepeatState {
-	OFF = 'off',
-	ALL = 'all',
-	ONE = 'one',
-}
-
-/** Returned by `player.shuffleState()`. */
-export enum ShuffleState {
-	OFF = 'off',
-	ON = 'on',
-}
+export { AudioTrackState, QualityState, RepeatState, ShuffleState } from '@nomercy-entertainment/nomercy-player-core';
 
 /**
  * The displayed video content rectangle relative to the player container.
@@ -278,20 +265,19 @@ export interface SegmentBoundaryPayload {
 	onEnd: SegmentEndBehaviour;
 }
 
-export interface VideoEventMap extends BaseEventMap {
-	// Narrow the kit's BasePlaylistItem to the video-specific item type so
-	// video plugins receive a typed item without casts.
-	'current': { item: VideoPlaylistItem | undefined; index: number };
-
+/**
+ * Video-specific events on top of `BaseEventMap`.
+ *
+ * The generic `T` threads the concrete video-item type into every item-bearing
+ * event payload inherited from `BaseEventMap`. Defaults to `VideoPlaylistItem`
+ * so existing code that references `VideoEventMap` without a type argument is
+ * unchanged.
+ */
+export interface VideoEventMap<T extends VideoPlaylistItem = VideoPlaylistItem> extends BaseEventMap<T> {
 	'quality:requested': { level: number | 'auto' };
-	'chapter': { index: number; title: string };
 	'pip': { active: boolean };
 	'theater': { active: boolean };
 	'fullscreen': { active: boolean };
-	'mute': { muted: boolean };
-	'volume': { level: number };
-	'repeat': { state: RepeatState };
-	'shuffle': { state: ShuffleState };
 	'aspectRatio': { value: Stretching };
 
 	// Fired whenever the displayed video content rectangle changes — driven by
@@ -314,7 +300,6 @@ export interface VideoEventMap extends BaseEventMap {
 	// `mediaReady` time, so overlay plugins subscribe here for button
 	// visibility rather than polling the getter at startup.
 	'levels': { levels: QualityLevel[] };
-	'level-switched': { level: number };
 	'audioTracks': { tracks: AudioTrack[] };
 
 	// OSD toast request — plugins emit this instead of rendering text themselves.
@@ -429,17 +414,17 @@ export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistIte
  * rather than `NMVideoPlayer<any>` — the interface is stable across patch
  * versions; the concrete class is an implementation detail.
  */
-export interface IVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
-	extends IPlayer<VideoEventMap> {
+export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
+	extends IPlayer<VideoEventMap<T>> {
 
 	/**
 	 * Phantom brand — mirrors the declaration on `NMVideoPlayer`. Declared
-	 * directly on the interface so `PlayerEventMap<IVideoPlayer>` resolves to
-	 * `VideoEventMap` without TypeScript having to walk the `extends
-	 * IPlayer<VideoEventMap>` generic-instantiation chain (which stalls in
+	 * directly on the interface so `PlayerEventMap<IVideoPlayer<T>>` resolves to
+	 * `VideoEventMap<T>` without TypeScript having to walk the `extends
+	 * IPlayer<VideoEventMap<T>>` generic-instantiation chain (which stalls in
 	 * conditional-type inference for interface types).
 	 */
-	readonly __eventMap__: VideoEventMap;
+	readonly __eventMap__: VideoEventMap<T>;
 
 	// ── Video element ──
 

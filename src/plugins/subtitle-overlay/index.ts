@@ -115,11 +115,11 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 		});
 
 		// Item change — paint nothing until `subtitleCue` arrives for
-		// the new item. (The kit drops the sidecar tracker on `current`
+		// the new item. (The kit drops the sidecar tracker on `item`
 		// and the backend's `unload` emits `cues: []`, so we'll usually
 		// get the empty event implicitly — clearing here is belt-and-
 		// braces for races during track-list refresh.)
-		this.on('current', () => this.renderCues([]));
+		this.on('item', () => this.renderCues([]));
 	}
 
 	/**

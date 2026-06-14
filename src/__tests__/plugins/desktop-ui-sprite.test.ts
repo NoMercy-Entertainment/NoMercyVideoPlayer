@@ -54,7 +54,7 @@ describe('DesktopUiPlugin — sprite URL resolution', () => {
 		const loadSpy = vi.spyOn(spriteModule, 'loadSpriteSet').mockResolvedValue(null);
 		const player = await makePlayer();
 
-		player.emit('current', {
+		player.emit('item', {
 			item: {
 				id: 'movie-1',
 				url: 'http://example.test/movie.m3u8',
@@ -77,7 +77,7 @@ describe('DesktopUiPlugin — sprite URL resolution', () => {
 		// `previewSpriteUrl`. `tracks` is intentionally absent from VideoPlaylistItem
 		// so the whole payload is cast as never — same pattern as other tests that
 		// exercise runtime paths outside the typed event surface.
-		player.emit('current' as never, {
+		player.emit('item' as never, {
 			item: { id: 'movie-2', url: 'http://example.test/movie.m3u8', tracks: [{ kind: 'thumbnails', file: 'http://example.test/legacy-sprites.vtt' }] },
 			index: 0,
 		} as never);
@@ -94,7 +94,7 @@ describe('DesktopUiPlugin — sprite URL resolution', () => {
 
 		// Item carries both fields; canonical path must win.
 		// tracks[] not on VideoPlaylistItem — cast as never for the same reason.
-		player.emit('current' as never, {
+		player.emit('item' as never, {
 			item: { id: 'movie-3', url: 'http://example.test/movie.m3u8', previewSpriteUrl: 'http://example.test/canonical.vtt', tracks: [{ kind: 'thumbnails', file: 'http://example.test/legacy.vtt' }] },
 			index: 0,
 		} as never);
@@ -109,7 +109,7 @@ describe('DesktopUiPlugin — sprite URL resolution', () => {
 		const loadSpy = vi.spyOn(spriteModule, 'loadSpriteSet').mockResolvedValue(null);
 		const player = await makePlayer();
 
-		player.emit('current', {
+		player.emit('item', {
 			item: {
 				id: 'movie-4',
 				url: 'http://example.test/movie.m3u8',

@@ -181,9 +181,9 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 				return v2?.tracks ?? [];
 			},
 		},
-		// v1 'item' fired with the PlaylistItem directly; v2 uses 'current' with { item, index }.
+		// v1 'item' fired with the PlaylistItem directly; v2 uses 'item' with { item, index }.
 		item: {
-			v2Event: 'current',
+			v2Event: 'item',
 			reshape: (data) => {
 				const v2 = data as { item?: VideoPlaylistItem; index?: number } | undefined;
 				return v2?.item;
@@ -200,8 +200,6 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 				return [];
 			},
 		},
-		// v1 'item' fired with the PlaylistItem directly; v2 uses 'current' with { item, index }.
-		// Map to a no-op rather than bridging incorrectly.
 		complete: { v2Event: 'ended' },
 		finished: { v2Event: 'ended' },
 		firstFrame: { v2Event: 'firstFrame' },
@@ -246,7 +244,8 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 			v2Event: 'subtitleChanged',
 			reshape: (data) => {
 				const v2 = data as { index?: number; track?: { id?: string | number; language?: string; label?: string; type?: string } } | undefined;
-				if (!v2) return null;
+				if (!v2)
+					return null;
 				return { id: v2.track?.id ?? v2.index ?? -1, language: v2.track?.language, label: v2.track?.label, type: v2.track?.type };
 			},
 		},
@@ -1059,8 +1058,7 @@ export class V1VideoCompatPlugin extends Plugin<
 		 */
 		this._patchMethod('getCurrentSrc', () => {
 			_warnDeprecated('getCurrentSrc()', 'item()?.url');
-			const current = player.item();
-			return (current as { url?: string } | undefined)?.url ?? '';
+			return player.item()?.url ?? '';
 		});
 
 		/**
@@ -1271,7 +1269,8 @@ export class V1VideoCompatPlugin extends Plugin<
 			_warnDeprecated('getClosestElement(el, selector)', 'el.closest(selector)');
 			if (el instanceof Element) {
 				const byAncestor = el.closest(String(selector));
-				if (byAncestor) return byAncestor;
+				if (byAncestor)
+					return byAncestor;
 				const container = player.container;
 				return container.querySelector(String(selector));
 			}
@@ -1284,7 +1283,7 @@ export class V1VideoCompatPlugin extends Plugin<
 		 */
 		const target = player as unknown as Record<string, unknown>;
 		if (!('hasNextTip' in target)) {
-			target['hasNextTip'] = false;
+			target.hasNextTip = false;
 			this._patchedMethods.push('hasNextTip');
 		}
 
@@ -1298,7 +1297,7 @@ export class V1VideoCompatPlugin extends Plugin<
 		});
 
 		// Also expose as a getter-like property (v1 accessed it as player.translations directly)
-		if (!('translations' in target) || typeof target['translations'] !== 'object') {
+		if (!('translations' in target) || typeof target.translations !== 'object') {
 			Object.defineProperty(target, 'translations', {
 				get: () => ({}),
 				configurable: true,

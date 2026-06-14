@@ -80,11 +80,11 @@ describe('NMVideoPlayer — queue', () => {
 	});
 
 	describe('cursor', () => {
-		it('item() moves the cursor and emits "current"', () => {
+		it('item() moves the cursor and emits "item"', () => {
 			const p = setup();
 			p.queue([item('a'), item('b'), item('c')]);
 			let payload: { index: number } | undefined;
-			p.on('current' as any, (data: any) => { payload = data; });
+			p.on('item' as any, (data: any) => { payload = data; });
 			p.item('c');
 			expect(p.item()?.id).toBe('c');
 			expect(payload?.index).toBe(2);

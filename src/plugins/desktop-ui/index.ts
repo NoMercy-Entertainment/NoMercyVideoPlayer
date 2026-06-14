@@ -428,6 +428,10 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private _shortcutsVisible = false;
 
 	private inactivityToken: number | null = null;
+	// `activity` is a state-change event. Emits are deduped through
+	// setActivity() so moving the mouse only fires it when the controls were
+	// hidden — never once per mousemove. Controls start visible.
+	private activityActive = true;
 	private cachedDuration = 0;
 	private _lastMouseX = -1;
 	private _lastMouseY = -1;
@@ -508,7 +512,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			this.inactivityToken = null;
 		}
 		this.overlayRoot.hidden = true;
-		this.player.emit('activity', { active: false });
+		this.setActivity(false);
 	}
 
 	/** Re-enabling restores the overlay and re-arms the auto-hide cycle. */
@@ -558,7 +562,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 		this.on('waiting', () => showBuffer('message.buffering'));
 		this.on('stalled', () => showBuffer('message.buffering'));
-		this.on('current', () => showBuffer('message.loading'));
+		this.on('item', () => showBuffer('message.loading'));
 		this.on('playing', clearFeedback);
 		this.on('time', clearFeedback);
 
@@ -1721,7 +1725,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 				clearTimeout(this.inactivityToken);
 				this.inactivityToken = null;
 			}
-			this.player.emit('activity', { active: true });
+			this.setActivity(true);
 		});
 		this.on('ended', () => this.setPlayingState(false));
 
@@ -1730,7 +1734,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.on('seek', () => this.bumpActivity());
 		this.on('seeked', () => this.bumpActivity());
 
-		this.on('current', d => this.handleCurrentChange(d.item));
+		this.on('item', d => this.handleCurrentChange(d.item));
 
 		this.on('listeners-changed', (d) => {
 			// applyStateVisibility composes the listener gate with PiP hiding —
@@ -2738,8 +2742,17 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	// ── Activity / auto-hide ────────────────────────────────────────
+	// Emit `activity` only when the active state actually flips, so consumers
+	// get a state event rather than a per-mousemove firehose.
+	private setActivity(active: boolean): void {
+		if (this.activityActive === active)
+			return;
+		this.activityActive = active;
+		this.player.emit('activity', { active });
+	}
+
 	private bumpActivity(): void {
-		this.player.emit('activity', { active: true });
+		this.setActivity(true);
 
 		if (this.inactivityToken !== null)
 			clearTimeout(this.inactivityToken);
@@ -2755,7 +2768,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		if (this._isControlsHovered)
 			return;
 
-		this.player.emit('activity', { active: false });
+		this.setActivity(false);
 	}
 
 	// Deliberate paused-state dismiss; bypasses maybeHide()'s playing-only guard.
@@ -2766,7 +2779,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		if (this.isScrubbing)
 			return;
 
-		this.player.emit('activity', { active: false });
+		this.setActivity(false);
 	}
 }
 

@@ -39,7 +39,9 @@ import type {
 	VisibilityState,
 } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoBackend } from './adapters/video-backend/IVideoBackend';
+import type { V1VideoConfig } from './player/v1-config-normalizer';
 import type { AudioTrackState, IVideoPlayer, PlayState, QualityState, RepeatState, SegmentBoundaryPayload, SegmentOptions, ShuffleState, Stretching, VideoEventMap, VideoPlayerConfig, VideoPlaylistItem, VideoRect, VolumeState } from './types';
+import type { Plugin as V1PluginBase } from './v1-plugin-base';
 import {
 	BrowserPolicyError,
 	composeMixins,
@@ -55,11 +57,8 @@ import { normalizeVideoPlaylistItem } from './player/normalize-item';
 import { VideoPreloadStrategy } from './player/preload';
 import { pickStartItem } from './player/start-selection';
 import { normalizeVideoConfig } from './player/v1-config-normalizer';
-import type { V1VideoConfig } from './player/v1-config-normalizer';
 import { V1VideoCompatPlugin } from './plugins/v1-compat';
 import { containedRect,	FullscreenState,	PipState,	SubtitleState,	TheaterState } from './types';
-import type { Plugin as V1PluginBase } from './v1-plugin-base';
-
 
 export type { IChapterSource } from './adapters/chapter-source/IChapterSource';
 export { VttChapterSource } from './adapters/chapter-source/vtt-chapters';
@@ -84,6 +83,10 @@ export type {
 } from './adapters/video-backend/IVideoBackend';
 export { VideoPreloadStrategy } from './player/preload';
 
+// Plugins — v1 consumers imported these directly from the main barrel.
+export { KeyHandlerPlugin } from './plugins/key-handler';
+export { OctopusPlugin } from './plugins/octopus';
+
 export type {
 	AudioTrackRef,
 	ChapterRef,
@@ -102,6 +105,7 @@ export type {
 	VideoRect,
 	WatchProgress,
 } from './types';
+
 export { containedRect } from './types';
 
 export {
@@ -116,22 +120,19 @@ export {
 	TheaterState,
 } from './types';
 
-// VolumeState is exported as a v1-compat payload interface ({ volume, muted })
-// rather than the internal enum — consumer UI plugins receive this shape from
-// the 'volume' and 'mute' events and access .volume / .muted directly.
-export type { VolumeState } from './v1-types';
-
-export { NotImplementedError } from '@nomercy-entertainment/nomercy-player-core';
-
 // ── v1 re-exports — widened types ─────────────────────────────────────────────
 // Chapter, QualityLevel, SubtitleTrack, and AudioTrack are exported from
 // v1-types.ts (which extends the kit base types with v1-era optional fields).
 // This lets consumer code that accesses .id / .left / .width / .ext compile
 // without changes during the migration window.
 
-export type { SubtitleStyle } from '@nomercy-entertainment/nomercy-player-core';
+// Plugin class — v1 consumers extend this. New code uses Plugin from core.
+export { Plugin } from './v1-plugin-base';
 
-export type { Chapter, QualityLevel, SubtitleTrack, AudioTrack } from './v1-types';
+// VolumeState is exported as a v1-compat payload interface ({ volume, muted })
+// rather than the internal enum — consumer UI plugins receive this shape from
+// the 'volume' and 'mute' events and access .volume / .muted directly.
+export type { VolumeState } from './v1-types';
 
 // ── v1 data types ─────────────────────────────────────────────────────────────
 
@@ -238,9 +239,9 @@ function _matchLanguage(candidates: Array<string | undefined>, target: string): 
  *    not the kit's internal string token — runtime impl comes from the mixin)
  *  - Video-specific stubs (fullscreen, pip, theater, subtitle toggles, etc.)
  */
-export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
-	extends EventEmitter<VideoEventMap>
-	implements IPlayer<VideoEventMap>, IVideoPlayer<T> {
+export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
+	extends EventEmitter<VideoEventMap<T>>
+	implements IPlayer<VideoEventMap<T>>, IVideoPlayer<T> {
 	playerId: string = '';
 	container: HTMLElement = <HTMLElement>{};
 	videoElement: HTMLVideoElement | undefined;
@@ -251,11 +252,11 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 
 	/**
 	 * Phantom brand — never assigned at runtime. Declared explicitly here so
-	 * `PlayerEventMap<NMVideoPlayer<T>>` resolves to `VideoEventMap` without
+	 * `PlayerEventMap<NMVideoPlayer<T>>` resolves to `VideoEventMap<T>` without
 	 * TypeScript having to walk the `EventEmitter` inheritance chain (which
 	 * stalls in conditional-type inference for complex class hierarchies).
 	 */
-	declare readonly __eventMap__: VideoEventMap;
+	declare readonly __eventMap__: VideoEventMap<T>;
 
 	declare options: VideoPlayerConfig<T>;
 
@@ -388,6 +389,17 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 	declare index: () => number;
 	declare seekToIndex: (position: number, opts?: ActionOptions) => void;
 
+	declare playItem: (
+		target: BasePlaylistItem | string | number | ((item: BasePlaylistItem) => boolean),
+		opts?: LoadOptions,
+	) => void;
+
+	declare playNow: (
+		items: BasePlaylistItem[],
+		start?: BasePlaylistItem | string | number | ((item: BasePlaylistItem) => boolean),
+		opts?: LoadOptions,
+	) => void;
+
 	declare backlog: {
 		(): ReadonlyArray<T>;
 		(items: T[]): void;
@@ -417,7 +429,7 @@ export class NMVideoPlayer<T extends BasePlaylistItem = VideoPlaylistItem>
 		this.container = resolved.div;
 		_instances.set(resolved.id, this as unknown as NMVideoPlayer<BasePlaylistItem>);
 
-		this.on('current', (data) => {
+		this.on('item', (data) => {
 			const item = data?.item;
 			this._applyPosterForRaw(readItemImage(item));
 		});
@@ -1366,7 +1378,7 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 	// Attach v1 registerPlugin / usePlugin shims to this instance.
 	// These are NOT on the NMVideoPlayer prototype — they are per-instance
 	// so they can close over the _v1PluginMap for this specific player.
-	(instance as unknown as Record<string, unknown>)['registerPlugin'] = (
+	(instance as unknown as Record<string, unknown>).registerPlugin = (
 		name: string,
 		pluginInstance: unknown,
 	): void => {
@@ -1377,7 +1389,7 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 		}
 	};
 
-	(instance as unknown as Record<string, unknown>)['usePlugin'] = (name: string): void => {
+	(instance as unknown as Record<string, unknown>).usePlugin = (name: string): void => {
 		const found = _v1PluginMap.get(name);
 		if (found) {
 			found.use();
@@ -1386,13 +1398,13 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 
 	// Expose the v1 plugin registry as a Map-like `plugins` property so that
 	// v1 consumer code calling `player.plugins.has('name')` / `.get('name')` compiles.
-	(instance as unknown as Record<string, unknown>)['plugins'] = _v1PluginMap;
+	(instance as unknown as Record<string, unknown>).plugins = _v1PluginMap;
 
 	const originalSetup = instance.setup.bind(instance);
 
 	// Widen setup to accept the v1-compat V1VideoConfig shape (extra fields like
 	// disableTouchControls, basePath, accessToken, wider playlist). normalizeVideoConfig strips them.
-	(instance as unknown as Record<string, unknown>)['setup'] = function (config: V1VideoConfig<T extends VideoPlaylistItem ? T : VideoPlaylistItem>): NMVideoPlayer<T> {
+	(instance as unknown as Record<string, unknown>).setup = function (config: V1VideoConfig<T extends VideoPlaylistItem ? T : VideoPlaylistItem>): NMVideoPlayer<T> {
 		// Normalise v1 legacy fields (accessToken → auth.bearerToken,
 		// debug: true → logLevel: 'debug') at the library boundary so core
 		// never sees them and carries no compat knowledge. Strategy defaults,
@@ -1422,7 +1434,7 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 			}
 		});
 		// Reset the gate when a new item starts so subsequent playlists fire again.
-		instance.on('current', () => { _playlistCompleteFired = false; });
+		instance.on('item', () => { _playlistCompleteFired = false; });
 
 		if (config.expose === true && typeof window !== 'undefined') {
 			Object.assign(window, { nmplayer });
@@ -1471,12 +1483,7 @@ export default nmplayer;
 // code compiles against v2 without source changes during the migration window.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Plugin class — v1 consumers extend this. New code uses Plugin from core.
-export { Plugin } from './v1-plugin-base';
-
-// Plugins — v1 consumers imported these directly from the main barrel.
-export { KeyHandlerPlugin } from './plugins/key-handler';
-export { OctopusPlugin } from './plugins/octopus';
+export type { AudioTrack, Chapter, QualityLevel, SubtitleTrack } from './v1-types';
 
 // Type aliases
 export type {
@@ -1490,6 +1497,9 @@ export type {
 	Track,
 	VTTData,
 } from './v1-types';
+export { NotImplementedError } from '@nomercy-entertainment/nomercy-player-core';
+
+export type { SubtitleStyle } from '@nomercy-entertainment/nomercy-player-core';
 
 // ── v1 utility functions ──────────────────────────────────────────────────────
 // These were exported from v1's barrel and are used by v1-era consumer plugins.

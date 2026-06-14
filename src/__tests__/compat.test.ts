@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { applyVideoV1Compat, nmplayer, nmVideoPlayer, normalizeVideoItem } from '../compat';
-import { nmplayer as nmplayerV1, nmVideoPlayer as canonicalNmVideoPlayer, NMVideoPlayer, Plugin } from '../index';
+import { nmVideoPlayer as canonicalNmVideoPlayer, nmplayer as nmplayerV1, NMVideoPlayer, Plugin } from '../index';
 
 describe('normalizeVideoItem', () => {
 	it('maps subtitle tracks to subtitles[]', () => {
@@ -224,8 +224,8 @@ describe('nmplayer v1 shims — registerPlugin / usePlugin + Plugin lifecycle', 
 	it('nmplayer factory attaches registerPlugin and usePlugin to the instance', () => {
 		const player = nmplayerV1('shim-video');
 		const raw = player as unknown as Record<string, unknown>;
-		expect(typeof raw['registerPlugin']).toBe('function');
-		expect(typeof raw['usePlugin']).toBe('function');
+		expect(typeof raw.registerPlugin).toBe('function');
+		expect(typeof raw.usePlugin).toBe('function');
 		player.dispose();
 	});
 
@@ -244,7 +244,7 @@ describe('nmplayer v1 shims — registerPlugin / usePlugin + Plugin lifecycle', 
 		const plugin = new Plugin();
 		const initSpy = vi.spyOn(plugin, 'initialize');
 
-		(raw['registerPlugin'] as (name: string, p: Plugin) => void)('testPlugin', plugin);
+		(raw.registerPlugin as (name: string, p: Plugin) => void)('testPlugin', plugin);
 
 		expect(initSpy).toHaveBeenCalledWith(player);
 		player.dispose();
@@ -257,8 +257,8 @@ describe('nmplayer v1 shims — registerPlugin / usePlugin + Plugin lifecycle', 
 		const plugin = new Plugin();
 		const useSpy = vi.spyOn(plugin, 'use');
 
-		(raw['registerPlugin'] as (name: string, p: Plugin) => void)('testPlugin', plugin);
-		(raw['usePlugin'] as (name: string) => void)('testPlugin');
+		(raw.registerPlugin as (name: string, p: Plugin) => void)('testPlugin', plugin);
+		(raw.usePlugin as (name: string) => void)('testPlugin');
 
 		expect(useSpy).toHaveBeenCalledOnce();
 		player.dispose();
@@ -269,7 +269,7 @@ describe('nmplayer v1 shims — registerPlugin / usePlugin + Plugin lifecycle', 
 		const raw = player as unknown as Record<string, unknown>;
 
 		expect(() => {
-			(raw['usePlugin'] as (name: string) => void)('does-not-exist');
+			(raw.usePlugin as (name: string) => void)('does-not-exist');
 		}).not.toThrow();
 		player.dispose();
 	});
@@ -293,8 +293,8 @@ describe('nmplayer v1 shims — registerPlugin / usePlugin + Plugin lifecycle', 
 		}
 
 		const myPlugin = new MyPlugin();
-		(raw['registerPlugin'] as (name: string, p: Plugin) => void)('myPlugin', myPlugin);
-		(raw['usePlugin'] as (name: string) => void)('myPlugin');
+		(raw.registerPlugin as (name: string, p: Plugin) => void)('myPlugin', myPlugin);
+		(raw.usePlugin as (name: string) => void)('myPlugin');
 
 		expect(capturedPlayer).toBe(player);
 		expect(useWasCalled).toBe(true);
@@ -317,7 +317,7 @@ describe('nmplayer v1 shims — registerPlugin / usePlugin + Plugin lifecycle', 
 
 		const received: unknown[] = [];
 		const raw = player as unknown as Record<string, unknown>;
-		(raw['on'] as (ev: string, fn: () => void) => void)('playlistComplete', () => {
+		(raw.on as (ev: string, fn: () => void) => void)('playlistComplete', () => {
 			received.push(true);
 		});
 

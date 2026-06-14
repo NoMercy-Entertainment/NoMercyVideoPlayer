@@ -35,7 +35,8 @@ export function unique<T>(array: ReadonlyArray<T>, key: string): T[] {
 	const seen = new Set<unknown>();
 	return array.filter((item) => {
 		const value = (item as Record<string, unknown>)[key];
-		if (seen.has(value)) return false;
+		if (seen.has(value))
+			return false;
 		seen.add(value);
 		return true;
 	});

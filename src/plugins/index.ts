@@ -9,13 +9,11 @@ export { drmPlugin, DrmPlugin } from './drm';
 export type { DrmEvents, DrmOptions } from './drm';
 // Cross-library plugins (from the kit, with video-specific defaults where applicable)
 export { keyHandlerPlugin, KeyHandlerPlugin } from './key-handler';
-export type { KeyBindings, KeyHandlerOptions } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
 // Heavy orchestration plugins — server coordination, DRM, cast handoff, skip ranges
 export { liveTranscodingPlugin, LiveTranscodingPlugin } from './live-transcoding';
-
 export type { LiveTranscodingEvents, LiveTranscodingOptions } from './live-transcoding';
+
 export { mediaSessionPlugin, MediaSessionPlugin } from './media-session';
-export type { MediaSessionMetadata, MediaSessionOptions } from '@nomercy-entertainment/nomercy-player-core/plugins/media-session';
 export { octopusPlugin, OctopusPlugin } from './octopus';
 export type { OctopusOptions } from './octopus';
 export { subtitleOverlayPlugin, SubtitleOverlayPlugin } from './subtitle-overlay/index';
@@ -28,7 +26,6 @@ export type { TvKeyHandlerOptions } from './tv-key-handler';
 // Migration shim — TEMPORARY, remove after v1→v2 migration window closes
 export { v1VideoCompatPlugin, V1VideoCompatPlugin } from './v1-compat';
 export type { V1VideoCompatEvents } from './v1-compat';
-
 // Cross-library kit plugins re-exported for ergonomic imports.
 export {
 	audioGraphPlugin,
@@ -68,6 +65,9 @@ export type {
 	EmbedOptions,
 	EmbedSerializedError,
 } from '@nomercy-entertainment/nomercy-player-core/plugins/embed';
+
+export type { KeyBindings, KeyHandlerOptions } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
+export type { MediaSessionMetadata, MediaSessionOptions } from '@nomercy-entertainment/nomercy-player-core/plugins/media-session';
 
 export { messagePlugin, MessagePlugin } from '@nomercy-entertainment/nomercy-player-core/plugins/message';
 export type { MessageInput, MessageOptions } from '@nomercy-entertainment/nomercy-player-core/plugins/message';
