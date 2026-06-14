@@ -1,7 +1,7 @@
 {
 	"name": "@nomercy-entertainment/nomercy-video-player",
 	"type": "module",
-	"version": "2.0.0-rc.2",
+	"version": "2.0.0-rc.3",
 	"description": "Headless, event-driven HTML5 video player with HLS streaming, subtitle rendering (VTT/ASS/SSA), and a plugin system. No UI — you build your own.",
 	"author": {
 		"name": "NoMercy Entertainment",
@@ -132,7 +132,7 @@
 		"node": ">=18.0.0"
 	},
 	"scripts": {
-		"build": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json && node ../nomercy-player-kit/scripts/resolve-translation-globs.mjs && node ../nomercy-player-kit/scripts/copy-dist-assets.mjs && node ../nomercy-player-kit/scripts/inline-css-assets.mjs",
+		"build": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json && node node_modules/@nomercy-entertainment/nomercy-player-core/scripts/resolve-translation-globs.mjs && node node_modules/@nomercy-entertainment/nomercy-player-core/scripts/copy-dist-assets.mjs && node node_modules/@nomercy-entertainment/nomercy-player-core/scripts/inline-css-assets.mjs",
 		"build:iife": "vite build --config vite.iife.config.ts",
 		"build:all": "npm run build && npm run build:iife",
 		"dev": "tsc -p tsconfig.build.json --watch",
@@ -147,7 +147,7 @@
 		"prepublishOnly": "npm run build:all"
 	},
 	"dependencies": {
-		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.2",
+		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.3",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
 		"@types/webvtt-parser": "^2.2.0",
 		"hls.js": "^1.6.0",
@@ -173,7 +173,6 @@
 	"overrides": {
 		"fast-uri": "^3.1.2",
 		"follow-redirects": "1.16.0",
-		"lodash": "4.18.1",
 		"minimatch": "10.2.4",
 		"uuid": "^11.1.1"
 	},
