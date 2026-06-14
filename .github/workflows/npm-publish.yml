@@ -22,22 +22,42 @@ jobs:
           cache: npm
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: rm -rf node_modules package-lock.json && npm install
 
+      - name: Check if version is already published
+        id: version-check
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          LOCAL_VERSION=$(node -p "require('./package.json').version")
+          PUBLISHED_VERSION=$(npm view "$PACKAGE_NAME@$LOCAL_VERSION" version 2>/dev/null || echo "")
+          if [ "$LOCAL_VERSION" = "$PUBLISHED_VERSION" ]; then
+            echo "Version $LOCAL_VERSION is already published. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Publishing $LOCAL_VERSION (not yet on npm)"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Typecheck
+        if: steps.version-check.outputs.skip != 'true'
         run: npm run typecheck
 
       - name: Lint
+        if: steps.version-check.outputs.skip != 'true'
         run: npm run lint
 
       - name: Test
+        if: steps.version-check.outputs.skip != 'true'
         run: npm run test
 
       - name: Build package
+        if: steps.version-check.outputs.skip != 'true'
         run: npm run build
 
       - name: Publish package
+        if: steps.version-check.outputs.skip != 'true'
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
