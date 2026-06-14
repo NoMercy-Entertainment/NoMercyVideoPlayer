@@ -56,7 +56,7 @@ jobs:
 
       - name: Build package
         if: steps.version-check.outputs.skip != 'true'
-        run: npm run build
+        run: npm run build:all
 
       - name: Publish package
         if: steps.version-check.outputs.skip != 'true'

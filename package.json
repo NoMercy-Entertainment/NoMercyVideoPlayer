@@ -143,8 +143,7 @@
 		"test:ui": "vitest --ui --watch",
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "npx playwright test",
-		"test:e2e:report": "npx playwright show-report reports/playwright",
-		"prepublishOnly": "npm run build:all"
+		"test:e2e:report": "npx playwright show-report reports/playwright"
 	},
 	"dependencies": {
 		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.4",
