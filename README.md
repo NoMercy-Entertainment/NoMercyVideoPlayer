@@ -2,7 +2,7 @@
 [![license](https://img.shields.io/npm/l/@nomercy-entertainment/nomercy-video-player)](./LICENSE)
 [![bundlephobia](https://img.shields.io/bundlephobia/minzip/@nomercy-entertainment/nomercy-video-player)](https://bundlephobia.com/package/@nomercy-entertainment/nomercy-video-player)
 
-Full documentation: https://docs.nomercy.tv/player/video/
+Full documentation: https://docs.nomercy.tv/nomercy-video-player/
 
 # nomercy-video-player
 
@@ -47,11 +47,11 @@ That mounts a working player with the full built-in UI. Drop `DesktopUiPlugin` t
 
 ## Documentation
 
-The [docs site](https://docs.nomercy.tv/player/video/) is the full reference and the home for everything that used to live in the wiki:
+The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full reference and the home for everything that used to live in the wiki:
 
-- [Quick Start](https://docs.nomercy.tv/player/video/quickstart), install, first player, and the no-bundler CDN embed
-- [Configuration](https://docs.nomercy.tv/player/video/configuration), every option and default
-- [API Methods](https://docs.nomercy.tv/player/video/api-methods) and [Events](https://docs.nomercy.tv/player/video/events)
+- [Quick Start](https://docs.nomercy.tv/nomercy-video-player/quickstart), install, first player, and the no-bundler CDN embed
+- [Configuration](https://docs.nomercy.tv/nomercy-video-player/configuration), every option and default
+- [API Methods](https://docs.nomercy.tv/nomercy-video-player/api-methods) and [Events](https://docs.nomercy.tv/nomercy-video-player/events)
 - The step-by-step tutorial for building your own player UI, framework guides for Vue, React, Svelte, Angular, and vanilla JS, and the full plugin reference
 
 ## License
