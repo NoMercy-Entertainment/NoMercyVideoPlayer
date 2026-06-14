@@ -21,7 +21,8 @@ Setter forms are unchanged. Full details in the kit migration guide.
 
 ## v1 1.2.7 → v2: method renames (breaking changes)
 
-v1 1.2.7 was already the kit-based `NMVideoPlayer` shape. The following members
+v1 1.2.7 was the monolithic `NMVideoPlayer` — the core extraction into
+`nomercy-player-core` happened in the v2 rewrite, not before. The following members
 existed on the v1 1.2.7 public surface but are renamed in v2. `V1VideoCompatPlugin`
 provides deprecated shims for all of them — register it during the migration window,
 then remove it and update call sites to the v2 names.

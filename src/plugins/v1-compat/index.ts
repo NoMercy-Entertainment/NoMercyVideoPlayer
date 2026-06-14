@@ -997,6 +997,131 @@ export class V1VideoCompatPlugin extends Plugin<
 		});
 
 		/**
+		 * @deprecated Use `player.queue()`.
+		 */
+		this._patchMethod('getPlaylist', () => {
+			_warnDeprecated('getPlaylist()', 'queue()');
+			try {
+				return player.queue();
+			}
+			catch {
+				return [];
+			}
+		});
+
+		/**
+		 * @deprecated Use `player.index()`.
+		 */
+		this._patchMethod('getPlaylistIndex', () => {
+			_warnDeprecated('getPlaylistIndex()', 'index()');
+			try {
+				return player.index();
+			}
+			catch {
+				return 0;
+			}
+		});
+
+		/**
+		 * @deprecated v2 has no season grouping on the player — derive it from the
+		 * queue. Returns the unique seasons in playback order.
+		 */
+		this._patchMethod('getSeasons', () => {
+			_warnRemoved('getSeasons()', 'season grouping is a consumer concern — derive it from queue() items.');
+			try {
+				const seen = new Map<number, { season: number; seasonName?: string }>();
+				for (const item of player.queue()) {
+					const entry = item as { season?: number; seasonName?: string };
+					if (typeof entry.season === 'number' && !seen.has(entry.season)) {
+						seen.set(entry.season, { season: entry.season, seasonName: entry.seasonName });
+					}
+				}
+				return [...seen.values()];
+			}
+			catch {
+				return [];
+			}
+		});
+
+		/**
+		 * @deprecated Audio gain moved to the audio-graph plugin; v2 has no
+		 * player-level gain.
+		 */
+		this._patchMethod('getGain', () => {
+			_warnRemoved('getGain()', 'audio gain is managed by the audio-graph plugin in v2.');
+			return undefined;
+		});
+
+		/**
+		 * @deprecated Audio gain moved to the audio-graph plugin; v2 has no
+		 * player-level gain.
+		 */
+		this._patchMethod('setGain', () => {
+			_warnRemoved('setGain(value)', 'audio gain is managed by the audio-graph plugin in v2.');
+		});
+
+		/**
+		 * @deprecated Read the selected subtitle via `player.subtitle()`.
+		 */
+		this._patchMethod('getSubtitleFile', () => {
+			_warnDeprecated('getSubtitleFile()', 'subtitle()');
+			try {
+				const selection = player.subtitle() as { track?: { file?: string; url?: string } } | null;
+				return selection?.track?.file ?? selection?.track?.url ?? undefined;
+			}
+			catch {
+				return undefined;
+			}
+		});
+
+		/**
+		 * @deprecated Find the chapter at a time via `player.chapters()`.
+		 */
+		this._patchMethod('getChapterText', (scrubTime?: unknown) => {
+			_warnDeprecated('getChapterText(time)', 'chapters() + find()');
+			try {
+				const targetTime = Number(scrubTime ?? 0);
+				const match = player.chapters().find(chapter => targetTime >= chapter.start && targetTime < chapter.end);
+				return (match as { title?: string } | undefined)?.title ?? null;
+			}
+			catch {
+				return null;
+			}
+		});
+
+		/**
+		 * @deprecated Find the caption index via `player.subtitles()`.
+		 */
+		this._patchMethod('getCaptionIndexBy', (language?: unknown, type?: unknown, ext?: unknown) => {
+			_warnDeprecated('getCaptionIndexBy(language, type, ext)', 'subtitles() + findIndex()');
+			try {
+				const list = player.subtitles() as Array<{ language?: string; kind?: string; type?: string; ext?: string; file?: string }>;
+				const found = list.findIndex(track =>
+					(language == null || track.language === language)
+					&& (type == null || track.kind === type || track.type === type)
+					&& (ext == null || track.ext === ext || (track.file ?? '').endsWith(`.${String(ext)}`)));
+				return found >= 0 ? found : undefined;
+			}
+			catch {
+				return undefined;
+			}
+		});
+
+		/**
+		 * @deprecated Find the audio-track index via `player.audioTracks()`.
+		 */
+		this._patchMethod('getAudioTrackIndexByLanguage', (language?: unknown) => {
+			_warnDeprecated('getAudioTrackIndexByLanguage(language)', 'audioTracks() + findIndex()');
+			try {
+				const tracks = player.audioTracks() as Array<{ language?: string }>;
+				return tracks.findIndex(track => track.language === language);
+			}
+			catch {
+				return -1;
+			}
+		});
+
+		/**
 		 * @deprecated Removed in v2, no replacement — chapter-at-time lookup is a
 		 * consumer concern; use `player.chapters()` and find the entry manually.
 		 */

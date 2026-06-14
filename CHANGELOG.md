@@ -1,5 +1,14 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-rc.6] — 2026-06-14
+
+### Fixed
+
+- The v1-compat plugin now bridges 9 v1 public accessors (getPlaylist, getPlaylistIndex, getSeasons, getGain/setGain,
+  getSubtitleFile, getChapterText, getCaptionIndexBy, getAudioTrackIndexByLanguage) that an upgrading v1 consumer
+  could call. The plugin once again covers the full v1 public surface, so old
+  code keeps working with only the compat plugin added.
+
 ## [2.0.0-rc.5] — 2026-06-14
 
 ### Changed
