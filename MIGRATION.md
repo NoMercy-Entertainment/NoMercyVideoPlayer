@@ -61,13 +61,14 @@ then remove it and update call sites to the v2 names.
 ```ts
 // Register compat plugin on the player that uses v1 call sites.
 import { V1VideoCompatPlugin } from '@nomercy-entertainment/nomercy-video-player';
+
 player.addPlugin(V1VideoCompatPlugin);
 
 // v1 calls continue to work — each logs one deprecation warning per name.
-const item = player.current();            // → player.item()
-const t    = player.currentTime();        // → player.time()
-player.currentTime(30);                   // → player.time(30)
-player.fullscreenState(true);             // → player.fullscreen(true)
+const item = player.current(); // → player.item()
+const t = player.currentTime(); // → player.time()
+player.currentTime(30); // → player.time(30)
+player.fullscreenState(true); // → player.fullscreen(true)
 ```
 
 Remove `V1VideoCompatPlugin` once all call sites are updated.

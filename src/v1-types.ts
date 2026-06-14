@@ -172,7 +172,6 @@ type _NMPlayerBase<T> = Omit<
 /**
  * @deprecated Use `NMVideoPlayer` in new code.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type NMPlayer<T = Record<string, any>> = _NMPlayerBase<T> & {
 	// ── v1 plugin shims ──
 

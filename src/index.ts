@@ -192,7 +192,7 @@ export function lineBreakShowTitle(str: string, removeShow = false): string {
 	if (!str) {
 		return '';
 	}
-	const match = str.match(/^(.*?)\s*[-–]\s*S\d+E\d+\s*[-–]?\s*(.*)/u);
+	const match = str.match(/^([^-–]+)[-–]\s*S\d+E\d+(?:[-–]([\s\S]*))?$/u);
 	if (!match) {
 		return str;
 	}
