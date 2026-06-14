@@ -7,9 +7,9 @@
  * Remove this file after the migration to v2 APIs is complete.
  */
 
-import type { ActionOptions, AudioTrack as KitAudioTrack, Chapter as KitChapter, CreateElement, SubtitleTrack as KitSubtitleTrack, Translations } from '@nomercy-entertainment/nomercy-player-core';
-import type { IVideoPlayer, QualityLevel as KitQualityLevel, VideoPlaylistItem, VideoPlayerConfig } from './types';
+import type { ActionOptions, CreateElement, AudioTrack as KitAudioTrack, Chapter as KitChapter, SubtitleTrack as KitSubtitleTrack, Translations } from '@nomercy-entertainment/nomercy-player-core';
 import type { V1VideoConfig } from './player/v1-config-normalizer';
+import type { IVideoPlayer, QualityLevel as KitQualityLevel, VideoPlayerConfig, VideoPlaylistItem } from './types';
 
 /**
  * v1-era audio track selection shape — extends the v2 `CurrentAudioTrackSelection`
@@ -147,8 +147,8 @@ export type AddClassesReturn<T extends Element> = CreateElement<T>;
 type _ItemTypeOf<T> = T extends { playlist: Array<infer Item> }
 	? Item
 	: T extends VideoPlaylistItem
-	? T
-	: PlaylistItem;
+		? T
+		: PlaylistItem;
 
 /**
  * The v1-extended player interface — adds `registerPlugin` / `usePlugin` and
@@ -512,8 +512,8 @@ export type NMPlayer<T = Record<string, any>> = _NMPlayerBase<T> & {
 	on(event: 'rewind', fn: (seconds: number) => void): void;
 	on(event: 'forward', fn: (seconds: number) => void): void;
 
-	/** Catch-all for any other event name with an unknown payload. */
-	on(event: string, fn: (data: unknown) => void): void;
+	/** Catch-all for any other event name. The `any` parameter is bivariant, allowing consumers to annotate the specific payload type they expect. */
+	on(event: string, fn: (data: any) => void): void; // bivariant escape hatch for plugin events
 
 	// ── Additional v1 methods (shadowed by index signature if present) ─────────
 	// Explicitly re-declared here so TypeScript resolves them with correct types
@@ -673,7 +673,7 @@ export type NMPlayer<T = Record<string, any>> = _NMPlayerBase<T> & {
 	 * @deprecated Use `player.t(key)` in new code.
 	 */
 	readonly translations: Record<string, unknown>;
-}
+};
 
 // ── PlayerConfig ──────────────────────────────────────────────────────────────
 
