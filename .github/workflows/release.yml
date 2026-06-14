@@ -30,6 +30,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Idempotent on re-runs / self-hosted runners that keep a stale local tag.
+          git tag -d "${PACKAGE_VERSION}" 2>/dev/null || true
+          git push origin ":refs/tags/${PACKAGE_VERSION}" 2>/dev/null || true
           git tag -a "${PACKAGE_VERSION}" -m "Release ${PACKAGE_VERSION}"
           git push origin "${PACKAGE_VERSION}"
 
