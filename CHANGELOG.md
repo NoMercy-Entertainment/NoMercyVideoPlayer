@@ -1,5 +1,20 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-rc.5] — 2026-06-14
+
+### Changed
+
+- The desktop-ui, tv-key-handler, and cast-sender plugins use a typesafe
+  translation key schema: each `en.ts` exports its canonical key type, and every
+  language file is full-coverage `satisfies Record<…TranslationKey, string>`
+  instead of the loose `Record<string, string>`. All supported languages ship,
+  scoped to each plugin's own `i18n` folder.
+
+### Fixed
+
+- The README and the package `homepage` point at the live docs route
+  (`docs.nomercy.tv/nomercy-video-player/`) instead of the dead `/player/` path.
+
 ## [2.0.0-rc.4] — 2026-06-14
 
 ### Fixed
