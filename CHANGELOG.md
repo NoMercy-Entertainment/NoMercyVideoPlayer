@@ -1,6 +1,6 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
-## [2.0.0-rc.1] — 2026-06-14
+## [2.0.0-rc.2] — 2026-06-14
 
 ### Changed
 
