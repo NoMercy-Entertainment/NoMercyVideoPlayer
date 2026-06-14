@@ -785,10 +785,15 @@ export class V1VideoCompatPlugin extends Plugin<
 		// ── Time / duration ───────────────────────────────────────────────
 
 		/**
-		 * @deprecated Use `player.time()`.
+		 * @deprecated Use `player.time()` / `player.time(t, opts)`.
+		 * v1 `currentTime(t?, opts?)` was a combined getter/setter.
+		 * v2 splits into `time()` (getter) and `time(t, opts)` (setter).
 		 */
-		this._patchMethod('currentTime', () => {
-			_warnDeprecated('currentTime()', 'time()');
+		this._patchMethod('currentTime', (t: unknown, opts?: unknown) => {
+			_warnDeprecated('currentTime()', 'time() / time(t, opts)');
+			if (t !== undefined) {
+				return player.time(Number(t), opts as Parameters<typeof player.time>[1]);
+			}
 			return player.time();
 		});
 
@@ -1171,11 +1176,6 @@ export class V1VideoCompatPlugin extends Plugin<
 			player.fullscreen(false);
 		});
 
-		this._patchMethod('currentTime', () => {
-			_warnDeprecated('currentTime()', 'time()');
-			return player.time();
-		});
-
 		this._patchMethod('isTv', () => {
 			_warnDeprecated('isTv()', 'check navigator.userAgent for Leanback');
 			const ua = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
@@ -1305,6 +1305,165 @@ export class V1VideoCompatPlugin extends Plugin<
 			});
 			this._patchedMethods.push('translations');
 		}
+
+		// ── v1 1.2.7 renamed members — all 13 kit-level renames ─────────────
+
+		/**
+		 * @deprecated Use `player.item()` / `player.item(target, opts)`.
+		 * v1 1.2.7 exposed `current()` as the getter/setter for the active queue item.
+		 * v2 renamed it to `item()` for clarity. The compat plugin `playlistItem()`
+		 * shim above handles the older pre-1.2.7 `playlistItem()` shape; this shim
+		 * bridges the 1.2.7 `current()` method.
+		 */
+		this._patchMethod('current', (t?: unknown, opts?: unknown) => {
+			_warnDeprecated('current()', 'item() / item(target, opts)');
+			if (t !== undefined) {
+				player.item(
+					t as Parameters<typeof player.item>[0],
+					opts as Parameters<typeof player.item>[1],
+				);
+				return;
+			}
+			return player.item();
+		});
+
+		/**
+		 * @deprecated Use `player.index()`.
+		 * v1 1.2.7 `currentIndex()` → v2 `index()`.
+		 */
+		this._patchMethod('currentIndex', () => {
+			_warnDeprecated('currentIndex()', 'index()');
+			return player.index();
+		});
+
+		/**
+		 * @deprecated Use `player.audioTrack()` / `player.audioTrack(idx)`.
+		 * v1 1.2.7 `currentAudioTrack(idx?)` → v2 `audioTrack(idx?)`.
+		 */
+		this._patchMethod('currentAudioTrack', (idx?: unknown) => {
+			_warnDeprecated('currentAudioTrack()', 'audioTrack() / audioTrack(idx)');
+			if (idx !== undefined) {
+				player.audioTrack(Number(idx));
+				return;
+			}
+			return player.audioTrack();
+		});
+
+		/**
+		 * @deprecated Use `player.quality()` / `player.quality(idx)`.
+		 * v1 1.2.7 `currentQuality(idx?)` → v2 `quality(idx?)`.
+		 */
+		this._patchMethod('currentQuality', (idx?: unknown) => {
+			_warnDeprecated('currentQuality()', 'quality() / quality(idx)');
+			if (idx !== undefined) {
+				player.quality(idx as Parameters<typeof player.quality>[0]);
+				return;
+			}
+			return player.quality();
+		});
+
+		/**
+		 * @deprecated Use `player.subtitle()` / `player.subtitle(idx)`.
+		 * v1 1.2.7 `currentSubtitle(idx?)` → v2 `subtitle(idx?)`.
+		 */
+		this._patchMethod('currentSubtitle', (idx?: unknown) => {
+			_warnDeprecated('currentSubtitle()', 'subtitle() / subtitle(idx)');
+			if (idx !== undefined) {
+				player.subtitle(idx === null ? null : Number(idx));
+				return;
+			}
+			return player.subtitle();
+		});
+
+		/**
+		 * @deprecated Use `player.audioOutput()` / `player.audioOutput(deviceId)`.
+		 * v1 1.2.7 `currentAudioOutput(deviceId?)` → v2 `audioOutput(deviceId?)`.
+		 */
+		this._patchMethod('currentAudioOutput', (deviceId?: unknown) => {
+			_warnDeprecated('currentAudioOutput()', 'audioOutput() / audioOutput(deviceId)');
+			if (deviceId !== undefined) {
+				return player.audioOutput(String(deviceId));
+			}
+			return player.audioOutput();
+		});
+
+		/**
+		 * @deprecated Use `player.chapter()` / `player.chapter(idx)`.
+		 * v1 1.2.7 `currentChapter(idx?)` → v2 `chapter(idx?)`.
+		 */
+		this._patchMethod('currentChapter', (idx?: unknown) => {
+			_warnDeprecated('currentChapter()', 'chapter() / chapter(idx)');
+			if (idx !== undefined) {
+				player.chapter(Number(idx));
+				return;
+			}
+			return player.chapter();
+		});
+
+		/**
+		 * @deprecated Use `player.audioTrackMode()` / `player.audioTrackMode(idx)`.
+		 * v1 1.2.7 `audioTrackState(idx?)` → v2 `audioTrackMode(idx?)`.
+		 */
+		this._patchMethod('audioTrackState', (idx?: unknown) => {
+			_warnDeprecated('audioTrackState()', 'audioTrackMode() / audioTrackMode(idx)');
+			if (idx !== undefined) {
+				player.audioTrackMode(Number(idx));
+				return;
+			}
+			return player.audioTrackMode();
+		});
+
+		/**
+		 * @deprecated Use `player.qualityMode()` / `player.qualityMode(target)`.
+		 * v1 1.2.7 `qualityState(target?)` → v2 `qualityMode(target?)`.
+		 */
+		this._patchMethod('qualityState', (target?: unknown) => {
+			_warnDeprecated('qualityState()', 'qualityMode() / qualityMode(target)');
+			if (target !== undefined) {
+				player.qualityMode(target as Parameters<typeof player.qualityMode>[0]);
+				return;
+			}
+			return player.qualityMode();
+		});
+
+		/**
+		 * @deprecated Use `player.fullscreen()` / `player.fullscreen(state)`.
+		 * v1 1.2.7 `fullscreenState(state?)` → v2 `fullscreen(state?)`.
+		 */
+		this._patchMethod('fullscreenState', (state?: unknown) => {
+			_warnDeprecated('fullscreenState()', 'fullscreen() / fullscreen(state)');
+			if (state !== undefined) {
+				player.fullscreen(state as Parameters<typeof player.fullscreen>[0]);
+				return;
+			}
+			return player.fullscreen();
+		});
+
+		/**
+		 * @deprecated Use `player.pip()` / `player.pip(state)`.
+		 * v1 1.2.7 `pipState(state?)` → v2 `pip(state?)`.
+		 */
+		this._patchMethod('pipState', (state?: unknown) => {
+			_warnDeprecated('pipState()', 'pip() / pip(state)');
+			if (state !== undefined) {
+				player.pip(state as Parameters<typeof player.pip>[0]);
+				return;
+			}
+			return player.pip();
+		});
+
+		/**
+		 * @deprecated Use `player.theater()` / `player.theater(state)`.
+		 * v1 1.2.7 `theaterState(state?)` → v2 `theater(state?)`.
+		 */
+		this._patchMethod('theaterState', (state?: unknown) => {
+			_warnDeprecated('theaterState()', 'theater() / theater(state)');
+			if (state !== undefined) {
+				player.theater(state as Parameters<typeof player.theater>[0]);
+				return;
+			}
+			return player.theater();
+		});
 	}
 }
 
