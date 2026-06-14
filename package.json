@@ -1,7 +1,7 @@
 {
 	"name": "@nomercy-entertainment/nomercy-video-player",
 	"type": "module",
-	"version": "2.0.0-beta.1",
+	"version": "2.0.0-rc.1",
 	"description": "Headless, event-driven HTML5 video player with HLS streaming, subtitle rendering (VTT/ASS/SSA), and a plugin system. No UI — you build your own.",
 	"author": {
 		"name": "NoMercy Entertainment",
@@ -68,10 +68,6 @@
 			"types": "./dist/plugins/drm/index.d.ts",
 			"import": "./dist/plugins/drm/index.js"
 		},
-		"./plugins/embed": {
-			"types": "./dist/plugins/embed/index.d.ts",
-			"import": "./dist/plugins/embed/index.js"
-		},
 		"./plugins/key-handler": {
 			"types": "./dist/plugins/key-handler/index.d.ts",
 			"import": "./dist/plugins/key-handler/index.js"
@@ -84,10 +80,6 @@
 			"types": "./dist/plugins/media-session/index.d.ts",
 			"import": "./dist/plugins/media-session/index.js"
 		},
-		"./plugins/message": {
-			"types": "./dist/plugins/message/index.d.ts",
-			"import": "./dist/plugins/message/index.js"
-		},
 		"./plugins/octopus": {
 			"types": "./dist/plugins/octopus/index.d.ts",
 			"import": "./dist/plugins/octopus/index.js"
@@ -95,10 +87,6 @@
 		"./plugins/subtitle-overlay": {
 			"types": "./dist/plugins/subtitle-overlay/index.d.ts",
 			"import": "./dist/plugins/subtitle-overlay/index.js"
-		},
-		"./plugins/tab-leader": {
-			"types": "./dist/plugins/tab-leader/index.d.ts",
-			"import": "./dist/plugins/tab-leader/index.js"
 		},
 		"./plugins/touch-zones": {
 			"types": "./dist/plugins/touch-zones/index.d.ts",
@@ -159,7 +147,7 @@
 		"prepublishOnly": "npm run build:all"
 	},
 	"dependencies": {
-		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-beta.0",
+		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.1",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
 		"@types/webvtt-parser": "^2.2.0",
 		"hls.js": "^1.6.0",
@@ -191,6 +179,6 @@
 	},
 	"publishConfig": {
 		"access": "public",
-		"tag": "beta"
+		"tag": "rc"
 	}
 }

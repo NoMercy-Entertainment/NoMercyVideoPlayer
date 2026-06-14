@@ -1,5 +1,24 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-rc.1] — 2026-06-14
+
+### Changed
+
+- The base event map is generic over the item type and emits the universal
+  queue-item selection event.
+- v1 `getCurrentSrc` and remaining `url` reads no longer cast now that `url` is a
+  base field.
+
+### Fixed
+
+- Desktop-ui activity handling is de-duplicated.
+
+### Removed
+
+- Stale `./plugins/embed`, `./plugins/message`, and `./plugins/tab-leader`
+  subpath exports that pointed at unbuilt files. These kit plugins remain
+  available through the `./plugins` aggregate or directly from the core package.
+
 ## [2.0.0-beta.1] — 2026-05-30
 
 ### Changed
