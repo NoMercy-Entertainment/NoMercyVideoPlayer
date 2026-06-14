@@ -60,4 +60,4 @@ jobs:
 
       - name: Publish package
         if: steps.version-check.outputs.skip != 'true'
-        run: npm publish --provenance --access public
+        run: npm publish --provenance --access public --tag rc
