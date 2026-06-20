@@ -1154,9 +1154,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
 			return;
 
-		this._displayHdr = window.matchMedia('(dynamic-range: high)').matches;
-
 		const mql = window.matchMedia('(dynamic-range: high)');
+		this._displayHdr = mql.matches;
 		this._hdrMql = mql;
 
 		const listener = (event: MediaQueryListEvent): void => {
@@ -1404,10 +1403,9 @@ function normaliseVttCue(cue: VTTCue): SubtitleCue {
 		}
 		else {
 			const ROWS = 15;
-			let row: number;
-			if (rawLine >= 0)
-				row = Math.max(1, Math.min(ROWS, rawLine));
-			else row = Math.max(1, Math.min(ROWS, ROWS + 1 + rawLine));
+			const row = rawLine >= 0
+				? Math.max(1, Math.min(ROWS, rawLine))
+				: Math.max(1, Math.min(ROWS, ROWS + 1 + rawLine));
 			line = ((row - 1) * 100) / (ROWS - 1);
 		}
 	}
