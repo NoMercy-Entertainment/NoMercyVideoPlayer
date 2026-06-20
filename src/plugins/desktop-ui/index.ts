@@ -1420,6 +1420,11 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	 *
 	 * Returns `true` when the button should be visible.
 	 */
+	private _buttonFootprint(key: keyof DesktopUiButtonOptions): number {
+		const btnWidth = DesktopUiPlugin.BUTTON_WIDTH;
+		return (key === 'mute' && !this._isNoHover) ? btnWidth + DesktopUiPlugin.VOL_SLIDER_EXPANDED_WIDTH : btnWidth;
+	}
+
 	private _shouldShowButton(
 		key: keyof DesktopUiButtonOptions,
 		accumulatedWidth: number,
@@ -1435,13 +1440,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			return false;
 
 		// Rule 4 — container fit.
-		const btnWidth = DesktopUiPlugin.BUTTON_WIDTH;
-		// The volume (mute) button carries the slider footprint on hover devices.
-		const footprint = (key === 'mute' && !this._isNoHover)
-			? btnWidth + DesktopUiPlugin.VOL_SLIDER_EXPANDED_WIDTH
-			: btnWidth;
-
-		return accumulatedWidth + footprint <= containerWidth;
+		return accumulatedWidth + this._buttonFootprint(key) <= containerWidth;
 	}
 
 	/**
@@ -1485,11 +1484,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 			if (fits) {
 				btn.hidden = false;
-				const btnWidth = DesktopUiPlugin.BUTTON_WIDTH;
-				const footprint = (key === 'mute' && !this._isNoHover)
-					? btnWidth + DesktopUiPlugin.VOL_SLIDER_EXPANDED_WIDTH
-					: btnWidth;
-				accumulatedWidth += footprint;
+				accumulatedWidth += this._buttonFootprint(key);
 				visibleKeys.push(key);
 			}
 			else {
