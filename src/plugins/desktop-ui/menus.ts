@@ -250,6 +250,36 @@ function buildMainMenu(
 	return main;
 }
 
+function buildSubMenuHeader(
+	player: IVideoPlayer,
+	header: HTMLElement,
+	backId: string,
+	closeId: string,
+	titleText: string,
+	titleExtraClass: string | undefined,
+	listen: MenuListen,
+	actions: MenuActions,
+): HTMLSpanElement {
+	const back = player.createButton(backId, player.t('plugin.desktop-ui.menu.back'), () => {});
+	back.classList.add('menu-header-back');
+	back.innerHTML = svgFromIcon(fluentIcons.chevronL);
+	header.appendChild(back);
+	listen(back, 'click', (e: Event) => { e.stopPropagation(); actions.backToMain(); });
+
+	const titleSpan = document.createElement('span');
+	titleSpan.className = titleExtraClass ? `menu-button-text ${titleExtraClass}` : 'menu-button-text';
+	titleSpan.textContent = titleText;
+	header.appendChild(titleSpan);
+
+	const close = player.createButton(closeId, player.t('plugin.desktop-ui.menu.close'), () => {});
+	close.classList.add('menu-header-close');
+	close.innerHTML = svgFromIcon(fluentIcons.close);
+	header.appendChild(close);
+	listen(close, 'click', (e: Event) => { e.stopPropagation(); actions.closeMenu(); });
+
+	return titleSpan;
+}
+
 /**
  * Build the two-pane playlist shell: a Seasons rail on the left
  * (with its own back/title/close header and an empty scroll container
@@ -275,22 +305,16 @@ function buildPlaylistPaneShell(
 		.appendTo(root)
 		.get();
 
-	const back = player.createButton('playlist-back', player.t('plugin.desktop-ui.menu.back'), () => {});
-	back.classList.add('menu-header-back');
-	back.innerHTML = svgFromIcon(fluentIcons.chevronL);
-	header.appendChild(back);
-	listen(back, 'click', (e: Event) => { e.stopPropagation(); actions.backToMain(); });
-
-	const title = document.createElement('span');
-	title.className = 'menu-button-text playlist-title';
-	title.textContent = player.t('plugin.desktop-ui.menu.playlist');
-	header.appendChild(title);
-
-	const close = player.createButton('playlist-close', player.t('plugin.desktop-ui.menu.close'), () => {});
-	close.classList.add('menu-header-close');
-	close.innerHTML = svgFromIcon(fluentIcons.close);
-	header.appendChild(close);
-	listen(close, 'click', (e: Event) => { e.stopPropagation(); actions.closeMenu(); });
+	buildSubMenuHeader(
+		player,
+		header,
+		'playlist-back',
+		'playlist-close',
+		player.t('plugin.desktop-ui.menu.playlist'),
+		'playlist-title',
+		listen,
+		actions,
+	);
 
 	// Row wrapper — flex-row containing the two columns.
 	const cols = player.createElement('div', 'playlist-cols')
@@ -336,22 +360,17 @@ function buildSubMenuPane(
 		.addClasses(['menu-header'])
 		.appendTo(pane)
 		.get();
-	const back = player.createButton(`menu-back-${id}`, player.t('plugin.desktop-ui.menu.back'), () => {});
-	back.classList.add('menu-header-back');
-	back.innerHTML = svgFromIcon(fluentIcons.chevronL);
-	header.appendChild(back);
-	listen(back, 'click', (e: Event) => { e.stopPropagation(); actions.backToMain(); });
 
-	const titleSpan = document.createElement('span');
-	titleSpan.className = 'menu-button-text';
-	titleSpan.textContent = title;
-	header.appendChild(titleSpan);
-
-	const close = player.createButton(`menu-close-${id}`, player.t('plugin.desktop-ui.menu.close'), () => {});
-	close.classList.add('menu-header-close');
-	close.innerHTML = svgFromIcon(fluentIcons.close);
-	header.appendChild(close);
-	listen(close, 'click', (e: Event) => { e.stopPropagation(); actions.closeMenu(); });
+	buildSubMenuHeader(
+		player,
+		header,
+		`menu-back-${id}`,
+		`menu-close-${id}`,
+		title,
+		undefined,
+		listen,
+		actions,
+	);
 
 	player.createElement('div', `${id}-scroll-container`)
 		.addClasses(['scroll-container', `${id}-scroll-container`])
@@ -392,16 +411,16 @@ export function renderSpeedPane(
 	const rates: number[] = player.playbackRates?.() ?? [0.5, 0.75, 1, 1.25, 1.5, 2];
 	const cur = player.playbackRate?.() ?? 1;
 	for (const r of rates) {
-		const btn = player.createButton(`speed-button-${r}`, `${r}×`, () => {});
-		btn.classList.add('language-button');
-		if (r === cur)
-			btn.classList.add('is-active');
-		btn.innerHTML = `
-            <span class="menu-button-text">${r === 1 ? player.t('plugin.desktop-ui.menu.normal') : `${r}×`}</span>
-            <span class="menu-button-check">${svgFromIcon(fluentIcons.checkmark, 18)}</span>
-        `;
-		scroll.appendChild(btn);
-		listen(btn, 'click', () => { player.playbackRate?.(r); onPick(); });
+		const label = r === 1 ? player.t('plugin.desktop-ui.menu.normal') : `${r}×`;
+		appendChoice(
+			scroll,
+			`speed-button-${r}`,
+			label,
+			r === cur,
+			() => { player.playbackRate?.(r); onPick(); },
+			listen,
+			player,
+		);
 	}
 }
 
@@ -457,6 +476,10 @@ export function renderQualityPane(
 	});
 }
 
+function resolveUiLanguage(player: IVideoPlayer): string {
+	return typeof player.language?.() === 'string' ? player.language() as unknown as string : 'en';
+}
+
 export function renderSubsPane(
 	pane: HTMLDivElement,
 	player: IVideoPlayer,
@@ -472,7 +495,7 @@ export function renderSubsPane(
 	// sidecar VTT tracks, so the renderer just consumes one flat list.
 	const subs: SubtitleTrackRef[] = player.subtitles?.() ?? [];
 	const off = state.subtitleIdx === null || state.subtitleIdx === -1;
-	const uiLanguage = typeof player.language?.() === 'string' ? player.language() as unknown as string : 'en';
+	const uiLanguage = resolveUiLanguage(player);
 	appendChoice(scroll, 'off-button-', player.t('plugin.desktop-ui.menu.off'), off, () => { player.subtitle?.(null); onPick(); }, listen, player);
 	subs.forEach((s, i) => {
 		const langSlug = (s.language ?? s.id).replace(/\W+/g, '-').toLowerCase();
@@ -893,7 +916,7 @@ export function renderAudioPane(
 		return;
 	scroll.replaceChildren();
 	const tracks: AudioTrackRef[] = player.audioTracks?.() ?? [];
-	const uiLanguage = typeof player.language?.() === 'string' ? player.language() as unknown as string : 'en';
+	const uiLanguage = resolveUiLanguage(player);
 	tracks.forEach((t, i) => {
 		const langSlug = (t.language ?? t.id).replace(/\W+/g, '-').toLowerCase();
 		appendChoice(
@@ -976,19 +999,15 @@ export function renderAspectRatioPane(
 
 	for (const opt of ASPECT_RATIO_OPTIONS) {
 		const label = player.t(opt.labelKey);
-		const btn = player.createButton(`aspect-ratio-${opt.value}`, label, () => {});
-		btn.classList.add('language-button');
-		if (opt.value === current)
-			btn.classList.add('is-active');
-		btn.innerHTML = `
-            <span class="menu-button-text">${escapeHtml(label)}</span>
-            <span class="menu-button-check">${svgFromIcon(fluentIcons.checkmark, 18)}</span>
-        `;
-		scroll.appendChild(btn);
-		listen(btn, 'click', () => {
-			player.aspectRatio(opt.value);
-			onPick();
-		});
+		appendChoice(
+			scroll,
+			`aspect-ratio-${opt.value}`,
+			label,
+			opt.value === current,
+			() => { player.aspectRatio(opt.value); onPick(); },
+			listen,
+			player,
+		);
 	}
 }
 
