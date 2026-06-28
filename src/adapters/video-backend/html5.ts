@@ -10,7 +10,6 @@ import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertain
 import type { HtmlPreloadMode } from '../../types';
 import type { BackendEventPayload, BackendLoaderState, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
 import { appendAuthTokenParam, BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError, perceptualGain } from '@nomercy-entertainment/nomercy-player-core';
-import Hls from 'hls.js';
 
 interface HlsLevel {
 	attrs?: { 'CODECS'?: string; 'VIDEO-RANGE'?: string };
@@ -337,6 +336,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		const headerValue = await this._authHeaderProvider?.();
 
 		if (isHls && !nativeHls) {
+			const { default: Hls } = await import('hls.js');
+
 			if (!Hls?.isSupported?.()) {
 				this._state = 'error';
 				throw new MediaFormatError({

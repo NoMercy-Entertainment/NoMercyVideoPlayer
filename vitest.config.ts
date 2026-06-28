@@ -28,11 +28,10 @@ export default defineConfig({
 			// from `@nomercy-entertainment/nomercy-video-player` resolve to src
 			// rather than a built dist (which may not exist in a clean checkout).
 			{ find: '@nomercy-entertainment/nomercy-video-player', replacement: `${selfRoot}/index.ts` },
-			// hls.js is a peer dependency not installed in this package's own
-			// node_modules. Tests that need the real HLS behaviour mock it inline
-			// with vi.mock('hls.js', ...) which takes precedence. All other tests
-			// (plugin tests that merely instantiate the player) get this stub so
-			// they don't fail at import time.
+			// hls.js is owned by nomercy-player-core (resolved transitively).
+			// Tests that need real HLS behaviour mock it inline with vi.mock('hls.js', ...)
+			// which takes precedence. All other tests get this stub so the dynamic
+			// import('hls.js') in backend code returns a predictable minimal shape.
 			{ find: 'hls.js', replacement: hlsMock },
 			...(useOctopusSource
 				? [{ find: '@nomercy-entertainment/nomercy-subtitle-octopus', replacement: `${octopusSrc}/index.ts` }]
