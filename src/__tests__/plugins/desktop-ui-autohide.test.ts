@@ -175,6 +175,77 @@ describe('DesktopUiPlugin — auto-hide (Bug 1)', () => {
 	});
 });
 
+// ── Bug 3 — activity init desync (activityActive vs container class) ──────────
+//
+// Root cause: `activityActive` was initialized to `true`, but the container
+// started with neither `.active` nor `.inactive`. `bumpActivity()` at mount
+// called `setActivity(true)`, which early-returned because the flag was
+// already `true` — so the initial `activity` event was never emitted and
+// `.active` was never applied. Consequence: `setActivity(true)` was always a
+// no-op after init, so mouse activity could never re-show the controls.
+//
+// Fix: initialize `activityActive = false` so `bumpActivity()` at mount
+// fires a real false→true transition.
+
+describe('DesktopUiPlugin — activity init desync (Bug 3)', () => {
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		const div = document.createElement('div');
+		div.id = 'test';
+		div.className = 'nomercyplayer';
+		document.body.appendChild(div);
+		vi.stubGlobal('ResizeObserver', MockResizeObserver);
+		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+		vi.unstubAllGlobals();
+		vi.useRealTimers();
+	});
+
+	it('container has .active (not .inactive) immediately after plugin mounts', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin).ready();
+
+		expect(player.container.classList.contains('active'), '.active must be present on mount').toBe(true);
+		expect(player.container.classList.contains('inactive')).toBe(false);
+	});
+
+	it('container gets .inactive after the inactivity timer fires while playing', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
+		await player.ready();
+
+		expect(player.container.classList.contains('active')).toBe(true);
+
+		// Stub playState so maybeHide()'s playing-only guard passes.
+		fakePlayingState(player);
+		vi.advanceTimersByTime(4500);
+
+		expect(player.container.classList.contains('inactive'), '.inactive must appear after timer fires while playing').toBe(true);
+		expect(player.container.classList.contains('active')).toBe(false);
+	});
+
+	it('container returns to .active after activity event following inactivity', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
+		await player.ready();
+
+		// Drive to inactive.
+		fakePlayingState(player);
+		vi.advanceTimersByTime(4500);
+		expect(player.container.classList.contains('inactive')).toBe(true);
+
+		// Activity re-shows controls via the binary rule on the container.
+		player.emit('activity' as never, { active: true } as never);
+
+		expect(player.container.classList.contains('active'), '.active must return on activity').toBe(true);
+		expect(player.container.classList.contains('inactive')).toBe(false);
+	});
+});
+
 // ── Bug 2 — poster applied before source swap ─────────────────────────────────
 
 interface TestItem {

@@ -438,8 +438,10 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private inactivityToken: number | null = null;
 	// `activity` is a state-change event. Emits are deduped through
 	// setActivity() so moving the mouse only fires it when the controls were
-	// hidden — never once per mousemove. Controls start visible.
-	private activityActive = true;
+	// hidden — never once per mousemove. Starts false so the bumpActivity()
+	// call at mount triggers a real false→true transition, emits the event,
+	// and applies .active to the container — keeping flag and class in sync.
+	private activityActive = false;
 	private cachedDuration = 0;
 	private _lastMouseX = -1;
 	private _lastMouseY = -1;
