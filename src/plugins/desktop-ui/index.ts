@@ -2747,11 +2747,37 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	// ── Activity / auto-hide ────────────────────────────────────────
 	// Emit `activity` only when the active state actually flips, so consumers
 	// get a state event rather than a per-mousemove firehose.
+	//
+	// Desync guard (Bug 4): the flag and the DOM can get out of sync when
+	// something emits `activity:{active:false}` through the player directly
+	// (bypassing setActivity) — e.g. a consumer, another plugin, or a test
+	// harness. The binary container-class rule then removes `.active` from the
+	// container while `activityActive` stays `true`. Every subsequent
+	// bumpActivity() → setActivity(true) hits the `flag === active` guard and
+	// bails, so `.active` is never re-applied and controls are stuck hidden.
+	//
+	// Fix: when showing (`active=true`) and the flag already agrees but the
+	// container lacks `.active`, we force-emit regardless so the binary rule
+	// re-adds `.active`. The flag-only guard is kept for the `active=false`
+	// direction — an extra spurious `inactive` emit is harmless, but we keep
+	// the dedup there to avoid noisy events on every maybeHide() call while
+	// already hidden.
 	private setActivity(active: boolean): void {
-		if (this.activityActive === active)
-			return;
-		this.activityActive = active;
-		this.player.emit('activity', { active });
+		if (active) {
+			const domIsActive = this.player.container.classList.contains('active');
+			if (this.activityActive && domIsActive)
+				return;
+
+			this.activityActive = true;
+			this.player.emit('activity', { active: true });
+		}
+		else {
+			if (!this.activityActive)
+				return;
+
+			this.activityActive = false;
+			this.player.emit('activity', { active: false });
+		}
 	}
 
 	private bumpActivity(): void {

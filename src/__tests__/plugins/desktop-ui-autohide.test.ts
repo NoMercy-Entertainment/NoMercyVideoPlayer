@@ -246,6 +246,91 @@ describe('DesktopUiPlugin — activity init desync (Bug 3)', () => {
 	});
 });
 
+// ── Bug 4 — flag/DOM desync: controls stuck hidden forever ────────────────────
+//
+// Root cause: anything that calls `player.emit('activity', { active: false })`
+// directly (bypassing setActivity) applies the binary container-class rule —
+// removing `.active` and adding `.inactive` — while leaving `activityActive`
+// untouched at `true`. Every subsequent `bumpActivity()` → `setActivity(true)`
+// hits `activityActive === true` and early-returns, so `.active` is never
+// re-applied. Controls are permanently hidden regardless of mouse movement.
+//
+// Fix: when `setActivity(true)` is called and the flag agrees but the container
+// lacks `.active`, force-emit anyway so the binary rule re-adds the class.
+
+describe('DesktopUiPlugin — flag/DOM desync recovery (Bug 4)', () => {
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		const div = document.createElement('div');
+		div.id = 'test';
+		div.className = 'nomercyplayer';
+		document.body.appendChild(div);
+		vi.stubGlobal('ResizeObserver', MockResizeObserver);
+		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+		vi.unstubAllGlobals();
+		vi.useRealTimers();
+	});
+
+	it('restores .active on bumpActivity when flag=true but .active was removed out-of-band', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
+		await player.ready();
+
+		// Confirm controls start active.
+		expect(player.container.classList.contains('active')).toBe(true);
+
+		// ── Simulate the desync ──────────────────────────────────────────────
+		// Emit activity:false directly through the player (bypassing setActivity).
+		// This is the path a consumer / peer plugin / test harness can take.
+		// The binary container-class rule removes .active and adds .inactive,
+		// but the plugin's activityActive flag stays true.
+		player.emit('activity' as never, { active: false } as never);
+
+		// DOM is now desynced: .active is gone, but the plugin flag is still true.
+		expect(player.container.classList.contains('active'), 'DOM .active must be gone after out-of-band emit').toBe(false);
+		expect(player.container.classList.contains('inactive')).toBe(true);
+
+		// ── Fire a mousemove (bumpActivity path) ─────────────────────────────
+		const container = document.getElementById('test')!;
+		container.dispatchEvent(
+			new MouseEvent('mousemove', { bubbles: true, clientX: 50, clientY: 50 }),
+		);
+
+		// Controls must be visible again — .active restored, .inactive removed.
+		expect(player.container.classList.contains('active'), '.active must be restored after mousemove').toBe(true);
+		expect(player.container.classList.contains('inactive')).toBe(false);
+	});
+
+	it('continues to hide controls via inactivity after a desync-recovery cycle', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
+		await player.ready();
+
+		fakePlayingState(player);
+
+		// Force desync.
+		player.emit('activity' as never, { active: false } as never);
+		expect(player.container.classList.contains('active')).toBe(false);
+
+		// Recover via mousemove.
+		const container = document.getElementById('test')!;
+		container.dispatchEvent(
+			new MouseEvent('mousemove', { bubbles: true, clientX: 20, clientY: 20 }),
+		);
+		expect(player.container.classList.contains('active')).toBe(true);
+
+		// The inactivity timer was re-armed by bumpActivity during recovery —
+		// after 4 s controls must hide again (auto-hide still works).
+		vi.advanceTimersByTime(4500);
+		expect(player.container.classList.contains('inactive'), 'auto-hide must still work after recovery').toBe(true);
+	});
+});
+
 // ── Bug 2 — poster applied before source swap ─────────────────────────────────
 
 interface TestItem {
