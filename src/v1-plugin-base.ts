@@ -41,6 +41,10 @@ interface _V1Player {
  *
  * The `player` field is set by `initialize()` and is available from `use()` onward.
  */
+// `T` is the public playlist-item generic v1 consumers supply via
+// `class MyPlugin extends Plugin<MyItem>`; subclasses reference it through
+// `declare player: NMPlayer<T>`. It is intentionally unused in the base body.
+// eslint-disable-next-line unused-imports/no-unused-vars
 export class Plugin<T = Record<string, unknown>> {
 	static readonly id: string = 'plugin';
 

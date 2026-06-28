@@ -566,8 +566,6 @@ describe('renderPlaylistPane — seasonal queue', () => {
 			index: () => 0,
 		});
 		renderPlaylistPane(pane, player, NOOP_LISTEN, () => {});
-		const title = pane.querySelector('.playlist-title');
-		// The title may or may not exist depending on where buildPlaylistPaneShell places it.
 		// Assert the pane rendered without seasonal-flat class.
 		expect(pane.classList.contains('playlist-flat')).toBe(false);
 	});

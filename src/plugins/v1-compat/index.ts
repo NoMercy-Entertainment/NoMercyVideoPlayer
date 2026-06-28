@@ -1338,7 +1338,7 @@ export class V1VideoCompatPlugin extends Plugin<
 			const delay = (this.player as unknown as Record<string, unknown>).options
 				? ((this.player as unknown as Record<string, unknown>).options as Record<string, unknown>).doubleClickDelay as number ?? 300
 				: 300;
-			return (event: Event): void => {
+			return (_event: Event): void => {
 				if (timer !== null) {
 					clearTimeout(timer);
 					timer = null;

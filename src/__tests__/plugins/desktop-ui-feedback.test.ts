@@ -136,7 +136,6 @@ describe('DesktopUiPlugin — playback feedback', () => {
 
 		// Drive to playing state
 		Object.assign(player, { playState: () => 'playing' });
-		const container = player.container;
 
 		const activityEvents: Array<{ active: boolean }> = [];
 		player.on('activity', (data: { active: boolean }) => {

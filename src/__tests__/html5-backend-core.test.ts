@@ -129,13 +129,6 @@ async function flushMicrotasks(iterations = 10): Promise<void> {
 	}
 }
 
-async function resolveMetadata(container: HTMLElement): Promise<void> {
-	await flushMicrotasks();
-	const videoEl = container.querySelector('video') as HTMLVideoElement;
-	Object.defineProperty(videoEl, 'readyState', { value: 1, configurable: true });
-	videoEl.dispatchEvent(new Event('loadedmetadata'));
-}
-
 // ---------------------------------------------------------------------------
 // Shared setup / teardown
 // ---------------------------------------------------------------------------

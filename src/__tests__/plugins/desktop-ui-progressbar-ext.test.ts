@@ -27,7 +27,7 @@
 
 import type { ChapterLite } from '../../plugins/desktop-ui/progressBar';
 
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
 import {
@@ -268,24 +268,6 @@ describe('updateChapterHover', () => {
 // ── buildSliderBar ────────────────────────────────────────────────────────────
 
 describe('buildSliderBar', () => {
-	function makeMockPlayer() {
-		const container = document.createElement('div');
-		return {
-			container,
-			t: (key: string) => key,
-			createElement: (tag: string, _id: string) => {
-				const el = document.createElement(tag);
-				return {
-					addClasses: (classes: string[]) => { el.classList.add(...classes); return { addClasses: () => ({ addClasses: () => ({ addClasses: () => ({ appendTo: () => ({ appendTo: () => ({ appendTo: () => ({ get: () => el, appendTo: () => ({ get: () => el }) }), get: () => el }) }), setProperty: (_: string, __: string) => ({ appendTo: () => ({ get: () => el }) }), get: () => el }) }) }), appendTo: () => ({ get: () => el }), get: () => el }; },
-					appendTo: () => ({ get: () => el }),
-					setAttribute: (_: string, __: string) => ({ setAttribute: (_2: string, __2: string) => ({ setAttribute: (_3: string, __3: string) => ({ setAttribute: (_4: string, __4: string) => ({ setAttribute: (_5: string, __5: string) => ({ addClasses: (cls: string[]) => { el.classList.add(...cls); return { appendTo: () => ({ get: () => el }) }; }, get: () => el }) }), addClasses: (cls: string[]) => { el.classList.add(...cls); return { appendTo: () => ({ get: () => el }) }; } }) }), get: () => el }),
-					setProperty: (_: string, __: string) => ({ appendTo: () => ({ get: () => el }) }),
-					get: () => el,
-				};
-			},
-		} as unknown as import('@nomercy-entertainment/nomercy-video-player').IVideoPlayer;
-	}
-
 	it('returns a SliderBarRefs object with all expected fields', () => {
 		// Use a real NMVideoPlayer so the builder works properly
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry?.();

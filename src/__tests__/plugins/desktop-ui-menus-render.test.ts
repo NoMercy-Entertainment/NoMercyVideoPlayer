@@ -20,7 +20,7 @@
  * `player` argument so `player.createButton` resolves correctly.
  */
 
-import type { AudioTrackRef, QualityLevel, SubtitleTrackRef } from '../../types';
+import type { QualityLevel, SubtitleTrackRef } from '../../types';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

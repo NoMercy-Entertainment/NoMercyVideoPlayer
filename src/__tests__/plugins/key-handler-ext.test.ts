@@ -82,14 +82,14 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('Space → togglePlayback()', async () => {
 		const toggleSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ togglePlayback: toggleSpy }));
+		await ready(makePlayer({ togglePlayback: toggleSpy }));
 		key(' ');
 		expect(toggleSpy).toHaveBeenCalledTimes(1);
 	});
 
 	it('s → stop()', async () => {
 		const stopSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ stop: stopSpy }));
+		await ready(makePlayer({ stop: stopSpy }));
 		key('s');
 		expect(stopSpy).toHaveBeenCalledTimes(1);
 	});
@@ -98,21 +98,21 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('ArrowLeft calls rewind() when isTv() returns false', async () => {
 		const rewindSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ rewind: rewindSpy, isTv: () => false }));
+		await ready(makePlayer({ rewind: rewindSpy, isTv: () => false }));
 		key('ArrowLeft');
 		expect(rewindSpy).toHaveBeenCalledTimes(1);
 	});
 
 	it('ArrowLeft does NOT call rewind() when isTv() returns true', async () => {
 		const rewindSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ rewind: rewindSpy, isTv: () => true }));
+		await ready(makePlayer({ rewind: rewindSpy, isTv: () => true }));
 		key('ArrowLeft');
 		expect(rewindSpy).not.toHaveBeenCalled();
 	});
 
 	it('ArrowRight calls forward() when isTv() returns false', async () => {
 		const forwardSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ forward: forwardSpy, isTv: () => false }));
+		await ready(makePlayer({ forward: forwardSpy, isTv: () => false }));
 		key('ArrowRight');
 		expect(forwardSpy).toHaveBeenCalledTimes(1);
 	});
@@ -121,21 +121,21 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('m → toggleMute()', async () => {
 		const muteSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ toggleMute: muteSpy, isTv: () => false, isMobile: () => false }));
+		await ready(makePlayer({ toggleMute: muteSpy, isTv: () => false, isMobile: () => false }));
 		key('m');
 		expect(muteSpy).toHaveBeenCalledTimes(1);
 	});
 
 	it('ArrowUp calls volumeUp() when not TV and not mobile', async () => {
 		const upSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ volumeUp: upSpy, isTv: () => false, isMobile: () => false }));
+		await ready(makePlayer({ volumeUp: upSpy, isTv: () => false, isMobile: () => false }));
 		key('ArrowUp');
 		expect(upSpy).toHaveBeenCalledTimes(1);
 	});
 
 	it('ArrowDown calls volumeDown() when not TV and not mobile', async () => {
 		const downSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ volumeDown: downSpy, isTv: () => false, isMobile: () => false }));
+		await ready(makePlayer({ volumeDown: downSpy, isTv: () => false, isMobile: () => false }));
 		key('ArrowDown');
 		expect(downSpy).toHaveBeenCalledTimes(1);
 	});
@@ -144,14 +144,14 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('v → cycleSubtitles()', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ cycleSubtitles: spy }));
+		await ready(makePlayer({ cycleSubtitles: spy }));
 		key('v');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 
 	it('b → cycleAudioTracks()', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ cycleAudioTracks: spy }));
+		await ready(makePlayer({ cycleAudioTracks: spy }));
 		key('b');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
@@ -160,14 +160,14 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('n → next()', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ next: spy }));
+		await ready(makePlayer({ next: spy }));
 		key('n');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 
 	it('p → previous()', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ previous: spy }));
+		await ready(makePlayer({ previous: spy }));
 		key('p');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
@@ -176,14 +176,14 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('f → toggleFullscreen()', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ toggleFullscreen: spy }));
+		await ready(makePlayer({ toggleFullscreen: spy }));
 		key('f');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 
 	it('Escape calls fullscreen(false) when fullscreen is "on"', async () => {
 		const spy = vi.fn();
-		const player = await ready(makePlayer({ fullscreen: (arg?: unknown) => {
+		await ready(makePlayer({ fullscreen: (arg?: unknown) => {
 			if (arg !== undefined)
 				spy(arg); return 'on';
 		} }));
@@ -193,7 +193,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('Escape does nothing when fullscreen is off', async () => {
 		const spy = vi.fn();
-		const player = await ready(makePlayer({ fullscreen: (arg?: unknown) => {
+		await ready(makePlayer({ fullscreen: (arg?: unknown) => {
 			if (arg !== undefined)
 				spy(arg); return 'off';
 		} }));
@@ -206,7 +206,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 	it('] steps up to the next rate', async () => {
 		let currentRate = 1;
 		const rates = [0.5, 1, 1.5, 2];
-		const player = await ready(makePlayer({
+		await ready(makePlayer({
 			playbackRates: () => rates,
 			playbackRate: (r?: number) => {
 				if (r !== undefined)
@@ -220,7 +220,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 	it('[ steps down to the previous rate', async () => {
 		let currentRate = 1.5;
 		const rates = [0.5, 1, 1.5, 2];
-		const player = await ready(makePlayer({
+		await ready(makePlayer({
 			playbackRates: () => rates,
 			playbackRate: (r?: number) => {
 				if (r !== undefined)
@@ -233,7 +233,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('= resets rate to 1', async () => {
 		let currentRate = 2;
-		const player = await ready(makePlayer({
+		await ready(makePlayer({
 			playbackRates: () => [0.5, 1, 1.5, 2],
 			playbackRate: (r?: number) => {
 				if (r !== undefined)
@@ -248,7 +248,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('e advances time by ~1/30s when paused', async () => {
 		let currentTime = 10;
-		const player = await ready(makePlayer({
+		await ready(makePlayer({
 			playState: () => 'paused',
 			time: (t?: number) => {
 				if (t !== undefined)
@@ -261,7 +261,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('e does not advance time when playing', async () => {
 		let currentTime = 10;
-		const player = await ready(makePlayer({
+		await ready(makePlayer({
 			playState: () => 'playing',
 			time: (t?: number) => {
 				if (t !== undefined)
@@ -309,7 +309,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('a → cycleAspectRatio()', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ cycleAspectRatio: spy }));
+		await ready(makePlayer({ cycleAspectRatio: spy }));
 		key('a');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
@@ -318,21 +318,21 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('shift+ArrowLeft seeks back 3s', async () => {
 		const rewindSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ rewind: rewindSpy }));
+		await ready(makePlayer({ rewind: rewindSpy }));
 		key('ArrowLeft', { shiftKey: true });
 		expect(rewindSpy).toHaveBeenCalledWith(3);
 	});
 
 	it('alt+ArrowRight seeks forward 10s', async () => {
 		const forwardSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ forward: forwardSpy }));
+		await ready(makePlayer({ forward: forwardSpy }));
 		key('ArrowRight', { altKey: true });
 		expect(forwardSpy).toHaveBeenCalledWith(10);
 	});
 
 	it('ctrl+ArrowLeft seeks back 60s', async () => {
 		const rewindSpy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ rewind: rewindSpy }));
+		await ready(makePlayer({ rewind: rewindSpy }));
 		key('ArrowLeft', { ctrlKey: true });
 		expect(rewindSpy).toHaveBeenCalledWith(60);
 	});
@@ -341,14 +341,14 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('ColorF0Red → forward(30)', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ forward: spy }));
+		await ready(makePlayer({ forward: spy }));
 		key('ColorF0Red');
 		expect(spy).toHaveBeenCalledWith(30);
 	});
 
 	it('ColorF3Blue → forward(120)', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ forward: spy }));
+		await ready(makePlayer({ forward: spy }));
 		key('ColorF3Blue');
 		expect(spy).toHaveBeenCalledWith(120);
 	});
@@ -367,14 +367,14 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('3 → forward(30)', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ forward: spy }));
+		await ready(makePlayer({ forward: spy }));
 		key('3');
 		expect(spy).toHaveBeenCalledWith(30);
 	});
 
 	it('9 → forward(90)', async () => {
 		const spy = vi.fn().mockResolvedValue(undefined);
-		const player = await ready(makePlayer({ forward: spy }));
+		await ready(makePlayer({ forward: spy }));
 		key('9');
 		expect(spy).toHaveBeenCalledWith(90);
 	});
