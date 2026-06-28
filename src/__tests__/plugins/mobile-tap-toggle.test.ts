@@ -220,14 +220,19 @@ describe('Rule 5 — mobile tap-toggle', () => {
 		const container = document.getElementById('test')!;
 		const leftBox = findZoneBox(container, '1', '2')!;
 
-		// ONE physical tap: touchstart fires on the zone box, bubbles up to container.
-		// This is what a real finger tap produces — event origin is the box, not the container.
+		// ONE physical tap, in the REAL browser event order: pointerdown fires FIRST,
+		// then touchstart, then (after the double-tap window) click. Both pointerdown
+		// and touchstart bubble up to the container, and desktop-ui wakes the controls
+		// on the earliest of them. The snapshot must be taken on pointerdown (capture)
+		// — the first event — or it reads the already-woken .active state.
+		leftBox.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }));
 		leftBox.dispatchEvent(new TouchEvent('touchstart', { bubbles: true }));
 
 		// At this point:
-		//   - touch-zones' capture listener on root already snapshotted .active=false
-		//   - desktop-ui's bubble listener on container called bumpActivity → .active=true
-		expect(isActive(player), 'immediately after touchstart: desktop-ui has shown controls').toBe(true);
+		//   - touch-zones' capture listener on the container snapshotted .active=false
+		//     (on pointerdown, before any wake)
+		//   - desktop-ui woke the controls → .active=true
+		expect(isActive(player), 'immediately after pointerdown/touchstart: desktop-ui has shown controls').toBe(true);
 
 		// 300 ms later, the same tap's onSingle fires (click on the zone).
 		leftBox.dispatchEvent(new MouseEvent('click', { bubbles: true }));

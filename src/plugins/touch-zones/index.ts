@@ -182,19 +182,21 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 
 		this._isMobile = this.detectMobile();
 
-		// Capture-phase listener on the CONTAINER — the same element desktop-ui
-		// binds its bubble-phase `touchstart → bumpActivity` to. Capture runs
-		// before bubble on the same target, so this snapshots the pre-wake
-		// visibility (`.active` state) before desktop-ui can add `.active`. Bound
-		// to the container (not the touch-zones root) so it fires whether the tap
-		// lands on a zone box, the overlay, or the bare container — every tap path
-		// reaches the container in the capture phase. onSingle reads this snapshot
-		// so "tap from hidden" decides on what the user actually saw, not the
-		// post-wake DOM.
+		// Capture-phase listener on the CONTAINER, bound to `pointerdown` — the
+		// FIRST event of any tap gesture. On touch the real order is
+		// pointerdown → touchstart → … and desktop-ui wakes the controls on the
+		// EARLIEST of those (it listens to pointerdown AND touchstart, both
+		// bubble-phase). So snapshotting on `touchstart` reads `.active` AFTER
+		// pointerdown already woke it — capturing the wrong (post-wake) state and
+		// making onSingle hide a just-shown overlay. Binding the snapshot to
+		// `pointerdown` in the CAPTURE phase guarantees it runs before ANY of
+		// desktop-ui's bubble-phase wake handlers, so it records the true pre-tap
+		// visibility. Capture on the container fires before bubble regardless of
+		// which child (zone box / overlay) the gesture started on.
 		if (this.player.container) {
 			this.listen(
 				this.player.container,
-				'touchstart',
+				'pointerdown',
 				() => { this._tapWasVisible = this.player.container.classList.contains('active'); },
 				{ capture: true },
 			);
