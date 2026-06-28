@@ -154,9 +154,23 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	static override readonly description: string = 'Tap-zone overlay: double-tap to seek, single-tap to toggle playback';
 
 	private root!: HTMLDivElement;
-	private controlsVisible = false;
-	private _activityDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 	private _isMobile = false;
+
+	/**
+	 * Snapshot of control visibility captured at touchstart (capture phase),
+	 * BEFORE desktop-ui's bubble-phase touchstart handler runs and potentially
+	 * mutates the DOM. `onSingle` reads this snapshot to decide hide-vs-nothing
+	 * based on what the user SAW when the tap started, not the post-wake state.
+	 *
+	 * Without this, a tap from hidden would:
+	 *   1. touchstart (bubble) → desktop-ui bumpActivity → .active added
+	 *   2. onSingle (300 ms later) → live DOM reads .active=true → hides
+	 *   Net: show-then-hide flicker; tap appears to do nothing.
+	 *
+	 * Reset to null after each onSingle consumes it. Falls back to live DOM
+	 * for non-touch paths (mouse clicks on desktop have no touchstart).
+	 */
+	private _tapWasVisible: boolean | null = null;
 
 	private leftIndicator: SeekIndicatorState | null = null;
 	private rightIndicator: SeekIndicatorState | null = null;
@@ -166,26 +180,25 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		this.root = this.mount('root');
 		this.player.addClasses(this.root, ['nm-touch-zones-root']);
 
-		// Debounce the controlsVisible flag past the double-tap window so that
-		// single-tap from a HIDDEN state doesn't immediately re-hide:
-		//   1. touchstart on container -> bumpActivity -> activity:true
-		//   2. click on zone -> onSingle reads controlsVisible
-		// Without debounce, step 2 sees controlsVisible=true (just emitted) and
-		// hides. With debounce, step 2 sees the pre-tap value (false) and
-		// correctly does nothing. v1 baseUIPlugin uses the same trick.
-		this.on('activity', (d) => {
-			if (this._activityDebounceTimer !== null) {
-				clearTimeout(this._activityDebounceTimer);
-				this._activityDebounceTimer = null;
-			}
-			const delay = this.opts?.doubleClickDelay ?? this.opts?.doubleTapThreshold ?? 300;
-			this._activityDebounceTimer = setTimeout(() => {
-				this.controlsVisible = d.active;
-				this._activityDebounceTimer = null;
-			}, delay + 10);
-		});
-
 		this._isMobile = this.detectMobile();
+
+		// Capture-phase listener on the CONTAINER — the same element desktop-ui
+		// binds its bubble-phase `touchstart → bumpActivity` to. Capture runs
+		// before bubble on the same target, so this snapshots the pre-wake
+		// visibility (`.active` state) before desktop-ui can add `.active`. Bound
+		// to the container (not the touch-zones root) so it fires whether the tap
+		// lands on a zone box, the overlay, or the bare container — every tap path
+		// reaches the container in the capture phase. onSingle reads this snapshot
+		// so "tap from hidden" decides on what the user actually saw, not the
+		// post-wake DOM.
+		if (this.player.container) {
+			this.listen(
+				this.player.container,
+				'touchstart',
+				() => { this._tapWasVisible = this.player.container.classList.contains('active'); },
+				{ capture: true },
+			);
+		}
 
 		if (this._isMobile) {
 			this.buildSeekBack(this.root, { x: { start: 1, end: 2 }, y: { start: 2, end: 7 } });
@@ -207,6 +220,30 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 
 	private detectMobile(): boolean {
 		return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+	}
+
+	/**
+	 * Returns the visibility of controls that should be used by the current
+	 * onSingle handler to decide whether to hide.
+	 *
+	 * On a touch path: returns the PRE-TAP snapshot captured at touchstart
+	 * (capture phase, before desktop-ui's bumpActivity may have added .active),
+	 * then clears the snapshot. Using the pre-tap value prevents the race where
+	 * "tap from hidden" shows controls (touchstart) then immediately hides them
+	 * (onSingle sees .active=true that was just added, emits activity:false).
+	 *
+	 * On a mouse/keyboard path: no touchstart fires, so the snapshot is null.
+	 * Falls back to the live `.active` class — correct for desktop where there
+	 * is no doubleTap deferred window that races against pointer input.
+	 */
+	private wasControlsVisibleAtTapStart(): boolean {
+		if (this._tapWasVisible !== null) {
+			const snapshot = this._tapWasVisible;
+			this._tapWasVisible = null;
+			return snapshot;
+		}
+
+		return this.player.container.classList.contains('active');
 	}
 
 	private makeBox(parent: HTMLElement, pos: ZonePos): HTMLDivElement {
@@ -332,10 +369,11 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	private buildSeekBack(parent: HTMLElement, pos: ZonePos): void {
 		const el = this.makeBox(parent, pos);
 
-		// Single-tap onSingle: only HIDE if controls already visible. When
-		// controls are inactive the container's touchstart bumpActivity is
-		// what wakes them — touch-zones never wake. Double-tap fires regardless
-		// of overlay state for direct seek.
+		// Single-tap: hide if controls were visible AT TAP START (pre-wake snapshot).
+		// wasControlsVisibleAtTapStart() returns the capture-phase snapshot taken
+		// before desktop-ui's bumpActivity may have added .active. When controls
+		// were hidden at tap start, do nothing — desktop-ui already showed them
+		// via touchstart. Double-tap seeks regardless of state.
 		const handler = this.doubleTap(
 			() => {
 				const seconds = this.opts?.seekSeconds ?? 10;
@@ -348,7 +386,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 				this.showSeekIndicator(this.leftIndicator, seconds, 'back');
 			},
 			() => {
-				if (this.controlsVisible) {
+				if (this.wasControlsVisibleAtTapStart()) {
 					this.player.emit('activity', { active: false });
 				}
 			},
@@ -371,7 +409,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 				this.showSeekIndicator(this.rightIndicator, seconds, 'forward');
 			},
 			() => {
-				if (this.controlsVisible) {
+				if (this.wasControlsVisibleAtTapStart()) {
 					this.player.emit('activity', { active: false });
 				}
 			},
@@ -414,7 +452,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		const handler = this.doubleTap(
 			() => { this.player.volumeUp?.(); },
 			() => {
-				if (this.controlsVisible) {
+				if (this.wasControlsVisibleAtTapStart()) {
 					this.player.emit('activity', { active: false });
 				}
 			},
@@ -428,7 +466,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		const handler = this.doubleTap(
 			() => { this.player.volumeDown?.(); },
 			() => {
-				if (this.controlsVisible) {
+				if (this.wasControlsVisibleAtTapStart()) {
 					this.player.emit('activity', { active: false });
 				}
 			},

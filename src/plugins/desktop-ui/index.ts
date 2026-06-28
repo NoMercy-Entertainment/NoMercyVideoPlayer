@@ -1662,7 +1662,20 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			});
 			this.listen(container, 'mousedown', () => this.bumpActivity());
 			this.listen(container, 'pointerdown', () => this.bumpActivity());
-			this.listen(container, 'touchstart', () => this.bumpActivity());
+			// On touch devices, touchstart must only SHOW the controls (wake from
+			// hidden). When controls are already visible, this must be a no-op so
+			// that a subsequent click on a touch-zone can emit activity:false and
+			// hide them. If we unconditionally bumped here, every tap would re-show
+			// regardless of what touch-zones intended — the mobile tap-toggle breaks.
+			//
+			// We read the live .active DOM class rather than activityActive because
+			// a peer plugin (touch-zones) can call player.emit('activity',{active:false})
+			// directly, which updates the DOM class but leaves activityActive=true
+			// (it bypasses setActivity). The DOM is always the real source of truth.
+			this.listen(container, 'touchstart', () => {
+				if (!this.player.container.classList.contains('active'))
+					this.bumpActivity();
+			});
 			this.listen(container, 'keydown', (e: Event) => {
 				this.bumpActivity();
 				const ke = e as KeyboardEvent;
