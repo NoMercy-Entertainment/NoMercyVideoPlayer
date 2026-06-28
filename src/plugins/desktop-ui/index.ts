@@ -1734,10 +1734,14 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		});
 		this.on('ended', () => this.setPlayingState(false));
 
-		// Seeking always resets the inactivity timer so controls stay up
-		// during scrubbing, even if the 4 s window already expired.
-		this.on('seek', () => this.bumpActivity());
-		this.on('seeked', () => this.bumpActivity());
+		// Only a user-initiated scrub keeps the controls up. Programmatic and
+		// relayed seeks carry no `source` and must NOT re-arm the hide timer —
+		// that was the rc.10 regression (phantom seeks looping forever).
+		// `seeked` never carries `source`, so we gate solely on `seek`.
+		this.on('seek', (d) => {
+			if (d?.source)
+				this.bumpActivity();
+		});
 
 		this.on('item', d => this.handleCurrentChange(d.item));
 

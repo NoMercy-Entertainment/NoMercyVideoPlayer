@@ -331,6 +331,107 @@ describe('DesktopUiPlugin — flag/DOM desync recovery (Bug 4)', () => {
 	});
 });
 
+// ── Bug 5 — phantom seek/seeked events re-show controls (rc.10 regression) ───
+//
+// Root cause: rc.10 fixed the flag/DOM desync (Bug 4) by making setActivity(true)
+// force-emit when the container lacks .active, even if the flag agrees. That was
+// safe ONLY because bumpActivity() was supposed to be called from genuine user
+// input. But `this.on('seek', ...)` and `this.on('seeked', ...)` called
+// bumpActivity() unconditionally — including for programmatic/relayed seeks that
+// carry no `source`. During normal playback those phantom bumps fire ~8x/sec.
+// Each one called setActivity(true), which saw .active was absent (maybeHide had
+// just removed it) and force-emitted activity:true — re-showing the controls
+// immediately. Result: controls flicker, never hide.
+//
+// Fix: seek bumps are gated on d?.source being set (user-initiated scrub).
+// seeked is not bumped at all (seeked never carries source; seek fires first).
+
+describe('DesktopUiPlugin — phantom seek re-show regression (Bug 5)', () => {
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		const div = document.createElement('div');
+		div.id = 'test';
+		div.className = 'nomercyplayer';
+		document.body.appendChild(div);
+		vi.stubGlobal('ResizeObserver', MockResizeObserver);
+		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+		vi.unstubAllGlobals();
+		vi.useRealTimers();
+	});
+
+	it('controls stay hidden after maybeHide when a burst of sourceless seek/seeked events fires', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
+		await player.ready();
+
+		fakePlayingState(player);
+
+		// Drive to inactive via the inactivity timer.
+		vi.advanceTimersByTime(4500);
+		expect(player.container.classList.contains('inactive'), 'controls must be hidden before burst').toBe(true);
+		expect(player.container.classList.contains('active')).toBe(false);
+
+		// Fire a burst of programmatic seek/seeked events with NO source field.
+		// These are the phantom events that caused the rc.10 regression.
+		for (let i = 0; i < 10; i++) {
+			player.emit('seek' as never, { time: i * 2 } as never);
+			player.emit('seeked' as never, { time: i * 2 } as never);
+		}
+
+		// Controls must remain hidden — phantom seeks must not re-show them.
+		expect(player.container.classList.contains('inactive'), '.inactive must survive the seek burst').toBe(true);
+		expect(player.container.classList.contains('active'), '.active must NOT reappear on sourceless seeks').toBe(false);
+	});
+
+	it('user-initiated seek (source present) re-shows controls when hidden', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
+		await player.ready();
+
+		fakePlayingState(player);
+
+		// Drive to inactive.
+		vi.advanceTimersByTime(4500);
+		expect(player.container.classList.contains('inactive')).toBe(true);
+
+		// User scrub: seek event WITH a source field.
+		player.emit('seek' as never, { time: 30, source: 'scrubber' } as never);
+
+		// Controls must re-appear — genuine user scrub should bump activity.
+		expect(player.container.classList.contains('active'), '.active must return on user-source seek').toBe(true);
+		expect(player.container.classList.contains('inactive')).toBe(false);
+	});
+
+	it('desync-recovery (Bug 4) still works: genuine mousemove restores .active after out-of-band activity:false', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
+		await player.ready();
+
+		// Simulate desync: external emit of activity:false bypasses setActivity.
+		player.emit('activity' as never, { active: false } as never);
+		expect(player.container.classList.contains('active'), 'DOM .active must be gone after out-of-band emit').toBe(false);
+
+		// Phantom seeks must NOT recover — they have no source.
+		for (let i = 0; i < 5; i++) {
+			player.emit('seek' as never, { time: i } as never);
+		}
+		expect(player.container.classList.contains('active'), 'phantom seeks must not recover desync').toBe(false);
+
+		// Genuine mousemove MUST recover.
+		const container = document.getElementById('test')!;
+		container.dispatchEvent(
+			new MouseEvent('mousemove', { bubbles: true, clientX: 50, clientY: 50 }),
+		);
+		expect(player.container.classList.contains('active'), '.active must be restored by real mousemove').toBe(true);
+		expect(player.container.classList.contains('inactive')).toBe(false);
+	});
+});
+
 // ── Bug 2 — poster applied before source swap ─────────────────────────────────
 
 interface TestItem {
