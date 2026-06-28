@@ -385,19 +385,24 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		el.style.alignItems = 'center';
 		el.style.justifyContent = 'center';
 
-		// Center: double-tap toggles fullscreen (works regardless of overlay state).
-		// Touch single-tap: togglePlayback only when controls are visible — inactive
-		// single-tap does nothing here; the container touchstart wakes the overlay.
-		// Mouse single-click: always togglePlayback. Desktop users don't need a
-		// wake-up tap before play/pause works.
+		// Center zone contract:
+		//   double-tap → toggleFullscreen (unconditional — matches the unguarded
+		//                double-tap on every other zone)
+		//   single-tap → togglePlayback  (unconditional — the center zone's ONLY
+		//                purpose is play/pause; no "wake tap" concern applies here;
+		//                disableClickToPause is the explicit opt-out)
+		//
+		// The previous guard (`!this._isMobile || this.controlsVisible`) was wrong:
+		// _isMobile is a one-shot static capability flag that returns true on any
+		// touch-capable device — including touch laptops used with a mouse and any
+		// browser under DevTools touch emulation. A cold tap on mobile would always
+		// find controlsVisible=false (debounced by 310 ms), silently no-oping.
 		const handler = this.doubleTap(
 			() => { void this.player.toggleFullscreen?.(); },
 			() => {
 				if (this.opts?.disableClickToPause)
 					return;
-				if (!this._isMobile || this.controlsVisible) {
-					void this.player.togglePlayback?.();
-				}
+				void this.player.togglePlayback?.();
 			},
 		);
 		this.listen(el, 'click', handler);

@@ -7,15 +7,17 @@
 // -----------------------------------------------------------------------------
 
 /**
- * Regression test: touch-zones center zone single-tap must call togglePlayback
- * regardless of whether controls are visible.
+ * Touch-zones center zone single-tap must call togglePlayback regardless of
+ * whether controls are visible, and regardless of whether the device is
+ * touch-capable (the old `_isMobile` guard was the bug).
  *
- * Root cause of mobile playback regression: buildPlayback() guarded the
- * single-tap handler with `if (this.controlsVisible)`, so after the desktop-ui
- * center button was dismissed and controls auto-hid, taps on the center area
- * did nothing. Fix: unconditional call.
- *
- * Also covers:
+ * Covered scenarios:
+ *   - Cold single-tap (controls hidden) on desktop → togglePlayback called.
+ *   - Cold single-tap (controls hidden) on touch-capable device → togglePlayback
+ *     called (regression: old code silently no-oped here).
+ *   - Single-tap with controls visible → togglePlayback called.
+ *   - Double-tap → toggleFullscreen, NOT togglePlayback.
+ *   - disableClickToPause:true → single-tap suppressed.
  *   - Left/right zone single-tap toggles controls (show when hidden, hide when visible).
  *   - Left/right zone double-tap seeks without toggling controls.
  *   - `doubleTapThreshold` option sets the timing window.
@@ -69,8 +71,10 @@ describe('TouchZonesPlugin', () => {
 			expect(toggleSpy).toHaveBeenCalledTimes(1);
 		});
 
-		it('on mobile does NOT call togglePlayback when controls are hidden (container touchstart wakes overlay separately)', async () => {
-			// Force mobile detection by patching maxTouchPoints before plugin init.
+		it('REGRESSION: on touch-capable device (cold tap, controls hidden) calls togglePlayback — was silently no-oping before fix', async () => {
+			// Force touch-capable detection by patching maxTouchPoints before plugin init.
+			// This is the exact scenario that was broken: _isMobile=true + controlsVisible=false
+			// → old guard `!this._isMobile || this.controlsVisible` evaluated to false → skip.
 			const originalMax = navigator.maxTouchPoints;
 			Object.defineProperty(navigator, 'maxTouchPoints', { value: 1, configurable: true });
 
@@ -86,14 +90,57 @@ describe('TouchZonesPlugin', () => {
 				const centerBox = findZoneBox(container, '2', '3');
 				expect(centerBox).toBeDefined();
 
+				// Cold tap — controlsVisible is false, _isMobile is true.
+				// The fixed code calls togglePlayback unconditionally.
 				centerBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 				await new Promise(resolve => setTimeout(resolve, 350));
 
-				expect(toggleSpy).not.toHaveBeenCalled();
+				expect(toggleSpy).toHaveBeenCalledTimes(1);
 			}
 			finally {
 				Object.defineProperty(navigator, 'maxTouchPoints', { value: originalMax, configurable: true });
 			}
+		});
+
+		it('disableClickToPause:true suppresses single-tap togglePlayback', async () => {
+			const player = setup();
+			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, disableClickToPause: true });
+			await player.ready();
+
+			const toggleSpy = vi.fn().mockResolvedValue(undefined);
+			(player as any).togglePlayback = toggleSpy;
+
+			const container = document.getElementById('test')!;
+			const centerBox = findZoneBox(container, '2', '3');
+			expect(centerBox).toBeDefined();
+
+			centerBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			await new Promise(resolve => setTimeout(resolve, 350));
+
+			expect(toggleSpy).not.toHaveBeenCalled();
+		});
+
+		it('disableClickToPause:true does NOT suppress double-tap toggleFullscreen', async () => {
+			const player = setup();
+			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, disableClickToPause: true });
+			await player.ready();
+
+			const toggleSpy = vi.fn().mockResolvedValue(undefined);
+			const fullscreenSpy = vi.fn().mockResolvedValue(undefined);
+			(player as any).togglePlayback = toggleSpy;
+			(player as any).toggleFullscreen = fullscreenSpy;
+
+			const container = document.getElementById('test')!;
+			const centerBox = findZoneBox(container, '2', '3');
+			expect(centerBox).toBeDefined();
+
+			centerBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			await new Promise(resolve => setTimeout(resolve, 50));
+			centerBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			await new Promise(resolve => setTimeout(resolve, 350));
+
+			expect(fullscreenSpy).toHaveBeenCalledTimes(1);
+			expect(toggleSpy).not.toHaveBeenCalled();
 		});
 
 		it('calls togglePlayback when controlsVisible is true (controls visible)', async () => {

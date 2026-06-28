@@ -14,6 +14,7 @@ import { defineConfig } from 'vitest/config';
 const coreRoot = fileURLToPath(new URL('../nomercy-player-core/src', import.meta.url));
 const selfRoot = fileURLToPath(new URL('./src', import.meta.url));
 const octopusSrc = fileURLToPath(new URL('../nomercy-subtitle-octopus/src', import.meta.url));
+const hlsMock = fileURLToPath(new URL('./src/__tests__/__mocks__/hls.js.ts', import.meta.url));
 // Monorepo: alias siblings to their live TypeScript source so tests pick up
 // unbuilt changes. Standalone / CI: resolve them from node_modules instead.
 const useCoreSource = existsSync(coreRoot);
@@ -27,6 +28,12 @@ export default defineConfig({
 			// from `@nomercy-entertainment/nomercy-video-player` resolve to src
 			// rather than a built dist (which may not exist in a clean checkout).
 			{ find: '@nomercy-entertainment/nomercy-video-player', replacement: `${selfRoot}/index.ts` },
+			// hls.js is a peer dependency not installed in this package's own
+			// node_modules. Tests that need the real HLS behaviour mock it inline
+			// with vi.mock('hls.js', ...) which takes precedence. All other tests
+			// (plugin tests that merely instantiate the player) get this stub so
+			// they don't fail at import time.
+			{ find: 'hls.js', replacement: hlsMock },
 			...(useOctopusSource
 				? [{ find: '@nomercy-entertainment/nomercy-subtitle-octopus', replacement: `${octopusSrc}/index.ts` }]
 				: []),
