@@ -153,7 +153,7 @@
 		}
 	},
 	"dependencies": {
-		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.6",
+		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.7",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
 		"@types/webvtt-parser": "^2.2.0",
 		"webvtt-parser": "^2.2.0"
