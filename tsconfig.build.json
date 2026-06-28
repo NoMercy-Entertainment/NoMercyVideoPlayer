@@ -3,5 +3,8 @@
 	"compilerOptions": {
 		"types": []
 	},
+	"tsc-alias": {
+		"resolveFullPaths": true
+	},
 	"exclude": ["dist", "node_modules", "**/__tests__/**"]
 }
