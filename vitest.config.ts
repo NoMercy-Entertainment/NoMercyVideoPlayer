@@ -68,6 +68,10 @@ export default defineConfig({
 				'src/**/__tests__/**',
 				'src/**/*.d.ts',
 			],
+			thresholds: {
+				lines: 70,
+				functions: 75,
+			},
 		},
 	},
 });

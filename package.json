@@ -45,8 +45,7 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js",
-			"browser": "./dist/nomercy-video-player.iife.js"
+			"import": "./dist/index.js"
 		},
 		"./plugins": {
 			"types": "./dist/plugins/index.d.ts",
@@ -116,8 +115,6 @@
 	},
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
-	"unpkg": "./dist/nomercy-video-player.iife.js",
-	"jsdelivr": "./dist/nomercy-video-player.iife.js",
 	"types": "./dist/index.d.ts",
 	"files": [
 		"CHANGELOG.md",
@@ -143,14 +140,22 @@
 		"test:ui": "vitest --ui --watch",
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "npx playwright test",
-		"test:e2e:report": "npx playwright show-report reports/playwright"
+		"test:e2e:report": "npx playwright show-report reports/playwright",
+		"prepublishOnly": "npm run build"
 	},
 	"dependencies": {
 		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.5",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
 		"@types/webvtt-parser": "^2.2.0",
-		"hls.js": "^1.6.0",
 		"webvtt-parser": "^2.2.0"
+	},
+	"peerDependencies": {
+		"hls.js": "^1.6.0"
+	},
+	"peerDependenciesMeta": {
+		"hls.js": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^9.0.0",

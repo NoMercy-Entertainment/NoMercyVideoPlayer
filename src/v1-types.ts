@@ -120,12 +120,13 @@ export interface AudioTrack extends Omit<KitAudioTrack, 'id'> {
  * v1-era volume-state payload. Consumer UI plugins received this object from
  * both the `volume` and `mute` events and accessed `.volume` / `.muted`.
  *
- * Replaces the v2 `VolumeState` enum export at the package barrel so that
- * consumer code typed against this shape continues to compile.
+ * Renamed from `VolumeState` — the public barrel now exports the v2
+ * `VolumeState` enum (matching `nomercy-music-player`). V1-compat code that
+ * needs the `{ volume, muted }` object shape should import `V1VolumeState`.
  *
  * @deprecated Use the `volume` / `mute` event payloads directly in new code.
  */
-export interface VolumeState {
+export interface V1VolumeState {
 	/** Current volume level (0–100). */
 	volume: number;
 	/** `true` when audio is muted. */
@@ -461,11 +462,11 @@ export type NMPlayer<T = Record<string, any>> = _NMPlayerBase<T> & {
 	/** v1 duration event — includes `remaining`. */
 	on(event: 'duration', fn: (data: { duration: number; remaining: number }) => void): void;
 
-	/** v1 volume event — fires `VolumeState` with `volume` and `muted` fields. */
-	on(event: 'volume', fn: (data: VolumeState) => void): void;
+	/** v1 volume event — fires `V1VolumeState` with `volume` and `muted` fields. */
+	on(event: 'volume', fn: (data: V1VolumeState) => void): void;
 
-	/** v1 mute event — fires `VolumeState` with `volume` and `muted` fields. */
-	on(event: 'mute', fn: (data: VolumeState) => void): void;
+	/** v1 mute event — fires `V1VolumeState` with `volume` and `muted` fields. */
+	on(event: 'mute', fn: (data: V1VolumeState) => void): void;
 
 	/** v1 chapters event — payload has `cues` array (v2 uses `chapters`). */
 	on(event: 'chapters', fn: (data: { cues: ReadonlyArray<Chapter> }) => void): void;

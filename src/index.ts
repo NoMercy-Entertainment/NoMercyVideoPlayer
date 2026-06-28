@@ -134,13 +134,13 @@ export {
 // This lets consumer code that accesses .id / .left / .width / .ext compile
 // without changes during the migration window.
 
+// VolumeState is the v2 enum (UNMUTED | MUTED), matching nomercy-music-player.
+// V1VolumeState is the legacy { volume, muted } object shape for v1-compat paths.
+export { VolumeState } from './types';
+
 // Plugin class — v1 consumers extend this. New code uses Plugin from core.
 export { Plugin } from './v1-plugin-base';
-
-// VolumeState is exported as a v1-compat payload interface ({ volume, muted })
-// rather than the internal enum — consumer UI plugins receive this shape from
-// the 'volume' and 'mute' events and access .volume / .muted directly.
-export type { VolumeState } from './v1-types';
+export type { V1VolumeState } from './v1-types';
 
 // ── v1 data types ─────────────────────────────────────────────────────────────
 

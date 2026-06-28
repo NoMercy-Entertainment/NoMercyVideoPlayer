@@ -14,17 +14,21 @@ It is built on [`@nomercy-entertainment/nomercy-player-core`](https://www.npmjs.
 npm install @nomercy-entertainment/nomercy-video-player
 ```
 
-`hls.js` ships with the player and loads lazily on the first `.m3u8` source, so there is no separate install.
+If you use HLS streams (`.m3u8`), also install the optional peer dependency:
+
+```
+npm install hls.js
+```
 
 > **Upgrading from v1?** See [MIGRATION.md](./MIGRATION.md) for the full breaking-change list, including renamed methods, changed event payloads, and the `item.file` to `item.url` rename that breaks silently if missed.
 
 ## Quick start
 
 ```ts
-import nmplayer from '@nomercy-entertainment/nomercy-video-player';
+import { nmVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
 import { DesktopUiPlugin } from '@nomercy-entertainment/nomercy-video-player/plugins';
 
-const player = nmplayer('player')
+const player = nmVideoPlayer('player')
   .addPlugin(DesktopUiPlugin)
   .setup({
     baseUrl: 'https://raw.githubusercontent.com/NoMercy-Entertainment/nomercy-media/master/Films',
@@ -49,7 +53,7 @@ That mounts a working player with the full built-in UI. Drop `DesktopUiPlugin` t
 
 The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full reference and the home for everything that used to live in the wiki:
 
-- [Quick Start](https://docs.nomercy.tv/nomercy-video-player/quickstart), install, first player, and the no-bundler CDN embed
+- [Quick Start](https://docs.nomercy.tv/nomercy-video-player/quickstart), install, and first player
 - [Configuration](https://docs.nomercy.tv/nomercy-video-player/configuration), every option and default
 - [API Methods](https://docs.nomercy.tv/nomercy-video-player/api-methods) and [Events](https://docs.nomercy.tv/nomercy-video-player/events)
 - The step-by-step tutorial for building your own player UI, framework guides for Vue, React, Svelte, Angular, and vanilla JS, and the full plugin reference
