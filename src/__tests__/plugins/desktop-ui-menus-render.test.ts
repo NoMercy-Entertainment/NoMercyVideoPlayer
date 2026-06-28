@@ -26,7 +26,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
 import { desktopUiPlugin } from '../../plugins/desktop-ui';
-import { renderSpeedPane, renderQualityPane, renderSubsPane, renderSubtitleSettingsPane } from '../../plugins/desktop-ui/menus';
+import { renderQualityPane, renderSpeedPane, renderSubsPane, renderSubtitleSettingsPane } from '../../plugins/desktop-ui/menus';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
@@ -67,7 +67,7 @@ async function makePlayer(overrides: Record<string, unknown> = {}): Promise<NMVi
 	return player;
 }
 
-const NOOP_LISTEN = (_: EventTarget, __: string, ___: (e: Event) => void): void => {};
+function NOOP_LISTEN(_: EventTarget, __: string, ___: (e: Event) => void): void {}
 
 // ── renderSpeedPane via real player ────────��─────────────────────────────────
 
@@ -127,7 +127,10 @@ describe('renderSpeedPane (direct call)', () => {
 
 		Object.assign(player, {
 			playbackRates: () => [0.5, 1, 2],
-			playbackRate: (rate?: number) => { if (rate !== undefined) pickedRate = rate; return 1; },
+			playbackRate: (rate?: number) => {
+				if (rate !== undefined)
+					pickedRate = rate; return 1;
+			},
 		});
 
 		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
@@ -160,8 +163,8 @@ describe('renderQualityPane (direct call)', () => {
 		pane.appendChild(scroll);
 
 		const levels: QualityLevel[] = [
-			{ index: 0, height: 1080, bitrate: 5000, label: '1080p', url: '' },
-			{ index: 1, height: 720, bitrate: 3000, label: '720p', url: '' },
+			{ index: 0, height: 1080, bitrate: 5000, label: '1080p' },
+			{ index: 1, height: 720, bitrate: 3000, label: '720p' },
 		];
 		Object.assign(player, { qualityLevels: () => levels });
 
@@ -185,7 +188,7 @@ describe('renderQualityPane (direct call)', () => {
 		pane.appendChild(scroll);
 
 		Object.assign(player, {
-			qualityLevels: () => [{ index: 0, height: 1080, bitrate: 5000, label: '1080p', url: '' }],
+			qualityLevels: () => [{ index: 0, height: 1080, bitrate: 5000, label: '1080p' }],
 		});
 
 		renderQualityPane(pane, player as unknown as NMVideoPlayer, NOOP_LISTEN, () => {}, {
@@ -210,7 +213,7 @@ describe('renderQualityPane (direct call)', () => {
 		pane.appendChild(scroll);
 
 		Object.assign(player, {
-			qualityLevels: () => [{ index: 0, height: 1080, bitrate: 5000, label: '1080p', url: '' }],
+			qualityLevels: () => [{ index: 0, height: 1080, bitrate: 5000, label: '1080p' }],
 		});
 
 		renderQualityPane(pane, player as unknown as NMVideoPlayer, NOOP_LISTEN, () => {}, {
@@ -323,7 +326,10 @@ describe('renderSubsPane (direct call)', () => {
 		let subArg: number | null = -99;
 		Object.assign(player, {
 			subtitles: () => [],
-			subtitle: (idx?: number | null) => { if (idx !== undefined) subArg = idx ?? null; return null; },
+			subtitle: (idx?: number | null) => {
+				if (idx !== undefined)
+					subArg = idx ?? null; return null;
+			},
 			language: () => 'en',
 		});
 

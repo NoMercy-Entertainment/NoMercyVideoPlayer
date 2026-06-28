@@ -62,7 +62,7 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const player = await makePlayer();
 		const container = player.container;
 
-		(player as unknown as Record<string, unknown>).emit('waiting', {});
+		player.emit('waiting', {});
 		expect(container.classList.contains('buffering')).toBe(true);
 	});
 
@@ -70,7 +70,7 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const player = await makePlayer();
 		const container = player.container;
 
-		(player as unknown as Record<string, unknown>).emit('stalled', {});
+		player.emit('stalled', {});
 		expect(container.classList.contains('buffering')).toBe(true);
 	});
 
@@ -78,10 +78,10 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const player = await makePlayer();
 		const container = player.container;
 
-		(player as unknown as Record<string, unknown>).emit('waiting', {});
+		player.emit('waiting', {});
 		expect(container.classList.contains('buffering')).toBe(true);
 
-		(player as unknown as Record<string, unknown>).emit('playing', {});
+		player.emit('playing', {});
 		expect(container.classList.contains('buffering')).toBe(false);
 	});
 
@@ -89,10 +89,10 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const player = await makePlayer();
 		const container = player.container;
 
-		(player as unknown as Record<string, unknown>).emit('stalled', {});
+		player.emit('stalled', {});
 		expect(container.classList.contains('buffering')).toBe(true);
 
-		(player as unknown as Record<string, unknown>).emit('time', { time: 5 });
+		player.emit('time', { time: 5 });
 		expect(container.classList.contains('buffering')).toBe(false);
 	});
 
@@ -100,7 +100,7 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const player = await makePlayer();
 		const container = player.container;
 
-		(player as unknown as Record<string, unknown>).emit('display-message', { text: 'Test message' });
+		player.emit('display-message', { text: 'Test message' });
 
 		const msgEl = container.querySelector('.player-message');
 		expect(msgEl).not.toBeNull();
@@ -112,11 +112,11 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const player = await makePlayer();
 		const container = player.container;
 
-		(player as unknown as Record<string, unknown>).emit('display-message', { text: 'Hello' });
+		player.emit('display-message', { text: 'Hello' });
 		const msgEl = container.querySelector('.player-message')!;
 		expect(msgEl.classList.contains('visible')).toBe(true);
 
-		(player as unknown as Record<string, unknown>).emit('remove-message', {});
+		player.emit('remove-message', {});
 		expect(msgEl.classList.contains('visible')).toBe(false);
 	});
 
@@ -124,7 +124,7 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const player = await makePlayer();
 		const container = player.container;
 
-		(player as unknown as Record<string, unknown>).emit('play', {});
+		player.emit('play', {});
 
 		const center = container.querySelector('.center');
 		expect(center?.classList.contains('dismissed')).toBe(true);
@@ -139,12 +139,12 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const container = player.container;
 
 		const activityEvents: Array<{ active: boolean }> = [];
-		(player as unknown as Record<string, unknown>).on('activity', (data: { active: boolean }) => {
+		player.on('activity', (data: { active: boolean }) => {
 			activityEvents.push(data);
 		});
 		activityEvents.length = 0;
 
-		(player as unknown as Record<string, unknown>).emit('pause', {});
+		player.emit('pause', {});
 
 		// Advance timer — controls must remain visible while paused
 		vi.advanceTimersByTime(2000);
@@ -160,7 +160,7 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const container = player.container;
 
 		Object.assign(player, { volume: () => 75 });
-		(player as unknown as Record<string, unknown>).emit('volume', { level: 75 });
+		player.emit('volume', { level: 75 });
 
 		const msgEl = container.querySelector('.player-message');
 		expect(msgEl).not.toBeNull();
@@ -172,7 +172,7 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		const container = player.container;
 
 		Object.assign(player, { volumeState: () => 'muted' });
-		(player as unknown as Record<string, unknown>).emit('mute', { muted: true });
+		player.emit('mute', { muted: true });
 
 		const msgEl = container.querySelector('.player-message');
 		expect(msgEl).not.toBeNull();
@@ -203,7 +203,7 @@ describe('DesktopUiPlugin — event-driven icon state', () => {
 		const subsBtn = container.querySelector<HTMLButtonElement>('[id="subtitles"]');
 		expect(subsBtn).not.toBeNull();
 
-		(player as unknown as Record<string, unknown>).emit('subtitle', { track: 0 });
+		player.emit('subtitle', { track: 0 });
 
 		// After track is set to 0 (active), the button should reflect the active state
 		// The aria-label is updated by applySubsIcon which sets either active or inactive state
@@ -213,8 +213,8 @@ describe('DesktopUiPlugin — event-driven icon state', () => {
 	it('subtitle event with null track resets to off', async () => {
 		const player = await makePlayer({ buttons: { subtitles: true } });
 
-		(player as unknown as Record<string, unknown>).emit('subtitle', { track: 0 });
-		(player as unknown as Record<string, unknown>).emit('subtitle', { track: null });
+		player.emit('subtitle', { track: 0 });
+		player.emit('subtitle', { track: null });
 
 		// No throw — behavior is the consequence test
 		expect(true).toBe(true);
@@ -225,7 +225,7 @@ describe('DesktopUiPlugin — event-driven icon state', () => {
 
 		// Emitting audioTrack with id=1 must not throw
 		expect(() => {
-			(player as unknown as Record<string, unknown>).emit('audioTrack', { id: 1 });
+			player.emit('audioTrack', { id: 1 });
 		}).not.toThrow();
 	});
 
@@ -233,16 +233,16 @@ describe('DesktopUiPlugin — event-driven icon state', () => {
 		const player = await makePlayer({ buttons: { quality: true } });
 
 		expect(() => {
-			(player as unknown as Record<string, unknown>).emit('quality:requested', { level: 2 });
+			player.emit('quality:requested', { level: 2 });
 		}).not.toThrow();
 	});
 
 	it('quality:requested with auto resets user pick', async () => {
 		const player = await makePlayer({ buttons: { quality: true } });
 
-		(player as unknown as Record<string, unknown>).emit('quality:requested', { level: 2 });
+		player.emit('quality:requested', { level: 2 });
 		expect(() => {
-			(player as unknown as Record<string, unknown>).emit('quality:requested', { level: 'auto' });
+			player.emit('quality:requested', { level: 'auto' });
 		}).not.toThrow();
 	});
 
@@ -250,7 +250,7 @@ describe('DesktopUiPlugin — event-driven icon state', () => {
 		const player = await makePlayer({ buttons: { quality: true } });
 
 		expect(() => {
-			(player as unknown as Record<string, unknown>).emit('level-switched', { level: 3 });
+			player.emit('level-switched', { level: 3 });
 		}).not.toThrow();
 	});
 
@@ -260,7 +260,7 @@ describe('DesktopUiPlugin — event-driven icon state', () => {
 		Object.assign(player, { theater: () => 'on' });
 
 		expect(() => {
-			(player as unknown as Record<string, unknown>).emit('theater', {});
+			player.emit('theater', {});
 		}).not.toThrow();
 	});
 
@@ -270,7 +270,7 @@ describe('DesktopUiPlugin — event-driven icon state', () => {
 		Object.assign(player, { aspectRatio: () => 'uniform' });
 
 		expect(() => {
-			(player as unknown as Record<string, unknown>).emit('aspectRatio', {});
+			player.emit('aspectRatio', {});
 		}).not.toThrow();
 	});
 
@@ -289,7 +289,7 @@ describe('DesktopUiPlugin — event-driven icon state', () => {
 		});
 
 		expect(() => {
-			(player as unknown as Record<string, unknown>).emit('mediaReady', {});
+			player.emit('mediaReady', {});
 		}).not.toThrow();
 	});
 });
@@ -320,12 +320,12 @@ describe('DesktopUiPlugin — remaining-time toggle', () => {
 		expect(remainingEl).not.toBeNull();
 
 		// Default is showRemaining=true → shows -1:00 (remaining)
-		(player as unknown as Record<string, unknown>).emit('time', { time: 60 });
+		player.emit('time', { time: 60 });
 		const textBefore = remainingEl!.textContent;
 
 		// Click to toggle to total duration display
 		remainingEl!.click();
-		(player as unknown as Record<string, unknown>).emit('time', { time: 60 });
+		player.emit('time', { time: 60 });
 		const textAfter = remainingEl!.textContent;
 
 		// The text content must change between the two modes

@@ -31,6 +31,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NMVideoPlayer } from '../../index';
 import { DrmPlugin, drmPlugin } from '../../plugins/drm';
 
+// The plugin tests drive arbitrary `plugin:*` event names that fall outside the
+// player's typed event overloads, so they reach the event bus through this
+// minimal callable surface instead of an `unknown`-valued index signature.
+interface EventBusLike {
+	on: (event: string, fn: (data: unknown) => void) => void;
+	emit: (event: string, data?: unknown) => void;
+}
+
 describe('DrmPlugin — static properties', () => {
 	it('has correct id', () => {
 		expect(DrmPlugin.id).toBe('drm');
@@ -84,9 +92,9 @@ describe('DrmPlugin — lifecycle in jsdom (no EME)', () => {
 		await player.ready();
 
 		const errors: unknown[] = [];
-		(player as unknown as Record<string, unknown>).on('plugin:drm:key:error', (d: unknown) => errors.push(d));
+		(player as unknown as EventBusLike).on('plugin:drm:key:error', (d: unknown) => errors.push(d));
 
-		(player as unknown as Record<string, unknown>).emit('item', { item: { id: 'ep1', url: '/ep1.m3u8' } });
+		(player as unknown as EventBusLike).emit('item', { item: { id: 'ep1', url: '/ep1.m3u8' } });
 		await Promise.resolve();
 
 		expect(errors).toHaveLength(0);
@@ -126,7 +134,7 @@ describe('DrmPlugin — tryHandshake with mocked EME', () => {
 		player.addPlugin(drmPlugin, { keySystem: 'com.widevine.alpha', licenseUrl: 'https://x/license' });
 		await player.ready();
 
-		(player as unknown as Record<string, unknown>).emit('item', {
+		(player as unknown as EventBusLike).emit('item', {
 			item: { id: 'ep1', url: '/ep1.m3u8', drm: { keySystem: 'com.widevine.alpha' } },
 		});
 
@@ -148,9 +156,9 @@ describe('DrmPlugin — tryHandshake with mocked EME', () => {
 		player.addPlugin(drmPlugin, { keySystem: 'com.widevine.alpha', licenseUrl: 'https://x/license' });
 		await player.ready();
 
-		(player as unknown as Record<string, unknown>).on('plugin:drm:key:error', (d: unknown) => errors.push(d));
+		(player as unknown as EventBusLike).on('plugin:drm:key:error', (d: unknown) => errors.push(d));
 
-		(player as unknown as Record<string, unknown>).emit('item', {
+		(player as unknown as EventBusLike).emit('item', {
 			item: { id: 'ep1', url: '/ep1.m3u8', drm: { keySystem: 'com.widevine.alpha' } },
 		});
 
@@ -263,7 +271,7 @@ describe('DrmPlugin — FairPlay handshake config', () => {
 		player.addPlugin(drmPlugin, { keySystem: 'com.apple.fps.1_0', licenseUrl: 'https://fps.example.test/cert' });
 		await player.ready();
 
-		(player as unknown as Record<string, unknown>).emit('item', {
+		(player as unknown as EventBusLike).emit('item', {
 			item: { id: 'ep1', url: '/ep1.m3u8', drm: { keySystem: 'com.apple.fps.1_0' } },
 		});
 

@@ -25,10 +25,11 @@
  *   - fmt: edge cases (negative, Infinity, hours)
  */
 
+import type { ChapterLite } from '../../plugins/desktop-ui/progressBar';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
-
 import {
 	buildChapterMarkers,
 	buildSliderBar,
@@ -37,7 +38,6 @@ import {
 	updateChapterHover,
 	updateChapterProgress,
 } from '../../plugins/desktop-ui/progressBar';
-import type { ChapterLite } from '../../plugins/desktop-ui/progressBar';
 
 // ── fmt ────────────────────────────────────────────────────────────────────────
 
@@ -140,7 +140,7 @@ describe('buildChapterMarkers', () => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 
-		buildChapterMarkers(bar, chapters, 100, (idx) => clickedIndexes.push(idx), listen);
+		buildChapterMarkers(bar, chapters, 100, idx => clickedIndexes.push(idx), listen);
 
 		const markers = bar.querySelectorAll<HTMLElement>('.chapter-marker');
 		markers[1]!.click();
@@ -276,7 +276,7 @@ describe('buildSliderBar', () => {
 			createElement: (tag: string, _id: string) => {
 				const el = document.createElement(tag);
 				return {
-					addClasses: (classes: string[]) => { el.classList.add(...classes); return { addClasses: () => ({ addClasses: () => ({ addClasses: () => ({ appendTo: () => ({ appendTo: () => ({ appendTo: () => ({ get: () => el, appendTo: () => ({ get: () => el }) }), get: () => el }) }), setProperty: (_: string, __: string) => ({ appendTo: () => ({ get: () => el }) }), get: () => el }) }) }), appendTo: () => ({ get: () => el }), get: () => el } },
+					addClasses: (classes: string[]) => { el.classList.add(...classes); return { addClasses: () => ({ addClasses: () => ({ addClasses: () => ({ appendTo: () => ({ appendTo: () => ({ appendTo: () => ({ get: () => el, appendTo: () => ({ get: () => el }) }), get: () => el }) }), setProperty: (_: string, __: string) => ({ appendTo: () => ({ get: () => el }) }), get: () => el }) }) }), appendTo: () => ({ get: () => el }), get: () => el }; },
 					appendTo: () => ({ get: () => el }),
 					setAttribute: (_: string, __: string) => ({ setAttribute: (_2: string, __2: string) => ({ setAttribute: (_3: string, __3: string) => ({ setAttribute: (_4: string, __4: string) => ({ setAttribute: (_5: string, __5: string) => ({ addClasses: (cls: string[]) => { el.classList.add(...cls); return { appendTo: () => ({ get: () => el }) }; }, get: () => el }) }), addClasses: (cls: string[]) => { el.classList.add(...cls); return { appendTo: () => ({ get: () => el }) }; } }) }), get: () => el }),
 					setProperty: (_: string, __: string) => ({ appendTo: () => ({ get: () => el }) }),

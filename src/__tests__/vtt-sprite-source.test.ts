@@ -20,14 +20,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { VttSpriteThumbnailSource } from '../adapters/thumbnail-source/vtt-sprite';
 
+import { loadSpriteSet, lookupCue } from '../plugins/desktop-ui/sprite';
+
 // ── Mock desktop-ui/sprite so no network requests happen ─────────────────────
 
 vi.mock('../plugins/desktop-ui/sprite', () => ({
 	loadSpriteSet: vi.fn(),
 	lookupCue: vi.fn(),
 }));
-
-import { loadSpriteSet, lookupCue } from '../plugins/desktop-ui/sprite';
 
 const mockLoadSpriteSet = loadSpriteSet as ReturnType<typeof vi.fn>;
 const mockLookupCue = lookupCue as ReturnType<typeof vi.fn>;

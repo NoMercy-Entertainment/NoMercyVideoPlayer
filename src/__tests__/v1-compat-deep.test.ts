@@ -77,7 +77,7 @@ describe('_makeTimeData shape (via on("time") bridge)', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('time', (d) => received.push(d));
+		(player as unknown as OnCompat).on('time', d => received.push(d));
 
 		// Prime duration tracker via duration event
 		player.emit('duration' as never, { duration: 100 } as never);
@@ -115,7 +115,7 @@ describe('_makeTimeData shape (via on("time") bridge)', () => {
 		player.emit('duration' as never, { duration: 0 } as never);
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('time', (d) => received.push(d));
+		(player as unknown as OnCompat).on('time', d => received.push(d));
 		player.emit('time' as never, { time: 10 } as never);
 
 		const payload = received[0] as { percentage: number; remaining: number };
@@ -138,7 +138,7 @@ describe('event bridges — seek / seeked', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('seek', (d) => received.push(d));
+		(player as unknown as OnCompat).on('seek', d => received.push(d));
 		player.emit('time' as never, { time: 50 } as never);
 
 		expect(received).toHaveLength(1);
@@ -153,7 +153,7 @@ describe('event bridges — seek / seeked', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('seeked', (d) => received.push(d));
+		(player as unknown as OnCompat).on('seeked', d => received.push(d));
 		player.emit('time' as never, { time: 60 } as never);
 
 		expect(received).toHaveLength(1);
@@ -174,7 +174,7 @@ describe('event bridges — chapters / audioTracks / playlist / levels', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('chapters', (d) => received.push(d));
+		(player as unknown as OnCompat).on('chapters', d => received.push(d));
 		const chapters = [{ start: 0, end: 60, title: 'Intro' }];
 		player.emit('chapters' as never, { chapters } as never);
 
@@ -189,7 +189,7 @@ describe('event bridges — chapters / audioTracks / playlist / levels', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('audioTracks', (d) => received.push(d));
+		(player as unknown as OnCompat).on('audioTracks', d => received.push(d));
 		const tracks = [{ id: 'a0', language: 'en', label: 'English', default: true }];
 		player.emit('audioTracks' as never, { tracks } as never);
 
@@ -205,7 +205,7 @@ describe('event bridges — chapters / audioTracks / playlist / levels', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('playlist', (d) => received.push(d));
+		(player as unknown as OnCompat).on('playlist', d => received.push(d));
 		player.emit('queueChanged' as never, undefined as never);
 
 		expect(received[0]).toEqual([]);
@@ -219,7 +219,7 @@ describe('event bridges — chapters / audioTracks / playlist / levels', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('levels', (d) => received.push(d));
+		(player as unknown as OnCompat).on('levels', d => received.push(d));
 		const levels = [{ bitrate: 1_000_000, height: 720 }];
 		player.emit('levels' as never, { levels } as never);
 
@@ -240,7 +240,7 @@ describe('event bridges — fullscreen / pip / theater / controls / captionsChan
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('fullscreen', (d) => received.push(d));
+		(player as unknown as OnCompat).on('fullscreen', d => received.push(d));
 		player.emit('fullscreen' as never, { active: true } as never);
 
 		expect(received[0]).toBe(true);
@@ -254,7 +254,7 @@ describe('event bridges — fullscreen / pip / theater / controls / captionsChan
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('pip', (d) => received.push(d));
+		(player as unknown as OnCompat).on('pip', d => received.push(d));
 		player.emit('pip' as never, { active: false } as never);
 
 		expect(received[0]).toBe(false);
@@ -268,7 +268,7 @@ describe('event bridges — fullscreen / pip / theater / controls / captionsChan
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('theater', (d) => received.push(d));
+		(player as unknown as OnCompat).on('theater', d => received.push(d));
 		player.emit('theater' as never, { active: true } as never);
 
 		expect(received[0]).toBe(true);
@@ -282,7 +282,7 @@ describe('event bridges — fullscreen / pip / theater / controls / captionsChan
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('controls', (d) => received.push(d));
+		(player as unknown as OnCompat).on('controls', d => received.push(d));
 		player.emit('active' as never, true as never);
 
 		expect(received[0]).toBe(true);
@@ -296,7 +296,7 @@ describe('event bridges — fullscreen / pip / theater / controls / captionsChan
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('showControls', (d) => received.push(d));
+		(player as unknown as OnCompat).on('showControls', d => received.push(d));
 
 		player.emit('active' as never, true as never);
 		player.emit('active' as never, false as never);
@@ -312,7 +312,7 @@ describe('event bridges — fullscreen / pip / theater / controls / captionsChan
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('captionsChanged', (d) => received.push(d));
+		(player as unknown as OnCompat).on('captionsChanged', d => received.push(d));
 		player.emit('subtitleChanged' as never, {
 			index: 1,
 			track: { id: 'sub-1', language: 'en', label: 'English', type: 'full' },
@@ -331,7 +331,7 @@ describe('event bridges — fullscreen / pip / theater / controls / captionsChan
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('captionsList', (d) => received.push(d));
+		(player as unknown as OnCompat).on('captionsList', d => received.push(d));
 		player.emit('subtitleTracks' as never, { tracks: [{ id: 'sub-0' }] } as never);
 
 		expect(Array.isArray(received[0])).toBe(true);
@@ -351,7 +351,7 @@ describe('event bridges — play / pause TimeData', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('play', (d) => received.push(d));
+		(player as unknown as OnCompat).on('play', d => received.push(d));
 		player.emit('play' as never, undefined as never);
 
 		const payload = received[0] as { currentTime: number; duration: number };
@@ -367,7 +367,7 @@ describe('event bridges — play / pause TimeData', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('pause', (d) => received.push(d));
+		(player as unknown as OnCompat).on('pause', d => received.push(d));
 		player.emit('pause' as never, undefined as never);
 
 		const payload = received[0] as { currentTime: number };
@@ -1337,8 +1337,7 @@ describe('method shims — misc removed / compat', () => {
 
 		const compat = player as unknown as Compat;
 		expect(compat.getGain()).toBeUndefined();
-		const warns = (console.warn as ReturnType<typeof vi.spyOn>).mock.calls
-			.filter((args: unknown[]) => String(args[0]).includes('"getGain'));
+		const warns = (console.warn as ReturnType<typeof vi.spyOn>).mock.calls.filter((args: unknown[]) => String(args[0]).includes('"getGain'));
 		expect(warns.length).toBe(1);
 
 		player.dispose();
@@ -1351,8 +1350,7 @@ describe('method shims — misc removed / compat', () => {
 
 		const compat = player as unknown as Compat;
 		expect(compat.setGain()).toBeUndefined();
-		const warns = (console.warn as ReturnType<typeof vi.spyOn>).mock.calls
-			.filter((args: unknown[]) => String(args[0]).includes('"setGain'));
+		const warns = (console.warn as ReturnType<typeof vi.spyOn>).mock.calls.filter((args: unknown[]) => String(args[0]).includes('"setGain'));
 		expect(warns.length).toBe(1);
 
 		player.dispose();
@@ -1747,7 +1745,7 @@ describe('dispose — bridge cleanup', () => {
 		await player.ready();
 
 		const received: unknown[] = [];
-		(player as unknown as OnCompat).on('time', (d) => received.push(d));
+		(player as unknown as OnCompat).on('time', d => received.push(d));
 
 		player.removePlugin(V1VideoCompatPlugin);
 		player.emit('time' as never, { time: 99 } as never);

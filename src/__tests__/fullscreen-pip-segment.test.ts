@@ -60,7 +60,7 @@ describe('NMVideoPlayer — fullscreen()', () => {
 		await player.ready();
 
 		// Replace the whole platform() accessor to return no fullscreen ctrl.
-		(player as unknown as Record<string, unknown>)['platform'] = () => ({ fullscreen: undefined });
+		(player as unknown as Record<string, unknown>).platform = () => ({ fullscreen: undefined });
 
 		expect(player.fullscreen()).toBe('off');
 	});
@@ -78,7 +78,7 @@ describe('NMVideoPlayer — fullscreen()', () => {
 			},
 			pip: undefined,
 		};
-		(player as unknown as { platform: () => unknown })['platform'] = () => fakePlatform;
+		(player as unknown as { platform: () => unknown }).platform = () => fakePlatform;
 
 		const events: unknown[] = [];
 		player.on('fullscreen', d => events.push(d));
@@ -103,7 +103,7 @@ describe('NMVideoPlayer — fullscreen()', () => {
 			},
 			pip: undefined,
 		};
-		(player as unknown as Record<string, unknown>)['platform'] = () => fakePlatform;
+		(player as unknown as Record<string, unknown>).platform = () => fakePlatform;
 
 		player.fullscreen(false);
 
@@ -122,7 +122,7 @@ describe('NMVideoPlayer — fullscreen()', () => {
 			},
 			pip: undefined,
 		};
-		(player as unknown as Record<string, unknown>)['platform'] = () => fakePlatform;
+		(player as unknown as Record<string, unknown>).platform = () => fakePlatform;
 
 		expect(player.fullscreen()).toBe('on');
 	});
@@ -131,7 +131,7 @@ describe('NMVideoPlayer — fullscreen()', () => {
 		const player = new NMVideoPlayer('test').setup({});
 		await player.ready();
 
-		(player as unknown as Record<string, unknown>)['platform'] = () => ({ fullscreen: undefined });
+		(player as unknown as Record<string, unknown>).platform = () => ({ fullscreen: undefined });
 
 		expect(() => player.fullscreen(true)).toThrow();
 	});
@@ -151,7 +151,7 @@ describe('NMVideoPlayer — fullscreen()', () => {
 			},
 			pip: undefined,
 		};
-		(player as unknown as Record<string, unknown>)['platform'] = () => fakePlatform;
+		(player as unknown as Record<string, unknown>).platform = () => fakePlatform;
 
 		player.toggleFullscreen();
 
@@ -169,7 +169,7 @@ describe('NMVideoPlayer — pip()', () => {
 	it('pip() returns off when no ctrl and _pipActive=false', async () => {
 		const player = new NMVideoPlayer('test').setup({});
 		await player.ready();
-		(player as unknown as Record<string, unknown>)['platform'] = () => ({ pip: undefined });
+		(player as unknown as Record<string, unknown>).platform = () => ({ pip: undefined });
 
 		expect(player.pip()).toBe('off');
 	});
@@ -186,7 +186,7 @@ describe('NMVideoPlayer — pip()', () => {
 				isActive: () => false,
 			},
 		};
-		(player as unknown as Record<string, unknown>)['platform'] = () => fakePlatform;
+		(player as unknown as Record<string, unknown>).platform = () => fakePlatform;
 
 		const events: unknown[] = [];
 		player.on('pip', d => events.push(d));
@@ -209,7 +209,7 @@ describe('NMVideoPlayer — pip()', () => {
 				isActive: () => false,
 			},
 		};
-		(player as unknown as Record<string, unknown>)['platform'] = () => fakePlatform;
+		(player as unknown as Record<string, unknown>).platform = () => fakePlatform;
 
 		player.pip(false);
 		expect(exits.length).toBe(1);
@@ -226,7 +226,7 @@ describe('NMVideoPlayer — pip()', () => {
 				isActive: () => true,
 			},
 		};
-		(player as unknown as Record<string, unknown>)['platform'] = () => fakePlatform;
+		(player as unknown as Record<string, unknown>).platform = () => fakePlatform;
 
 		expect(player.pip()).toBe('on');
 	});
@@ -234,7 +234,7 @@ describe('NMVideoPlayer — pip()', () => {
 	it('pip(true) with no ctrl throws BrowserPolicyError', async () => {
 		const player = new NMVideoPlayer('test').setup({});
 		await player.ready();
-		(player as unknown as Record<string, unknown>)['platform'] = () => ({ pip: undefined });
+		(player as unknown as Record<string, unknown>).platform = () => ({ pip: undefined });
 
 		expect(() => player.pip(true)).toThrow();
 	});
@@ -253,7 +253,7 @@ describe('NMVideoPlayer — pip()', () => {
 				isActive: () => false,
 			},
 		};
-		(player as unknown as Record<string, unknown>)['platform'] = () => fakePlatform;
+		(player as unknown as Record<string, unknown>).platform = () => fakePlatform;
 
 		player.togglePip();
 
@@ -355,7 +355,8 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 
 		const seekCalls: number[] = [];
 		(player as unknown as Record<string, unknown>).time = (t?: number) => {
-			if (t !== undefined) seekCalls.push(t);
+			if (t !== undefined)
+				seekCalls.push(t);
 			return Promise.resolve();
 		};
 
@@ -392,7 +393,8 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		const seekAfterInit: number[] = [];
 		let initDone = false;
 		(player as unknown as Record<string, unknown>).time = (t?: number) => {
-			if (t !== undefined && initDone) seekAfterInit.push(t);
+			if (t !== undefined && initDone)
+				seekAfterInit.push(t);
 			initDone = true;
 			return Promise.resolve();
 		};
@@ -446,7 +448,8 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 
 		const seekCalls: number[] = [];
 		(player as unknown as Record<string, unknown>).time = (t?: number) => {
-			if (t !== undefined) seekCalls.push(t);
+			if (t !== undefined)
+				seekCalls.push(t);
 			return Promise.resolve();
 		};
 

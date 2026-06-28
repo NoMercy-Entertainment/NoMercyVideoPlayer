@@ -91,7 +91,7 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 			item: () => ({ title: 'My Movie', id: '1' }),
 			chapters: () => [],
 		}));
-		(player as unknown as Record<string, unknown>).on('plugin:tv-key-handler:info', (data: unknown) => infoEvents.push(data));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('plugin:tv-key-handler:info', (data: unknown) => infoEvents.push(data));
 		key('Info');
 		expect(infoEvents.length).toBeGreaterThan(0);
 		const info = infoEvents[0] as { currentTime: number; remaining: number; title: string };
@@ -111,7 +111,7 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 				{ index: 1, start: 60, end: 120, title: 'Act 2' },
 			],
 		}));
-		(player as unknown as Record<string, unknown>).on('plugin:tv-key-handler:info', (data: unknown) => infoEvents.push(data));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('plugin:tv-key-handler:info', (data: unknown) => infoEvents.push(data));
 		key('Info');
 		const info = infoEvents[0] as { chapterLabel: string };
 		expect(info.chapterLabel).toContain('Opening');
@@ -125,7 +125,7 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 			item: () => ({ title: 'Test', id: '1' }),
 			chapters: () => [],
 		}));
-		(player as unknown as Record<string, unknown>).on('display-message', (data: unknown) => messages.push(data));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('display-message', (data: unknown) => messages.push(data));
 		key('Info');
 		expect(messages.length).toBeGreaterThan(0);
 		const msg = (messages[0] as { text?: string }).text ?? '';
@@ -141,7 +141,7 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 			item: () => ({ title: 'Episode 1', id: '1' }),
 			chapters: () => [],
 		}));
-		(player as unknown as Record<string, unknown>).on('display-message', (data: unknown) => messages.push(data));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('display-message', (data: unknown) => messages.push(data));
 		key('Info');
 		const msg = (messages[0] as { text?: string }).text ?? '';
 		expect(msg).toContain('Episode 1');
@@ -153,8 +153,8 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 		const tvEvents: unknown[] = [];
 		const desktopEvents: unknown[] = [];
 		const player = await ready(makePlayer({}));
-		(player as unknown as Record<string, unknown>).on('plugin:tv-key-handler:shortcuts-toggle', () => tvEvents.push(true));
-		(player as unknown as Record<string, unknown>).on('plugin:desktop-ui:shortcuts-toggle', () => desktopEvents.push(true));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('plugin:tv-key-handler:shortcuts-toggle', () => tvEvents.push(true));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('plugin:desktop-ui:shortcuts-toggle', () => desktopEvents.push(true));
 		key('?');
 		expect(tvEvents.length).toBeGreaterThan(0);
 		expect(desktopEvents.length).toBe(0);
@@ -166,7 +166,7 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 		const cycleSpy = vi.fn().mockResolvedValue(undefined);
 		const messages: unknown[] = [];
 		const player = await ready(makePlayer({ cycleAspectRatio: cycleSpy }));
-		(player as unknown as Record<string, unknown>).on('display-message', (data: unknown) => messages.push(data));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('display-message', (data: unknown) => messages.push(data));
 		key('a');
 		expect(cycleSpy).toHaveBeenCalledTimes(1);
 		// The OSD message should fire
@@ -178,7 +178,7 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 	it('MediaRecord emits plugin:tv-key-handler:bookmark with current time', async () => {
 		const bookmarks: unknown[] = [];
 		const player = await ready(makePlayer({ time: () => 42 }));
-		(player as unknown as Record<string, unknown>).on('plugin:tv-key-handler:bookmark', (data: unknown) => bookmarks.push(data));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('plugin:tv-key-handler:bookmark', (data: unknown) => bookmarks.push(data));
 		key('MediaRecord');
 		expect(bookmarks.length).toBeGreaterThan(0);
 		expect((bookmarks[0] as { time: number }).time).toBe(42);
@@ -194,7 +194,7 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 			item: () => ({ title: 'No Chapters', id: '1' }),
 			chapters: () => [],
 		}));
-		(player as unknown as Record<string, unknown>).on('plugin:tv-key-handler:info', (data: unknown) => infoEvents.push(data));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('plugin:tv-key-handler:info', (data: unknown) => infoEvents.push(data));
 		key('Info');
 		const info = infoEvents[0] as { chapterLabel: string };
 		expect(info.chapterLabel).toBe('');
@@ -208,7 +208,7 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 			item: () => ({ title: 'Movie', id: '1' }),
 			chapters: () => [{ index: 0, start: 0, end: 60, title: '' }],
 		}));
-		(player as unknown as Record<string, unknown>).on('plugin:tv-key-handler:info', (data: unknown) => infoEvents.push(data));
+		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('plugin:tv-key-handler:info', (data: unknown) => infoEvents.push(data));
 		key('Info');
 		const info = infoEvents[0] as { chapterLabel: string };
 		// Should contain chapter number but no title (empty string check in source)

@@ -35,10 +35,14 @@ class MockImage {
 	set onerror(fn: (() => void) | null) { this._onerror = fn; }
 	get onload(): (() => void) | null { return this._onload; }
 	get onerror(): (() => void) | null { return this._onerror; }
-	set src(_url: string) {
+	private _src = '';
+	set src(url: string) {
+		this._src = url;
 		// Resolve asynchronously to let the assignment complete.
 		Promise.resolve().then(() => this._onload?.());
 	}
+
+	get src(): string { return this._src; }
 }
 
 const BASE_URL = 'https://cdn.example.com/thumbs/sprites.vtt';
@@ -77,7 +81,7 @@ https://img.cdn/sprite.webp#xywh=0,0,160,90
 	});
 
 	it('strips a leading UTF-8 BOM', () => {
-		const vttWithBom = '﻿' + VTT_BASIC;
+		const vttWithBom = `\uFEFF${VTT_BASIC}`;
 		const cues = parseSpriteVtt(vttWithBom, BASE_URL);
 		expect(cues.length).toBe(3);
 	});

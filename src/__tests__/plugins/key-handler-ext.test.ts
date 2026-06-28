@@ -41,6 +41,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NMVideoPlayer } from '../../index';
 import { KeyHandlerPlugin } from '../../plugins/key-handler';
 
+// These tests subscribe to UI/plugin event names that fall outside the player's
+// typed event overloads, so they reach the event bus through this minimal
+// callable surface instead of an `unknown`-valued index signature.
+interface EventBusLike {
+	on: (event: string, fn: (data: unknown) => void) => void;
+}
+
 describe('KeyHandlerPlugin (video) — consequence tests', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
@@ -176,14 +183,20 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	it('Escape calls fullscreen(false) when fullscreen is "on"', async () => {
 		const spy = vi.fn();
-		const player = await ready(makePlayer({ fullscreen: (arg?: unknown) => { if (arg !== undefined) spy(arg); return 'on'; } }));
+		const player = await ready(makePlayer({ fullscreen: (arg?: unknown) => {
+			if (arg !== undefined)
+				spy(arg); return 'on';
+		} }));
 		key('Escape');
 		expect(spy).toHaveBeenCalledWith(false);
 	});
 
 	it('Escape does nothing when fullscreen is off', async () => {
 		const spy = vi.fn();
-		const player = await ready(makePlayer({ fullscreen: (arg?: unknown) => { if (arg !== undefined) spy(arg); return 'off'; } }));
+		const player = await ready(makePlayer({ fullscreen: (arg?: unknown) => {
+			if (arg !== undefined)
+				spy(arg); return 'off';
+		} }));
 		key('Escape');
 		expect(spy).not.toHaveBeenCalled();
 	});
@@ -195,7 +208,10 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		const rates = [0.5, 1, 1.5, 2];
 		const player = await ready(makePlayer({
 			playbackRates: () => rates,
-			playbackRate: (r?: number) => { if (r !== undefined) currentRate = r; return currentRate; },
+			playbackRate: (r?: number) => {
+				if (r !== undefined)
+					currentRate = r; return currentRate;
+			},
 		}));
 		key(']');
 		expect(currentRate).toBe(1.5);
@@ -206,7 +222,10 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		const rates = [0.5, 1, 1.5, 2];
 		const player = await ready(makePlayer({
 			playbackRates: () => rates,
-			playbackRate: (r?: number) => { if (r !== undefined) currentRate = r; return currentRate; },
+			playbackRate: (r?: number) => {
+				if (r !== undefined)
+					currentRate = r; return currentRate;
+			},
 		}));
 		key('[');
 		expect(currentRate).toBe(1);
@@ -216,7 +235,10 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		let currentRate = 2;
 		const player = await ready(makePlayer({
 			playbackRates: () => [0.5, 1, 1.5, 2],
-			playbackRate: (r?: number) => { if (r !== undefined) currentRate = r; return currentRate; },
+			playbackRate: (r?: number) => {
+				if (r !== undefined)
+					currentRate = r; return currentRate;
+			},
 		}));
 		key('=');
 		expect(currentRate).toBe(1);
@@ -228,7 +250,10 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		let currentTime = 10;
 		const player = await ready(makePlayer({
 			playState: () => 'paused',
-			time: (t?: number) => { if (t !== undefined) currentTime = t; return currentTime; },
+			time: (t?: number) => {
+				if (t !== undefined)
+					currentTime = t; return currentTime;
+			},
 		}));
 		key('e');
 		expect(currentTime).toBeCloseTo(10 + 1 / 30, 5);
@@ -238,7 +263,10 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		let currentTime = 10;
 		const player = await ready(makePlayer({
 			playState: () => 'playing',
-			time: (t?: number) => { if (t !== undefined) currentTime = t; return currentTime; },
+			time: (t?: number) => {
+				if (t !== undefined)
+					currentTime = t; return currentTime;
+			},
 		}));
 		key('e');
 		expect(currentTime).toBe(10);
@@ -252,7 +280,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 			time: () => 65,
 			duration: () => 130,
 		}));
-		(player as unknown as Record<string, unknown>).on('display-message', (data: unknown) => messages.push(data));
+		(player as unknown as EventBusLike).on('display-message', (data: unknown) => messages.push(data));
 		key('t');
 		expect(messages.length).toBeGreaterThan(0);
 		const msg = (messages[0] as { text: string }).text;
@@ -264,7 +292,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 	it('+ emits subtitle-size-up', async () => {
 		const events: unknown[] = [];
 		const player = await ready(makePlayer({}));
-		(player as unknown as Record<string, unknown>).on('subtitle-size-up', () => events.push('up'));
+		(player as unknown as EventBusLike).on('subtitle-size-up', () => events.push('up'));
 		key('+');
 		expect(events).toContain('up');
 	});
@@ -272,7 +300,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 	it('- emits subtitle-size-down', async () => {
 		const events: unknown[] = [];
 		const player = await ready(makePlayer({}));
-		(player as unknown as Record<string, unknown>).on('subtitle-size-down', () => events.push('down'));
+		(player as unknown as EventBusLike).on('subtitle-size-down', () => events.push('down'));
 		key('-');
 		expect(events).toContain('down');
 	});
@@ -330,7 +358,7 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 	it('shift+? emits plugin:desktop-ui:shortcuts-toggle', async () => {
 		const events: unknown[] = [];
 		const player = await ready(makePlayer({}));
-		(player as unknown as Record<string, unknown>).on('plugin:desktop-ui:shortcuts-toggle', () => events.push(true));
+		(player as unknown as EventBusLike).on('plugin:desktop-ui:shortcuts-toggle', () => events.push(true));
 		key('?', { shiftKey: true });
 		expect(events.length).toBeGreaterThan(0);
 	});

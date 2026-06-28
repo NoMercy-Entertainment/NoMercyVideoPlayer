@@ -217,28 +217,28 @@ describe('mediaElement()', () => {
 describe('element event bridging', () => {
 	it('bridges play event from element to backend emitter', () => {
 		const received: unknown[] = [];
-		backend.on('play', (e) => received.push(e));
+		backend.on('play', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('play'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges pause event', () => {
 		const received: unknown[] = [];
-		backend.on('pause', (e) => received.push(e));
+		backend.on('pause', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('pause'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges timeupdate event', () => {
 		const received: unknown[] = [];
-		backend.on('timeupdate', (e) => received.push(e));
+		backend.on('timeupdate', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('timeupdate'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges ended event and sets _ended flag so state() returns correct value', () => {
 		const received: unknown[] = [];
-		backend.on('ended', (e) => received.push(e));
+		backend.on('ended', e => received.push(e));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		videoEl.dispatchEvent(new Event('ended'));
 		expect(received).toHaveLength(1);
@@ -246,70 +246,70 @@ describe('element event bridging', () => {
 
 	it('bridges waiting event', () => {
 		const received: unknown[] = [];
-		backend.on('waiting', (e) => received.push(e));
+		backend.on('waiting', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('waiting'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges canplay event', () => {
 		const received: unknown[] = [];
-		backend.on('canplay', (e) => received.push(e));
+		backend.on('canplay', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('canplay'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges stalled event', () => {
 		const received: unknown[] = [];
-		backend.on('stalled', (e) => received.push(e));
+		backend.on('stalled', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('stalled'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges ratechange event', () => {
 		const received: unknown[] = [];
-		backend.on('ratechange', (e) => received.push(e));
+		backend.on('ratechange', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('ratechange'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges resize event', () => {
 		const received: unknown[] = [];
-		backend.on('resize', (e) => received.push(e));
+		backend.on('resize', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('resize'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges loadeddata event', () => {
 		const received: unknown[] = [];
-		backend.on('loadeddata', (e) => received.push(e));
+		backend.on('loadeddata', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('loadeddata'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges emptied event', () => {
 		const received: unknown[] = [];
-		backend.on('emptied', (e) => received.push(e));
+		backend.on('emptied', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('emptied'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges playing event', () => {
 		const received: unknown[] = [];
-		backend.on('playing', (e) => received.push(e));
+		backend.on('playing', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('playing'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges encrypted event', () => {
 		const received: unknown[] = [];
-		backend.on('encrypted', (e) => received.push(e));
+		backend.on('encrypted', e => received.push(e));
 		container.querySelector('video')!.dispatchEvent(new Event('encrypted'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges error event and sets _hadError flag', () => {
 		const received: unknown[] = [];
-		backend.on('error', (e) => received.push(e));
+		backend.on('error', e => received.push(e));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		Object.defineProperty(videoEl, 'error', {
 			get: () => ({ code: 2, message: 'network error' }),
@@ -324,7 +324,7 @@ describe('element event bridging', () => {
 
 	it('maps MediaError code 1 → media/aborted', () => {
 		const received: Array<Event & { v2ErrorCode?: string }> = [];
-		backend.on('error', (e) => received.push(e as Event & { v2ErrorCode?: string }));
+		backend.on('error', e => received.push(e as Event & { v2ErrorCode?: string }));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		Object.defineProperty(videoEl, 'error', {
 			get: () => ({ code: 1 }),
@@ -336,7 +336,7 @@ describe('element event bridging', () => {
 
 	it('maps MediaError code 3 → media/decode-fatal-variant', () => {
 		const received: Array<Event & { v2ErrorCode?: string }> = [];
-		backend.on('error', (e) => received.push(e as Event & { v2ErrorCode?: string }));
+		backend.on('error', e => received.push(e as Event & { v2ErrorCode?: string }));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		Object.defineProperty(videoEl, 'error', {
 			get: () => ({ code: 3 }),
@@ -348,7 +348,7 @@ describe('element event bridging', () => {
 
 	it('maps MediaError code 4 → media/decode-fatal-all (default branch)', () => {
 		const received: Array<Event & { v2ErrorCode?: string }> = [];
-		backend.on('error', (e) => received.push(e as Event & { v2ErrorCode?: string }));
+		backend.on('error', e => received.push(e as Event & { v2ErrorCode?: string }));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		Object.defineProperty(videoEl, 'error', {
 			get: () => ({ code: 4 }),
@@ -367,7 +367,7 @@ describe('element event bridging', () => {
 
 	it('dispose removes element listeners — further element events do not reach backend', () => {
 		const received: unknown[] = [];
-		backend.on('play', (e) => received.push(e));
+		backend.on('play', e => received.push(e));
 		backend.dispose();
 		container.appendChild(document.createElement('div'));
 		backend = new Html5VideoBackend(container);
@@ -435,7 +435,7 @@ describe('duration()', () => {
 
 	it('returns 0 when duration is NaN', () => {
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
-		Object.defineProperty(videoEl, 'duration', { value: NaN, configurable: true });
+		Object.defineProperty(videoEl, 'duration', { value: Number.NaN, configurable: true });
 		expect(backend.duration()).toBe(0);
 	});
 });
@@ -862,7 +862,7 @@ describe('setSubtitleTrack()', () => {
 
 	it('emits subtitleCue with empty cues when track is null', async () => {
 		const cueEvents: unknown[] = [];
-		backend.on('subtitleCue', (data) => cueEvents.push(data));
+		backend.on('subtitleCue', data => cueEvents.push(data));
 		const loadPromise = backend.load('https://example.invalid/test.m3u8');
 		await flushMicrotasks();
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
@@ -898,7 +898,7 @@ describe('setSubtitleTrack()', () => {
 
 	it('emits active cues when setSubtitleTrack selects a track with pre-existing cues', () => {
 		const cueEvents: unknown[] = [];
-		backend.on('subtitleCue', (data) => cueEvents.push(data));
+		backend.on('subtitleCue', data => cueEvents.push(data));
 
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		const mockCue = { text: 'Hello', line: 'auto', size: 100, align: 'center', position: 'auto', snapToLines: true } as VTTCue;
@@ -940,8 +940,8 @@ describe('qualityLevels()', () => {
 		await loadPromise;
 
 		_hlsRegistry.lastInstance!.levels = [
-			{ bitrate: 2_000_000, height: 720, width: 1280, attrs: { CODECS: 'avc1.42001e', 'VIDEO-RANGE': 'SDR' } },
-			{ bitrate: 4_000_000, height: 1080, width: 1920, attrs: { CODECS: 'hvc1.1.6.L120', 'VIDEO-RANGE': 'PQ' } },
+			{ bitrate: 2_000_000, height: 720, width: 1280, attrs: { 'CODECS': 'avc1.42001e', 'VIDEO-RANGE': 'SDR' } },
+			{ bitrate: 4_000_000, height: 1080, width: 1920, attrs: { 'CODECS': 'hvc1.1.6.L120', 'VIDEO-RANGE': 'PQ' } },
 		];
 		const levels = backend.qualityLevels();
 		expect(levels).toHaveLength(2);
@@ -1117,7 +1117,7 @@ describe('unload()', () => {
 
 	it('emits subtitleCue with empty cues on unload', async () => {
 		const cueEvents: unknown[] = [];
-		backend.on('subtitleCue', (data) => cueEvents.push(data));
+		backend.on('subtitleCue', data => cueEvents.push(data));
 
 		const loadPromise = backend.load('https://example.invalid/test.m3u8');
 		await flushMicrotasks();
@@ -1137,7 +1137,7 @@ describe('unload()', () => {
 // ---------------------------------------------------------------------------
 
 describe('HLS error recovery', () => {
-	async function loadHls(): Promise<FakeHls> {
+	async function loadHls(): Promise<FakeHlsInstance> {
 		const loadPromise = backend.load('https://example.invalid/test.m3u8');
 		await flushMicrotasks();
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
@@ -1150,7 +1150,7 @@ describe('HLS error recovery', () => {
 	it('emits stream:error with fatal:false for non-fatal errors', async () => {
 		const hls = await loadHls();
 		const streamErrors: unknown[] = [];
-		backend.on('stream:error', (d) => streamErrors.push(d));
+		backend.on('stream:error', d => streamErrors.push(d));
 
 		hls.fire('hlsError', { fatal: false, type: 'networkError', details: 'fragLoadError' });
 		expect(streamErrors).toHaveLength(1);
@@ -1160,7 +1160,7 @@ describe('HLS error recovery', () => {
 	it('emits stream:error with message for bufferIncompatibleCodecsError', async () => {
 		const hls = await loadHls();
 		const streamErrors: unknown[] = [];
-		backend.on('stream:error', (d) => streamErrors.push(d));
+		backend.on('stream:error', d => streamErrors.push(d));
 
 		hls.fire('hlsError', {
 			fatal: false,
@@ -1178,7 +1178,7 @@ describe('HLS error recovery', () => {
 		const hls = await loadHls();
 		vi.useFakeTimers();
 		const recovering: unknown[] = [];
-		backend.on('stream:recovering', (d) => recovering.push(d));
+		backend.on('stream:recovering', d => recovering.push(d));
 
 		hls.fire('hlsError', {
 			fatal: true,
@@ -1196,7 +1196,7 @@ describe('HLS error recovery', () => {
 		const hls = await loadHls();
 		vi.useFakeTimers();
 		const errors: unknown[] = [];
-		backend.on('error', (e) => errors.push(e));
+		backend.on('error', e => errors.push(e));
 
 		for (let attempt = 0; attempt < 4; attempt++) {
 			hls.fire('hlsError', {
@@ -1222,7 +1222,7 @@ describe('HLS error recovery', () => {
 		hls.fire('hlsFragLoaded', {});
 
 		const errors: unknown[] = [];
-		backend.on('stream:error', (d) => errors.push(d));
+		backend.on('stream:error', d => errors.push(d));
 		hls.fire('hlsError', { fatal: false, type: 'networkError', details: 'fragLoadError' });
 		expect((errors[0] as { details: string }).details).toBe('fragLoadError');
 
@@ -1246,7 +1246,7 @@ describe('HLS error recovery', () => {
 		const hls = await loadHls();
 		vi.useFakeTimers();
 		const errors: unknown[] = [];
-		backend.on('error', (e) => errors.push(e));
+		backend.on('error', e => errors.push(e));
 
 		const mediaErrPayload = { fatal: true, type: 'mediaError', details: 'bufferAddCodecError' };
 		hls.fire('hlsError', mediaErrPayload);
@@ -1286,7 +1286,7 @@ describe('HLS level-switched handler', () => {
 		await loadPromise;
 
 		const levelEvents: unknown[] = [];
-		backend.on('level-switched', (d) => levelEvents.push(d));
+		backend.on('level-switched', d => levelEvents.push(d));
 
 		_hlsRegistry.lastInstance!.fire('hlsLevelSwitched', { level: 2 });
 		expect(levelEvents).toHaveLength(1);
@@ -1302,7 +1302,7 @@ describe('HLS level-switched handler', () => {
 		await loadPromise;
 
 		const levelEvents: unknown[] = [];
-		backend.on('level-switched', (d) => levelEvents.push(d));
+		backend.on('level-switched', d => levelEvents.push(d));
 
 		_hlsRegistry.lastInstance!.fire('hlsLevelSwitched', { level: 2 });
 		_hlsRegistry.lastInstance!.fire('hlsLevelSwitched', { level: 2 });
@@ -1318,7 +1318,7 @@ describe('HLS level-switched handler', () => {
 		await loadPromise;
 
 		const levelEvents: unknown[] = [];
-		backend.on('level-switched', (d) => levelEvents.push(d));
+		backend.on('level-switched', d => levelEvents.push(d));
 
 		_hlsRegistry.lastInstance!.fire('hlsFragChanged', { frag: { level: 3 } });
 		expect(levelEvents).toHaveLength(1);
@@ -1334,7 +1334,7 @@ describe('HLS level-switched handler', () => {
 		await loadPromise;
 
 		const levelEvents: unknown[] = [];
-		backend.on('level-switched', (d) => levelEvents.push(d));
+		backend.on('level-switched', d => levelEvents.push(d));
 
 		_hlsRegistry.lastInstance!.fire('hlsFragChanged', {});
 		expect(levelEvents).toHaveLength(0);
@@ -1358,7 +1358,7 @@ describe('MANIFEST_PARSED event handling', () => {
 		hls.audioTracks = [{ lang: 'en', name: 'English', default: true }];
 
 		const audioTrackEvents: unknown[] = [];
-		backend.on('audioTracks', (d) => audioTrackEvents.push(d));
+		backend.on('audioTracks', d => audioTrackEvents.push(d));
 
 		hls.fire('hlsManifestParsed', {});
 		await flushMicrotasks();

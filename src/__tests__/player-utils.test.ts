@@ -321,7 +321,7 @@ describe('normalizeVideoConfig()', () => {
 	});
 
 	it('preserves Translations object (not URL string)', () => {
-		const translations = { en: { 'play': 'Play' } };
+		const translations = { en: { play: 'Play' } };
 		const result = normalizeVideoConfig({ translations } as never);
 		expect((result as Record<string, unknown>).translations).toBe(translations);
 	});

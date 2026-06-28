@@ -17,8 +17,8 @@
  * is driven and asserted.
  */
 
-import type { AudioTrackRef } from '../../types';
 import type { MenuRenderState } from '../../plugins/desktop-ui/menus';
+import type { AudioTrackRef } from '../../types';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -35,7 +35,7 @@ const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
 	return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() };
 });
 
-const NOOP_LISTEN = (_: EventTarget, __: string, ___: (e: Event) => void): void => {};
+function NOOP_LISTEN(_: EventTarget, __: string, ___: (e: Event) => void): void {}
 
 const NOOP_ACTIONS = {
 	closeMenu: () => {},
@@ -89,9 +89,9 @@ describe('renderAudioPane (direct call with real player)', () => {
 		pane.appendChild(scroll);
 
 		const tracks: AudioTrackRef[] = [
-			{ id: 'en', language: 'en', label: 'English', kind: 'main', default: true },
-			{ id: 'de', language: 'de', label: 'Deutsch', kind: 'main', default: false },
-			{ id: 'jp', language: 'ja', label: '', kind: 'main', default: false },
+			{ id: 'en', language: 'en', label: 'English', default: true },
+			{ id: 'de', language: 'de', label: 'Deutsch', default: false },
+			{ id: 'jp', language: 'ja', label: '', default: false },
 		];
 
 		Object.assign(player, {
@@ -116,8 +116,8 @@ describe('renderAudioPane (direct call with real player)', () => {
 		pane.appendChild(scroll);
 
 		const tracks: AudioTrackRef[] = [
-			{ id: 'en', language: 'en', label: 'English', kind: 'main', default: false },
-			{ id: 'fr', language: 'fr', label: 'French', kind: 'main', default: false },
+			{ id: 'en', language: 'en', label: 'English', default: false },
+			{ id: 'fr', language: 'fr', label: 'French', default: false },
 		];
 
 		Object.assign(player, { audioTracks: () => tracks, language: () => 'en' });
@@ -144,13 +144,16 @@ describe('renderAudioPane (direct call with real player)', () => {
 		let picked = false;
 
 		const tracks: AudioTrackRef[] = [
-			{ id: 'en', language: 'en', label: 'English', kind: 'main', default: false },
-			{ id: 'de', language: 'de', label: 'Deutsch', kind: 'main', default: false },
+			{ id: 'en', language: 'en', label: 'English', default: false },
+			{ id: 'de', language: 'de', label: 'Deutsch', default: false },
 		];
 
 		Object.assign(player, {
 			audioTracks: () => tracks,
-			audioTrack: (idx?: number) => { if (idx !== undefined) selectedIdx = idx; return null; },
+			audioTrack: (idx?: number) => {
+				if (idx !== undefined)
+					selectedIdx = idx; return null;
+			},
 			language: () => 'en',
 		});
 
@@ -195,7 +198,7 @@ describe('renderAudioPane (direct call with real player)', () => {
 		pane.appendChild(scroll);
 
 		const tracks: AudioTrackRef[] = [
-			{ id: 'ja', language: 'ja', label: '', kind: 'main', default: false },
+			{ id: 'ja', language: 'ja', label: '', default: false },
 		];
 
 		Object.assign(player, { audioTracks: () => tracks, language: () => 'en' });
@@ -216,7 +219,7 @@ describe('renderAudioPane (direct call with real player)', () => {
 		// Pane with NO .language-scroll-container
 		const pane = document.createElement('div');
 		const tracks: AudioTrackRef[] = [
-			{ id: 'en', language: 'en', label: 'English', kind: 'main', default: false },
+			{ id: 'en', language: 'en', label: 'English', default: false },
 		];
 		Object.assign(player, { audioTracks: () => tracks, language: () => 'en' });
 
@@ -603,8 +606,8 @@ describe('DesktopUiPlugin — audio button opens language pane with tracks', () 
 
 	it('language pane scroll container has one button per audio track after open', async () => {
 		const tracks: AudioTrackRef[] = [
-			{ id: 'en', language: 'en', label: 'English', kind: 'main', default: true },
-			{ id: 'es', language: 'es', label: 'Español', kind: 'main', default: false },
+			{ id: 'en', language: 'en', label: 'English', default: true },
+			{ id: 'es', language: 'es', label: 'Español', default: false },
 		];
 
 		const player = new NMVideoPlayer('test').setup({});

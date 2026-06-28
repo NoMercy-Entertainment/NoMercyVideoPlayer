@@ -248,7 +248,7 @@ describe('DesktopUiPlugin — applyStateVisibility', () => {
 
 		// Simulate fullscreen entering
 		Object.defineProperty(document, 'fullscreenElement', { value: container, configurable: true });
-		(player as unknown as Record<string, unknown>).emit('fullscreen', {});
+		player.emit('fullscreen', {});
 
 		expect(theaterBtn!.hidden).toBe(true);
 
@@ -263,7 +263,7 @@ describe('DesktopUiPlugin — applyStateVisibility', () => {
 		const theaterBtn = container.querySelector<HTMLButtonElement>('[id="theater"]');
 
 		Object.defineProperty(document, 'pictureInPictureElement', { value: {}, configurable: true });
-		(player as unknown as Record<string, unknown>).emit('pip', {});
+		player.emit('pip', {});
 
 		expect(theaterBtn!.hidden).toBe(true);
 
@@ -279,7 +279,7 @@ describe('DesktopUiPlugin — applyStateVisibility', () => {
 		// Ensure both are off
 		Object.defineProperty(document, 'fullscreenElement', { value: null, configurable: true });
 		Object.defineProperty(document, 'pictureInPictureElement', { value: null, configurable: true });
-		(player as unknown as Record<string, unknown>).emit('pip', {});
+		player.emit('pip', {});
 
 		expect(theaterBtn!.hidden).toBe(false);
 	});
@@ -312,7 +312,7 @@ describe('DesktopUiPlugin — plugin event: opts:changed', () => {
 		const topBarRight = container.querySelector<HTMLElement>('.top-bar-right') ?? container.querySelector<HTMLElement>('.top-right');
 
 		// Emit opts:changed scoped event
-		(player as unknown as Record<string, unknown>).emit('plugin:desktop-ui:opts:changed', { hideTitle: true });
+		player.emit('plugin:desktop-ui:opts:changed', { hideTitle: true });
 
 		// If we found the right column, it should now be hidden
 		if (topBarRight) {

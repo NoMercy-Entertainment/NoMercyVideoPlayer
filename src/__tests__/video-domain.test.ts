@@ -16,13 +16,14 @@
  * FINDINGS recorded at bottom of this file.
  */
 
+import type { SubtitleStyle } from '../index';
 import { MemoryStorageBackend } from '@nomercy-entertainment/nomercy-player-core';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { NMVideoPlayer } from '../index';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { VttChapterSource } from '../adapters/chapter-source/vtt-chapters';
-import { VttSpriteThumbnailSource } from '../adapters/thumbnail-source/vtt-sprite';
 import { StorageBackedSubtitleStyleStore } from '../adapters/subtitle-style-store/storage-backed';
+import { VttSpriteThumbnailSource } from '../adapters/thumbnail-source/vtt-sprite';
+import { NMVideoPlayer } from '../index';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Group 1 — VttChapterSource
@@ -179,13 +180,13 @@ describe('NMVideoPlayer — video domain API', () => {
 	it('subtitleStyle(patch) merges and emits subtitleStyle event with merged result', () => {
 		const player = setup();
 
-		const events: Array<Record<string, unknown>> = [];
-		player.on('subtitleStyle', (payload) => { events.push(payload as Record<string, unknown>); });
+		const events: SubtitleStyle[] = [];
+		player.on('subtitleStyle', (payload) => { events.push(payload); });
 
 		player.subtitleStyle({ fontSize: 32 });
 
 		expect(events).toHaveLength(1);
-		expect((events[0] as { fontSize: number }).fontSize).toBe(32);
+		expect(events[0]!.fontSize).toBe(32);
 
 		const current = player.subtitleStyle();
 		expect(current.fontSize).toBe(32);

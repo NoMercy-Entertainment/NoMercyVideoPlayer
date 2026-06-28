@@ -26,8 +26,7 @@ import type { SubtitleCueChange, SubtitleStyle } from '@nomercy-entertainment/no
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
-import { subtitleOverlayPlugin } from '../../plugins/subtitle-overlay';
-import { SubtitleOverlayPlugin } from '../../plugins/subtitle-overlay';
+import { subtitleOverlayPlugin, SubtitleOverlayPlugin } from '../../plugins/subtitle-overlay';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
@@ -72,8 +71,8 @@ describe('SubtitleOverlayPlugin — cue pool sizing', () => {
 		const player = await makePlayer();
 
 		emitCues(player, [
-			{ text: 'Hello world', start: 0, end: 5 },
-			{ text: 'Second line', start: 0, end: 5 },
+			{ text: 'Hello world', plainText: 'Hello world', align: 'center', size: 100 },
+			{ text: 'Second line', plainText: 'Second line', align: 'center', size: 100 },
 		]);
 
 		const container = player.container;
@@ -84,7 +83,7 @@ describe('SubtitleOverlayPlugin — cue pool sizing', () => {
 	it('reduces area pool to zero when cues array is empty', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Hello', start: 0, end: 5 }]);
+		emitCues(player, [{ text: 'Hello', plainText: 'Hello', align: 'center', size: 100 }]);
 		expect(player.container.querySelectorAll('.subtitle-area').length).toBe(1);
 
 		emitCues(player, []);
@@ -94,13 +93,13 @@ describe('SubtitleOverlayPlugin — cue pool sizing', () => {
 	it('grows the pool when more cues arrive', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'One', start: 0, end: 5 }]);
+		emitCues(player, [{ text: 'One', plainText: 'One', align: 'center', size: 100 }]);
 		expect(player.container.querySelectorAll('.subtitle-area').length).toBe(1);
 
 		emitCues(player, [
-			{ text: 'One', start: 0, end: 5 },
-			{ text: 'Two', start: 0, end: 5 },
-			{ text: 'Three', start: 0, end: 5 },
+			{ text: 'One', plainText: 'One', align: 'center', size: 100 },
+			{ text: 'Two', plainText: 'Two', align: 'center', size: 100 },
+			{ text: 'Three', plainText: 'Three', align: 'center', size: 100 },
 		]);
 		expect(player.container.querySelectorAll('.subtitle-area').length).toBe(3);
 	});
@@ -109,12 +108,12 @@ describe('SubtitleOverlayPlugin — cue pool sizing', () => {
 		const player = await makePlayer();
 
 		emitCues(player, [
-			{ text: 'One', start: 0, end: 5 },
-			{ text: 'Two', start: 0, end: 5 },
+			{ text: 'One', plainText: 'One', align: 'center', size: 100 },
+			{ text: 'Two', plainText: 'Two', align: 'center', size: 100 },
 		]);
 		expect(player.container.querySelectorAll('.subtitle-area').length).toBe(2);
 
-		emitCues(player, [{ text: 'Only', start: 0, end: 5 }]);
+		emitCues(player, [{ text: 'Only', plainText: 'Only', align: 'center', size: 100 }]);
 		expect(player.container.querySelectorAll('.subtitle-area').length).toBe(1);
 	});
 });
@@ -128,7 +127,7 @@ describe('SubtitleOverlayPlugin — item event clears cues', () => {
 	it('emitting "item" removes all rendered cue areas', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Hello', start: 0, end: 5 }]);
+		emitCues(player, [{ text: 'Hello', plainText: 'Hello', align: 'center', size: 100 }]);
 		expect(player.container.querySelectorAll('.subtitle-area').length).toBe(1);
 
 		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('item', {});
@@ -146,7 +145,7 @@ describe('SubtitleOverlayPlugin — language tracking', () => {
 	it('sets data-language attribute on subtitle-text spans', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Bonjour', start: 0, end: 5 }], 'fr');
+		emitCues(player, [{ text: 'Bonjour', plainText: 'Bonjour', align: 'center', size: 100 }], 'fr');
 
 		const text = player.container.querySelector('.subtitle-text');
 		expect(text?.getAttribute('data-language')).toBe('fr');
@@ -155,8 +154,8 @@ describe('SubtitleOverlayPlugin — language tracking', () => {
 	it('changes language attribute when language changes between cue batches', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Hello', start: 0, end: 5 }], 'en');
-		emitCues(player, [{ text: 'Bonjour', start: 0, end: 5 }], 'fr');
+		emitCues(player, [{ text: 'Hello', plainText: 'Hello', align: 'center', size: 100 }], 'en');
+		emitCues(player, [{ text: 'Bonjour', plainText: 'Bonjour', align: 'center', size: 100 }], 'fr');
 
 		const text = player.container.querySelector('.subtitle-text');
 		expect(text?.getAttribute('data-language')).toBe('fr');
@@ -172,7 +171,7 @@ describe('SubtitleOverlayPlugin — cue positioning via line', () => {
 	it('line > 50 → bottom anchor on the area style', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Bottom cue', start: 0, end: 5, line: 80 }]);
+		emitCues(player, [{ text: 'Bottom cue', plainText: 'Bottom cue', align: 'center', size: 100, line: 80 }]);
 
 		const area = player.container.querySelector<HTMLElement>('.subtitle-area');
 		expect(area).not.toBeNull();
@@ -184,7 +183,7 @@ describe('SubtitleOverlayPlugin — cue positioning via line', () => {
 	it('line ≤ 50 → top anchor on the area style', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Top cue', start: 0, end: 5, line: 10 }]);
+		emitCues(player, [{ text: 'Top cue', plainText: 'Top cue', align: 'center', size: 100, line: 10 }]);
 
 		const area = player.container.querySelector<HTMLElement>('.subtitle-area');
 		expect(area!.style.top).toBe('10%');
@@ -194,7 +193,7 @@ describe('SubtitleOverlayPlugin — cue positioning via line', () => {
 	it('line = null → bottom:0 fallback', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Auto cue', start: 0, end: 5, line: null as unknown as number }]);
+		emitCues(player, [{ text: 'Auto cue', plainText: 'Auto cue', align: 'center', size: 100, line: null as unknown as number }]);
 
 		const area = player.container.querySelector<HTMLElement>('.subtitle-area');
 		// JSDOM normalizes '0' to '0px' in element.style, so we check for either.
@@ -205,7 +204,7 @@ describe('SubtitleOverlayPlugin — cue positioning via line', () => {
 	it('line undefined → bottom:0 fallback', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'No line', start: 0, end: 5 }]);
+		emitCues(player, [{ text: 'No line', plainText: 'No line', align: 'center', size: 100 }]);
 
 		const area = player.container.querySelector<HTMLElement>('.subtitle-area');
 		expect(['0', '0px']).toContain(area!.style.bottom);
@@ -221,7 +220,7 @@ describe('SubtitleOverlayPlugin — cue text alignment classes', () => {
 	it('align=start adds aligned-start class', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Left', start: 0, end: 5, align: 'start' }]);
+		emitCues(player, [{ text: 'Left', plainText: 'Left', align: 'start', size: 100 }]);
 
 		const area = player.container.querySelector('.subtitle-area');
 		expect(area?.classList.contains('aligned-start')).toBe(true);
@@ -230,7 +229,7 @@ describe('SubtitleOverlayPlugin — cue text alignment classes', () => {
 	it('align=end adds aligned-end class', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Right', start: 0, end: 5, align: 'end' }]);
+		emitCues(player, [{ text: 'Right', plainText: 'Right', align: 'end', size: 100 }]);
 
 		const area = player.container.querySelector('.subtitle-area');
 		expect(area?.classList.contains('aligned-end')).toBe(true);
@@ -239,7 +238,7 @@ describe('SubtitleOverlayPlugin — cue text alignment classes', () => {
 	it('align=center (default) adds aligned-center class', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Center', start: 0, end: 5, align: 'center' }]);
+		emitCues(player, [{ text: 'Center', plainText: 'Center', align: 'center', size: 100 }]);
 
 		const area = player.container.querySelector('.subtitle-area');
 		expect(area?.classList.contains('aligned-center')).toBe(true);
@@ -255,7 +254,7 @@ describe('SubtitleOverlayPlugin — subtitleStyle repaint', () => {
 	it('subtitleStyle event updates text color on existing areas', async () => {
 		const player = await makePlayer();
 
-		emitCues(player, [{ text: 'Hello', start: 0, end: 5 }]);
+		emitCues(player, [{ text: 'Hello', plainText: 'Hello', align: 'center', size: 100 }]);
 
 		const textSpan = player.container.querySelector<HTMLElement>('.subtitle-text');
 		expect(textSpan).not.toBeNull();

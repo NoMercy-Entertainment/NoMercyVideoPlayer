@@ -142,7 +142,6 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 
 			expect(events).toEqual([true, false]);
 		});
-
 	});
 
 	// ── fullscreen ──

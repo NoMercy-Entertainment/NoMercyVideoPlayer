@@ -32,6 +32,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NMVideoPlayer } from '../../index';
 import { LiveTranscodingPlugin, liveTranscodingPlugin } from '../../plugins/live-transcoding';
 
+// The plugin tests drive arbitrary `plugin:*` event names that fall outside the
+// player's typed event overloads, so they reach the event bus through this
+// minimal callable surface instead of an `unknown`-valued index signature.
+interface EventBusLike {
+	on: (event: string, fn: (data: unknown) => void) => void;
+	emit: (event: string, data?: unknown) => void;
+}
+
 // ── Mock websocket channel factory ────────────────────────────────────────────
 
 interface MockChannel {
@@ -160,7 +168,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 		// onServerMessage by calling it directly through the internal message handler.
 		// Since the channel was already created in use(), we need to deliver messages
 		// through the stored handler. We capture it during setup.
-		(inst as unknown as Record<string, unknown>)['channel'] = channel;
+		(inst as unknown as Record<string, unknown>).channel = channel;
 	});
 
 	afterEach(() => {
@@ -176,7 +184,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('"started" message fires plugin:live-transcoding:job:started', () => {
 		const events: unknown[] = [];
-		(player as unknown as Record<string, unknown>).on('plugin:live-transcoding:job:started', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:started', (d: unknown) => events.push(d));
 
 		emitServerMsg({ type: 'started', jobId: 'job-1', sourceUrl: 'https://src.example.com/video.mp4' });
 
@@ -187,7 +195,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('"progress" message updates transcodedTo and fires job:progress', () => {
 		const events: unknown[] = [];
-		(player as unknown as Record<string, unknown>).on('plugin:live-transcoding:job:progress', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:progress', (d: unknown) => events.push(d));
 
 		emitServerMsg({ type: 'progress', jobId: 'job-1', transcodedSeconds: 30, variantsReady: ['480p'] });
 
@@ -199,7 +207,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('"ready-to-play" message fires job:ready-to-play', () => {
 		const events: unknown[] = [];
-		(player as unknown as Record<string, unknown>).on('plugin:live-transcoding:job:ready-to-play', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:ready-to-play', (d: unknown) => events.push(d));
 
 		emitServerMsg({ type: 'ready-to-play', jobId: 'job-1' });
 
@@ -208,7 +216,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('"complete" message fires job:complete', () => {
 		const events: unknown[] = [];
-		(player as unknown as Record<string, unknown>).on('plugin:live-transcoding:job:complete', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:complete', (d: unknown) => events.push(d));
 
 		emitServerMsg({ type: 'complete', jobId: 'job-1' });
 
@@ -217,8 +225,8 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('unknown type message is a no-op (no events emitted)', () => {
 		const events: unknown[] = [];
-		(player as unknown as Record<string, unknown>).on('plugin:live-transcoding:job:started', (d: unknown) => events.push(d));
-		(player as unknown as Record<string, unknown>).on('plugin:live-transcoding:job:progress', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:started', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:progress', (d: unknown) => events.push(d));
 
 		emitServerMsg({ type: 'ping', jobId: 'job-1' });
 
@@ -227,7 +235,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('JSON string messages are parsed and routed', () => {
 		const events: unknown[] = [];
-		(player as unknown as Record<string, unknown>).on('plugin:live-transcoding:job:progress', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:progress', (d: unknown) => events.push(d));
 
 		emitServerMsg(JSON.stringify({ type: 'progress', jobId: 'job-1', transcodedSeconds: 60, variantsReady: [] }));
 
@@ -275,7 +283,7 @@ describe('LiveTranscodingPlugin — beforeLoad gate', () => {
 		expect(inst.transcodedTo()).toBe(45);
 
 		// Emit beforeLoad — should reset transcodedTo to 0
-		(player as unknown as Record<string, unknown>).emit('beforeLoad', { data: { item: { id: 'ep2', url: '/ep2.m3u8' } } });
+		(player as unknown as EventBusLike).emit('beforeLoad', { data: { item: { id: 'ep2', url: '/ep2.m3u8' } } });
 		await new Promise<void>(resolve => setTimeout(resolve, 100));
 
 		expect(inst.transcodedTo()).toBe(0);

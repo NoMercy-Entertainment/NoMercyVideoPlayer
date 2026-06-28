@@ -21,13 +21,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
-	defaultSubtitleStyles,
-	fontFamilies,
 	colors,
+	defaultSubtitleStyles,
 	edgeStyles,
+	fontFamilies,
 	opacities,
-	textSizes,
 	subtitleSettingActions,
+	textSizes,
 } from '../../plugins/desktop-ui/buttons';
 
 function makePlayer(): Record<string, unknown> & { subtitleStyle: ReturnType<typeof vi.fn> } {
