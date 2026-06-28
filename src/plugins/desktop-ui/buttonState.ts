@@ -79,11 +79,14 @@ export function applyMutedIcon(
  * Update the speed button icon and aria-label.
  * Adds `is-active` when `rate` diverges from the default (1), which forces the
  * filled icon variant via the CSS `.btn.is-active` rule.
+ * The aria-label appends the current rate when it is non-default so screen-reader
+ * users know the active speed without opening the menu.
  */
 export function applyRate(speedBtn: HTMLButtonElement, rate: number, t: ITranslator['t']): void {
 	setBtnIcon(speedBtn, svgFromIcon(fluentIcons.speed));
 	speedBtn.classList.toggle('is-active', rate !== 1);
-	speedBtn.setAttribute('aria-label', t('tooltip.speed'));
+	const base = t('tooltip.speed');
+	speedBtn.setAttribute('aria-label', rate !== 1 ? `${base} (${rate}×)` : base);
 }
 
 // ── Quality ────────────────────────────────────────────────────────────────────

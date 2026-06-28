@@ -1840,9 +1840,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			this.applyPipIcon(this.pipActive);
 			this.applyStateVisibility();
 		});
-		this.on('theater', (d) => {
-			this.applyTheaterIcon(d.active);
-			this.player.container.classList.toggle('theater', d.active);
+		this.on('theater', () => {
+			this.applyTheaterIcon(this.player.theater() === TheaterState.ON);
 		});
 
 		this.on('aspectRatio', () => {
@@ -2046,7 +2045,6 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.applyPipIcon(Boolean(document.pictureInPictureElement));
 		const theaterActive = this.player.theater() === TheaterState.ON;
 		this.applyTheaterIcon(theaterActive);
-		this.player.container.classList.toggle('theater', theaterActive);
 		const cur = this.player.item?.();
 		if (cur)
 			this.handleCurrentChange(cur);

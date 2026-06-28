@@ -77,3 +77,135 @@ describe('DesktopUiPlugin — nomercyplayer class ownership', () => {
 		expect(player.container.classList.contains('nomercyplayer')).toBe(false);
 	});
 });
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Regression: desktop-ui must NOT toggle .theater on the container.
+//
+// The core containerClassEmit mixin owns every container STATE class
+// (playing / paused / muted / theater / pip / fullscreen / buffering) via
+// CONTAINER_CLASS_RULES. When the plugin ALSO called
+// container.classList.toggle('theater', d.active) on the 'theater' event,
+// the class was toggled twice per call (once by core, once by the plugin),
+// which cancelled/inverted the result.
+//
+// The observable symptom: theater(true) ended up removing .theater (not
+// adding it), because toggle(cls, true) → toggle(cls, true) = add then add =
+// still present ... but the init path at applyInitialState() also called
+// toggle, producing three total calls for an odd-count cancel.
+//
+// Fix: plugin may update BUTTON state (applyTheaterIcon) only; container
+// state class is exclusively core's job.
+// ──────────────────────────────────────────────────────────────────────────────
+
+describe('DesktopUiPlugin — theater container class ownership (core-only)', () => {
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		const div = document.createElement('div');
+		div.id = 'test';
+		div.className = 'nomercyplayer';
+		document.body.appendChild(div);
+		vi.stubGlobal('ResizeObserver', MockResizeObserver);
+	});
+
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+		vi.unstubAllGlobals();
+	});
+
+	it('theater(true) adds .theater to container with desktop-ui plugin active', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin).ready();
+
+		player.theater(true);
+
+		expect(player.container.classList.contains('theater')).toBe(true);
+	});
+
+	it('theater(false) removes .theater from container with desktop-ui plugin active', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin).ready();
+
+		player.theater(true);
+		expect(player.container.classList.contains('theater')).toBe(true);
+
+		player.theater(false);
+		expect(player.container.classList.contains('theater')).toBe(false);
+	});
+
+	it('toggleTheater() adds .theater on first call and removes it on second with plugin active', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin).ready();
+
+		player.toggleTheater();
+		expect(player.container.classList.contains('theater')).toBe(true);
+
+		player.toggleTheater();
+		expect(player.container.classList.contains('theater')).toBe(false);
+	});
+
+	it('theaterDefault:true results in .theater on container after plugin mounts', async () => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '<div id="test2" class="nomercyplayer"></div>';
+		const player = new NMVideoPlayer('test2').setup({ theaterDefault: true } as never);
+		await player.addPlugin(desktopUiPlugin).ready();
+
+		expect(player.container.classList.contains('theater')).toBe(true);
+	});
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Regression: theater button icon must swap to theaterExit (M8.40586) when
+// theater is active, and back to theater (M16.4059) when inactive.
+//
+// The handler reads live state via this.player.theater() === TheaterState.ON
+// rather than trusting the event payload d.active, matching the pip pattern
+// (pip reads document.pictureInPictureElement).
+// ──────────────────────────────────────────────────────────────────────────────
+
+describe('DesktopUiPlugin — theater button icon state', () => {
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		const div = document.createElement('div');
+		div.id = 'test';
+		div.className = 'nomercyplayer';
+		document.body.appendChild(div);
+		vi.stubGlobal('ResizeObserver', MockResizeObserver);
+	});
+
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+		vi.unstubAllGlobals();
+	});
+
+	it('theater button shows inactive icon (M16.4059) before any toggle', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, { buttons: { theater: true } }).ready();
+
+		const theaterBtn = document.querySelector<HTMLButtonElement>('#theater')!;
+		expect(theaterBtn).not.toBeNull();
+		expect(theaterBtn.querySelector('.btn-icon')!.innerHTML).toContain('M16.4059');
+	});
+
+	it('theater button swaps to active icon (M8.40586) after theater(true)', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, { buttons: { theater: true } }).ready();
+
+		player.theater(true);
+
+		const theaterBtn = document.querySelector<HTMLButtonElement>('#theater')!;
+		expect(theaterBtn.querySelector('.btn-icon')!.innerHTML).toContain('M8.40586');
+	});
+
+	it('theater button returns to inactive icon (M16.4059) after theater(false)', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, { buttons: { theater: true } }).ready();
+
+		player.theater(true);
+		player.theater(false);
+
+		const theaterBtn = document.querySelector<HTMLButtonElement>('#theater')!;
+		expect(theaterBtn.querySelector('.btn-icon')!.innerHTML).toContain('M16.4059');
+	});
+});

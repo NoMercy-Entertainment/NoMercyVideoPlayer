@@ -96,6 +96,46 @@ describe('DesktopUiPlugin — icon state (is-active divergence)', () => {
 		expect(speedBtn!.classList.contains('is-active')).toBe(false);
 	});
 
+	it('speed button aria-label is static base label at default rate (1.0)', async () => {
+		const player = await makePlayer();
+
+		Object.assign(player, { playbackRate: () => 1 });
+		player.emit('backend:ratechange' as never, {} as never);
+
+		const speedBtn = document.querySelector<HTMLButtonElement>('#speed');
+		expect(speedBtn).toBeTruthy();
+		// At 1× the label must not include a rate suffix — the static tooltip is enough.
+		expect(speedBtn!.getAttribute('aria-label')).not.toMatch(/×/);
+	});
+
+	it('speed button aria-label includes current rate when diverged from 1.0', async () => {
+		const player = await makePlayer();
+
+		Object.assign(player, { playbackRate: () => 1.5 });
+		player.emit('backend:ratechange' as never, {} as never);
+
+		const speedBtn = document.querySelector<HTMLButtonElement>('#speed');
+		expect(speedBtn).toBeTruthy();
+		// Screen-reader users must be able to read the active rate without opening the menu.
+		expect(speedBtn!.getAttribute('aria-label')).toMatch(/1\.5/);
+		expect(speedBtn!.getAttribute('aria-label')).toMatch(/×/);
+	});
+
+	it('speed button aria-label reverts to static label when rate returns to 1.0', async () => {
+		const player = await makePlayer();
+
+		Object.assign(player, { playbackRate: () => 2 });
+		player.emit('backend:ratechange' as never, {} as never);
+
+		const speedBtn = document.querySelector<HTMLButtonElement>('#speed');
+		expect(speedBtn!.getAttribute('aria-label')).toMatch(/2/);
+
+		Object.assign(player, { playbackRate: () => 1 });
+		player.emit('backend:ratechange' as never, {} as never);
+
+		expect(speedBtn!.getAttribute('aria-label')).not.toMatch(/×/);
+	});
+
 	// ── Aspect ratio ──────────────────────────────────────────────────────────
 
 	it('aspect-ratio button has no is-active at default (uniform)', async () => {

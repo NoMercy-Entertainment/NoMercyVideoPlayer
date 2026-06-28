@@ -142,6 +142,7 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 
 			expect(events).toEqual([true, false]);
 		});
+
 	});
 
 	// ── fullscreen ──
@@ -314,6 +315,20 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 			expect(videoEl).not.toBeNull();
 			// User's choice must win over options.stretching.
 			expect(videoEl!.style.objectFit).toBe('fill');
+		});
+
+		it('default aspectRatio is uniform and maps to objectFit:contain on backend init', async () => {
+			const p = new NMVideoPlayer('test').setup({});
+			await p.ready();
+
+			expect(p.aspectRatio()).toBe('uniform');
+
+			p.backend();
+			const videoEl = document.querySelector<HTMLVideoElement>('#test video');
+			expect(videoEl).not.toBeNull();
+			// The uniform (default) stretching mode must produce contain, not fill.
+			// fill would distort every video — contain letterboxes without distortion.
+			expect(videoEl!.style.objectFit).toBe('contain');
 		});
 	});
 });
