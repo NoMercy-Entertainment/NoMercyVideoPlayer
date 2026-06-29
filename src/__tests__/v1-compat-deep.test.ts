@@ -1725,6 +1725,87 @@ describe('method shims — UI helpers', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Multi-player duration isolation — regression for module-level state bug
+// ---------------------------------------------------------------------------
+
+describe('multi-player duration isolation', () => {
+	it('each plugin instance tracks its own duration independently', async () => {
+		const divA = document.getElementById('deep-test')!;
+		const divB = document.createElement('div');
+		divB.id = 'deep-test-b';
+		document.body.appendChild(divB);
+
+		const playerA = new NMVideoPlayer('deep-test').setup({});
+		const playerB = new NMVideoPlayer('deep-test-b').setup({});
+
+		playerA.addPlugin(V1VideoCompatPlugin);
+		playerB.addPlugin(V1VideoCompatPlugin);
+
+		await playerA.ready();
+		await playerB.ready();
+
+		const receivedA: unknown[] = [];
+		const receivedB: unknown[] = [];
+
+		(playerA as unknown as OnCompat).on('time', d => receivedA.push(d));
+		(playerB as unknown as OnCompat).on('time', d => receivedB.push(d));
+
+		playerA.emit('duration' as never, { duration: 200 } as never);
+		playerB.emit('duration' as never, { duration: 50 } as never);
+
+		playerA.emit('time' as never, { time: 100 } as never);
+		playerB.emit('time' as never, { time: 25 } as never);
+
+		const payloadA = receivedA[0] as { duration: number; percentage: number; remaining: number };
+		const payloadB = receivedB[0] as { duration: number; percentage: number; remaining: number };
+
+		expect(payloadA.duration).toBe(200);
+		expect(payloadA.percentage).toBeCloseTo(50);
+		expect(payloadA.remaining).toBeCloseTo(100);
+
+		expect(payloadB.duration).toBe(50);
+		expect(payloadB.percentage).toBeCloseTo(50);
+		expect(payloadB.remaining).toBeCloseTo(25);
+
+		playerA.dispose();
+		playerB.dispose();
+
+		void divA;
+	});
+
+	it(`player B's duration does not bleed into player A's time payload`, async () => {
+		const divB = document.createElement('div');
+		divB.id = 'deep-test-b2';
+		document.body.appendChild(divB);
+
+		const playerA = new NMVideoPlayer('deep-test').setup({});
+		const playerB = new NMVideoPlayer('deep-test-b2').setup({});
+
+		playerA.addPlugin(V1VideoCompatPlugin);
+		playerB.addPlugin(V1VideoCompatPlugin);
+
+		await playerA.ready();
+		await playerB.ready();
+
+		const receivedA: unknown[] = [];
+		(playerA as unknown as OnCompat).on('time', d => receivedA.push(d));
+
+		playerA.emit('duration' as never, { duration: 120 } as never);
+		playerB.emit('duration' as never, { duration: 9999 } as never);
+
+		playerA.emit('time' as never, { time: 60 } as never);
+
+		const payloadA = receivedA[0] as { duration: number; percentage: number };
+
+		expect(payloadA.duration).toBe(120);
+		expect(payloadA.percentage).toBeCloseTo(50);
+
+		playerA.dispose();
+		playerB.dispose();
+	});
+});
+
+// ---------------------------------------------------------------------------
 // dispose — bridge cleanup verification
 // ---------------------------------------------------------------------------
 

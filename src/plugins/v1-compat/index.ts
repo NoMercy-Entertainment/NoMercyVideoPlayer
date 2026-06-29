@@ -117,11 +117,8 @@ function _makeTimeData(time: number, duration: number): V1TimeData {
 	};
 }
 
-/** Module-level mutable duration tracker — updated by each plugin instance's duration listener. */
-let _currentDuration = 0;
-
-/** Build the v1→v2 event bridge table. Constructed lazily per player instance. */
-function _buildEventMap(): Record<string, V1EventMapping> {
+/** Build the v1→v2 event bridge table for a specific plugin instance. */
+function _buildEventMap(getDuration: () => number): Record<string, V1EventMapping> {
 	return {
 		// v1 'play'  payload was TimeData; v2 'play' payload is undefined.
 		play: {
@@ -134,12 +131,12 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 			reshape: _data => _makeTimeData(0, 0),
 		},
 		// v1 'time' payload was TimeData; v2 'time' payload is { time: number }.
-		// Duration is injected from the plugin's tracked _currentDuration.
+		// Duration is read from the per-instance getter to avoid cross-player corruption.
 		time: {
 			v2Event: 'time',
 			reshape: (data) => {
 				const v2 = data as { time?: number } | undefined;
-				return _makeTimeData(v2?.time ?? 0, _currentDuration);
+				return _makeTimeData(v2?.time ?? 0, getDuration());
 			},
 		},
 		// v1 'seek' / 'seeked' — same shape change.
@@ -147,14 +144,14 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 			v2Event: 'time',
 			reshape: (data) => {
 				const v2 = data as { time?: number } | undefined;
-				return _makeTimeData(v2?.time ?? 0, _currentDuration);
+				return _makeTimeData(v2?.time ?? 0, getDuration());
 			},
 		},
 		seeked: {
 			v2Event: 'time',
 			reshape: (data) => {
 				const v2 = data as { time?: number } | undefined;
-				return _makeTimeData(v2?.time ?? 0, _currentDuration);
+				return _makeTimeData(v2?.time ?? 0, getDuration());
 			},
 		},
 		// v1 'volume' payload was { volume, muted }; v2 'volume' is { level }.
@@ -302,6 +299,9 @@ export class V1VideoCompatPlugin extends Plugin<
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'v1→v2 migration shim — TEMPORARY, removed after migration window';
 
+	/** Duration for this player instance, updated by the duration event handler. */
+	private _currentDuration: number = 0;
+
 	/**
 	 * Methods patched directly onto the player instance (keyed by name).
 	 * Removed from the instance on dispose().
@@ -323,7 +323,7 @@ export class V1VideoCompatPlugin extends Plugin<
 
 		// Track current duration so the time event reshaper can include remaining/percentage.
 		this.on('duration', (data: { duration: number }) => {
-			_currentDuration = data.duration;
+			this._currentDuration = data.duration;
 		});
 	}
 
@@ -363,7 +363,7 @@ export class V1VideoCompatPlugin extends Plugin<
 		const originalOn = player.on.bind(player) as typeof player.on;
 		this._originalOn = player.on;
 
-		const eventMap = _buildEventMap();
+		const eventMap = _buildEventMap(() => this._currentDuration);
 
 		(player as unknown as Record<string, unknown>).on = (
 			event: string,
