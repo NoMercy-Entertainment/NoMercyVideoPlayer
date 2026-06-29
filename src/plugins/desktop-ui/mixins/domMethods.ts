@@ -452,6 +452,10 @@ export const domMethods = {
 			this.repaintAspectRatioIfOpen();
 		});
 
+		this.on('language', () => {
+			this.repaintPlaylistIfOpen();
+		});
+
 		this.listen(this.centerBtn, 'click', () => {
 			this.centerWrap.classList.add('dismissed');
 			void this.player.togglePlayback();
