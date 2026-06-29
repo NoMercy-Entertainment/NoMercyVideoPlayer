@@ -14,6 +14,16 @@ import { resolveSeasonEpisodeTokens } from '../desktop-ui/seasonEpisodeTokens';
 
 export type { CastSenderEvents, CastSenderOptions } from '@nomercy-entertainment/nomercy-player-core';
 
+/** Mutable subset of the Cast SDK `MediaMetadata` this plugin writes. */
+interface CastMediaMetadata extends Record<string, unknown> {
+	title?: string;
+	seriesTitle?: string;
+	subtitle?: string;
+	season?: number;
+	episode?: number;
+	images?: Array<{ url: string }>;
+}
+
 /**
  * Video Cast sender — thin override of the kit's shared `CastSenderPlugin`.
  * Specializes only the bits that differ between music and video:
@@ -44,15 +54,15 @@ export class CastSenderPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	protected override async buildMetadata(
 		item: T,
 		ctors: ChromeCastMediaCtors & {
-			TvShowMediaMetadata?: new () => Record<string, unknown>;
-			MovieMediaMetadata?: new () => Record<string, unknown>;
+			TvShowMediaMetadata?: new () => CastMediaMetadata;
+			MovieMediaMetadata?: new () => CastMediaMetadata;
 		},
 	): Promise<unknown> {
 		const isEpisode = item.show !== undefined && item.show !== '';
-		const Ctor = isEpisode
+		const MetadataCtor: new () => CastMediaMetadata = isEpisode
 			? (ctors.TvShowMediaMetadata ?? ctors.GenericMediaMetadata)
 			: ctors.GenericMediaMetadata;
-		const meta = new Ctor() as Record<string, unknown> & { images?: Array<{ url: string }> };
+		const meta = new MetadataCtor();
 
 		meta.title = resolveSeasonEpisodeTokens(this.player, item.title ?? '');
 		if (isEpisode) {
