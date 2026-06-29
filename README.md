@@ -6,16 +6,26 @@ Full documentation: https://docs.nomercy.tv/nomercy-video-player/
 
 # nomercy-video-player
 
-The headless HLS video engine behind NoMercy TV. It handles the hard parts of video and hands you plain events and methods, so you stay in control of the interface.
+The headless HLS video engine behind NoMercy TV.
 
-- Adaptive bitrate streaming over HLS, with HDR-aware quality selection
+It handles the hard parts of video and hands you plain events and methods.
+
+You stay in control of the interface.
+
+- Adaptive bitrate streaming over HLS, with HDR-aware quality
 - Multi-format subtitles (VTT, ASS, SSA), chapters, and skip markers
-- Chromecast sending, a full keyboard and touch input layer, and a typed event bus
-- A built-in `DesktopUiPlugin` for a complete control surface, or bring your own UI
+- Chromecast, a full keyboard and touch input layer, a typed event bus
+- A built-in `DesktopUiPlugin` for full controls, or bring your own UI
 
-**You stay in charge.** No UI is bundled and nothing is forced on you. The controls, the input handling, every feature beyond playback is a plugin you opt into with `addPlugin`. Through the shared [player core](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core) you can also swap any cross-cutting behavior (storage, the URL resolver, the logger, the retry policy, and more) by passing your own implementation to `setup()`, no subclassing.
+**You stay in charge.**
 
-It is built on [`@nomercy-entertainment/nomercy-player-core`](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core), the shared engine that carries the queue, auth, plugin system, i18n, and storage.
+No UI is bundled. Nothing is forced on you.
+
+The controls, the input handling, every feature beyond playback is a plugin you opt into with `addPlugin`.
+
+You can also swap any built-in behavior. Pass your own storage, URL resolver, logger, or retry policy to `setup()`. No subclassing.
+
+Built on [`nomercy-player-core`](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core), the shared engine for the queue, auth, plugins, i18n, and storage.
 
 ```
 npm install @nomercy-entertainment/nomercy-video-player
