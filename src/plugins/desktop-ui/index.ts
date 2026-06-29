@@ -12,7 +12,13 @@
  * File map (desktop-ui/ folder):
  *
  *   index.ts        — DesktopUiPlugin class: lifecycle (use/dispose), DOM
- *                     composition, event wiring, menu state, activity/hide.
+ *                     composition, event wiring, menu state.
+ *   activity.ts     — setActivity / bumpActivity / maybeHide / dismissOverlay.
+ *   dom.ts          — buildCenter / buildBottomBar / buildBottomRow /
+ *                     buildShortcutsOverlay / iconBtn / applyButtonOrder.
+ *   responsive.ts   — wireResponsive / wireOrientation / wireNoHover /
+ *                     wireVolumeSlider / applyAllVisibilityRules + constants.
+ *   tooltips.ts     — addTooltip / clampTooltip / wireTooltips.
  *   topBar.ts       — Top-bar DOM + title/show-info update + back-button logic.
  *   progressBar.ts  — Slider-bar DOM, chapter-marker rendering, time formatting,
  *                     chapter state updaters (progress/buffer/hover).
@@ -62,13 +68,24 @@
 
 import type { Translations } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
+import type { ActivityState } from './activity';
+import type { BottomBarRefs, BottomRowRefs, CenterRefs } from './dom';
 import type { MenuFrameRefs, MenuRenderState, SettingsToggleItem, SubMenuId } from './menus';
-
 import type { ChapterMarkerRef, SliderBarRefs } from './progressBar';
+
+import type { ResponsiveState } from './responsive';
 import type { SpriteSet } from './sprite';
+import type { TooltipButtonRefs } from './tooltips';
 import type { TopBarRefs } from './topBar';
 import { Plugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import { TheaterState, VolumeState } from '../../types';
+import {
+
+	bumpActivity,
+	dismissOverlay,
+	maybeHide,
+	setActivity,
+} from './activity';
 import {
 	applyAspectRatioIcon,
 	applyAudioIcon,
@@ -82,6 +99,12 @@ import {
 	applyTheaterIcon,
 	applyVolume,
 } from './buttonState';
+import {
+
+	buildBottomBar,
+	buildCenter,
+	buildShortcutsOverlay,
+} from './dom';
 import { fluentIcons, svgFromIcon } from './icons';
 import {
 	buildMenuFrame,
@@ -92,23 +115,29 @@ import {
 	renderSpeedPane,
 	renderSubsPane,
 	renderSubtitleSettingsPane,
-
 } from './menus';
 import {
 	buildChapterMarkers,
-	buildSliderBar,
 	fmt,
 	updateChapterBuffer,
 	updateChapterHover,
 	updateChapterProgress,
-
 } from './progressBar';
+import {
+	applyAllVisibilityRules,
+	makeResponsiveState,
+
+	wireNoHover,
+	wireOrientation,
+	wireResponsive,
+	wireVolumeSlider,
+} from './responsive';
 import { loadSpriteSet, lookupCue } from './sprite';
 import {
-	buildTitleBar,
-	updateTitleBar,
 
-} from './topBar';
+	wireTooltips,
+} from './tooltips';
+import { buildTitleBar, updateTitleBar } from './topBar';
 
 /**
  * Per-button visibility overrides for the desktop UI control bar.
@@ -297,27 +326,6 @@ function readSidecarTracks(item: unknown): SidecarTrackEntry[] | undefined {
 	return item.tracks;
 }
 
-const DEFAULT_ON_BUTTONS: ReadonlySet<keyof DesktopUiButtonOptions> = new Set([
-	'play',
-	'mute',
-	'volume',
-	'fullscreen',
-	'settings',
-	'next',
-	'previous',
-	'chapterPrev',
-	'chapterNext',
-]);
-
-function buttonVisible(
-	key: keyof DesktopUiButtonOptions,
-	opts: DesktopUiButtonOptions | undefined,
-): boolean {
-	if (opts && key in opts)
-		return Boolean(opts[key]);
-	return DEFAULT_ON_BUTTONS.has(key);
-}
-
 /** Events emitted by {@link DesktopUiPlugin} under the `plugin:desktop-ui:` namespace. */
 export interface DesktopUiEvents {
 	'shortcuts-toggle': undefined;
@@ -339,6 +347,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	// ── top bar ─────────────────────────────────────────────────────
 	private topBarRefs!: TopBarRefs;
 
+	// ── center ──────────────────────────────────────────────────────
 	private centerWrap!: HTMLDivElement;
 	private centerBtn!: HTMLButtonElement;
 	private spinner!: HTMLDivElement;
@@ -348,6 +357,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	/** `true` while the current message is playback feedback (loading/buffering/error) rather than a consumer toast — feedback clears automatically when playback recovers. */
 	private messageIsFeedback = false;
 
+	// ── bottom bar ──────────────────────────────────────────────────
 	private bottomBar!: HTMLDivElement;
 	private topRow!: HTMLDivElement;
 	private bottomRow!: HTMLDivElement;
@@ -404,11 +414,10 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private chapFwdBtn!: HTMLButtonElement;
 	private volBtn!: HTMLButtonElement;
 	private volSlider!: HTMLInputElement;
-	/** Vertical volume slider popup. Null until `buildBottomRow` creates it. */
+	/** Vertical volume slider popup. Null until `buildDom` creates it. */
 	private volSliderVertical: HTMLDivElement | null = null;
-	/** Mute toggle inside the vertical volume popup. Null until `buildBottomRow` creates it. */
+	/** Mute toggle inside the vertical volume popup. Null until `buildDom` creates it. */
 	private volPopupMuteBtn: HTMLButtonElement | null = null;
-	private _volSliderVerticalOpen = false;
 	private currentTimeEl!: HTMLDivElement;
 	private remainingTimeEl!: HTMLDivElement;
 	private aspectRatioBtn!: HTMLButtonElement;
@@ -435,58 +444,21 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private shortcutsOverlay: HTMLDivElement | null = null;
 	private _shortcutsVisible = false;
 
-	private inactivityToken: number | null = null;
-	// `activity` is a state-change event. Emits are deduped through
-	// setActivity() so moving the mouse only fires it when the controls were
-	// hidden — never once per mousemove. Starts false so the bumpActivity()
-	// call at mount triggers a real false→true transition, emits the event,
-	// and applies .active to the container — keeping flag and class in sync.
-	private activityActive = false;
+	// ── extracted-concern state ─────────────────────────────────────
+	private _activityState: ActivityState = {
+		activityActive: false,
+		inactivityToken: null,
+		menuOpen: false,
+		isScrubbing: false,
+		isControlsHovered: false,
+	};
+
+	private _responsiveState: ResponsiveState = makeResponsiveState();
+
 	private cachedDuration = 0;
 	private _lastMouseX = -1;
 	private _lastMouseY = -1;
 	private _tooltipHoverToken: number | null = null;
-	private _resizeObserver: ResizeObserver | null = null;
-	private _currentBreakpointName = 'xl';
-
-	/**
-	 * True while the pointer is inside the bottom bar or menu frame.
-	 *  While true, `maybeHide()` is a no-op so controls stay visible.
-	 */
-	private _isControlsHovered = false;
-
-	/** Current orientation state — true when device is in portrait mode. */
-	private _isPortrait = false;
-
-	/** True on (hover: none) and (pointer: coarse) touch-only devices. */
-	private _isNoHover = false;
-
-	/**
-	 * Estimated width (px) of each button in the bottom row.
-	 * The volume container has two footprints: the base 40px button plus the
-	 * expanded slider reservation on hover-capable devices.
-	 *
-	 * All bottom-row buttons are 40px (min-width from .btn). The volume slider
-	 * expands to 80px wide with 8px margins on each side = +96px reservation on
-	 * hover-enabled devices (skipped on (hover: none) devices).
-	 */
-	private static readonly BUTTON_WIDTH = 40;
-	private static readonly VOL_SLIDER_EXPANDED_WIDTH = 96;
-
-	/**
-	 * Buttons hidden in portrait regardless of container width.
-	 * Mirrors the reference implementation's `portrait:!hidden` semantics.
-	 */
-	private static readonly PORTRAIT_HIDDEN: ReadonlySet<keyof DesktopUiButtonOptions> = new Set([
-		'chapterPrev',
-		'chapterNext',
-		'previous',
-		'next',
-		'subtitles',
-		'audio',
-		'quality',
-		'playlist',
-	]);
 
 	override use(): void {
 		this.appendStyles(new URL('./styles.css', import.meta.url).href, 'desktop-ui-styles');
@@ -495,9 +467,47 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.wireEvents();
 		this.wireFeedback();
 		this.wireMenuKeyboardNav();
-		this.wireOrientation();
-		this.wireNoHover();
-		this.wireResponsive();
+		wireOrientation(
+			this._responsiveState,
+			this.player.container,
+			this.opts,
+			this.listen.bind(this),
+			payload => this.emit('layout:breakpoint', payload),
+		);
+		wireNoHover(
+			this._responsiveState,
+			this.player.container,
+			this.opts,
+			this.listen.bind(this),
+			payload => this.emit('layout:breakpoint', payload),
+		);
+		wireResponsive(
+			this._responsiveState,
+			{
+				playBtn: this.playBtn,
+				volBtn: this.volBtn,
+				fsBtn: this.fsBtn,
+				settingsBtn: this.settingsBtn,
+				nextBtn: this.nextBtn,
+				prevBtn: this.prevBtn,
+				rewindBtn: this.rewindBtn,
+				forwardBtn: this.forwardBtn,
+				chapBackBtn: this.chapBackBtn,
+				chapFwdBtn: this.chapFwdBtn,
+				theaterBtn: this.theaterBtn,
+				pipBtn: this.pipBtn,
+				speedBtn: this.speedBtn,
+				qualityBtn: this.qualityBtn,
+				subsBtn: this.subsBtn,
+				audioBtn: this.audioBtn,
+				aspectRatioBtn: this.aspectRatioBtn,
+				playlistBtn: this.playlistBtn,
+			},
+			this.player.container,
+			this.opts,
+			fn => this.lifecycle.addCleanup(fn),
+			payload => this.emit('layout:breakpoint', payload),
+		);
 		void Promise.resolve(this.storage.getJSON('showRemaining')).then((v) => {
 			this._showRemaining = (v as boolean | null) ?? true;
 		});
@@ -517,12 +527,12 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		if (!this.enabled())
 			return;
 		super.disable(reason);
-		if (this.inactivityToken !== null) {
-			clearTimeout(this.inactivityToken);
-			this.inactivityToken = null;
+		if (this._activityState.inactivityToken !== null) {
+			clearTimeout(this._activityState.inactivityToken);
+			this._activityState.inactivityToken = null;
 		}
 		this.overlayRoot.hidden = true;
-		this.setActivity(false);
+		setActivity(this._activityState, this.player, false);
 	}
 
 	/** Re-enabling restores the overlay and re-arms the auto-hide cycle. */
@@ -654,8 +664,63 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		// whole bar — left column carries back/close buttons that must remain.
 		this.topBarRefs.right.hidden = !!this.opts?.hideTitle;
 
-		this.centerWrap = this.buildCenter(root);
-		this.bottomBar = this.buildBottomBar(root);
+		const centerRefs: CenterRefs = buildCenter(this.player, root);
+		this.centerWrap = centerRefs.centerWrap;
+		this.centerBtn = centerRefs.centerBtn;
+		this.spinner = centerRefs.spinner;
+
+		const bottomRefs: BottomBarRefs & BottomRowRefs = buildBottomBar(
+			this.player,
+			root,
+			this.opts,
+			this.listen.bind(this),
+			this.t.bind(this),
+		);
+		this.bottomBar = bottomRefs.bottomBar;
+		this.topRow = bottomRefs.topRow;
+		this.bottomRow = bottomRefs.bottomRow;
+		this.sliderRefs = bottomRefs.sliderRefs;
+		this.playBtn = bottomRefs.playBtn;
+		this.prevBtn = bottomRefs.prevBtn;
+		this.nextBtn = bottomRefs.nextBtn;
+		this.rewindBtn = bottomRefs.rewindBtn;
+		this.forwardBtn = bottomRefs.forwardBtn;
+		this.chapBackBtn = bottomRefs.chapBackBtn;
+		this.chapFwdBtn = bottomRefs.chapFwdBtn;
+		this.volBtn = bottomRefs.volBtn;
+		this.volSlider = bottomRefs.volSlider;
+		this.volSliderVertical = bottomRefs.volSliderVertical;
+		this.volPopupMuteBtn = bottomRefs.volPopupMuteBtn;
+		this.currentTimeEl = bottomRefs.currentTimeEl;
+		this.remainingTimeEl = bottomRefs.remainingTimeEl;
+		this.aspectRatioBtn = bottomRefs.aspectRatioBtn;
+		this.theaterBtn = bottomRefs.theaterBtn;
+		this.theaterConfigHidden = bottomRefs.theaterConfigHidden;
+		this.pipBtn = bottomRefs.pipBtn;
+		this.speedBtn = bottomRefs.speedBtn;
+		this.subsBtn = bottomRefs.subsBtn;
+		this.audioBtn = bottomRefs.audioBtn;
+		this.qualityBtn = bottomRefs.qualityBtn;
+		this.playlistBtn = bottomRefs.playlistBtn;
+		this.settingsBtn = bottomRefs.settingsBtn;
+		this.fsBtn = bottomRefs.fsBtn;
+
+		// Wire the volume slider now that all button refs are stored.
+		wireVolumeSlider(
+			this._responsiveState,
+			this.opts,
+			this.player.container,
+			bottomRefs.volContainer,
+			bottomRefs.volSliderVertical,
+			bottomRefs.volVertInput,
+			this.volBtn,
+			this.volPopupMuteBtn,
+			this.listen.bind(this),
+			() => this.player.volume?.() ?? 100,
+			(level: number) => { this.player.volume?.(level); },
+			() => { this.player.toggleMute?.(); },
+			fn => this.lifecycle.addCleanup(fn),
+		);
 
 		this.menus = buildMenuFrame(this.player, root, this.listen.bind(this), {
 			closeMenu: () => this.closeAllMenus(),
@@ -663,232 +728,12 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			backToMain: () => this.openMainMenu(),
 		}, this.opts?.settingsItems);
 
-		this.buildShortcutsOverlay(root);
-	}
-
-	private buildCenter(parent: HTMLElement): HTMLDivElement {
-		const wrap = this.player.createElement('div', 'center')
-			.addClasses(['center'])
-			.appendTo(parent)
-			.get();
-
-		this.spinner = this.player.createElement('div', 'spinner')
-			.addClasses(['spinner'])
-			.appendTo(wrap)
-			.get();
-		this.spinner.innerHTML = '<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-dasharray="100 28"/></svg>';
-
-		this.centerBtn = this.player.createButton('center-btn', fluentIcons.bigPlay.title || 'Play', () => {});
-		this.player.addClasses(this.centerBtn, ['center-btn']);
-		const centerIconHolder = document.createElement('span');
-		centerIconHolder.className = 'btn-icon';
-		centerIconHolder.innerHTML = svgFromIcon(fluentIcons.bigPlay, 32);
-		this.centerBtn.appendChild(centerIconHolder);
-		wrap.appendChild(this.centerBtn);
-		return wrap;
-	}
-
-	// ── Keyboard shortcuts overlay ───────────────────────────────────────
-	private buildShortcutsOverlay(parent: HTMLElement): HTMLDivElement {
-		const overlay = document.createElement('div');
-		overlay.id = 'nmplayer-keybinds-dialog';
-		overlay.className = 'keybinds-dialog';
-		overlay.setAttribute('role', 'dialog');
-		overlay.setAttribute('aria-modal', 'true');
-		overlay.setAttribute('aria-label', this.t('shortcuts.title'));
-
-		const card = document.createElement('div');
-		card.className = 'keybinds-card';
-
-		const heading = document.createElement('h2');
-		heading.className = 'keybinds-heading';
-		heading.textContent = this.t('shortcuts.title');
-		card.appendChild(heading);
-
-		const sections: ReadonlyArray<ReadonlyArray<{
-			title: string;
-			entries: ReadonlyArray<{ keys: ReadonlyArray<string>; label: string }>;
-		}>> = [
-			[
-				{
-					title: this.t('shortcuts.group.playback'),
-					entries: [
-						{ keys: ['Space'], label: this.t('shortcuts.playPause') },
-						{ keys: ['S'], label: this.t('shortcuts.stop') },
-						{ keys: ['E'], label: this.t('shortcuts.frameAdvance') },
-					],
-				},
-				{
-					title: this.t('shortcuts.group.speed'),
-					entries: [
-						{ keys: [']'], label: this.t('shortcuts.speedUp') },
-						{ keys: ['['], label: this.t('shortcuts.speedDown') },
-						{ keys: ['='], label: this.t('shortcuts.normalSpeed') },
-					],
-				},
-				{
-					title: this.t('shortcuts.group.volume'),
-					entries: [
-						{ keys: ['↑'], label: this.t('shortcuts.volumeUp') },
-						{ keys: ['↓'], label: this.t('shortcuts.volumeDown') },
-						{ keys: ['M'], label: this.t('shortcuts.mute') },
-					],
-				},
-			],
-			[
-				{
-					title: this.t('shortcuts.group.seeking'),
-					entries: [
-						{ keys: ['←'], label: this.t('shortcuts.seekBack5') },
-						{ keys: ['→'], label: this.t('shortcuts.seekForward5') },
-						{ keys: ['Shift', '← / →'], label: this.t('shortcuts.seek3s') },
-						{ keys: ['Alt', '← / →'], label: this.t('shortcuts.seek10s') },
-						{ keys: ['Ctrl', '← / →'], label: this.t('shortcuts.seek60s') },
-					],
-				},
-				{
-					title: this.t('shortcuts.group.quickSeek'),
-					entries: [
-						{ keys: ['3'], label: this.t('shortcuts.seek30s') },
-						{ keys: ['6'], label: this.t('shortcuts.seek60sKey') },
-						{ keys: ['9'], label: this.t('shortcuts.seek90s') },
-						{ keys: ['1'], label: this.t('shortcuts.seek120s') },
-					],
-				},
-				{
-					title: this.t('shortcuts.group.navigation'),
-					entries: [
-						{ keys: ['N'], label: this.t('shortcuts.next') },
-						{ keys: ['P'], label: this.t('shortcuts.previous') },
-						{ keys: ['Shift', 'N'], label: this.t('shortcuts.nextChapter') },
-						{ keys: ['Shift', 'P'], label: this.t('shortcuts.previousChapter') },
-					],
-				},
-			],
-			[
-				{
-					title: this.t('shortcuts.group.tracksAndSubtitles'),
-					entries: [
-						{ keys: ['V'], label: this.t('shortcuts.cycleSubs') },
-						{ keys: ['B'], label: this.t('shortcuts.cycleAudio') },
-						{ keys: ['A'], label: this.t('shortcuts.cycleAspect') },
-						{ keys: ['+'], label: this.t('shortcuts.subSizeUp') },
-						{ keys: ['–'], label: this.t('shortcuts.subSizeDown') },
-					],
-				},
-				{
-					title: this.t('shortcuts.group.display'),
-					entries: [
-						{ keys: ['F'], label: this.t('shortcuts.fullscreen') },
-						{ keys: ['F11'], label: this.t('shortcuts.fullscreen') },
-						{ keys: ['Esc'], label: this.t('shortcuts.exitFullscreen') },
-						{ keys: ['T'], label: this.t('shortcuts.showTime') },
-						{ keys: ['?'], label: this.t('shortcuts.help') },
-					],
-				},
-			],
-		];
-
-		const grid = document.createElement('div');
-		grid.className = 'keybinds-grid';
-
-		for (const column of sections) {
-			const cell = document.createElement('div');
-			cell.className = 'keybinds-column';
-
-			for (const group of column) {
-				const groupEl = document.createElement('div');
-
-				const groupTitle = document.createElement('h3');
-				groupTitle.className = 'keybinds-group-title';
-				groupTitle.textContent = group.title;
-				groupEl.appendChild(groupTitle);
-
-				for (const entry of group.entries) {
-					const row = document.createElement('div');
-					row.className = 'keybinds-row';
-
-					const keysContainer = document.createElement('span');
-					keysContainer.className = 'keybinds-keys';
-
-					for (let keyIndex = 0; keyIndex < entry.keys.length; keyIndex++) {
-						if (keyIndex > 0) {
-							const plus = document.createElement('span');
-							plus.className = 'keybinds-plus';
-							plus.textContent = '+';
-							keysContainer.appendChild(plus);
-						}
-
-						const kbd = document.createElement('kbd');
-						kbd.className = 'keybinds-key';
-						kbd.textContent = entry.keys[keyIndex]!;
-						keysContainer.appendChild(kbd);
-					}
-
-					const labelEl = document.createElement('span');
-					labelEl.className = 'keybinds-label';
-					labelEl.textContent = entry.label;
-
-					row.appendChild(keysContainer);
-					row.appendChild(labelEl);
-					groupEl.appendChild(row);
-				}
-
-				cell.appendChild(groupEl);
-			}
-
-			grid.appendChild(cell);
-		}
-
-		card.appendChild(grid);
-		card.appendChild(this._buildKeyboardDecoration());
-
-		const hintEl = document.createElement('p');
-		hintEl.className = 'keybinds-hint';
-		hintEl.textContent = this.t('shortcuts.hint');
-		card.appendChild(hintEl);
-
-		overlay.appendChild(card);
-
-		this.listen(overlay, 'click', (e: Event) => {
-			if (e.target === overlay)
-				this.hideShortcuts();
-		});
-
-		parent.appendChild(overlay);
-		this.shortcutsOverlay = overlay;
-		return overlay;
-	}
-
-	private _buildKeyboardDecoration(): HTMLDivElement {
-		const wrap = document.createElement('div');
-		wrap.className = 'keybinds-decoration';
-
-		const highlighted = new Set('NOMERCY'.split(''));
-		const keyRows = [
-			'1234567890-='.split(''),
-			'QWERTYUIOP'.split(''),
-			'ASDFGHJKL'.split(''),
-			'ZXCVBNM'.split(''),
-		];
-		const rowOffsets = [0, 10, 22, 38];
-		let svgKeys = '';
-		for (let rowIdx = 0; rowIdx < keyRows.length; rowIdx++) {
-			const row = keyRows[rowIdx]!;
-			for (let keyIdx = 0; keyIdx < row.length; keyIdx++) {
-				const kx = keyIdx * 28 + rowOffsets[rowIdx]!;
-				const ky = rowIdx * 30;
-				const letter = row[keyIdx]!;
-				const opacity = highlighted.has(letter) ? '1' : '0.35';
-				svgKeys += `<rect x="${kx}" y="${ky}" width="24" height="24" rx="4" fill="white" opacity="${opacity}"/>`;
-				if (highlighted.has(letter)) {
-					svgKeys += `<text x="${kx + 12}" y="${ky + 16}" text-anchor="middle" fill="black" font-size="11" font-family="monospace" font-weight="700" opacity="0.7">${letter}</text>`;
-				}
-			}
-		}
-		svgKeys += '<rect x="110" y="120" width="160" height="24" rx="4" fill="white" opacity="0.35"/>';
-		wrap.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 412 164" width="450" height="180">${svgKeys}</svg>`;
-		return wrap;
+		this.shortcutsOverlay = buildShortcutsOverlay(
+			root,
+			this.listen.bind(this),
+			this.t.bind(this),
+			() => this.hideShortcuts(),
+		);
 	}
 
 	private toggleShortcuts(): void {
@@ -910,733 +755,38 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.shortcutsOverlay?.classList.remove('keybinds-dialog-visible');
 	}
 
-	private buildBottomBar(parent: HTMLElement): HTMLDivElement {
-		const bar = this.player.createElement('div', 'bottom-bar')
-			.addClasses(['bottom-bar'])
-			.appendTo(parent)
-			.get();
-
-		// Gradient backdrop sits behind everything in the bottom bar.
-		this.player.createElement('div', 'bottom-bar-shadow')
-			.addClasses(['bottom-bar-shadow'])
-			.appendTo(bar);
-
-		this.topRow = this.player.createElement('div', 'top-row')
-			.addClasses(['top-row'])
-			.appendTo(bar)
-			.get();
-
-		this.sliderRefs = buildSliderBar(this.player);
-		this.topRow.appendChild(this.sliderRefs.sliderBar);
-
-		this.bottomRow = this.player.createElement('div', 'bottom-row')
-			.addClasses(['bottom-row'])
-			.appendTo(bar)
-			.get();
-		this.buildBottomRow(this.bottomRow);
-
-		return bar;
-	}
-
-	private buildBottomRow(parent: HTMLElement): void {
-		const btns = this.opts?.buttons;
-		const show = (key: keyof DesktopUiButtonOptions): boolean => buttonVisible(key, btns);
-
-		this.playBtn = this.iconBtn('playback', 'play');
-		this.playBtn.hidden = !show('play');
-		parent.appendChild(this.playBtn);
-
-		this.prevBtn = this.iconBtn('previous', 'previous');
-		this.prevBtn.hidden = !show('previous');
-		parent.appendChild(this.prevBtn);
-
-		this.rewindBtn = this.iconBtn('seek-back', 'seekBack');
-		this.rewindBtn.hidden = !show('seekBack');
-		parent.appendChild(this.rewindBtn);
-
-		this.forwardBtn = this.iconBtn('seek-forward', 'seekForward');
-		this.forwardBtn.hidden = !show('seekForward');
-		parent.appendChild(this.forwardBtn);
-
-		this.chapBackBtn = this.iconBtn('chapter-back', 'chapterBack');
-		this.chapBackBtn.hidden = !show('chapterPrev');
-		parent.appendChild(this.chapBackBtn);
-
-		this.chapFwdBtn = this.iconBtn('chapter-forward', 'chapterForward');
-		this.chapFwdBtn.hidden = !show('chapterNext');
-		parent.appendChild(this.chapFwdBtn);
-
-		this.nextBtn = this.iconBtn('next', 'next');
-		this.nextBtn.hidden = !show('next');
-		parent.appendChild(this.nextBtn);
-
-		const volContainer = this.player.createElement('div', 'volume-container')
-			.addClasses(['volume-container'])
-			.appendTo(parent)
-			.get();
-		volContainer.hidden = !show('mute') && !show('volume');
-
-		// Scroll over the volume cluster adjusts volume (v1: ±delta * 0.5).
-		this.listen(volContainer, 'wheel', (e: Event) => {
-			const wheel = e as WheelEvent;
-			wheel.preventDefault();
-			const current = this.player.volume?.() ?? 100;
-			const next = Math.min(100, Math.max(0, current - wheel.deltaY * 0.5));
-			this.player.volume?.(next);
-		});
-
-		this.volBtn = this.iconBtn('volume', 'volumeHigh');
-		this.volBtn.hidden = !show('mute');
-		volContainer.appendChild(this.volBtn);
-
-		this.volSlider = this.player.createElement('input', 'volume-slider')
-			.addClasses(['volume-slider'])
-			.appendTo(volContainer)
-			.get();
-		this.volSlider.type = 'range';
-		this.volSlider.min = '0';
-		this.volSlider.max = '100';
-		this.volSlider.value = '100';
-		this.volSlider.setAttribute('aria-label', this.t('a11y.volume'));
-		this.volSlider.hidden = !show('volume');
-
-		// Vertical slider popup (hidden initially; activated by wireVolumeSlider).
-		const vertPop = this.player.createElement('div', 'volume-slider-vertical')
-			.addClasses(['volume-slider-vertical'])
-			.appendTo(volContainer)
-			.get();
-		const vertInput = this.player.createElement('input', 'volume-slider-vertical-input')
-			.addClasses(['volume-slider-vertical-input'])
-			.appendTo(vertPop)
-			.get();
-		vertInput.type = 'range';
-		vertInput.min = '0';
-		vertInput.max = '100';
-		vertInput.value = '100';
-		vertInput.setAttribute('aria-label', this.t('a11y.volume'));
-		vertInput.setAttribute('orient', 'vertical');
-
-		const volPopupMuteBtn = this.iconBtn('vol-popup-mute', 'volumeHigh');
-		volPopupMuteBtn.classList.add('vol-popup-mute');
-		vertPop.appendChild(volPopupMuteBtn);
-		this.volPopupMuteBtn = volPopupMuteBtn;
-		this.volSliderVertical = vertPop;
-
-		this.wireVolumeSlider(volContainer, vertPop, vertInput);
-
-		this.currentTimeEl = this.player.createElement('div', 'current-time')
-			.addClasses(['current-time', 'time'])
-			.appendTo(parent)
-			.get();
-		this.currentTimeEl.textContent = '0:00';
-
-		this.player.createElement('div', 'divider')
-			.addClasses(['divider'])
-			.appendTo(parent);
-
-		this.remainingTimeEl = this.player.createElement('div', 'remaining-time')
-			.addClasses(['remaining-time', 'time'])
-			.appendTo(parent)
-			.get();
-		this.remainingTimeEl.textContent = '0:00';
-
-		this.aspectRatioBtn = this.iconBtn('aspect-ratio', 'aspectFit');
-		this.aspectRatioBtn.setAttribute('aria-expanded', 'false');
-		this.aspectRatioBtn.hidden = !show('aspectRatio');
-		parent.appendChild(this.aspectRatioBtn);
-
-		this.theaterBtn = this.iconBtn('theater', 'theater');
-		this.theaterBtn.hidden = !show('theater');
-		this.theaterConfigHidden = this.theaterBtn.hidden;
-		parent.appendChild(this.theaterBtn);
-
-		this.pipBtn = this.iconBtn('pip', 'pipEnter');
-		this.pipBtn.hidden = !show('pip');
-		parent.appendChild(this.pipBtn);
-
-		this.speedBtn = this.iconBtn('speed', 'speed');
-		this.speedBtn.setAttribute('aria-label', this.t('tooltip.speed'));
-		this.speedBtn.setAttribute('aria-expanded', 'false');
-		this.speedBtn.hidden = !show('speed');
-		parent.appendChild(this.speedBtn);
-
-		this.subsBtn = this.iconBtn('subtitles', 'subtitles');
-		this.subsBtn.setAttribute('aria-expanded', 'false');
-		this.subsBtn.hidden = !show('subtitles');
-		parent.appendChild(this.subsBtn);
-
-		this.audioBtn = this.iconBtn('audio', 'language');
-		this.audioBtn.setAttribute('aria-expanded', 'false');
-		this.audioBtn.hidden = !show('audio');
-		parent.appendChild(this.audioBtn);
-
-		this.qualityBtn = this.iconBtn('quality', 'quality');
-		this.qualityBtn.setAttribute('aria-expanded', 'false');
-		this.qualityBtn.hidden = !show('quality');
-		parent.appendChild(this.qualityBtn);
-
-		this.playlistBtn = this.iconBtn('playlist', 'playlist');
-		this.playlistBtn.setAttribute('aria-expanded', 'false');
-		this.playlistBtn.hidden = !show('playlist');
-		parent.appendChild(this.playlistBtn);
-
-		this.settingsBtn = this.iconBtn('settings', 'settings');
-		this.settingsBtn.setAttribute('aria-expanded', 'false');
-		this.settingsBtn.hidden = !show('settings');
-		parent.appendChild(this.settingsBtn);
-
-		this.fsBtn = this.iconBtn('fullscreen', 'fullscreen');
-		this.fsBtn.hidden = !show('fullscreen');
-		parent.appendChild(this.fsBtn);
-
-		this.applyButtonOrder(parent);
-	}
-
-	/**
-	 * Apply the consumer's `buttonOrder`: every named button is re-anchored
-	 * to the end of the bar in the given sequence; unnamed buttons keep their
-	 * natural position. Visual order only — removal priority during resize
-	 * stays governed by `buttonPriority`.
-	 */
-	private applyButtonOrder(parent: HTMLElement): void {
-		const order = this.opts?.buttonOrder;
-		if (!order || order.length === 0)
-			return;
-
-		const byKey: Partial<Record<keyof DesktopUiButtonOptions, HTMLButtonElement | null>> = {
-			play: this.playBtn,
-			mute: this.volBtn,
-			fullscreen: this.fsBtn,
-			settings: this.settingsBtn,
-			next: this.nextBtn,
-			previous: this.prevBtn,
-			seekBack: this.rewindBtn,
-			seekForward: this.forwardBtn,
-			chapterPrev: this.chapBackBtn,
-			chapterNext: this.chapFwdBtn,
-			theater: this.theaterBtn,
-			pip: this.pipBtn,
-			speed: this.speedBtn,
-			quality: this.qualityBtn,
-			subtitles: this.subsBtn,
-			audio: this.audioBtn,
-			aspectRatio: this.aspectRatioBtn,
-			playlist: this.playlistBtn,
-		};
-
-		for (const key of order) {
-			const btn = byKey[key];
-			if (btn)
-				parent.appendChild(btn);
-		}
-	}
-
-	private iconBtn(id: string, iconName: keyof typeof fluentIcons): HTMLButtonElement {
-		const icon = fluentIcons[iconName];
-		const btn = this.player.createButton(id, icon.title || iconName, () => {});
-		this.player.addClasses(btn, ['btn']);
-		btn.style.position = 'relative';
-		const iconHolder = document.createElement('span');
-		iconHolder.className = 'btn-icon';
-		iconHolder.innerHTML = svgFromIcon(icon);
-		btn.appendChild(iconHolder);
-		return btn;
-	}
-
-	/**
-	 * Attach a hover tooltip to a button. `getText` is evaluated lazily on
-	 * each hover so dynamic labels (next chapter, next item title) stay current.
-	 * Tooltip appears after 500 ms; dismissed on click or mouseleave.
-	 * The tooltip is clamped so it never escapes the player container's left/right edge.
-	 */
-	private addTooltip(btn: HTMLButtonElement, getText: () => string): void {
-		const tip = document.createElement('span');
-		tip.className = 'tooltip';
-
-		const show = (): void => {
-			tip.textContent = getText();
-			tip.classList.add('tooltip-visible');
-			this.clampTooltip(tip, btn);
-		};
-		const hide = (): void => {
-			if (this._tooltipHoverToken !== null) {
-				clearTimeout(this._tooltipHoverToken);
-				this._tooltipHoverToken = null;
-			}
-			tip.classList.remove('tooltip-visible');
-		};
-
-		btn.removeAttribute('title');
-		btn.appendChild(tip);
-
-		this.listen(btn, 'mouseenter', () => {
-			if (this._tooltipHoverToken !== null)
-				clearTimeout(this._tooltipHoverToken);
-			this._tooltipHoverToken = this.timeout(() => show(), 500);
-		});
-		this.listen(btn, 'mouseleave', () => hide());
-		this.listen(btn, 'click', () => hide());
-	}
-
-	private clampTooltip(tip: HTMLSpanElement, btn: HTMLButtonElement): void {
-		// Use the slider-bar's bounds so tooltips share the same horizontal
-		// clamp as the slider-pop scrubbing preview, instead of bleeding to the
-		// player container's edges.
-		const boundsRect = this.sliderRefs?.sliderBar.getBoundingClientRect()
-			?? this.player.container.getBoundingClientRect();
-		const btnRect = btn.getBoundingClientRect();
-		const tipWidth = tip.offsetWidth;
-
-		const btnCenter = btnRect.left + btnRect.width / 2;
-		const halfTip = tipWidth / 2;
-
-		const rawLeft = btnCenter - halfTip;
-		const rawRight = btnCenter + halfTip;
-
-		const clampedLeft = Math.max(boundsRect.left, rawLeft);
-		const clampedRight = Math.min(boundsRect.right, rawRight);
-
-		let actualLeft: number;
-		if (rawLeft < clampedLeft)
-			actualLeft = clampedLeft;
-		else if (rawRight > clampedRight)
-			actualLeft = clampedRight - tipWidth;
-		else
-			actualLeft = rawLeft;
-
-		const shift = actualLeft - btnCenter + halfTip;
-		tip.style.transform = `translateX(calc(-50% + ${shift}px))`;
-		// Pull the arrow the other way so it stays anchored over the button center.
-		tip.style.setProperty('--arrow-x', `calc(50% - ${shift}px)`);
-	}
-
 	private wireTooltips(): void {
-		this.addTooltip(this.playBtn, () => this.t('tooltip.play', {}));
-		this.addTooltip(this.rewindBtn, () => this.t('tooltip.seekBack', {}));
-		this.addTooltip(this.forwardBtn, () => this.t('tooltip.seekForward', {}));
-		this.addTooltip(this.volBtn, () => this.t('tooltip.mute', {}));
-		this.addTooltip(this.aspectRatioBtn, () => this.t('tooltip.aspectRatio', {}));
-		this.addTooltip(this.theaterBtn, () => this.t('tooltip.theater', {}));
-		this.addTooltip(this.pipBtn, () => this.t('tooltip.pip', {}));
-		this.addTooltip(this.speedBtn, () => this.t('tooltip.speed', {}));
-		this.addTooltip(this.subsBtn, () => this.t('tooltip.subtitles', {}));
-		this.addTooltip(this.audioBtn, () => this.t('tooltip.audio', {}));
-		this.addTooltip(this.qualityBtn, () => this.t('tooltip.quality', {}));
-		this.addTooltip(this.playlistBtn, () => this.t('tooltip.playlist', {}));
-		this.addTooltip(this.settingsBtn, () => this.t('tooltip.settings', {}));
-		this.addTooltip(this.fsBtn, () => this.t('tooltip.fullscreen', {}));
-
-		this.addTooltip(this.prevBtn, () => {
-			const idx = this.safeCurrentIndex();
-			const queue = this.player.queue() ?? [];
-			const prevItem = idx > 0 ? queue[idx - 1] : undefined;
-			if (prevItem?.title) {
-				return this.t('tooltip.previousWithTitle', { title: prevItem.title });
-			}
-			return this.t('tooltip.previous', {});
-		});
-
-		this.addTooltip(this.nextBtn, () => {
-			const idx = this.safeCurrentIndex();
-			const queue = this.player.queue() ?? [];
-			const nextItem = queue[idx + 1];
-			if (nextItem?.title) {
-				return this.t('tooltip.nextWithTitle', { title: nextItem.title });
-			}
-			return this.t('tooltip.next', {});
-		});
-
-		this.addTooltip(this.chapBackBtn, () => {
-			const chapters = this.player.chapters();
-			const time = this.player.time?.() ?? 0;
-			const prev = [...chapters].reverse().find(ch => ch.start < time - 1);
-			if (prev?.title) {
-				return this.t('tooltip.previousChapterWithTitle', { title: prev.title });
-			}
-			return this.t('tooltip.chapterPrev', {});
-		});
-
-		this.addTooltip(this.chapFwdBtn, () => {
-			const chapters = this.player.chapters();
-			const time = this.player.time?.() ?? 0;
-			const next = chapters.find(ch => ch.start > time + 1);
-			if (next?.title) {
-				return this.t('tooltip.nextChapterWithTitle', { title: next.title });
-			}
-			return this.t('tooltip.chapterNext', {});
-		});
-	}
-
-	// ── Responsive button removal ────────────────────────────────────────
-
-	/** Default priority list — most essential first, least essential last. */
-	private static readonly DEFAULT_PRIORITY: ButtonPriorityList = [
-		'play',
-		'mute',
-		'volume',
-		'fullscreen',
-		'settings',
-		'next',
-		'previous',
-		'chapterPrev',
-		'chapterNext',
-		'seekBack',
-		'seekForward',
-		'theater',
-		'pip',
-		'speed',
-		'quality',
-		'subtitles',
-		'audio',
-		'aspectRatio',
-		'playlist',
-	];
-
-	/**
-	 * Default breakpoint progression:
-	 * - xs (≤ 320): play + mute only (rank 0–1)
-	 * - sm (≤ 480): play / mute / fullscreen / settings (rank 0–4)
-	 * - md (≤ 720): + nav + chapter buttons (rank 0–8)
-	 * - lg (≤ 1024): + theater / pip / speed (rank 0–13)
-	 * - xl (> 1024): all buttons visible
-	 *
-	 * Over-hiding is worse than under-hiding. A 360 px phone portrait should
-	 * show at least the transport controls — xs only kicks in below 320 px
-	 * (think embedded widgets, not real phones).
-	 */
-	private static readonly DEFAULT_BREAKPOINTS: ReadonlyArray<Breakpoint> = [
-		{ name: 'xs', maxWidth: 320, hideAfterRank: 1 },
-		{ name: 'sm', maxWidth: 480, hideAfterRank: 4 },
-		{ name: 'md', maxWidth: 720, hideAfterRank: 8 },
-		{ name: 'lg', maxWidth: 1024, hideAfterRank: 13 },
-		{ name: 'xl', maxWidth: Infinity, hideAfterRank: Infinity },
-	];
-
-	/** Resolve the active breakpoint progression from consumer options. */
-	private resolveBreakpoints(): ReadonlyArray<Breakpoint> {
-		if (this.opts?.breakpoints && this.opts.breakpoints.length > 0) {
-			return this.opts.breakpoints;
-		}
-
-		const stages = this.opts?.collapseStages;
-		if (stages) {
-			return [
-				{ name: 'xs', maxWidth: 320, hideAfterRank: 1 },
-				{ name: 'sm', maxWidth: 480, hideAfterRank: stages[0] },
-				{ name: 'md', maxWidth: 720, hideAfterRank: stages[1] },
-				{ name: 'lg', maxWidth: 1024, hideAfterRank: stages[2] },
-				{ name: 'xl', maxWidth: Infinity, hideAfterRank: Infinity },
-			];
-		}
-
-		return DesktopUiPlugin.DEFAULT_BREAKPOINTS;
-	}
-
-	/**
-	 * Wire orientation changes. Sets `data-orientation` on the container and
-	 * re-evaluates visibility whenever the device rotates.
-	 */
-	private wireOrientation(): void {
-		if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
-			return;
-
-		const mql = window.matchMedia('(orientation: portrait)');
-		this._isPortrait = mql.matches;
-		this.player.container.setAttribute('data-orientation', mql.matches ? 'portrait' : 'landscape');
-
-		const onChange = (): void => {
-			this._isPortrait = mql.matches;
-			this.player.container.setAttribute('data-orientation', mql.matches ? 'portrait' : 'landscape');
-			this._applyAllVisibilityRules(this._lastContainerWidth);
+		const refs: TooltipButtonRefs = {
+			playBtn: this.playBtn,
+			rewindBtn: this.rewindBtn,
+			forwardBtn: this.forwardBtn,
+			volBtn: this.volBtn,
+			aspectRatioBtn: this.aspectRatioBtn,
+			theaterBtn: this.theaterBtn,
+			pipBtn: this.pipBtn,
+			speedBtn: this.speedBtn,
+			subsBtn: this.subsBtn,
+			audioBtn: this.audioBtn,
+			qualityBtn: this.qualityBtn,
+			playlistBtn: this.playlistBtn,
+			settingsBtn: this.settingsBtn,
+			fsBtn: this.fsBtn,
+			prevBtn: this.prevBtn,
+			nextBtn: this.nextBtn,
+			chapBackBtn: this.chapBackBtn,
+			chapFwdBtn: this.chapFwdBtn,
 		};
-
-		this.listen(mql as unknown as EventTarget, 'change', onChange);
-	}
-
-	/**
-	 * Wire touch-device detection. On `(hover: none) and (pointer: coarse)`
-	 * devices the volume slider never expands so we must not reserve space for
-	 * it, and the slider container itself should stay hidden via CSS.
-	 */
-	private wireNoHover(): void {
-		if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
-			return;
-
-		const mql = window.matchMedia('(hover: none) and (pointer: coarse)');
-		this._isNoHover = mql.matches;
-		this.player.container.toggleAttribute('data-no-hover', mql.matches);
-
-		const onChange = (): void => {
-			this._isNoHover = mql.matches;
-			this.player.container.toggleAttribute('data-no-hover', mql.matches);
-			this._applyAllVisibilityRules(this._lastContainerWidth);
-		};
-
-		this.listen(mql as unknown as EventTarget, 'change', onChange);
-	}
-
-	/**
-	 * Map a button key to its DOM element. Populated by `_initButtonMap` after
-	 * `buildBottomRow` has run. `volume` is a slider — no standalone button.
-	 */
-	private _buttonMap: Record<keyof DesktopUiButtonOptions, HTMLButtonElement | null> | null = null;
-
-	/** Build the button map once the DOM is ready. Called from `wireResponsive`. */
-	private _initButtonMap(): void {
-		this._buttonMap = {
-			play: this.playBtn,
-			mute: this.volBtn,
-			volume: null,
-			fullscreen: this.fsBtn,
-			settings: this.settingsBtn,
-			next: this.nextBtn,
-			previous: this.prevBtn,
-			seekBack: this.rewindBtn,
-			seekForward: this.forwardBtn,
-			chapterPrev: this.chapBackBtn,
-			chapterNext: this.chapFwdBtn,
-			theater: this.theaterBtn,
-			pip: this.pipBtn,
-			speed: this.speedBtn,
-			quality: this.qualityBtn,
-			subtitles: this.subsBtn,
-			audio: this.audioBtn,
-			aspectRatio: this.aspectRatioBtn,
-			playlist: this.playlistBtn,
-		};
-	}
-
-	/**
-	 * Last container width seen by the ResizeObserver. Used when re-evaluating
-	 *  visibility after orientation or hover-mode changes without a resize.
-	 */
-	private _lastContainerWidth = 0;
-
-	/**
-	 * Compose all four visibility rules for a button key:
-	 *
-	 *   1. Consumer opt-out (`buttons` option says false).
-	 *   2. Content gating (`refreshCapabilityVisibility` already applied via .hidden).
-	 *   3. Orientation rule (portrait hides a fixed set of buttons).
-	 *   4. Container-fit math (accumulated widths vs available space).
-	 *
-	 * Returns `true` when the button should be visible.
-	 */
-	private _buttonFootprint(key: keyof DesktopUiButtonOptions): number {
-		const btnWidth = DesktopUiPlugin.BUTTON_WIDTH;
-		return (key === 'mute' && !this._isNoHover) ? btnWidth + DesktopUiPlugin.VOL_SLIDER_EXPANDED_WIDTH : btnWidth;
-	}
-
-	private _shouldShowButton(
-		key: keyof DesktopUiButtonOptions,
-		accumulatedWidth: number,
-		containerWidth: number,
-		isPortrait: boolean,
-	): boolean {
-		// Rule 1 — consumer opt-out.
-		if (!buttonVisible(key, this.opts?.buttons))
-			return false;
-
-		// Rule 3 — orientation.
-		if (isPortrait && DesktopUiPlugin.PORTRAIT_HIDDEN.has(key))
-			return false;
-
-		// Rule 4 — container fit.
-		return accumulatedWidth + this._buttonFootprint(key) <= containerWidth;
-	}
-
-	/**
-	 * Primary visibility pass: walk the priority list most-important first,
-	 * accumulate widths, hide any button that doesn't fit. Also applies the
-	 * orientation layer and emits `layout:breakpoint` for backwards compat.
-	 *
-	 * The `breakpoints` / `collapseStages` consumer options feed the
-	 * `layout:breakpoint` event (for consumers who subscribed to it) but are
-	 * NOT used to gate buttons — the fit math is the gate.
-	 */
-	private _applyAllVisibilityRules(containerWidth: number): void {
-		if (!this._buttonMap)
-			return;
-
-		const priority = this.opts?.buttonPriority ?? DesktopUiPlugin.DEFAULT_PRIORITY;
-
-		// Reserve space for the time labels and divider (non-button chrome in the bottom row).
-		// current-time ≈ 50px, divider min-width 16px, remaining-time ≈ 50px, padding 32px.
-		const RESERVED_CHROME_WIDTH = 148;
-		const availableWidth = Math.max(0, containerWidth - RESERVED_CHROME_WIDTH);
-
-		let accumulatedWidth = 0;
-		const visibleKeys: Array<keyof DesktopUiButtonOptions> = [];
-		const hiddenKeys: Array<keyof DesktopUiButtonOptions> = [];
-
-		for (const key of priority) {
-			const btn = this._buttonMap[key];
-			if (!btn)
-				continue;
-
-			// Rule 2 — content gating: if already hidden by capability logic, skip.
-			// We only control the fit/orientation hide here, not the content hide.
-			const contentHidden = btn.getAttribute('data-content-hidden') === 'true';
-			if (contentHidden) {
-				hiddenKeys.push(key);
-				continue;
-			}
-
-			const fits = this._shouldShowButton(key, accumulatedWidth, availableWidth, this._isPortrait);
-
-			if (fits) {
-				btn.hidden = false;
-				accumulatedWidth += this._buttonFootprint(key);
-				visibleKeys.push(key);
-			}
-			else {
-				btn.hidden = true;
-				hiddenKeys.push(key);
-			}
-		}
-
-		// Emit layout:breakpoint for backwards-compat subscribers.
-		// The breakpoint name is derived from the old threshold model so
-		// consumers that key off `to` still get meaningful values.
-		const breakpoints = this.resolveBreakpoints();
-		const active = breakpoints.find(bp => containerWidth <= bp.maxWidth)
-			?? breakpoints[breakpoints.length - 1]!;
-		this.player.container.setAttribute('data-breakpoint', active.name);
-
-		if (active.name !== this._currentBreakpointName) {
-			const previousName = this._currentBreakpointName;
-			this._currentBreakpointName = active.name;
-			this.emit('layout:breakpoint', {
-				from: previousName,
-				to: active.name,
-				visibleButtons: visibleKeys,
-				hiddenButtons: hiddenKeys,
-			});
-		}
-	}
-
-	private wireResponsive(): void {
-		if (typeof ResizeObserver === 'undefined')
-			return;
-
-		this._initButtonMap();
-
-		this._resizeObserver = new ResizeObserver((entries) => {
-			const entry = entries[0];
-			if (!entry)
-				return;
-			this._lastContainerWidth = entry.contentRect.width;
-			this._applyAllVisibilityRules(entry.contentRect.width);
-		});
-
-		this._resizeObserver.observe(this.player.container);
-		this.lifecycle.addCleanup(() => {
-			this._resizeObserver?.disconnect();
-			this._resizeObserver = null;
-		});
-	}
-
-	// ── Volume slider orientation ─────────────────────────────────────────
-	/**
-	 * Decides at construction time (before ResizeObserver fires) whether to
-	 * render the horizontal expand-on-hover slider or the vertical click-popup.
-	 * `auto` defers to a ResizeObserver callback that toggles the mode live.
-	 */
-	private wireVolumeSlider(
-		volContainer: HTMLElement,
-		vertPop: HTMLDivElement,
-		vertInput: HTMLInputElement,
-	): void {
-		// Default to 'auto' so touch / narrow viewports get the vertical popup
-		// automatically. Horizontal hover-expand requires a real pointer, so it
-		// can't be the default any more.
-		const mode = this.opts?.volumeSlider ?? 'auto';
-
-		const applyVertical = (on: boolean): void => {
-			volContainer.classList.toggle('volume-container-vertical', on);
-		};
-
-		const syncVertInput = (): void => {
-			const pct = Math.round(this.player.volume?.() ?? 100);
-			vertInput.value = String(pct);
-			vertInput.style.setProperty('--vol-pct', `${pct}%`);
-		};
-
-		const openVertPop = (): void => {
-			if (this._volSliderVerticalOpen) {
-				vertPop.classList.remove('volume-slider-vertical-open');
-				this._volSliderVerticalOpen = false;
-				return;
-			}
-			syncVertInput();
-			vertPop.classList.add('volume-slider-vertical-open');
-			this._volSliderVerticalOpen = true;
-		};
-
-		const closeVertPop = (): void => {
-			vertPop.classList.remove('volume-slider-vertical-open');
-			this._volSliderVerticalOpen = false;
-		};
-
-		this.listen(vertInput, 'input', () => {
-			const level = Number(vertInput.value);
-			vertInput.style.setProperty('--vol-pct', `${vertInput.value}%`);
-			void this.player.volume?.(level);
-		});
-
-		if (this.volPopupMuteBtn) {
-			this.listen(this.volPopupMuteBtn, 'click', (e: Event) => {
-				e.stopPropagation();
-				this.player.toggleMute?.();
-			});
-		}
-
-		if (mode === 'vertical') {
-			applyVertical(true);
-			this.listen(this.volBtn, 'click', () => openVertPop());
-			this.listen(document, 'click', (e: Event) => {
-				if (!volContainer.contains(e.target as Node))
-					closeVertPop();
-			});
-			return;
-		}
-
-		if (mode === 'auto') {
-			if (typeof ResizeObserver === 'undefined')
-				return;
-
-			const AUTO_VERTICAL_THRESHOLD = 520;
-			// Touch / no-hover devices ALWAYS get the vertical popup —
-			// hover-expand horizontal slider is unreachable without a pointer.
-			const evaluate = (width: number): boolean =>
-				this._isNoHover || width <= AUTO_VERTICAL_THRESHOLD;
-
-			applyVertical(evaluate(this.player.container.clientWidth ?? 0));
-
-			const resizer = new ResizeObserver((entries) => {
-				const entry = entries[0];
-				if (!entry)
-					return;
-				const useVertical = evaluate(entry.contentRect.width);
-				applyVertical(useVertical);
-				if (!useVertical && this._volSliderVerticalOpen)
-					closeVertPop();
-			});
-			resizer.observe(this.player.container);
-			this.lifecycle.addCleanup(() => resizer.disconnect());
-
-			this.listen(this.volBtn, 'click', () => {
-				if (volContainer.classList.contains('volume-container-vertical')) {
-					openVertPop();
-				}
-			});
-			this.listen(document, 'click', (e: Event) => {
-				if (!volContainer.contains(e.target as Node))
-					closeVertPop();
-			});
-		}
-
-		// `horizontal` mode: no extra wiring — CSS handles expand-on-hover.
+		wireTooltips(
+			this.player,
+			refs,
+			this.sliderRefs,
+			this.listen.bind(this),
+			() => this._tooltipHoverToken,
+			(v) => { this._tooltipHoverToken = v; },
+			(fn, ms) => this.timeout(() => fn(), ms),
+			this.t.bind(this),
+			() => this.safeCurrentIndex(),
+		);
 	}
 
 	// ── Event wiring ─────────────────────────────────────────────────────
@@ -1717,12 +867,12 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		for (const zone of [this.bottomBar, this.menus.frame]) {
 			this.listen(zone, 'pointerenter', (e: Event) => {
 				if ((e as PointerEvent).pointerType === 'mouse') {
-					this._isControlsHovered = true;
+					this._activityState.isControlsHovered = true;
 				}
 			});
 			this.listen(zone, 'pointerleave', (e: Event) => {
 				if ((e as PointerEvent).pointerType === 'mouse') {
-					this._isControlsHovered = false;
+					this._activityState.isControlsHovered = false;
 				}
 			});
 		}
@@ -1739,11 +889,11 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.on('pause', () => {
 			this.setPlayingState(false);
 			// Keep controls visible while paused — cancel any pending hide.
-			if (this.inactivityToken !== null) {
-				clearTimeout(this.inactivityToken);
-				this.inactivityToken = null;
+			if (this._activityState.inactivityToken !== null) {
+				clearTimeout(this._activityState.inactivityToken);
+				this._activityState.inactivityToken = null;
 			}
-			this.setActivity(true);
+			setActivity(this._activityState, this.player, true);
 		});
 		this.on('ended', () => this.setPlayingState(false));
 
@@ -1928,8 +1078,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.listen(document, 'click', (e: Event) => {
 			if (!this.menuOpen)
 				return;
-			const t = e.target as Node;
-			if (this.menus.frame.contains(t))
+			const target = e.target as Node;
+			if (this.menus.frame.contains(target))
 				return;
 			this.closeAllMenus();
 		});
@@ -1947,21 +1097,23 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		// while the user drags over the slider bar.
 		this.sliderRefs.sliderBar.style.touchAction = 'none';
 
-		const startScrub = () => {
+		const startScrub = (): void => {
 			if (this.isMouseDown)
 				return;
 			this.isMouseDown = true;
 			this.isScrubbing = true;
+			this._activityState.isScrubbing = true;
 			this.sliderRefs.sliderBar.classList.add('slider-scrubbing');
 		};
 		this.listen(this.sliderRefs.sliderBar, 'mousedown', startScrub);
 		this.listen(this.sliderRefs.sliderBar, 'touchstart', startScrub);
 
-		const finalizeScrub = (e: Event) => {
+		const finalizeScrub = (e: Event): void => {
 			if (!this.isMouseDown)
 				return;
 			this.isMouseDown = false;
 			this.isScrubbing = false;
+			this._activityState.isScrubbing = false;
 			this.sliderRefs.sliderBar.classList.remove('slider-scrubbing');
 			this.sliderRefs.sliderPop.style.setProperty('--visibility', '0');
 			const scrub = this.getScrubTime(e);
@@ -1985,7 +1137,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		// browser suppresses the synthetic click event after a touchmove.
 		this.listen(this.sliderRefs.sliderBar, 'touchend', finalizeScrub);
 
-		const onMove = (e: Event) => {
+		const onMove = (e: Event): void => {
 			const scrub = this.getScrubTime(e);
 			this.sliderRefs.sliderPopText.textContent = fmt(scrub.scrubTimePlayer);
 			this.paintSpriteAt(scrub.scrubTimePlayer);
@@ -2419,7 +1571,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	/**
 	 * Mark a button as content-gated (no relevant tracks/items) so the fit
 	 * algorithm can skip it without counting its width.
-	 * Setting `data-content-hidden="true"` causes `_applyAllVisibilityRules`
+	 * Setting `data-content-hidden="true"` causes `applyAllVisibilityRules`
 	 * to treat the button as absent from the layout.
 	 */
 	private setContentHidden(btn: HTMLButtonElement, hidden: boolean): void {
@@ -2429,7 +1581,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		}
 		else {
 			btn.removeAttribute('data-content-hidden');
-			// Fit visibility is re-applied by the next `_applyAllVisibilityRules`
+			// Fit visibility is re-applied by the next `applyAllVisibilityRules`
 			// call; don't eagerly show — let the fit pass decide.
 		}
 	}
@@ -2468,8 +1620,14 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.setContentHidden(this.settingsBtn, settingsEmpty);
 
 		// Re-run fit pass now that content-gating may have freed space.
-		if (this._lastContainerWidth > 0) {
-			this._applyAllVisibilityRules(this._lastContainerWidth);
+		if (this._responsiveState.lastContainerWidth > 0) {
+			applyAllVisibilityRules(
+				this._responsiveState,
+				this.opts,
+				this._responsiveState.lastContainerWidth,
+				payload => this.emit('layout:breakpoint', payload),
+				this.player.container,
+			);
 		}
 
 		this.refreshTransportEnablement();
@@ -2582,6 +1740,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this._setMenuTriggerExpanded(null, true);
 
 		this.menuOpen = true;
+		this._activityState.menuOpen = true;
 		this.currentSubMenu = null;
 		this.menus.frame.classList.add('open');
 		this.menus.content.classList.remove('sub-menu-open');
@@ -2595,6 +1754,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this._setMenuTriggerExpanded(id, true);
 
 		this.menuOpen = true;
+		this._activityState.menuOpen = true;
 		this.currentSubMenu = id;
 		this.menus.frame.classList.add('open');
 		this.menus.content.classList.add('sub-menu-open');
@@ -2642,6 +1802,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this._collapseAllTriggers();
 
 		this.menuOpen = false;
+		this._activityState.menuOpen = false;
 		this.currentSubMenu = null;
 		this.menus.frame.classList.remove('open');
 		this.menus.content.classList.remove('sub-menu-open');
@@ -2710,8 +1871,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private repaintPane(id: SubMenuId): void {
-		const closeOnPick = () => this.closeAllMenus();
-		const keepOpenOnPick = (paneId: SubMenuId) => () => this.repaintPane(paneId);
+		const closeOnPick = (): void => this.closeAllMenus();
+		const keepOpenOnPick = (paneId: SubMenuId) => (): void => { this.repaintPane(paneId); };
 		const listen = this.listen.bind(this);
 		const st = this.menuState();
 		if (id === 'speed')
@@ -2766,70 +1927,22 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	// ── Activity / auto-hide ────────────────────────────────────────
-	// Emit `activity` only when the active state actually flips, so consumers
-	// get a state event rather than a per-mousemove firehose.
-	//
-	// Desync guard (Bug 4): the flag and the DOM can get out of sync when
-	// something emits `activity:{active:false}` through the player directly
-	// (bypassing setActivity) — e.g. a consumer, another plugin, or a test
-	// harness. The binary container-class rule then removes `.active` from the
-	// container while `activityActive` stays `true`. Every subsequent
-	// bumpActivity() → setActivity(true) hits the `flag === active` guard and
-	// bails, so `.active` is never re-applied and controls are stuck hidden.
-	//
-	// Fix: when showing (`active=true`) and the flag already agrees but the
-	// container lacks `.active`, we force-emit regardless so the binary rule
-	// re-adds `.active`. The flag-only guard is kept for the `active=false`
-	// direction — an extra spurious `inactive` emit is harmless, but we keep
-	// the dedup there to avoid noisy events on every maybeHide() call while
-	// already hidden.
-	private setActivity(active: boolean): void {
-		if (active) {
-			const domIsActive = this.player.container.classList.contains('active');
-			if (this.activityActive && domIsActive)
-				return;
-
-			this.activityActive = true;
-			this.player.emit('activity', { active: true });
-		}
-		else {
-			if (!this.activityActive)
-				return;
-
-			this.activityActive = false;
-			this.player.emit('activity', { active: false });
-		}
-	}
 
 	private bumpActivity(): void {
-		this.setActivity(true);
-
-		if (this.inactivityToken !== null)
-			clearTimeout(this.inactivityToken);
-		const ms = this.opts?.inactivityMs ?? 4000;
-		this.inactivityToken = this.timeout(() => this.maybeHide(), ms);
+		bumpActivity(
+			this._activityState,
+			this.player,
+			this.opts?.inactivityMs ?? 4000,
+			ms => this.timeout(() => this.maybeHide(), ms),
+		);
 	}
 
 	private maybeHide(): void {
-		if (!this.player.playState || this.player.playState() !== 'playing')
-			return;
-		if (this.menuOpen)
-			return;
-		if (this._isControlsHovered)
-			return;
-
-		this.setActivity(false);
+		maybeHide(this._activityState, this.player);
 	}
 
-	// Deliberate paused-state dismiss; bypasses maybeHide()'s playing-only guard.
-	// Skips when a menu is open or a scrub is releasing.
 	private dismissOverlay(): void {
-		if (this.menuOpen)
-			return;
-		if (this.isScrubbing)
-			return;
-
-		this.setActivity(false);
+		dismissOverlay(this._activityState, this.player);
 	}
 }
 
