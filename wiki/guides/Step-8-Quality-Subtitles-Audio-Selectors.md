@@ -435,7 +435,7 @@ private highlightCurrentCaption() {
 
 ### Audio selector
 
-The audio selector is the simplest of the three. No "Off" option is needed (there must always be an active audio track), and no icon toggling is required. The button is only shown when there are multiple audio tracks.
+The audio selector is the simplest of the three. No "Off" option is needed (there must always be an active audio track). The button gains `.is-active` when a non-default track is selected, consistent with the quality, subtitle, speed, and aspect-ratio buttons. The button is only shown when there are multiple audio tracks.
 
 ```typescript
 private audioMenu: HTMLDivElement | null = null;

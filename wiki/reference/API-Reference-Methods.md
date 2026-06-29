@@ -1280,12 +1280,14 @@ player.usePlugin('custom');
 
 - `id` - Plugin identifier
 
-### `plugin(name: string): Plugin | undefined`
+### `getPlugin(PluginClass): PluginInstance | undefined`
 
-Gets a registered plugin by name.
+Gets a registered plugin by class reference.
 
 ```typescript
-const keyHandler = player.plugin('keyHandler');
+import { KeyHandlerPlugin } from '@nomercy-entertainment/nomercy-video-player/plugins';
+
+const keyHandler = player.getPlugin(KeyHandlerPlugin);
 if (keyHandler) {
 	// Plugin is available
 }
@@ -1293,7 +1295,7 @@ if (keyHandler) {
 
 **Parameters:**
 
-- `name` - Plugin name
+- `PluginClass` - The plugin class (not a string name)
 
 **Returns:** Plugin instance or undefined
 

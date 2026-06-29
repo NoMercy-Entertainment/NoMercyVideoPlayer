@@ -14,10 +14,18 @@ Thanks for your interest in `@nomercy-entertainment/nomercy-video-player`. This 
 git clone https://github.com/NoMercy-Entertainment/nomercy-video-player.git
 cd nomercy-video-player
 npm install
-npm test          # vitest run (1240 unit tests must pass)
+npm test          # vitest run (unit tests must pass)
 npm run typecheck # tsc --noEmit
 npm run build     # writes dist/
 ```
+
+The package also has a real-browser e2e suite built with Playwright:
+
+```bash
+npm run test:e2e  # runs pretest:e2e (generates fixtures via the NoMercy ffmpeg fork) then npx playwright test
+```
+
+The `pretest:e2e` step downloads and runs the NoMercy ffmpeg fork to produce short test media files. The generated fixtures go into `e2e/media/` and are not committed. Running `test:e2e` for the first time may take a few minutes on a slow connection.
 
 ## Pull requests
 
@@ -35,4 +43,4 @@ If you have a domain-specific plugin you'd like to host alongside the kit, open 
 
 ## Releases
 
-Releases are coordinated across the v2 trio (kit, video, music). Each pre-release publishes to npm under the `beta` dist-tag. The final `latest` release happens once consumer apps (nomercy-app-web, nomercy-cast-player) confirm a clean migration.
+Releases are coordinated across the v2 trio (kit, video, music). Each pre-release publishes to npm under the `rc` dist-tag. The final `latest` release happens once consumer apps (nomercy-app-web, nomercy-cast-player) confirm a clean migration.

@@ -372,7 +372,7 @@ class TimelinePlugin extends Plugin {
 If you need a direct reference to another plugin instance:
 
 ```typescript
-const timeline = this.player.plugin('timeline') as TimelinePlugin | undefined;
+const timeline = this.player.getPlugin(TimelinePlugin);
 if (timeline) {
 	// call methods on it directly
 }
