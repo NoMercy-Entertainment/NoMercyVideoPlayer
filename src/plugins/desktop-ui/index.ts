@@ -11,8 +11,13 @@
  *
  * File map (desktop-ui/ folder):
  *
- *   index.ts        — DesktopUiPlugin class: lifecycle (use/dispose), DOM
- *                     composition, event wiring, menu state.
+ *   index.ts        — DesktopUiPlugin class: static metadata, field declarations,
+ *                     lifecycle overrides (use/disable/enable/dispose), public
+ *                     surface (overlay()), and composeMixins() call.
+ *   internals.ts    — DesktopUiInternals interface: the shared `this`-context for
+ *                     every mixin method.
+ *   mixins/         — One file per concern; each exports a `*Methods` const object
+ *                     typed `this: DesktopUiInternals`.
  *   activity.ts     — setActivity / bumpActivity / maybeHide / dismissOverlay.
  *   dom.ts          — buildCenter / buildBottomBar / buildBottomRow /
  *                     buildShortcutsOverlay / iconBtn / applyButtonOrder.
@@ -26,10 +31,25 @@
  *                     theater, subtitles, PiP, aspect-ratio icon/aria updates.
  *   menus.ts        — Menu-frame DOM + all sub-pane renderers (speed, quality,
  *                     subtitles, audio, playlist, subtitleSettings, aspectRatio).
+ *   menuControl.ts  — Menu open/close orchestration, keyboard nav, pane repaints.
  *   buttons.ts      — Fluent UI icon SVG path data table.
  *   icons.ts        — svgFromIcon() renderer on top of buttons.ts.
  *   sprite.ts       — Sprite VTT parser + thumbnail lookup for slider-pop.
  *   styles.ts       — CSS injection (ensureDesktopUiStyles).
+ *   chapters.ts     — findChapterTitle / nextChapter / previousChapter.
+ *
+ * Mixin composition (how the class is built):
+ *
+ *   The class body holds only:
+ *     - static metadata (id, version, description, translations)
+ *     - private field declarations (state owned by the plugin)
+ *     - lifecycle overrides that call `super` (use/disable/enable/dispose)
+ *     - the public `overlay()` surface
+ *     - `declare` signatures for every mixin method
+ *
+ *   `composeMixins(DesktopUiPlugin.prototype, ...)` at the bottom stamps the
+ *   method bodies onto the prototype from the `*Methods` objects in mixins/.
+ *   This mirrors exactly how NMVideoPlayer is built from playerCoreMethods.
  *
  * UX rule — menu vs. cycle:
  *   Pointer-input buttons (control bar) open menus for multi-state features.
@@ -71,6 +91,7 @@ import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nom
 
 import type { ActivityState } from './activity';
 import type { BottomBarRefs, BottomRowRefs, CenterRefs } from './dom';
+import type { DesktopUiInternals } from './internals';
 import type { MenuControlRefs, MenuControlState } from './menuControl';
 import type { MenuFrameRefs, SettingsToggleItem, SubMenuId } from './menus';
 import type { ChapterMarkerRef, SliderBarRefs } from './progressBar';
@@ -79,7 +100,7 @@ import type { SpriteSet } from './sprite';
 import type { TooltipButtonRefs } from './tooltips';
 import type { TopBarRefs } from './topBar';
 
-import { Plugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
+import { composeMixins, Plugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import { TheaterState, VolumeState } from '../../types';
 
 import { bumpActivity, dismissOverlay, maybeHide, setActivity } from './activity';
@@ -290,6 +311,1194 @@ export interface DesktopUiEvents {
 	'opts:changed': DesktopUiOptions;
 }
 
+// =============================================================================
+// Mixin — feedback (wireFeedback / showMessage / hideMessage)
+// =============================================================================
+
+const feedbackMethods = {
+	wireFeedback(this: DesktopUiInternals): void {
+		const container = this.player.container;
+
+		const showBuffer = (textKey: string): void => {
+			container.classList.add('buffering');
+			this.showMessage(this.t(textKey), undefined, true);
+		};
+		const clearFeedback = (): void => {
+			container.classList.remove('buffering');
+			if (this.messageIsFeedback)
+				this.hideMessage();
+		};
+
+		showBuffer('message.loading');
+
+		this.on('waiting', () => showBuffer('message.buffering'));
+		this.on('stalled', () => showBuffer('message.buffering'));
+		this.on('item', () => showBuffer('message.loading'));
+		this.on('playing', clearFeedback);
+		this.on('time', clearFeedback);
+
+		this.on('error', () => {
+			container.classList.remove('buffering');
+			this.showMessage(this.t('message.error'), undefined, true);
+		});
+
+		this.on('display-message', (data) => {
+			const payload = data as { text?: string; ms?: number } | undefined;
+			if (payload?.text)
+				this.showMessage(payload.text, payload.ms);
+		});
+		this.on('remove-message', () => this.hideMessage());
+	},
+
+	showMessage(this: DesktopUiInternals, text: string, ms?: number, isFeedback = false): void {
+		if (!this.messageEl) {
+			const el = document.createElement('div');
+			el.className = 'player-message';
+			this.player.container.appendChild(el);
+			this.messageEl = el;
+		}
+		this.messageEl.textContent = text;
+		this.messageEl.classList.add('visible');
+		this.messageIsFeedback = isFeedback;
+
+		if (this.messageTimer !== null) {
+			clearTimeout(this.messageTimer);
+			this.messageTimer = null;
+		}
+		if (typeof ms === 'number' && ms > 0) {
+			this.messageTimer = this.timeout(() => {
+				this.messageTimer = null;
+				this.hideMessage();
+			}, ms) as unknown as ReturnType<typeof setTimeout>;
+		}
+	},
+
+	hideMessage(this: DesktopUiInternals): void {
+		this.messageIsFeedback = false;
+		this.messageEl?.classList.remove('visible');
+	},
+} as const;
+
+// =============================================================================
+// Mixin — shortcuts overlay (toggleShortcuts / showShortcuts / hideShortcuts)
+// =============================================================================
+
+const shortcutsMethods = {
+	toggleShortcuts(this: DesktopUiInternals): void {
+		if (this._shortcutsVisible) {
+			this.hideShortcuts();
+		}
+		else {
+			this.showShortcuts();
+		}
+	},
+
+	showShortcuts(this: DesktopUiInternals): void {
+		this._shortcutsVisible = true;
+		this.shortcutsOverlay?.classList.add('keybinds-dialog-visible');
+	},
+
+	hideShortcuts(this: DesktopUiInternals): void {
+		this._shortcutsVisible = false;
+		this.shortcutsOverlay?.classList.remove('keybinds-dialog-visible');
+	},
+} as const;
+
+// =============================================================================
+// Mixin — activity / auto-hide
+// =============================================================================
+
+const activityMethods = {
+	bumpActivity(this: DesktopUiInternals): void {
+		bumpActivity(
+			this._activityState,
+			this.player,
+			this.opts?.inactivityMs ?? 4000,
+			ms => this.timeout(() => this.maybeHide(), ms),
+		);
+	},
+
+	maybeHide(this: DesktopUiInternals): void {
+		maybeHide(this._activityState, this.player);
+	},
+
+	dismissOverlay(this: DesktopUiInternals): void {
+		dismissOverlay(this._activityState, this.player);
+	},
+} as const;
+
+// =============================================================================
+// Mixin — menu state (open/close/repaint/sync)
+// =============================================================================
+
+const menuMethods = {
+	openMainMenu(this: DesktopUiInternals): void {
+		openMainMenuFn(this._menuControlState, this._activityState, this.menus, this._menuControlRefs);
+	},
+
+	openSubMenu(this: DesktopUiInternals, id: SubMenuId): void {
+		openSubMenuFn(
+			id,
+			this._menuControlState,
+			this._activityState,
+			this.menus,
+			this._menuControlRefs,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+			() => this.bumpActivity(),
+		);
+	},
+
+	wireMenuKeyboardNav(this: DesktopUiInternals): void {
+		wireMenuKeyboardNavFn(this._menuControlState, this.menus, this.listen.bind(this));
+	},
+
+	closeAllMenus(this: DesktopUiInternals): void {
+		closeAllMenusFn(
+			this._menuControlState,
+			this._activityState,
+			this.menus,
+			this._menuControlRefs,
+			() => this.bumpActivity(),
+		);
+	},
+
+	syncActiveIndexes(this: DesktopUiInternals): void {
+		syncActiveIndexesFn(this._menuControlState, this.player);
+	},
+
+	repaintSubsIfOpen(this: DesktopUiInternals): void {
+		repaintSubsIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
+	},
+
+	repaintAudioIfOpen(this: DesktopUiInternals): void {
+		repaintAudioIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
+	},
+
+	repaintQualityIfOpen(this: DesktopUiInternals): void {
+		repaintQualityIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
+	},
+
+	repaintSpeedIfOpen(this: DesktopUiInternals): void {
+		repaintSpeedIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
+	},
+
+	repaintPlaylistIfOpen(this: DesktopUiInternals): void {
+		repaintPlaylistIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
+	},
+
+	repaintAspectRatioIfOpen(this: DesktopUiInternals): void {
+		repaintAspectRatioIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
+	},
+} as const;
+
+// =============================================================================
+// Mixin — icon state (apply* button icon / aria helpers)
+// =============================================================================
+
+const iconStateMethods = {
+	applyVolume(this: DesktopUiInternals, v: number): void {
+		applyVolume(this.volSlider, () => this.applyMutedIcon(), v);
+
+		if (this.volSliderVertical) {
+			const vertInput = this.volSliderVertical.querySelector<HTMLInputElement>('.volume-slider-vertical-input');
+			if (vertInput) {
+				const pct = Math.round(Math.max(0, Math.min(100, v)));
+				vertInput.value = String(pct);
+				vertInput.style.setProperty('--vol-pct', `${pct}%`);
+			}
+		}
+	},
+
+	applyMuted(this: DesktopUiInternals, muted: boolean): void {
+		applyMuted(this.volBtn, () => this.applyMutedIcon(), muted);
+		this.applyPopupMuteIcon(muted);
+	},
+
+	applyMutedIcon(this: DesktopUiInternals): void {
+		applyMutedIcon(this.volBtn, this.player, this.t.bind(this));
+	},
+
+	applyPopupMuteIcon(this: DesktopUiInternals, muted: boolean): void {
+		if (!this.volPopupMuteBtn)
+			return;
+		const icon = muted ? fluentIcons.volumeMuted : fluentIcons.volumeHigh;
+		const iconHolder = this.volPopupMuteBtn.querySelector('.btn-icon');
+		if (iconHolder) {
+			iconHolder.innerHTML = svgFromIcon(icon);
+		}
+		this.volPopupMuteBtn.setAttribute('aria-label', this.t('tooltip.mute', {}));
+	},
+
+	applyRate(this: DesktopUiInternals): void {
+		const rate = this.player.playbackRate?.() ?? 1;
+		applyRate(this.speedBtn, rate, this.t.bind(this));
+	},
+
+	applyAudioIcon(this: DesktopUiInternals): void {
+		const audios = this.player.audioTracks?.() ?? [];
+		const defaultIdx = audios.findIndex(tr => tr.default === true);
+		const manifestDefault = defaultIdx >= 0 ? defaultIdx : 0;
+		const isNonDefault = audios.length > 1 && this._menuControlState.activeAudioIdx !== manifestDefault;
+		applyAudioIcon(this.audioBtn, this.t.bind(this), isNonDefault);
+	},
+
+	applyQualityIcon(this: DesktopUiInternals): void {
+		applyQualityIcon(this.qualityBtn, this.t.bind(this), this.playingQualityLabel(), this._menuControlState.userPickedQuality);
+	},
+
+	/**
+	 * Human label for the level the backend is actually playing right now
+	 * (e.g. "1080p"). Used by `applyQualityIcon` to surface the level in the
+	 * button's aria-label / tooltip. Returns `undefined` when no level info is
+	 * available (before `level-switched` lands, or non-HLS sources).
+	 */
+	playingQualityLabel(this: DesktopUiInternals): string | undefined {
+		const idx = this.resolvePlayingQualityIdx();
+		if (idx === null)
+			return undefined;
+		const levels = this.player.qualityLevels?.() ?? [];
+		const level = levels.find(q => q.index === idx);
+		if (!level)
+			return undefined;
+		return level.label ?? (level.height ? `${level.height}p` : undefined);
+	},
+
+	/**
+	 * The level index the backend is actually playing. Prefers the cached
+	 * `_playingQualityIdx` (updated on every `level-switched` event), and
+	 * falls back to peeking the backend's `currentLevel()` for the case
+	 * where the user opens the menu before the first `level-switched` fires.
+	 * Returns null when no level is known.
+	 */
+	resolvePlayingQualityIdx(this: DesktopUiInternals): number | null {
+		if (this._menuControlState.playingQualityIdx !== null)
+			return this._menuControlState.playingQualityIdx;
+		const backend = this.player.backend?.();
+		const idx = backend?.currentLevel?.();
+		if (typeof idx === 'number' && idx >= 0)
+			return idx;
+		return null;
+	},
+
+	applyFullscreen(this: DesktopUiInternals): void {
+		applyFullscreen(this.fsBtn);
+	},
+
+	applyTheaterIcon(this: DesktopUiInternals, active: boolean): void {
+		applyTheaterIcon(this.theaterBtn, active, this.t.bind(this));
+	},
+
+	applySubsIcon(this: DesktopUiInternals): void {
+		applySubsIcon(this.subsBtn, this._menuControlState.activeSubtitleIdx, this.t.bind(this));
+		this.applyMenuSubsIcon();
+	},
+
+	/** Mirror the bottom-bar subtitle on/off state onto the menu category button. */
+	applyMenuSubsIcon(this: DesktopUiInternals): void {
+		const slot = this.menus?.mainButtons?.subtitles?.querySelector('.menu-button-icon-left');
+		if (!slot)
+			return;
+		const on = this._menuControlState.activeSubtitleIdx !== null && this._menuControlState.activeSubtitleIdx !== -1;
+		slot.innerHTML = svgFromIcon(on ? fluentIcons.subtitles : fluentIcons.subtitlesOff);
+	},
+
+	applyPipIcon(this: DesktopUiInternals, active: boolean): void {
+		applyPipIcon(this.pipBtn, active, this.t.bind(this));
+	},
+
+	applyAspectRatioIcon(this: DesktopUiInternals): void {
+		const aspect = this.player.aspectRatio?.() ?? 'uniform';
+		applyAspectRatioIcon(this.aspectRatioBtn, aspect === 'uniform', this.t.bind(this));
+	},
+} as const;
+
+// =============================================================================
+// Mixin — transport state (time / duration / playing state / capability gating)
+// =============================================================================
+
+const transportStateMethods = {
+	setPlayingState(this: DesktopUiInternals, playing: boolean): void {
+		this.centerWrap.classList.toggle('playing', playing);
+		const icon = playing ? fluentIcons.pause : fluentIcons.play;
+		const playIconHolder = this.playBtn.querySelector('.btn-icon') ?? this.playBtn;
+		playIconHolder.innerHTML = svgFromIcon(icon);
+		const centerIconHolder = this.centerBtn.querySelector('.btn-icon') ?? this.centerBtn;
+		centerIconHolder.innerHTML = svgFromIcon(playing ? fluentIcons.pause : fluentIcons.bigPlay, 32);
+		this.playBtn.setAttribute('aria-label', this.t('tooltip.play'));
+	},
+
+	handleCurrentChange(this: DesktopUiInternals, item: VideoPlaylistItem | undefined | null): void {
+		if (this.topBarRefs)
+			updateTitleBar(this.player, this.topBarRefs, item);
+
+		this.cachedDuration = 0;
+		this._menuControlState.playingQualityIdx = null;
+
+		this.refreshChaptersAndDuration();
+		this.refreshCapabilityVisibility();
+
+		this.repaintPlaylistIfOpen();
+		this.repaintSubsIfOpen();
+		this.repaintAudioIfOpen();
+		this.repaintQualityIfOpen();
+
+		void this.loadSpritesForItem(item);
+	},
+
+	applyTime(this: DesktopUiInternals, t: number): void {
+		const dur = this.resolveDuration();
+		const pct = dur > 0 ? (t / dur) * 100 : 0;
+
+		if (!this.isScrubbing) {
+			this.sliderRefs.sliderProgress.style.width = `${pct}%`;
+			this.sliderRefs.sliderNipple.style.left = `${pct}%`;
+			this.sliderRefs.sliderBar.setAttribute('aria-valuenow', String(Math.round(pct)));
+			this.updateChapterProgress(pct);
+		}
+
+		try {
+			const buf = this.player.buffered();
+			const bufPct = dur > 0 ? (buf / dur) * 100 : 0;
+			if (this.chapterRefs.length > 0) {
+				this.updateChapterBuffer(bufPct);
+			}
+			else {
+				this.sliderRefs.sliderBuffer.style.width = `${bufPct}%`;
+			}
+		}
+		catch { /* SourceBuffer detach */ }
+
+		this.currentTimeEl.textContent = fmt(t);
+		this.remainingTimeEl.textContent = this._formatRemaining(t, dur);
+		this.refreshTransportEnablement();
+	},
+
+	applyDuration(this: DesktopUiInternals, dur: number): void {
+		this.cachedDuration = dur;
+		const cur = this.player.time?.() ?? 0;
+		this.currentTimeEl.textContent = fmt(cur);
+		this.remainingTimeEl.textContent = this._formatRemaining(cur, dur);
+		this.renderChapterMarkers();
+	},
+
+	_formatRemaining(this: DesktopUiInternals, cur: number, dur: number): string {
+		if (dur <= 0)
+			return fmt(0);
+		if (this._showRemaining)
+			return `-${fmt(Math.max(0, dur - cur))}`;
+		return fmt(dur);
+	},
+
+	/**
+	 * Display-state visibility: theater is meaningless inside fullscreen or
+	 * PiP, and PiP chrome floats over another window — navigation buttons
+	 * there act on the wrong surface. Config opt-outs always win.
+	 */
+	applyStateVisibility(this: DesktopUiInternals): void {
+		this.theaterBtn.hidden = this.theaterConfigHidden || this.fsActive || this.pipActive;
+		if (this.topBarRefs) {
+			this.topBarRefs.backBtn.hidden = this.pipActive || !this.player.hasListeners('back');
+			this.topBarRefs.closeBtn.hidden = this.pipActive || !this.player.hasListeners('close');
+		}
+	},
+
+	/**
+	 * Mark a button as content-gated (no relevant tracks/items) so the fit
+	 * algorithm can skip it without counting its width.
+	 * Setting `data-content-hidden="true"` causes `applyAllVisibilityRules`
+	 * to treat the button as absent from the layout.
+	 */
+	setContentHidden(this: DesktopUiInternals, btn: HTMLButtonElement, hidden: boolean): void {
+		if (hidden) {
+			btn.setAttribute('data-content-hidden', 'true');
+			btn.hidden = true;
+		}
+		else {
+			btn.removeAttribute('data-content-hidden');
+		}
+	},
+
+	refreshCapabilityVisibility(this: DesktopUiInternals): void {
+		const subs = this.player.subtitles?.() ?? [];
+		const subsCount = subs.length;
+
+		const audios = this.player.audioTracks?.() ?? [];
+		const levels = this.player.qualityLevels?.() ?? [];
+
+		this.setContentHidden(this.subsBtn, subsCount === 0);
+		this.setContentHidden(this.audioBtn, audios.length <= 1);
+		this.setContentHidden(this.qualityBtn, levels.length < 2);
+
+		const chapters = this.player.chapters();
+		this.setContentHidden(this.chapBackBtn, chapters.length === 0);
+		this.setContentHidden(this.chapFwdBtn, chapters.length === 0);
+
+		const queueLen = this.safeQueueLength();
+		this.setContentHidden(this.playlistBtn, queueLen < 2);
+
+		this.menus.mainButtons.subtitles.style.display = subsCount === 0 ? 'none' : 'flex';
+		this.menus.mainButtons.language.style.display = audios.length <= 1 ? 'none' : 'flex';
+		this.menus.mainButtons.quality.style.display = levels.length < 2 ? 'none' : 'flex';
+		this.menus.mainButtons.playlist.style.display = queueLen < 2 ? 'none' : 'flex';
+
+		const speeds = this.player.playbackRates?.() ?? [];
+		const settingsEmpty = speeds.length <= 1
+			&& audios.length <= 1
+			&& subsCount === 0
+			&& (this.opts?.settingsItems?.length ?? 0) === 0;
+		this.setContentHidden(this.settingsBtn, settingsEmpty);
+
+		if (this._responsiveState.lastContainerWidth > 0) {
+			applyAllVisibilityRules(
+				this._responsiveState,
+				this.opts,
+				this._responsiveState.lastContainerWidth,
+				payload => this.emit('layout:breakpoint', payload),
+				this.player.container,
+			);
+		}
+
+		this.refreshTransportEnablement();
+	},
+
+	refreshTransportEnablement(this: DesktopUiInternals): void {
+		const idx = this.safeCurrentIndex();
+		const len = this.safeQueueLength();
+
+		const onFirst = idx <= 0 || len <= 1;
+		const onLast = idx >= len - 1 || len <= 1;
+		this.setDisabled(this.prevBtn, onFirst);
+		this.setDisabled(this.nextBtn, onLast);
+
+		const t = this.player.time?.() ?? 0;
+		const dur = this.resolveDuration();
+		this.setDisabled(this.rewindBtn, t <= 0);
+		this.setDisabled(this.forwardBtn, dur > 0 && t >= dur - 0.25);
+
+		const chapters = this.player.chapters();
+		const hasPrevChap = chapters.some(c => c.start < t - 1);
+		const hasNextChap = chapters.some(c => c.start > t + 1);
+		this.setDisabled(this.chapBackBtn, !hasPrevChap);
+		this.setDisabled(this.chapFwdBtn, !hasNextChap);
+	},
+
+	setDisabled(this: DesktopUiInternals, btn: HTMLButtonElement, disabled: boolean): void {
+		if (disabled) {
+			btn.setAttribute('disabled', 'true');
+			btn.setAttribute('aria-disabled', 'true');
+		}
+		else {
+			btn.removeAttribute('disabled');
+			btn.removeAttribute('aria-disabled');
+		}
+	},
+
+	safeCurrentIndex(this: DesktopUiInternals): number {
+		try {
+			return this.player.index();
+		}
+		catch { /* not implemented */ }
+		return 0;
+	},
+
+	safeQueueLength(this: DesktopUiInternals): number {
+		try {
+			return this.player.queueLength();
+		}
+		catch { /* not implemented */ }
+		return this.player.queue().length;
+	},
+} as const;
+
+// =============================================================================
+// Mixin — chapter rendering
+// =============================================================================
+
+const chapterMethods = {
+	resolveDuration(this: DesktopUiInternals): number {
+		const fromPlayer = this.player.duration?.() ?? 0;
+		if (fromPlayer > 0)
+			return fromPlayer;
+		if (this.cachedDuration > 0)
+			return this.cachedDuration;
+		const el = this.player.videoElement;
+		return Number.isFinite(el?.duration) ? (el!.duration ?? 0) : 0;
+	},
+
+	refreshChaptersAndDuration(this: DesktopUiInternals): void {
+		const dur = this.player.duration?.() ?? 0;
+		if (dur)
+			this.applyDuration(dur);
+		this.renderChapterMarkers();
+	},
+
+	/** Rebuild the segmented chapter-marker DOM for the current item. */
+	renderChapterMarkers(this: DesktopUiInternals): void {
+		const chapters = this.player.chapters();
+		const dur = this.resolveDuration();
+
+		if (!dur || chapters.length === 0) {
+			this.sliderRefs.sliderBar.classList.remove('has-chapters');
+		}
+		else {
+			this.sliderRefs.sliderBar.classList.add('has-chapters');
+		}
+
+		this.chapterRefs = buildChapterMarkers(
+			this.sliderRefs.chapterBar,
+			chapters,
+			dur,
+			(index) => { void this.player.seekToChapter?.(index); },
+			this.listen.bind(this),
+		);
+	},
+
+	updateChapterProgress(this: DesktopUiInternals, percentage: number): void {
+		updateChapterProgress(this.chapterRefs, percentage);
+	},
+
+	updateChapterBuffer(this: DesktopUiInternals, bufferedPct: number): void {
+		updateChapterBuffer(this.chapterRefs, bufferedPct);
+	},
+
+	updateChapterHover(this: DesktopUiInternals, scrubPct: number): void {
+		updateChapterHover(this.chapterRefs, scrubPct);
+	},
+
+	findChapterTitle(this: DesktopUiInternals, time: number): string | undefined {
+		return findChapterTitle(this.player, time);
+	},
+
+	previousChapter(this: DesktopUiInternals): void {
+		previousChapter(this.player);
+	},
+
+	nextChapter(this: DesktopUiInternals): void {
+		nextChapter(this.player);
+	},
+} as const;
+
+// =============================================================================
+// Mixin — sprite / scrub preview
+// =============================================================================
+
+const spriteMethods = {
+	getScrubTime(this: DesktopUiInternals, e: Event): { scrubTime: number; scrubTimePlayer: number } {
+		return getScrubTime(e, this.sliderRefs.sliderBar, this.resolveDuration());
+	},
+
+	clampPopOffset(this: DesktopUiInternals, pct: number): number {
+		return clampPopOffset(pct, this.sliderRefs.sliderPop, this.sliderRefs.sliderBar);
+	},
+
+	paintSpriteAt(this: DesktopUiInternals, time: number): void {
+		paintSpriteAt(time, this.spriteSet, this.sliderRefs.sliderPopImage);
+	},
+
+	_resolveSpriteUrl(this: DesktopUiInternals, item: VideoPlaylistItem | undefined | null): string | undefined {
+		return resolveSpriteUrl(item);
+	},
+
+	_revokeSpriteObjectUrl(this: DesktopUiInternals): void {
+		if (this.spriteObjectUrl) {
+			URL.revokeObjectURL(this.spriteObjectUrl);
+			this.spriteObjectUrl = null;
+		}
+	},
+
+	async loadSpritesForItem(this: DesktopUiInternals, item: VideoPlaylistItem | undefined | null): Promise<void> {
+		const myToken = ++this.spriteLoadId;
+		this.spriteSet = null;
+		this._revokeSpriteObjectUrl();
+
+		this.sliderRefs.sliderPopImage.style.backgroundImage = '';
+		this.sliderRefs.sliderPopImage.style.backgroundPosition = '';
+		this.sliderRefs.sliderPopImage.style.width = '';
+		this.sliderRefs.sliderPopImage.style.height = '';
+
+		const rawSpriteUrl = this._resolveSpriteUrl(item);
+		if (!rawSpriteUrl)
+			return;
+
+		const spriteUrl = (await this.resolveUrl(rawSpriteUrl, 'image')).href;
+
+		const set = await loadSpriteSet(spriteUrl, {
+			fetchText: async (url) => {
+				try {
+					return await this.fetch<string>(url);
+				}
+				catch {
+					return null;
+				}
+			},
+			fetchImageUrl: async (url) => {
+				try {
+					const buffer = await this.fetch<ArrayBuffer>(url, { responseType: 'arrayBuffer' });
+					return URL.createObjectURL(new Blob([buffer]));
+				}
+				catch {
+					return null;
+				}
+			},
+		});
+
+		if (myToken !== this.spriteLoadId) {
+			if (set?.spriteUrl.startsWith('blob:'))
+				URL.revokeObjectURL(set.spriteUrl);
+			return;
+		}
+		if (!set)
+			return;
+
+		if (set.spriteUrl.startsWith('blob:'))
+			this.spriteObjectUrl = set.spriteUrl;
+		this.spriteSet = set;
+		this.sliderRefs.sliderPopImage.style.backgroundImage = `url('${set.spriteUrl}')`;
+	},
+} as const;
+
+// =============================================================================
+// Mixin — DOM construction + event wiring
+// =============================================================================
+
+const domMethods = {
+	buildDom(this: DesktopUiInternals): void {
+		const root = this.mount('overlay');
+		this.overlayRoot = root;
+		this.player.addClasses(root, ['overlay']);
+
+		this.topBarRefs = buildTitleBar(this.player, root);
+		this.topBarRefs.right.hidden = !!this.opts?.hideTitle;
+
+		const centerRefs: CenterRefs = buildCenter(this.player, root);
+		this.centerWrap = centerRefs.centerWrap;
+		this.centerBtn = centerRefs.centerBtn;
+
+		const bottomRefs: BottomBarRefs & BottomRowRefs = buildBottomBar(
+			this.player,
+			root,
+			this.opts,
+			this.listen.bind(this),
+			this.t.bind(this),
+		);
+		this.bottomBar = bottomRefs.bottomBar;
+		this.sliderRefs = bottomRefs.sliderRefs;
+		this.playBtn = bottomRefs.playBtn;
+		this.prevBtn = bottomRefs.prevBtn;
+		this.nextBtn = bottomRefs.nextBtn;
+		this.rewindBtn = bottomRefs.rewindBtn;
+		this.forwardBtn = bottomRefs.forwardBtn;
+		this.chapBackBtn = bottomRefs.chapBackBtn;
+		this.chapFwdBtn = bottomRefs.chapFwdBtn;
+		this.volBtn = bottomRefs.volBtn;
+		this.volSlider = bottomRefs.volSlider;
+		this.volSliderVertical = bottomRefs.volSliderVertical;
+		this.volPopupMuteBtn = bottomRefs.volPopupMuteBtn;
+		this.currentTimeEl = bottomRefs.currentTimeEl;
+		this.remainingTimeEl = bottomRefs.remainingTimeEl;
+		this.aspectRatioBtn = bottomRefs.aspectRatioBtn;
+		this.theaterBtn = bottomRefs.theaterBtn;
+		this.theaterConfigHidden = bottomRefs.theaterConfigHidden;
+		this.pipBtn = bottomRefs.pipBtn;
+		this.speedBtn = bottomRefs.speedBtn;
+		this.subsBtn = bottomRefs.subsBtn;
+		this.audioBtn = bottomRefs.audioBtn;
+		this.qualityBtn = bottomRefs.qualityBtn;
+		this.playlistBtn = bottomRefs.playlistBtn;
+		this.settingsBtn = bottomRefs.settingsBtn;
+		this.fsBtn = bottomRefs.fsBtn;
+
+		wireVolumeSlider(
+			this._responsiveState,
+			this.opts,
+			this.player.container,
+			bottomRefs.volContainer,
+			bottomRefs.volSliderVertical,
+			bottomRefs.volVertInput,
+			this.volBtn,
+			this.volPopupMuteBtn,
+			this.listen.bind(this),
+			() => this.player.volume?.() ?? 100,
+			(level: number) => { this.player.volume?.(level); },
+			() => { this.player.toggleMute?.(); },
+			fn => this.lifecycle.addCleanup(fn),
+		);
+
+		this.menus = buildMenuFrame(this.player, root, this.listen.bind(this), {
+			closeMenu: () => this.closeAllMenus(),
+			openSubMenu: id => this.openSubMenu(id),
+			backToMain: () => this.openMainMenu(),
+		}, this.opts?.settingsItems);
+
+		this._menuControlState = makeMenuControlState();
+		this._menuControlRefs = {
+			settingsBtn: this.settingsBtn,
+			speedBtn: this.speedBtn,
+			qualityBtn: this.qualityBtn,
+			subsBtn: this.subsBtn,
+			audioBtn: this.audioBtn,
+			playlistBtn: this.playlistBtn,
+			aspectRatioBtn: this.aspectRatioBtn,
+		};
+
+		this.shortcutsOverlay = buildShortcutsOverlay(
+			root,
+			this.listen.bind(this),
+			this.t.bind(this),
+			() => this.hideShortcuts(),
+		);
+	},
+
+	wireTooltips(this: DesktopUiInternals): void {
+		const refs: TooltipButtonRefs = {
+			playBtn: this.playBtn,
+			rewindBtn: this.rewindBtn,
+			forwardBtn: this.forwardBtn,
+			volBtn: this.volBtn,
+			aspectRatioBtn: this.aspectRatioBtn,
+			theaterBtn: this.theaterBtn,
+			pipBtn: this.pipBtn,
+			speedBtn: this.speedBtn,
+			subsBtn: this.subsBtn,
+			audioBtn: this.audioBtn,
+			qualityBtn: this.qualityBtn,
+			playlistBtn: this.playlistBtn,
+			settingsBtn: this.settingsBtn,
+			fsBtn: this.fsBtn,
+			prevBtn: this.prevBtn,
+			nextBtn: this.nextBtn,
+			chapBackBtn: this.chapBackBtn,
+			chapFwdBtn: this.chapFwdBtn,
+		};
+		wireTooltips(
+			this.player,
+			refs,
+			this.sliderRefs,
+			this.listen.bind(this),
+			() => this._tooltipHoverToken,
+			(v) => { this._tooltipHoverToken = v; },
+			(fn, ms) => this.timeout(() => fn(), ms),
+			this.t.bind(this),
+			() => this.safeCurrentIndex(),
+		);
+	},
+
+	applyInitialState(this: DesktopUiInternals): void {
+		this.applyVolume(this.player.volume?.() ?? 100);
+		this.applyMuted(this.player.volumeState() === VolumeState.MUTED);
+		this.applyRate();
+		this.applySubsIcon();
+		this.applyAudioIcon();
+		this.applyQualityIcon();
+		this.applyAspectRatioIcon();
+		this.applyPipIcon(Boolean(document.pictureInPictureElement));
+		const theaterActive = this.player.theater() === TheaterState.ON;
+		this.applyTheaterIcon(theaterActive);
+		const cur = this.player.item?.();
+		if (cur)
+			this.handleCurrentChange(cur);
+		const dur = this.player.duration?.();
+		if (dur)
+			this.applyDuration(dur);
+		this.refreshCapabilityVisibility();
+		this.applyStateVisibility();
+	},
+
+	wireKeybindHint(this: DesktopUiInternals): void {
+		if (typeof sessionStorage === 'undefined')
+			return;
+		if (sessionStorage.getItem('nmplayer-keybinds-hint-shown'))
+			return;
+
+		this.once('play', () => {
+			this.player.emit('display-message', { text: this.t('shortcuts.hintToast'), ms: 12000 });
+			sessionStorage.setItem('nmplayer-keybinds-hint-shown', '1');
+		});
+	},
+
+	wireSliderBar(this: DesktopUiInternals): void {
+		this.sliderRefs.sliderBar.style.touchAction = 'none';
+
+		const startScrub = (): void => {
+			if (this.isMouseDown)
+				return;
+			this.isMouseDown = true;
+			this.isScrubbing = true;
+			this._activityState.isScrubbing = true;
+			this.sliderRefs.sliderBar.classList.add('slider-scrubbing');
+		};
+		this.listen(this.sliderRefs.sliderBar, 'mousedown', startScrub);
+		this.listen(this.sliderRefs.sliderBar, 'touchstart', startScrub);
+
+		const finalizeScrub = (e: Event): void => {
+			if (!this.isMouseDown)
+				return;
+			this.isMouseDown = false;
+			this.isScrubbing = false;
+			this._activityState.isScrubbing = false;
+			this.sliderRefs.sliderBar.classList.remove('slider-scrubbing');
+			this.sliderRefs.sliderPop.style.setProperty('--visibility', '0');
+			const scrub = this.getScrubTime(e);
+			this.sliderRefs.sliderNipple.style.left = `${scrub.scrubTime}%`;
+			void this.player.time?.(scrub.scrubTimePlayer);
+			this.bumpActivity();
+		};
+
+		this.listen(document, 'mouseup', finalizeScrub);
+		this.listen(this.bottomBar, 'click', finalizeScrub);
+		this.listen(this.sliderRefs.sliderBar, 'touchend', finalizeScrub);
+
+		const onMove = (e: Event): void => {
+			const scrub = this.getScrubTime(e);
+			this.sliderRefs.sliderPopText.textContent = fmt(scrub.scrubTimePlayer);
+			this.paintSpriteAt(scrub.scrubTimePlayer);
+
+			const popOffsetPct = this.clampPopOffset(scrub.scrubTime);
+			this.sliderRefs.sliderPop.style.left = `${popOffsetPct}%`;
+
+			this.sliderRefs.sliderPop.style.setProperty('--visibility', '1');
+
+			const chapters = this.player.chapters();
+			if (chapters.length === 0) {
+				this.sliderRefs.sliderHover.style.width = `${scrub.scrubTime}%`;
+			}
+			else {
+				this.updateChapterHover(scrub.scrubTime);
+			}
+			this.sliderRefs.chapterText.textContent = this.findChapterTitle(scrub.scrubTimePlayer) ?? '';
+
+			if (!this.isMouseDown)
+				return;
+			this.sliderRefs.sliderNipple.style.left = `${scrub.scrubTime}%`;
+		};
+		this.listen(this.sliderRefs.sliderBar, 'mousemove', onMove);
+		this.listen(this.sliderRefs.sliderBar, 'touchmove', onMove);
+
+		this.listen(this.sliderRefs.sliderBar, 'mouseover', (e: Event) => {
+			const scrub = this.getScrubTime(e);
+			this.sliderRefs.sliderPopText.textContent = fmt(scrub.scrubTimePlayer);
+			this.paintSpriteAt(scrub.scrubTimePlayer);
+			this.sliderRefs.chapterText.textContent = this.findChapterTitle(scrub.scrubTimePlayer) ?? '';
+			this.sliderRefs.sliderPop.style.setProperty('--visibility', '1');
+			this.sliderRefs.sliderPop.style.left = `${this.clampPopOffset(scrub.scrubTime)}%`;
+		});
+		this.listen(this.sliderRefs.sliderBar, 'mouseleave', () => {
+			this.sliderRefs.sliderPop.style.setProperty('--visibility', '0');
+			this.sliderRefs.sliderHover.style.width = '0';
+			for (const ch of this.chapterRefs) ch.hover.style.transform = 'scaleX(0)';
+		});
+	},
+
+	wireEvents(this: DesktopUiInternals): void {
+		if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+			const hdrMql = window.matchMedia('(dynamic-range: high)');
+			this.listen(hdrMql, 'change', () => this.repaintQualityIfOpen());
+		}
+
+		const container = this.player.container;
+		if (container) {
+			this.listen(container, 'mousemove', (e: Event) => {
+				const me = e as MouseEvent;
+				const dx = me.clientX - this._lastMouseX;
+				const dy = me.clientY - this._lastMouseY;
+				if (Math.abs(dx) < 2 && Math.abs(dy) < 2)
+					return;
+				this._lastMouseX = me.clientX;
+				this._lastMouseY = me.clientY;
+				this.bumpActivity();
+			});
+			this.listen(container, 'mousedown', () => this.bumpActivity());
+			this.listen(container, 'pointerdown', () => this.bumpActivity());
+			this.listen(container, 'touchstart', () => {
+				if (!this.player.container.classList.contains('active'))
+					this.bumpActivity();
+			});
+			this.listen(container, 'keydown', (e: Event) => {
+				this.bumpActivity();
+				const ke = e as KeyboardEvent;
+				if (ke.key === '?' && !ke.ctrlKey && !ke.metaKey && !ke.altKey) {
+					ke.preventDefault();
+					this.toggleShortcuts();
+				}
+				else if (ke.key === 'Escape' && this._menuControlState.menuOpen) {
+					ke.preventDefault();
+					this.closeAllMenus();
+				}
+				else if (ke.key === 'Escape' && this._shortcutsVisible) {
+					ke.preventDefault();
+					this.hideShortcuts();
+				}
+			});
+			this.listen(container, 'mouseleave', () => this.maybeHide());
+			this.listen(container, 'click', (e: Event) => {
+				this.bumpActivity();
+				const target = e.target as HTMLElement;
+				if (target.tagName === 'VIDEO' && !this.opts?.disableClickToPause) {
+					void this.player.togglePlayback();
+				}
+			});
+
+			this.listen(this.overlayRoot, 'click', (e: Event) => {
+				if ((e.target as Node) === this.overlayRoot) {
+					this.dismissOverlay();
+				}
+			});
+		}
+
+		for (const zone of [this.bottomBar, this.menus.frame]) {
+			this.listen(zone, 'pointerenter', (e: Event) => {
+				if ((e as PointerEvent).pointerType === 'mouse') {
+					this._activityState.isControlsHovered = true;
+				}
+			});
+			this.listen(zone, 'pointerleave', (e: Event) => {
+				if ((e as PointerEvent).pointerType === 'mouse') {
+					this._activityState.isControlsHovered = false;
+				}
+			});
+		}
+
+		this.on('plugin:desktop-ui:shortcuts-toggle', () => this.toggleShortcuts());
+
+		this.on('play', () => {
+			this.centerWrap.classList.add('dismissed');
+			this.setPlayingState(true);
+			this.bumpActivity();
+		});
+		this.on('pause', () => {
+			this.setPlayingState(false);
+			if (this._activityState.inactivityToken !== null) {
+				clearTimeout(this._activityState.inactivityToken);
+				this._activityState.inactivityToken = null;
+			}
+			setActivity(this._activityState, this.player, true);
+		});
+		this.on('ended', () => this.setPlayingState(false));
+
+		this.on('seek', (d) => {
+			if (d?.source)
+				this.bumpActivity();
+		});
+
+		this.on('item', d => this.handleCurrentChange(d.item));
+
+		this.on('listeners-changed', (d) => {
+			if ((d.name === 'back' || d.name === 'close') && this.topBarRefs)
+				this.applyStateVisibility();
+		});
+
+		this.on('mediaReady', () => {
+			this.refreshChaptersAndDuration();
+			this.syncActiveIndexes();
+			this.applySubsIcon();
+			this.applyQualityIcon();
+			this.refreshCapabilityVisibility();
+			this.repaintSubsIfOpen();
+			this.repaintAudioIfOpen();
+			this.repaintQualityIfOpen();
+		});
+
+		this.on('chapters', () => {
+			this.renderChapterMarkers();
+			this.refreshCapabilityVisibility();
+		});
+
+		this.on('duration', d => this.applyDuration(d.duration));
+		this.on('time', d => this.applyTime(d.time));
+
+		this.on('volume', (d) => {
+			const level = typeof d?.level === 'number' ? d.level : this.player.volume?.() ?? 100;
+			this.applyVolume(level);
+			this.showMessage(this.t('message.volume', { level: String(Math.round(level)) }), 1200);
+		});
+		this.on('mute', (d) => {
+			const muted = d?.muted ?? this.player.volumeState?.() === 'muted';
+			this.applyMuted(muted);
+			this.showMessage(this.t(muted ? 'message.muted' : 'message.unmuted'), 1200);
+		});
+
+		this.on('backend:ratechange', () => {
+			this.applyRate();
+			this.repaintSpeedIfOpen();
+		});
+
+		this.on('subtitle', (d) => {
+			const idx = d.track;
+			this._menuControlState.activeSubtitleIdx = (typeof idx === 'number' && idx >= 0) ? idx : -1;
+			this.applySubsIcon();
+			this.repaintSubsIfOpen();
+		});
+
+		this.on('audioTrack', (d) => {
+			this._menuControlState.activeAudioIdx = typeof d.id === 'number' ? d.id : -1;
+			this.applyAudioIcon();
+			this.repaintAudioIfOpen();
+		});
+
+		this.on('quality:requested', (d) => {
+			this._menuControlState.activeQualityIdx = d.level;
+			this._menuControlState.userPickedQuality = d.level !== 'auto';
+			this.applyQualityIcon();
+			this.repaintQualityIfOpen();
+		});
+
+		this.on('level-switched', (d) => {
+			if (typeof d.level === 'number') {
+				this._menuControlState.playingQualityIdx = d.level;
+			}
+			if (!this._menuControlState.userPickedQuality) {
+				this._menuControlState.activeQualityIdx = 'auto';
+			}
+			else {
+				this._menuControlState.activeQualityIdx = typeof d.level === 'number'
+					? d.level
+					: this._menuControlState.activeQualityIdx;
+			}
+			this.applyQualityIcon();
+			this.repaintQualityIfOpen();
+		});
+
+		this.on('levels', () => { this.refreshCapabilityVisibility(); });
+		this.on('audioTracks', () => { this.refreshCapabilityVisibility(); });
+
+		this.on('fullscreen', () => {
+			this.applyFullscreen();
+			this.fsActive = Boolean(document.fullscreenElement);
+			this.applyStateVisibility();
+		});
+		this.on('pip', () => {
+			this.pipActive = Boolean(document.pictureInPictureElement);
+			this.applyPipIcon(this.pipActive);
+			this.applyStateVisibility();
+		});
+		this.on('theater', () => {
+			this.applyTheaterIcon(this.player.theater() === TheaterState.ON);
+		});
+
+		this.on('aspectRatio', () => {
+			this.applyAspectRatioIcon();
+			this.repaintAspectRatioIfOpen();
+		});
+
+		this.listen(this.centerBtn, 'click', () => {
+			this.centerWrap.classList.add('dismissed');
+			void this.player.togglePlayback();
+			this.bumpActivity();
+		});
+		this.listen(this.playBtn, 'click', () => { void this.player.togglePlayback(); this.bumpActivity(); });
+
+		this.listen(this.prevBtn, 'click', () => { void this.player.previous?.(); });
+		this.listen(this.nextBtn, 'click', () => { void this.player.next?.(); });
+		this.listen(this.rewindBtn, 'click', () => { this.player.rewind?.(10); });
+		this.listen(this.forwardBtn, 'click', () => { this.player.forward?.(10); });
+		this.listen(this.chapBackBtn, 'click', () => this.previousChapter());
+		this.listen(this.chapFwdBtn, 'click', () => this.nextChapter());
+
+		this.listen(this.volBtn, 'click', () => {
+			const volContainer = this.volBtn.closest('.volume-container');
+			if (volContainer?.classList.contains('volume-container-vertical')) {
+				return;
+			}
+			this.player.toggleMute?.();
+		});
+		this.listen(this.volSlider, 'input', () => {
+			const volume = Number(this.volSlider.value);
+			this.player.volume?.(volume);
+		});
+
+		this.listen(this.remainingTimeEl, 'click', () => {
+			this._showRemaining = !this._showRemaining;
+			void Promise.resolve(this.storage.setJSON('showRemaining', this._showRemaining));
+			this.applyTime(this.player.time?.() ?? 0);
+		});
+
+		this.wireSliderBar();
+
+		this.listen(this.speedBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('speed'); });
+		this.listen(this.qualityBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('quality'); });
+		this.listen(this.subsBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('subtitles'); });
+		this.listen(this.audioBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('language'); });
+		this.listen(this.playlistBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('playlist'); });
+		this.listen(this.settingsBtn, 'click', (e: Event) => { e.stopPropagation(); this.openMainMenu(); });
+
+		this.listen(this.aspectRatioBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('aspectRatio'); });
+		this.listen(this.theaterBtn, 'click', () => { this.player.toggleTheater(); });
+		this.listen(this.pipBtn, 'click', () => { this.player.togglePip(); });
+		this.listen(this.fsBtn, 'click', () => { this.player.toggleFullscreen(); });
+
+		const videoEl = this.player.videoElement;
+		if (videoEl) {
+			this.listen(videoEl, 'enterpictureinpicture', () => this.applyPipIcon(true));
+			this.listen(videoEl, 'leavepictureinpicture', () => this.applyPipIcon(false));
+		}
+
+		this.listen(document, 'click', (e: Event) => {
+			if (!this._menuControlState.menuOpen)
+				return;
+			const target = e.target as Node;
+			if (this.menus.frame.contains(target))
+				return;
+			this.closeAllMenus();
+		});
+
+		if (!('pictureInPictureEnabled' in document))
+			this.pipBtn.hidden = true;
+
+		this.on('plugin:desktop-ui:opts:changed', (opts) => {
+			this.topBarRefs.right.hidden = !!(opts as DesktopUiOptions).hideTitle;
+		});
+	},
+} as const;
+
+// =============================================================================
+// Plugin class — state fields + lifecycle overrides + declare signatures
+// =============================================================================
+
 export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, DesktopUiOptions, DesktopUiEvents> {
 	static override readonly id: string = 'desktop-ui';
 	static override readonly version: string = '2.0.0';
@@ -385,6 +1594,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private _lastMouseY = -1;
 	private _tooltipHoverToken: number | null = null;
 
+	// ── Lifecycle overrides — these call super so they CANNOT be mixins ──────
+
 	override use(): void {
 		this.appendStyles(new URL('./styles.css', import.meta.url).href, 'desktop-ui-styles');
 		this.buildDom();
@@ -469,6 +1680,10 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		this.bumpActivity();
 	}
 
+	override dispose(): void {
+		this._revokeSpriteObjectUrl();
+	}
+
 	/**
 	 * The overlay root — the auto-hiding chrome layer this plugin owns.
 	 * Other plugins mount their UI here (via
@@ -481,1239 +1696,97 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		return this.overlayRoot ?? null;
 	}
 
-	// ── Playback feedback: spinner, loading/buffering/error, toasts ──────
-
-	/**
-	 * The user must never stare at a silent black frame. Spinner + status
-	 * line on load and on every buffer stall, an error line when playback
-	 * dies, and the `display-message` / `remove-message` toast contract for
-	 * plugins and consumers (the v1 surface).
-	 */
-	private wireFeedback(): void {
-		const container = this.player.container;
-
-		const showBuffer = (textKey: string): void => {
-			container.classList.add('buffering');
-			this.showMessage(this.t(textKey), undefined, true);
-		};
-		const clearFeedback = (): void => {
-			container.classList.remove('buffering');
-			if (this.messageIsFeedback)
-				this.hideMessage();
-		};
-
-		// Initial load — the player is mounting media right now.
-		showBuffer('message.loading');
-
-		this.on('waiting', () => showBuffer('message.buffering'));
-		this.on('stalled', () => showBuffer('message.buffering'));
-		this.on('item', () => showBuffer('message.loading'));
-		this.on('playing', clearFeedback);
-		this.on('time', clearFeedback);
-
-		this.on('error', () => {
-			container.classList.remove('buffering');
-			this.showMessage(this.t('message.error'), undefined, true);
-		});
-
-		this.on('display-message', (data) => {
-			const payload = data as { text?: string; ms?: number } | undefined;
-			if (payload?.text)
-				this.showMessage(payload.text, payload.ms);
-		});
-		this.on('remove-message', () => this.hideMessage());
-	}
-
-	private showMessage(text: string, ms?: number, isFeedback = false): void {
-		if (!this.messageEl) {
-			const el = document.createElement('div');
-			el.className = 'player-message';
-			this.player.container.appendChild(el);
-			this.messageEl = el;
-		}
-		this.messageEl.textContent = text;
-		this.messageEl.classList.add('visible');
-		this.messageIsFeedback = isFeedback;
-
-		if (this.messageTimer !== null) {
-			clearTimeout(this.messageTimer);
-			this.messageTimer = null;
-		}
-		if (typeof ms === 'number' && ms > 0) {
-			this.messageTimer = this.timeout(() => {
-				this.messageTimer = null;
-				this.hideMessage();
-			}, ms) as unknown as ReturnType<typeof setTimeout>;
-		}
-	}
-
-	private hideMessage(): void {
-		this.messageIsFeedback = false;
-		this.messageEl?.classList.remove('visible');
-	}
-
-	/**
-	 * Display-state visibility: theater is meaningless inside fullscreen or
-	 * PiP, and PiP chrome floats over another window — navigation buttons
-	 * there act on the wrong surface. Config opt-outs always win.
-	 */
-	private applyStateVisibility(): void {
-		this.theaterBtn.hidden = this.theaterConfigHidden || this.fsActive || this.pipActive;
-		if (this.topBarRefs) {
-			this.topBarRefs.backBtn.hidden = this.pipActive || !this.player.hasListeners('back');
-			this.topBarRefs.closeBtn.hidden = this.pipActive || !this.player.hasListeners('close');
-		}
-	}
-
-	/** Show a one-shot hint on first play so users discover the shortcuts overlay. */
-	private wireKeybindHint(): void {
-		if (typeof sessionStorage === 'undefined')
-			return;
-		if (sessionStorage.getItem('nmplayer-keybinds-hint-shown'))
-			return;
-
-		this.once('play', () => {
-			this.player.emit('display-message', { text: this.t('shortcuts.hintToast'), ms: 12000 });
-			sessionStorage.setItem('nmplayer-keybinds-hint-shown', '1');
-		});
-	}
-
-	// ── DOM construction ─────────────────────────────────────────────────
-	private buildDom(): void {
-		const root = this.mount('overlay');
-		this.overlayRoot = root;
-		this.player.addClasses(root, ['overlay']);
-
-		this.topBarRefs = buildTitleBar(this.player, root);
-		// hideTitle hides only the right column (title + show-info), not the
-		// whole bar — left column carries back/close buttons that must remain.
-		this.topBarRefs.right.hidden = !!this.opts?.hideTitle;
-
-		const centerRefs: CenterRefs = buildCenter(this.player, root);
-		this.centerWrap = centerRefs.centerWrap;
-		this.centerBtn = centerRefs.centerBtn;
-
-		const bottomRefs: BottomBarRefs & BottomRowRefs = buildBottomBar(
-			this.player,
-			root,
-			this.opts,
-			this.listen.bind(this),
-			this.t.bind(this),
-		);
-		this.bottomBar = bottomRefs.bottomBar;
-		this.sliderRefs = bottomRefs.sliderRefs;
-		this.playBtn = bottomRefs.playBtn;
-		this.prevBtn = bottomRefs.prevBtn;
-		this.nextBtn = bottomRefs.nextBtn;
-		this.rewindBtn = bottomRefs.rewindBtn;
-		this.forwardBtn = bottomRefs.forwardBtn;
-		this.chapBackBtn = bottomRefs.chapBackBtn;
-		this.chapFwdBtn = bottomRefs.chapFwdBtn;
-		this.volBtn = bottomRefs.volBtn;
-		this.volSlider = bottomRefs.volSlider;
-		this.volSliderVertical = bottomRefs.volSliderVertical;
-		this.volPopupMuteBtn = bottomRefs.volPopupMuteBtn;
-		this.currentTimeEl = bottomRefs.currentTimeEl;
-		this.remainingTimeEl = bottomRefs.remainingTimeEl;
-		this.aspectRatioBtn = bottomRefs.aspectRatioBtn;
-		this.theaterBtn = bottomRefs.theaterBtn;
-		this.theaterConfigHidden = bottomRefs.theaterConfigHidden;
-		this.pipBtn = bottomRefs.pipBtn;
-		this.speedBtn = bottomRefs.speedBtn;
-		this.subsBtn = bottomRefs.subsBtn;
-		this.audioBtn = bottomRefs.audioBtn;
-		this.qualityBtn = bottomRefs.qualityBtn;
-		this.playlistBtn = bottomRefs.playlistBtn;
-		this.settingsBtn = bottomRefs.settingsBtn;
-		this.fsBtn = bottomRefs.fsBtn;
-
-		// Wire the volume slider now that all button refs are stored.
-		wireVolumeSlider(
-			this._responsiveState,
-			this.opts,
-			this.player.container,
-			bottomRefs.volContainer,
-			bottomRefs.volSliderVertical,
-			bottomRefs.volVertInput,
-			this.volBtn,
-			this.volPopupMuteBtn,
-			this.listen.bind(this),
-			() => this.player.volume?.() ?? 100,
-			(level: number) => { this.player.volume?.(level); },
-			() => { this.player.toggleMute?.(); },
-			fn => this.lifecycle.addCleanup(fn),
-		);
-
-		this.menus = buildMenuFrame(this.player, root, this.listen.bind(this), {
-			closeMenu: () => this.closeAllMenus(),
-			openSubMenu: id => this.openSubMenu(id),
-			backToMain: () => this.openMainMenu(),
-		}, this.opts?.settingsItems);
-
-		this._menuControlState = makeMenuControlState();
-		this._menuControlRefs = {
-			settingsBtn: this.settingsBtn,
-			speedBtn: this.speedBtn,
-			qualityBtn: this.qualityBtn,
-			subsBtn: this.subsBtn,
-			audioBtn: this.audioBtn,
-			playlistBtn: this.playlistBtn,
-			aspectRatioBtn: this.aspectRatioBtn,
-		};
-
-		this.shortcutsOverlay = buildShortcutsOverlay(
-			root,
-			this.listen.bind(this),
-			this.t.bind(this),
-			() => this.hideShortcuts(),
-		);
-	}
-
-	private toggleShortcuts(): void {
-		if (this._shortcutsVisible) {
-			this.hideShortcuts();
-		}
-		else {
-			this.showShortcuts();
-		}
-	}
-
-	private showShortcuts(): void {
-		this._shortcutsVisible = true;
-		this.shortcutsOverlay?.classList.add('keybinds-dialog-visible');
-	}
-
-	private hideShortcuts(): void {
-		this._shortcutsVisible = false;
-		this.shortcutsOverlay?.classList.remove('keybinds-dialog-visible');
-	}
-
-	private wireTooltips(): void {
-		const refs: TooltipButtonRefs = {
-			playBtn: this.playBtn,
-			rewindBtn: this.rewindBtn,
-			forwardBtn: this.forwardBtn,
-			volBtn: this.volBtn,
-			aspectRatioBtn: this.aspectRatioBtn,
-			theaterBtn: this.theaterBtn,
-			pipBtn: this.pipBtn,
-			speedBtn: this.speedBtn,
-			subsBtn: this.subsBtn,
-			audioBtn: this.audioBtn,
-			qualityBtn: this.qualityBtn,
-			playlistBtn: this.playlistBtn,
-			settingsBtn: this.settingsBtn,
-			fsBtn: this.fsBtn,
-			prevBtn: this.prevBtn,
-			nextBtn: this.nextBtn,
-			chapBackBtn: this.chapBackBtn,
-			chapFwdBtn: this.chapFwdBtn,
-		};
-		wireTooltips(
-			this.player,
-			refs,
-			this.sliderRefs,
-			this.listen.bind(this),
-			() => this._tooltipHoverToken,
-			(v) => { this._tooltipHoverToken = v; },
-			(fn, ms) => this.timeout(() => fn(), ms),
-			this.t.bind(this),
-			() => this.safeCurrentIndex(),
-		);
-	}
-
-	// ── Event wiring ─────────────────────────────────────────────────────
-	private wireEvents(): void {
-		// Re-render the quality menu when the display's dynamic-range support
-		// flips — e.g. user drags the window from an SDR to an HDR monitor.
-		if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-			const hdrMql = window.matchMedia('(dynamic-range: high)');
-			this.listen(hdrMql, 'change', () => this.repaintQualityIfOpen());
-		}
-
-		const container = this.player.container;
-		if (container) {
-			this.listen(container, 'mousemove', (e: Event) => {
-				const me = e as MouseEvent;
-				const dx = me.clientX - this._lastMouseX;
-				const dy = me.clientY - this._lastMouseY;
-				if (Math.abs(dx) < 2 && Math.abs(dy) < 2)
-					return;
-				this._lastMouseX = me.clientX;
-				this._lastMouseY = me.clientY;
-				this.bumpActivity();
-			});
-			this.listen(container, 'mousedown', () => this.bumpActivity());
-			this.listen(container, 'pointerdown', () => this.bumpActivity());
-			// On touch devices, touchstart must only SHOW the controls (wake from
-			// hidden). When controls are already visible, this must be a no-op so
-			// that a subsequent click on a touch-zone can emit activity:false and
-			// hide them. If we unconditionally bumped here, every tap would re-show
-			// regardless of what touch-zones intended — the mobile tap-toggle breaks.
-			//
-			// We read the live .active DOM class rather than activityActive because
-			// a peer plugin (touch-zones) can call player.emit('activity',{active:false})
-			// directly, which updates the DOM class but leaves activityActive=true
-			// (it bypasses setActivity). The DOM is always the real source of truth.
-			this.listen(container, 'touchstart', () => {
-				if (!this.player.container.classList.contains('active'))
-					this.bumpActivity();
-			});
-			this.listen(container, 'keydown', (e: Event) => {
-				this.bumpActivity();
-				const ke = e as KeyboardEvent;
-				if (ke.key === '?' && !ke.ctrlKey && !ke.metaKey && !ke.altKey) {
-					ke.preventDefault();
-					this.toggleShortcuts();
-				}
-				else if (ke.key === 'Escape' && this._menuControlState.menuOpen) {
-					ke.preventDefault();
-					this.closeAllMenus();
-				}
-				else if (ke.key === 'Escape' && this._shortcutsVisible) {
-					ke.preventDefault();
-					this.hideShortcuts();
-				}
-			});
-			this.listen(container, 'mouseleave', () => this.maybeHide());
-			this.listen(container, 'click', (e: Event) => {
-				this.bumpActivity();
-				const target = e.target as HTMLElement;
-				if (target.tagName === 'VIDEO' && !this.opts?.disableClickToPause) {
-					void this.player.togglePlayback();
-				}
-			});
-
-			// Only a genuine background tap reaches overlayRoot as the target;
-			// child controls consume the event first and never let it bubble here.
-			this.listen(this.overlayRoot, 'click', (e: Event) => {
-				if ((e.target as Node) === this.overlayRoot) {
-					this.dismissOverlay();
-				}
-			});
-		}
-
-		// Hovering over the bottom bar or the menu frame suspends the inactivity
-		// timer — controls must never hide while the user is actively using them.
-		// Use pointerenter/pointerleave filtered to mouse-type so mobile browsers
-		// don't lock _isControlsHovered via synthesised mouse events from touch.
-		for (const zone of [this.bottomBar, this.menus.frame]) {
-			this.listen(zone, 'pointerenter', (e: Event) => {
-				if ((e as PointerEvent).pointerType === 'mouse') {
-					this._activityState.isControlsHovered = true;
-				}
-			});
-			this.listen(zone, 'pointerleave', (e: Event) => {
-				if ((e as PointerEvent).pointerType === 'mouse') {
-					this._activityState.isControlsHovered = false;
-				}
-			});
-		}
-
-		this.on(DesktopUiPlugin, 'shortcuts-toggle', () => this.toggleShortcuts());
-
-		this.on('play', () => {
-			this.centerWrap.classList.add('dismissed');
-			this.setPlayingState(true);
-			// Re-arm the inactivity timer whenever playback starts so the
-			// controls auto-hide after 4 s even on programmatic play calls.
-			this.bumpActivity();
-		});
-		this.on('pause', () => {
-			this.setPlayingState(false);
-			// Keep controls visible while paused — cancel any pending hide.
-			if (this._activityState.inactivityToken !== null) {
-				clearTimeout(this._activityState.inactivityToken);
-				this._activityState.inactivityToken = null;
-			}
-			setActivity(this._activityState, this.player, true);
-		});
-		this.on('ended', () => this.setPlayingState(false));
-
-		// Only a user-initiated scrub keeps the controls up. Programmatic and
-		// relayed seeks carry no `source` and must NOT re-arm the hide timer —
-		// that was the rc.10 regression (phantom seeks looping forever).
-		// `seeked` never carries `source`, so we gate solely on `seek`.
-		this.on('seek', (d) => {
-			if (d?.source)
-				this.bumpActivity();
-		});
-
-		this.on('item', d => this.handleCurrentChange(d.item));
-
-		this.on('listeners-changed', (d) => {
-			// applyStateVisibility composes the listener gate with PiP hiding —
-			// a bare refresh here would unhide back/close mid-PiP.
-			if ((d.name === 'back' || d.name === 'close') && this.topBarRefs)
-				this.applyStateVisibility();
-		});
-
-		// mediaReady: refresh chapters + duration, then sync all track lists
-		// (subtitles / audio / quality) that may have changed with the new source.
-		this.on('mediaReady', () => {
-			this.refreshChaptersAndDuration();
-			this.syncActiveIndexes();
-			this.applySubsIcon();
-			this.applyQualityIcon();
-			this.refreshCapabilityVisibility();
-			this.repaintSubsIfOpen();
-			this.repaintAudioIfOpen();
-			this.repaintQualityIfOpen();
-		});
-
-		this.on('chapters', () => {
-			this.renderChapterMarkers();
-			this.refreshCapabilityVisibility();
-		});
-
-		this.on('duration', d => this.applyDuration(d.duration));
-		this.on('time', d => this.applyTime(d.time));
-
-		this.on('volume', (d) => {
-			const level = typeof d?.level === 'number' ? d.level : this.player.volume?.() ?? 100;
-			this.applyVolume(level);
-			// Every volume change toasts the new level — same affordance as
-			// cycling aspect / audio / subtitles (v1 behaviour).
-			this.showMessage(this.t('message.volume', { level: String(Math.round(level)) }), 1200);
-		});
-		this.on('mute', (d) => {
-			const muted = d?.muted ?? this.player.volumeState?.() === 'muted';
-			this.applyMuted(muted);
-			this.showMessage(this.t(muted ? 'message.muted' : 'message.unmuted'), 1200);
-		});
-
-		// 'backend:ratechange' is the correct player-level event — emitted by
-		// base-player.ts:playbackRate() and carried on the typed event map.
-		this.on('backend:ratechange', () => {
-			this.applyRate();
-			this.repaintSpeedIfOpen();
-		});
-
-		// v2 emits 'subtitle' (not 'subtitleChanged') with `{ track: idx | null }`.
-		this.on('subtitle', (d) => {
-			const idx = d.track;
-			this._menuControlState.activeSubtitleIdx = (typeof idx === 'number' && idx >= 0) ? idx : -1;
-			this.applySubsIcon();
-			this.repaintSubsIfOpen();
-		});
-
-		// v2 emits 'audioTrack' (not 'audioTrackChanged') with `{ id: idx }`.
-		this.on('audioTrack', (d) => {
-			this._menuControlState.activeAudioIdx = typeof d.id === 'number' ? d.id : -1;
-			this.applyAudioIcon();
-			this.repaintAudioIfOpen();
-		});
-
-		this.on('quality:requested', (d) => {
-			this._menuControlState.activeQualityIdx = d.level;
-			this._menuControlState.userPickedQuality = d.level !== 'auto';
-			this.applyQualityIcon();
-			this.repaintQualityIfOpen();
-		});
-
-		this.on('level-switched', (d) => {
-			// Always record the actually-playing level so the Auto row can
-			// surface it as a sublabel and the button aria-label can include it.
-			if (typeof d.level === 'number') {
-				this._menuControlState.playingQualityIdx = d.level;
-			}
-			if (!this._menuControlState.userPickedQuality) {
-				this._menuControlState.activeQualityIdx = 'auto';
-			}
-			else {
-				this._menuControlState.activeQualityIdx = typeof d.level === 'number'
-					? d.level
-					: this._menuControlState.activeQualityIdx;
-			}
-			this.applyQualityIcon();
-			this.repaintQualityIfOpen();
-		});
-
-		// Track lists arrive asynchronously after HLS manifest parse — may be
-		// empty at mediaReady. Refresh capability visibility when they land.
-		this.on('levels', () => { this.refreshCapabilityVisibility(); });
-		this.on('audioTracks', () => { this.refreshCapabilityVisibility(); });
-
-		this.on('fullscreen', () => {
-			this.applyFullscreen();
-			this.fsActive = Boolean(document.fullscreenElement);
-			this.applyStateVisibility();
-		});
-		this.on('pip', () => {
-			this.pipActive = Boolean(document.pictureInPictureElement);
-			this.applyPipIcon(this.pipActive);
-			this.applyStateVisibility();
-		});
-		this.on('theater', () => {
-			this.applyTheaterIcon(this.player.theater() === TheaterState.ON);
-		});
-
-		this.on('aspectRatio', () => {
-			this.applyAspectRatioIcon();
-			this.repaintAspectRatioIfOpen();
-		});
-
-		this.listen(this.centerBtn, 'click', () => {
-			// Center button is a one-shot affordance — once the user clicks
-			// it, the touch zones own play/pause from here on.
-			this.centerWrap.classList.add('dismissed');
-			void this.player.togglePlayback();
-			this.bumpActivity();
-		});
-		this.listen(this.playBtn, 'click', () => { void this.player.togglePlayback(); this.bumpActivity(); });
-
-		this.listen(this.prevBtn, 'click', () => { void this.player.previous?.(); });
-		this.listen(this.nextBtn, 'click', () => { void this.player.next?.(); });
-		this.listen(this.rewindBtn, 'click', () => { this.player.rewind?.(10); });
-		this.listen(this.forwardBtn, 'click', () => { this.player.forward?.(10); });
-		this.listen(this.chapBackBtn, 'click', () => this.previousChapter());
-		this.listen(this.chapFwdBtn, 'click', () => this.nextChapter());
-
-		this.listen(this.volBtn, 'click', () => {
-			// In vertical-slider mode the click opens/closes the popup —
-			// skip mute toggle so a single tap on mobile doesn't both mute
-			// AND toggle the popup (which leaves mute flipped and slider closed).
-			const volContainer = this.volBtn.closest('.volume-container');
-			if (volContainer?.classList.contains('volume-container-vertical')) {
-				return;
-			}
-			this.player.toggleMute?.();
-		});
-		this.listen(this.volSlider, 'input', () => {
-			const volume = Number(this.volSlider.value);
-			this.player.volume?.(volume);
-		});
-
-		this.listen(this.remainingTimeEl, 'click', () => {
-			this._showRemaining = !this._showRemaining;
-			void Promise.resolve(this.storage.setJSON('showRemaining', this._showRemaining));
-			this.applyTime(this.player.time?.() ?? 0);
-		});
-
-		this.wireSliderBar();
-
-		this.listen(this.speedBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('speed'); });
-		this.listen(this.qualityBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('quality'); });
-		this.listen(this.subsBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('subtitles'); });
-		this.listen(this.audioBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('language'); });
-		this.listen(this.playlistBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('playlist'); });
-		this.listen(this.settingsBtn, 'click', (e: Event) => { e.stopPropagation(); this.openMainMenu(); });
-
-		this.listen(this.aspectRatioBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('aspectRatio'); });
-		this.listen(this.theaterBtn, 'click', () => { this.player.toggleTheater(); });
-		this.listen(this.pipBtn, 'click', () => { this.player.togglePip(); });
-		this.listen(this.fsBtn, 'click', () => { this.player.toggleFullscreen(); });
-
-		const videoEl = this.player.videoElement;
-		if (videoEl) {
-			this.listen(videoEl, 'enterpictureinpicture', () => this.applyPipIcon(true));
-			this.listen(videoEl, 'leavepictureinpicture', () => this.applyPipIcon(false));
-		}
-
-		this.listen(document, 'click', (e: Event) => {
-			if (!this._menuControlState.menuOpen)
-				return;
-			const target = e.target as Node;
-			if (this.menus.frame.contains(target))
-				return;
-			this.closeAllMenus();
-		});
-
-		if (!('pictureInPictureEnabled' in document))
-			this.pipBtn.hidden = true;
-
-		this.on(DesktopUiPlugin, 'opts:changed', (opts) => {
-			this.topBarRefs.right.hidden = !!opts.hideTitle;
-		});
-	}
-
-	private wireSliderBar(): void {
-		// Prevent the browser from intercepting touchmove as a scroll gesture
-		// while the user drags over the slider bar.
-		this.sliderRefs.sliderBar.style.touchAction = 'none';
-
-		const startScrub = (): void => {
-			if (this.isMouseDown)
-				return;
-			this.isMouseDown = true;
-			this.isScrubbing = true;
-			this._activityState.isScrubbing = true;
-			this.sliderRefs.sliderBar.classList.add('slider-scrubbing');
-		};
-		this.listen(this.sliderRefs.sliderBar, 'mousedown', startScrub);
-		this.listen(this.sliderRefs.sliderBar, 'touchstart', startScrub);
-
-		const finalizeScrub = (e: Event): void => {
-			if (!this.isMouseDown)
-				return;
-			this.isMouseDown = false;
-			this.isScrubbing = false;
-			this._activityState.isScrubbing = false;
-			this.sliderRefs.sliderBar.classList.remove('slider-scrubbing');
-			this.sliderRefs.sliderPop.style.setProperty('--visibility', '0');
-			const scrub = this.getScrubTime(e);
-			this.sliderRefs.sliderNipple.style.left = `${scrub.scrubTime}%`;
-			void this.player.time?.(scrub.scrubTimePlayer);
-			this.bumpActivity();
-		};
-
-		// Mouse: document-level mouseup finalizes the scrub regardless of where
-		// the cursor is when the button is released. Without this, releasing
-		// outside the slider leaves isMouseDown=true and the seek-preview
-		// reappears on the next mousemove over the bar.
-		this.listen(document, 'mouseup', finalizeScrub);
-
-		// Mouse: click on the bottom bar also finalizes the seek for the case
-		// where no drag preceded the click.
-		this.listen(this.bottomBar, 'click', finalizeScrub);
-
-		// Touch: touchend on the slider bar finalizes the seek. Without this,
-		// releasing a finger never commits the scrub position because the
-		// browser suppresses the synthetic click event after a touchmove.
-		this.listen(this.sliderRefs.sliderBar, 'touchend', finalizeScrub);
-
-		const onMove = (e: Event): void => {
-			const scrub = this.getScrubTime(e);
-			this.sliderRefs.sliderPopText.textContent = fmt(scrub.scrubTimePlayer);
-			this.paintSpriteAt(scrub.scrubTimePlayer);
-
-			const popOffsetPct = this.clampPopOffset(scrub.scrubTime);
-			this.sliderRefs.sliderPop.style.left = `${popOffsetPct}%`;
-
-			// Always show the pop here: mousemove only fires while hovering the
-			// bar, touchmove only during an active scrub. Also brings the pop
-			// back after a click-to-seek hid it without leaving the bar first.
-			this.sliderRefs.sliderPop.style.setProperty('--visibility', '1');
-
-			const chapters = this.player.chapters();
-			if (chapters.length === 0) {
-				this.sliderRefs.sliderHover.style.width = `${scrub.scrubTime}%`;
-			}
-			else {
-				this.updateChapterHover(scrub.scrubTime);
-			}
-			this.sliderRefs.chapterText.textContent = this.findChapterTitle(scrub.scrubTimePlayer) ?? '';
-
-			if (!this.isMouseDown)
-				return;
-			this.sliderRefs.sliderNipple.style.left = `${scrub.scrubTime}%`;
-		};
-		this.listen(this.sliderRefs.sliderBar, 'mousemove', onMove);
-		this.listen(this.sliderRefs.sliderBar, 'touchmove', onMove);
-
-		this.listen(this.sliderRefs.sliderBar, 'mouseover', (e: Event) => {
-			const scrub = this.getScrubTime(e);
-			this.sliderRefs.sliderPopText.textContent = fmt(scrub.scrubTimePlayer);
-			this.paintSpriteAt(scrub.scrubTimePlayer);
-			this.sliderRefs.chapterText.textContent = this.findChapterTitle(scrub.scrubTimePlayer) ?? '';
-			this.sliderRefs.sliderPop.style.setProperty('--visibility', '1');
-			this.sliderRefs.sliderPop.style.left = `${this.clampPopOffset(scrub.scrubTime)}%`;
-		});
-		this.listen(this.sliderRefs.sliderBar, 'mouseleave', () => {
-			this.sliderRefs.sliderPop.style.setProperty('--visibility', '0');
-			this.sliderRefs.sliderHover.style.width = '0';
-			for (const ch of this.chapterRefs) ch.hover.style.transform = 'scaleX(0)';
-		});
-	}
-
-	private getScrubTime(e: Event): { scrubTime: number; scrubTimePlayer: number } {
-		return getScrubTime(e, this.sliderRefs.sliderBar, this.resolveDuration());
-	}
-
-	private clampPopOffset(pct: number): number {
-		return clampPopOffset(pct, this.sliderRefs.sliderPop, this.sliderRefs.sliderBar);
-	}
-
-	// ── Initial state, capability gating, helpers ────────────────────
-	private applyInitialState(): void {
-		this.applyVolume(this.player.volume?.() ?? 100);
-		this.applyMuted(this.player.volumeState() === VolumeState.MUTED);
-		this.applyRate();
-		this.applySubsIcon();
-		this.applyAudioIcon();
-		this.applyQualityIcon();
-		this.applyAspectRatioIcon();
-		this.applyPipIcon(Boolean(document.pictureInPictureElement));
-		const theaterActive = this.player.theater() === TheaterState.ON;
-		this.applyTheaterIcon(theaterActive);
-		const cur = this.player.item?.();
-		if (cur)
-			this.handleCurrentChange(cur);
-		const dur = this.player.duration?.();
-		if (dur)
-			this.applyDuration(dur);
-		this.refreshCapabilityVisibility();
-		this.applyStateVisibility();
-	}
-
-	private setPlayingState(playing: boolean): void {
-		this.centerWrap.classList.toggle('playing', playing);
-		const icon = playing ? fluentIcons.pause : fluentIcons.play;
-		const playIconHolder = this.playBtn.querySelector('.btn-icon') ?? this.playBtn;
-		playIconHolder.innerHTML = svgFromIcon(icon);
-		const centerIconHolder = this.centerBtn.querySelector('.btn-icon') ?? this.centerBtn;
-		centerIconHolder.innerHTML = svgFromIcon(playing ? fluentIcons.pause : fluentIcons.bigPlay, 32);
-		this.playBtn.setAttribute('aria-label', this.t('tooltip.play'));
-	}
-
-	private handleCurrentChange(item: VideoPlaylistItem | undefined | null): void {
-		if (this.topBarRefs)
-			updateTitleBar(this.player, this.topBarRefs, item);
-
-		// Reset cached duration so chapter markers are not computed against
-		// the previous item's duration while the new media loads.
-		this.cachedDuration = 0;
-		// Reset the playing-level cache — the next item's level numbering may
-		// not match the previous item's. The first `level-switched` on the
-		// new source will repopulate it.
-		this._menuControlState.playingQualityIdx = null;
-
-		this.refreshChaptersAndDuration();
-		this.refreshCapabilityVisibility();
-
-		// Immediately repaint any open menu pane so stale tracks from the
-		// previous item are not displayed while the new source loads. The
-		// `mediaReady` event re-fires these after the new tracks arrive; this
-		// call clears the old data in the meantime.
-		this.repaintPlaylistIfOpen();
-		this.repaintSubsIfOpen();
-		this.repaintAudioIfOpen();
-		this.repaintQualityIfOpen();
-
-		void this.loadSpritesForItem(item);
-	}
-
-	private async loadSpritesForItem(item: VideoPlaylistItem | undefined | null): Promise<void> {
-		const myToken = ++this.spriteLoadId;
-		this.spriteSet = null;
-		this._revokeSpriteObjectUrl();
-
-		this.sliderRefs.sliderPopImage.style.backgroundImage = '';
-		this.sliderRefs.sliderPopImage.style.backgroundPosition = '';
-		this.sliderRefs.sliderPopImage.style.width = '';
-		this.sliderRefs.sliderPopImage.style.height = '';
-
-		// Canonical path: typed previewSpriteUrl field on the playlist item.
-		// Legacy fallback: tracks[].kind==='thumbnails' for un-normalised items.
-		const rawSpriteUrl = this._resolveSpriteUrl(item);
-		if (!rawSpriteUrl)
-			return;
-
-		// Server-relative paths must resolve against the player's media base,
-		// not the page origin — an SPA fallback would feed HTML to the parser.
-		const spriteUrl = (await this.resolveUrl(rawSpriteUrl, 'image')).href;
-
-		const set = await loadSpriteSet(spriteUrl, {
-			fetchText: async (url) => {
-				try {
-					return await this.fetch<string>(url);
-				}
-				catch {
-					return null;
-				}
-			},
-			fetchImageUrl: async (url) => {
-				try {
-					const buffer = await this.fetch<ArrayBuffer>(url, { responseType: 'arrayBuffer' });
-					return URL.createObjectURL(new Blob([buffer]));
-				}
-				catch {
-					return null;
-				}
-			},
-		});
-		if (myToken !== this.spriteLoadId) {
-			if (set?.spriteUrl.startsWith('blob:'))
-				URL.revokeObjectURL(set.spriteUrl);
-			return;
-		}
-		if (!set)
-			return;
-
-		if (set.spriteUrl.startsWith('blob:'))
-			this.spriteObjectUrl = set.spriteUrl;
-		this.spriteSet = set;
-		this.sliderRefs.sliderPopImage.style.backgroundImage = `url('${set.spriteUrl}')`;
-	}
-
-	private _revokeSpriteObjectUrl(): void {
-		if (this.spriteObjectUrl) {
-			URL.revokeObjectURL(this.spriteObjectUrl);
-			this.spriteObjectUrl = null;
-		}
-	}
-
-	override dispose(): void {
-		this._revokeSpriteObjectUrl();
-	}
-
-	private _resolveSpriteUrl(item: VideoPlaylistItem | undefined | null): string | undefined {
-		return resolveSpriteUrl(item);
-	}
-
-	private paintSpriteAt(time: number): void {
-		paintSpriteAt(time, this.spriteSet, this.sliderRefs.sliderPopImage);
-	}
-
-	private refreshChaptersAndDuration(): void {
-		const dur = this.player.duration?.() ?? 0;
-		if (dur)
-			this.applyDuration(dur);
-		this.renderChapterMarkers();
-	}
-
-	/** Rebuild the segmented chapter-marker DOM for the current item. */
-	private renderChapterMarkers(): void {
-		const chapters = this.player.chapters();
-		const dur = this.resolveDuration();
-
-		if (!dur || chapters.length === 0) {
-			this.sliderRefs.sliderBar.classList.remove('has-chapters');
-		}
-		else {
-			this.sliderRefs.sliderBar.classList.add('has-chapters');
-		}
-
-		this.chapterRefs = buildChapterMarkers(
-			this.sliderRefs.chapterBar,
-			chapters,
-			dur,
-			(index) => { void this.player.seekToChapter?.(index); },
-			this.listen.bind(this),
-		);
-	}
-
-	private updateChapterProgress(percentage: number): void {
-		updateChapterProgress(this.chapterRefs, percentage);
-	}
-
-	private updateChapterBuffer(bufferedPct: number): void {
-		updateChapterBuffer(this.chapterRefs, bufferedPct);
-	}
-
-	private updateChapterHover(scrubPct: number): void {
-		updateChapterHover(this.chapterRefs, scrubPct);
-	}
-
-	private findChapterTitle(time: number): string | undefined {
-		return findChapterTitle(this.player, time);
-	}
-
-	private resolveDuration(): number {
-		const fromPlayer = this.player.duration?.() ?? 0;
-		if (fromPlayer > 0)
-			return fromPlayer;
-		if (this.cachedDuration > 0)
-			return this.cachedDuration;
-		const el = this.player.videoElement;
-		return Number.isFinite(el?.duration) ? (el!.duration ?? 0) : 0;
-	}
-
-	private applyTime(t: number): void {
-		const dur = this.resolveDuration();
-		const pct = dur > 0 ? (t / dur) * 100 : 0;
-		if (!this.isScrubbing) {
-			this.sliderRefs.sliderProgress.style.width = `${pct}%`;
-			this.sliderRefs.sliderNipple.style.left = `${pct}%`;
-			this.sliderRefs.sliderBar.setAttribute('aria-valuenow', String(Math.round(pct)));
-			this.updateChapterProgress(pct);
-		}
-		try {
-			const buf = this.player.buffered();
-			const bufPct = dur > 0 ? (buf / dur) * 100 : 0;
-			if (this.chapterRefs.length > 0) {
-				this.updateChapterBuffer(bufPct);
-			}
-			else {
-				this.sliderRefs.sliderBuffer.style.width = `${bufPct}%`;
-			}
-		}
-		catch { /* SourceBuffer detach */ }
-		this.currentTimeEl.textContent = fmt(t);
-		this.remainingTimeEl.textContent = this._formatRemaining(t, dur);
-		this.refreshTransportEnablement();
-	}
-
-	private applyDuration(dur: number): void {
-		this.cachedDuration = dur;
-		const cur = this.player.time?.() ?? 0;
-		this.currentTimeEl.textContent = fmt(cur);
-		this.remainingTimeEl.textContent = this._formatRemaining(cur, dur);
-		this.renderChapterMarkers();
-	}
-
-	private _formatRemaining(cur: number, dur: number): string {
-		if (dur <= 0)
-			return fmt(0);
-		if (this._showRemaining)
-			return `-${fmt(Math.max(0, dur - cur))}`;
-		return fmt(dur);
-	}
-
-	private applyVolume(v: number): void {
-		applyVolume(this.volSlider, () => this.applyMutedIcon(), v);
-
-		// Keep the vertical popup input in sync when volume changes externally.
-		if (this.volSliderVertical) {
-			const vertInput = this.volSliderVertical.querySelector<HTMLInputElement>('.volume-slider-vertical-input');
-			if (vertInput) {
-				const pct = Math.round(Math.max(0, Math.min(100, v)));
-				vertInput.value = String(pct);
-				vertInput.style.setProperty('--vol-pct', `${pct}%`);
-			}
-		}
-	}
-
-	private applyMuted(muted: boolean): void {
-		applyMuted(this.volBtn, () => this.applyMutedIcon(), muted);
-		this.applyPopupMuteIcon(muted);
-	}
-
-	private applyMutedIcon(): void {
-		applyMutedIcon(this.volBtn, this.player, this.t.bind(this));
-	}
-
-	private applyPopupMuteIcon(muted: boolean): void {
-		if (!this.volPopupMuteBtn)
-			return;
-		const icon = muted ? fluentIcons.volumeMuted : fluentIcons.volumeHigh;
-		const iconHolder = this.volPopupMuteBtn.querySelector('.btn-icon');
-		if (iconHolder) {
-			iconHolder.innerHTML = svgFromIcon(icon);
-		}
-		this.volPopupMuteBtn.setAttribute('aria-label', this.t('tooltip.mute', {}));
-	}
-
-	private applyRate(): void {
-		const rate = this.player.playbackRate?.() ?? 1;
-		applyRate(this.speedBtn, rate, this.t.bind(this));
-	}
-
-	private applyAudioIcon(): void {
-		const audios = this.player.audioTracks?.() ?? [];
-		const defaultIdx = audios.findIndex(tr => tr.default === true);
-		const manifestDefault = defaultIdx >= 0 ? defaultIdx : 0;
-		const isNonDefault = audios.length > 1 && this._menuControlState.activeAudioIdx !== manifestDefault;
-		applyAudioIcon(this.audioBtn, this.t.bind(this), isNonDefault);
-	}
-
-	private applyQualityIcon(): void {
-		applyQualityIcon(this.qualityBtn, this.t.bind(this), this.playingQualityLabel(), this._menuControlState.userPickedQuality);
-	}
-
-	/**
-	 * Human label for the level the backend is actually playing right now
-	 * (e.g. "1080p"). Used by `applyQualityIcon` to surface the level in the
-	 * button's aria-label / tooltip. Returns `undefined` when no level info is
-	 * available (before `level-switched` lands, or non-HLS sources).
-	 */
-	private playingQualityLabel(): string | undefined {
-		const idx = this.resolvePlayingQualityIdx();
-		if (idx === null)
-			return undefined;
-		// `qualityLevels()` filters out unsupported codecs, so the visible
-		// array is a subset of the full HLS level list. Match by the original
-		// HLS index carried on each QualityLevel, not by array position.
-		const levels = this.player.qualityLevels?.() ?? [];
-		const level = levels.find(q => q.index === idx);
-		if (!level)
-			return undefined;
-		return level.label ?? (level.height ? `${level.height}p` : undefined);
-	}
-
-	/**
-	 * The level index the backend is actually playing. Prefers the cached
-	 * `_playingQualityIdx` (updated on every `level-switched` event), and
-	 * falls back to peeking the backend's `currentLevel()` for the case
-	 * where the user opens the menu before the first `level-switched` fires
-	 * (HLS doesn't always emit one before the first fragment lands).
-	 * Returns null when no level is known.
-	 */
-	private resolvePlayingQualityIdx(): number | null {
-		if (this._menuControlState.playingQualityIdx !== null)
-			return this._menuControlState.playingQualityIdx;
-		const backend = this.player.backend?.();
-		const idx = backend?.currentLevel?.();
-		if (typeof idx === 'number' && idx >= 0)
-			return idx;
-		return null;
-	}
-
-	private applyFullscreen(): void {
-		applyFullscreen(this.fsBtn);
-	}
-
-	private applyTheaterIcon(active: boolean): void {
-		applyTheaterIcon(this.theaterBtn, active, this.t.bind(this));
-	}
-
-	private applySubsIcon(): void {
-		applySubsIcon(this.subsBtn, this._menuControlState.activeSubtitleIdx, this.t.bind(this));
-		this.applyMenuSubsIcon();
-	}
-
-	/** Mirror the bottom-bar subtitle on/off state onto the menu category button. */
-	private applyMenuSubsIcon(): void {
-		const slot = this.menus?.mainButtons?.subtitles?.querySelector('.menu-button-icon-left');
-		if (!slot)
-			return;
-		const on = this._menuControlState.activeSubtitleIdx !== null && this._menuControlState.activeSubtitleIdx !== -1;
-		slot.innerHTML = svgFromIcon(on ? fluentIcons.subtitles : fluentIcons.subtitlesOff);
-	}
-
-	private applyPipIcon(active: boolean): void {
-		applyPipIcon(this.pipBtn, active, this.t.bind(this));
-	}
-
-	private applyAspectRatioIcon(): void {
-		const aspect = this.player.aspectRatio?.() ?? 'uniform';
-		applyAspectRatioIcon(this.aspectRatioBtn, aspect === 'uniform', this.t.bind(this));
-	}
-
-	/**
-	 * Mark a button as content-gated (no relevant tracks/items) so the fit
-	 * algorithm can skip it without counting its width.
-	 * Setting `data-content-hidden="true"` causes `applyAllVisibilityRules`
-	 * to treat the button as absent from the layout.
-	 */
-	private setContentHidden(btn: HTMLButtonElement, hidden: boolean): void {
-		if (hidden) {
-			btn.setAttribute('data-content-hidden', 'true');
-			btn.hidden = true;
-		}
-		else {
-			btn.removeAttribute('data-content-hidden');
-			// Fit visibility is re-applied by the next `applyAllVisibilityRules`
-			// call; don't eagerly show — let the fit pass decide.
-		}
-	}
-
-	private refreshCapabilityVisibility(): void {
-		const subs = this.player.subtitles?.() ?? [];
-		const subsCount = subs.length;
-
-		const audios = this.player.audioTracks?.() ?? [];
-		const levels = this.player.qualityLevels?.() ?? [];
-
-		this.setContentHidden(this.subsBtn, subsCount === 0);
-		this.setContentHidden(this.audioBtn, audios.length <= 1);
-		this.setContentHidden(this.qualityBtn, levels.length < 2);
-
-		const chapters = this.player.chapters();
-		this.setContentHidden(this.chapBackBtn, chapters.length === 0);
-		this.setContentHidden(this.chapFwdBtn, chapters.length === 0);
-
-		const queueLen = this.safeQueueLength();
-		this.setContentHidden(this.playlistBtn, queueLen < 2);
-
-		this.menus.mainButtons.subtitles.style.display = subsCount === 0 ? 'none' : 'flex';
-		this.menus.mainButtons.language.style.display = audios.length <= 1 ? 'none' : 'flex';
-		this.menus.mainButtons.quality.style.display = levels.length < 2 ? 'none' : 'flex';
-		this.menus.mainButtons.playlist.style.display = queueLen < 2 ? 'none' : 'flex';
-
-		// A settings menu with nothing in it is noise — hide the button when
-		// every section it would show is empty (v1 rule, extended with the
-		// consumer-supplied settingsItems rows).
-		const speeds = this.player.playbackRates?.() ?? [];
-		const settingsEmpty = speeds.length <= 1
-			&& audios.length <= 1
-			&& subsCount === 0
-			&& (this.opts?.settingsItems?.length ?? 0) === 0;
-		this.setContentHidden(this.settingsBtn, settingsEmpty);
-
-		// Re-run fit pass now that content-gating may have freed space.
-		if (this._responsiveState.lastContainerWidth > 0) {
-			applyAllVisibilityRules(
-				this._responsiveState,
-				this.opts,
-				this._responsiveState.lastContainerWidth,
-				payload => this.emit('layout:breakpoint', payload),
-				this.player.container,
-			);
-		}
-
-		this.refreshTransportEnablement();
-	}
-
-	private refreshTransportEnablement(): void {
-		const idx = this.safeCurrentIndex();
-		const len = this.safeQueueLength();
-
-		const onFirst = idx <= 0 || len <= 1;
-		const onLast = idx >= len - 1 || len <= 1;
-		this.setDisabled(this.prevBtn, onFirst);
-		this.setDisabled(this.nextBtn, onLast);
-
-		const t = this.player.time?.() ?? 0;
-		const dur = this.resolveDuration();
-		this.setDisabled(this.rewindBtn, t <= 0);
-		this.setDisabled(this.forwardBtn, dur > 0 && t >= dur - 0.25);
-
-		const chapters = this.player.chapters();
-		const hasPrevChap = chapters.some(c => c.start < t - 1);
-		const hasNextChap = chapters.some(c => c.start > t + 1);
-		this.setDisabled(this.chapBackBtn, !hasPrevChap);
-		this.setDisabled(this.chapFwdBtn, !hasNextChap);
-	}
-
-	private setDisabled(btn: HTMLButtonElement, disabled: boolean): void {
-		if (disabled) {
-			btn.setAttribute('disabled', 'true');
-			btn.setAttribute('aria-disabled', 'true');
-		}
-		else {
-			btn.removeAttribute('disabled');
-			btn.removeAttribute('aria-disabled');
-		}
-	}
-
-	private safeCurrentIndex(): number {
-		try {
-			return this.player.index();
-		}
-		catch { /* not implemented */ }
-		return 0;
-	}
-
-	private safeQueueLength(): number {
-		try {
-			return this.player.queueLength();
-		}
-		catch { /* not implemented */ }
-		return this.player.queue().length;
-	}
-
-	private previousChapter(): void {
-		previousChapter(this.player);
-	}
-
-	private nextChapter(): void {
-		nextChapter(this.player);
-	}
-
-	// ── Menu state ──────────────────────────────────────────────────
-
-	private openMainMenu(): void {
-		openMainMenuFn(this._menuControlState, this._activityState, this.menus, this._menuControlRefs);
-	}
-
-	private openSubMenu(id: SubMenuId): void {
-		openSubMenuFn(
-			id,
-			this._menuControlState,
-			this._activityState,
-			this.menus,
-			this._menuControlRefs,
-			this.player,
-			this.listen.bind(this),
-			() => this.closeAllMenus(),
-			this.opts,
-			() => this.bumpActivity(),
-		);
-	}
-
-	private wireMenuKeyboardNav(): void {
-		wireMenuKeyboardNavFn(this._menuControlState, this.menus, this.listen.bind(this));
-	}
-
-	private closeAllMenus(): void {
-		closeAllMenusFn(
-			this._menuControlState,
-			this._activityState,
-			this.menus,
-			this._menuControlRefs,
-			() => this.bumpActivity(),
-		);
-	}
-
-	private syncActiveIndexes(): void {
-		syncActiveIndexesFn(this._menuControlState, this.player);
-	}
-
-	private repaintSubsIfOpen(): void {
-		repaintSubsIfOpenFn(
-			this._menuControlState,
-			this.menus,
-			this.player,
-			this.listen.bind(this),
-			() => this.closeAllMenus(),
-			this.opts,
-		);
-	}
-
-	private repaintAudioIfOpen(): void {
-		repaintAudioIfOpenFn(
-			this._menuControlState,
-			this.menus,
-			this.player,
-			this.listen.bind(this),
-			() => this.closeAllMenus(),
-			this.opts,
-		);
-	}
-
-	private repaintQualityIfOpen(): void {
-		repaintQualityIfOpenFn(
-			this._menuControlState,
-			this.menus,
-			this.player,
-			this.listen.bind(this),
-			() => this.closeAllMenus(),
-			this.opts,
-		);
-	}
-
-	private repaintSpeedIfOpen(): void {
-		repaintSpeedIfOpenFn(
-			this._menuControlState,
-			this.menus,
-			this.player,
-			this.listen.bind(this),
-			() => this.closeAllMenus(),
-			this.opts,
-		);
-	}
-
-	private repaintPlaylistIfOpen(): void {
-		repaintPlaylistIfOpenFn(
-			this._menuControlState,
-			this.menus,
-			this.player,
-			this.listen.bind(this),
-			() => this.closeAllMenus(),
-			this.opts,
-		);
-	}
-
-	private repaintAspectRatioIfOpen(): void {
-		repaintAspectRatioIfOpenFn(
-			this._menuControlState,
-			this.menus,
-			this.player,
-			this.listen.bind(this),
-			() => this.closeAllMenus(),
-			this.opts,
-		);
-	}
-
-	// ── Activity / auto-hide ────────────────────────────────────────
-
-	private bumpActivity(): void {
-		bumpActivity(
-			this._activityState,
-			this.player,
-			this.opts?.inactivityMs ?? 4000,
-			ms => this.timeout(() => this.maybeHide(), ms),
-		);
-	}
-
-	private maybeHide(): void {
-		maybeHide(this._activityState, this.player);
-	}
-
-	private dismissOverlay(): void {
-		dismissOverlay(this._activityState, this.player);
-	}
+	// ── Declare signatures for mixin methods — bodies live in the mixin objects ──
+
+	declare wireFeedback: () => void;
+	declare showMessage: (text: string, ms?: number, isFeedback?: boolean) => void;
+	declare hideMessage: () => void;
+
+	declare toggleShortcuts: () => void;
+	declare showShortcuts: () => void;
+	declare hideShortcuts: () => void;
+
+	declare bumpActivity: () => void;
+	declare maybeHide: () => void;
+	declare dismissOverlay: () => void;
+
+	declare openMainMenu: () => void;
+	declare openSubMenu: (id: SubMenuId) => void;
+	declare wireMenuKeyboardNav: () => void;
+	declare closeAllMenus: () => void;
+	declare syncActiveIndexes: () => void;
+	declare repaintSubsIfOpen: () => void;
+	declare repaintAudioIfOpen: () => void;
+	declare repaintQualityIfOpen: () => void;
+	declare repaintSpeedIfOpen: () => void;
+	declare repaintPlaylistIfOpen: () => void;
+	declare repaintAspectRatioIfOpen: () => void;
+
+	declare applyVolume: (v: number) => void;
+	declare applyMuted: (muted: boolean) => void;
+	declare applyMutedIcon: () => void;
+	declare applyPopupMuteIcon: (muted: boolean) => void;
+	declare applyRate: () => void;
+	declare applyAudioIcon: () => void;
+	declare applyQualityIcon: () => void;
+	declare playingQualityLabel: () => string | undefined;
+	declare resolvePlayingQualityIdx: () => number | null;
+	declare applyFullscreen: () => void;
+	declare applyTheaterIcon: (active: boolean) => void;
+	declare applySubsIcon: () => void;
+	declare applyMenuSubsIcon: () => void;
+	declare applyPipIcon: (active: boolean) => void;
+	declare applyAspectRatioIcon: () => void;
+
+	declare setPlayingState: (playing: boolean) => void;
+	declare handleCurrentChange: (item: VideoPlaylistItem | undefined | null) => void;
+	declare applyTime: (t: number) => void;
+	declare applyDuration: (dur: number) => void;
+	declare _formatRemaining: (cur: number, dur: number) => string;
+	declare applyStateVisibility: () => void;
+	declare setContentHidden: (btn: HTMLButtonElement, hidden: boolean) => void;
+	declare refreshCapabilityVisibility: () => void;
+	declare refreshTransportEnablement: () => void;
+	declare setDisabled: (btn: HTMLButtonElement, disabled: boolean) => void;
+	declare safeCurrentIndex: () => number;
+	declare safeQueueLength: () => number;
+
+	declare resolveDuration: () => number;
+	declare refreshChaptersAndDuration: () => void;
+	declare renderChapterMarkers: () => void;
+	declare updateChapterProgress: (pct: number) => void;
+	declare updateChapterBuffer: (pct: number) => void;
+	declare updateChapterHover: (pct: number) => void;
+	declare findChapterTitle: (time: number) => string | undefined;
+	declare previousChapter: () => void;
+	declare nextChapter: () => void;
+
+	declare getScrubTime: (e: Event) => { scrubTime: number; scrubTimePlayer: number };
+	declare clampPopOffset: (pct: number) => number;
+	declare paintSpriteAt: (time: number) => void;
+	declare _resolveSpriteUrl: (item: VideoPlaylistItem | undefined | null) => string | undefined;
+	declare _revokeSpriteObjectUrl: () => void;
+	declare loadSpritesForItem: (item: VideoPlaylistItem | undefined | null) => Promise<void>;
+
+	declare buildDom: () => void;
+	declare wireTooltips: () => void;
+	declare applyInitialState: () => void;
+	declare wireKeybindHint: () => void;
+	declare wireSliderBar: () => void;
+	declare wireEvents: () => void;
 }
+
+composeMixins(
+	DesktopUiPlugin.prototype,
+	feedbackMethods,
+	shortcutsMethods,
+	activityMethods,
+	menuMethods,
+	iconStateMethods,
+	transportStateMethods,
+	chapterMethods,
+	spriteMethods,
+	domMethods,
+);
 
 export const desktopUiPlugin = DesktopUiPlugin;
