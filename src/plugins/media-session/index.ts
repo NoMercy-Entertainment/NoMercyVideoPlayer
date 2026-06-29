@@ -10,6 +10,7 @@ import type { MediaSessionMetadata } from '@nomercy-entertainment/nomercy-player
 import type { NMVideoPlayer } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
 import { MediaSessionPlugin as BaseMediaSession } from '@nomercy-entertainment/nomercy-player-core/plugins/media-session';
+import { resolveSeasonEpisodeTokens } from '../desktop-ui/seasonEpisodeTokens';
 
 /**
  * Video-specific MediaSession integration. Overrides text metadata only —
@@ -30,7 +31,7 @@ export class MediaSessionPlugin<T extends VideoPlaylistItem = VideoPlaylistItem>
 			? `Season ${item.season}`
 			: '';
 		return {
-			title: item.title ?? '',
+			title: resolveSeasonEpisodeTokens(this.player, item.title ?? ''),
 			artist: item.show ?? '',
 			album: seasonText,
 		};
