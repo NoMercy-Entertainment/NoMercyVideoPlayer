@@ -300,32 +300,32 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private overlayRoot!: HTMLElement;
 
 	// ── top bar ─────────────────────────────────────────────────────
-	private topBarRefs!: TopBarRefs;
+	private declare topBarRefs: TopBarRefs;
 
 	// ── center ──────────────────────────────────────────────────────
-	private centerWrap!: HTMLDivElement;
-	private centerBtn!: HTMLButtonElement;
+	private declare centerWrap: HTMLDivElement;
+	private declare centerBtn: HTMLButtonElement;
 	/** Center toast / status line — `display-message` renderer + loading/buffering/error feedback. Lives on the container so it survives overlay auto-hide. */
-	private messageEl: HTMLDivElement | null = null;
-	private messageTimer: ReturnType<typeof setTimeout> | null = null;
+	private declare messageEl: HTMLDivElement | null;
+	private declare messageTimer: ReturnType<typeof setTimeout> | null;
 	/** `true` while the current message is playback feedback (loading/buffering/error) rather than a consumer toast — feedback clears automatically when playback recovers. */
-	private messageIsFeedback = false;
+	private declare messageIsFeedback: boolean;
 
 	// ── bottom bar ──────────────────────────────────────────────────
-	private bottomBar!: HTMLDivElement;
+	private declare bottomBar: HTMLDivElement;
 
 	// ── slider-bar tree ─────────────────────────────────────────────
-	private sliderRefs!: SliderBarRefs;
-	private chapterRefs: ChapterMarkerRef[] = [];
+	private declare sliderRefs: SliderBarRefs;
+	private declare chapterRefs: ChapterMarkerRef[];
 
 	/** Sprite preview thumbnails for the current playlist item. */
-	private spriteSet: SpriteSet | null = null;
-	private spriteLoadId = 0;
-	private spriteObjectUrl: string | null = null;
+	private declare spriteSet: SpriteSet | null;
+	private declare spriteLoadId: number;
+	private declare spriteObjectUrl: string | null;
 
-	private isMouseDown = false;
-	private isScrubbing = false;
-	private _showRemaining = true;
+	private declare isMouseDown: boolean;
+	private declare isScrubbing: boolean;
+	private declare _showRemaining: boolean;
 
 	// ── transport buttons ───────────────────────────────────────────
 	private playBtn!: HTMLButtonElement;
@@ -336,13 +336,13 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private chapBackBtn!: HTMLButtonElement;
 	private chapFwdBtn!: HTMLButtonElement;
 	private volBtn!: HTMLButtonElement;
-	private volSlider!: HTMLInputElement;
+	private declare volSlider: HTMLInputElement;
 	/** Vertical volume slider popup. Null until `buildDom` creates it. */
-	private volSliderVertical: HTMLDivElement | null = null;
+	private declare volSliderVertical: HTMLDivElement | null;
 	/** Mute toggle inside the vertical volume popup. Null until `buildDom` creates it. */
-	private volPopupMuteBtn: HTMLButtonElement | null = null;
-	private currentTimeEl!: HTMLDivElement;
-	private remainingTimeEl!: HTMLDivElement;
+	private declare volPopupMuteBtn: HTMLButtonElement | null;
+	private declare currentTimeEl: HTMLDivElement;
+	private declare remainingTimeEl: HTMLDivElement;
 	private aspectRatioBtn!: HTMLButtonElement;
 	private speedBtn!: HTMLButtonElement;
 	private qualityBtn!: HTMLButtonElement;
@@ -350,42 +350,70 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private audioBtn!: HTMLButtonElement;
 	private theaterBtn!: HTMLButtonElement;
 	/** Theater's config-level visibility, captured at build — state hiding (fullscreen/PiP) composes on top, never overrides an opt-out. */
-	private theaterConfigHidden = false;
-	private fsActive = false;
-	private pipActive = false;
+	private declare theaterConfigHidden: boolean;
+	private declare fsActive: boolean;
+	private declare pipActive: boolean;
 	private pipBtn!: HTMLButtonElement;
 	private playlistBtn!: HTMLButtonElement;
 	private settingsBtn!: HTMLButtonElement;
 	private fsBtn!: HTMLButtonElement;
 
 	// ── menu refs ───────────────────────────────────────────────────
-	private menus!: MenuFrameRefs;
-	private _menuControlState!: MenuControlState;
-	private _menuControlRefs!: MenuControlRefs;
+	private declare menus: MenuFrameRefs;
+	private declare _menuControlState: MenuControlState;
+	private declare _menuControlRefs: MenuControlRefs;
 
 	// ── keyboard shortcuts overlay ───────────────────────────────────
-	private shortcutsOverlay: HTMLDivElement | null = null;
-	private _shortcutsVisible = false;
+	private declare shortcutsOverlay: HTMLDivElement | null;
+	private declare _shortcutsVisible: boolean;
 
 	// ── extracted-concern state ─────────────────────────────────────
-	private _activityState: ActivityState = {
-		activityActive: false,
-		inactivityToken: null,
-		menuOpen: false,
-		isScrubbing: false,
-		isControlsHovered: false,
-	};
+	private declare _activityState: ActivityState;
 
-	private _responsiveState: ResponsiveState = makeResponsiveState();
+	private declare _responsiveState: ResponsiveState;
 
-	private cachedDuration = 0;
-	private _lastMouseX = -1;
-	private _lastMouseY = -1;
-	private _tooltipHoverToken: number | null = null;
+	private declare cachedDuration: number;
+	private declare _lastMouseX: number;
+	private declare _lastMouseY: number;
+	private declare _tooltipHoverToken: number | null;
+
+	/** Initializes all mixin-owned state fields to their default values. Called at the top of `use()` before any mixin or DOM method runs. */
+	private initState(): void {
+		this.messageEl = null;
+		this.messageTimer = null;
+		this.messageIsFeedback = false;
+		this.chapterRefs = [];
+		this.spriteSet = null;
+		this.spriteLoadId = 0;
+		this.spriteObjectUrl = null;
+		this.isMouseDown = false;
+		this.isScrubbing = false;
+		this._showRemaining = true;
+		this.volSliderVertical = null;
+		this.volPopupMuteBtn = null;
+		this.theaterConfigHidden = false;
+		this.fsActive = false;
+		this.pipActive = false;
+		this.shortcutsOverlay = null;
+		this._shortcutsVisible = false;
+		this._activityState = {
+			activityActive: false,
+			inactivityToken: null,
+			menuOpen: false,
+			isScrubbing: false,
+			isControlsHovered: false,
+		};
+		this._responsiveState = makeResponsiveState();
+		this.cachedDuration = 0;
+		this._lastMouseX = -1;
+		this._lastMouseY = -1;
+		this._tooltipHoverToken = null;
+	}
 
 	// ── Lifecycle overrides — these call super so they CANNOT be mixins ──────
 
 	override use(): void {
+		this.initState();
 		this.appendStyles(new URL('./styles.css', import.meta.url).href, 'desktop-ui-styles');
 		this.buildDom();
 		this.wireTooltips();
