@@ -28,6 +28,7 @@ import {
 	buildMenuFrame,
 	renderAudioPane,
 	renderPlaylistPane,
+	shouldShowSeasonSidebar,
 } from '../../plugins/desktop-ui/menus';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
@@ -555,19 +556,21 @@ describe('renderPlaylistPane — seasonal queue', () => {
 		expect(s2Btn!.classList.contains('is-active')).toBe(false);
 	});
 
-	it('shows Episodes title for seasonal queue, playlist title for flat', async () => {
+	it('single-season TV queue renders flat (no sidebar)', async () => {
 		const player = await makePlayer();
 		const container = player.container;
 		const pane = container.querySelector<HTMLDivElement>('.playlist-menu')!;
 
-		// Seasonal
 		Object.assign(player, {
-			queue: () => [{ id: 1, title: 'Ep', season: 1, episode: 1 }],
+			queue: () => [
+				{ id: 1, title: 'S1E1', season: 1, episode: 1 },
+				{ id: 2, title: 'S1E2', season: 1, episode: 2 },
+			],
 			index: () => 0,
 		});
 		renderPlaylistPane(pane, player, NOOP_LISTEN, () => {});
-		// Assert the pane rendered without seasonal-flat class.
-		expect(pane.classList.contains('playlist-flat')).toBe(false);
+		expect(pane.classList.contains('playlist-flat')).toBe(true);
+		expect(pane.querySelector('[id^="season-button-"]')).toBeNull();
 	});
 });
 
@@ -593,6 +596,160 @@ describe('renderPlaylistPane — image handling', () => {
 		if (img) {
 			expect(img.src).toContain('https://cdn.example.com/thumb.jpg');
 		}
+	});
+});
+
+// ── shouldShowSeasonSidebar unit tests ────────────────────────────────────────
+
+describe('shouldShowSeasonSidebar', () => {
+	it('returns true for multi-season TV (seasons 1, 2, 3)', () => {
+		const queue = [
+			{ id: 1, season: 1, episode: 1 },
+			{ id: 2, season: 2, episode: 1 },
+			{ id: 3, season: 3, episode: 1 },
+		];
+		expect(shouldShowSeasonSidebar(queue)).toBe(true);
+	});
+
+	it('returns false for a single TV season (only season 1)', () => {
+		const queue = [
+			{ id: 1, season: 1, episode: 1 },
+			{ id: 2, season: 1, episode: 2 },
+		];
+		expect(shouldShowSeasonSidebar(queue)).toBe(false);
+	});
+
+	it('returns false for season-0 specials only', () => {
+		const queue = [
+			{ id: 1, season: 0, episode: 1 },
+			{ id: 2, season: 0, episode: 2 },
+		];
+		expect(shouldShowSeasonSidebar(queue)).toBe(false);
+	});
+
+	it('returns false for a movie collection (video_type: "movie", season: 0)', () => {
+		const queue = [
+			{ id: 1, season: 0, episode: 0, video_type: 'movie' },
+			{ id: 2, season: 0, episode: 1, video_type: 'movie' },
+		];
+		expect(shouldShowSeasonSidebar(queue)).toBe(false);
+	});
+
+	it('returns false for a movie collection (playlist_type: "movie")', () => {
+		const queue = [
+			{ id: 1, season: 0, playlist_type: 'movie' },
+			{ id: 2, season: 0, playlist_type: 'movie' },
+		];
+		expect(shouldShowSeasonSidebar(queue)).toBe(false);
+	});
+
+	it('returns false for an empty queue', () => {
+		expect(shouldShowSeasonSidebar([])).toBe(false);
+	});
+
+	it('ignores movie items when counting seasons (mixed movie + TV seasons stays false)', () => {
+		const queue = [
+			{ id: 1, season: 0, video_type: 'movie' },
+			{ id: 2, season: 1, episode: 1 },
+		];
+		expect(shouldShowSeasonSidebar(queue)).toBe(false);
+	});
+});
+
+// ── renderPlaylistPane — episodes-menu refinements ────────────────────────────
+
+describe('renderPlaylistPane — episodes-menu refinements', () => {
+	beforeEach(() => resetAndMount());
+	afterEach(() => cleanup());
+
+	it('multi-season TV (1,2,3): sidebar shown, S1:E3 badge on season-1 items', async () => {
+		const player = await makePlayer();
+		const pane = player.container.querySelector<HTMLDivElement>('.playlist-menu')!;
+
+		const queue = [
+			{ id: 1, title: 'S1E1', season: 1, episode: 1 },
+			{ id: 2, title: 'S1E3', season: 1, episode: 3 },
+			{ id: 3, title: 'S2E1', season: 2, episode: 1 },
+			{ id: 4, title: 'S3E1', season: 3, episode: 1 },
+		];
+		Object.assign(player, { queue: () => queue, index: () => 0 });
+
+		renderPlaylistPane(pane, player, NOOP_LISTEN, () => {});
+
+		expect(pane.classList.contains('playlist-flat')).toBe(false);
+		expect(pane.querySelectorAll('[id^="season-button-"]').length).toBe(3);
+
+		const epLabel = pane.querySelector('.progress-item-text');
+		expect(epLabel!.textContent).toBe('S1: E1');
+	});
+
+	it('single TV season (only season 1): flat, real-episode badge S1:E2', async () => {
+		const player = await makePlayer();
+		const pane = player.container.querySelector<HTMLDivElement>('.playlist-menu')!;
+
+		Object.assign(player, {
+			queue: () => [
+				{ id: 1, title: 'S1E1', season: 1, episode: 1 },
+				{ id: 2, title: 'S1E2', season: 1, episode: 2 },
+			],
+			index: () => 0,
+		});
+
+		renderPlaylistPane(pane, player, NOOP_LISTEN, () => {});
+
+		expect(pane.classList.contains('playlist-flat')).toBe(true);
+		expect(pane.querySelector('[id^="season-button-"]')).toBeNull();
+
+		const labels = pane.querySelectorAll<HTMLDivElement>('.progress-item-text');
+		expect(labels[0]!.textContent).toBe('S1: E1');
+		expect(labels[1]!.textContent).toBe('S1: E2');
+	});
+
+	it('season-0 specials: flat, index badge (1, 2, …)', async () => {
+		const player = await makePlayer();
+		const pane = player.container.querySelector<HTMLDivElement>('.playlist-menu')!;
+
+		Object.assign(player, {
+			queue: () => [
+				{ id: 1, title: 'Special 1', season: 0, episode: 1 },
+				{ id: 2, title: 'Special 2', season: 0, episode: 2 },
+			],
+			index: () => 0,
+		});
+
+		renderPlaylistPane(pane, player, NOOP_LISTEN, () => {});
+
+		expect(pane.classList.contains('playlist-flat')).toBe(true);
+		const labels = pane.querySelectorAll<HTMLDivElement>('.progress-item-text');
+		expect(labels[0]!.textContent).toBe('1');
+		expect(labels[1]!.textContent).toBe('2');
+	});
+
+	it('movie collection: flat, index badge, title NOT "Episodes"', async () => {
+		const player = await makePlayer();
+		const pane = player.container.querySelector<HTMLDivElement>('.playlist-menu')!;
+
+		Object.assign(player, {
+			queue: () => [
+				{ id: 1, title: 'Captain America', season: 0, episode: 0, video_type: 'movie' },
+				{ id: 2, title: 'Marvel One-Shot', season: 0, episode: 1, video_type: 'movie' },
+				{ id: 3, title: 'Agent Carter', season: 0, episode: 2, video_type: 'movie' },
+			],
+			index: () => 0,
+		});
+
+		renderPlaylistPane(pane, player, NOOP_LISTEN, () => {});
+
+		expect(pane.classList.contains('playlist-flat')).toBe(true);
+		expect(pane.querySelector('[id^="season-button-"]')).toBeNull();
+
+		const labels = pane.querySelectorAll<HTMLDivElement>('.progress-item-text');
+		expect(labels[0]!.textContent).toBe('1');
+		expect(labels[1]!.textContent).toBe('2');
+		expect(labels[2]!.textContent).toBe('3');
+
+		const title = pane.querySelector<HTMLSpanElement>('.playlist-title');
+		expect(title?.textContent).not.toContain('Episodes');
 	});
 });
 

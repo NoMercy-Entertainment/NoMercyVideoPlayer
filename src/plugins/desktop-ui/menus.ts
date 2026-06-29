@@ -715,14 +715,28 @@ export interface PlaylistRenderOptions {
 }
 
 /**
+ * Returns true only when the queue contains two or more distinct season
+ * numbers >= 1 among non-movie items. Every other case (season-0 specials,
+ * a single season, a movie collection) returns false and renders a flat list.
+ */
+export function shouldShowSeasonSidebar(queue: ReadonlyArray<VideoPlaylistItem>): boolean {
+	const tvSeasons = new Set(
+		queue
+			.filter(item => item.video_type !== 'movie' && item.playlist_type !== 'movie')
+			.map(item => item.season)
+			.filter((s): s is number => typeof s === 'number' && s >= 1),
+	);
+	return tvSeasons.size >= 2;
+}
+
+/**
  * Playlist sub-menu — rich-card layout.
  *
  * Adaptive layout:
- *   - Flat playlist (no `season` field on any item): the seasons rail is
- *     hidden, the episodes rail fills the full width.
- *   - Seasonal playlist (at least one item carries `season`): the left
- *     rail shows season buttons; clicking a season filters the right rail
- *     to that season's episodes.
+ *   - Flat list: season-0 specials, a movie collection, or a single season —
+ *     the seasons rail is hidden and the episodes rail fills the full width.
+ *   - Seasonal (sidebar): two or more TV seasons >= 1 — the left rail shows
+ *     season buttons; clicking a season filters the right rail to that season.
  */
 export function renderPlaylistPane(
 	pane: HTMLDivElement,
@@ -734,20 +748,27 @@ export function renderPlaylistPane(
 	const queue: ReadonlyArray<VideoPlaylistItem> = player.queue?.() ?? [];
 	const curIdx = player.index?.() ?? 0;
 
-	const hasSeason = queue.some(item => typeof item.season === 'number');
+	const showSidebar = shouldShowSeasonSidebar(queue);
 
 	const episodePane = pane.querySelector<HTMLDivElement>('.episode-menu');
 	const seasonScroll = pane.querySelector<HTMLDivElement>('.playlist-seasons-scroll-container');
 	const scroll = pane.querySelector<HTMLDivElement>('.playlist-scroll-container');
 	const title = pane.querySelector<HTMLSpanElement>('.playlist-title');
 
-	if (title)
-		title.textContent = hasSeason ? player.t('plugin.desktop-ui.menu.episodes') : player.t('plugin.desktop-ui.menu.playlist');
+	const isTvContent = queue.some(
+		item => item.playlist_type === 'tv' || (typeof item.episode === 'number' && item.video_type !== 'movie' && item.playlist_type !== 'movie'),
+	);
+
+	if (title) {
+		title.textContent = isTvContent
+			? player.t('plugin.desktop-ui.menu.episodes')
+			: player.t('plugin.desktop-ui.menu.playlist');
+	}
 
 	if (!scroll || !episodePane)
 		return;
 
-	if (!hasSeason) {
+	if (!showSidebar) {
 		pane.classList.add('playlist-flat');
 		scroll.replaceChildren();
 		queue.forEach((item, idx) => {
@@ -846,11 +867,15 @@ function buildPlaylistCard(
 	progressBox.className = 'episode-menu-progress-box';
 	const epLabel = document.createElement('div');
 	epLabel.className = 'progress-item-text';
-	if (typeof item.season === 'number' && typeof item.episode === 'number') {
+	const isRealEpisode = typeof item.season === 'number' && item.season >= 1 && typeof item.episode === 'number';
+	if (isRealEpisode) {
 		epLabel.textContent = `S${item.season}: E${item.episode}`;
 	}
-	else if (typeof item.episode === 'number') {
+	else if (typeof item.episode === 'number' && typeof item.season !== 'number') {
 		epLabel.textContent = `E${item.episode}`;
+	}
+	else {
+		epLabel.textContent = String(index + 1);
 	}
 	progressBox.appendChild(epLabel);
 	const durLabel = document.createElement('div');
