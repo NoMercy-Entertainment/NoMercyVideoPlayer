@@ -83,7 +83,6 @@ import {
 	applyVolume,
 } from './buttonState';
 import { fluentIcons, svgFromIcon } from './icons';
-import { resolveSeasonEpisodeTokens } from './seasonEpisodeTokens';
 import {
 	buildMenuFrame,
 	renderAspectRatioPane,
@@ -1232,7 +1231,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			const queue = this.player.queue() ?? [];
 			const prevItem = idx > 0 ? queue[idx - 1] : undefined;
 			if (prevItem?.title) {
-				return this.t('tooltip.previousWithTitle', { title: resolveSeasonEpisodeTokens(this.player, prevItem.title) });
+				return this.t('tooltip.previousWithTitle', { title: prevItem.title });
 			}
 			return this.t('tooltip.previous', {});
 		});
@@ -1242,7 +1241,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			const queue = this.player.queue() ?? [];
 			const nextItem = queue[idx + 1];
 			if (nextItem?.title) {
-				return this.t('tooltip.nextWithTitle', { title: resolveSeasonEpisodeTokens(this.player, nextItem.title) });
+				return this.t('tooltip.nextWithTitle', { title: nextItem.title });
 			}
 			return this.t('tooltip.next', {});
 		});

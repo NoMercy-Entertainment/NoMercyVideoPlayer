@@ -41,7 +41,6 @@ import {
 import { fluentIcons, svgFromIcon } from './icons';
 import { languageDisplayName, subtitleTrackLabel } from './language-names';
 import { fmt } from './progressBar';
-import { resolveSeasonEpisodeTokens } from './seasonEpisodeTokens';
 
 export type MenuListen = (target: EventTarget, event: string, fn: (e: Event) => void) => void;
 
@@ -834,7 +833,7 @@ function buildPlaylistCard(
 	opts: PlaylistRenderOptions,
 ): HTMLButtonElement {
 	const safe = String(item.id ?? index).replace(/\W+/g, '-').toLowerCase();
-	const resolvedTitle = resolveSeasonEpisodeTokens(player, item.title ?? `Item ${index + 1}`);
+	const resolvedTitle = item.title ?? `Item ${index + 1}`;
 	const btn = player.createButton(`playlist-${safe}`, resolvedTitle, () => {});
 	btn.classList.add('playlist-menu-button');
 	if (active)

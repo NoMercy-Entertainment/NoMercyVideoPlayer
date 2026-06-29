@@ -10,7 +10,6 @@ import type { ChromeCastMediaCtors, Translations } from '@nomercy-entertainment/
 import type { NMVideoPlayer } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
 import { CastSenderPlugin as BaseCastSenderPlugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
-import { resolveSeasonEpisodeTokens } from '../desktop-ui/seasonEpisodeTokens';
 
 export type { CastSenderEvents, CastSenderOptions } from '@nomercy-entertainment/nomercy-player-core';
 
@@ -64,7 +63,7 @@ export class CastSenderPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 			: ctors.GenericMediaMetadata;
 		const meta = new MetadataCtor();
 
-		meta.title = resolveSeasonEpisodeTokens(this.player, item.title ?? '');
+		meta.title = item.title ?? '';
 		if (isEpisode) {
 			meta.seriesTitle = item.show;
 			if (item.season !== undefined)

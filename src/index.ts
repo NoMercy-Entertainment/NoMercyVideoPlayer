@@ -65,6 +65,7 @@ import { normalizeVideoPlaylistItem } from './player/normalize-item';
 import { VideoPreloadStrategy } from './player/preload';
 import { pickStartItem } from './player/start-selection';
 import { normalizeVideoConfig } from './player/v1-config-normalizer';
+import { titleTokenTranslations } from './plugins/desktop-ui/i18n/token-bundle';
 import { V1VideoCompatPlugin } from './plugins/v1-compat';
 import { containedRect,	FullscreenState,	PipState,	SubtitleState,	TheaterState } from './types';
 
@@ -306,6 +307,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	};
 
 	declare addTranslations: (bundle: Translations) => void;
+	declare registerTitleTokens: (tokens: Record<string, string>) => void;
 	declare translation: {
 		(lang: string, key: string): string | undefined;
 		(lang: string, key: string, value: string): void;
@@ -436,6 +438,11 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 		this.playerId = resolved.id;
 		this.container = resolved.div;
 		_instances.set(resolved.id, this as unknown as NMVideoPlayer<BasePlaylistItem>);
+
+		this.registerTitleTokens({
+			S: 'plugin.desktop-ui.token.season',
+			E: 'plugin.desktop-ui.token.episode',
+		});
 
 		this.on('item', (data) => {
 			const item = data?.item;
@@ -1246,6 +1253,21 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 		this._disposeBackend();
 		composedDispose.call(this);
 	};
+}
+
+// Wrap setup() to re-seed the title-token translations into the translator
+// immediately after _initTranslator() runs (which happens synchronously inside
+// the composed setup). This guarantees %S/%E tokens resolve at queue ingest
+// regardless of whether DesktopUiPlugin has been added, and regardless of
+// which plugin translation bundles have loaded asynchronously.
+{
+	type _SetupFn<T extends VideoPlaylistItem> = (config: VideoPlayerConfig<T>) => NMVideoPlayer<T>;
+	const composedSetup: _SetupFn<VideoPlaylistItem> = NMVideoPlayer.prototype.setup as _SetupFn<VideoPlaylistItem>;
+	NMVideoPlayer.prototype.setup = function (this: NMVideoPlayer<BasePlaylistItem>, config: VideoPlayerConfig<BasePlaylistItem>): NMVideoPlayer<BasePlaylistItem> {
+		const result = composedSetup.call(this, config);
+		this.addTranslations(titleTokenTranslations);
+		return result;
+	} as _SetupFn<BasePlaylistItem>;
 }
 
 {

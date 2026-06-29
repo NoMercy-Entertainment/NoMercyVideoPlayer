@@ -189,7 +189,7 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 		expect(refs.showInfoText.textContent).toBe('Extras E1');
 	});
 
-	it('series with no season but has episode: secondary uses A{n} format', async () => {
+	it('series with no season but has episode: secondary uses localized episode prefix', async () => {
 		const { player, refs } = await makeRefsWithPlayer();
 		updateTitleBar(player as never, refs, {
 			id: 6,
@@ -199,10 +199,10 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 		} as never);
 
 		expect(refs.titleText.textContent).toBe('My Show');
-		expect(refs.showInfoText.textContent).toMatch(/A7/);
+		expect(refs.showInfoText.textContent).toMatch(/E7/);
 	});
 
-	it('series with no season, no distinct ep title: secondary=A{n} only', async () => {
+	it('series with no season, no distinct ep title: secondary=localized-episode-prefix{n} only', async () => {
 		const { player, refs } = await makeRefsWithPlayer();
 		updateTitleBar(player as never, refs, {
 			id: 7,
@@ -211,7 +211,7 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 			episode: 4,
 		} as never);
 
-		expect(refs.showInfoText.textContent).toBe('A4');
+		expect(refs.showInfoText.textContent).toBe('E4');
 	});
 
 	it('show present but no episode: secondary is empty', async () => {

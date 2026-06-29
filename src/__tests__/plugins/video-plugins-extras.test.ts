@@ -78,23 +78,13 @@ describe('video-plugins (extras)', () => {
 			expect(meta.artwork).toBeUndefined();
 		});
 
-		it('getMetadata resolves %S/%E tokens in title via player.t()', async () => {
+		it('getMetadata reads the pre-resolved title from the item (tokens resolved at ingest)', async () => {
 			const p = setup();
 			p.addPlugin(mediaSessionPlugin);
 			await p.ready();
 
-			vi.spyOn(p as unknown as { t: (key: string, vars?: Record<string, string>) => string }, 't')
-				.mockImplementation((key: string, vars?: Record<string, string>): string => {
-					const num = vars?.number ?? '';
-					if (key.endsWith('.season'))
-						return `S${num}`;
-					if (key.endsWith('.episode'))
-						return `E${num}`;
-					return key;
-				});
-
 			const inst = p.getPlugin(MediaSessionPlugin)!;
-			const item = { id: 'ep-001', title: 'Show %S1 %E1', show: 'Test Show', season: 1 } as any;
+			const item = { id: 'ep-001', title: 'Show S1 E1', show: 'Test Show', season: 1 } as any;
 			const meta = (inst as unknown as { getMetadata: (i: any) => any }).getMetadata(item);
 			expect(meta.title).toBe('Show S1 E1');
 		});
@@ -294,20 +284,10 @@ describe('video-plugins (extras)', () => {
 			}
 		});
 
-		it('buildMetadata resolves %S/%E tokens in title via player.t()', async () => {
+		it('buildMetadata reads the pre-resolved title from the item (tokens resolved at ingest)', async () => {
 			const p = setup();
 			p.addPlugin(castSenderPlugin);
 			await p.ready();
-
-			vi.spyOn(p as unknown as { t: (key: string, vars?: Record<string, string>) => string }, 't')
-				.mockImplementation((key: string, vars?: Record<string, string>): string => {
-					const num = vars?.number ?? '';
-					if (key.endsWith('.season'))
-						return `S${num}`;
-					if (key.endsWith('.episode'))
-						return `E${num}`;
-					return key;
-				});
 
 			const inst = p.getPlugin(CastSenderPlugin)!;
 
@@ -318,7 +298,7 @@ describe('video-plugins (extras)', () => {
 
 			const item = {
 				id: 'ep-002',
-				title: 'Show %S1 %E1',
+				title: 'Show S1 E1',
 				url: 'https://cdn/ep.mp4',
 			};
 

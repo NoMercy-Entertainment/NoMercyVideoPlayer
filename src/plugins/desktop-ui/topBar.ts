@@ -20,7 +20,6 @@
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
 import { fluentIcons, svgFromIcon } from './icons';
-import { resolveSeasonEpisodeTokens } from './seasonEpisodeTokens';
 
 // ── Refs ───────────────────────────────────────────────────────────────────────
 
@@ -118,7 +117,7 @@ export function updateTitleBar(
 		return;
 
 	const show = item?.show?.trim() ?? '';
-	const rawTitle = resolveSeasonEpisodeTokens(player, item?.title?.trim() ?? '');
+	const rawTitle = item?.title?.trim() ?? '';
 	const hasShow = show.length > 0;
 	const hasEpisode = typeof item?.episode === 'number';
 	const seasonNum = typeof item?.season === 'number' ? item.season : null;
@@ -141,7 +140,7 @@ export function updateTitleBar(
 			secondary = epTitle ? `${label} • ${epTitle}` : label;
 		}
 		else {
-			const label = `A${episodeNum}`;
+			const label = player.t('plugin.desktop-ui.token.episode', { number: String(episodeNum) });
 			secondary = epTitle ? `${label} • ${epTitle}` : label;
 		}
 	}
