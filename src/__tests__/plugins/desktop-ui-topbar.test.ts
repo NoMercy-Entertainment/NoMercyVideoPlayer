@@ -27,7 +27,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
-import { buildTitleBar, updateTitleBar } from '../../plugins/desktop-ui/topBar';
+import { buildTitleBar, updateTitleBar } from '../../plugins/desktop-ui/helpers/topBar';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {

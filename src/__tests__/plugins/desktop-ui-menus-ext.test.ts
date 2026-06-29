@@ -44,7 +44,7 @@ import {
 	renderAspectRatioPane,
 	renderAudioPane,
 	renderSubtitleSettingsPane,
-} from '../../plugins/desktop-ui/menus';
+} from '../../plugins/desktop-ui/helpers/menus';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {

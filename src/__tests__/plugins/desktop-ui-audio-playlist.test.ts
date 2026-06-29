@@ -17,7 +17,7 @@
  * is driven and asserted.
  */
 
-import type { MenuRenderState } from '../../plugins/desktop-ui/menus';
+import type { MenuRenderState } from '../../plugins/desktop-ui/helpers/menus';
 import type { AudioTrackRef } from '../../types';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -29,7 +29,7 @@ import {
 	renderAudioPane,
 	renderPlaylistPane,
 	shouldShowSeasonSidebar,
-} from '../../plugins/desktop-ui/menus';
+} from '../../plugins/desktop-ui/helpers/menus';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {

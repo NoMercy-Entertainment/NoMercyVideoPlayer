@@ -25,7 +25,7 @@
  *   - fmt: edge cases (negative, Infinity, hours)
  */
 
-import type { ChapterLite } from '../../plugins/desktop-ui/progressBar';
+import type { ChapterLite } from '../../plugins/desktop-ui/helpers/progressBar';
 
 import { describe, expect, it } from 'vitest';
 
@@ -37,7 +37,7 @@ import {
 	updateChapterBuffer,
 	updateChapterHover,
 	updateChapterProgress,
-} from '../../plugins/desktop-ui/progressBar';
+} from '../../plugins/desktop-ui/helpers/progressBar';
 
 // ── fmt ────────────────────────────────────────────────────────────────────────
 

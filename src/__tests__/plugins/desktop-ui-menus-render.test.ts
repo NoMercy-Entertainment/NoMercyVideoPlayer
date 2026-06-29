@@ -26,7 +26,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
 import { desktopUiPlugin } from '../../plugins/desktop-ui';
-import { renderQualityPane, renderSpeedPane, renderSubsPane, renderSubtitleSettingsPane } from '../../plugins/desktop-ui/menus';
+import { renderQualityPane, renderSpeedPane, renderSubsPane, renderSubtitleSettingsPane } from '../../plugins/desktop-ui/helpers/menus';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {

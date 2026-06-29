@@ -20,11 +20,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { VttSpriteThumbnailSource } from '../adapters/thumbnail-source/vtt-sprite';
 
-import { loadSpriteSet, lookupCue } from '../plugins/desktop-ui/sprite';
+import { loadSpriteSet, lookupCue } from '../plugins/desktop-ui/helpers/sprite';
 
 // ── Mock desktop-ui/sprite so no network requests happen ─────────────────────
 
-vi.mock('../plugins/desktop-ui/sprite', () => ({
+vi.mock('../plugins/desktop-ui/helpers/sprite', () => ({
 	loadSpriteSet: vi.fn(),
 	lookupCue: vi.fn(),
 }));
