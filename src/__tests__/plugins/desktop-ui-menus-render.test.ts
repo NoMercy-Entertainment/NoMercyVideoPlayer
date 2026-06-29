@@ -442,7 +442,221 @@ describe('DesktopUiPlugin — settings items (consumer toggle rows)', () => {
 	});
 });
 
-// ── Menu keyboard navigation ────────��─────────────────────────────────────────
+// ── refreshCapabilityVisibility — content-hidden gates ───────────────────────
+
+describe('DesktopUiPlugin — capability visibility gates (data-content-hidden)', () => {
+	beforeEach(() => resetAndMount());
+	afterEach(() => cleanup());
+
+	it('settingsBtn gets data-content-hidden="true" when all submenu sections are empty', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { settings: true, subtitles: true, audio: true, quality: true },
+		}).ready();
+
+		// Single playback rate (<= 1), single audio track (<= 1), no subtitles, no settingsItems
+		Object.assign(player, {
+			playbackRates: () => [1],
+			audioTracks: () => [{ id: 'en', label: 'English', default: true }],
+			subtitles: () => [],
+			qualityLevels: () => [],
+			chapters: () => [],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const settingsBtn = player.container.querySelector<HTMLButtonElement>('[id="settings"]');
+		expect(settingsBtn).not.toBeNull();
+		expect(settingsBtn!.getAttribute('data-content-hidden')).toBe('true');
+	});
+
+	it('settingsBtn is NOT content-hidden when speeds list has more than one entry', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { settings: true },
+		}).ready();
+
+		Object.assign(player, {
+			playbackRates: () => [0.5, 1, 1.5, 2],
+			audioTracks: () => [{ id: 'en', label: 'English', default: true }],
+			subtitles: () => [],
+			qualityLevels: () => [],
+			chapters: () => [],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const settingsBtn = player.container.querySelector<HTMLButtonElement>('[id="settings"]');
+		expect(settingsBtn).not.toBeNull();
+		expect(settingsBtn!.getAttribute('data-content-hidden')).toBeNull();
+	});
+
+	it('settingsBtn is NOT content-hidden when subtitles are present', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { settings: true, subtitles: true },
+		}).ready();
+
+		Object.assign(player, {
+			playbackRates: () => [1],
+			audioTracks: () => [{ id: 'en', label: 'English', default: true }],
+			subtitles: () => [{ id: 'en', language: 'en', label: 'English', kind: 'subtitles', default: false, url: '' }],
+			qualityLevels: () => [],
+			chapters: () => [],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const settingsBtn = player.container.querySelector<HTMLButtonElement>('[id="settings"]');
+		expect(settingsBtn).not.toBeNull();
+		expect(settingsBtn!.getAttribute('data-content-hidden')).toBeNull();
+	});
+
+	it('qualityBtn gets data-content-hidden="true" when fewer than 2 quality levels', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { quality: true },
+		}).ready();
+
+		Object.assign(player, {
+			qualityLevels: () => [],
+			audioTracks: () => [],
+			subtitles: () => [],
+			chapters: () => [],
+			playbackRates: () => [1],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const qualityBtn = player.container.querySelector<HTMLButtonElement>('[id="quality"]');
+		expect(qualityBtn).not.toBeNull();
+		expect(qualityBtn!.getAttribute('data-content-hidden')).toBe('true');
+	});
+
+	it('qualityBtn gets data-content-hidden="true" with exactly 1 quality level', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { quality: true },
+		}).ready();
+
+		Object.assign(player, {
+			qualityLevels: () => [{ index: 0, height: 1080, bitrate: 5000, label: '1080p' }],
+			audioTracks: () => [],
+			subtitles: () => [],
+			chapters: () => [],
+			playbackRates: () => [1],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const qualityBtn = player.container.querySelector<HTMLButtonElement>('[id="quality"]');
+		expect(qualityBtn).not.toBeNull();
+		expect(qualityBtn!.getAttribute('data-content-hidden')).toBe('true');
+	});
+
+	it('qualityBtn is NOT content-hidden when 2 or more quality levels exist', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { quality: true },
+		}).ready();
+
+		Object.assign(player, {
+			qualityLevels: () => [
+				{ index: 0, height: 1080, bitrate: 5000, label: '1080p' },
+				{ index: 1, height: 720, bitrate: 3000, label: '720p' },
+			],
+			audioTracks: () => [],
+			subtitles: () => [],
+			chapters: () => [],
+			playbackRates: () => [1],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const qualityBtn = player.container.querySelector<HTMLButtonElement>('[id="quality"]');
+		expect(qualityBtn).not.toBeNull();
+		expect(qualityBtn!.getAttribute('data-content-hidden')).toBeNull();
+	});
+
+	it('audioBtn gets data-content-hidden="true" when only 1 audio track', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { audio: true },
+		}).ready();
+
+		Object.assign(player, {
+			audioTracks: () => [{ id: 'en', label: 'English', default: true }],
+			subtitles: () => [],
+			qualityLevels: () => [],
+			chapters: () => [],
+			playbackRates: () => [1],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const audioBtn = player.container.querySelector<HTMLButtonElement>('[id="audio"]');
+		expect(audioBtn).not.toBeNull();
+		expect(audioBtn!.getAttribute('data-content-hidden')).toBe('true');
+	});
+
+	it('audioBtn is NOT content-hidden when 2 or more audio tracks exist', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { audio: true },
+		}).ready();
+
+		Object.assign(player, {
+			audioTracks: () => [
+				{ id: 'en', label: 'English', default: true },
+				{ id: 'nl', label: 'Dutch', default: false },
+			],
+			subtitles: () => [],
+			qualityLevels: () => [],
+			chapters: () => [],
+			playbackRates: () => [1],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const audioBtn = player.container.querySelector<HTMLButtonElement>('[id="audio"]');
+		expect(audioBtn).not.toBeNull();
+		expect(audioBtn!.getAttribute('data-content-hidden')).toBeNull();
+	});
+
+	it('subsBtn gets data-content-hidden="true" when 0 subtitle tracks', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { subtitles: true },
+		}).ready();
+
+		Object.assign(player, {
+			subtitles: () => [],
+			audioTracks: () => [],
+			qualityLevels: () => [],
+			chapters: () => [],
+			playbackRates: () => [1],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const subsBtn = player.container.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		expect(subsBtn).not.toBeNull();
+		expect(subsBtn!.getAttribute('data-content-hidden')).toBe('true');
+	});
+
+	it('subsBtn is NOT content-hidden when at least 1 subtitle track exists', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { subtitles: true },
+		}).ready();
+
+		Object.assign(player, {
+			subtitles: () => [{ id: 'en', language: 'en', label: 'English', kind: 'subtitles', default: false, url: '' }],
+			audioTracks: () => [],
+			qualityLevels: () => [],
+			chapters: () => [],
+			playbackRates: () => [1],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const subsBtn = player.container.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		expect(subsBtn).not.toBeNull();
+		expect(subsBtn!.getAttribute('data-content-hidden')).toBeNull();
+	});
+});
+
+// ── Menu keyboard navigation ──────────────────────────────────────────────────
 
 describe('DesktopUiPlugin — menu keyboard navigation (ArrowUp / ArrowDown)', () => {
 	beforeEach(() => resetAndMount());

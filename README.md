@@ -58,6 +58,24 @@ The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full refer
 - [API Methods](https://docs.nomercy.tv/nomercy-video-player/api-methods) and [Events](https://docs.nomercy.tv/nomercy-video-player/events)
 - The step-by-step tutorial for building your own player UI, framework guides for Vue, React, Svelte, Angular, and vanilla JS, and the full plugin reference
 
+## Testing your own plugin
+
+Plugins written for `nomercy-video-player` use the conformance helper that ships in `nomercy-player-core`:
+
+```ts
+import { describePlugin } from '@nomercy-entertainment/nomercy-player-core/testing';
+import { MyVideoPlugin } from './my-plugin';
+
+describePlugin(MyVideoPlugin, (ctx) => {
+  it('behaves correctly', () => {
+    ctx.player.emit('play', undefined);
+    expect(ctx.plugin.someState()).toBe(true);
+  });
+});
+```
+
+The full guide, worked example, and all available kit exports are in [`nomercy-player-core` TESTING.md](https://github.com/NoMercy-Entertainment/nomercy-player-core/blob/master/TESTING.md).
+
 ## License
 
 Apache-2.0

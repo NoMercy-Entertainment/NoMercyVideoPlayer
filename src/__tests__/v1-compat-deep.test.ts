@@ -199,16 +199,17 @@ describe('event bridges — chapters / audioTracks / playlist / levels', () => {
 		player.dispose();
 	});
 
-	it('on("playlist", fn) receives [] sentinel from v2 "queueChanged" event', async () => {
+	it('on("playlist", fn) receives items array from v2 "queue" event', async () => {
 		const player = makePlayer();
 		player.addPlugin(V1VideoCompatPlugin);
 		await player.ready();
 
 		const received: unknown[] = [];
 		(player as unknown as OnCompat).on('playlist', d => received.push(d));
-		player.emit('queueChanged' as never, undefined as never);
+		const fakeItems = [{ id: '1', url: 'a.mp4' }];
+		player.emit('queue' as never, fakeItems as never);
 
-		expect(received[0]).toEqual([]);
+		expect(received[0]).toEqual(fakeItems);
 
 		player.dispose();
 	});

@@ -1413,6 +1413,19 @@ export function nmplayer<T extends BasePlaylistItem = VideoPlaylistItem>(id?: st
 	// Widen setup to accept the v1-compat V1VideoConfig shape (extra fields like
 	// disableTouchControls, basePath, accessToken, wider playlist). normalizeVideoConfig strips them.
 	(instance as unknown as Record<string, unknown>).setup = function (config: V1VideoConfig<T extends VideoPlaylistItem ? T : VideoPlaylistItem>): NMVideoPlayer<T> {
+		// v1 allowed calling setup() multiple times to reconfigure the player.
+		// v2 guards against double-setup. When the player is already set up,
+		// dispose it first so the subsequent setup() starts from a clean slate.
+		// This preserves v1 re-setup semantics without modifying core behaviour.
+		const internalState = instance as unknown as Record<string, unknown>;
+		if (internalState._setupCalled === true) {
+			instance.dispose();
+			// After dispose(), _phase is 'disposed'. Reset the fields that
+			// _guardSetup inspects so the upcoming setup() proceeds cleanly.
+			internalState._setupCalled = false;
+			internalState._phase = 'idle';
+		}
+
 		// Normalise v1 legacy fields (accessToken → auth.bearerToken,
 		// debug: true → logLevel: 'debug') at the library boundary so core
 		// never sees them and carries no compat knowledge. Strategy defaults,

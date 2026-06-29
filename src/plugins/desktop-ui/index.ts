@@ -2336,11 +2336,15 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private applyAudioIcon(): void {
-		applyAudioIcon(this.audioBtn, this.t.bind(this));
+		const audios = this.player.audioTracks?.() ?? [];
+		const defaultIdx = audios.findIndex(tr => tr.default === true);
+		const manifestDefault = defaultIdx >= 0 ? defaultIdx : 0;
+		const isNonDefault = audios.length > 1 && this.activeAudioIdx !== manifestDefault;
+		applyAudioIcon(this.audioBtn, this.t.bind(this), isNonDefault);
 	}
 
 	private applyQualityIcon(): void {
-		applyQualityIcon(this.qualityBtn, this.t.bind(this), this.playingQualityLabel());
+		applyQualityIcon(this.qualityBtn, this.t.bind(this), this.playingQualityLabel(), this._userPickedQuality);
 	}
 
 	/**

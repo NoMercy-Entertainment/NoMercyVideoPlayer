@@ -1,0 +1,57 @@
+<!doctype html>
+<!--
+  Copyright (c) NoMercy Entertainment
+  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+  SPDX-License-Identifier: Apache-2.0
+-->
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>E2E Full-Plugin Fixture</title>
+		<style>
+			body {
+				margin: 0;
+				background: #000;
+			}
+
+			#player {
+				width: 640px;
+				height: 360px;
+				background: #000;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="player"></div>
+		<script type="module">
+			import nmplayer from '/src/index.ts';
+			import { DesktopUiPlugin } from '/src/plugins/desktop-ui/index.ts';
+			import { KeyHandlerPlugin } from '/src/plugins/key-handler/index.ts';
+			import { SubtitleOverlayPlugin } from '/src/plugins/subtitle-overlay/index.ts';
+			import { OctopusPlugin } from '/src/plugins/octopus/index.ts';
+
+			window.__playerError = null;
+			window.__playerReady = false;
+
+			try {
+				const player = nmplayer('player');
+
+				player.addPlugin(DesktopUiPlugin, { inactivityMs: 4000 });
+				player.addPlugin(KeyHandlerPlugin);
+				player.addPlugin(SubtitleOverlayPlugin);
+
+				window.player = player;
+				window.DesktopUiPlugin = DesktopUiPlugin;
+				window.KeyHandlerPlugin = KeyHandlerPlugin;
+				window.SubtitleOverlayPlugin = SubtitleOverlayPlugin;
+				window.OctopusPlugin = OctopusPlugin;
+
+				window.__playerReady = true;
+			} catch (e) {
+				window.__playerError = e.message || String(e);
+				window.__playerReady = false;
+			}
+		</script>
+	</body>
+</html>

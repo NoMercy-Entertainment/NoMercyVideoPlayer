@@ -391,4 +391,145 @@ describe('TouchZonesPlugin', () => {
 			expect(rewindSpy).toHaveBeenCalledTimes(1);
 		});
 	});
+
+	// ── Seek-indicator accumulation on rapid double-taps ──────────────────────
+	//
+	// The doubleTap closure uses Date.now() for gap detection. With fake timers
+	// we must advance system time (vi.setSystemTime) so Date.now() moves, AND
+	// advance the event-loop timers (vi.advanceTimersByTime) so the singleTimer
+	// / collapseTimer callbacks fire at the right moments.
+
+	describe('seek indicator accumulation', () => {
+		// The doubleTap closure uses Date.now() for gap detection. We set up
+		// the player with real timers, then switch to fake timers for the
+		// timing-sensitive assertions, driving both Date.now() (vi.setSystemTime)
+		// and the event-loop (vi.advanceTimersByTime) in lockstep.
+
+		it('rapid double-taps accumulate seek amount in the indicator before the collapse timer fires', async () => {
+			// Set up player with real timers.
+			const player = setup();
+			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, seekSeconds: 10 });
+			await player.ready();
+
+			const rewindSpy = vi.fn().mockResolvedValue(undefined);
+			(player as any).rewind = rewindSpy;
+
+			const container = document.getElementById('test')!;
+			const leftBox = findZoneBox(container, '1', '2');
+			expect(leftBox).toBeDefined();
+
+			// Switch to fake timers after setup so await player.ready() ran normally.
+			vi.useFakeTimers();
+			const t0 = Date.now();
+
+			// First double-tap: two clicks 50 ms apart → gap < 300 ms → onDouble fires.
+			vi.setSystemTime(t0);
+			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.setSystemTime(t0 + 50);
+			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			// Advance event loop to flush any singleTimers that might have been set.
+			vi.advanceTimersByTime(50);
+
+			// Second double-tap: first click must be >= 300 ms from lastTap (t0+50)
+			// so the gap test fails and a singleTimer is queued. Second click 50ms
+			// later → gap 50 < 300 → onDouble fires again.
+			vi.setSystemTime(t0 + 400);
+			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.setSystemTime(t0 + 450);
+			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			// Advance event loop, but stay well under the 1000 ms collapse timer.
+			vi.advanceTimersByTime(50);
+
+			expect(rewindSpy).toHaveBeenCalledTimes(2);
+
+			// Both seeks accumulated: -20s (two × 10s).
+			const indicator = container.querySelector<HTMLElement>('.nm-seek-indicator--left, .nm-seek-indicator');
+			expect(indicator).not.toBeNull();
+			const textEl = indicator!.querySelector('span');
+			expect(textEl).not.toBeNull();
+			expect(textEl!.textContent).toBe('-20s');
+
+			vi.useRealTimers();
+		});
+
+		it('indicator resets to per-tap amount after the 1000 ms collapse timer fires', async () => {
+			const player = setup();
+			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, seekSeconds: 10 });
+			await player.ready();
+
+			const rewindSpy = vi.fn().mockResolvedValue(undefined);
+			(player as any).rewind = rewindSpy;
+
+			const container = document.getElementById('test')!;
+			const leftBox = findZoneBox(container, '1', '2');
+			expect(leftBox).toBeDefined();
+
+			vi.useFakeTimers();
+			const t0 = Date.now();
+
+			// First double-tap.
+			vi.setSystemTime(t0);
+			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.setSystemTime(t0 + 50);
+			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.advanceTimersByTime(50);
+
+			// Advance PAST the 1000 ms collapse timer — accumulated resets to 0.
+			vi.setSystemTime(t0 + 1200);
+			vi.advanceTimersByTime(1150);
+
+			// Second double-tap after reset.
+			vi.setSystemTime(t0 + 1250);
+			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.setSystemTime(t0 + 1300);
+			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.advanceTimersByTime(50);
+
+			// Indicator must show only the fresh 10s, not the accumulated 20s.
+			const indicator = container.querySelector<HTMLElement>('.nm-seek-indicator--left, .nm-seek-indicator');
+			const textEl = indicator!.querySelector('span');
+			expect(textEl!.textContent).toBe('-10s');
+
+			vi.useRealTimers();
+		});
+
+		it('rapid double-taps on the right zone accumulate forward seek amount', async () => {
+			const player = setup();
+			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, seekSeconds: 10 });
+			await player.ready();
+
+			const forwardSpy = vi.fn().mockResolvedValue(undefined);
+			(player as any).forward = forwardSpy;
+
+			const container = document.getElementById('test')!;
+			const rightBox = findZoneBox(container, '3', '4');
+			expect(rightBox).toBeDefined();
+
+			vi.useFakeTimers();
+			const t0 = Date.now();
+
+			// First double-tap.
+			vi.setSystemTime(t0);
+			rightBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.setSystemTime(t0 + 50);
+			rightBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.advanceTimersByTime(50);
+
+			// Second double-tap before the collapse timer.
+			vi.setSystemTime(t0 + 400);
+			rightBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.setSystemTime(t0 + 450);
+			rightBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			vi.advanceTimersByTime(50);
+
+			expect(forwardSpy).toHaveBeenCalledTimes(2);
+
+			const indicator = container.querySelector<HTMLElement>('.nm-seek-indicator--right, .nm-seek-indicator');
+			expect(indicator).not.toBeNull();
+			const textEl = indicator!.querySelector('span');
+			expect(textEl!.textContent).toBe('+20s');
+
+			vi.useRealTimers();
+		});
+	});
 });

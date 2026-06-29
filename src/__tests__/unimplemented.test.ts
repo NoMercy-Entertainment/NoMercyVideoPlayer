@@ -350,7 +350,8 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 			let acquiredAt: number | undefined;
 			p.on('auth:refreshed', (data: any) => { acquiredAt = data.tokenAcquiredAt; });
 			p.auth({ bearerToken: 'tok-a' });
-			expect(p.auth()?.bearerToken).toBe('tok-a');
+			expect((p as any)._rawAuth()?.bearerToken).toBe('tok-a');
+			expect(p.auth()?.bearerToken).toBeUndefined();
 			expect(acquiredAt).toBeTypeOf('number');
 		});
 
@@ -360,7 +361,8 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 			p.auth({ bearerToken: 'tok-a', credentials: 'include' });
 			p.auth({ bearerToken: 'tok-b' });
 			const current = p.auth();
-			expect(current?.bearerToken).toBe('tok-b');
+			expect((p as any)._rawAuth()?.bearerToken).toBe('tok-b');
+			expect(current?.bearerToken).toBeUndefined();
 			expect(current?.credentials).toBe('include');
 		});
 

@@ -92,17 +92,20 @@ export function applyRate(speedBtn: HTMLButtonElement, rate: number, t: ITransla
 // ── Quality ────────────────────────────────────────────────────────────────────
 
 /**
- * Update the quality button icon and aria-label. The icon stays generic
- * (one quality glyph regardless of level), but the aria-label includes the
- * level currently playing when one is known — so screen readers and hover
- * tooltips confirm what's actually on screen.
+ * Update the quality button icon, `is-active` class, and aria-label.
+ * `isManual` is true when the user has pinned a specific quality level (not
+ * auto). A manual quality selection is a non-default state that should be
+ * indicated via `is-active` — matching the pattern used by aspect, pip, and speed.
+ * The aria-label includes the playing level when known.
  */
 export function applyQualityIcon(
 	qualityBtn: HTMLButtonElement,
 	t: ITranslator['t'],
 	playingLabel?: string,
+	isManual = false,
 ): void {
 	setBtnIcon(qualityBtn, svgFromIcon(fluentIcons.quality));
+	qualityBtn.classList.toggle('is-active', isManual);
 	const base = t('tooltip.quality');
 	qualityBtn.setAttribute('aria-label', playingLabel ? `${base}: ${playingLabel}` : base);
 }
@@ -125,32 +128,43 @@ export function applyTheaterIcon(theaterBtn: HTMLButtonElement, active: boolean,
 
 // ── Subtitles ──────────────────────────────────────────────────────────────────
 
-/** Toggle subtitles button between the on/off icon based on the active track index. */
+/**
+ * Toggle subtitles button between the on/off icon AND the `is-active` class
+ * based on the active track index. An active subtitle track (index >= 0) is
+ * non-default, so both the filled icon and `is-active` are applied together.
+ */
 export function applySubsIcon(subsBtn: HTMLButtonElement, activeSubtitleIdx: number | null, t: ITranslator['t']): void {
 	const on = activeSubtitleIdx !== null && activeSubtitleIdx !== -1;
 	setBtnIcon(subsBtn, svgFromIcon(on ? fluentIcons.subtitles : fluentIcons.subtitlesOff));
+	subsBtn.classList.toggle('is-active', on);
 	subsBtn.setAttribute('aria-label', t('tooltip.subtitles'));
 }
 
 // ── Picture-in-picture ─────────────────────────────────────────────────────────
 
-/** Update the PiP button icon and aria-label. The hover tooltip is owned by `addTooltip()`. */
+/**
+ * Update the PiP button icon, `is-active` class, and aria-label.
+ * PiP engaged is a non-default state, so `is-active` is added alongside the
+ * exit-pip icon — matching the aspect-ratio and speed pattern exactly.
+ */
 export function applyPipIcon(pipBtn: HTMLButtonElement, active: boolean, t: ITranslator['t']): void {
 	setBtnIcon(pipBtn, svgFromIcon(active ? fluentIcons.pipExit : fluentIcons.pipEnter));
+	pipBtn.classList.toggle('is-active', active);
 	pipBtn.setAttribute('aria-label', t('tooltip.pip'));
 }
 
 // ── Audio track ────────────────────────────────────────────────────────────────
 
 /**
- * Update the audio button icon and aria-label. NEVER marks the button
- * `is-active`: exactly one audio track is always playing, so unlike
- * subtitles (off/on) or quality (auto/manual) there is no non-default
- * state to advertise — preference-restored languages lit it permanently.
+ * Update the audio button icon, `is-active` class, and aria-label.
+ * `isNonDefault` is true when the playing track is not the manifest's default
+ * track (index 0 / default flag). A non-default audio selection is a changed
+ * state and should be indicated — matching the pattern used by subtitle, aspect,
+ * pip, and speed.
  */
-export function applyAudioIcon(audioBtn: HTMLButtonElement, t: ITranslator['t']): void {
+export function applyAudioIcon(audioBtn: HTMLButtonElement, t: ITranslator['t'], isNonDefault = false): void {
 	setBtnIcon(audioBtn, svgFromIcon(fluentIcons.language));
-	audioBtn.classList.remove('is-active');
+	audioBtn.classList.toggle('is-active', isNonDefault);
 	audioBtn.setAttribute('aria-label', t('tooltip.audio'));
 }
 
