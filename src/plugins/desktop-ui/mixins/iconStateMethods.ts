@@ -21,6 +21,7 @@
  */
 
 import type { DesktopUiInternals } from '../internals';
+import { fluentIcons, svgFromIcon } from '../data/icons';
 import {
 	applyAspectRatioIcon,
 	applyAudioIcon,
@@ -34,7 +35,6 @@ import {
 	applyTheaterIcon,
 	applyVolume,
 } from '../helpers/buttonState';
-import { fluentIcons, svgFromIcon } from '../data/icons';
 
 export const iconStateMethods = {
 	applyVolume(this: DesktopUiInternals, v: number): void {

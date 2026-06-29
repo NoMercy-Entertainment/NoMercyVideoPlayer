@@ -16,11 +16,11 @@
  */
 
 import type { BottomBarRefs, BottomRowRefs, CenterRefs } from '../helpers/dom';
-import type { DesktopUiOptions } from '../index';
-import type { DesktopUiInternals } from '../internals';
 import type { MenuControlRefs } from '../helpers/menuControl';
-
 import type { TooltipButtonRefs } from '../helpers/tooltips';
+import type { DesktopUiOptions } from '../index';
+
+import type { DesktopUiInternals } from '../internals';
 
 import { TheaterState, VolumeState } from '../../../types';
 

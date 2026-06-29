@@ -26,18 +26,18 @@ import type { ILogger, IStorage, LifecycleRegistry, ResolvedUrl, UrlCategory } f
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
 import type { ActivityState } from './helpers/activity';
-import type {
-	Breakpoint,
-	DesktopUiButtonOptions,
-	DesktopUiEvents,
-	DesktopUiOptions,
-} from './index';
 import type { MenuControlRefs, MenuControlState } from './helpers/menuControl';
 import type { MenuFrameRefs, SubMenuId } from './helpers/menus';
 import type { ChapterMarkerRef, SliderBarRefs } from './helpers/progressBar';
 import type { ResponsiveState } from './helpers/responsive';
 import type { SpriteSet } from './helpers/sprite';
 import type { TopBarRefs } from './helpers/topBar';
+import type {
+	Breakpoint,
+	DesktopUiButtonOptions,
+	DesktopUiEvents,
+	DesktopUiOptions,
+} from './index';
 
 /**
  * The complete `this` surface available inside every desktop-ui mixin method.
