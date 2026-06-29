@@ -103,10 +103,6 @@ export function buildTitleBar(player: IVideoPlayer<VideoPlaylistItem>, parent: H
  *  item belongs to a series, otherwise the movie title; secondary line is
  *  `S{n}E{n} • {episodeTitle}` for TV, `Extras E{n} • {episodeTitle}` for
  *  season-0 specials, blank for movies.
- *
- *  Server titles may contain `%S{N}` / `%E{N}` tokens (e.g. specials where the
- *  server encodes the label directly in the title string). These are resolved
- *  to locale-aware strings via `resolveSeasonEpisodeTokens`.
  */
 export function updateTitleBar(
 	player: IVideoPlayer<VideoPlaylistItem>,
