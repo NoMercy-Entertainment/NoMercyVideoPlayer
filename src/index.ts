@@ -987,7 +987,6 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	// ── Video geometry ──
 
-	private _videoRectCache: VideoRect | null = null;
 	private _videoRectObserver: ResizeObserver | null = null;
 
 	/**
@@ -1018,7 +1017,6 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	private _emitVideoRect(): void {
 		const rect = this.videoRect();
-		this._videoRectCache = rect;
 		this.emit('videoRect', { rect });
 	}
 
@@ -1049,7 +1047,6 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	// ── Segment / window playback ──
 
-	private _activeSegment: SegmentOptions | null = null;
 	private _segmentUnlisten: (() => void) | null = null;
 
 	/**
@@ -1065,8 +1062,6 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	 */
 	playSegment(opts: SegmentOptions): void {
 		this._clearSegmentInternal();
-
-		this._activeSegment = opts;
 
 		const { startSec, endSec, onEnd } = opts;
 
@@ -1104,7 +1099,6 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	private _clearSegmentInternal(): void {
 		this._segmentUnlisten?.();
 		this._segmentUnlisten = null;
-		this._activeSegment = null;
 	}
 
 	/**
@@ -1227,7 +1221,6 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	_disposeBackend(): void {
 		this._clearSegmentInternal();
 		this._teardownVideoRectObserver();
-		this._videoRectCache = null;
 		try { this._backend?.dispose?.(); }
 		catch { /* defensive — kit must still finish disposing */ }
 		this._backend = undefined;
