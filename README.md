@@ -6,9 +6,14 @@ Full documentation: https://docs.nomercy.tv/nomercy-video-player/
 
 # nomercy-video-player
 
-The headless HLS video engine behind NoMercy TV. It handles the hard parts of video, adaptive bitrate, HDR-aware quality, multi-format subtitles, chapters, skip markers, and Chromecast, then hands you plain events and methods. No UI is bundled: add the built-in `DesktopUiPlugin` for a full set of controls, or build your own.
+The headless HLS video engine behind NoMercy TV. It handles the hard parts of video and hands you plain events and methods, so you stay in control of the interface.
 
-It is built on [`@nomercy-entertainment/nomercy-player-core`](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core), which carries the generic engine (queue, auth, plugins, i18n, storage) shared with the music player.
+- Adaptive bitrate streaming over HLS, with HDR-aware quality selection
+- Multi-format subtitles (VTT, ASS, SSA), chapters, and skip markers
+- Chromecast sending, a full keyboard and touch input layer, and a typed event bus
+- A built-in `DesktopUiPlugin` for a complete control surface, or bring your own UI
+
+It is built on [`@nomercy-entertainment/nomercy-player-core`](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core), the shared engine that carries the queue, auth, plugin system, i18n, and storage.
 
 ```
 npm install @nomercy-entertainment/nomercy-video-player
@@ -52,25 +57,7 @@ The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full refer
 - [Quick Start](https://docs.nomercy.tv/nomercy-video-player/quickstart), install, and first player
 - [Configuration](https://docs.nomercy.tv/nomercy-video-player/configuration), every option and default
 - [API Methods](https://docs.nomercy.tv/nomercy-video-player/api-methods) and [Events](https://docs.nomercy.tv/nomercy-video-player/events)
-- The step-by-step tutorial for building your own player UI, framework guides for Vue, React, Svelte, Angular, and vanilla JS, and the full plugin reference
-
-## Testing your own plugin
-
-Plugins written for `nomercy-video-player` use the conformance helper that ships in `nomercy-player-core`:
-
-```ts
-import { describePlugin } from '@nomercy-entertainment/nomercy-player-core/testing';
-import { MyVideoPlugin } from './my-plugin';
-
-describePlugin(MyVideoPlugin, (ctx) => {
-  it('behaves correctly', () => {
-    ctx.player.emit('play', undefined);
-    expect(ctx.plugin.someState()).toBe(true);
-  });
-});
-```
-
-The full guide, worked example, and all available kit exports are in [`nomercy-player-core` TESTING.md](https://github.com/NoMercy-Entertainment/nomercy-player-core/blob/master/TESTING.md).
+- The step-by-step tutorial for building your own player UI, framework guides for Vue, React, Svelte, Angular, and vanilla JS, and writing your own plugins
 
 ## License
 
