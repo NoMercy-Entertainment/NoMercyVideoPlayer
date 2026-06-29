@@ -32,7 +32,8 @@ export function svgFromIcon(icon: IconEntry, size = 22): string {
 	const fillAttrs = isStroke
 		? 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
 		: 'fill="currentColor"';
-	return `<svg viewBox="0 0 24 24" ${fillAttrs} width="${size}" height="${size}" aria-hidden="true"><path class="icon-normal" d="${icon.normal}"/><path class="icon-hover" d="${icon.hover}"/></svg>`;
+	const hover = icon.hover ?? icon.normal;
+	return `<svg viewBox="0 0 24 24" ${fillAttrs} width="${size}" height="${size}" aria-hidden="true"><path class="icon-normal" d="${icon.normal}"/><path class="icon-hover" d="${hover}"/></svg>`;
 }
 
 /** Convenience: render the icon at `name` from the official table. */
