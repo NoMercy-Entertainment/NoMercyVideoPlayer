@@ -21,8 +21,8 @@
  *       repaintAspectRatioIfOpen.
  */
 
-import type { SubMenuId } from './menus';
-import type { DesktopUiInternals } from './internals';
+import type { SubMenuId } from '../helpers/menus';
+import type { DesktopUiInternals } from '../internals';
 import {
 	closeAllMenus as closeAllMenusFn,
 	openMainMenu as openMainMenuFn,
@@ -35,7 +35,7 @@ import {
 	repaintSubsIfOpen as repaintSubsIfOpenFn,
 	syncActiveIndexes as syncActiveIndexesFn,
 	wireMenuKeyboardNav as wireMenuKeyboardNavFn,
-} from './menuControl';
+} from '../helpers/menuControl';
 
 export const menuMethods = {
 	openMainMenu(this: DesktopUiInternals): void {

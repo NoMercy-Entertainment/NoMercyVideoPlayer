@@ -29,7 +29,7 @@
  * former `static readonly` members on the plugin class.
  */
 
-import type { Breakpoint, ButtonPriorityList, DesktopUiButtonOptions, DesktopUiOptions, LayoutBreakpointPayload } from './index';
+import type { Breakpoint, ButtonPriorityList, DesktopUiButtonOptions, DesktopUiOptions, LayoutBreakpointPayload } from '../index';
 
 // ── Re-exported constants (previously static class members) ───────────────────
 

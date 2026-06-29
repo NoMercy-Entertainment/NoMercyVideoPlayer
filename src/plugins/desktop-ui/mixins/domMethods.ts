@@ -15,23 +15,23 @@
  *       wireSliderBar, wireEvents.
  */
 
-import type { BottomBarRefs, BottomRowRefs, CenterRefs } from './dom';
-import type { DesktopUiOptions } from './index';
-import type { DesktopUiInternals } from './internals';
-import type { MenuControlRefs } from './menuControl';
+import type { BottomBarRefs, BottomRowRefs, CenterRefs } from '../helpers/dom';
+import type { DesktopUiOptions } from '../index';
+import type { DesktopUiInternals } from '../internals';
+import type { MenuControlRefs } from '../helpers/menuControl';
 
-import type { TooltipButtonRefs } from './tooltips';
+import type { TooltipButtonRefs } from '../helpers/tooltips';
 
-import { TheaterState, VolumeState } from '../../types';
+import { TheaterState, VolumeState } from '../../../types';
 
-import { setActivity } from './activity';
-import { buildBottomBar, buildCenter, buildShortcutsOverlay } from './dom';
-import { makeMenuControlState } from './menuControl';
-import { buildMenuFrame } from './menus';
-import { fmt } from './progressBar';
-import { wireVolumeSlider } from './responsive';
-import { wireTooltips } from './tooltips';
-import { buildTitleBar } from './topBar';
+import { setActivity } from '../helpers/activity';
+import { buildBottomBar, buildCenter, buildShortcutsOverlay } from '../helpers/dom';
+import { makeMenuControlState } from '../helpers/menuControl';
+import { buildMenuFrame } from '../helpers/menus';
+import { fmt } from '../helpers/progressBar';
+import { wireVolumeSlider } from '../helpers/responsive';
+import { wireTooltips } from '../helpers/tooltips';
+import { buildTitleBar } from '../helpers/topBar';
 
 export const domMethods = {
 	buildDom(this: DesktopUiInternals): void {

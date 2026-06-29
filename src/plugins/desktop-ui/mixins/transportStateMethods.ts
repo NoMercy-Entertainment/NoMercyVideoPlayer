@@ -18,12 +18,12 @@
 
 import type { VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
-import type { DesktopUiInternals } from './internals';
+import type { DesktopUiInternals } from '../internals';
 
-import { fluentIcons, svgFromIcon } from './icons';
-import { fmt } from './progressBar';
-import { applyAllVisibilityRules } from './responsive';
-import { updateTitleBar } from './topBar';
+import { fluentIcons, svgFromIcon } from '../data/icons';
+import { fmt } from '../helpers/progressBar';
+import { applyAllVisibilityRules } from '../helpers/responsive';
+import { updateTitleBar } from '../helpers/topBar';
 
 export const transportStateMethods = {
 	setPlayingState(this: DesktopUiInternals, playing: boolean): void {

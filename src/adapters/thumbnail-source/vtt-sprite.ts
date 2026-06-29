@@ -8,10 +8,10 @@
 
 import type { BasePlaylistItem } from '@nomercy-entertainment/nomercy-player-core';
 
-import type { SpriteSet } from '../../plugins/desktop-ui/sprite';
+import type { SpriteSet } from '../../plugins/desktop-ui/helpers/sprite';
 import type { IThumbnailSource, ThumbnailFrame } from './IThumbnailSource';
 
-import { loadSpriteSet, lookupCue } from '../../plugins/desktop-ui/sprite';
+import { loadSpriteSet, lookupCue } from '../../plugins/desktop-ui/helpers/sprite';
 
 /**
  * Default thumbnail source. Fetches a WebVTT sprite manifest from

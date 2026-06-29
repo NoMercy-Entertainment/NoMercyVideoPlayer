@@ -27,9 +27,9 @@
  */
 
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
-import type { AudioTrackRef, QualityLevel, SubtitleTrackRef } from '../../types';
-import type { SubtitleStyle } from './buttons';
-import { readItemImage } from '../../player/itemImage';
+import type { AudioTrackRef, QualityLevel, SubtitleTrackRef } from '../../../types';
+import type { SubtitleStyle } from '../data/buttons';
+import { readItemImage } from '../../../player/itemImage';
 import {
 	colors,
 	defaultSubtitleStyles,
@@ -37,10 +37,10 @@ import {
 	fontFamilies,
 	subtitleSettingActions,
 
-} from './buttons';
-import { fluentIcons, svgFromIcon } from './icons';
-import { languageDisplayName, subtitleTrackLabel } from './language-names';
-import { escapeHtml, formatDuration } from './utils';
+} from '../data/buttons';
+import { fluentIcons, svgFromIcon } from '../data/icons';
+import { languageDisplayName, subtitleTrackLabel } from '../data/language-names';
+import { escapeHtml, formatDuration } from '../data/utils';
 
 export type MenuListen = (target: EventTarget, event: string, fn: (e: Event) => void) => void;
 

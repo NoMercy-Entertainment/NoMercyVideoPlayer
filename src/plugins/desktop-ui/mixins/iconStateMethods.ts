@@ -20,7 +20,7 @@
  *       applySubsIcon, applyMenuSubsIcon, applyPipIcon, applyAspectRatioIcon.
  */
 
-import type { DesktopUiInternals } from './internals';
+import type { DesktopUiInternals } from '../internals';
 import {
 	applyAspectRatioIcon,
 	applyAudioIcon,
@@ -33,8 +33,8 @@ import {
 	applySubsIcon,
 	applyTheaterIcon,
 	applyVolume,
-} from './buttonState';
-import { fluentIcons, svgFromIcon } from './icons';
+} from '../helpers/buttonState';
+import { fluentIcons, svgFromIcon } from '../data/icons';
 
 export const iconStateMethods = {
 	applyVolume(this: DesktopUiInternals, v: number): void {

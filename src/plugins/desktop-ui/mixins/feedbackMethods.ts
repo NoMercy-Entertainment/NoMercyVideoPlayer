@@ -15,7 +15,7 @@
  * (DesktopUiPlugin). This mixin reads and writes them via DesktopUiInternals.
  */
 
-import type { DesktopUiInternals } from './internals';
+import type { DesktopUiInternals } from '../internals';
 
 export const feedbackMethods = {
 	wireFeedback(this: DesktopUiInternals): void {

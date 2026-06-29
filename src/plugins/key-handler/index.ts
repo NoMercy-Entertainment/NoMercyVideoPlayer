@@ -9,7 +9,7 @@
 import type { NMVideoPlayer, VideoPlayerConfig } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
 import { KeyHandlerPlugin as BaseKeyHandler } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
-import { fmt as fmtTime } from '../desktop-ui/progressBar';
+import { fmt as fmtTime } from '../desktop-ui/helpers/progressBar';
 
 function hasDisplayMessage<T extends VideoPlaylistItem>(p: NMVideoPlayer<T>): p is NMVideoPlayer<T> & { displayMessage: (text: string, ms?: number) => void } {
 	return typeof (p as unknown as { displayMessage?: unknown }).displayMessage === 'function';

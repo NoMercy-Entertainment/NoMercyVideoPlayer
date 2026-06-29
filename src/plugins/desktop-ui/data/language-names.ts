@@ -14,7 +14,7 @@
  * so this is composed at render time, never stored on the track.
  */
 
-import type { SubtitleTrackRef } from '../../types';
+import type { SubtitleTrackRef } from '../../../types';
 
 /**
  * Non-standard codes seen in media containers that `Intl.DisplayNames`

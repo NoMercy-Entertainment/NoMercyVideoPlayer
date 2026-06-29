@@ -20,9 +20,9 @@
 
 import type { VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
-import type { DesktopUiInternals } from './internals';
+import type { DesktopUiInternals } from '../internals';
 
-import { clampPopOffset, getScrubTime, loadSpriteSet, paintSpriteAt, resolveSpriteUrl } from './sprite';
+import { clampPopOffset, getScrubTime, loadSpriteSet, paintSpriteAt, resolveSpriteUrl } from '../helpers/sprite';
 
 export const spriteMethods = {
 	getScrubTime(this: DesktopUiInternals, e: Event): { scrubTime: number; scrubTimePlayer: number } {

@@ -44,7 +44,7 @@ import type { VideoPlaylistItem } from '../../types';
 
 import { translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import { MessagePlugin } from '@nomercy-entertainment/nomercy-player-core/plugins/message';
-import { fmt } from '../desktop-ui/progressBar';
+import { fmt } from '../desktop-ui/helpers/progressBar';
 import { KeyHandlerPlugin } from '../key-handler';
 
 export interface TvKeyHandlerOptions {

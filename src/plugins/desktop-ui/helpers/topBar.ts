@@ -19,7 +19,7 @@
 
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
-import { fluentIcons, svgFromIcon } from './icons';
+import { fluentIcons, svgFromIcon } from '../data/icons';
 
 // ── Refs ───────────────────────────────────────────────────────────────────────
 

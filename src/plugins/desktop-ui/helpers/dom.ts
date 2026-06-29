@@ -20,10 +20,10 @@
  */
 
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
-import type { DesktopUiButtonOptions, DesktopUiOptions } from './index';
+import type { DesktopUiButtonOptions, DesktopUiOptions } from '../index';
 import type { SliderBarRefs } from './progressBar';
 
-import { fluentIcons, svgFromIcon } from './icons';
+import { fluentIcons, svgFromIcon } from '../data/icons';
 import { buildSliderBar } from './progressBar';
 
 // ── Shared helper ─────────────────────────────────────────────────────────────

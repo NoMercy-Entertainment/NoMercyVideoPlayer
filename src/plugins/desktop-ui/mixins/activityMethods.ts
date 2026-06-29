@@ -19,8 +19,8 @@
  * Owns: bumpActivity, maybeHide, dismissOverlay.
  */
 
-import { bumpActivity, dismissOverlay, maybeHide } from './activity';
-import type { DesktopUiInternals } from './internals';
+import { bumpActivity, dismissOverlay, maybeHide } from '../helpers/activity';
+import type { DesktopUiInternals } from '../internals';
 
 export const activityMethods = {
 	bumpActivity(this: DesktopUiInternals): void {

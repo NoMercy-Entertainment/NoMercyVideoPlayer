@@ -15,7 +15,7 @@
  * (`_shortcutsVisible`) live on the plugin class.
  */
 
-import type { DesktopUiInternals } from './internals';
+import type { DesktopUiInternals } from '../internals';
 
 export const shortcutsMethods = {
 	toggleShortcuts(this: DesktopUiInternals): void {

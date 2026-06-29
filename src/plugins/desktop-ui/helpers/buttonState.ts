@@ -17,9 +17,9 @@
 
 import type { ITranslator } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
-import { VolumeState } from '../../types';
+import { VolumeState } from '../../../types';
 
-import { fluentIcons, svgFromIcon } from './icons';
+import { fluentIcons, svgFromIcon } from '../data/icons';
 
 /**
  * Render an icon into the button's `.btn-icon` child, falling back to the

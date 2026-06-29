@@ -92,28 +92,27 @@
 import type { Translations } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
-import type { ActivityState } from './activity';
-import type { MenuControlRefs, MenuControlState } from './menuControl';
-import type { MenuFrameRefs, SettingsToggleItem, SubMenuId } from './menus';
-import type { ChapterMarkerRef, SliderBarRefs } from './progressBar';
-import type { ResponsiveState } from './responsive';
-import type { SpriteSet } from './sprite';
-import type { TopBarRefs } from './topBar';
+import type { ActivityState } from './helpers/activity';
+import type { MenuControlRefs, MenuControlState } from './helpers/menuControl';
+import type { MenuFrameRefs, SettingsToggleItem, SubMenuId } from './helpers/menus';
+import type { ChapterMarkerRef, SliderBarRefs } from './helpers/progressBar';
+import type { ResponsiveState } from './helpers/responsive';
+import type { SpriteSet } from './helpers/sprite';
+import type { TopBarRefs } from './helpers/topBar';
 
 import { composeMixins, Plugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 
-import { setActivity } from './activity';
-import { activityMethods } from './activityMethods';
-
-import { chapterMethods } from './chapterMethods';
-import { domMethods } from './domMethods';
-import { feedbackMethods } from './feedbackMethods';
-import { iconStateMethods } from './iconStateMethods';
-import { menuMethods } from './menuMethods';
-import { makeResponsiveState, wireNoHover, wireOrientation, wireResponsive } from './responsive';
-import { shortcutsMethods } from './shortcutsMethods';
-import { spriteMethods } from './spriteMethods';
-import { transportStateMethods } from './transportStateMethods';
+import { setActivity } from './helpers/activity';
+import { makeResponsiveState, wireNoHover, wireOrientation, wireResponsive } from './helpers/responsive';
+import { activityMethods } from './mixins/activityMethods';
+import { chapterMethods } from './mixins/chapterMethods';
+import { domMethods } from './mixins/domMethods';
+import { feedbackMethods } from './mixins/feedbackMethods';
+import { iconStateMethods } from './mixins/iconStateMethods';
+import { menuMethods } from './mixins/menuMethods';
+import { shortcutsMethods } from './mixins/shortcutsMethods';
+import { spriteMethods } from './mixins/spriteMethods';
+import { transportStateMethods } from './mixins/transportStateMethods';
 
 /**
  * Per-button visibility overrides for the desktop UI control bar.

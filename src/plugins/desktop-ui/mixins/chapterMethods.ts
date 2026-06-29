@@ -19,15 +19,15 @@
  *       findChapterTitle, previousChapter, nextChapter.
  */
 
-import type { DesktopUiInternals } from './internals';
+import type { DesktopUiInternals } from '../internals';
 
-import { findChapterTitle, nextChapter, previousChapter } from './chapters';
+import { findChapterTitle, nextChapter, previousChapter } from '../helpers/chapters';
 import {
 	buildChapterMarkers,
 	updateChapterBuffer,
 	updateChapterHover,
 	updateChapterProgress,
-} from './progressBar';
+} from '../helpers/progressBar';
 
 export const chapterMethods = {
 	resolveDuration(this: DesktopUiInternals): number {
