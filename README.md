@@ -51,7 +51,7 @@ That mounts a working player with the full built-in UI. Drop `DesktopUiPlugin` t
 
 ## Documentation
 
-The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full reference and the home for everything that used to live in the wiki:
+The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full reference:
 
 - [Quick Start](https://docs.nomercy.tv/nomercy-video-player/quickstart), install, and first player
 - [Configuration](https://docs.nomercy.tv/nomercy-video-player/configuration), every option and default
