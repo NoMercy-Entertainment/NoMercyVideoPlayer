@@ -171,10 +171,9 @@
 		"vitest": "^4.1.6"
 	},
 	"overrides": {
-		"fast-uri": "^3.1.2",
-		"follow-redirects": "1.16.0",
-		"minimatch": "10.2.4",
-		"uuid": "^11.1.1"
+		"brace-expansion": "^5.0.6",
+		"js-yaml": "^4.3.0",
+		"minimatch": "10.2.4"
 	},
 	"publishConfig": {
 		"access": "public",
