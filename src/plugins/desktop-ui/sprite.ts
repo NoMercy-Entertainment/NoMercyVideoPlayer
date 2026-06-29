@@ -153,3 +153,79 @@ export function lookupCue(set: SpriteSet, time: number): SpriteCue | null {
 	const found = set.cues.find(c => time >= c.start && time < c.end);
 	return found ?? set.cues.at(-1) ?? null;
 }
+
+// ── Slider-pop paint helpers ───────────────────────────────────────────────────
+
+/**
+ * Compute the scrub time from a pointer/touch event relative to a slider bar.
+ * Returns both the bar-relative percentage (0–100) and the player time (seconds).
+ */
+export function getScrubTime(
+	e: Event,
+	sliderBar: HTMLDivElement,
+	duration: number,
+): { scrubTime: number; scrubTimePlayer: number } {
+	const rect = sliderBar.getBoundingClientRect();
+	const me = e as MouseEvent;
+	const te = e as TouchEvent;
+	const x = me.clientX ?? te.touches?.[0]?.clientX ?? te.changedTouches?.[0]?.clientX ?? 0;
+	let offsetX = x - rect.left;
+	if (offsetX <= 0)
+		offsetX = 0;
+	if (offsetX >= rect.width)
+		offsetX = rect.width;
+	return {
+		scrubTime: rect.width > 0 ? (offsetX / rect.width) * 100 : 0,
+		scrubTimePlayer: rect.width > 0 ? (offsetX / rect.width) * duration : 0,
+	};
+}
+
+/**
+ * Clamp a slider-pop horizontal offset (%) so the pop bubble stays fully
+ * inside the slider-bar bounds.
+ */
+export function clampPopOffset(
+	pct: number,
+	sliderPop: HTMLDivElement,
+	sliderBar: HTMLDivElement,
+): number {
+	const popWidthPct = (sliderPop.offsetWidth / Math.max(1, sliderBar.offsetWidth)) * 100;
+	const half = popWidthPct / 2;
+	return Math.max(half, Math.min(100 - half, pct));
+}
+
+/** Paint the sprite thumbnail cue into `sliderPopImage` for the given time. */
+export function paintSpriteAt(
+	time: number,
+	spriteSet: SpriteSet | null,
+	sliderPopImage: HTMLDivElement,
+): void {
+	if (!spriteSet)
+		return;
+	const cue = lookupCue(spriteSet, time);
+	if (!cue)
+		return;
+	sliderPopImage.style.backgroundPosition = `-${cue.x}px -${cue.y}px`;
+	sliderPopImage.style.width = `${cue.w}px`;
+	sliderPopImage.style.height = `${cue.h}px`;
+}
+
+/**
+ * Resolve the sprite VTT URL from a playlist item.
+ * Checks the typed `previewSpriteUrl` field first, then falls back to a
+ * legacy `tracks[].kind === 'thumbnails'` sidecar entry.
+ */
+export function resolveSpriteUrl(item: unknown): string | undefined {
+	if (!item || typeof item !== 'object')
+		return undefined;
+	const rec = item as Record<string, unknown>;
+
+	if (typeof rec.previewSpriteUrl === 'string' && rec.previewSpriteUrl)
+		return rec.previewSpriteUrl;
+
+	if (!Array.isArray(rec.tracks))
+		return undefined;
+	const tracks = rec.tracks as Array<Record<string, unknown>>;
+	const thumbs = tracks.find(t => t?.kind === 'thumbnails' && typeof t.file === 'string');
+	return typeof thumbs?.file === 'string' ? thumbs.file : undefined;
+}

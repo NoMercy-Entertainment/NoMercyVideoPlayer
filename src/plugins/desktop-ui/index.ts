@@ -68,24 +68,21 @@
 
 import type { Translations } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
+
 import type { ActivityState } from './activity';
 import type { BottomBarRefs, BottomRowRefs, CenterRefs } from './dom';
-import type { MenuFrameRefs, MenuRenderState, SettingsToggleItem, SubMenuId } from './menus';
+import type { MenuControlRefs, MenuControlState } from './menuControl';
+import type { MenuFrameRefs, SettingsToggleItem, SubMenuId } from './menus';
 import type { ChapterMarkerRef, SliderBarRefs } from './progressBar';
-
 import type { ResponsiveState } from './responsive';
 import type { SpriteSet } from './sprite';
 import type { TooltipButtonRefs } from './tooltips';
 import type { TopBarRefs } from './topBar';
+
 import { Plugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import { TheaterState, VolumeState } from '../../types';
-import {
 
-	bumpActivity,
-	dismissOverlay,
-	maybeHide,
-	setActivity,
-} from './activity';
+import { bumpActivity, dismissOverlay, maybeHide, setActivity } from './activity';
 import {
 	applyAspectRatioIcon,
 	applyAudioIcon,
@@ -99,44 +96,28 @@ import {
 	applyTheaterIcon,
 	applyVolume,
 } from './buttonState';
-import {
-
-	buildBottomBar,
-	buildCenter,
-	buildShortcutsOverlay,
-} from './dom';
+import { findChapterTitle, nextChapter, previousChapter } from './chapters';
+import { buildBottomBar, buildCenter, buildShortcutsOverlay } from './dom';
 import { fluentIcons, svgFromIcon } from './icons';
 import {
-	buildMenuFrame,
-	renderAspectRatioPane,
-	renderAudioPane,
-	renderPlaylistPane,
-	renderQualityPane,
-	renderSpeedPane,
-	renderSubsPane,
-	renderSubtitleSettingsPane,
-} from './menus';
-import {
-	buildChapterMarkers,
-	fmt,
-	updateChapterBuffer,
-	updateChapterHover,
-	updateChapterProgress,
-} from './progressBar';
-import {
-	applyAllVisibilityRules,
-	makeResponsiveState,
-
-	wireNoHover,
-	wireOrientation,
-	wireResponsive,
-	wireVolumeSlider,
-} from './responsive';
-import { loadSpriteSet, lookupCue } from './sprite';
-import {
-
-	wireTooltips,
-} from './tooltips';
+	closeAllMenus as closeAllMenusFn,
+	makeMenuControlState,
+	openMainMenu as openMainMenuFn,
+	openSubMenu as openSubMenuFn,
+	repaintAspectRatioIfOpen as repaintAspectRatioIfOpenFn,
+	repaintAudioIfOpen as repaintAudioIfOpenFn,
+	repaintPlaylistIfOpen as repaintPlaylistIfOpenFn,
+	repaintQualityIfOpen as repaintQualityIfOpenFn,
+	repaintSpeedIfOpen as repaintSpeedIfOpenFn,
+	repaintSubsIfOpen as repaintSubsIfOpenFn,
+	syncActiveIndexes as syncActiveIndexesFn,
+	wireMenuKeyboardNav as wireMenuKeyboardNavFn,
+} from './menuControl';
+import { buildMenuFrame } from './menus';
+import { buildChapterMarkers, fmt, updateChapterBuffer, updateChapterHover, updateChapterProgress } from './progressBar';
+import { applyAllVisibilityRules, makeResponsiveState, wireNoHover, wireOrientation, wireResponsive, wireVolumeSlider } from './responsive';
+import { clampPopOffset, getScrubTime, loadSpriteSet, paintSpriteAt, resolveSpriteUrl } from './sprite';
+import { wireTooltips } from './tooltips';
 import { buildTitleBar, updateTitleBar } from './topBar';
 
 /**
@@ -302,30 +283,6 @@ export interface DesktopUiOptions {
 	volumeSlider?: 'horizontal' | 'vertical' | 'auto';
 }
 
-interface SidecarTrackEntry {
-	kind?: string;
-	file?: string;
-}
-
-interface ItemWithSidecarTracks {
-	tracks: SidecarTrackEntry[];
-}
-
-function hasTrackArray(item: unknown): item is ItemWithSidecarTracks {
-	return (
-		item !== null
-		&& typeof item === 'object'
-		&& 'tracks' in item
-		&& Array.isArray((item as Record<string, unknown>).tracks)
-	);
-}
-
-function readSidecarTracks(item: unknown): SidecarTrackEntry[] | undefined {
-	if (!hasTrackArray(item))
-		return undefined;
-	return item.tracks;
-}
-
 /** Events emitted by {@link DesktopUiPlugin} under the `plugin:desktop-ui:` namespace. */
 export interface DesktopUiEvents {
 	'shortcuts-toggle': undefined;
@@ -350,7 +307,6 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	// ── center ──────────────────────────────────────────────────────
 	private centerWrap!: HTMLDivElement;
 	private centerBtn!: HTMLButtonElement;
-	private spinner!: HTMLDivElement;
 	/** Center toast / status line — `display-message` renderer + loading/buffering/error feedback. Lives on the container so it survives overlay auto-hide. */
 	private messageEl: HTMLDivElement | null = null;
 	private messageTimer: ReturnType<typeof setTimeout> | null = null;
@@ -359,8 +315,6 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 	// ── bottom bar ──────────────────────────────────────────────────
 	private bottomBar!: HTMLDivElement;
-	private topRow!: HTMLDivElement;
-	private bottomRow!: HTMLDivElement;
 
 	// ── slider-bar tree ─────────────────────────────────────────────
 	private sliderRefs!: SliderBarRefs;
@@ -371,38 +325,9 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	private spriteLoadId = 0;
 	private spriteObjectUrl: string | null = null;
 
-	/**
-	 * v2's subtitleState/audioTrackMode/qualityMode methods return
-	 *  ON/OFF/AUTO/MANUAL enums — not the active track index. The menu
-	 *  panes need to know which entry to mark active, so we track the
-	 *  selected indexes ourselves from the player's `subtitle` /
-	 *  `audioTrack` / `level-switched` events. -1 / null = "off / auto".
-	 */
-	private activeSubtitleIdx: number | null = -1;
-	private activeAudioIdx: number = -1;
-	private activeQualityIdx: number | 'auto' = 'auto';
-
-	/**
-	 * The level index the backend is actually playing right now. Distinct from
-	 *  `activeQualityIdx`: in Auto mode the user's pick is `'auto'` but the
-	 *  backend (HLS) auto-switches to a specific level. The menu surfaces this
-	 *  as a lower-importance sublabel on the Auto row so the user sees what's
-	 *  actually playing without losing the "I'm in Auto mode" signal.
-	 *  Null until the first `level-switched` event arrives, and reset on
-	 *  `current` (new item).
-	 */
-	private _playingQualityIdx: number | null = null;
-
 	private isMouseDown = false;
 	private isScrubbing = false;
 	private _showRemaining = true;
-
-	/**
-	 * True when the user explicitly picked a non-auto quality level via the
-	 *  menu. Resets to false when "Auto" is picked. HLS level-switched events
-	 *  never touch this flag — it tracks user INTENT, not the actual level.
-	 */
-	private _userPickedQuality = false;
 
 	// ── transport buttons ───────────────────────────────────────────
 	private playBtn!: HTMLButtonElement;
@@ -437,8 +362,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 	// ── menu refs ───────────────────────────────────────────────────
 	private menus!: MenuFrameRefs;
-	private menuOpen = false;
-	private currentSubMenu: SubMenuId | null = null;
+	private _menuControlState!: MenuControlState;
+	private _menuControlRefs!: MenuControlRefs;
 
 	// ── keyboard shortcuts overlay ───────────────────────────────────
 	private shortcutsOverlay: HTMLDivElement | null = null;
@@ -667,7 +592,6 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		const centerRefs: CenterRefs = buildCenter(this.player, root);
 		this.centerWrap = centerRefs.centerWrap;
 		this.centerBtn = centerRefs.centerBtn;
-		this.spinner = centerRefs.spinner;
 
 		const bottomRefs: BottomBarRefs & BottomRowRefs = buildBottomBar(
 			this.player,
@@ -677,8 +601,6 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			this.t.bind(this),
 		);
 		this.bottomBar = bottomRefs.bottomBar;
-		this.topRow = bottomRefs.topRow;
-		this.bottomRow = bottomRefs.bottomRow;
 		this.sliderRefs = bottomRefs.sliderRefs;
 		this.playBtn = bottomRefs.playBtn;
 		this.prevBtn = bottomRefs.prevBtn;
@@ -727,6 +649,17 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			openSubMenu: id => this.openSubMenu(id),
 			backToMain: () => this.openMainMenu(),
 		}, this.opts?.settingsItems);
+
+		this._menuControlState = makeMenuControlState();
+		this._menuControlRefs = {
+			settingsBtn: this.settingsBtn,
+			speedBtn: this.speedBtn,
+			qualityBtn: this.qualityBtn,
+			subsBtn: this.subsBtn,
+			audioBtn: this.audioBtn,
+			playlistBtn: this.playlistBtn,
+			aspectRatioBtn: this.aspectRatioBtn,
+		};
 
 		this.shortcutsOverlay = buildShortcutsOverlay(
 			root,
@@ -833,7 +766,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 					ke.preventDefault();
 					this.toggleShortcuts();
 				}
-				else if (ke.key === 'Escape' && this.menuOpen) {
+				else if (ke.key === 'Escape' && this._menuControlState.menuOpen) {
 					ke.preventDefault();
 					this.closeAllMenus();
 				}
@@ -959,21 +892,21 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		// v2 emits 'subtitle' (not 'subtitleChanged') with `{ track: idx | null }`.
 		this.on('subtitle', (d) => {
 			const idx = d.track;
-			this.activeSubtitleIdx = (typeof idx === 'number' && idx >= 0) ? idx : -1;
+			this._menuControlState.activeSubtitleIdx = (typeof idx === 'number' && idx >= 0) ? idx : -1;
 			this.applySubsIcon();
 			this.repaintSubsIfOpen();
 		});
 
 		// v2 emits 'audioTrack' (not 'audioTrackChanged') with `{ id: idx }`.
 		this.on('audioTrack', (d) => {
-			this.activeAudioIdx = typeof d.id === 'number' ? d.id : -1;
+			this._menuControlState.activeAudioIdx = typeof d.id === 'number' ? d.id : -1;
 			this.applyAudioIcon();
 			this.repaintAudioIfOpen();
 		});
 
 		this.on('quality:requested', (d) => {
-			this.activeQualityIdx = d.level;
-			this._userPickedQuality = d.level !== 'auto';
+			this._menuControlState.activeQualityIdx = d.level;
+			this._menuControlState.userPickedQuality = d.level !== 'auto';
 			this.applyQualityIcon();
 			this.repaintQualityIfOpen();
 		});
@@ -982,13 +915,15 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			// Always record the actually-playing level so the Auto row can
 			// surface it as a sublabel and the button aria-label can include it.
 			if (typeof d.level === 'number') {
-				this._playingQualityIdx = d.level;
+				this._menuControlState.playingQualityIdx = d.level;
 			}
-			if (!this._userPickedQuality) {
-				this.activeQualityIdx = 'auto';
+			if (!this._menuControlState.userPickedQuality) {
+				this._menuControlState.activeQualityIdx = 'auto';
 			}
 			else {
-				this.activeQualityIdx = typeof d.level === 'number' ? d.level : this.activeQualityIdx;
+				this._menuControlState.activeQualityIdx = typeof d.level === 'number'
+					? d.level
+					: this._menuControlState.activeQualityIdx;
 			}
 			this.applyQualityIcon();
 			this.repaintQualityIfOpen();
@@ -1076,7 +1011,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		}
 
 		this.listen(document, 'click', (e: Event) => {
-			if (!this.menuOpen)
+			if (!this._menuControlState.menuOpen)
 				return;
 			const target = e.target as Node;
 			if (this.menus.frame.contains(target))
@@ -1182,26 +1117,11 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private getScrubTime(e: Event): { scrubTime: number; scrubTimePlayer: number } {
-		const rect = this.sliderRefs.sliderBar.getBoundingClientRect();
-		const me = e as MouseEvent;
-		const te = e as TouchEvent;
-		const x = me.clientX ?? te.touches?.[0]?.clientX ?? te.changedTouches?.[0]?.clientX ?? 0;
-		let offsetX = x - rect.left;
-		if (offsetX <= 0)
-			offsetX = 0;
-		if (offsetX >= rect.width)
-			offsetX = rect.width;
-		const dur = this.resolveDuration();
-		return {
-			scrubTime: rect.width > 0 ? (offsetX / rect.width) * 100 : 0,
-			scrubTimePlayer: rect.width > 0 ? (offsetX / rect.width) * dur : 0,
-		};
+		return getScrubTime(e, this.sliderRefs.sliderBar, this.resolveDuration());
 	}
 
 	private clampPopOffset(pct: number): number {
-		const popWidthPct = (this.sliderRefs.sliderPop.offsetWidth / Math.max(1, this.sliderRefs.sliderBar.offsetWidth)) * 100;
-		const half = popWidthPct / 2;
-		return Math.max(half, Math.min(100 - half, pct));
+		return clampPopOffset(pct, this.sliderRefs.sliderPop, this.sliderRefs.sliderBar);
 	}
 
 	// ── Initial state, capability gating, helpers ────────────────────
@@ -1246,7 +1166,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		// Reset the playing-level cache — the next item's level numbering may
 		// not match the previous item's. The first `level-switched` on the
 		// new source will repopulate it.
-		this._playingQualityIdx = null;
+		this._menuControlState.playingQualityIdx = null;
 
 		this.refreshChaptersAndDuration();
 		this.refreshCapabilityVisibility();
@@ -1328,29 +1248,11 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private _resolveSpriteUrl(item: VideoPlaylistItem | undefined | null): string | undefined {
-		if (!item)
-			return undefined;
-
-		if (typeof item.previewSpriteUrl === 'string' && item.previewSpriteUrl)
-			return item.previewSpriteUrl;
-
-		const tracks = readSidecarTracks(item);
-		if (!tracks)
-			return undefined;
-
-		const thumbsTrack = tracks.find(t => t?.kind === 'thumbnails' && typeof t.file === 'string');
-		return thumbsTrack?.file ?? undefined;
+		return resolveSpriteUrl(item);
 	}
 
 	private paintSpriteAt(time: number): void {
-		if (!this.spriteSet)
-			return;
-		const cue = lookupCue(this.spriteSet, time);
-		if (!cue)
-			return;
-		this.sliderRefs.sliderPopImage.style.backgroundPosition = `-${cue.x}px -${cue.y}px`;
-		this.sliderRefs.sliderPopImage.style.width = `${cue.w}px`;
-		this.sliderRefs.sliderPopImage.style.height = `${cue.h}px`;
+		paintSpriteAt(time, this.spriteSet, this.sliderRefs.sliderPopImage);
 	}
 
 	private refreshChaptersAndDuration(): void {
@@ -1394,7 +1296,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private findChapterTitle(time: number): string | undefined {
-		return this.player.chapters().find(c => time >= c.start && time <= c.end)?.title;
+		return findChapterTitle(this.player, time);
 	}
 
 	private resolveDuration(): number {
@@ -1491,12 +1393,12 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		const audios = this.player.audioTracks?.() ?? [];
 		const defaultIdx = audios.findIndex(tr => tr.default === true);
 		const manifestDefault = defaultIdx >= 0 ? defaultIdx : 0;
-		const isNonDefault = audios.length > 1 && this.activeAudioIdx !== manifestDefault;
+		const isNonDefault = audios.length > 1 && this._menuControlState.activeAudioIdx !== manifestDefault;
 		applyAudioIcon(this.audioBtn, this.t.bind(this), isNonDefault);
 	}
 
 	private applyQualityIcon(): void {
-		applyQualityIcon(this.qualityBtn, this.t.bind(this), this.playingQualityLabel(), this._userPickedQuality);
+		applyQualityIcon(this.qualityBtn, this.t.bind(this), this.playingQualityLabel(), this._menuControlState.userPickedQuality);
 	}
 
 	/**
@@ -1528,8 +1430,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	 * Returns null when no level is known.
 	 */
 	private resolvePlayingQualityIdx(): number | null {
-		if (this._playingQualityIdx !== null)
-			return this._playingQualityIdx;
+		if (this._menuControlState.playingQualityIdx !== null)
+			return this._menuControlState.playingQualityIdx;
 		const backend = this.player.backend?.();
 		const idx = backend?.currentLevel?.();
 		if (typeof idx === 'number' && idx >= 0)
@@ -1546,7 +1448,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private applySubsIcon(): void {
-		applySubsIcon(this.subsBtn, this.activeSubtitleIdx, this.t.bind(this));
+		applySubsIcon(this.subsBtn, this._menuControlState.activeSubtitleIdx, this.t.bind(this));
 		this.applyMenuSubsIcon();
 	}
 
@@ -1555,7 +1457,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 		const slot = this.menus?.mainButtons?.subtitles?.querySelector('.menu-button-icon-left');
 		if (!slot)
 			return;
-		const on = this.activeSubtitleIdx !== null && this.activeSubtitleIdx !== -1;
+		const on = this._menuControlState.activeSubtitleIdx !== null && this._menuControlState.activeSubtitleIdx !== -1;
 		slot.innerHTML = svgFromIcon(on ? fluentIcons.subtitles : fluentIcons.subtitlesOff);
 	}
 
@@ -1682,248 +1584,116 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	}
 
 	private previousChapter(): void {
-		const chapters = this.player.chapters();
-		const t = this.player.time?.() ?? 0;
-		for (let i = chapters.length - 1; i >= 0; i--) {
-			if (chapters[i]!.start < t - 1) { void this.player.time?.(chapters[i]!.start); return; }
-		}
-		void this.player.time?.(0);
+		previousChapter(this.player);
 	}
 
 	private nextChapter(): void {
-		const chapters = this.player.chapters();
-		const t = this.player.time?.() ?? 0;
-		for (let i = 0; i < chapters.length; i++) {
-			if (chapters[i]!.start > t + 1) { void this.player.time?.(chapters[i]!.start); return; }
-		}
+		nextChapter(this.player);
 	}
 
 	// ── Menu state ──────────────────────────────────────────────────
 
-	private _menuTriggerBtn(id: SubMenuId): HTMLButtonElement | null {
-		const map: Partial<Record<SubMenuId, HTMLButtonElement>> = {
-			speed: this.speedBtn,
-			quality: this.qualityBtn,
-			subtitles: this.subsBtn,
-			language: this.audioBtn,
-			playlist: this.playlistBtn,
-			aspectRatio: this.aspectRatioBtn,
-		};
-		return map[id] ?? null;
-	}
-
-	private _setMenuTriggerExpanded(id: SubMenuId | null, expanded: boolean): void {
-		if (id !== null) {
-			this._menuTriggerBtn(id)?.setAttribute('aria-expanded', String(expanded));
-		}
-		else {
-			this.settingsBtn.setAttribute('aria-expanded', String(expanded));
-		}
-	}
-
-	private _collapseAllTriggers(): void {
-		for (const btn of [
-			this.settingsBtn,
-			this.speedBtn,
-			this.qualityBtn,
-			this.subsBtn,
-			this.audioBtn,
-			this.playlistBtn,
-			this.aspectRatioBtn,
-		]) {
-			btn.setAttribute('aria-expanded', 'false');
-		}
-	}
-
 	private openMainMenu(): void {
-		this._collapseAllTriggers();
-		this._setMenuTriggerExpanded(null, true);
-
-		this.menuOpen = true;
-		this._activityState.menuOpen = true;
-		this.currentSubMenu = null;
-		this.menus.frame.classList.add('open');
-		this.menus.content.classList.remove('sub-menu-open');
-		for (const pane of Object.values(this.menus.panes)) pane.classList.remove('is-open');
-		try { this.menus.frameDialog.show?.(); }
-		catch { /* not supported */ }
+		openMainMenuFn(this._menuControlState, this._activityState, this.menus, this._menuControlRefs);
 	}
 
 	private openSubMenu(id: SubMenuId): void {
-		this._collapseAllTriggers();
-		this._setMenuTriggerExpanded(id, true);
-
-		this.menuOpen = true;
-		this._activityState.menuOpen = true;
-		this.currentSubMenu = id;
-		this.menus.frame.classList.add('open');
-		this.menus.content.classList.add('sub-menu-open');
-		for (const [k, pane] of Object.entries(this.menus.panes)) {
-			pane.classList.toggle('is-open', k === id);
-		}
-		this.repaintPane(id);
-		try { this.menus.frameDialog.show?.(); }
-		catch { /* not supported */ }
-		this.bumpActivity();
+		openSubMenuFn(
+			id,
+			this._menuControlState,
+			this._activityState,
+			this.menus,
+			this._menuControlRefs,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+			() => this.bumpActivity(),
+		);
 	}
 
-	/**
-	 * Up/Down moves focus through the open pane's rows (wrapping), keeping
-	 * the focused row centered in the scroll container. Handled on the menu
-	 * frame with propagation stopped so the player-level key handler never
-	 * seeks or changes volume while the user is navigating a menu.
-	 */
 	private wireMenuKeyboardNav(): void {
-		this.listen(this.menus.frame, 'keydown', (e: Event) => {
-			const key = (e as KeyboardEvent).key;
-			if (key !== 'ArrowDown' && key !== 'ArrowUp')
-				return;
-
-			const scope = (this.currentSubMenu && this.menus.panes[this.currentSubMenu]) || this.menus.frame;
-			const rows = [...scope.querySelectorAll<HTMLButtonElement>('button:not([hidden]):not([disabled])')]
-				.filter(button => button.offsetParent !== null);
-			if (rows.length === 0)
-				return;
-
-			e.preventDefault();
-			e.stopPropagation();
-
-			const activeIdx = rows.indexOf(document.activeElement as HTMLButtonElement);
-			const nextIdx = key === 'ArrowDown'
-				? (activeIdx + 1) % rows.length
-				: (activeIdx - 1 + rows.length) % rows.length;
-			const next = rows[nextIdx]!;
-			next.focus();
-			next.scrollIntoView({ block: 'center' });
-		});
+		wireMenuKeyboardNavFn(this._menuControlState, this.menus, this.listen.bind(this));
 	}
 
 	private closeAllMenus(): void {
-		this._collapseAllTriggers();
-
-		this.menuOpen = false;
-		this._activityState.menuOpen = false;
-		this.currentSubMenu = null;
-		this.menus.frame.classList.remove('open');
-		this.menus.content.classList.remove('sub-menu-open');
-		for (const pane of Object.values(this.menus.panes)) pane.classList.remove('is-open');
-		try { this.menus.frameDialog.close?.(); }
-		catch { /* already closed */ }
-
-		// Restart the inactivity timer now that no menu is blocking it.
-		// If paused, emit active immediately (no timer); if playing, arm
-		// the 4 s countdown from the moment the menu closes.
-		this.bumpActivity();
+		closeAllMenusFn(
+			this._menuControlState,
+			this._activityState,
+			this.menus,
+			this._menuControlRefs,
+			() => this.bumpActivity(),
+		);
 	}
 
-	/**
-	 * Reconcile our locally-cached active indexes with the kit's canonical
-	 * state after a new item has finished loading (`mediaReady`).
-	 *
-	 * Reads the kit's actual selection via `subtitle()` /
-	 * `audioTrack()` first — those are the source of truth and stay
-	 * correct for plugin-rendered tracks (ASS via Octopus, etc.) that never
-	 * appear in the backend's native track lists. Only falls back to a
-	 * default-track heuristic when the kit has no selection yet.
-	 */
 	private syncActiveIndexes(): void {
-		const audios = this.player.audioTracks?.() ?? [];
-		const audioSelection = this.player.audioTrack?.();
-		if (audioSelection != null && typeof audioSelection.index === 'number' && audioSelection.index >= 0) {
-			this.activeAudioIdx = audioSelection.index;
-		}
-		else if (audios.length > 0) {
-			const defIdx = audios.findIndex(t => t.default === true);
-			this.activeAudioIdx = defIdx >= 0 ? defIdx : 0;
-		}
-
-		const subSelection = this.player.subtitle?.();
-		this.activeSubtitleIdx = (subSelection != null && typeof subSelection.index === 'number' && subSelection.index >= 0)
-			? subSelection.index
-			: -1;
-
-		// Read the kit's canonical selection. `quality()` returns either
-		// a number (manual pick) or `'auto'` (auto mode); reflect both straight
-		// into our cache so a late-attached plugin doesn't have to wait for
-		// a level-switched event to converge.
-		const qualityChoice = this.player.quality?.();
-		if (qualityChoice === 'auto' || qualityChoice == null) {
-			this.activeQualityIdx = 'auto';
-			this._userPickedQuality = false;
-		}
-		else {
-			this.activeQualityIdx = qualityChoice.index;
-			this._userPickedQuality = true;
-		}
-	}
-
-	private menuState(): MenuRenderState {
-		// `syncActiveIndexes` resets indexes to "default track" which would
-		// overwrite the user's pick every time the pane repaints. Active indexes
-		// are kept current by the `subtitle` / `audioTrack` / `level-switched`
-		// event handlers — read them as-is here.
-		return {
-			subtitleIdx: this.activeSubtitleIdx,
-			audioIdx: this.activeAudioIdx,
-			qualityIdx: this.activeQualityIdx,
-			playingQualityIdx: this.resolvePlayingQualityIdx(),
-		};
-	}
-
-	private repaintPane(id: SubMenuId): void {
-		const closeOnPick = (): void => this.closeAllMenus();
-		const keepOpenOnPick = (paneId: SubMenuId) => (): void => { this.repaintPane(paneId); };
-		const listen = this.listen.bind(this);
-		const st = this.menuState();
-		if (id === 'speed')
-			renderSpeedPane(this.menus.panes.speed, this.player, listen, keepOpenOnPick('speed'));
-		if (id === 'quality')
-			renderQualityPane(this.menus.panes.quality, this.player, listen, closeOnPick, st);
-		if (id === 'subtitles')
-			renderSubsPane(this.menus.panes.subtitles, this.player, listen, closeOnPick, st);
-		if (id === 'language')
-			renderAudioPane(this.menus.panes.language, this.player, listen, closeOnPick, st);
-		if (id === 'playlist') {
-			renderPlaylistPane(this.menus.panes.playlist, this.player, listen, closeOnPick, {
-				imageBaseUrl: this.opts?.imageBaseUrl,
-			});
-		}
-		if (id === 'subtitleSettings') {
-			renderSubtitleSettingsPane(this.menus.panes.subtitleSettings, this.player, listen, closeOnPick);
-		}
-		if (id === 'aspectRatio') {
-			renderAspectRatioPane(this.menus.panes.aspectRatio, this.player, listen, keepOpenOnPick('aspectRatio'));
-		}
+		syncActiveIndexesFn(this._menuControlState, this.player);
 	}
 
 	private repaintSubsIfOpen(): void {
-		if (this.currentSubMenu === 'subtitles')
-			this.repaintPane('subtitles');
+		repaintSubsIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
 	}
 
 	private repaintAudioIfOpen(): void {
-		if (this.currentSubMenu === 'language')
-			this.repaintPane('language');
+		repaintAudioIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
 	}
 
 	private repaintQualityIfOpen(): void {
-		if (this.currentSubMenu === 'quality')
-			this.repaintPane('quality');
+		repaintQualityIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
 	}
 
 	private repaintSpeedIfOpen(): void {
-		if (this.currentSubMenu === 'speed')
-			this.repaintPane('speed');
+		repaintSpeedIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
 	}
 
 	private repaintPlaylistIfOpen(): void {
-		if (this.currentSubMenu === 'playlist')
-			this.repaintPane('playlist');
+		repaintPlaylistIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
 	}
 
 	private repaintAspectRatioIfOpen(): void {
-		if (this.currentSubMenu === 'aspectRatio')
-			this.repaintPane('aspectRatio');
+		repaintAspectRatioIfOpenFn(
+			this._menuControlState,
+			this.menus,
+			this.player,
+			this.listen.bind(this),
+			() => this.closeAllMenus(),
+			this.opts,
+		);
 	}
 
 	// ── Activity / auto-hide ────────────────────────────────────────
