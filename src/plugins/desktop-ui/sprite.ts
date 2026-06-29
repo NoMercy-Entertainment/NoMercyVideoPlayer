@@ -14,6 +14,8 @@
  * covering that time.
  */
 
+import { parseVttSprite } from '@nomercy-entertainment/nomercy-player-core';
+
 export interface SpriteCue {
 	start: number;
 	end: number;
@@ -30,62 +32,26 @@ export interface SpriteSet {
 	spriteUrl: string;
 }
 
-const SPRITE_FRAGMENT_RE = /^([^#\s]+)#xywh=(\d+),(\d+),(\d+),(\d+)$/;
-
 /**
- * Parse a sprite VTT into cues. Resolves relative sprite URLs against
- *  `baseUrl` (the URL of the VTT file itself).
+ * Parse a sprite VTT into cues. Delegates parsing to core's `parseVttSprite`,
+ * then maps the `CueList<VTTSpritePayload>` output to the flat `SpriteCue[]`
+ * shape the sprite renderer expects.
+ *
+ * `baseUrl` is the URL of the VTT file itself — used to resolve relative sprite
+ * image paths.
  */
 export function parseSpriteVtt(text: string, baseUrl: string): SpriteCue[] {
-	if (!text)
-		return [];
-	const stripped = text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text;
-	const blocks = stripped.replace(/\r\n|\r/g, '\n').split(/\n{2,}/);
-	const cues: SpriteCue[] = [];
+	const result = parseVttSprite(text, baseUrl);
 
-	for (const block of blocks) {
-		const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
-		if (lines.length === 0)
-			continue;
-		const timingIdx = lines.findIndex(l => l.includes('-->'));
-		if (timingIdx < 0)
-			continue;
-
-		const [startStr, endStr] = lines[timingIdx]!.split('-->').map(s => s.trim());
-		const start = parseTimestamp(startStr ?? '');
-		const end = parseTimestamp(endStr ?? '');
-		if (!Number.isFinite(start) || !Number.isFinite(end))
-			continue;
-
-		const body = lines.slice(timingIdx + 1).join(' ').trim();
-		const m = body.match(SPRITE_FRAGMENT_RE);
-		if (!m)
-			continue;
-
-		const url = m[1]!;
-		const absUrl = /^https?:\/\//i.test(url) ? url : new URL(url, baseUrl).href;
-		cues.push({
-			start,
-			end,
-			url: absUrl,
-			x: Number.parseInt(m[2]!, 10),
-			y: Number.parseInt(m[3]!, 10),
-			w: Number.parseInt(m[4]!, 10),
-			h: Number.parseInt(m[5]!, 10),
-		});
-	}
-	return cues;
-}
-
-function parseTimestamp(s: string): number {
-	const match = s.match(/(?:(\d+):)?(\d+):(\d+)\.(\d{1,3})/);
-	if (!match)
-		return Number.NaN;
-	const hours = match[1] ? Number(match[1]) : 0;
-	const min = Number(match[2]);
-	const sec = Number(match[3]);
-	const ms = Number(match[4]!.padEnd(3, '0'));
-	return hours * 3600 + min * 60 + sec + ms / 1000;
+	return result.cues.map(cue => ({
+		start: cue.start,
+		end: cue.end,
+		url: cue.payload.url,
+		x: cue.payload.x,
+		y: cue.payload.y,
+		w: cue.payload.w,
+		h: cue.payload.h,
+	}));
 }
 
 /**

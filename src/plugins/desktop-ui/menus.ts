@@ -40,7 +40,7 @@ import {
 } from './buttons';
 import { fluentIcons, svgFromIcon } from './icons';
 import { languageDisplayName, subtitleTrackLabel } from './language-names';
-import { fmt } from './progressBar';
+import { escapeHtml, formatDuration } from './utils';
 
 export type MenuListen = (target: EventTarget, event: string, fn: (e: Event) => void) => void;
 
@@ -920,16 +920,6 @@ function buildPlaylistCard(
 	return btn;
 }
 
-function formatDuration(duration: number | string | undefined): string {
-	if (duration == null)
-		return '';
-	if (typeof duration === 'string')
-		return duration.replace(/^00:/u, '');
-	if (!Number.isFinite(duration) || duration <= 0)
-		return '';
-	return fmt(duration);
-}
-
 export function renderAudioPane(
 	pane: HTMLDivElement,
 	player: IVideoPlayer,
@@ -1035,8 +1025,4 @@ export function renderAspectRatioPane(
 			player,
 		);
 	}
-}
-
-function escapeHtml(s: string): string {
-	return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]!));
 }
