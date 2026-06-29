@@ -1,0 +1,523 @@
+// -----------------------------------------------------------------------------
+//  Copyright (c) NoMercy Entertainment
+//
+//  Licensed under the Apache License, Version 2.0. See LICENSE for details.
+//
+//  SPDX-License-Identifier: Apache-2.0
+// -----------------------------------------------------------------------------
+
+/**
+ * DOM-construction and event-wiring mixin — builds the overlay DOM tree,
+ * wires all button click/input/keyboard/pointer listeners, and applies the
+ * initial player state to the freshly built UI.
+ *
+ * Owns: buildDom, wireTooltips, applyInitialState, wireKeybindHint,
+ *       wireSliderBar, wireEvents.
+ */
+
+import type { BottomBarRefs, BottomRowRefs, CenterRefs } from './dom';
+import type { DesktopUiOptions } from './index';
+import type { DesktopUiInternals } from './internals';
+import type { MenuControlRefs } from './menuControl';
+
+import type { TooltipButtonRefs } from './tooltips';
+
+import { TheaterState, VolumeState } from '../../types';
+
+import { setActivity } from './activity';
+import { buildBottomBar, buildCenter, buildShortcutsOverlay } from './dom';
+import { makeMenuControlState } from './menuControl';
+import { buildMenuFrame } from './menus';
+import { fmt } from './progressBar';
+import { wireVolumeSlider } from './responsive';
+import { wireTooltips } from './tooltips';
+import { buildTitleBar } from './topBar';
+
+export const domMethods = {
+	buildDom(this: DesktopUiInternals): void {
+		const root = this.mount('overlay');
+		this.overlayRoot = root;
+		this.player.addClasses(root, ['overlay']);
+
+		this.topBarRefs = buildTitleBar(this.player, root);
+		this.topBarRefs.right.hidden = !!this.opts?.hideTitle;
+
+		const centerRefs: CenterRefs = buildCenter(this.player, root);
+		this.centerWrap = centerRefs.centerWrap;
+		this.centerBtn = centerRefs.centerBtn;
+
+		const bottomRefs: BottomBarRefs & BottomRowRefs = buildBottomBar(
+			this.player,
+			root,
+			this.opts,
+			this.listen.bind(this),
+			this.t.bind(this),
+		);
+		this.bottomBar = bottomRefs.bottomBar;
+		this.sliderRefs = bottomRefs.sliderRefs;
+		this.playBtn = bottomRefs.playBtn;
+		this.prevBtn = bottomRefs.prevBtn;
+		this.nextBtn = bottomRefs.nextBtn;
+		this.rewindBtn = bottomRefs.rewindBtn;
+		this.forwardBtn = bottomRefs.forwardBtn;
+		this.chapBackBtn = bottomRefs.chapBackBtn;
+		this.chapFwdBtn = bottomRefs.chapFwdBtn;
+		this.volBtn = bottomRefs.volBtn;
+		this.volSlider = bottomRefs.volSlider;
+		this.volSliderVertical = bottomRefs.volSliderVertical;
+		this.volPopupMuteBtn = bottomRefs.volPopupMuteBtn;
+		this.currentTimeEl = bottomRefs.currentTimeEl;
+		this.remainingTimeEl = bottomRefs.remainingTimeEl;
+		this.aspectRatioBtn = bottomRefs.aspectRatioBtn;
+		this.theaterBtn = bottomRefs.theaterBtn;
+		this.theaterConfigHidden = bottomRefs.theaterConfigHidden;
+		this.pipBtn = bottomRefs.pipBtn;
+		this.speedBtn = bottomRefs.speedBtn;
+		this.subsBtn = bottomRefs.subsBtn;
+		this.audioBtn = bottomRefs.audioBtn;
+		this.qualityBtn = bottomRefs.qualityBtn;
+		this.playlistBtn = bottomRefs.playlistBtn;
+		this.settingsBtn = bottomRefs.settingsBtn;
+		this.fsBtn = bottomRefs.fsBtn;
+
+		wireVolumeSlider(
+			this._responsiveState,
+			this.opts,
+			this.player.container,
+			bottomRefs.volContainer,
+			bottomRefs.volSliderVertical,
+			bottomRefs.volVertInput,
+			this.volBtn,
+			this.volPopupMuteBtn,
+			this.listen.bind(this),
+			() => this.player.volume?.() ?? 100,
+			(level: number) => { this.player.volume?.(level); },
+			() => { this.player.toggleMute?.(); },
+			fn => this.lifecycle.addCleanup(fn),
+		);
+
+		this.menus = buildMenuFrame(this.player, root, this.listen.bind(this), {
+			closeMenu: () => this.closeAllMenus(),
+			openSubMenu: id => this.openSubMenu(id),
+			backToMain: () => this.openMainMenu(),
+		}, this.opts?.settingsItems);
+
+		this._menuControlState = makeMenuControlState();
+		this._menuControlRefs = {
+			settingsBtn: this.settingsBtn,
+			speedBtn: this.speedBtn,
+			qualityBtn: this.qualityBtn,
+			subsBtn: this.subsBtn,
+			audioBtn: this.audioBtn,
+			playlistBtn: this.playlistBtn,
+			aspectRatioBtn: this.aspectRatioBtn,
+		} satisfies MenuControlRefs;
+
+		this.shortcutsOverlay = buildShortcutsOverlay(
+			root,
+			this.listen.bind(this),
+			this.t.bind(this),
+			() => this.hideShortcuts(),
+		);
+	},
+
+	wireTooltips(this: DesktopUiInternals): void {
+		const refs: TooltipButtonRefs = {
+			playBtn: this.playBtn,
+			rewindBtn: this.rewindBtn,
+			forwardBtn: this.forwardBtn,
+			volBtn: this.volBtn,
+			aspectRatioBtn: this.aspectRatioBtn,
+			theaterBtn: this.theaterBtn,
+			pipBtn: this.pipBtn,
+			speedBtn: this.speedBtn,
+			subsBtn: this.subsBtn,
+			audioBtn: this.audioBtn,
+			qualityBtn: this.qualityBtn,
+			playlistBtn: this.playlistBtn,
+			settingsBtn: this.settingsBtn,
+			fsBtn: this.fsBtn,
+			prevBtn: this.prevBtn,
+			nextBtn: this.nextBtn,
+			chapBackBtn: this.chapBackBtn,
+			chapFwdBtn: this.chapFwdBtn,
+		};
+		wireTooltips(
+			this.player,
+			refs,
+			this.sliderRefs,
+			this.listen.bind(this),
+			() => this._tooltipHoverToken,
+			(v) => { this._tooltipHoverToken = v; },
+			(fn, ms) => this.timeout(() => fn(), ms),
+			this.t.bind(this),
+			() => this.safeCurrentIndex(),
+		);
+	},
+
+	applyInitialState(this: DesktopUiInternals): void {
+		this.applyVolume(this.player.volume?.() ?? 100);
+		this.applyMuted(this.player.volumeState() === VolumeState.MUTED);
+		this.applyRate();
+		this.applySubsIcon();
+		this.applyAudioIcon();
+		this.applyQualityIcon();
+		this.applyAspectRatioIcon();
+		this.applyPipIcon(Boolean(document.pictureInPictureElement));
+		const theaterActive = this.player.theater() === TheaterState.ON;
+		this.applyTheaterIcon(theaterActive);
+		const cur = this.player.item?.();
+		if (cur)
+			this.handleCurrentChange(cur);
+		const dur = this.player.duration?.();
+		if (dur)
+			this.applyDuration(dur);
+		this.refreshCapabilityVisibility();
+		this.applyStateVisibility();
+	},
+
+	wireKeybindHint(this: DesktopUiInternals): void {
+		if (typeof sessionStorage === 'undefined')
+			return;
+		if (sessionStorage.getItem('nmplayer-keybinds-hint-shown'))
+			return;
+
+		this.once('play', () => {
+			this.player.emit('display-message', { text: this.t('shortcuts.hintToast'), ms: 12000 });
+			sessionStorage.setItem('nmplayer-keybinds-hint-shown', '1');
+		});
+	},
+
+	wireSliderBar(this: DesktopUiInternals): void {
+		this.sliderRefs.sliderBar.style.touchAction = 'none';
+
+		const startScrub = (): void => {
+			if (this.isMouseDown)
+				return;
+			this.isMouseDown = true;
+			this.isScrubbing = true;
+			this._activityState.isScrubbing = true;
+			this.sliderRefs.sliderBar.classList.add('slider-scrubbing');
+		};
+		this.listen(this.sliderRefs.sliderBar, 'mousedown', startScrub);
+		this.listen(this.sliderRefs.sliderBar, 'touchstart', startScrub);
+
+		const finalizeScrub = (e: Event): void => {
+			if (!this.isMouseDown)
+				return;
+			this.isMouseDown = false;
+			this.isScrubbing = false;
+			this._activityState.isScrubbing = false;
+			this.sliderRefs.sliderBar.classList.remove('slider-scrubbing');
+			this.sliderRefs.sliderPop.style.setProperty('--visibility', '0');
+			const scrub = this.getScrubTime(e);
+			this.sliderRefs.sliderNipple.style.left = `${scrub.scrubTime}%`;
+			void this.player.time?.(scrub.scrubTimePlayer);
+			this.bumpActivity();
+		};
+
+		this.listen(document, 'mouseup', finalizeScrub);
+		this.listen(this.bottomBar, 'click', finalizeScrub);
+		this.listen(this.sliderRefs.sliderBar, 'touchend', finalizeScrub);
+
+		const onMove = (e: Event): void => {
+			const scrub = this.getScrubTime(e);
+			this.sliderRefs.sliderPopText.textContent = fmt(scrub.scrubTimePlayer);
+			this.paintSpriteAt(scrub.scrubTimePlayer);
+
+			const popOffsetPct = this.clampPopOffset(scrub.scrubTime);
+			this.sliderRefs.sliderPop.style.left = `${popOffsetPct}%`;
+
+			this.sliderRefs.sliderPop.style.setProperty('--visibility', '1');
+
+			const chapters = this.player.chapters();
+			if (chapters.length === 0) {
+				this.sliderRefs.sliderHover.style.width = `${scrub.scrubTime}%`;
+			}
+			else {
+				this.updateChapterHover(scrub.scrubTime);
+			}
+			this.sliderRefs.chapterText.textContent = this.findChapterTitle(scrub.scrubTimePlayer) ?? '';
+
+			if (!this.isMouseDown)
+				return;
+			this.sliderRefs.sliderNipple.style.left = `${scrub.scrubTime}%`;
+		};
+		this.listen(this.sliderRefs.sliderBar, 'mousemove', onMove);
+		this.listen(this.sliderRefs.sliderBar, 'touchmove', onMove);
+
+		this.listen(this.sliderRefs.sliderBar, 'mouseover', (e: Event) => {
+			const scrub = this.getScrubTime(e);
+			this.sliderRefs.sliderPopText.textContent = fmt(scrub.scrubTimePlayer);
+			this.paintSpriteAt(scrub.scrubTimePlayer);
+			this.sliderRefs.chapterText.textContent = this.findChapterTitle(scrub.scrubTimePlayer) ?? '';
+			this.sliderRefs.sliderPop.style.setProperty('--visibility', '1');
+			this.sliderRefs.sliderPop.style.left = `${this.clampPopOffset(scrub.scrubTime)}%`;
+		});
+		this.listen(this.sliderRefs.sliderBar, 'mouseleave', () => {
+			this.sliderRefs.sliderPop.style.setProperty('--visibility', '0');
+			this.sliderRefs.sliderHover.style.width = '0';
+			for (const ch of this.chapterRefs) ch.hover.style.transform = 'scaleX(0)';
+		});
+	},
+
+	wireEvents(this: DesktopUiInternals): void {
+		if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+			const hdrMql = window.matchMedia('(dynamic-range: high)');
+			this.listen(hdrMql, 'change', () => this.repaintQualityIfOpen());
+		}
+
+		const container = this.player.container;
+		if (container) {
+			this.listen(container, 'mousemove', (e: Event) => {
+				const me = e as MouseEvent;
+				const dx = me.clientX - this._lastMouseX;
+				const dy = me.clientY - this._lastMouseY;
+				if (Math.abs(dx) < 2 && Math.abs(dy) < 2)
+					return;
+				this._lastMouseX = me.clientX;
+				this._lastMouseY = me.clientY;
+				this.bumpActivity();
+			});
+			this.listen(container, 'mousedown', () => this.bumpActivity());
+			this.listen(container, 'pointerdown', () => this.bumpActivity());
+			this.listen(container, 'touchstart', () => {
+				if (!this.player.container.classList.contains('active'))
+					this.bumpActivity();
+			});
+			this.listen(container, 'keydown', (e: Event) => {
+				this.bumpActivity();
+				const ke = e as KeyboardEvent;
+				if (ke.key === '?' && !ke.ctrlKey && !ke.metaKey && !ke.altKey) {
+					ke.preventDefault();
+					this.toggleShortcuts();
+				}
+				else if (ke.key === 'Escape' && this._menuControlState.menuOpen) {
+					ke.preventDefault();
+					this.closeAllMenus();
+				}
+				else if (ke.key === 'Escape' && this._shortcutsVisible) {
+					ke.preventDefault();
+					this.hideShortcuts();
+				}
+			});
+			this.listen(container, 'mouseleave', () => this.maybeHide());
+			this.listen(container, 'click', (e: Event) => {
+				this.bumpActivity();
+				const target = e.target as HTMLElement;
+				if (target.tagName === 'VIDEO' && !this.opts?.disableClickToPause) {
+					void this.player.togglePlayback();
+				}
+			});
+
+			this.listen(this.overlayRoot, 'click', (e: Event) => {
+				if ((e.target as Node) === this.overlayRoot) {
+					this.dismissOverlay();
+				}
+			});
+		}
+
+		for (const zone of [this.bottomBar, this.menus.frame]) {
+			this.listen(zone, 'pointerenter', (e: Event) => {
+				if ((e as PointerEvent).pointerType === 'mouse') {
+					this._activityState.isControlsHovered = true;
+				}
+			});
+			this.listen(zone, 'pointerleave', (e: Event) => {
+				if ((e as PointerEvent).pointerType === 'mouse') {
+					this._activityState.isControlsHovered = false;
+				}
+			});
+		}
+
+		this.on('plugin:desktop-ui:shortcuts-toggle', () => this.toggleShortcuts());
+
+		this.on('play', () => {
+			this.centerWrap.classList.add('dismissed');
+			this.setPlayingState(true);
+			this.bumpActivity();
+		});
+		this.on('pause', () => {
+			this.setPlayingState(false);
+			if (this._activityState.inactivityToken !== null) {
+				clearTimeout(this._activityState.inactivityToken);
+				this._activityState.inactivityToken = null;
+			}
+			setActivity(this._activityState, this.player, true);
+		});
+		this.on('ended', () => this.setPlayingState(false));
+
+		this.on('seek', (d) => {
+			if (d?.source)
+				this.bumpActivity();
+		});
+
+		this.on('item', d => this.handleCurrentChange(d.item));
+
+		this.on('listeners-changed', (d) => {
+			if ((d.name === 'back' || d.name === 'close') && this.topBarRefs)
+				this.applyStateVisibility();
+		});
+
+		this.on('mediaReady', () => {
+			this.refreshChaptersAndDuration();
+			this.syncActiveIndexes();
+			this.applySubsIcon();
+			this.applyQualityIcon();
+			this.refreshCapabilityVisibility();
+			this.repaintSubsIfOpen();
+			this.repaintAudioIfOpen();
+			this.repaintQualityIfOpen();
+		});
+
+		this.on('chapters', () => {
+			this.renderChapterMarkers();
+			this.refreshCapabilityVisibility();
+		});
+
+		this.on('duration', d => this.applyDuration(d.duration));
+		this.on('time', d => this.applyTime(d.time));
+
+		this.on('volume', (d) => {
+			const level = typeof d?.level === 'number' ? d.level : this.player.volume?.() ?? 100;
+			this.applyVolume(level);
+			this.showMessage(this.t('message.volume', { level: String(Math.round(level)) }), 1200);
+		});
+		this.on('mute', (d) => {
+			const muted = d?.muted ?? this.player.volumeState?.() === 'muted';
+			this.applyMuted(muted);
+			this.showMessage(this.t(muted ? 'message.muted' : 'message.unmuted'), 1200);
+		});
+
+		this.on('backend:ratechange', () => {
+			this.applyRate();
+			this.repaintSpeedIfOpen();
+		});
+
+		this.on('subtitle', (d) => {
+			const idx = d.track;
+			this._menuControlState.activeSubtitleIdx = (typeof idx === 'number' && idx >= 0) ? idx : -1;
+			this.applySubsIcon();
+			this.repaintSubsIfOpen();
+		});
+
+		this.on('audioTrack', (d) => {
+			this._menuControlState.activeAudioIdx = typeof d.id === 'number' ? d.id : -1;
+			this.applyAudioIcon();
+			this.repaintAudioIfOpen();
+		});
+
+		this.on('quality:requested', (d) => {
+			this._menuControlState.activeQualityIdx = d.level;
+			this._menuControlState.userPickedQuality = d.level !== 'auto';
+			this.applyQualityIcon();
+			this.repaintQualityIfOpen();
+		});
+
+		this.on('level-switched', (d) => {
+			if (typeof d.level === 'number') {
+				this._menuControlState.playingQualityIdx = d.level;
+			}
+			if (!this._menuControlState.userPickedQuality) {
+				this._menuControlState.activeQualityIdx = 'auto';
+			}
+			else {
+				this._menuControlState.activeQualityIdx = typeof d.level === 'number'
+					? d.level
+					: this._menuControlState.activeQualityIdx;
+			}
+			this.applyQualityIcon();
+			this.repaintQualityIfOpen();
+		});
+
+		this.on('levels', () => { this.refreshCapabilityVisibility(); });
+		this.on('audioTracks', () => { this.refreshCapabilityVisibility(); });
+
+		this.on('fullscreen', () => {
+			this.applyFullscreen();
+			this.fsActive = Boolean(document.fullscreenElement);
+			this.applyStateVisibility();
+		});
+		this.on('pip', () => {
+			this.pipActive = Boolean(document.pictureInPictureElement);
+			this.applyPipIcon(this.pipActive);
+			this.applyStateVisibility();
+		});
+		this.on('theater', () => {
+			this.applyTheaterIcon(this.player.theater() === TheaterState.ON);
+		});
+
+		this.on('aspectRatio', () => {
+			this.applyAspectRatioIcon();
+			this.repaintAspectRatioIfOpen();
+		});
+
+		this.listen(this.centerBtn, 'click', () => {
+			this.centerWrap.classList.add('dismissed');
+			void this.player.togglePlayback();
+			this.bumpActivity();
+		});
+		this.listen(this.playBtn, 'click', () => { void this.player.togglePlayback(); this.bumpActivity(); });
+
+		this.listen(this.prevBtn, 'click', () => { void this.player.previous?.(); });
+		this.listen(this.nextBtn, 'click', () => { void this.player.next?.(); });
+		this.listen(this.rewindBtn, 'click', () => { this.player.rewind?.(10); });
+		this.listen(this.forwardBtn, 'click', () => { this.player.forward?.(10); });
+		this.listen(this.chapBackBtn, 'click', () => this.previousChapter());
+		this.listen(this.chapFwdBtn, 'click', () => this.nextChapter());
+
+		this.listen(this.volBtn, 'click', () => {
+			const volContainer = this.volBtn.closest('.volume-container');
+			if (volContainer?.classList.contains('volume-container-vertical')) {
+				return;
+			}
+			this.player.toggleMute?.();
+		});
+		this.listen(this.volSlider, 'input', () => {
+			const volume = Number(this.volSlider.value);
+			this.player.volume?.(volume);
+		});
+
+		this.listen(this.remainingTimeEl, 'click', () => {
+			this._showRemaining = !this._showRemaining;
+			void Promise.resolve(this.storage.setJSON('showRemaining', this._showRemaining));
+			this.applyTime(this.player.time?.() ?? 0);
+		});
+
+		this.wireSliderBar();
+
+		this.listen(this.speedBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('speed'); });
+		this.listen(this.qualityBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('quality'); });
+		this.listen(this.subsBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('subtitles'); });
+		this.listen(this.audioBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('language'); });
+		this.listen(this.playlistBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('playlist'); });
+		this.listen(this.settingsBtn, 'click', (e: Event) => { e.stopPropagation(); this.openMainMenu(); });
+
+		this.listen(this.aspectRatioBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('aspectRatio'); });
+		this.listen(this.theaterBtn, 'click', () => { this.player.toggleTheater(); });
+		this.listen(this.pipBtn, 'click', () => { this.player.togglePip(); });
+		this.listen(this.fsBtn, 'click', () => { this.player.toggleFullscreen(); });
+
+		const videoEl = this.player.videoElement;
+		if (videoEl) {
+			this.listen(videoEl, 'enterpictureinpicture', () => this.applyPipIcon(true));
+			this.listen(videoEl, 'leavepictureinpicture', () => this.applyPipIcon(false));
+		}
+
+		this.listen(document, 'click', (e: Event) => {
+			if (!this._menuControlState.menuOpen)
+				return;
+			const target = e.target as Node;
+			if (this.menus.frame.contains(target))
+				return;
+			this.closeAllMenus();
+		});
+
+		if (!('pictureInPictureEnabled' in document))
+			this.pipBtn.hidden = true;
+
+		this.on('plugin:desktop-ui:opts:changed', (opts) => {
+			this.topBarRefs.right.hidden = !!(opts as DesktopUiOptions).hideTitle;
+		});
+	},
+} as const;
