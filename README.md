@@ -13,6 +13,8 @@ The headless HLS video engine behind NoMercy TV. It handles the hard parts of vi
 - Chromecast sending, a full keyboard and touch input layer, and a typed event bus
 - A built-in `DesktopUiPlugin` for a complete control surface, or bring your own UI
 
+**You stay in charge.** No UI is bundled and nothing is forced on you. The controls, the input handling, every feature beyond playback is a plugin you opt into with `addPlugin`. Through the shared [player core](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core) you can also swap any cross-cutting behavior (storage, the URL resolver, the logger, the retry policy, and more) by passing your own implementation to `setup()`, no subclassing.
+
 It is built on [`@nomercy-entertainment/nomercy-player-core`](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core), the shared engine that carries the queue, auth, plugin system, i18n, and storage.
 
 ```
