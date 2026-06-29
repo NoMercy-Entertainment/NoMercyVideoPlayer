@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Natiivi',
 	'plugin.desktop-ui.menu.reset': 'Nollaa',
 	'plugin.desktop-ui.menu.season': 'Kausi {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Fontti',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Tekstin koko',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Tekstin väri',

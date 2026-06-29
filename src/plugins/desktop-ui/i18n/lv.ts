@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Sākotnējais',
 	'plugin.desktop-ui.menu.reset': 'Atiestatīt',
 	'plugin.desktop-ui.menu.season': '{number}. sezona',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Fonts',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Teksta izmērs',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Teksta krāsa',

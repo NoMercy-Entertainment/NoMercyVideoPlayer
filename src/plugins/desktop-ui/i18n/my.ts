@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'မူရင်း',
 	'plugin.desktop-ui.menu.reset': 'ပြန်သတ်မှတ်',
 	'plugin.desktop-ui.menu.season': 'ရာသီ {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'ဖောင့်',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'စာသား အရွယ်အစား',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'စာသား အရောင်',

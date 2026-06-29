@@ -2086,7 +2086,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 	private handleCurrentChange(item: VideoPlaylistItem | undefined | null): void {
 		if (this.topBarRefs)
-			updateTitleBar(this.topBarRefs, item);
+			updateTitleBar(this.player, this.topBarRefs, item);
 
 		// Reset cached duration so chapter markers are not computed against
 		// the previous item's duration while the new media loads.

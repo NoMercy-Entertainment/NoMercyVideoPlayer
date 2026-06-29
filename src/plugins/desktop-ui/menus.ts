@@ -41,6 +41,7 @@ import {
 import { fluentIcons, svgFromIcon } from './icons';
 import { languageDisplayName, subtitleTrackLabel } from './language-names';
 import { fmt } from './progressBar';
+import { resolveSeasonEpisodeTokens } from './seasonEpisodeTokens';
 
 export type MenuListen = (target: EventTarget, event: string, fn: (e: Event) => void) => void;
 
@@ -812,7 +813,8 @@ function buildPlaylistCard(
 	opts: PlaylistRenderOptions,
 ): HTMLButtonElement {
 	const safe = String(item.id ?? index).replace(/\W+/g, '-').toLowerCase();
-	const btn = player.createButton(`playlist-${safe}`, item.title ?? `Item ${index + 1}`, () => {});
+	const resolvedTitle = resolveSeasonEpisodeTokens(player, item.title ?? `Item ${index + 1}`);
+	const btn = player.createButton(`playlist-${safe}`, resolvedTitle, () => {});
 	btn.classList.add('playlist-menu-button');
 	if (active)
 		btn.classList.add('is-active');
@@ -873,7 +875,7 @@ function buildPlaylistCard(
 	right.className = 'playlist-card-right';
 	const title = document.createElement('span');
 	title.className = 'playlist-menu-button-title';
-	title.textContent = item.title ?? `Item ${index + 1}`;
+	title.textContent = resolvedTitle;
 	right.appendChild(title);
 	// Watched-date label removed per design — progress bar in the thumbnail
 	// already conveys "in progress" / "watched" state; the ISO date string was

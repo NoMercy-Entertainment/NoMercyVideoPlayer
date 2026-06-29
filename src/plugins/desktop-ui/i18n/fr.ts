@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Natif',
 	'plugin.desktop-ui.menu.reset': 'Réinitialiser',
 	'plugin.desktop-ui.menu.season': 'Saison {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Police',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Taille du texte',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Couleur du texte',

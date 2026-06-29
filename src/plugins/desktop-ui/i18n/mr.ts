@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'मूळ',
 	'plugin.desktop-ui.menu.reset': 'रीसेट',
 	'plugin.desktop-ui.menu.season': 'सीझन {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'फॉन्ट',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'मजकूर आकार',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'मजकूर रंग',

@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Asli',
 	'plugin.desktop-ui.menu.reset': 'Set semula',
 	'plugin.desktop-ui.menu.season': 'Musim {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Fon',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Saiz teks',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Warna teks',

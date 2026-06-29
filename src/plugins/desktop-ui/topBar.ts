@@ -20,6 +20,7 @@
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
 import { fluentIcons, svgFromIcon } from './icons';
+import { resolveSeasonEpisodeTokens } from './seasonEpisodeTokens';
 
 // ── Refs ───────────────────────────────────────────────────────────────────────
 
@@ -103,13 +104,21 @@ export function buildTitleBar(player: IVideoPlayer<VideoPlaylistItem>, parent: H
  *  item belongs to a series, otherwise the movie title; secondary line is
  *  `S{n}E{n} • {episodeTitle}` for TV, `Extras E{n} • {episodeTitle}` for
  *  season-0 specials, blank for movies.
+ *
+ *  Server titles may contain `%S{N}` / `%E{N}` tokens (e.g. specials where the
+ *  server encodes the label directly in the title string). These are resolved
+ *  to locale-aware strings via `resolveSeasonEpisodeTokens`.
  */
-export function updateTitleBar(refs: TopBarRefs, item: VideoPlaylistItem | undefined | null): void {
+export function updateTitleBar(
+	player: IVideoPlayer<VideoPlaylistItem>,
+	refs: TopBarRefs,
+	item: VideoPlaylistItem | undefined | null,
+): void {
 	if (!refs.titleText)
 		return;
 
 	const show = item?.show?.trim() ?? '';
-	const rawTitle = item?.title?.trim() ?? '';
+	const rawTitle = resolveSeasonEpisodeTokens(player, item?.title?.trim() ?? '');
 	const hasShow = show.length > 0;
 	const hasEpisode = typeof item?.episode === 'number';
 	const seasonNum = typeof item?.season === 'number' ? item.season : null;
@@ -122,6 +131,7 @@ export function updateTitleBar(refs: TopBarRefs, item: VideoPlaylistItem | undef
 	let secondary = '';
 	if (hasShow && hasEpisode) {
 		const epTitle = rawTitle && rawTitle !== show ? rawTitle : '';
+
 		if (seasonNum !== null && seasonNum > 0) {
 			const label = `S${seasonNum}E${episodeNum}`;
 			secondary = epTitle ? `${label} • ${epTitle}` : label;

@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Origjinal',
 	'plugin.desktop-ui.menu.reset': 'Rivendos',
 	'plugin.desktop-ui.menu.season': 'Sezoni {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Font',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Madhësia e tekstit',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Ngjyra e tekstit',

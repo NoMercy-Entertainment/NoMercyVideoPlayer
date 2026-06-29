@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'أصلي',
 	'plugin.desktop-ui.menu.reset': 'إعادة تعيين',
 	'plugin.desktop-ui.menu.season': 'الموسم {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'الخط',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'حجم النص',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'لون النص',

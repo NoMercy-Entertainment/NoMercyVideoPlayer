@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'ដើម',
 	'plugin.desktop-ui.menu.reset': 'កំណត់ឡើងវិញ',
 	'plugin.desktop-ui.menu.season': 'រដូវកាល {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'ពុម្ពអក្សរ',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'ទំហំអក្សរ',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'ពណ៌អក្សរ',

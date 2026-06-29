@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'নেটিভ',
 	'plugin.desktop-ui.menu.reset': 'পুনরায় সেট করুন',
 	'plugin.desktop-ui.menu.season': 'সিজন {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'ফন্ট',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'টেক্সটের আকার',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'টেক্সটের রঙ',

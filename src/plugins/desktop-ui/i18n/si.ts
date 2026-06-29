@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'ස්වදේශීය',
 	'plugin.desktop-ui.menu.reset': 'නැවත සකස් කරන්න',
 	'plugin.desktop-ui.menu.season': 'වාරය {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'අකුරු',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'පෙළ ප්‍රමාණය',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'පෙළ වර්ණය',

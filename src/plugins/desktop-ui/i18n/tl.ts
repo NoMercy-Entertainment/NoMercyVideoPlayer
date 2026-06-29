@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Katutubo',
 	'plugin.desktop-ui.menu.reset': 'I-reset',
 	'plugin.desktop-ui.menu.season': 'Season {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Font',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Laki ng teksto',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Kulay ng teksto',

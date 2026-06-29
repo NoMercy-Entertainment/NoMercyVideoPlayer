@@ -142,6 +142,11 @@ const translations = {
 	'plugin.desktop-ui.menu.reset': 'Reset',
 	'plugin.desktop-ui.menu.season': 'Season {number}',
 
+	// Short season/episode prefixes for the `%S<n>`/`%E<n>` title tokens. The
+	// episode letter is localized (Dutch is `A`, from "aflevering").
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
+
 	// Subtitle settings row labels
 	'plugin.desktop-ui.menu.subtitle.font': 'Font',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Text size',
