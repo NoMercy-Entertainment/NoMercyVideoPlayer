@@ -24,6 +24,7 @@ import type { DesktopUiButtonOptions, DesktopUiOptions } from '../index';
 import type { SliderBarRefs } from './progressBar';
 
 import { fluentIcons, svgFromIcon } from '../data/icons';
+import { collapseAllTriggers } from './menuControl';
 import { buildSliderBar } from './progressBar';
 
 // ── Shared helper ─────────────────────────────────────────────────────────────
@@ -291,7 +292,6 @@ export function buildBottomRow(
 	remainingTimeEl.textContent = '0:00';
 
 	const aspectRatioBtn = iconBtn(player, 'aspect-ratio', 'aspectFit');
-	aspectRatioBtn.setAttribute('aria-expanded', 'false');
 	aspectRatioBtn.hidden = !show('aspectRatio');
 	parent.appendChild(aspectRatioBtn);
 
@@ -306,38 +306,34 @@ export function buildBottomRow(
 
 	const speedBtn = iconBtn(player, 'speed', 'speed');
 	speedBtn.setAttribute('aria-label', t('tooltip.speed'));
-	speedBtn.setAttribute('aria-expanded', 'false');
 	speedBtn.hidden = !show('speed');
 	parent.appendChild(speedBtn);
 
 	const subsBtn = iconBtn(player, 'subtitles', 'subtitles');
-	subsBtn.setAttribute('aria-expanded', 'false');
 	subsBtn.hidden = !show('subtitles');
 	parent.appendChild(subsBtn);
 
 	const audioBtn = iconBtn(player, 'audio', 'language');
-	audioBtn.setAttribute('aria-expanded', 'false');
 	audioBtn.hidden = !show('audio');
 	parent.appendChild(audioBtn);
 
 	const qualityBtn = iconBtn(player, 'quality', 'quality');
-	qualityBtn.setAttribute('aria-expanded', 'false');
 	qualityBtn.hidden = !show('quality');
 	parent.appendChild(qualityBtn);
 
 	const playlistBtn = iconBtn(player, 'playlist', 'playlist');
-	playlistBtn.setAttribute('aria-expanded', 'false');
 	playlistBtn.hidden = !show('playlist');
 	parent.appendChild(playlistBtn);
 
 	const settingsBtn = iconBtn(player, 'settings', 'settings');
-	settingsBtn.setAttribute('aria-expanded', 'false');
 	settingsBtn.hidden = !show('settings');
 	parent.appendChild(settingsBtn);
 
 	const fsBtn = iconBtn(player, 'fullscreen', 'fullscreen');
 	fsBtn.hidden = !show('fullscreen');
 	parent.appendChild(fsBtn);
+
+	collapseAllTriggers({ settingsBtn, speedBtn, qualityBtn, subsBtn, audioBtn, playlistBtn, aspectRatioBtn });
 
 	applyButtonOrder(parent, opts, {
 		playBtn,

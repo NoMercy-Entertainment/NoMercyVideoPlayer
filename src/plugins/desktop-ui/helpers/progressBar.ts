@@ -189,50 +189,47 @@ export function buildChapterMarkers(
 
 // ── Chapter state updaters ─────────────────────────────────────────────────────
 
-/** Update chapter-marker progress fills for the given playback percentage. */
-export function updateChapterProgress(refs: ChapterMarkerRef[], percentage: number): void {
+/** Division-by-zero guard: minimum chapter span (percentage points). */
+const MIN_CHAPTER_SPAN = 0.0001;
+
+/**
+ * Apply a 0→scaleX(0–1)→1 fill to one layer across all chapter markers.
+ *
+ * @param refs  - Chapter marker ref array.
+ * @param value - Current value as a percentage (same scale as `left`/`right`).
+ * @param pick  - Selects the target `HTMLDivElement` from a marker ref.
+ */
+function applyChapterFill(
+	refs: ChapterMarkerRef[],
+	value: number,
+	pick: (m: ChapterMarkerRef) => HTMLDivElement,
+): void {
 	for (const m of refs) {
-		if (percentage < m.left) {
-			m.progress.style.transform = 'scaleX(0)';
+		const target = pick(m);
+		if (value <= m.left) {
+			target.style.transform = 'scaleX(0)';
 		}
-		else if (percentage > m.right) {
-			m.progress.style.transform = 'scaleX(1)';
+		else if (value >= m.right) {
+			target.style.transform = 'scaleX(1)';
 		}
 		else {
-			const span = Math.max(0.0001, m.right - m.left);
-			m.progress.style.transform = `scaleX(${(percentage - m.left) / span})`;
+			const span = Math.max(MIN_CHAPTER_SPAN, m.right - m.left);
+			target.style.transform = `scaleX(${(value - m.left) / span})`;
 		}
 	}
+}
+
+/** Update chapter-marker progress fills for the given playback percentage. */
+export function updateChapterProgress(refs: ChapterMarkerRef[], percentage: number): void {
+	applyChapterFill(refs, percentage, m => m.progress);
 }
 
 /** Update chapter-marker buffer fills for the given buffered percentage. */
 export function updateChapterBuffer(refs: ChapterMarkerRef[], bufferedPct: number): void {
-	for (const m of refs) {
-		if (bufferedPct <= m.left) {
-			m.buffer.style.transform = 'scaleX(0)';
-		}
-		else if (bufferedPct >= m.right) {
-			m.buffer.style.transform = 'scaleX(1)';
-		}
-		else {
-			const span = Math.max(0.0001, m.right - m.left);
-			m.buffer.style.transform = `scaleX(${(bufferedPct - m.left) / span})`;
-		}
-	}
+	applyChapterFill(refs, bufferedPct, m => m.buffer);
 }
 
 /** Update chapter-marker hover fills for the given scrub percentage. */
 export function updateChapterHover(refs: ChapterMarkerRef[], scrubPct: number): void {
-	for (const m of refs) {
-		if (scrubPct < m.left) {
-			m.hover.style.transform = 'scaleX(0)';
-		}
-		else if (scrubPct > m.right) {
-			m.hover.style.transform = 'scaleX(1)';
-		}
-		else {
-			const span = Math.max(0.0001, m.right - m.left);
-			m.hover.style.transform = `scaleX(${(scrubPct - m.left) / span})`;
-		}
-	}
+	applyChapterFill(refs, scrubPct, m => m.hover);
 }

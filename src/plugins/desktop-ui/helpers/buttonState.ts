@@ -20,6 +20,7 @@ import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nom
 import { VolumeState } from '../../../types';
 
 import { fluentIcons, svgFromIcon } from '../data/icons';
+import { clampVolume } from '../data/utils';
 
 /**
  * Render an icon into the button's `.btn-icon` child, falling back to the
@@ -40,7 +41,7 @@ export function applyVolume(
 	applyMutedIconFn: () => void,
 	volume: number,
 ): void {
-	const clamped = Math.round(Math.max(0, Math.min(100, volume)));
+	const clamped = clampVolume(volume);
 	volSlider.value = String(clamped);
 	volSlider.style.setProperty('--vol-pct', `${clamped}%`);
 	applyMutedIconFn();

@@ -22,6 +22,7 @@
 
 import type { DesktopUiInternals } from '../internals';
 import { fluentIcons, svgFromIcon } from '../data/icons';
+import { clampVolume } from '../data/utils';
 import {
 	applyAspectRatioIcon,
 	applyAudioIcon,
@@ -44,7 +45,7 @@ export const iconStateMethods = {
 		if (this.volSliderVertical) {
 			const vertInput = this.volSliderVertical.querySelector<HTMLInputElement>('.volume-slider-vertical-input');
 			if (vertInput) {
-				const pct = Math.round(Math.max(0, Math.min(100, v)));
+				const pct = clampVolume(v);
 				vertInput.value = String(pct);
 				vertInput.style.setProperty('--vol-pct', `${pct}%`);
 			}

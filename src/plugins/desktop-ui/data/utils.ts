@@ -67,6 +67,18 @@ export function fmt(seconds: number): string {
  *
  * @param duration - Seconds as a number, a pre-formatted string, or nullish.
  */
+/**
+ * Clamp a raw volume value to the 0-100 range and round to the nearest integer.
+ *
+ * Both the slider `value` assignment and the `--vol-pct` CSS custom-property
+ * use this formula, so it lives here once rather than being repeated inline.
+ *
+ * @param value - Raw volume value (kit scale, 0-100).
+ */
+export function clampVolume(value: number): number {
+	return Math.round(Math.max(0, Math.min(100, value)));
+}
+
 export function formatDuration(duration: number | string | undefined): string {
 	if (duration == null)
 		return '';
