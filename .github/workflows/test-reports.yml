@@ -35,6 +35,9 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium
 
+      - name: Generate E2E media fixtures
+        run: node scripts/generate-e2e-fixtures.mjs
+
       - name: Run E2E tests
         run: npx playwright test
 
