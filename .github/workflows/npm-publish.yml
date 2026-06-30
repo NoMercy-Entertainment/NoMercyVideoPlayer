@@ -54,6 +54,14 @@ jobs:
         if: steps.version-check.outputs.skip != 'true'
         run: npm run test
 
+      - name: Install Playwright browsers
+        if: steps.version-check.outputs.skip != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        if: steps.version-check.outputs.skip != 'true'
+        run: npm run test:e2e
+
       - name: Build package
         if: steps.version-check.outputs.skip != 'true'
         run: npm run build:all
