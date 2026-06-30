@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
 	await page.waitForFunction(
-		() => (window as any).__playerReady !== undefined,
+		() => (window as any).__playerReady === true,
 		{ timeout: 10_000 },
 	);
 	const error = await page.evaluate(() => (window as any).__playerError);
@@ -98,9 +98,10 @@ test.describe('Aspect ratio', () => {
 });
 
 test.describe('Fullscreen', () => {
-	test('fullscreen() returns false initially', async ({ page }) => {
+	test('fullscreen() returns FullscreenState.OFF ("off") initially', async ({ page }) => {
 		const fs = await page.evaluate(() => (window as any).player.fullscreen());
-		expect(fs).toBe(false);
+		// fullscreen() returns FullscreenState.OFF which is the string 'off'.
+		expect(fs).toBe('off');
 	});
 
 	test('setAllowFullscreen(false) disables fullscreen', async ({ page }) => {
@@ -149,32 +150,29 @@ test.describe('Time data', () => {
 	test('timeData() returns complete object', async ({ page }) => {
 		const data = await page.evaluate(() => {
 			const td = (window as any).player.timeData();
+			// v2 TimeState shape: position, duration, buffered, remaining, percentage.
+			// 'currentTime' was renamed to 'position' in v2.
 			return {
-				hasCurrentTime: 'currentTime' in td,
+				hasPosition: 'position' in td,
 				hasDuration: 'duration' in td,
 				hasPercentage: 'percentage' in td,
 				hasRemaining: 'remaining' in td,
-				hasPlaybackRate: 'playbackRate' in td,
-				hasCurrentTimeHuman: 'currentTimeHuman' in td,
-				hasDurationHuman: 'durationHuman' in td,
-				hasRemainingHuman: 'remainingHuman' in td,
+				hasBuffered: 'buffered' in td,
 			};
 		});
-		expect(data.hasCurrentTime).toBe(true);
+		expect(data.hasPosition).toBe(true);
 		expect(data.hasDuration).toBe(true);
 		expect(data.hasPercentage).toBe(true);
 		expect(data.hasRemaining).toBe(true);
-		expect(data.hasPlaybackRate).toBe(true);
-		expect(data.hasCurrentTimeHuman).toBe(true);
-		expect(data.hasDurationHuman).toBe(true);
-		expect(data.hasRemainingHuman).toBe(true);
+		expect(data.hasBuffered).toBe(true);
 	});
 
-	test('timeData().playbackRate reflects speed changes', async ({ page }) => {
+	test('playbackRate() reflects speed changes', async ({ page }) => {
 		const rate = await page.evaluate(() => {
 			const p = (window as any).player;
+			// v2: playbackRate() is the getter; speed() is the v1-compat alias.
 			p.speed(2);
-			return p.timeData().playbackRate;
+			return p.playbackRate();
 		});
 		expect(rate).toBe(2);
 	});

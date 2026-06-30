@@ -201,7 +201,7 @@ describe('DrmPlugin — fetchLicense transformers', () => {
 
 		// Override the plugin's fetch so we can inspect what body was sent
 		Object.assign(inst, {
-			fetch: async (url: string, opts: { body?: BodyInit }) => {
+			fetch: async (_url: string, opts: { body?: BodyInit }) => {
 				capturedBody = opts.body;
 				return new ArrayBuffer(8);
 			},

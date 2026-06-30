@@ -77,6 +77,17 @@ describe('video-plugins (extras)', () => {
 			expect(meta.album).toBe('');
 			expect(meta.artwork).toBeUndefined();
 		});
+
+		it('getMetadata reads the pre-resolved title from the item (tokens resolved at ingest)', async () => {
+			const p = setup();
+			p.addPlugin(mediaSessionPlugin);
+			await p.ready();
+
+			const inst = p.getPlugin(MediaSessionPlugin)!;
+			const item = { id: 'ep-001', title: 'Show S1 E1', show: 'Test Show', season: 1 } as any;
+			const meta = (inst as unknown as { getMetadata: (i: any) => any }).getMetadata(item);
+			expect(meta.title).toBe('Show S1 E1');
+		});
 	});
 
 	describe('CastSenderPlugin', () => {
@@ -271,6 +282,31 @@ describe('video-plugins (extras)', () => {
 				delete (globalThis as any).cast;
 				delete (globalThis as any).chrome;
 			}
+		});
+
+		it('buildMetadata reads the pre-resolved title from the item (tokens resolved at ingest)', async () => {
+			const p = setup();
+			p.addPlugin(castSenderPlugin);
+			await p.ready();
+
+			const inst = p.getPlugin(CastSenderPlugin)!;
+
+			class GenericMetaCtor {}
+			const ctors = {
+				GenericMediaMetadata: GenericMetaCtor,
+			};
+
+			const item = {
+				id: 'ep-002',
+				title: 'Show S1 E1',
+				url: 'https://cdn/ep.mp4',
+			};
+
+			const meta = await (inst as unknown as {
+				buildMetadata: (i: typeof item, c: typeof ctors) => Promise<Record<string, unknown>>;
+			}).buildMetadata(item, ctors);
+
+			expect(meta.title).toBe('Show S1 E1');
 		});
 	});
 

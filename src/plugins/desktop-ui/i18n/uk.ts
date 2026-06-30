@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Оригінальний',
 	'plugin.desktop-ui.menu.reset': 'Скинути',
 	'plugin.desktop-ui.menu.season': 'Сезон {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Шрифт',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Розмір тексту',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Колір тексту',

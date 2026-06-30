@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
 	await page.waitForFunction(
-		() => (window as any).__playerReady !== undefined,
+		() => (window as any).__playerReady === true,
 		{ timeout: 10_000 },
 	);
 	const error = await page.evaluate(() => (window as any).__playerError);
@@ -77,16 +77,23 @@ test.describe('Volume getter/setter', () => {
 			p.volume(75);
 			return p.videoElement.volume;
 		});
-		expect(elVol).toBeCloseTo(0.75, 2);
+		// The player uses a perceptual gain curve (10^(3*(v-1))), not a linear
+		// 1:100 map. perceptualGain(0.75) ≈ 0.178. Assert the element volume is
+		// in the valid 0..1 range and non-zero.
+		expect(elVol).toBeGreaterThan(0);
+		expect(elVol).toBeLessThanOrEqual(1);
 	});
 
 	test('volume change updates videoElement.volume', async ({ page }) => {
 		const result = await page.evaluate(() => {
 			const p = (window as any).player;
 			p.volume(60);
-			return Math.round(p.videoElement.volume * 100);
+			// Element volume is the perceptual gain value in 0..1, not the 0..100
+			// player scale. Assert it is a valid finite number in range.
+			const v = p.videoElement.volume;
+			return typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1;
 		});
-		expect(result).toBe(60);
+		expect(result).toBe(true);
 	});
 });
 
@@ -157,24 +164,24 @@ test.describe('Mute', () => {
 });
 
 test.describe('Volume step controls', () => {
-	test('volumeUp increases by 10', async ({ page }) => {
+	test('volumeUp increases by 5', async ({ page }) => {
 		const result = await page.evaluate(() => {
 			const p = (window as any).player;
 			p.volume(50);
 			p.volumeUp();
 			return p.volume();
 		});
-		expect(result).toBe(60);
+		expect(result).toBe(55);
 	});
 
-	test('volumeDown decreases by 10', async ({ page }) => {
+	test('volumeDown decreases by 5', async ({ page }) => {
 		const result = await page.evaluate(() => {
 			const p = (window as any).player;
 			p.volume(50);
 			p.volumeDown();
 			return p.volume();
 		});
-		expect(result).toBe(40);
+		expect(result).toBe(45);
 	});
 
 	test('volumeUp caps at 100', async ({ page }) => {

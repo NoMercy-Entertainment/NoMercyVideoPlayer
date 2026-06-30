@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Upprunalegt',
 	'plugin.desktop-ui.menu.reset': 'Endurstilla',
 	'plugin.desktop-ui.menu.season': 'Þáttaröð {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Leturgerð',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Textastærð',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Textalitur',

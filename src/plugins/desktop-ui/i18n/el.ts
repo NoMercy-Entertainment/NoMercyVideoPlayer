@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Εγγενές',
 	'plugin.desktop-ui.menu.reset': 'Επαναφορά',
 	'plugin.desktop-ui.menu.season': 'Σεζόν {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Γραμματοσειρά',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Μέγεθος κειμένου',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Χρώμα κειμένου',

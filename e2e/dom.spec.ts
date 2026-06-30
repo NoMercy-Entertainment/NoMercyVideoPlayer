@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
 	await page.waitForFunction(
-		() => (window as any).__playerReady !== undefined,
+		() => (window as any).__playerReady === true,
 		{ timeout: 10_000 },
 	);
 	const error = await page.evaluate(() => (window as any).__playerError);

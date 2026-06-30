@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Algupärane',
 	'plugin.desktop-ui.menu.reset': 'Lähtesta',
 	'plugin.desktop-ui.menu.season': 'Hooaeg {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Font',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Teksti suurus',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Teksti värv',

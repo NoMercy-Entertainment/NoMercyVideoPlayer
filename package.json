@@ -1,7 +1,7 @@
 {
 	"name": "@nomercy-entertainment/nomercy-video-player",
 	"type": "module",
-	"version": "2.0.0-rc.13",
+	"version": "2.0.0-rc.20",
 	"description": "Headless, event-driven HTML5 video player with HLS streaming, subtitle rendering (VTT/ASS/SSA), and a plugin system. No UI — you build your own.",
 	"author": {
 		"name": "NoMercy Entertainment",
@@ -140,12 +140,13 @@
 		"test:watch": "vitest",
 		"test:ui": "vitest --ui --watch",
 		"test:coverage": "vitest run --coverage",
+		"pretest:e2e": "node scripts/generate-e2e-fixtures.mjs",
 		"test:e2e": "npx playwright test",
 		"test:e2e:report": "npx playwright show-report reports/playwright",
 		"prepublishOnly": "npm run build"
 	},
 	"dependencies": {
-		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.13",
+		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.19",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
 		"@types/webvtt-parser": "^2.2.0",
 		"webvtt-parser": "^2.2.0"
@@ -170,10 +171,9 @@
 		"vitest": "^4.1.6"
 	},
 	"overrides": {
-		"fast-uri": "^3.1.2",
-		"follow-redirects": "1.16.0",
-		"minimatch": "10.2.4",
-		"uuid": "^11.1.1"
+		"brace-expansion": "^5.0.6",
+		"js-yaml": "^4.3.0",
+		"minimatch": "10.2.4"
 	},
 	"publishConfig": {
 		"access": "public",

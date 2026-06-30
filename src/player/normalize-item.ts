@@ -17,6 +17,7 @@
  */
 
 import type { ChapterRef, FontTrackRef, VideoPlaylistItem, WatchProgress } from '../types';
+import { parseDurationSeconds } from '@nomercy-entertainment/nomercy-player-core';
 
 interface LegacyTrackEntry {
 	id?: string | number;
@@ -57,14 +58,6 @@ type LooseVideoItem = Omit<VideoPlaylistItem, 'duration' | 'chapters' | 'progres
 	progress?: WatchProgress | LegacyProgressEntry | null;
 	fonts?: Array<FontTrackRef | LegacyFontEntry>;
 };
-
-/** Parse `"1:24:14"` / `"24:14"` style durations to seconds. */
-function parseDurationSeconds(value: string): number | undefined {
-	const parts = value.split(':').map(Number);
-	if (parts.length === 0 || parts.some(Number.isNaN))
-		return undefined;
-	return parts.reduce((total, part) => total * 60 + part, 0);
-}
 
 function normalizeDuration(value: number | string | undefined): number | undefined {
 	if (typeof value === 'number')

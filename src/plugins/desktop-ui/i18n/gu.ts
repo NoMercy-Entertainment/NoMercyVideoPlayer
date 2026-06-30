@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'મૂળ',
 	'plugin.desktop-ui.menu.reset': 'રીસેટ',
 	'plugin.desktop-ui.menu.season': 'સીઝન {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'ફોન્ટ',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'ટેક્સ્ટ કદ',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'ટેક્સ્ટ રંગ',

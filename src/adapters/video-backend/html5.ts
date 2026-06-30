@@ -148,12 +148,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	private _ended = false;
 	private _loaderState: BackendLoaderState = 'running';
 	/**
-	 * Currently-driving native `TextTrack`. Set by `setSubtitleTrack`
-	 *  after we hide a track and start listening to its `cuechange`.
-	 */
-	private activeTextTrack: TextTrack | null = null;
-	/**
-	 * Listener attached to `activeTextTrack` so we can detach on track
+	 * Listener attached to the active `TextTrack` so we can detach on track
 	 *  switch / dispose without rebuilding the rest of the listeners map.
 	 */
 	private cueChangeHandler: (() => void) | null = null;
@@ -644,7 +639,6 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			return;
 		}
 
-		this.activeTextTrack = target;
 		const handler = (): void => this.emitActiveCues(target);
 		target.addEventListener('cuechange', handler);
 		this.cueChangeHandler = (): void => target.removeEventListener('cuechange', handler);
@@ -722,7 +716,6 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	private detachActiveTextTrack(): void {
 		const fn = this.cueChangeHandler;
 		this.cueChangeHandler = null;
-		this.activeTextTrack = null;
 		if (fn)
 			fn();
 	}

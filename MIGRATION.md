@@ -74,6 +74,26 @@ player.fullscreenState(true); // → player.fullscreen(true)
 
 Remove `V1VideoCompatPlugin` once all call sites are updated.
 
+### Known compat-shim gaps
+
+The shim restores every v1 method and event name, and for most consumers adding
+it is the whole migration. A few v1 behaviours cannot be reproduced exactly
+because they depend on v1 semantics that v2 deliberately dropped. These are not
+bugs in the shim, they are the parts of v1 that v2 redesigned. Check the list
+below against your own call sites before you assume "add the plugin and done".
+
+| v1 behaviour                                    | What the shim does                                                                                                                                                 | What to change                                                                                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `getQualityLevels()` / `setCurrentQuality(idx)` | v1 put a fake "Auto" entry at index 0, so every real level sat one slot higher. The shim rebuilds that shape and offsets the setter.                               | If you store or compare quality indexes, move to `qualityLevels()` and `quality(level)`, which use the real level with no "Auto" slot. |
+| `getCaptionsList()` / `setCurrentCaption(idx)`  | Same pattern: v1 put a fake "Off" entry at index 0. The shim rebuilds it and offsets.                                                                              | If you store or compare subtitle indexes, move to `subtitles()` and `subtitle(idx \| null)`, where "off" is `null`, not index 0.       |
+| `on('play')` / `on('pause')` payload            | v1 delivered a full time-state object. The shim delivers a zeroed time-state, because v2 fires these without time data.                                            | Read time from `on('time')` instead of from the play/pause payload.                                                                    |
+| `on('showControls')`                            | v1 fired for both show and hide. The shim fires only on show.                                                                                                      | Use `on('active')` for both transitions.                                                                                               |
+| `on('seek')` vs `on('seeked')`                  | v1 had two events. Both now bridge from the single v2 `time` event, so any logic that counted seek-start vs seek-done by event order no longer distinguishes them. | Track seek state from your own UI gesture, not from event counts.                                                                      |
+
+Everything else (playback, volume, playlist, audio tracks, fullscreen/pip/theater,
+chapters, time, i18n) maps with the same shape. Multi-player pages are safe: each
+plugin instance tracks its own duration.
+
 ---
 
 Full v1 → v2 migration guide lives in the docs site:

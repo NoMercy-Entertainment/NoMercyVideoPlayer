@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
 	await page.waitForFunction(
-		() => (window as any).__playerReady !== undefined,
+		() => (window as any).__playerReady === true,
 		{ timeout: 10_000 },
 	);
 	const error = await page.evaluate(() => (window as any).__playerError);
@@ -145,26 +145,27 @@ test.describe('Event emitter: off', () => {
 });
 
 test.describe('Built-in events', () => {
-	test('volume event fires when videoElement dispatches volumechange', async ({ page }) => {
+	test('volume event fires when player.volume() is called', async ({ page }) => {
 		const emitted = await page.evaluate(() => {
 			const p = (window as any).player;
 			let received = false;
+			// The player emits 'volume' via its own volume mixin when volume(v)
+			// is called — NOT by bridging the native element's volumechange event.
 			p.on('volume', () => { received = true; });
-			// Programmatically change and dispatch native event
-			p.videoElement.volume = 0.3;
-			p.videoElement.dispatchEvent(new Event('volumechange'));
+			p.volume(30);
 			return received;
 		});
 		expect(emitted).toBe(true);
 	});
 
-	test('mute event fires when videoElement dispatches volumechange', async ({ page }) => {
+	test('mute event fires when player.muted(true) is called', async ({ page }) => {
 		const emitted = await page.evaluate(() => {
 			const p = (window as any).player;
 			let received = false;
+			// The player emits 'mute' via its own volume mixin when muted(true)
+			// is called — NOT by bridging the native element's volumechange event.
 			p.on('mute', () => { received = true; });
-			p.videoElement.muted = true;
-			p.videoElement.dispatchEvent(new Event('volumechange'));
+			p.muted(true);
 			return received;
 		});
 		expect(emitted).toBe(true);

@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Asili',
 	'plugin.desktop-ui.menu.reset': 'Weka upya',
 	'plugin.desktop-ui.menu.season': 'Msimu {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Fonti',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Ukubwa wa maandishi',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Rangi ya maandishi',

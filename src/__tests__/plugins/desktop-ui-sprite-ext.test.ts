@@ -24,7 +24,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { loadSpriteSet, lookupCue, parseSpriteVtt } from '../../plugins/desktop-ui/sprite';
+import { loadSpriteSet, lookupCue, parseSpriteVtt } from '../../plugins/desktop-ui/helpers/sprite';
 
 // ── Image mock — preloadImage calls new Image(); jsdom never fires onload ─────
 // Stub Image so it immediately calls onload (avoids test timeouts).

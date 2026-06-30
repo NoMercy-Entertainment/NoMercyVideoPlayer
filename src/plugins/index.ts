@@ -10,9 +10,9 @@
 export { castSenderPlugin, CastSenderPlugin } from './cast-sender';
 export type { CastSenderEvents, CastSenderOptions } from './cast-sender';
 
+export type { SettingsToggleItem } from './desktop-ui/helpers/menus';
 export { desktopUiPlugin, DesktopUiPlugin } from './desktop-ui/index';
 export type { DesktopUiOptions } from './desktop-ui/index';
-export type { SettingsToggleItem } from './desktop-ui/menus';
 export { drmPlugin, DrmPlugin } from './drm';
 export type { DrmEvents, DrmOptions } from './drm';
 // Cross-library plugins (from the kit, with video-specific defaults where applicable)

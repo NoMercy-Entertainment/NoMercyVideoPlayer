@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Үндсэн',
 	'plugin.desktop-ui.menu.reset': 'Шинэчлэх',
 	'plugin.desktop-ui.menu.season': '{number}-р улирал',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Фонт',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Текстийн хэмжээ',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Текстийн өнгө',

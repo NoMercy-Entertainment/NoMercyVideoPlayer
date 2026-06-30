@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Natív',
 	'plugin.desktop-ui.menu.reset': 'Visszaállítás',
 	'plugin.desktop-ui.menu.season': '{number}. évad',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Betűtípus',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Szöveg mérete',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Szöveg színe',

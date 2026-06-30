@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Özgün',
 	'plugin.desktop-ui.menu.reset': 'Sıfırla',
 	'plugin.desktop-ui.menu.season': '{number}. Sezon',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Yazı tipi',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Metin boyutu',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Metin rengi',

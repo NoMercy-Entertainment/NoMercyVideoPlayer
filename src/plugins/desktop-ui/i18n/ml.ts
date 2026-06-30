@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'നേറ്റീവ്',
 	'plugin.desktop-ui.menu.reset': 'പുനഃക്രമീകരിക്കുക',
 	'plugin.desktop-ui.menu.season': 'സീസൺ {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'ഫോണ്ട്',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'ടെക്സ്റ്റ് വലുപ്പം',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'ടെക്സ്റ്റ് നിറം',

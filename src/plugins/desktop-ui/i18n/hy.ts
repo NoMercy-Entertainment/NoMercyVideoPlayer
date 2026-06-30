@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Բնիկ',
 	'plugin.desktop-ui.menu.reset': 'Վերականգնել',
 	'plugin.desktop-ui.menu.season': 'Եթերաշրջան {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Տառատեսակ',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Տեկստի չափ',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Տեկստի գույնը',

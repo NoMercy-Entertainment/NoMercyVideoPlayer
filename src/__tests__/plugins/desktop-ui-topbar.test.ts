@@ -27,7 +27,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
-import { buildTitleBar, updateTitleBar } from '../../plugins/desktop-ui/topBar';
+import { buildTitleBar, updateTitleBar } from '../../plugins/desktop-ui/helpers/topBar';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
 const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
@@ -101,16 +101,17 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 		vi.unstubAllGlobals();
 	});
 
-	async function makeRefs(): Promise<ReturnType<typeof buildTitleBar>> {
+	async function makeRefsWithPlayer(): Promise<{ player: NMVideoPlayer; refs: ReturnType<typeof buildTitleBar> }> {
 		const player = new NMVideoPlayer('test').setup({});
 		await player.ready();
 		const parent = document.createElement('div');
-		return buildTitleBar(player as never, parent);
+		const refs = buildTitleBar(player as never, parent);
+		return { player, refs };
 	}
 
 	it('movie item: shows title as primary, empty secondary (hidden)', async () => {
-		const refs = await makeRefs();
-		updateTitleBar(refs, { id: 1, title: 'Dune' } as never);
+		const { player, refs } = await makeRefsWithPlayer();
+		updateTitleBar(player as never, refs, { id: 1, title: 'Dune' } as never);
 
 		expect(refs.titleText.textContent).toBe('Dune');
 		expect(refs.showInfoText.textContent).toBe('');
@@ -118,22 +119,22 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 	});
 
 	it('null item: titleText becomes empty string', async () => {
-		const refs = await makeRefs();
-		updateTitleBar(refs, null);
+		const { player, refs } = await makeRefsWithPlayer();
+		updateTitleBar(player as never, refs, null);
 
 		expect(refs.titleText.textContent).toBe('');
 	});
 
 	it('undefined item: titleText becomes empty string', async () => {
-		const refs = await makeRefs();
-		updateTitleBar(refs, undefined);
+		const { player, refs } = await makeRefsWithPlayer();
+		updateTitleBar(player as never, refs, undefined);
 
 		expect(refs.titleText.textContent).toBe('');
 	});
 
 	it('series S1E3 with ep title: primary=show, secondary=S1E3 • EpTitle', async () => {
-		const refs = await makeRefs();
-		updateTitleBar(refs, {
+		const { player, refs } = await makeRefsWithPlayer();
+		updateTitleBar(player as never, refs, {
 			id: 2,
 			title: 'The Breaking Point',
 			show: 'Breaking Bad',
@@ -147,9 +148,9 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 	});
 
 	it('series S2E1 without distinct ep title: primary=show, secondary=S2E1', async () => {
-		const refs = await makeRefs();
+		const { player, refs } = await makeRefsWithPlayer();
 		// title === show → no bullet point
-		updateTitleBar(refs, {
+		updateTitleBar(player as never, refs, {
 			id: 3,
 			title: 'Breaking Bad',
 			show: 'Breaking Bad',
@@ -162,8 +163,8 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 	});
 
 	it('specials (season=0): secondary starts with Extras E{n}', async () => {
-		const refs = await makeRefs();
-		updateTitleBar(refs, {
+		const { player, refs } = await makeRefsWithPlayer();
+		updateTitleBar(player as never, refs, {
 			id: 4,
 			title: 'Behind the Scenes',
 			show: 'Breaking Bad',
@@ -176,8 +177,8 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 	});
 
 	it('specials (season=0) without ep title: secondary=Extras E{n} only', async () => {
-		const refs = await makeRefs();
-		updateTitleBar(refs, {
+		const { player, refs } = await makeRefsWithPlayer();
+		updateTitleBar(player as never, refs, {
 			id: 5,
 			title: 'Breaking Bad',
 			show: 'Breaking Bad',
@@ -188,9 +189,9 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 		expect(refs.showInfoText.textContent).toBe('Extras E1');
 	});
 
-	it('series with no season but has episode: secondary uses A{n} format', async () => {
-		const refs = await makeRefs();
-		updateTitleBar(refs, {
+	it('series with no season but has episode: secondary uses localized episode prefix', async () => {
+		const { player, refs } = await makeRefsWithPlayer();
+		updateTitleBar(player as never, refs, {
 			id: 6,
 			title: 'Chapter One',
 			show: 'My Show',
@@ -198,24 +199,24 @@ describe('updateTitleBar — title / secondary-line branches', () => {
 		} as never);
 
 		expect(refs.titleText.textContent).toBe('My Show');
-		expect(refs.showInfoText.textContent).toMatch(/A7/);
+		expect(refs.showInfoText.textContent).toMatch(/E7/);
 	});
 
-	it('series with no season, no distinct ep title: secondary=A{n} only', async () => {
-		const refs = await makeRefs();
-		updateTitleBar(refs, {
+	it('series with no season, no distinct ep title: secondary=localized-episode-prefix{n} only', async () => {
+		const { player, refs } = await makeRefsWithPlayer();
+		updateTitleBar(player as never, refs, {
 			id: 7,
 			title: 'My Show',
 			show: 'My Show',
 			episode: 4,
 		} as never);
 
-		expect(refs.showInfoText.textContent).toBe('A4');
+		expect(refs.showInfoText.textContent).toBe('E4');
 	});
 
 	it('show present but no episode: secondary is empty', async () => {
-		const refs = await makeRefs();
-		updateTitleBar(refs, {
+		const { player, refs } = await makeRefsWithPlayer();
+		updateTitleBar(player as never, refs, {
 			id: 8,
 			title: 'Feature',
 			show: 'My Show',

@@ -13,10 +13,13 @@
  * value diverges from default. The `.btn.is-active` class on a button forces the
  * filled (hover) icon path visible via CSS.
  *
- * Buttons covered:
- *   speed   — default 1.0x; filled when rate !== 1
- *   audio   — filled when selected track is not the manifest default
- *   aspect  — default 'uniform'; filled when aspect !== 'uniform'
+ * Buttons covered (STATE-VALUE model — Stoney 2026-06-29):
+ *   speed    — default 1.0x; is-active when rate !== 1
+ *   audio    — is-active when selected track is not the manifest default track
+ *   aspect   — default 'uniform'; is-active when aspect !== 'uniform'
+ *   subtitle — is-active when a subtitle track is active (index >= 0)
+ *   quality  — is-active when user has pinned a manual quality level (not auto)
+ *   pip      — is-active while picture-in-picture is engaged
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,6 +39,7 @@ async function makePlayer(): Promise<NMVideoPlayer> {
 			speed: true,
 			audio: true,
 			aspectRatio: true,
+			pip: true,
 		},
 	}).ready();
 	return player;
@@ -175,11 +179,74 @@ describe('DesktopUiPlugin — icon state (is-active divergence)', () => {
 		expect(aspectBtn!.classList.contains('is-active')).toBe(false);
 	});
 
+	// ── Subtitles icon on/off swap ────────────────────────────────────────────
+
+	it('subtitles button shows the "on" icon when a track is active (index >= 0)', async () => {
+		const player = await makePlayer();
+
+		player.emit('subtitle' as never, { track: 0 } as never);
+
+		const subsBtn = document.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		expect(subsBtn).not.toBeNull();
+
+		const iconTarget = subsBtn!.querySelector('.btn-icon') ?? subsBtn!;
+		const normalPath = iconTarget.querySelector<SVGPathElement>('path.icon-normal');
+		expect(normalPath).not.toBeNull();
+
+		// fluentIcons.subtitles.normal starts with "M18.75 4C20.5449 4 22 5.455"
+		// fluentIcons.subtitlesOff.normal starts with the same prefix but has
+		// an extra rect path — the two differ: subtitles has no explicit box
+		// in normal, subtitlesOff does. Discriminate on the exact d attribute.
+		// The "on" icon's normal path does NOT contain "18.75 5.5" (the box stroke).
+		expect(normalPath!.getAttribute('d')).not.toContain('18.75 5.5');
+	});
+
+	it('subtitles button shows the "off" icon when no track is active (-1)', async () => {
+		const player = await makePlayer();
+
+		// Activate then deactivate
+		player.emit('subtitle' as never, { track: 0 } as never);
+		player.emit('subtitle' as never, { track: -1 } as never);
+
+		const subsBtn = document.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		expect(subsBtn).not.toBeNull();
+
+		const iconTarget = subsBtn!.querySelector('.btn-icon') ?? subsBtn!;
+		const normalPath = iconTarget.querySelector<SVGPathElement>('path.icon-normal');
+		expect(normalPath).not.toBeNull();
+
+		// The "off" icon's normal path contains the box rectangle ("18.75 5.5").
+		expect(normalPath!.getAttribute('d')).toContain('18.75 5.5');
+	});
+
+	it('subtitles button shows the "off" icon when track is null', async () => {
+		const player = await makePlayer();
+
+		player.emit('subtitle' as never, { track: null } as never);
+
+		const subsBtn = document.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		const iconTarget = subsBtn!.querySelector('.btn-icon') ?? subsBtn!;
+		const normalPath = iconTarget.querySelector<SVGPathElement>('path.icon-normal');
+		expect(normalPath!.getAttribute('d')).toContain('18.75 5.5');
+	});
+
+	it('icon differs between active (track=0) and inactive (track=-1) states', async () => {
+		const player = await makePlayer();
+
+		player.emit('subtitle' as never, { track: 0 } as never);
+		const subsBtn = document.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		const iconTarget = subsBtn!.querySelector('.btn-icon') ?? subsBtn!;
+		const onPath = iconTarget.querySelector<SVGPathElement>('path.icon-normal')!.getAttribute('d');
+
+		player.emit('subtitle' as never, { track: -1 } as never);
+		const offPath = iconTarget.querySelector<SVGPathElement>('path.icon-normal')!.getAttribute('d');
+
+		expect(onPath).not.toBe(offPath);
+	});
+
 	// ── Audio track ───────────────────────────────────────────────────────────
 
-	it('audio button NEVER gains is-active — even on a non-default track', async () => {
-		// Exactly one audio track is always playing; preference-restored
-		// languages lit the button permanently. There is no active state.
+	it('audio button has no is-active when playing the manifest-default track', async () => {
 		const player = await makePlayer();
 
 		const tracks = [
@@ -193,8 +260,152 @@ describe('DesktopUiPlugin — icon state (is-active divergence)', () => {
 
 		player.emit('audioTrack' as never, { id: 0 } as never);
 		expect(audioBtn!.classList.contains('is-active')).toBe(false);
+	});
+
+	it('audio button gains is-active when a non-default track is selected', async () => {
+		const player = await makePlayer();
+
+		const tracks = [
+			{ id: 'en', label: 'English', default: true },
+			{ id: 'nl', label: 'Dutch', default: false },
+		];
+		Object.assign(player, { audioTracks: () => tracks });
+
+		const audioBtn = document.querySelector<HTMLButtonElement>('#audio');
+		expect(audioBtn).toBeTruthy();
 
 		player.emit('audioTrack' as never, { id: 1 } as never);
+		expect(audioBtn!.classList.contains('is-active')).toBe(true);
+	});
+
+	it('audio button loses is-active when returning to the default track', async () => {
+		const player = await makePlayer();
+
+		const tracks = [
+			{ id: 'en', label: 'English', default: true },
+			{ id: 'nl', label: 'Dutch', default: false },
+		];
+		Object.assign(player, { audioTracks: () => tracks });
+
+		const audioBtn = document.querySelector<HTMLButtonElement>('#audio');
+
+		player.emit('audioTrack' as never, { id: 1 } as never);
+		expect(audioBtn!.classList.contains('is-active')).toBe(true);
+
+		player.emit('audioTrack' as never, { id: 0 } as never);
 		expect(audioBtn!.classList.contains('is-active')).toBe(false);
+	});
+
+	it('audio button has no is-active when only one track exists', async () => {
+		const player = await makePlayer();
+
+		const tracks = [{ id: 'en', label: 'English', default: true }];
+		Object.assign(player, { audioTracks: () => tracks });
+
+		const audioBtn = document.querySelector<HTMLButtonElement>('#audio');
+
+		player.emit('audioTrack' as never, { id: 0 } as never);
+		expect(audioBtn!.classList.contains('is-active')).toBe(false);
+	});
+
+	// ── Subtitles is-active ───────────────────────────────────────────────────
+
+	it('subtitles button has no is-active when no track is active', async () => {
+		const player = await makePlayer();
+
+		player.emit('subtitle' as never, { track: -1 } as never);
+
+		const subsBtn = document.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		expect(subsBtn).not.toBeNull();
+		expect(subsBtn!.classList.contains('is-active')).toBe(false);
+	});
+
+	it('subtitles button gains is-active when a track is active', async () => {
+		const player = await makePlayer();
+
+		player.emit('subtitle' as never, { track: 0 } as never);
+
+		const subsBtn = document.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		expect(subsBtn!.classList.contains('is-active')).toBe(true);
+	});
+
+	it('subtitles button loses is-active when track is deactivated', async () => {
+		const player = await makePlayer();
+
+		player.emit('subtitle' as never, { track: 0 } as never);
+		expect(document.querySelector<HTMLButtonElement>('[id="subtitles"]')!.classList.contains('is-active')).toBe(true);
+
+		player.emit('subtitle' as never, { track: -1 } as never);
+		expect(document.querySelector<HTMLButtonElement>('[id="subtitles"]')!.classList.contains('is-active')).toBe(false);
+	});
+
+	// ── Quality is-active ─────────────────────────────────────────────────────
+
+	it('quality button has no is-active when quality is auto', async () => {
+		const player = await makePlayer();
+
+		player.emit('quality:requested' as never, { level: 'auto' } as never);
+
+		const qualityBtn = document.querySelector<HTMLButtonElement>('#quality');
+		expect(qualityBtn).toBeTruthy();
+		expect(qualityBtn!.classList.contains('is-active')).toBe(false);
+	});
+
+	it('quality button gains is-active when user pins a manual level', async () => {
+		const player = await makePlayer();
+
+		player.emit('quality:requested' as never, { level: 2 } as never);
+
+		const qualityBtn = document.querySelector<HTMLButtonElement>('#quality');
+		expect(qualityBtn!.classList.contains('is-active')).toBe(true);
+	});
+
+	it('quality button loses is-active when user returns to auto', async () => {
+		const player = await makePlayer();
+
+		player.emit('quality:requested' as never, { level: 2 } as never);
+		expect(document.querySelector<HTMLButtonElement>('#quality')!.classList.contains('is-active')).toBe(true);
+
+		player.emit('quality:requested' as never, { level: 'auto' } as never);
+		expect(document.querySelector<HTMLButtonElement>('#quality')!.classList.contains('is-active')).toBe(false);
+	});
+
+	// ── PiP is-active ─────────────────────────────────────────────────────────
+
+	it('pip button has no is-active when pip is inactive', async () => {
+		const player = await makePlayer();
+
+		Object.defineProperty(document, 'pictureInPictureElement', { value: null, configurable: true });
+		player.emit('pip' as never, {} as never);
+
+		const pipBtn = document.querySelector<HTMLButtonElement>('#pip');
+		expect(pipBtn).toBeTruthy();
+		expect(pipBtn!.classList.contains('is-active')).toBe(false);
+	});
+
+	it('pip button gains is-active when pip is engaged', async () => {
+		const player = await makePlayer();
+
+		const fakeVideoEl = document.createElement('video');
+		Object.defineProperty(document, 'pictureInPictureElement', { value: fakeVideoEl, configurable: true });
+		player.emit('pip' as never, {} as never);
+
+		const pipBtn = document.querySelector<HTMLButtonElement>('#pip');
+		expect(pipBtn!.classList.contains('is-active')).toBe(true);
+
+		Object.defineProperty(document, 'pictureInPictureElement', { value: null, configurable: true });
+	});
+
+	it('pip button loses is-active when pip exits', async () => {
+		const player = await makePlayer();
+
+		const fakeVideoEl = document.createElement('video');
+		Object.defineProperty(document, 'pictureInPictureElement', { value: fakeVideoEl, configurable: true });
+		player.emit('pip' as never, {} as never);
+		expect(document.querySelector<HTMLButtonElement>('#pip')!.classList.contains('is-active')).toBe(true);
+
+		Object.defineProperty(document, 'pictureInPictureElement', { value: null, configurable: true });
+		player.emit('pip' as never, {} as never);
+		expect(document.querySelector<HTMLButtonElement>('#pip')!.classList.contains('is-active')).toBe(false);
 	});
 });

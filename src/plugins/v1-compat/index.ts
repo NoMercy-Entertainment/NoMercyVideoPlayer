@@ -117,11 +117,8 @@ function _makeTimeData(time: number, duration: number): V1TimeData {
 	};
 }
 
-/** Module-level mutable duration tracker — updated by each plugin instance's duration listener. */
-let _currentDuration = 0;
-
-/** Build the v1→v2 event bridge table. Constructed lazily per player instance. */
-function _buildEventMap(): Record<string, V1EventMapping> {
+/** Build the v1→v2 event bridge table for a specific plugin instance. */
+function _buildEventMap(getDuration: () => number): Record<string, V1EventMapping> {
 	return {
 		// v1 'play'  payload was TimeData; v2 'play' payload is undefined.
 		play: {
@@ -134,12 +131,12 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 			reshape: _data => _makeTimeData(0, 0),
 		},
 		// v1 'time' payload was TimeData; v2 'time' payload is { time: number }.
-		// Duration is injected from the plugin's tracked _currentDuration.
+		// Duration is read from the per-instance getter to avoid cross-player corruption.
 		time: {
 			v2Event: 'time',
 			reshape: (data) => {
 				const v2 = data as { time?: number } | undefined;
-				return _makeTimeData(v2?.time ?? 0, _currentDuration);
+				return _makeTimeData(v2?.time ?? 0, getDuration());
 			},
 		},
 		// v1 'seek' / 'seeked' — same shape change.
@@ -147,14 +144,14 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 			v2Event: 'time',
 			reshape: (data) => {
 				const v2 = data as { time?: number } | undefined;
-				return _makeTimeData(v2?.time ?? 0, _currentDuration);
+				return _makeTimeData(v2?.time ?? 0, getDuration());
 			},
 		},
 		seeked: {
 			v2Event: 'time',
 			reshape: (data) => {
 				const v2 = data as { time?: number } | undefined;
-				return _makeTimeData(v2?.time ?? 0, _currentDuration);
+				return _makeTimeData(v2?.time ?? 0, getDuration());
 			},
 		},
 		// v1 'volume' payload was { volume, muted }; v2 'volume' is { level }.
@@ -197,15 +194,14 @@ function _buildEventMap(): Record<string, V1EventMapping> {
 				return v2?.item;
 			},
 		},
-		// v1 'playlist' fired with array; v2 uses 'queueChanged' — the handler
-		// must pull the actual list from player.queue() since v2 fires no payload.
+		// v1 'playlist' fired with array; v2 emits 'queue' with the new items
+		// array on every queue mutation. The reshape converts the v2 payload
+		// (the new items array) directly to match the v1 contract.
 		playlist: {
-			v2Event: 'queueChanged',
-			reshape: (_data) => {
-				// Payload is unavailable at bridge time; return empty sentinel.
-				// The player instance reference is not in scope here; consumers
-				// should call player.queue() inside the callback in new code.
-				return [];
+			v2Event: 'queue',
+			reshape: (data) => {
+				// v2 'queue' payload IS the new items array; pass it through.
+				return data as VideoPlaylistItem[];
 			},
 		},
 		complete: { v2Event: 'ended' },
@@ -303,6 +299,9 @@ export class V1VideoCompatPlugin extends Plugin<
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'v1→v2 migration shim — TEMPORARY, removed after migration window';
 
+	/** Duration for this player instance, updated by the duration event handler. */
+	private _currentDuration: number = 0;
+
 	/**
 	 * Methods patched directly onto the player instance (keyed by name).
 	 * Removed from the instance on dispose().
@@ -323,8 +322,8 @@ export class V1VideoCompatPlugin extends Plugin<
 		this._attachMethodShims();
 
 		// Track current duration so the time event reshaper can include remaining/percentage.
-		this.player.on('duration', (data: { duration: number }) => {
-			_currentDuration = data.duration;
+		this.on('duration', (data: { duration: number }) => {
+			this._currentDuration = data.duration;
 		});
 	}
 
@@ -364,7 +363,7 @@ export class V1VideoCompatPlugin extends Plugin<
 		const originalOn = player.on.bind(player) as typeof player.on;
 		this._originalOn = player.on;
 
-		const eventMap = _buildEventMap();
+		const eventMap = _buildEventMap(() => this._currentDuration);
 
 		(player as unknown as Record<string, unknown>).on = (
 			event: string,
@@ -505,11 +504,13 @@ export class V1VideoCompatPlugin extends Plugin<
 		/**
 		 * @deprecated Use `player.item()` / `player.seekToIndex(index + 1)`.
 		 * v1 playlistItem(index) was 0-based; v2 seekToIndex(position) is 1-based.
+		 * v1 returned an empty object when no item was active; v2 returns undefined.
+		 * This shim preserves v1 behaviour so typeof checks return 'object'.
 		 */
 		this._patchMethod('playlistItem', (index?: unknown) => {
 			_warnDeprecated('playlistItem(index?)', 'item() / seekToIndex(index + 1)');
 			if (index === undefined) {
-				return player.item();
+				return player.item() ?? {};
 			}
 			player.seekToIndex(Number(index) + 1);
 		});
@@ -535,12 +536,25 @@ export class V1VideoCompatPlugin extends Plugin<
 		});
 
 		/**
-		 * @deprecated Use `player.queue(items)`.
+		 * v1 `load(array)` set the playlist; v2 `load(item, opts)` loads a
+		 * single item. Both signatures now coexist: array → queue(), single
+		 * item or object → v2 load(). Cannot use _patchMethod because v2
+		 * already puts `load` on the prototype.
 		 */
-		this._patchMethod('load', (items: unknown) => {
-			_warnDeprecated('load(items)', 'queue(items)');
-			player.queue(items as VideoPlaylistItem[]);
-		});
+		{
+			const v2Load = (player as unknown as Record<string, unknown>).load as ((...args: unknown[]) => unknown) | undefined;
+			const shimLoad = (itemOrItems: unknown, opts?: unknown): unknown => {
+				if (Array.isArray(itemOrItems)) {
+					_warnDeprecated('load(items[])', 'queue(items)');
+					player.queue(itemOrItems as VideoPlaylistItem[]);
+					return undefined;
+				}
+				_warnDeprecated('load(item)', 'load(item, opts)');
+				return v2Load?.call(player, itemOrItems, opts);
+			};
+			(player as unknown as Record<string, unknown>).load = shimLoad;
+			this._patchedMethods.push('load');
+		}
 
 		/**
 		 * @deprecated Use `player.queue().length > 1`.
@@ -1283,7 +1297,25 @@ export class V1VideoCompatPlugin extends Plugin<
 		 */
 		this._patchMethod('seasons', () => {
 			_warnRemoved('seasons()', 'group player.queue() by season in your own code');
-			return [];
+			try {
+				const seen = new Map<number, { season: number; seasonName?: string; episodes: number }>();
+				for (const item of player.queue()) {
+					const entry = item as { season?: number; seasonName?: string };
+					if (typeof entry.season === 'number') {
+						const existing = seen.get(entry.season);
+						if (existing) {
+							existing.episodes += 1;
+						}
+						else {
+							seen.set(entry.season, { season: entry.season, seasonName: entry.seasonName, episodes: 1 });
+						}
+					}
+				}
+				return [...seen.values()];
+			}
+			catch {
+				return [];
+			}
 		});
 
 		/**
@@ -1438,6 +1470,383 @@ export class V1VideoCompatPlugin extends Plugin<
 			});
 			this._patchedMethods.push('translations');
 		}
+
+		// ── DOM / string utilities ────────────────────────────────────────────
+
+		/**
+		 * @deprecated Converts snake_case to camelCase.
+		 */
+		this._patchMethod('snakeToCamel', (str: unknown) => {
+			_warnDeprecated('snakeToCamel(str)', 'implement in consumer code');
+			return String(str ?? '').replace(/_([a-z])/gu, (_: string, c: string) => c.toUpperCase());
+		});
+
+		/**
+		 * @deprecated Converts space-separated words to camelCase.
+		 */
+		this._patchMethod('spaceToCamel', (str: unknown) => {
+			_warnDeprecated('spaceToCamel(str)', 'implement in consumer code');
+			return String(str ?? '').replace(/\s+([a-z])/gu, (_: string, c: string) => c.toUpperCase());
+		});
+
+		/**
+		 * @deprecated Dynamically appends script files to the document head.
+		 */
+		this._patchMethod('appendScriptFilesToDocument', (urls: unknown) => {
+			_warnDeprecated('appendScriptFilesToDocument(urls)', 'create <script> elements directly');
+			const list = Array.isArray(urls) ? urls : [urls];
+			for (const url of list) {
+				const script = document.createElement('script');
+				script.src = String(url);
+				document.head.appendChild(script);
+			}
+		});
+
+		// ── i18n aliases ──────────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Use `player.t(key)`.
+		 */
+		this._patchMethod('localize', (key: unknown, vars?: unknown) => {
+			_warnDeprecated('localize(key)', 't(key)');
+			return player.t(String(key ?? ''), vars as Record<string, string> | undefined);
+		});
+
+		/**
+		 * @deprecated Use `player.translation(lang, key, value)`.
+		 */
+		this._patchMethod('addTranslation', (key: unknown, value: unknown) => {
+			_warnDeprecated('addTranslation(key, value)', 'translation(lang, key, value)');
+			const lang = player.language ? player.language() : 'en';
+			player.translation(lang, String(key ?? ''), String(value ?? ''));
+		});
+
+		/**
+		 * v1 `addTranslations([ {key, value}, ... ])` vs v2 `addTranslations({ [lang]: bundle })`.
+		 * Cannot use _patchMethod because v2 already has addTranslations on the prototype.
+		 * Force-override to detect array form (v1) vs object form (v2) and route accordingly.
+		 */
+		{
+			const v2AddTranslations = (player as unknown as Record<string, unknown>).addTranslations as ((...args: unknown[]) => unknown) | undefined;
+			const shimAddTranslations = (entriesOrBundle: unknown): unknown => {
+				if (Array.isArray(entriesOrBundle)) {
+					_warnDeprecated('addTranslations([{key,value}])', 'addTranslations({ [lang]: bundle })');
+					const list = entriesOrBundle as Array<{ key: string; value: string }>;
+					const lang = player.language ? (player.language() as string | Promise<void>) : 'en';
+					const resolvedLang = typeof lang === 'string' ? lang : 'en';
+					for (const entry of list) {
+						if (entry && typeof entry.key === 'string') {
+							player.translation(resolvedLang, entry.key, String(entry.value ?? ''));
+						}
+					}
+					return undefined;
+				}
+
+				return v2AddTranslations?.call(player, entriesOrBundle);
+			};
+			(player as unknown as Record<string, unknown>).addTranslations = shimAddTranslations;
+			this._patchedMethods.push('addTranslations');
+		}
+
+		/**
+		 * @deprecated Use `player.t('title')` or set title directly.
+		 */
+		this._patchMethod('setTitle', (title: unknown) => {
+			_warnDeprecated('setTitle(title)', 'set title via playlist item');
+			(player as unknown as Record<string, unknown>)._title = String(title ?? '');
+		});
+
+		// ── Message display ───────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Use `player.announce(text)`.
+		 */
+		this._patchMethod('displayMessage', (text: unknown, duration?: unknown) => {
+			_warnDeprecated('displayMessage(text, duration?)', 'announce(text)');
+			player.emit('display-message' as keyof typeof player.__eventMap__, text as never);
+			if (duration !== undefined && Number(duration) > 0) {
+				setTimeout(() => {
+					player.emit('remove-message' as keyof typeof player.__eventMap__, text as never);
+				}, Number(duration));
+			}
+		});
+
+		// ── PiP / floating ────────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Use `player.pip()` and check PiP availability.
+		 */
+		this._patchMethod('hasPIP', () => {
+			_warnDeprecated('hasPIP()', 'check document.pictureInPictureEnabled');
+			return typeof document !== 'undefined' && Boolean((document as unknown as Record<string, unknown>).pictureInPictureEnabled);
+		});
+
+		/**
+		 * @deprecated PiP management is handled via `player.pip(state)`.
+		 */
+		this._patchMethod('setFloatingPlayer', (_state: unknown) => {
+			_warnRemoved('setFloatingPlayer()', 'use player.pip(state) or player.theater(state)');
+		});
+
+		// ── Dimensions / resize ───────────────────────────────────────────────
+
+		/**
+		 * @deprecated Use `player.container.getBoundingClientRect().width`.
+		 */
+		this._patchMethod('width', () => {
+			_warnDeprecated('width()', 'container.getBoundingClientRect().width');
+			return player.container.getBoundingClientRect().width;
+		});
+
+		/**
+		 * @deprecated Use `player.container.getBoundingClientRect().height`.
+		 */
+		this._patchMethod('height', () => {
+			_warnDeprecated('height()', 'container.getBoundingClientRect().height');
+			return player.container.getBoundingClientRect().height;
+		});
+
+		/**
+		 * @deprecated Resize is handled by the container's CSS/layout.
+		 */
+		this._patchMethod('resize', () => {
+			_warnRemoved('resize()', 'let the browser layout engine handle container sizing');
+		});
+
+		// ── Fullscreen policy ─────────────────────────────────────────────────
+
+		/**
+		 * @deprecated v2 has no allowFullscreen flag — fullscreen is always possible
+		 * unless the platform controller reports it unsupported.
+		 */
+		this._patchMethod('setAllowFullscreen', (allow: unknown) => {
+			_warnDeprecated('setAllowFullscreen(allow)', 'platform fullscreen controller');
+			(player as unknown as Record<string, unknown>).allowFullscreen = Boolean(allow);
+		});
+
+		if (!('allowFullscreen' in target)) {
+			(player as unknown as Record<string, unknown>)._allowFullscreen = true;
+			Object.defineProperty(target, 'allowFullscreen', {
+				get: () => (player as unknown as Record<string, unknown>)._allowFullscreen ?? true,
+				set: (val: boolean) => {
+					(player as unknown as Record<string, unknown>)._allowFullscreen = val;
+				},
+				configurable: true,
+				enumerable: false,
+			});
+			this._patchedMethods.push('allowFullscreen');
+		}
+
+		// ── Aspect ratio options ──────────────────────────────────────────────
+
+		if (!('stretchOptions' in target)) {
+			Object.defineProperty(target, 'stretchOptions', {
+				get: () => ['uniform', 'fill', 'exactfit', 'none'],
+				configurable: true,
+				enumerable: false,
+			});
+			this._patchedMethods.push('stretchOptions');
+		}
+
+		// ── Subtitle shims ────────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Use `player.subtitle()?.index`.
+		 */
+		this._patchMethod('subtitleIndex', () => {
+			_warnDeprecated('subtitleIndex()', 'subtitle()?.index');
+			try {
+				const sel = player.subtitle() as { index?: number } | null;
+				return sel?.index ?? -1;
+			}
+			catch {
+				return -1;
+			}
+		});
+
+		/**
+		 * @deprecated Use `player.subtitles().findIndex(t => t.language === lang)`.
+		 */
+		this._patchMethod('subtitleIndexBy', (language: unknown) => {
+			_warnDeprecated('subtitleIndexBy(language)', 'subtitles().findIndex()');
+			try {
+				const list = player.subtitles() as Array<{ language?: string }>;
+				return list.findIndex(t => t.language === language);
+			}
+			catch {
+				return -1;
+			}
+		});
+
+		/**
+		 * @deprecated Use `player.subtitle()?.track?.url`.
+		 */
+		this._patchMethod('subtitleFile', () => {
+			_warnDeprecated('subtitleFile()', 'subtitle()?.track?.url');
+			try {
+				const sel = player.subtitle() as { track?: { file?: string; url?: string } } | null;
+				return sel?.track?.file ?? sel?.track?.url ?? undefined;
+			}
+			catch {
+				return undefined;
+			}
+		});
+
+		/**
+		 * @deprecated Use `player.subtitles().length > 0`.
+		 */
+		this._patchMethod('hasSubtitles', () => {
+			_warnDeprecated('hasSubtitles()', 'subtitles().length > 0');
+			try {
+				return player.subtitles().length > 0;
+			}
+			catch {
+				return false;
+			}
+		});
+
+		// ── Audio track shims ─────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Use `player.audioTrack()?.index`.
+		 */
+		this._patchMethod('audioTrackIndex', () => {
+			_warnDeprecated('audioTrackIndex()', 'audioTrack()?.index');
+			try {
+				const sel = player.audioTrack() as { index?: number } | null;
+				return sel?.index ?? -1;
+			}
+			catch {
+				return -1;
+			}
+		});
+
+		/**
+		 * @deprecated Use `player.audioTracks().findIndex(t => t.language === lang)`.
+		 */
+		this._patchMethod('audioTrackIndexByLanguage', (language: unknown) => {
+			_warnDeprecated('audioTrackIndexByLanguage(language)', 'audioTracks().findIndex()');
+			try {
+				const list = player.audioTracks() as Array<{ language?: string }>;
+				return list.findIndex(t => t.language === language);
+			}
+			catch {
+				return -1;
+			}
+		});
+
+		/**
+		 * @deprecated Use `player.audioTracks().length > 0`.
+		 */
+		this._patchMethod('hasAudioTracks', () => {
+			_warnDeprecated('hasAudioTracks()', 'audioTracks().length > 0');
+			try {
+				return player.audioTracks().length > 0;
+			}
+			catch {
+				return false;
+			}
+		});
+
+		// ── Quality shims ─────────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Use `player.qualityLevels().length > 0`.
+		 */
+		this._patchMethod('hasQualities', () => {
+			_warnDeprecated('hasQualities()', 'qualityLevels().length > 0');
+			try {
+				return player.qualityLevels().length > 0;
+			}
+			catch {
+				return false;
+			}
+		});
+
+		// ── Chapter shims ─────────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Chapter file URL is on item().chapters — read item() directly.
+		 */
+		this._patchMethod('chapterFile', () => {
+			_warnRemoved('chapterFile()', 'chapter URL is on item().chapters — read item() directly');
+			return undefined;
+		});
+
+		// ── Skipper shims ─────────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Skip-segment handling is application-level in v2.
+		 */
+		this._patchMethod('skippers', () => {
+			_warnRemoved('skippers()', 'skip-segment handling is application-level in v2');
+			return [];
+		});
+
+		/**
+		 * @deprecated Skip-segment handling is application-level in v2.
+		 */
+		this._patchMethod('skip', () => {
+			_warnRemoved('skip()', 'skip-segment handling is application-level in v2');
+			return undefined;
+		});
+
+		/**
+		 * @deprecated Skip file URL is on the queue item.
+		 */
+		this._patchMethod('skipFile', () => {
+			_warnRemoved('skipFile()', 'skip data is on item().skippers — read item() directly');
+			return undefined;
+		});
+
+		// ── Source / tracks ───────────────────────────────────────────────────
+
+		/**
+		 * @deprecated Use `player.item()?.url`.
+		 */
+		this._patchMethod('currentSrc', () => {
+			_warnDeprecated('currentSrc()', 'item()?.url');
+			return player.item()?.url ?? '';
+		});
+
+		/**
+		 * @deprecated Use `player.item()?.tracks` filtered by kind.
+		 */
+		this._patchMethod('tracks', (kind?: unknown) => {
+			_warnDeprecated('tracks(kind?)', 'item()?.tracks (filter by kind in consumer code)');
+			try {
+				const currentItem = player.item() as { tracks?: Array<{ kind?: string }> } | undefined;
+				const all = currentItem?.tracks ?? [];
+				if (kind === undefined || kind === null) {
+					return all;
+				}
+				return all.filter(t => t.kind === String(kind));
+			}
+			catch {
+				return [];
+			}
+		});
+
+		// ── Play state aliases ────────────────────────────────────────────────
+
+		if (!('isPlaying' in target)) {
+			Object.defineProperty(target, 'isPlaying', {
+				get: () => player.playState().toString() === 'playing',
+				configurable: true,
+				enumerable: false,
+			});
+			this._patchedMethods.push('isPlaying');
+		}
+
+		// ── Plugin access (string-key form) ───────────────────────────────────
+
+		/**
+		 * @deprecated Use `player.getPlugin(PluginClass)` instead.
+		 */
+		this._patchMethod('plugin', (name: unknown) => {
+			_warnDeprecated('plugin(name: string)', 'getPlugin(PluginClass)');
+			return player.getPluginById(String(name ?? ''));
+		});
 
 		// ── v1 1.2.7 renamed members — all 13 kit-level renames ─────────────
 

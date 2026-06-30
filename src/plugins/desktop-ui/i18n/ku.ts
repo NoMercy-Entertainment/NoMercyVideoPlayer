@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Resen',
 	'plugin.desktop-ui.menu.reset': 'Sifirkirin',
 	'plugin.desktop-ui.menu.season': 'Demsal {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Font',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Mezinahiya nivîsê',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Rengê nivîsê',

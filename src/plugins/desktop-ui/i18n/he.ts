@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'מקורי',
 	'plugin.desktop-ui.menu.reset': 'אפס',
 	'plugin.desktop-ui.menu.season': 'עונה {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'גופן',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'גודל טקסט',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'צבע טקסט',

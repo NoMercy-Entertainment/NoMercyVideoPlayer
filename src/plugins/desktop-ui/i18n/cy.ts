@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Brodorol',
 	'plugin.desktop-ui.menu.reset': 'Ailosod',
 	'plugin.desktop-ui.menu.season': 'Tymor {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Ffont',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Maint testun',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Lliw testun',

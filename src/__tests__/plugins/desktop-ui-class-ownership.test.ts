@@ -8,13 +8,14 @@
 
 /**
  * Regression: desktop-ui must NOT add 'nomercyplayer' to the container.
- * The kit's base-player / initPlayerCoreState owns that class — it is applied
- * before any plugin mounts. If the plugin adds it too, classList has the class
- * twice (DOMTokenList deduplicates, but the intent is wrong and the assertion
- * guards against re-adding the imperative call in future).
+ * The player self-applies the class during setup() (S00-R2) before any plugin
+ * mounts. If the plugin added it too, classList would carry the class twice
+ * (DOMTokenList deduplicates, but the intent is wrong and the assertion guards
+ * against re-adding the imperative call in future).
  *
- * Contract: after plugin.use() resolves, container.classList has 'nomercyplayer'
- * exactly once, and it was NOT put there by the desktop-ui plugin.
+ * Contract (new — S00-R2): setup() self-applies 'nomercyplayer'; consumers no
+ * longer need to add it manually. After plugin.use() resolves the container
+ * carries 'nomercyplayer' exactly once, put there by setup() NOT the plugin.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -32,7 +33,6 @@ describe('DesktopUiPlugin — nomercyplayer class ownership', () => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		const div = document.createElement('div');
 		div.id = 'test';
-		div.className = 'nomercyplayer';
 		document.body.appendChild(div);
 		vi.stubGlobal('ResizeObserver', MockResizeObserver);
 	});
@@ -41,6 +41,11 @@ describe('DesktopUiPlugin — nomercyplayer class ownership', () => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		document.body.innerHTML = '';
 		vi.unstubAllGlobals();
+	});
+
+	it('setup() self-applies nomercyplayer — container has it before any plugin mounts', () => {
+		const player = new NMVideoPlayer('test').setup({});
+		expect(player.container.classList.contains('nomercyplayer')).toBe(true);
 	});
 
 	it('container has nomercyplayer exactly once after plugin use()', async () => {
@@ -62,18 +67,16 @@ describe('DesktopUiPlugin — nomercyplayer class ownership', () => {
 		expect(player.container.contains(overlay)).toBe(true);
 	});
 
-	it('desktop-ui plugin itself does not add nomercyplayer (class is present pre-mount)', async () => {
+	it('desktop-ui plugin does not add nomercyplayer — only setup() owns it', async () => {
 		const player = new NMVideoPlayer('test').setup({});
 
-		// Remove the class before plugin mounts so we can detect if the plugin
-		// re-adds it independently.
+		// setup() applied the class; strip it to prove the plugin cannot re-add it.
 		player.container.classList.remove('nomercyplayer');
 		expect(player.container.classList.contains('nomercyplayer')).toBe(false);
 
 		await player.addPlugin(desktopUiPlugin).ready();
 
-		// If the plugin was the culprit it would have added it back; after the
-		// fix it must NOT have done so.
+		// Class must remain absent — the plugin must not touch it.
 		expect(player.container.classList.contains('nomercyplayer')).toBe(false);
 	});
 });
@@ -102,7 +105,6 @@ describe('DesktopUiPlugin — theater container class ownership (core-only)', ()
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		const div = document.createElement('div');
 		div.id = 'test';
-		div.className = 'nomercyplayer';
 		document.body.appendChild(div);
 		vi.stubGlobal('ResizeObserver', MockResizeObserver);
 	});
@@ -146,7 +148,7 @@ describe('DesktopUiPlugin — theater container class ownership (core-only)', ()
 
 	it('theaterDefault:true results in .theater on container after plugin mounts', async () => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
-		document.body.innerHTML = '<div id="test2" class="nomercyplayer"></div>';
+		document.body.innerHTML = '<div id="test2"></div>';
 		const player = new NMVideoPlayer('test2').setup({ theaterDefault: true } as never);
 		await player.addPlugin(desktopUiPlugin).ready();
 
@@ -168,7 +170,6 @@ describe('DesktopUiPlugin — theater button icon state', () => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		const div = document.createElement('div');
 		div.id = 'test';
-		div.className = 'nomercyplayer';
 		document.body.appendChild(div);
 		vi.stubGlobal('ResizeObserver', MockResizeObserver);
 	});

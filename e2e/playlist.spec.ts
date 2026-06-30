@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
 	await page.waitForFunction(
-		() => (window as any).__playerReady !== undefined,
+		() => (window as any).__playerReady === true,
 		{ timeout: 10_000 },
 	);
 	const error = await page.evaluate(() => (window as any).__playerError);
@@ -125,22 +125,15 @@ test.describe('Loading a playlist', () => {
 });
 
 test.describe('Track filtering', () => {
-	test('tracks() returns empty array when no item is active', async ({ page }) => {
+	test('tracks() returns empty array when queue is empty', async ({ page }) => {
+		// In v2 the cursor moves to item 0 as soon as the queue is populated,
+		// so tracks() reflects the current item immediately after load().
+		// Test the truly-empty case (no queue loaded) instead.
 		const result = await page.evaluate(() => {
 			const p = (window as any).player;
-			p.load([{
-				file: 'video.mp4',
-				title: 'Test',
-				tracks: [
-					{ kind: 'subtitles', file: 'subs.vtt', label: 'English', language: 'en' },
-					{ kind: 'chapters', file: 'ch.vtt' },
-					{ kind: 'thumbnails', file: 'thumb.vtt' },
-				],
-			}]);
-			// tracks() reads from playlistItem() which needs playVideo() to be set
+			// Queue starts empty (fixture calls setup with no playlist)
 			return p.tracks().length;
 		});
-		// Without playVideo(), playlistItem() returns the empty default
 		expect(result).toBe(0);
 	});
 
@@ -203,12 +196,16 @@ test.describe('Playlist events', () => {
 		expect(result.length).toBe(1);
 	});
 
-	test('emit custom playlist event works', async ({ page }) => {
+	test('on(\'playlist\') fires when queue is updated', async ({ page }) => {
+		// v1 'playlist' event → v2 'queue' event via the compat bridge.
+		// Trigger it by actually mutating the queue (not emit('playlist') directly —
+		// the interceptor bridges on(), not emit(), so a bare emit would not reach
+		// the bridged listener).
 		const result = await page.evaluate(() => {
 			const p = (window as any).player;
 			let received = false;
 			p.on('playlist', () => { received = true; });
-			p.emit('playlist');
+			p.load([{ file: 'a.mp4', title: 'A' }]);
 			return received;
 		});
 		expect(result).toBe(true);

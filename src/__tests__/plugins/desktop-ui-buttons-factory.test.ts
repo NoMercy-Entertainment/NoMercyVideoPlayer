@@ -28,7 +28,7 @@ import {
 	opacities,
 	subtitleSettingActions,
 	textSizes,
-} from '../../plugins/desktop-ui/buttons';
+} from '../../plugins/desktop-ui/data/buttons';
 
 function makePlayer(): Record<string, unknown> & { subtitleStyle: ReturnType<typeof vi.fn> } {
 	return {

@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
 	await page.goto('/e2e/fixture.html');
 	await page.waitForFunction(
-		() => (window as any).__playerReady !== undefined,
+		() => (window as any).__playerReady === true,
 		{ timeout: 10_000 },
 	);
 	const error = await page.evaluate(() => (window as any).__playerError);
@@ -258,17 +258,17 @@ test.describe('Factory function', () => {
 		expect(id.length).toBeGreaterThan(0);
 	});
 
-	test('player has container, videoElement, overlay', async ({ page }) => {
+	test('player has container and videoElement', async ({ page }) => {
 		const result = await page.evaluate(() => {
 			const p = (window as any).player;
 			return {
 				container: p.container instanceof HTMLElement,
 				videoElement: p.videoElement instanceof HTMLVideoElement,
-				overlay: p.overlay instanceof HTMLElement,
 			};
 		});
 		expect(result.container).toBe(true);
 		expect(result.videoElement).toBe(true);
-		expect(result.overlay).toBe(true);
+		// player.overlay was a v1 concept; in v2 the overlay surface is owned by
+		// the SubtitleOverlayPlugin, not the player. No overlay assertion here.
 	});
 });

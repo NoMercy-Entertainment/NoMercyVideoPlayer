@@ -6,19 +6,32 @@ Full documentation: https://docs.nomercy.tv/nomercy-video-player/
 
 # nomercy-video-player
 
-The headless HLS video engine behind NoMercy TV. It handles the hard parts of video, adaptive bitrate, HDR-aware quality, multi-format subtitles, chapters, skip markers, and Chromecast, then hands you plain events and methods. No UI is bundled: add the built-in `DesktopUiPlugin` for a full set of controls, or build your own.
+The headless HLS video engine behind NoMercy TV.
 
-It is built on [`@nomercy-entertainment/nomercy-player-core`](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core), which carries the generic engine (queue, auth, plugins, i18n, storage) shared with the music player.
+It handles the hard parts of video and hands you plain events and methods.
+
+You stay in control of the interface.
+
+- Adaptive bitrate streaming over HLS, with HDR-aware quality
+- Multi-format subtitles (VTT, ASS, SSA), chapters, and skip markers
+- Chromecast, a full keyboard and touch input layer, a typed event bus
+- A built-in `DesktopUiPlugin` for full controls, or bring your own UI
+
+**You stay in charge.**
+
+No UI is bundled. Nothing is forced on you.
+
+The controls, the input handling, every feature beyond playback is a plugin you opt into with `addPlugin`.
+
+You can also swap any built-in behavior. Pass your own storage, URL resolver, logger, or retry policy to `setup()`. No subclassing.
+
+Built on [`nomercy-player-core`](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core), the shared engine for the queue, auth, plugins, i18n, and storage.
 
 ```
 npm install @nomercy-entertainment/nomercy-video-player
 ```
 
-If you use HLS streams (`.m3u8`), also install the optional peer dependency:
-
-```
-npm install hls.js
-```
+HLS support is built in. `hls.js` ships with the player core, so `.m3u8` streams work out of the box with nothing extra to install.
 
 > **Upgrading from v1?** See [MIGRATION.md](./MIGRATION.md) for the full breaking-change list, including renamed methods, changed event payloads, and the `item.file` to `item.url` rename that breaks silently if missed.
 
@@ -51,12 +64,12 @@ That mounts a working player with the full built-in UI. Drop `DesktopUiPlugin` t
 
 ## Documentation
 
-The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full reference and the home for everything that used to live in the wiki:
+The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full reference:
 
 - [Quick Start](https://docs.nomercy.tv/nomercy-video-player/quickstart), install, and first player
 - [Configuration](https://docs.nomercy.tv/nomercy-video-player/configuration), every option and default
 - [API Methods](https://docs.nomercy.tv/nomercy-video-player/api-methods) and [Events](https://docs.nomercy.tv/nomercy-video-player/events)
-- The step-by-step tutorial for building your own player UI, framework guides for Vue, React, Svelte, Angular, and vanilla JS, and the full plugin reference
+- The step-by-step tutorial for building your own player UI, framework guides for Vue, React, Svelte, Angular, and vanilla JS, and writing your own plugins
 
 ## License
 

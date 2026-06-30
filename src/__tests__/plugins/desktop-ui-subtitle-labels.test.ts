@@ -16,7 +16,7 @@
 
 import type { SubtitleTrackRef } from '../../types';
 import { describe, expect, it } from 'vitest';
-import { languageDisplayName, subtitleTrackLabel } from '../../plugins/desktop-ui/language-names';
+import { languageDisplayName, subtitleTrackLabel } from '../../plugins/desktop-ui/data/language-names';
 
 function t(key: string): string {
 	return ({

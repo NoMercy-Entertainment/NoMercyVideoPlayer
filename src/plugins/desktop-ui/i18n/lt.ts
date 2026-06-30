@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Savasis',
 	'plugin.desktop-ui.menu.reset': 'Atstatyti',
 	'plugin.desktop-ui.menu.season': '{number} sezonas',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Šriftas',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Teksto dydis',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Teksto spalva',

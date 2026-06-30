@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'ნატიური',
 	'plugin.desktop-ui.menu.reset': 'გადაყენება',
 	'plugin.desktop-ui.menu.season': 'სეზონი {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'შრიფტი',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'ტექსტის ზომა',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'ტექსტის ფერი',

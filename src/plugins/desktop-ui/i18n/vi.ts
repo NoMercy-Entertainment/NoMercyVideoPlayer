@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'Gốc',
 	'plugin.desktop-ui.menu.reset': 'Đặt lại',
 	'plugin.desktop-ui.menu.season': 'Mùa {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'Phông chữ',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Cỡ chữ',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Màu chữ',

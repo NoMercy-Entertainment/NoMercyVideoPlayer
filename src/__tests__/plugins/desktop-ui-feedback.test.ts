@@ -293,6 +293,100 @@ describe('DesktopUiPlugin — event-driven icon state', () => {
 	});
 });
 
+describe('DesktopUiPlugin — applyStateVisibility (theater/pip/fullscreen)', () => {
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		const div = document.createElement('div');
+		div.id = 'test';
+		div.className = 'nomercyplayer';
+		document.body.appendChild(div);
+		vi.stubGlobal('ResizeObserver', MockResizeObserver);
+	});
+
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+		vi.unstubAllGlobals();
+		// Remove document property stubs if any were set.
+		try {
+			Object.defineProperty(document, 'fullscreenElement', { value: null, configurable: true });
+		}
+		catch {}
+		try {
+			Object.defineProperty(document, 'pictureInPictureElement', { value: null, configurable: true });
+		}
+		catch {}
+	});
+
+	async function makeTheaterPlayer(): Promise<NMVideoPlayer> {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { theater: true },
+		}).ready();
+		return player;
+	}
+
+	it('theaterBtn.hidden is false when fsActive=false and pipActive=false', async () => {
+		const player = await makeTheaterPlayer();
+		const container = player.container;
+
+		Object.defineProperty(document, 'fullscreenElement', { value: null, configurable: true });
+		Object.defineProperty(document, 'pictureInPictureElement', { value: null, configurable: true });
+		player.emit('fullscreen' as never, {} as never);
+
+		const theaterBtn = container.querySelector<HTMLButtonElement>('[id="theater"]');
+		expect(theaterBtn).not.toBeNull();
+		expect(theaterBtn!.hidden).toBe(false);
+	});
+
+	it('theaterBtn.hidden is true when fullscreen is active', async () => {
+		const player = await makeTheaterPlayer();
+		const container = player.container;
+
+		// Simulate fullscreen active
+		Object.defineProperty(document, 'fullscreenElement', { value: document.body, configurable: true });
+		Object.defineProperty(document, 'pictureInPictureElement', { value: null, configurable: true });
+		player.emit('fullscreen' as never, {} as never);
+
+		const theaterBtn = container.querySelector<HTMLButtonElement>('[id="theater"]');
+		expect(theaterBtn).not.toBeNull();
+		expect(theaterBtn!.hidden).toBe(true);
+	});
+
+	it('theaterBtn.hidden is true when pip is active', async () => {
+		const player = await makeTheaterPlayer();
+		const container = player.container;
+
+		Object.defineProperty(document, 'fullscreenElement', { value: null, configurable: true });
+		// Simulate PiP active
+		Object.defineProperty(document, 'pictureInPictureElement', { value: document.createElement('video'), configurable: true });
+		player.emit('pip' as never, {} as never);
+
+		const theaterBtn = container.querySelector<HTMLButtonElement>('[id="theater"]');
+		expect(theaterBtn).not.toBeNull();
+		expect(theaterBtn!.hidden).toBe(true);
+	});
+
+	it('theaterBtn.hidden returns false after both pip and fullscreen deactivate', async () => {
+		const player = await makeTheaterPlayer();
+		const container = player.container;
+
+		// First go pip-active
+		Object.defineProperty(document, 'fullscreenElement', { value: null, configurable: true });
+		Object.defineProperty(document, 'pictureInPictureElement', { value: document.createElement('video'), configurable: true });
+		player.emit('pip' as never, {} as never);
+
+		const theaterBtn = container.querySelector<HTMLButtonElement>('[id="theater"]');
+		expect(theaterBtn!.hidden).toBe(true);
+
+		// Now deactivate pip
+		Object.defineProperty(document, 'pictureInPictureElement', { value: null, configurable: true });
+		player.emit('pip' as never, {} as never);
+
+		expect(theaterBtn!.hidden).toBe(false);
+	});
+});
+
 describe('DesktopUiPlugin — remaining-time toggle', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();

@@ -109,6 +109,8 @@ export default {
 	'plugin.desktop-ui.menu.native': 'ດັ້ງເດີມ',
 	'plugin.desktop-ui.menu.reset': 'ຕັ້ງຄ່າໃໝ່',
 	'plugin.desktop-ui.menu.season': 'ພາກ {number}',
+	'plugin.desktop-ui.token.season': 'S{number}',
+	'plugin.desktop-ui.token.episode': 'E{number}',
 	'plugin.desktop-ui.menu.subtitle.font': 'ຕົວອັກສອນ',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'ຂະໜາດໜັງສື',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'ສີໜັງສື',
