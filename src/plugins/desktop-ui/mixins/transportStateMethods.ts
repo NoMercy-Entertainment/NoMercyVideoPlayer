@@ -21,7 +21,7 @@ import type { VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-pla
 import type { DesktopUiInternals } from '../internals';
 
 import { fluentIcons, svgFromIcon } from '../data/icons';
-import { fmt } from '../helpers/progressBar';
+import { formatSeconds } from '../helpers/progressBar';
 import { applyAllVisibilityRules } from '../helpers/responsive';
 import { updateTitleBar } from '../helpers/topBar';
 
@@ -77,7 +77,7 @@ export const transportStateMethods = {
 		}
 		catch { /* SourceBuffer detach */ }
 
-		this.currentTimeEl.textContent = fmt(t);
+		this.currentTimeEl.textContent = formatSeconds(t);
 		this.remainingTimeEl.textContent = this._formatRemaining(t, dur);
 		this.refreshTransportEnablement();
 	},
@@ -85,17 +85,17 @@ export const transportStateMethods = {
 	applyDuration(this: DesktopUiInternals, dur: number): void {
 		this.cachedDuration = dur;
 		const cur = this.player.time?.() ?? 0;
-		this.currentTimeEl.textContent = fmt(cur);
+		this.currentTimeEl.textContent = formatSeconds(cur);
 		this.remainingTimeEl.textContent = this._formatRemaining(cur, dur);
 		this.renderChapterMarkers();
 	},
 
 	_formatRemaining(this: DesktopUiInternals, cur: number, dur: number): string {
 		if (dur <= 0)
-			return fmt(0);
+			return formatSeconds(0);
 		if (this._showRemaining)
-			return `-${fmt(Math.max(0, dur - cur))}`;
-		return fmt(dur);
+			return `-${formatSeconds(Math.max(0, dur - cur))}`;
+		return formatSeconds(dur);
 	},
 
 	/**

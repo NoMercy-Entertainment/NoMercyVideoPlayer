@@ -19,7 +19,7 @@
 
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
-export { fmt } from '../data/utils';
+export { formatSeconds } from '../data/utils';
 
 // ── Slider bar DOM ─────────────────────────────────────────────────────────────
 

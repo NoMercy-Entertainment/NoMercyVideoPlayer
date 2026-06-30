@@ -28,7 +28,7 @@ import { setActivity } from '../helpers/activity';
 import { buildBottomBar, buildCenter, buildShortcutsOverlay } from '../helpers/dom';
 import { makeMenuControlState } from '../helpers/menuControl';
 import { buildMenuFrame } from '../helpers/menus';
-import { fmt } from '../helpers/progressBar';
+import { formatSeconds } from '../helpers/progressBar';
 import { wireVolumeSlider } from '../helpers/responsive';
 import { wireTooltips } from '../helpers/tooltips';
 import { buildTitleBar } from '../helpers/topBar';
@@ -222,7 +222,7 @@ export const domMethods = {
 
 		const onMove = (e: Event): void => {
 			const scrub = this.getScrubTime(e);
-			this.sliderRefs.sliderPopText.textContent = fmt(scrub.scrubTimePlayer);
+			this.sliderRefs.sliderPopText.textContent = formatSeconds(scrub.scrubTimePlayer);
 			this.paintSpriteAt(scrub.scrubTimePlayer);
 
 			const popOffsetPct = this.clampPopOffset(scrub.scrubTime);
@@ -248,7 +248,7 @@ export const domMethods = {
 
 		this.listen(this.sliderRefs.sliderBar, 'mouseover', (e: Event) => {
 			const scrub = this.getScrubTime(e);
-			this.sliderRefs.sliderPopText.textContent = fmt(scrub.scrubTimePlayer);
+			this.sliderRefs.sliderPopText.textContent = formatSeconds(scrub.scrubTimePlayer);
 			this.paintSpriteAt(scrub.scrubTimePlayer);
 			this.sliderRefs.chapterText.textContent = this.findChapterTitle(scrub.scrubTimePlayer) ?? '';
 			this.sliderRefs.sliderPop.style.setProperty('--visibility', '1');

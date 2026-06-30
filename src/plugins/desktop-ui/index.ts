@@ -32,7 +32,7 @@
  *                            wireVolumeSlider / applyAllVisibilityRules.
  *   tooltips.ts            — addTooltip / clampTooltip / wireTooltips.
  *   topBar.ts              — Top-bar DOM + title/show-info update + back-button.
- *   progressBar.ts         — Slider-bar DOM, chapter-marker rendering, fmt.
+ *   progressBar.ts         — Slider-bar DOM, chapter-marker rendering, formatSeconds.
  *   buttonState.ts         — apply* pure DOM-mutation free functions.
  *   menus.ts               — Menu-frame DOM + all sub-pane renderers.
  *   menuControl.ts         — Menu open/close orchestration, keyboard nav, repaints.

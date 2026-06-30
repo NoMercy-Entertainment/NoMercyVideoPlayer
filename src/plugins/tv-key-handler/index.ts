@@ -44,7 +44,7 @@ import type { VideoPlaylistItem } from '../../types';
 
 import { translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import { MessagePlugin } from '@nomercy-entertainment/nomercy-player-core/plugins/message';
-import { fmt } from '../desktop-ui/helpers/progressBar';
+import { formatSeconds } from '../desktop-ui/helpers/progressBar';
 import { KeyHandlerPlugin } from '../key-handler';
 
 export interface TvKeyHandlerOptions {
@@ -184,7 +184,7 @@ export class TvKeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem>
 			parts.push(title);
 		if (chapterLabel)
 			parts.push(chapterLabel);
-		parts.push(`${fmt(currentTime)} / -${fmt(remaining)}`);
+		parts.push(`${formatSeconds(currentTime)} / -${formatSeconds(remaining)}`);
 
 		this.osdMessage(parts.join('  ·  '), displayMs);
 	}

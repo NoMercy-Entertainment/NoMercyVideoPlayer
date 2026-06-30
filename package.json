@@ -146,7 +146,7 @@
 		"prepublishOnly": "npm run build"
 	},
 	"dependencies": {
-		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.18",
+		"@nomercy-entertainment/nomercy-player-core": "file:nomercy-entertainment-nomercy-player-core-2.0.0-rc.18.tgz",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
 		"@types/webvtt-parser": "^2.2.0",
 		"webvtt-parser": "^2.2.0"

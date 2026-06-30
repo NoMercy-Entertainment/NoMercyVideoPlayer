@@ -22,7 +22,7 @@
  *   - updateChapterBuffer: same three branches as progress
  *   - updateChapterHover: same three branches
  *   - buildSliderBar: verifies DOM tree elements are created with correct roles
- *   - fmt: edge cases (negative, Infinity, hours)
+ *   - formatSeconds: edge cases (negative, Infinity, hours)
  */
 
 import type { ChapterLite } from '../../plugins/desktop-ui/helpers/progressBar';
@@ -33,41 +33,41 @@ import { NMVideoPlayer } from '../../index';
 import {
 	buildChapterMarkers,
 	buildSliderBar,
-	fmt,
+	formatSeconds,
 	updateChapterBuffer,
 	updateChapterHover,
 	updateChapterProgress,
 } from '../../plugins/desktop-ui/helpers/progressBar';
 
-// ── fmt ────────────────────────────────────────────────────────────────────────
+// ── formatSeconds ──────────────────────────────────────────────────────────────
 
-describe('fmt', () => {
+describe('formatSeconds', () => {
 	it('formats zero as 0:00', () => {
-		expect(fmt(0)).toBe('0:00');
+		expect(formatSeconds(0)).toBe('0:00');
 	});
 
 	it('formats 90 seconds as 1:30', () => {
-		expect(fmt(90)).toBe('1:30');
+		expect(formatSeconds(90)).toBe('1:30');
 	});
 
 	it('formats 3661 seconds as 1:01:01', () => {
-		expect(fmt(3661)).toBe('1:01:01');
+		expect(formatSeconds(3661)).toBe('1:01:01');
 	});
 
 	it('returns 0:00 for negative values', () => {
-		expect(fmt(-1)).toBe('0:00');
+		expect(formatSeconds(-1)).toBe('0:00');
 	});
 
 	it('returns 0:00 for Infinity', () => {
-		expect(fmt(Infinity)).toBe('0:00');
+		expect(formatSeconds(Infinity)).toBe('0:00');
 	});
 
 	it('returns 0:00 for NaN', () => {
-		expect(fmt(Number.NaN)).toBe('0:00');
+		expect(formatSeconds(Number.NaN)).toBe('0:00');
 	});
 
 	it('pads single-digit seconds', () => {
-		expect(fmt(65)).toBe('1:05');
+		expect(formatSeconds(65)).toBe('1:05');
 	});
 });
 
