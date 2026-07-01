@@ -160,6 +160,12 @@ export class Html5VideoBackend
 	/** Timer handle for exponential back-off retries. Cleared on unload/dispose. */
 	private _retryTimer: ReturnType<typeof setTimeout> | undefined;
 
+	// ── Web Audio graph ──────────────────────────────────────────────────────
+	private _sourceNode?: MediaElementAudioSourceNode;
+	private _sourceCtx?: AudioContext;
+	private _analyserNode?: AnalyserNode;
+	private _outputGain?: GainNode;
+
 	// ── HDR-aware ABR state ──
 	/**
 	 * Dynamic-range constraint strategy for HLS.js ABR.
@@ -388,11 +394,25 @@ export class Html5VideoBackend
 			this._retryTimer = undefined;
 		}
 		this._teardownHdrMatchMedia();
+		this._teardownAudioGraph();
 		this.unload();
 		this.detachDomBridges(this.element);
 		if (this.ownsElement && this.element.parentNode) {
 			this.element.parentNode.removeChild(this.element);
 		}
+	}
+
+	private _teardownAudioGraph(): void {
+		try { this._sourceNode?.disconnect(); }
+		catch { /* defensive */ }
+		try { this._analyserNode?.disconnect(); }
+		catch { /* defensive */ }
+		try { this._outputGain?.disconnect(); }
+		catch { /* defensive */ }
+		this._sourceNode = undefined;
+		this._analyserNode = undefined;
+		this._outputGain = undefined;
+		this._sourceCtx = undefined;
 	}
 
 	// ── Transport, time, volume — inherited from MediaElementBackend ──
@@ -750,6 +770,69 @@ export class Html5VideoBackend
 		// 'unrestricted' so plugins can probe without throwing; the DRM
 		// plugin overrides this once a key system is wired.
 		return 'unrestricted';
+	}
+
+	// ── Web Audio graph tap ───────────────────────────────────────────────────
+
+	/**
+	 * Returns the tail of the backend's Web Audio graph (a `GainNode` whose
+	 * output flows to `ctx.destination` by default). Mirrors
+	 * `AudioElementBackend.outputNode` exactly. The graph is built lazily on
+	 * first call so backends that are never tapped pay zero Web Audio cost and
+	 * the autoplay policy is never triggered ahead of user interaction.
+	 *
+	 * `AudioGraphPlugin` disconnects the baseline `outputGain → destination`
+	 * routing and rewires through its effect chain on `use()`.
+	 */
+	outputNode(ctx: AudioContext): AudioNode {
+		this._ensureAudioGraph(ctx);
+		return this._outputGain!;
+	}
+
+	/**
+	 * Returns the raw `MediaElementAudioSourceNode` — the pre-volume source —
+	 * so that `AudioGraphPlugin` can tap the `AnalyserNode` upstream of the
+	 * volume fader and produce volume-independent spectrum/FFT magnitudes.
+	 */
+	analysisNode(ctx: AudioContext): AudioNode {
+		this._ensureAudioGraph(ctx);
+		return this._sourceNode!;
+	}
+
+	/**
+	 * Build the minimal Web Audio signal chain lazily:
+	 * `MediaElementAudioSourceNode → AnalyserNode → GainNode → destination`.
+	 *
+	 * Idempotent for the same `ctx`. If called with a different context the old
+	 * graph is disconnected and rebuilt (the consumer swapped AudioContext).
+	 * The graph mirrors `AudioElementBackend.ensureSourceGraph` so `AudioGraphPlugin`
+	 * can treat both backends identically.
+	 */
+	private _ensureAudioGraph(ctx: AudioContext): void {
+		if (this._sourceNode && this._sourceCtx === ctx)
+			return;
+
+		if (this._sourceNode && this._sourceCtx !== ctx) {
+			try { this._sourceNode.disconnect(); }
+			catch { /* defensive */ }
+			try { this._analyserNode?.disconnect(); }
+			catch { /* defensive */ }
+			try { this._outputGain?.disconnect(); }
+			catch { /* defensive */ }
+		}
+
+		this._sourceCtx = ctx;
+		this._sourceNode = ctx.createMediaElementSource(this.element);
+		this._analyserNode = ctx.createAnalyser();
+		this._outputGain = ctx.createGain();
+
+		this._sourceNode.connect(this._analyserNode);
+		this._analyserNode.connect(this._outputGain);
+
+		// Baseline routing: outputGain → destination so audio is audible without
+		// any plugin. AudioGraphPlugin disconnects this and re-routes through its
+		// effect chain when it takes ownership via outputNode(ctx).
+		this._outputGain.connect(ctx.destination);
 	}
 
 	// ── Events ──

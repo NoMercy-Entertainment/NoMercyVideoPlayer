@@ -205,6 +205,34 @@ export interface IVideoBackend {
 	setSinkId(deviceId: string): Promise<void>;
 	getSinkId(): string;
 
+	// Web Audio graph tap — mirrors IAudioBackend's outputNode / analysisNode.
+	// Optional: only implemented when the consumer wants visualizer access.
+	// The implementation is lazy (AudioContext created on first call), so
+	// backends that are never tapped pay zero Web Audio cost.
+
+	/**
+	 * Returns the tail of the backend's Web Audio graph — a GainNode whose
+	 * output flows to `ctx.destination` by default. `AudioGraphPlugin` disconnects
+	 * this baseline routing and rewires it through its effect chain on `use()`.
+	 *
+	 * The returned node is in the same `AudioContext` as `analysisNode`.
+	 * Create the graph lazily: first call builds it; subsequent calls with the
+	 * same `ctx` return the cached node.
+	 */
+	outputNode?(ctx: AudioContext): AudioNode;
+
+	/**
+	 * Returns the raw audio source node BEFORE the volume GainNode.
+	 *
+	 * `AudioGraphPlugin` taps the `AnalyserNode` upstream of the volume control
+	 * so that spectrum/FFT magnitudes are volume-independent. Optional — backends
+	 * that do not maintain an explicit pre-volume source node omit this;
+	 * `AudioGraphPlugin` falls back to `outputNode` when it is absent.
+	 *
+	 * The returned node must be in the same `AudioContext` as `outputNode`.
+	 */
+	analysisNode?(ctx: AudioContext): AudioNode;
+
 	// EME / DRM
 	mediaKeys(): MediaKeys | undefined;
 	setMediaKeys(keys: MediaKeys): Promise<void>;
