@@ -127,6 +127,7 @@ export {
 	ShuffleState,
 	SubtitleState,
 	TheaterState,
+	VolumeState,
 } from './types';
 
 // ── v1 re-exports — widened types ─────────────────────────────────────────────
@@ -134,10 +135,6 @@ export {
 // v1-types.ts (which extends the kit base types with v1-era optional fields).
 // This lets consumer code that accesses .id / .left / .width / .ext compile
 // without changes during the migration window.
-
-// VolumeState is the v2 enum (UNMUTED | MUTED), matching nomercy-music-player.
-// V1VolumeState is the legacy { volume, muted } object shape for v1-compat paths.
-export { VolumeState } from './types';
 
 // Plugin class — v1 consumers extend this. New code uses Plugin from core.
 export { Plugin } from './v1-plugin-base';

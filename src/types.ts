@@ -21,8 +21,10 @@ import type {
 	Chapter as KitChapter,
 	SubtitleTrack as KitSubtitleTrack,
 	LoadOptions,
+	PlayState,
 	QualityLevel,
 	SubtitleStyle,
+	VolumeState,
 } from '@nomercy-entertainment/nomercy-player-core';
 import type { IVideoBackend, VideoBackendKind } from './adapters/video-backend/IVideoBackend';
 
@@ -123,22 +125,6 @@ export interface VideoPlaylistItem extends BasePlaylistItem {
 	year?: number;
 }
 
-/** Top-level playback state. Returned by `player.playState()`. */
-export enum PlayState {
-	IDLE = 'idle',
-	LOADING = 'loading',
-	PLAYING = 'playing',
-	PAUSED = 'paused',
-	STOPPED = 'stopped',
-	ERROR = 'error',
-}
-
-/** Volume gain stage. Returned by `player.volumeState()`. */
-export enum VolumeState {
-	UNMUTED = 'unmuted',
-	MUTED = 'muted',
-}
-
 /** Returned by `player.fullscreen()`. */
 export enum FullscreenState {
 	OFF = 'off',
@@ -164,7 +150,7 @@ export enum SubtitleState {
 }
 
 /** Re-exported from kit — canonical definition lives in nomercy-player-core. */
-export { AudioTrackState, QualityState, RepeatState, ShuffleState } from '@nomercy-entertainment/nomercy-player-core';
+export { AudioTrackState, PlayState, QualityState, RepeatState, ShuffleState, VolumeState } from '@nomercy-entertainment/nomercy-player-core';
 
 /**
  * The displayed video content rectangle relative to the player container.
