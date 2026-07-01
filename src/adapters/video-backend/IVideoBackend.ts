@@ -143,7 +143,7 @@ export interface IVideoBackend {
 
 	// Time / position
 	currentTime(): number;
-	currentTime(t: number): void;
+	currentTime(seconds: number): void;
 	duration(): number;
 	buffered(): number;
 	bufferedRanges(): TimeRanges;
@@ -153,7 +153,7 @@ export interface IVideoBackend {
 
 	// Volume
 	volume(): number;
-	volume(v: number): void;
+	volume(level: number): void;
 	mute(): void;
 	unmute(): void;
 
