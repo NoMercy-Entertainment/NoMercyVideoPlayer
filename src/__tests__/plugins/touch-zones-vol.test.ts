@@ -50,7 +50,7 @@ describe('TouchZonesPlugin — mobile volume zones', () => {
 
 	it('double-tap on vol-up zone calls player.volumeUp()', async () => {
 		const player = new NMVideoPlayer('test').setup({});
-		player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+		player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 		await player.ready();
 
 		const volUpSpy = vi.fn();
@@ -73,7 +73,7 @@ describe('TouchZonesPlugin — mobile volume zones', () => {
 
 	it('double-tap on vol-down zone calls player.volumeDown()', async () => {
 		const player = new NMVideoPlayer('test').setup({});
-		player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+		player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 		await player.ready();
 
 		const volDownSpy = vi.fn();

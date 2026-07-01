@@ -7,7 +7,7 @@
 // -----------------------------------------------------------------------------
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { nmVideoPlayer, NMVideoPlayer } from '../../index';
+import { nmplayer, NMVideoPlayer } from '../../index';
 import {
 	DesktopUiPlugin,
 	KeyHandlerPlugin,
@@ -31,7 +31,7 @@ describe('next() with the app plugin set', () => {
 	});
 
 	it('button-path next() loads and plays the following item', async () => {
-		const player = nmVideoPlayer('np-test').setup({
+		const player = nmplayer('np-test').setup({
 			controls: false,
 			autoPlay: false,
 			playlist: [

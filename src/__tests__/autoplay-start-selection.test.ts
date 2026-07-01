@@ -18,7 +18,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nmVideoPlayer } from '../index';
+import { nmplayer } from '../index';
 
 vi.mock('hls.js', () => ({
 	default: class {
@@ -47,9 +47,9 @@ const PLAYLIST = [
 	{ id: 303, url: 'https://server.test/e3.m3u8' },
 ];
 
-function setupPlayer(containerId: string): ReturnType<typeof nmVideoPlayer> & { load: ReturnType<typeof vi.fn> } {
+function setupPlayer(containerId: string): ReturnType<typeof nmplayer> & { load: ReturnType<typeof vi.fn> } {
 	makeContainer(containerId);
-	const player = nmVideoPlayer(containerId).setup({
+	const player = nmplayer(containerId).setup({
 		controls: false,
 		autoPlay: true,
 		playlist: PLAYLIST,
@@ -61,7 +61,7 @@ function setupPlayer(containerId: string): ReturnType<typeof nmVideoPlayer> & { 
 	const loadSpy = vi.fn(async () => {});
 	(player as unknown as { load: typeof loadSpy }).load = loadSpy;
 	(player as unknown as { play: () => Promise<void> }).play = async () => {};
-	return player as ReturnType<typeof nmVideoPlayer> & { load: ReturnType<typeof vi.fn> };
+	return player as ReturnType<typeof nmplayer> & { load: ReturnType<typeof vi.fn> };
 }
 
 describe('autoPlay start selection', () => {

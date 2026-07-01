@@ -51,10 +51,6 @@
 			"types": "./dist/plugins/index.d.ts",
 			"import": "./dist/plugins/index.js"
 		},
-		"./plugins/v1-compat": {
-			"types": "./dist/plugins/v1-compat/index.d.ts",
-			"import": "./dist/plugins/v1-compat/index.js"
-		},
 		"./plugins/cast-sender": {
 			"types": "./dist/plugins/cast-sender/index.d.ts",
 			"import": "./dist/plugins/cast-sender/index.js"
@@ -98,18 +94,6 @@
 		"./streams/hls": {
 			"types": "./dist/streams/hls.d.ts",
 			"import": "./dist/streams/hls.js"
-		},
-		"./compat": {
-			"types": "./dist/compat.d.ts",
-			"import": "./dist/compat.js"
-		},
-		"./player/utils": {
-			"types": "./dist/player/utils.d.ts",
-			"import": "./dist/player/utils.js"
-		},
-		"./src/player/utils": {
-			"types": "./dist/player/utils.d.ts",
-			"import": "./dist/player/utils.js"
 		},
 		"./package.json": "./package.json"
 	},

@@ -55,7 +55,7 @@ describe('TouchZonesPlugin', () => {
 		it('on desktop calls togglePlayback even when controls are hidden (mouse single-click is unconditional)', async () => {
 			// JSDOM has no ontouchstart and maxTouchPoints=0, so detectMobile() returns false (= desktop).
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
 
 			const toggleSpy = vi.fn().mockResolvedValue(undefined);
@@ -80,7 +80,7 @@ describe('TouchZonesPlugin', () => {
 
 			try {
 				const player = setup();
-				player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+				player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 				await player.ready();
 
 				const toggleSpy = vi.fn().mockResolvedValue(undefined);
@@ -104,7 +104,7 @@ describe('TouchZonesPlugin', () => {
 
 		it('disableClickToPause:true suppresses single-tap togglePlayback', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, disableClickToPause: true });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300, disableClickToPause: true });
 			await player.ready();
 
 			const toggleSpy = vi.fn().mockResolvedValue(undefined);
@@ -122,7 +122,7 @@ describe('TouchZonesPlugin', () => {
 
 		it('disableClickToPause:true does NOT suppress double-tap toggleFullscreen', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, disableClickToPause: true });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300, disableClickToPause: true });
 			await player.ready();
 
 			const toggleSpy = vi.fn().mockResolvedValue(undefined);
@@ -145,14 +145,14 @@ describe('TouchZonesPlugin', () => {
 
 		it('calls togglePlayback when controlsVisible is true (controls visible)', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
 
 			const toggleSpy = vi.fn().mockResolvedValue(undefined);
 			(player as any).togglePlayback = toggleSpy;
 
 			// Make controls visible via the activity event. The plugin debounces
-			// its controlsVisible flag by doubleClickDelay+10ms, so wait past
+			// its controlsVisible flag by doubleTapThreshold+10ms, so wait past
 			// that before clicking — otherwise onSingle reads the pre-tap value.
 			player.emit('activity' as any, { active: true });
 			await new Promise(resolve => setTimeout(resolve, 320));
@@ -169,7 +169,7 @@ describe('TouchZonesPlugin', () => {
 
 		it('does NOT call togglePlayback on double-tap (toggles fullscreen instead)', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
 
 			const toggleSpy = vi.fn().mockResolvedValue(undefined);
@@ -199,7 +199,7 @@ describe('TouchZonesPlugin', () => {
 	describe('seek zone single-tap', () => {
 		it('does NOT emit activity when controls are hidden (left zone) — container touchstart handles wake', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
 
 			const emitSpy = vi.spyOn(player, 'emit');
@@ -220,11 +220,11 @@ describe('TouchZonesPlugin', () => {
 
 		it('emits activity { active: false } when controls are visible (left zone)', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
 
 			// Make controls visible. Wait past the controlsVisible debounce
-			// (doubleClickDelay+10ms) before tapping so onSingle reads true.
+			// (doubleTapThreshold+10ms) before tapping so onSingle reads true.
 			player.emit('activity' as any, { active: true });
 			await new Promise(resolve => setTimeout(resolve, 320));
 
@@ -246,7 +246,7 @@ describe('TouchZonesPlugin', () => {
 
 		it('does NOT emit activity when controls are hidden (right zone) — container touchstart handles wake', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
 
 			const emitSpy = vi.spyOn(player, 'emit');
@@ -270,7 +270,7 @@ describe('TouchZonesPlugin', () => {
 	describe('seek zone double-tap', () => {
 		it('calls rewind on double-tap of left zone', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
 
 			const rewindSpy = vi.fn().mockResolvedValue(undefined);
@@ -290,7 +290,7 @@ describe('TouchZonesPlugin', () => {
 
 		it('calls forward on double-tap of right zone', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
 
 			const forwardSpy = vi.fn().mockResolvedValue(undefined);
@@ -367,29 +367,6 @@ describe('TouchZonesPlugin', () => {
 			expect(activityCalls).toHaveLength(1);
 			expect((activityCalls[0]![1] as { active: boolean }).active).toBe(false);
 		});
-
-		it('doubleClickDelay takes precedence over doubleTapThreshold when both are set', async () => {
-			const player = setup();
-			// doubleClickDelay = 200, doubleTapThreshold = 100.
-			// Taps 150ms apart: outside doubleTapThreshold but inside doubleClickDelay.
-			// doubleClickDelay wins → taps count as double-tap → seek fires.
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 200, doubleTapThreshold: 100 });
-			await player.ready();
-
-			const rewindSpy = vi.fn().mockResolvedValue(undefined);
-			(player as any).rewind = rewindSpy;
-
-			const container = document.getElementById('test')!;
-			const leftBox = findZoneBox(container, '1', '2');
-			expect(leftBox).toBeDefined();
-
-			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-			await new Promise(resolve => setTimeout(resolve, 150));
-			leftBox!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-			await new Promise(resolve => setTimeout(resolve, 250));
-
-			expect(rewindSpy).toHaveBeenCalledTimes(1);
-		});
 	});
 
 	// ── Seek-indicator accumulation on rapid double-taps ──────────────────────
@@ -408,7 +385,7 @@ describe('TouchZonesPlugin', () => {
 		it('rapid double-taps accumulate seek amount in the indicator before the collapse timer fires', async () => {
 			// Set up player with real timers.
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, seekSeconds: 10 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300, seekSeconds: 10 });
 			await player.ready();
 
 			const rewindSpy = vi.fn().mockResolvedValue(undefined);
@@ -454,7 +431,7 @@ describe('TouchZonesPlugin', () => {
 
 		it('indicator resets to per-tap amount after the 1000 ms collapse timer fires', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, seekSeconds: 10 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300, seekSeconds: 10 });
 			await player.ready();
 
 			const rewindSpy = vi.fn().mockResolvedValue(undefined);
@@ -495,7 +472,7 @@ describe('TouchZonesPlugin', () => {
 
 		it('rapid double-taps on the right zone accumulate forward seek amount', async () => {
 			const player = setup();
-			player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300, seekSeconds: 10 });
+			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300, seekSeconds: 10 });
 			await player.ready();
 
 			const forwardSpy = vi.fn().mockResolvedValue(undefined);

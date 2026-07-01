@@ -32,9 +32,6 @@
  *     DesktopUiPlugin, KeyHandlerPlugin, SubtitleOverlayPlugin,
  *     TouchZonesPlugin, TvKeyHandlerPlugin
  *
- *   Needs real NMVideoPlayer (patches player.on / direct player properties):
- *     V1VideoCompatPlugin
- *
  * DesktopUiPlugin / TouchZonesPlugin autohide behaviour is NOT duplicated
  * here — it has extensive dedicated test suites. The conformance tests for
  * those two cover lifecycle + leak only, plus one primary-effect assertion:
@@ -57,8 +54,6 @@ import { OctopusPlugin } from '../../plugins/octopus';
 import { SubtitleOverlayPlugin } from '../../plugins/subtitle-overlay/index';
 import { TouchZonesPlugin } from '../../plugins/touch-zones';
 import { TvKeyHandlerPlugin } from '../../plugins/tv-key-handler';
-import { V1VideoCompatPlugin } from '../../plugins/v1-compat';
-
 // ---------------------------------------------------------------------------
 // Shared helpers
 // ---------------------------------------------------------------------------
@@ -475,90 +470,6 @@ describe('Plugin conformance: tv-key-handler (real player)', () => {
 	it('plugin disposes without listener leak', () => {
 		const before = (player as unknown as { listenerCount?: () => number }).listenerCount?.() ?? 0;
 		player.removePlugin(TvKeyHandlerPlugin);
-		const after = (player as unknown as { listenerCount?: () => number }).listenerCount?.() ?? 0;
-		expect(after).toBeLessThanOrEqual(before);
-	});
-});
-
-// ---------------------------------------------------------------------------
-// V1VideoCompatPlugin — requires real NMVideoPlayer (patches player.on)
-// ---------------------------------------------------------------------------
-
-describe('Plugin conformance: v1-compat (real player)', () => {
-	let player: NMVideoPlayer;
-
-	beforeEach(async () => {
-		player = makeRealPlayer();
-		player.addPlugin(V1VideoCompatPlugin);
-		await player.ready();
-	});
-
-	afterEach(() => {
-		player.dispose();
-		teardownPlayer();
-	});
-
-	it('exposes static id = "v1-compat"', () => {
-		expect(V1VideoCompatPlugin.id).toBe('v1-compat');
-	});
-
-	it('patches player.seek() → delegates to player.time()', () => {
-		const seek = (player as unknown as Record<string, unknown>).seek as (n: number) => unknown;
-		expect(typeof seek).toBe('function');
-
-		// Spy on `time` before calling `seek` so we can assert the delegation.
-		const timeSpy = vi.spyOn(player as unknown as { time: (n: number) => void }, 'time');
-		seek(42);
-		expect(timeSpy).toHaveBeenCalledWith(42);
-	});
-
-	it('patches player.playlist() getter → delegates to player.queue()', () => {
-		const playlist = (player as unknown as Record<string, unknown>).playlist as () => unknown;
-		expect(typeof playlist).toBe('function');
-
-		const result = playlist();
-		expect(Array.isArray(result)).toBe(true);
-	});
-
-	it('v1 on("play") listener receives v1-shaped TimeData payload', () => {
-		const payloads: unknown[] = [];
-		(player as unknown as { on: (e: string, fn: (d: unknown) => void) => void })
-			.on('play', d => payloads.push(d));
-
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('play', undefined);
-
-		expect(payloads).toHaveLength(1);
-		const data = payloads[0] as { currentTime: number; duration: number; percentage: number };
-		expect(typeof data.currentTime).toBe('number');
-		expect(typeof data.duration).toBe('number');
-		expect(typeof data.percentage).toBe('number');
-	});
-
-	it('v1 on("item") listener receives the item directly (not the v2 {item,index} shape)', () => {
-		const received: unknown[] = [];
-		(player as unknown as { on: (e: string, fn: (d: unknown) => void) => void })
-			.on('item', d => received.push(d));
-
-		const item = { id: '42', url: '/ep.mp4', title: 'Episode' };
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('item', { item, index: 0 });
-
-		expect(received).toHaveLength(1);
-		expect(received[0]).toEqual(item);
-	});
-
-	it('plugin disposes and removes all patched shims from the player', () => {
-		// Confirm shims are present while plugin is mounted.
-		expect(typeof (player as unknown as Record<string, unknown>).seek).toBe('function');
-
-		player.removePlugin(V1VideoCompatPlugin);
-
-		// After dispose, instance-patched shims are deleted.
-		expect((player as unknown as Record<string, unknown>).seek).toBeUndefined();
-	});
-
-	it('disposes without listener leak — duration listener is tracked via this.on()', () => {
-		const before = (player as unknown as { listenerCount?: () => number }).listenerCount?.() ?? 0;
-		player.removePlugin(V1VideoCompatPlugin);
 		const after = (player as unknown as { listenerCount?: () => number }).listenerCount?.() ?? 0;
 		expect(after).toBeLessThanOrEqual(before);
 	});

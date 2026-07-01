@@ -56,14 +56,8 @@ import type { NMVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/no
 import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
 
 export interface TouchZonesOptions {
-	/**
-	 * Milliseconds between taps that still counts as a double-tap. Default 300.
-	 * `doubleTapThreshold` is the canonical name; `doubleClickDelay` is kept for
-	 * backwards compatibility and takes precedence when both are provided.
-	 */
+	/** Milliseconds between taps that still counts as a double-tap. Default 300. */
 	doubleTapThreshold?: number;
-	/** @deprecated Use `doubleTapThreshold`. */
-	doubleClickDelay?: number;
 	/** Seconds to seek on double-tap. Default 10. */
 	seekSeconds?: number;
 	/**
@@ -267,7 +261,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		let singleTimer: ReturnType<typeof setTimeout> | null = null;
 
 		return (e: Event): void => {
-			const delay = this.opts?.doubleClickDelay ?? this.opts?.doubleTapThreshold ?? 300;
+			const delay = this.opts?.doubleTapThreshold ?? 300;
 			const now = Date.now();
 			const gap = now - lastTap;
 			lastTap = now;

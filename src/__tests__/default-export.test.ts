@@ -10,11 +10,11 @@
  * Pins the symmetric default-export contract (S00-R1):
  *   - The default export is a function (not a class constructor that requires `new`).
  *   - Calling it with a DOM id returns a working player instance without `new`.
- *   - The named exports `nmVideoPlayer` and `nmplayer` are still reachable.
+ *   - The named export `nmplayer` is still reachable.
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import DefaultExport, { nmplayer, nmVideoPlayer, NMVideoPlayer } from '../index';
+import DefaultExport, { nmplayer, NMVideoPlayer } from '../index';
 
 describe('video default export — symmetric factory contract (S00-R1)', () => {
 	beforeEach(() => {
@@ -43,10 +43,6 @@ describe('video default export — symmetric factory contract (S00-R1)', () => {
 
 	it('DefaultExport is the same reference as the named nmplayer export', () => {
 		expect(DefaultExport).toBe(nmplayer);
-	});
-
-	it('named export nmVideoPlayer is still reachable and is a function', () => {
-		expect(typeof nmVideoPlayer).toBe('function');
 	});
 
 	it('named export nmplayer is still reachable and is a function', () => {

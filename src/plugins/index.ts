@@ -31,9 +31,6 @@ export type { TouchZonesOptions } from './touch-zones';
 // TV remote control plugin — subclasses KeyHandlerPlugin with TV-specific bindings
 export { tvKeyHandlerPlugin, TvKeyHandlerPlugin } from './tv-key-handler';
 export type { TvKeyHandlerOptions } from './tv-key-handler';
-// Migration shim — TEMPORARY, remove after v1→v2 migration window closes
-export { v1VideoCompatPlugin, V1VideoCompatPlugin } from './v1-compat';
-export type { V1VideoCompatEvents } from './v1-compat';
 // Cross-library kit plugins re-exported for ergonomic imports.
 export {
 	audioGraphPlugin,

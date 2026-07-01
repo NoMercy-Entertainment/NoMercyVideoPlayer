@@ -58,7 +58,7 @@ export interface WatchProgress {
 	timestamp: number;
 	/** 0–100 percent watched (0 = unwatched, 100 = fully watched). */
 	percentage: number;
-	/** Playback position in seconds at the time of last watch. @deprecated Use `timestamp` + consumer lookup instead. */
+	/** Playback position in seconds, used to resume where the last session left off. */
 	time?: number;
 }
 
@@ -361,12 +361,6 @@ export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistIte
 	preload?: HtmlPreloadMode;
 	disableMediaControls?: boolean;
 	disableControls?: boolean;
-	/** @deprecated Accepted but ignored — touch zones are handled by plugins. */
-	disableTouchControls?: boolean;
-	/** @deprecated Timeout in ms before UI auto-hides. Passed to UI plugins. Use plugin options directly. */
-	controlsTimeout?: number;
-	/** @deprecated Double-click delay in ms. Passed to UI plugins. Use plugin options directly. */
-	doubleClickDelay?: number;
 	/**
 	 * Custom backend factory. Overrides the kit's default backend resolution
 	 * (`html5` / `mse` / `webcodecs`). Receives the resolved kind so factories

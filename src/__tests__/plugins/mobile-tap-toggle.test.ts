@@ -98,7 +98,7 @@ describe('Rule 5 — mobile tap-toggle', () => {
 
 		const player = new NMVideoPlayer('test').setup({});
 		player.addPlugin(desktopUiPlugin, { inactivityMs: 100 });
-		player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+		player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 		await player.ready();
 
 		// Drive controls to hidden state via the real inactivity path so the
@@ -125,7 +125,7 @@ describe('Rule 5 — mobile tap-toggle', () => {
 		// Net: controls hidden. Snapshot is consumed and cleared.
 		const player = new NMVideoPlayer('test').setup({});
 		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
-		player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+		player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 		await player.ready();
 
 		// Controls start visible (plugin mounts with .active).
@@ -158,7 +158,7 @@ describe('Rule 5 — mobile tap-toggle', () => {
 
 		const player = new NMVideoPlayer('test').setup({});
 		player.addPlugin(desktopUiPlugin, { inactivityMs: 100 });
-		player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+		player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 		await player.ready();
 
 		const container = document.getElementById('test')!;
@@ -207,7 +207,7 @@ describe('Rule 5 — mobile tap-toggle', () => {
 		// Use 4000 ms so the re-armed inactivity timer does NOT fire during the
 		// 350 ms window between touchstart and the onSingle assertion.
 		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
-		player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+		player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 		await player.ready();
 
 		// Drive to hidden via inactivity (fake timers; inactivityMs=4000 so advance 4500).
@@ -385,7 +385,7 @@ describe('control button tap does not toggle-hide overlay', () => {
 		// This test verifies the controls stay visible when a real button is tapped.
 		const player = new NMVideoPlayer('test').setup({});
 		player.addPlugin(desktopUiPlugin, { inactivityMs: 4000 });
-		player.addPlugin(touchZonesPlugin, { doubleClickDelay: 300 });
+		player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 		await player.ready();
 
 		expect(isActive(player), 'precondition: controls visible').toBe(true);

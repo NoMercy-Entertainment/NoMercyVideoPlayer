@@ -12,7 +12,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { nmVideoPlayer, NMVideoPlayer } from '../../index';
+import { nmplayer, NMVideoPlayer } from '../../index';
 import {
 	DesktopUiPlugin,
 	KeyHandlerPlugin,
@@ -38,7 +38,7 @@ describe('app-flow i18n repro', () => {
 	it('fires loadTranslations for the configured language with the full app plugin chain', async () => {
 		const loader = vi.fn(async (lang: string) => ({ skip_intro: `[${lang}] skip` }));
 
-		const player = nmVideoPlayer('player1').setup({
+		const player = nmplayer('player1').setup({
 			controls: false,
 			autoPlay: true,
 			expose: true,
