@@ -8,8 +8,15 @@
 
 import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 import type { HtmlPreloadMode } from '../../types';
-import type { BackendEventPayload, BackendLoaderState, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
-import { appendAuthTokenParam, BrowserPolicyError, EventEmitter, HLS_EXT_RE, MediaFormatError, perceptualGain } from '@nomercy-entertainment/nomercy-player-core';
+import type { BackendEventPayload, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
+import {
+	appendAuthTokenParam,
+	isHls,
+	MediaElementBackend,
+	MediaFormatError,
+	resetMediaElement,
+	supportsNativeHls,
+} from '@nomercy-entertainment/nomercy-player-core';
 
 interface HlsLevel {
 	attrs?: { 'CODECS'?: string; 'VIDEO-RANGE'?: string };
@@ -108,15 +115,6 @@ function humanCodec(raw: string): string {
 	return unique.join(' + ');
 }
 
-function policy(code: string, message: string): BrowserPolicyError {
-	return new BrowserPolicyError({
-		code,
-		severity: 'error',
-		scope: { kind: 'backend', id: 'html5' },
-		message,
-	});
-}
-
 /**
  * Default video backend. Wraps an `<HTMLVideoElement>` for transport.
  *
@@ -126,30 +124,19 @@ function policy(code: string, message: string): BrowserPolicyError {
  * it from the consumer's node_modules) and attaches it. MSE / WebCodecs
  * backends ship later.
  */
-export class Html5VideoBackend extends EventEmitter<BackendEventPayload> implements IVideoBackend {
+export class Html5VideoBackend
+	extends MediaElementBackend<HTMLVideoElement, BackendEventPayload>
+	implements IVideoBackend {
 	readonly kind = 'html5' as const;
 
-	private readonly element: HTMLVideoElement;
-	private readonly ownsElement: boolean;
-	/**
-	 * Tracked element listeners. Stored at the DOM's lowest-common
-	 * `EventListener` type (which every `HTMLVideoElementEventMap`
-	 * entry satisfies) so add/remove pair by reference using a
-	 * matching signature. The forwarding closures defined in
-	 * `wireElementEvents` are typed as `EventListener` at declaration —
-	 * not narrowed and re-cast — so this storage is the type's
-	 * canonical home.
-	 */
-	private readonly elementListeners: Array<{ event: string; fn: EventListener }> = [];
 	private hls: HlsInstance | undefined;
 	private currentUrl: string | undefined;
 	private _state: BackendState = 'idle';
 	private _hadError = false;
 	private _ended = false;
-	private _loaderState: BackendLoaderState = 'running';
 	/**
 	 * Listener attached to the active `TextTrack` so we can detach on track
-	 *  switch / dispose without rebuilding the rest of the listeners map.
+	 * switch / dispose without rebuilding the rest of the listeners map.
 	 */
 	private cueChangeHandler: (() => void) | null = null;
 
@@ -217,31 +204,20 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	 */
 	private _hdrMqlListener: ((e: MediaQueryListEvent) => void) | undefined;
 
-	/** Resolves the full `Authorization` header value, or undefined when unauthenticated. */
-	private _authHeaderProvider: (() => string | undefined | Promise<string | undefined>) | undefined;
-
-	/**
-	 * Wire the provider whose return value goes into the `Authorization`
-	 * header of every hls.js manifest/segment request. Called by the player
-	 * at backend init from the `auth` config; consumers with a custom backend
-	 * factory can wire their own.
-	 */
-	setAuthHeaderProvider(provider: () => string | undefined | Promise<string | undefined>): void {
-		this._authHeaderProvider = provider;
-	}
-
 	constructor(container: HTMLElement) {
-		super();
 		const existing = container.querySelector<HTMLVideoElement>('video');
+		let element: HTMLVideoElement;
+		let ownsElement: boolean;
 		if (existing) {
-			this.element = existing;
-			this.ownsElement = false;
+			element = existing;
+			ownsElement = false;
 		}
 		else {
-			this.element = container.ownerDocument.createElement('video');
-			container.appendChild(this.element);
-			this.ownsElement = true;
+			element = container.ownerDocument.createElement('video');
+			container.appendChild(element);
+			ownsElement = true;
 		}
+		super(element, ownsElement, 'html5');
 		this.wireElementEvents();
 		this._wireHdrMatchMedia();
 	}
@@ -266,12 +242,8 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		if (opts?.preload)
 			this.element.preload = opts.preload;
 
-		const isHls = HLS_EXT_RE.test(url);
-		// Chromium answers 'maybe' for HLS but cannot actually demux it. Trust
-		// 'maybe' only where MSE is absent (iOS Safari) — hls.js cannot run
-		// there anyway, so native is the only option.
-		const probe = this.element.canPlayType('application/vnd.apple.mpegurl');
-		const nativeHls = probe === 'probably' || (probe === 'maybe' && typeof MediaSource === 'undefined');
+		const hlsUrl = isHls(url);
+		const nativeHls = supportsNativeHls(this.element);
 
 		// Tear down any previous Hls instance BEFORE wiring a new source.
 		// Without this, every load() leaks an Hls that keeps polling segment 0
@@ -283,6 +255,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 			try { this.hls.destroy(); }
 			catch { /* defensive */ }
 			this.hls = undefined;
+			this.hlsInstance = undefined;
 		}
 
 		// Clear cues from every existing TextTrack on the element. The
@@ -320,17 +293,12 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		// Without this reset, Chrome defers `sourceopen` on the new MediaSource
 		// until its internal "ended" cleanup task runs — that deferred task is
 		// what produces the ~8 s stall on auto-advance.
-		try { this.element.pause(); }
-		catch { /* defensive */ }
-		try { this.element.removeAttribute('src'); }
-		catch { /* defensive */ }
-		try { this.element.load(); }
-		catch { /* defensive */ }
+		resetMediaElement(this.element);
 
 		performance.mark('nm:backend:load:start');
 		const headerValue = await this._authHeaderProvider?.();
 
-		if (isHls && !nativeHls) {
+		if (hlsUrl && !nativeHls) {
 			const { default: Hls } = await import('hls.js');
 
 			if (!Hls?.isSupported?.()) {
@@ -357,6 +325,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				},
 			});
 			this.hls = hlsInstance;
+			this.hlsInstance = hlsInstance;
 			hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
 				performance.mark('nm:backend:manifest-parsed');
 				this._emitHlsTrackLists();
@@ -399,17 +368,15 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		// will repopulate `textTracks` and consumers will pick a track
 		// again via `setSubtitleTrack`.
 		this.detachActiveTextTrack();
-		try { this.element.pause(); }
-		catch { /* defensive */ }
 		if (this.hls) {
 			try { this.hls.detachMedia(); }
 			catch { /* defensive */ }
 			try { this.hls.destroy(); }
 			catch { /* defensive */ }
 			this.hls = undefined;
+			this.hlsInstance = undefined;
 		}
-		try { this.element.removeAttribute('src'); this.element.load(); }
-		catch { /* defensive */ }
+		resetMediaElement(this.element);
 		this.currentUrl = undefined;
 		this.emit('subtitleCue', { cues: [], language: undefined } as SubtitleCueChange);
 		this.emit('waiting');
@@ -422,50 +389,19 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		}
 		this._teardownHdrMatchMedia();
 		this.unload();
-		for (const { event, fn } of this.elementListeners) {
-			this.element.removeEventListener(event, fn);
-		}
-		this.elementListeners.length = 0;
-		// Listener storage lives on the EventEmitter base — the disposed
-		// backend instance becomes unreachable once the player drops it,
-		// so the Map (and its handler refs) are GC'd along with it.
-		// We keep the element-listener teardown above explicit because
-		// those refs survive on the shared <video> element.
+		this.detachDomBridges(this.element);
 		if (this.ownsElement && this.element.parentNode) {
 			this.element.parentNode.removeChild(this.element);
 		}
 	}
 
-	// ── Transport ──
+	// ── Transport, time, volume — inherited from MediaElementBackend ──
+	// play / pause / stop / currentTime / duration / bufferedRanges / seekable /
+	// playbackRate / volume / mute / unmute / captureStream / setSinkId /
+	// getSinkId / mediaKeys / setMediaKeys / mediaElement / pauseLoader /
+	// resumeLoader / loaderState / setAuthHeaderProvider
 
-	async play(): Promise<void> {
-		await this.element.play();
-	}
-
-	pause(): void {
-		this.element.pause();
-	}
-
-	stop(): void {
-		this.element.pause();
-		try { this.element.currentTime = 0; }
-		catch { /* defensive */ }
-	}
-
-	// ── Time / position ──
-
-	currentTime(): number;
-	currentTime(t: number): void;
-	currentTime(t?: number): number | void {
-		if (t === undefined)
-			return this.element.currentTime;
-		this.element.currentTime = t;
-	}
-
-	duration(): number {
-		const duration = this.element.duration;
-		return Number.isFinite(duration) ? duration : 0;
-	}
+	// ── Time / position (video-specific: buffered uses currentTime walk) ──
 
 	buffered(): number {
 		const ranges = this.element.buffered;
@@ -477,46 +413,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		return ranges.length > 0 ? ranges.end(ranges.length - 1) : 0;
 	}
 
-	bufferedRanges(): TimeRanges {
-		return this.element.buffered;
-	}
-
-	seekable(): TimeRanges {
-		return this.element.seekable;
-	}
-
-	playbackRate(): number;
-	playbackRate(rate: number): void;
-	playbackRate(rate?: number): number | void {
-		if (rate === undefined)
-			return this.element.playbackRate;
-		this.element.playbackRate = rate;
-	}
-
-	// ── Volume ──
-
-	volume(): number;
-	volume(value: number): void;
-	volume(value?: number): number | void {
-		if (value === undefined) {
-			// Returns the curved gain amplitude on element.volume — NOT the 0..1
-			// slider position. The player mixin owns the position in _internalVolume.
-			return this.element.volume;
-		}
-
-		const clamped = Math.min(1, Math.max(0, value));
-		this.element.volume = perceptualGain(clamped);
-	}
-
-	mute(): void {
-		this.element.muted = true;
-	}
-
-	unmute(): void {
-		this.element.muted = false;
-	}
-
-	// ── Video-specific (stubs until track plumbing lands) ──
+	// ── Video-specific ──
 
 	videoWidth(): number {
 		return this.element.videoWidth;
@@ -843,67 +740,16 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 		return this._state;
 	}
 
-	// ── Raw element ──
-
-	mediaElement(): HTMLVideoElement {
-		return this.element;
-	}
-
 	// ── Capability surface ──
-
-	captureStream(): MediaStream {
-		const fn = (this.element as HTMLVideoElement & { captureStream?: () => MediaStream }).captureStream;
-		if (typeof fn !== 'function') {
-			throw policy('core:policy/captureStreamUnsupported', 'HTMLVideoElement.captureStream() is not available in this environment.');
-		}
-		return fn.call(this.element);
-	}
-
-	async setSinkId(deviceId: string): Promise<void> {
-		const fn = (this.element as HTMLVideoElement & { setSinkId?: (id: string) => Promise<void> }).setSinkId;
-		if (typeof fn !== 'function') {
-			throw policy('core:policy/setSinkIdUnsupported', 'HTMLVideoElement.setSinkId() is not available in this environment.');
-		}
-		await fn.call(this.element, deviceId);
-	}
-
-	getSinkId(): string {
-		return (this.element as HTMLVideoElement & { sinkId?: string }).sinkId ?? '';
-	}
-
-	mediaKeys(): MediaKeys | undefined {
-		return this.element.mediaKeys ?? undefined;
-	}
-
-	async setMediaKeys(keys: MediaKeys): Promise<void> {
-		const fn = (this.element as HTMLMediaElement & { setMediaKeys?: (k: MediaKeys) => Promise<void> }).setMediaKeys;
-		if (typeof fn !== 'function') {
-			throw policy('core:policy/emeUnsupported', 'HTMLMediaElement.setMediaKeys() is not available in this environment.');
-		}
-		await fn.call(this.element, keys);
-	}
+	// captureStream / setSinkId / getSinkId / mediaKeys / setMediaKeys /
+	// mediaElement / pauseLoader / resumeLoader / loaderState
+	// — all inherited from MediaElementBackend
 
 	outputProtectionState(): 'unrestricted' | 'restricted' | 'unsupported' {
 		// Real HDCP probing requires DRM platform-specific keys. Default
 		// 'unrestricted' so plugins can probe without throwing; the DRM
 		// plugin overrides this once a key system is wired.
 		return 'unrestricted';
-	}
-
-	pauseLoader(): void {
-		// HLS path: hand off to hls.js. Native HLS / progressive MP4 has no
-		// public throttle hook — the runtime tracks state for symmetry.
-		this.hls?.stopLoad();
-		this._loaderState = 'paused';
-	}
-
-	resumeLoader(): void {
-		this.hls?.startLoad();
-		this._loaderState = 'running';
-	}
-
-	loaderState(): BackendLoaderState {
-		return this._loaderState;
 	}
 
 	// ── Events ──
@@ -915,48 +761,49 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 	// ── Internals ──
 
 	/**
-	 * Pair `addEventListener` with reference-tracked teardown so
-	 * `dispose()` removes exactly what was added. Listener type is
-	 * the DOM's `EventListener` so the storage and the call use the
-	 * same signature — no narrowing, no casts. Listener bodies that
-	 * need a specific `Event` subclass should narrow at use, not at
-	 * the boundary.
+	 * Wire video-specific DOM events onto the element, tracking each handler
+	 * in `this.domHandlers` (inherited from `MediaElementBackend`) so
+	 * `detachDomBridges()` removes them cleanly on dispose.
+	 *
+	 * Video adds `resize`, `emptied`, `loadeddata`, and error-code mapping
+	 * on top of the standard 13 events handled by `attachDomBridgesTo`.
+	 * Rather than calling the base helper (which would add state-mutation
+	 * handlers appropriate for the audio path), video wires its own full
+	 * event set here to keep the custom `ended`/`error` side-effects intact.
 	 */
-	private addElementListener(event: keyof HTMLVideoElementEventMap, fn: EventListener): void {
-		this.element.addEventListener(event, fn);
-		this.elementListeners.push({ event, fn });
-	}
-
 	private wireElementEvents(): void {
-		this.addElementListener('loadstart', e => this.emit('loadstart', e));
-		this.addElementListener('loadeddata', e => this.emit('loadeddata', e));
-		this.addElementListener('canplay', e => this.emit('canplay', e));
-		this.addElementListener('emptied', e => this.emit('emptied', e));
-		this.addElementListener('play', e => this.emit('play', e));
-		this.addElementListener('playing', e => this.emit('playing', e));
-		this.addElementListener('pause', e => this.emit('pause', e));
-		this.addElementListener('timeupdate', e => this.emit('timeupdate', e));
-		this.addElementListener('waiting', e => this.emit('waiting', e));
-		this.addElementListener('stalled', e => this.emit('stalled', e));
-		this.addElementListener('ratechange', e => this.emit('ratechange', e));
-		this.addElementListener('resize', e => this.emit('resize', e));
-		this.addElementListener('encrypted', (e) => {
+		const track = (event: keyof HTMLVideoElementEventMap, handler: EventListener): void => {
+			this.element.addEventListener(event, handler);
+			this.domHandlers.push({ event, handler });
+		};
+
+		track('loadstart', e => this.emit('loadstart', e));
+		track('loadeddata', e => this.emit('loadeddata', e));
+		track('canplay', e => this.emit('canplay', e));
+		track('emptied', e => this.emit('emptied', e));
+		track('play', e => this.emit('play', e));
+		track('playing', e => this.emit('playing', e));
+		track('pause', e => this.emit('pause', e));
+		track('timeupdate', e => this.emit('timeupdate', e));
+		track('waiting', e => this.emit('waiting', e));
+		track('stalled', e => this.emit('stalled', e));
+		track('ratechange', e => this.emit('ratechange', e));
+		track('resize', e => this.emit('resize', e));
+		track('encrypted', (e) => {
 			// `MediaKeyMessageEvent` widens to `Event` for the channel —
 			// EME consumers cast at the listener if they need the keys.
 			this.emit('encrypted', e);
 		});
-		this.addElementListener('ended', (e) => {
+		track('ended', (e) => {
 			this._ended = true;
 			this.emit('ended', e);
 		});
-		this.addElementListener('error', (e) => {
+		track('error', (e) => {
 			this._hadError = true;
 			this._state = 'error';
 			// Attach MediaError metadata to the event object so upstream
 			// consumers receive the browser's error code without a second
-			// element read. The DOM Event is widened — we stamp extra
-			// properties onto it rather than wrapping, to preserve the
-			// original event identity for any listener that casts it.
+			// element read.
 			const mediaErr = this.element.error;
 			if (mediaErr !== null) {
 				const code = mediaErr.code;
@@ -1101,6 +948,7 @@ export class Html5VideoBackend extends EventEmitter<BackendEventPayload> impleme
 				try { this.hls?.destroy(); }
 				catch { /* defensive */ }
 				this.hls = undefined;
+				this.hlsInstance = undefined;
 				// Re-attach via the existing load path. If load() throws, escalate.
 				this.load(url, resumeAt > 0 ? { startTime: resumeAt } : undefined).catch(() => {
 					this._escalateHlsError(data.details, `HLS fatal after destroy-reload: ${data.details}`);
