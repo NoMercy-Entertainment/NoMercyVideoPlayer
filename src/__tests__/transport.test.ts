@@ -49,7 +49,7 @@ describe('NMVideoPlayer — transport', () => {
 		it('listener can mutate data, post-event sees mutated value', async () => {
 			const videoPlayer = setup();
 			let received: { source?: string } | undefined;
-			videoPlayer.on('beforePlay' as any, (e: any) => { e.data.source = 'remote'; });
+			videoPlayer.on('beforePlay' as any, (evt: any) => { evt.data.source = 'remote'; });
 			videoPlayer.on('play' as any, (data: any) => { received = data; });
 			await videoPlayer.play({ source: 'user' });
 			expect(received?.source).toBe('remote');
@@ -59,7 +59,7 @@ describe('NMVideoPlayer — transport', () => {
 			const videoPlayer = setup();
 			let playFired = false;
 			let preventedReason: string | undefined;
-			videoPlayer.on('beforePlay' as any, (e: any) => { e.preventDefault(); });
+			videoPlayer.on('beforePlay' as any, (evt: any) => { evt.preventDefault(); });
 			videoPlayer.on('play' as any, () => { playFired = true; });
 			videoPlayer.on('playPrevented' as any, (data: any) => { preventedReason = data.reason; });
 			await videoPlayer.play();
@@ -70,7 +70,7 @@ describe('NMVideoPlayer — transport', () => {
 		it('stopImmediatePropagation skips later listeners', async () => {
 			const videoPlayer = setup();
 			const calls: string[] = [];
-			videoPlayer.on('beforePlay' as any, (e: any) => { calls.push('first'); e.stopImmediatePropagation(); });
+			videoPlayer.on('beforePlay' as any, (evt: any) => { calls.push('first'); evt.stopImmediatePropagation(); });
 			videoPlayer.on('beforePlay' as any, () => calls.push('second'));
 			await videoPlayer.play();
 			expect(calls).toEqual(['first']);
@@ -100,7 +100,7 @@ describe('NMVideoPlayer — transport', () => {
 			const videoPlayer = setup();
 			let pauseFired = false;
 			let preventedReason: string | undefined;
-			videoPlayer.on('beforePause' as any, (e: any) => { e.preventDefault(); });
+			videoPlayer.on('beforePause' as any, (evt: any) => { evt.preventDefault(); });
 			videoPlayer.on('pause' as any, () => { pauseFired = true; });
 			videoPlayer.on('pausePrevented' as any, (data: any) => { preventedReason = data.reason; });
 			await videoPlayer.pause();
@@ -155,7 +155,7 @@ describe('NMVideoPlayer — transport', () => {
 		it('rewind emits beforeSeek with negative delta', () => {
 			const videoPlayer = setup();
 			let beforeSeekTime: number | undefined;
-			videoPlayer.on('beforeSeek' as any, (e: any) => { beforeSeekTime = e.data.time; });
+			videoPlayer.on('beforeSeek' as any, (evt: any) => { beforeSeekTime = evt.data.time; });
 			videoPlayer.rewind(5);
 			expect(beforeSeekTime).toBe(-5);
 		});
@@ -163,7 +163,7 @@ describe('NMVideoPlayer — transport', () => {
 		it('forward emits beforeSeek with positive delta', () => {
 			const videoPlayer = setup();
 			let beforeSeekTime: number | undefined;
-			videoPlayer.on('beforeSeek' as any, (e: any) => { beforeSeekTime = e.data.time; });
+			videoPlayer.on('beforeSeek' as any, (evt: any) => { beforeSeekTime = evt.data.time; });
 			videoPlayer.forward(10);
 			expect(beforeSeekTime).toBe(10);
 		});

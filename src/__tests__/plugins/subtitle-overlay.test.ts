@@ -78,7 +78,7 @@ describe('SubtitleOverlayPlugin', () => {
 		const areas = safezone.querySelectorAll('.subtitle-area');
 		expect(areas.length).toBeGreaterThanOrEqual(1);
 
-		const textContent = Array.from(areas).map(a => a.textContent).join(' ');
+		const textContent = Array.from(areas).map(area => area.textContent).join(' ');
 		expect(textContent).toContain('Hello');
 	});
 

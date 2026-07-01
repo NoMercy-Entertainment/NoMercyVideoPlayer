@@ -261,7 +261,7 @@ describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
 	}
 
 	it('SDR display: autoLevelCapping is set to highest SDR level index', async () => {
-		const { changeListeners: _ } = mockMatchMedia(false);
+		const { changeListeners: _unusedListeners } = mockMatchMedia(false);
 		backend = new Html5VideoBackend(container);
 		const hls = await loadHls(backend, container);
 
@@ -389,7 +389,7 @@ describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
 		];
 
 		const levelEvents: unknown[] = [];
-		backend.on('levels', d => levelEvents.push(d));
+		backend.on('levels', payload => levelEvents.push(payload));
 
 		hls.fire('hlsManifestParsed', {});
 		await flushMicrotasks();
@@ -433,7 +433,7 @@ describe('HLS error recovery state machine', () => {
 		vi.useFakeTimers();
 
 		const recovering: Array<{ attempt: number }> = [];
-		backend.on('stream:recovering', d => recovering.push(d as { attempt: number }));
+		backend.on('stream:recovering', payload => recovering.push(payload as { attempt: number }));
 
 		hls.fire('hlsError', { fatal: true, type: 'networkError', details: 'manifestLoadError' });
 		expect(recovering[0]!.attempt).toBe(1);
@@ -484,7 +484,7 @@ describe('HLS error recovery state machine', () => {
 		vi.useFakeTimers();
 
 		const recovering: Array<{ attempt: number }> = [];
-		backend.on('stream:recovering', d => recovering.push(d as { attempt: number }));
+		backend.on('stream:recovering', payload => recovering.push(payload as { attempt: number }));
 
 		// First failure — attempt 1
 		hls.fire('hlsError', { fatal: true, type: 'networkError', details: 'fragLoadError' });
@@ -508,9 +508,9 @@ describe('HLS error recovery state machine', () => {
 
 		const errors: unknown[] = [];
 		backend.on('error', event => errors.push(event));
-		backend.on('stream:error', (d) => {
-			if ((d as { fatal: boolean }).fatal)
-				errors.push(d);
+		backend.on('stream:error', (streamErr) => {
+			if ((streamErr as { fatal: boolean }).fatal)
+				errors.push(streamErr);
 		});
 
 		const payload = { fatal: true, type: 'mediaError', details: 'bufferAddCodecError' };
@@ -572,14 +572,14 @@ describe('HLS error recovery state machine', () => {
 		vi.useFakeTimers();
 
 		const streamErrors: Array<{ details: string; fatal: boolean }> = [];
-		backend.on('stream:error', d => streamErrors.push(d as { details: string; fatal: boolean }));
+		backend.on('stream:error', payload => streamErrors.push(payload as { details: string; fatal: boolean }));
 
 		for (let i = 0; i < 4; i++) {
 			hls.fire('hlsError', { fatal: true, type: 'networkError', details: 'manifestLoadError' });
 			await vi.runAllTimersAsync();
 		}
 
-		const fatal = streamErrors.find(e => e.fatal);
+		const fatal = streamErrors.find(err => err.fatal);
 		expect(fatal).toBeDefined();
 		expect(fatal!.details).toBe('manifestLoadError');
 

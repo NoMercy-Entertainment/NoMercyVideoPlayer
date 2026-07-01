@@ -436,11 +436,11 @@ export const textSizes: { label: string; value: number }[] = [
 
 export function subtitleSettingActions(player: NMPlayer): SubtitleSettingAction[] {
 	return [
-		...fontFamilies.map(f => ({
-			label: f.name,
+		...fontFamilies.map(font => ({
+			label: font.name,
 			property: 'fontFamily' as keyof SubtitleStyle,
-			value: f.value,
-			action: () => player.subtitleStyle?.({ fontFamily: f.value }),
+			value: font.value,
+			action: () => player.subtitleStyle?.({ fontFamily: font.value }),
 		})),
 		...textSizes.map(size => ({
 			label: size.label,
@@ -460,11 +460,11 @@ export function subtitleSettingActions(player: NMPlayer): SubtitleSettingAction[
 			value: opacity.value,
 			action: () => player.subtitleStyle?.({ textOpacity: opacity.value }),
 		})),
-		...edgeStyles.map(e => ({
-			label: e.name,
+		...edgeStyles.map(edgeStyle => ({
+			label: edgeStyle.name,
 			property: 'edgeStyle' as keyof SubtitleStyle,
-			value: e.value,
-			action: () => player.subtitleStyle?.({ edgeStyle: e.value }),
+			value: edgeStyle.value,
+			action: () => player.subtitleStyle?.({ edgeStyle: edgeStyle.value }),
 		})),
 		...colors.map(color => ({
 			label: color.label,

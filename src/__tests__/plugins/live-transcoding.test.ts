@@ -129,7 +129,7 @@ describe('LiveTranscodingPlugin — lifecycle', () => {
 		const inst = player.getPlugin(LiveTranscodingPlugin)!;
 
 		// Manually prime transcodedTo
-		(inst as unknown as { onServerMessage: (d: unknown) => void }).onServerMessage?.({
+		(inst as unknown as { onServerMessage: (msg: unknown) => void }).onServerMessage?.({
 			type: 'progress',
 			transcodedSeconds: 45,
 		});
@@ -179,12 +179,12 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	function emitServerMsg(msg: unknown): void {
 		// Call onServerMessage directly via the private method — use bracket access
-		(inst as unknown as { onServerMessage: (d: unknown) => void }).onServerMessage?.(msg);
+		(inst as unknown as { onServerMessage: (msg: unknown) => void }).onServerMessage?.(msg);
 	}
 
 	it('"started" message fires plugin:live-transcoding:job:started', () => {
 		const events: unknown[] = [];
-		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:started', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:started', (payload: unknown) => events.push(payload));
 
 		emitServerMsg({ type: 'started', jobId: 'job-1', sourceUrl: 'https://src.example.com/video.mp4' });
 
@@ -195,7 +195,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('"progress" message updates transcodedTo and fires job:progress', () => {
 		const events: unknown[] = [];
-		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:progress', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:progress', (payload: unknown) => events.push(payload));
 
 		emitServerMsg({ type: 'progress', jobId: 'job-1', transcodedSeconds: 30, variantsReady: ['480p'] });
 
@@ -207,7 +207,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('"ready-to-play" message fires job:ready-to-play', () => {
 		const events: unknown[] = [];
-		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:ready-to-play', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:ready-to-play', (payload: unknown) => events.push(payload));
 
 		emitServerMsg({ type: 'ready-to-play', jobId: 'job-1' });
 
@@ -216,7 +216,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('"complete" message fires job:complete', () => {
 		const events: unknown[] = [];
-		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:complete', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:complete', (payload: unknown) => events.push(payload));
 
 		emitServerMsg({ type: 'complete', jobId: 'job-1' });
 
@@ -225,8 +225,8 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('unknown type message is a no-op (no events emitted)', () => {
 		const events: unknown[] = [];
-		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:started', (d: unknown) => events.push(d));
-		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:progress', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:started', (payload: unknown) => events.push(payload));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:progress', (payload: unknown) => events.push(payload));
 
 		emitServerMsg({ type: 'ping', jobId: 'job-1' });
 
@@ -235,7 +235,7 @@ describe('LiveTranscodingPlugin — message routing', () => {
 
 	it('JSON string messages are parsed and routed', () => {
 		const events: unknown[] = [];
-		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:progress', (d: unknown) => events.push(d));
+		(player as unknown as EventBusLike).on('plugin:live-transcoding:job:progress', (payload: unknown) => events.push(payload));
 
 		emitServerMsg(JSON.stringify({ type: 'progress', jobId: 'job-1', transcodedSeconds: 60, variantsReady: [] }));
 
@@ -279,7 +279,7 @@ describe('LiveTranscodingPlugin — beforeLoad gate', () => {
 		const inst = player.getPlugin(LiveTranscodingPlugin)!;
 
 		// Fake transcodedTo at 45 by calling onServerMessage
-		(inst as unknown as { onServerMessage: (d: unknown) => void }).onServerMessage?.({ type: 'progress', transcodedSeconds: 45 });
+		(inst as unknown as { onServerMessage: (msg: unknown) => void }).onServerMessage?.({ type: 'progress', transcodedSeconds: 45 });
 		expect(inst.transcodedTo()).toBe(45);
 
 		// Emit beforeLoad — should reset transcodedTo to 0

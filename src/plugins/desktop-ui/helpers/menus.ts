@@ -206,17 +206,17 @@ function buildMainMenu(
 		{ id: 'aspectRatio', labelKey: 'plugin.desktop-ui.menu.aspectRatio', iconKey: 'aspectFit' },
 		{ id: 'playlist', labelKey: 'plugin.desktop-ui.menu.playlist', iconKey: 'playlist' },
 	];
-	for (const c of cats) {
-		const label = player.t(c.labelKey);
-		const btn = player.createButton(`menu-button-${c.id}`, label, () => {});
+	for (const cat of cats) {
+		const label = player.t(cat.labelKey);
+		const btn = player.createButton(`menu-button-${cat.id}`, label, () => {});
 		btn.classList.add('language-button');
 		btn.innerHTML = `
-            <span class="menu-button-icon-left">${svgFromIcon(fluentIcons[c.iconKey])}</span>
+            <span class="menu-button-icon-left">${svgFromIcon(fluentIcons[cat.iconKey])}</span>
             <span class="menu-button-text">${label}</span>
             <span class="menu-button-chevron">${svgFromIcon(fluentIcons.chevronR)}</span>
         `;
 		scroll.appendChild(btn);
-		listen(btn, 'click', (event: Event) => { event.stopPropagation(); actions.openSubMenu(c.id); });
+		listen(btn, 'click', (event: Event) => { event.stopPropagation(); actions.openSubMenu(cat.id); });
 	}
 
 	// Consumer toggle rows — same row chrome as category buttons, with the
@@ -410,14 +410,14 @@ export function renderSpeedPane(
 	scroll.replaceChildren();
 	const rates: number[] = player.playbackRates?.() ?? [0.5, 0.75, 1, 1.25, 1.5, 2];
 	const cur = player.playbackRate?.() ?? 1;
-	for (const r of rates) {
-		const label = r === 1 ? player.t('plugin.desktop-ui.menu.normal') : `${r}×`;
+	for (const rate of rates) {
+		const label = rate === 1 ? player.t('plugin.desktop-ui.menu.normal') : `${rate}×`;
 		appendChoice(
 			scroll,
-			`speed-button-${r}`,
+			`speed-button-${rate}`,
 			label,
-			r === cur,
-			() => { player.playbackRate?.(r); onPick(); },
+			rate === cur,
+			() => { player.playbackRate?.(rate); onPick(); },
 			listen,
 			player,
 		);
@@ -477,6 +477,7 @@ export function renderQualityPane(
 }
 
 function resolveUiLanguage(player: IVideoPlayer): string {
+	/* language() overload returns `string | undefined`; typeof guard narrows at runtime but TS sees the union — double-cast collapses it */
 	return typeof player.language?.() === 'string' ? player.language() as unknown as string : 'en';
 }
 
@@ -576,11 +577,11 @@ function writeSubtitleStyleKey<K extends keyof SubtitleStyle>(
  */
 function formatSettingValue(prop: keyof SubtitleStyle, value: unknown): string {
 	if (prop === 'fontFamily')
-		return fontFamilies.find(f => f.value === value)?.name ?? String(value);
+		return fontFamilies.find(font => font.value === value)?.name ?? String(value);
 	if (prop === 'edgeStyle')
-		return edgeStyles.find(e => e.value === value)?.name ?? String(value);
+		return edgeStyles.find(edgeStyle => edgeStyle.value === value)?.name ?? String(value);
 	if (prop === 'textColor' || prop === 'backgroundColor' || prop === 'areaColor') {
-		return colors.find(c => c.value === value)?.label ?? toTitleCase(String(value));
+		return colors.find(color => color.value === value)?.label ?? toTitleCase(String(value));
 	}
 	if (typeof value === 'number')
 		return `${value}%`;
@@ -723,7 +724,7 @@ export function shouldShowSeasonSidebar(queue: ReadonlyArray<VideoPlaylistItem>)
 		queue
 			.filter(item => item.video_type !== 'movie' && item.playlist_type !== 'movie')
 			.map(item => item.season)
-			.filter((s): s is number => typeof s === 'number' && s >= 1),
+			.filter((season): season is number => typeof season === 'number' && season >= 1),
 	);
 	return tvSeasons.size >= 2;
 }
@@ -778,7 +779,7 @@ export function renderPlaylistPane(
 
 	pane.classList.remove('playlist-flat');
 
-	const seasons = Array.from(new Set(queue.map(it => it.season).filter((s): s is number => typeof s === 'number'))).sort((a, b) => a - b);
+	const seasons = Array.from(new Set(queue.map(item => item.season).filter((season): season is number => typeof season === 'number'))).sort((itemA, itemB) => itemA - itemB);
 	const currentItem = queue[curIdx];
 	const activeSeason = typeof currentItem?.season === 'number' ? currentItem.season : (seasons[0] ?? 1);
 
@@ -794,8 +795,8 @@ export function renderPlaylistPane(
 			seasonScroll.appendChild(btn);
 			listen(btn, 'click', () => {
 				renderSeasonEpisodes(scroll, player, queue, sNum, curIdx, listen, onPick, opts);
-				for (const b of Array.from(seasonScroll.querySelectorAll('.language-button'))) {
-					b.classList.remove('is-active');
+				for (const seasonBtn of Array.from(seasonScroll.querySelectorAll('.language-button'))) {
+					seasonBtn.classList.remove('is-active');
 				}
 				btn.classList.add('is-active');
 			});

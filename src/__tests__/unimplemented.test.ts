@@ -270,7 +270,7 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 			const videoPlayer = player();
 			await videoPlayer.ready();
 			const flags = [videoPlayer.isTv(), videoPlayer.isMobile(), videoPlayer.isDesktop()];
-			expect(flags.every(f => typeof f === 'boolean')).toBe(true);
+			expect(flags.every(flag => typeof flag === 'boolean')).toBe(true);
 			expect(flags.filter(Boolean).length).toBeGreaterThanOrEqual(1);
 		});
 		it('device() returns DeviceCapabilities snapshot', async () => {
@@ -302,8 +302,7 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 		it('bandwidthEstimator replaces the estimator (kit-level overload)', async () => {
 			const videoPlayer = player();
 			await videoPlayer.ready();
-			// The library's overload pattern uses `bandwidthEstimator(fn?)` per spec §11. Test the real
-			// runtime surface via `any` cast.
+			// Test the real runtime surface via `any` cast.
 			const anyP = videoPlayer as unknown as { bandwidthEstimator: (fn?: () => number) => (() => number) | void };
 			expect(() => anyP.bandwidthEstimator(() => 12345)).not.toThrow();
 			expect(typeof anyP.bandwidthEstimator()).toBe('function');
@@ -410,9 +409,9 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 			await videoPlayer.ready();
 			videoPlayer.recordMetric('droppedFrames', 12);
 			videoPlayer.recordMetric('customCounter', 7);
-			const m = videoPlayer.metrics() as any;
-			expect(m.droppedFrames).toBe(12);
-			expect(m.customCounter).toBe(7);
+			const metrics = videoPlayer.metrics() as any;
+			expect(metrics.droppedFrames).toBe(12);
+			expect(metrics.customCounter).toBe(7);
 		});
 		it('now() returns clockSource() if configured, else Date.now()', async () => {
 			const videoPlayer = player();

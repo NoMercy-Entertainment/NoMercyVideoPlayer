@@ -76,7 +76,7 @@ describe('formatSeconds', () => {
 function makeChapters(count: number): ChapterLite[] {
 	const dur = 100;
 	const chapterDur = dur / count;
-	return Array.from({ length: count }, (_, i) => ({
+	return Array.from({ length: count }, (_element, i) => ({
 		index: i,
 		start: i * chapterDur,
 		end: (i + 1) * chapterDur,
@@ -136,7 +136,7 @@ describe('buildChapterMarkers', () => {
 		const chapters = makeChapters(3);
 		const clickedIndexes: number[] = [];
 
-		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 

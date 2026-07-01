@@ -92,7 +92,7 @@ describe('DrmPlugin — lifecycle in jsdom (no EME)', () => {
 		await player.ready();
 
 		const errors: unknown[] = [];
-		(player as unknown as EventBusLike).on('plugin:drm:key:error', (d: unknown) => errors.push(d));
+		(player as unknown as EventBusLike).on('plugin:drm:key:error', (payload: unknown) => errors.push(payload));
 
 		(player as unknown as EventBusLike).emit('item', { item: { id: 'ep1', url: '/ep1.m3u8' } });
 		await Promise.resolve();
@@ -156,7 +156,7 @@ describe('DrmPlugin — tryHandshake with mocked EME', () => {
 		player.addPlugin(drmPlugin, { keySystem: 'com.widevine.alpha', licenseUrl: 'https://x/license' });
 		await player.ready();
 
-		(player as unknown as EventBusLike).on('plugin:drm:key:error', (d: unknown) => errors.push(d));
+		(player as unknown as EventBusLike).on('plugin:drm:key:error', (payload: unknown) => errors.push(payload));
 
 		(player as unknown as EventBusLike).emit('item', {
 			item: { id: 'ep1', url: '/ep1.m3u8', drm: { keySystem: 'com.widevine.alpha' } },

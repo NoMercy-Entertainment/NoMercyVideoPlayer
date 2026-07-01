@@ -155,7 +155,7 @@ export function buildBottomBar(
 	parent: HTMLElement,
 	opts: DesktopUiOptions | undefined,
 	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
-	t: (key: string, params?: Record<string, string>) => string,
+	translate: (key: string, params?: Record<string, string>) => string,
 ): BottomBarRefs & BottomRowRefs {
 	const bottomBar = player.createElement('div', 'bottom-bar')
 		.addClasses(['bottom-bar'])
@@ -179,7 +179,7 @@ export function buildBottomBar(
 		.appendTo(bottomBar)
 		.get();
 
-	const rowRefs = buildBottomRow(player, bottomRow, opts, listen, t);
+	const rowRefs = buildBottomRow(player, bottomRow, opts, listen, translate);
 
 	return { bottomBar, topRow, bottomRow, sliderRefs, ...rowRefs };
 }
@@ -192,7 +192,7 @@ export function buildBottomRow(
 	parent: HTMLElement,
 	opts: DesktopUiOptions | undefined,
 	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
-	t: (key: string, params?: Record<string, string>) => string,
+	translate: (key: string, params?: Record<string, string>) => string,
 ): BottomRowRefs {
 	const btns = opts?.buttons;
 	const show = (key: keyof DesktopUiButtonOptions): boolean => buttonVisible(key, btns);
@@ -252,7 +252,7 @@ export function buildBottomRow(
 	volSlider.min = '0';
 	volSlider.max = '100';
 	volSlider.value = '100';
-	volSlider.setAttribute('aria-label', t('a11y.volume'));
+	volSlider.setAttribute('aria-label', translate('a11y.volume'));
 	volSlider.hidden = !show('volume');
 
 	// Vertical slider popup (hidden initially; activated by wireVolumeSlider).
@@ -268,7 +268,7 @@ export function buildBottomRow(
 	vertInput.min = '0';
 	vertInput.max = '100';
 	vertInput.value = '100';
-	vertInput.setAttribute('aria-label', t('a11y.volume'));
+	vertInput.setAttribute('aria-label', translate('a11y.volume'));
 	vertInput.setAttribute('orient', 'vertical');
 
 	const volPopupMuteBtn = iconBtn(player, 'vol-popup-mute', 'volumeHigh');
@@ -305,7 +305,7 @@ export function buildBottomRow(
 	parent.appendChild(pipBtn);
 
 	const speedBtn = iconBtn(player, 'speed', 'speed');
-	speedBtn.setAttribute('aria-label', t('tooltip.speed'));
+	speedBtn.setAttribute('aria-label', translate('tooltip.speed'));
 	speedBtn.hidden = !show('speed');
 	parent.appendChild(speedBtn);
 
@@ -449,7 +449,7 @@ export function applyButtonOrder(
 export function buildShortcutsOverlay(
 	parent: HTMLElement,
 	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
-	t: (key: string, params?: Record<string, string>) => string,
+	translate: (key: string, params?: Record<string, string>) => string,
 	hideShortcuts: () => void,
 ): HTMLDivElement {
 	const overlay = document.createElement('div');
@@ -457,14 +457,14 @@ export function buildShortcutsOverlay(
 	overlay.className = 'keybinds-dialog';
 	overlay.setAttribute('role', 'dialog');
 	overlay.setAttribute('aria-modal', 'true');
-	overlay.setAttribute('aria-label', t('shortcuts.title'));
+	overlay.setAttribute('aria-label', translate('shortcuts.title'));
 
 	const card = document.createElement('div');
 	card.className = 'keybinds-card';
 
 	const heading = document.createElement('h2');
 	heading.className = 'keybinds-heading';
-	heading.textContent = t('shortcuts.title');
+	heading.textContent = translate('shortcuts.title');
 	card.appendChild(heading);
 
 	const sections: ReadonlyArray<ReadonlyArray<{
@@ -473,79 +473,79 @@ export function buildShortcutsOverlay(
 	}>> = [
 		[
 			{
-				title: t('shortcuts.group.playback'),
+				title: translate('shortcuts.group.playback'),
 				entries: [
-					{ keys: ['Space'], label: t('shortcuts.playPause') },
-					{ keys: ['S'], label: t('shortcuts.stop') },
-					{ keys: ['E'], label: t('shortcuts.frameAdvance') },
+					{ keys: ['Space'], label: translate('shortcuts.playPause') },
+					{ keys: ['S'], label: translate('shortcuts.stop') },
+					{ keys: ['E'], label: translate('shortcuts.frameAdvance') },
 				],
 			},
 			{
-				title: t('shortcuts.group.speed'),
+				title: translate('shortcuts.group.speed'),
 				entries: [
-					{ keys: [']'], label: t('shortcuts.speedUp') },
-					{ keys: ['['], label: t('shortcuts.speedDown') },
-					{ keys: ['='], label: t('shortcuts.normalSpeed') },
+					{ keys: [']'], label: translate('shortcuts.speedUp') },
+					{ keys: ['['], label: translate('shortcuts.speedDown') },
+					{ keys: ['='], label: translate('shortcuts.normalSpeed') },
 				],
 			},
 			{
-				title: t('shortcuts.group.volume'),
+				title: translate('shortcuts.group.volume'),
 				entries: [
-					{ keys: ['↑'], label: t('shortcuts.volumeUp') },
-					{ keys: ['↓'], label: t('shortcuts.volumeDown') },
-					{ keys: ['M'], label: t('shortcuts.mute') },
-				],
-			},
-		],
-		[
-			{
-				title: t('shortcuts.group.seeking'),
-				entries: [
-					{ keys: ['←'], label: t('shortcuts.seekBack5') },
-					{ keys: ['→'], label: t('shortcuts.seekForward5') },
-					{ keys: ['Shift', '← / →'], label: t('shortcuts.seek3s') },
-					{ keys: ['Alt', '← / →'], label: t('shortcuts.seek10s') },
-					{ keys: ['Ctrl', '← / →'], label: t('shortcuts.seek60s') },
-				],
-			},
-			{
-				title: t('shortcuts.group.quickSeek'),
-				entries: [
-					{ keys: ['3'], label: t('shortcuts.seek30s') },
-					{ keys: ['6'], label: t('shortcuts.seek60sKey') },
-					{ keys: ['9'], label: t('shortcuts.seek90s') },
-					{ keys: ['1'], label: t('shortcuts.seek120s') },
-				],
-			},
-			{
-				title: t('shortcuts.group.navigation'),
-				entries: [
-					{ keys: ['N'], label: t('shortcuts.next') },
-					{ keys: ['P'], label: t('shortcuts.previous') },
-					{ keys: ['Shift', 'N'], label: t('shortcuts.nextChapter') },
-					{ keys: ['Shift', 'P'], label: t('shortcuts.previousChapter') },
+					{ keys: ['↑'], label: translate('shortcuts.volumeUp') },
+					{ keys: ['↓'], label: translate('shortcuts.volumeDown') },
+					{ keys: ['M'], label: translate('shortcuts.mute') },
 				],
 			},
 		],
 		[
 			{
-				title: t('shortcuts.group.tracksAndSubtitles'),
+				title: translate('shortcuts.group.seeking'),
 				entries: [
-					{ keys: ['V'], label: t('shortcuts.cycleSubs') },
-					{ keys: ['B'], label: t('shortcuts.cycleAudio') },
-					{ keys: ['A'], label: t('shortcuts.cycleAspect') },
-					{ keys: ['+'], label: t('shortcuts.subSizeUp') },
-					{ keys: ['–'], label: t('shortcuts.subSizeDown') },
+					{ keys: ['←'], label: translate('shortcuts.seekBack5') },
+					{ keys: ['→'], label: translate('shortcuts.seekForward5') },
+					{ keys: ['Shift', '← / →'], label: translate('shortcuts.seek3s') },
+					{ keys: ['Alt', '← / →'], label: translate('shortcuts.seek10s') },
+					{ keys: ['Ctrl', '← / →'], label: translate('shortcuts.seek60s') },
 				],
 			},
 			{
-				title: t('shortcuts.group.display'),
+				title: translate('shortcuts.group.quickSeek'),
 				entries: [
-					{ keys: ['F'], label: t('shortcuts.fullscreen') },
-					{ keys: ['F11'], label: t('shortcuts.fullscreen') },
-					{ keys: ['Esc'], label: t('shortcuts.exitFullscreen') },
-					{ keys: ['T'], label: t('shortcuts.showTime') },
-					{ keys: ['?'], label: t('shortcuts.help') },
+					{ keys: ['3'], label: translate('shortcuts.seek30s') },
+					{ keys: ['6'], label: translate('shortcuts.seek60sKey') },
+					{ keys: ['9'], label: translate('shortcuts.seek90s') },
+					{ keys: ['1'], label: translate('shortcuts.seek120s') },
+				],
+			},
+			{
+				title: translate('shortcuts.group.navigation'),
+				entries: [
+					{ keys: ['N'], label: translate('shortcuts.next') },
+					{ keys: ['P'], label: translate('shortcuts.previous') },
+					{ keys: ['Shift', 'N'], label: translate('shortcuts.nextChapter') },
+					{ keys: ['Shift', 'P'], label: translate('shortcuts.previousChapter') },
+				],
+			},
+		],
+		[
+			{
+				title: translate('shortcuts.group.tracksAndSubtitles'),
+				entries: [
+					{ keys: ['V'], label: translate('shortcuts.cycleSubs') },
+					{ keys: ['B'], label: translate('shortcuts.cycleAudio') },
+					{ keys: ['A'], label: translate('shortcuts.cycleAspect') },
+					{ keys: ['+'], label: translate('shortcuts.subSizeUp') },
+					{ keys: ['–'], label: translate('shortcuts.subSizeDown') },
+				],
+			},
+			{
+				title: translate('shortcuts.group.display'),
+				entries: [
+					{ keys: ['F'], label: translate('shortcuts.fullscreen') },
+					{ keys: ['F11'], label: translate('shortcuts.fullscreen') },
+					{ keys: ['Esc'], label: translate('shortcuts.exitFullscreen') },
+					{ keys: ['T'], label: translate('shortcuts.showTime') },
+					{ keys: ['?'], label: translate('shortcuts.help') },
 				],
 			},
 		],
@@ -607,7 +607,7 @@ export function buildShortcutsOverlay(
 
 	const hintEl = document.createElement('p');
 	hintEl.className = 'keybinds-hint';
-	hintEl.textContent = t('shortcuts.hint');
+	hintEl.textContent = translate('shortcuts.hint');
 	card.appendChild(hintEl);
 
 	overlay.appendChild(card);

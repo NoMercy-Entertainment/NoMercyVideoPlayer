@@ -1143,7 +1143,7 @@ describe('HLS error recovery', () => {
 	it('emits stream:error with fatal:false for non-fatal errors', async () => {
 		const hls = await loadHls();
 		const streamErrors: unknown[] = [];
-		backend.on('stream:error', d => streamErrors.push(d));
+		backend.on('stream:error', payload => streamErrors.push(payload));
 
 		hls.fire('hlsError', { fatal: false, type: 'networkError', details: 'fragLoadError' });
 		expect(streamErrors).toHaveLength(1);
@@ -1153,7 +1153,7 @@ describe('HLS error recovery', () => {
 	it('emits stream:error with message for bufferIncompatibleCodecsError', async () => {
 		const hls = await loadHls();
 		const streamErrors: unknown[] = [];
-		backend.on('stream:error', d => streamErrors.push(d));
+		backend.on('stream:error', payload => streamErrors.push(payload));
 
 		hls.fire('hlsError', {
 			fatal: false,
@@ -1171,7 +1171,7 @@ describe('HLS error recovery', () => {
 		const hls = await loadHls();
 		vi.useFakeTimers();
 		const recovering: unknown[] = [];
-		backend.on('stream:recovering', d => recovering.push(d));
+		backend.on('stream:recovering', payload => recovering.push(payload));
 
 		hls.fire('hlsError', {
 			fatal: true,
@@ -1215,7 +1215,7 @@ describe('HLS error recovery', () => {
 		hls.fire('hlsFragLoaded', {});
 
 		const errors: unknown[] = [];
-		backend.on('stream:error', d => errors.push(d));
+		backend.on('stream:error', payload => errors.push(payload));
 		hls.fire('hlsError', { fatal: false, type: 'networkError', details: 'fragLoadError' });
 		expect((errors[0] as { details: string }).details).toBe('fragLoadError');
 
@@ -1279,7 +1279,7 @@ describe('HLS level-switched handler', () => {
 		await loadPromise;
 
 		const levelEvents: unknown[] = [];
-		backend.on('level-switched', d => levelEvents.push(d));
+		backend.on('level-switched', payload => levelEvents.push(payload));
 
 		_hlsRegistry.lastInstance!.fire('hlsLevelSwitched', { level: 2 });
 		expect(levelEvents).toHaveLength(1);
@@ -1295,7 +1295,7 @@ describe('HLS level-switched handler', () => {
 		await loadPromise;
 
 		const levelEvents: unknown[] = [];
-		backend.on('level-switched', d => levelEvents.push(d));
+		backend.on('level-switched', payload => levelEvents.push(payload));
 
 		_hlsRegistry.lastInstance!.fire('hlsLevelSwitched', { level: 2 });
 		_hlsRegistry.lastInstance!.fire('hlsLevelSwitched', { level: 2 });
@@ -1311,7 +1311,7 @@ describe('HLS level-switched handler', () => {
 		await loadPromise;
 
 		const levelEvents: unknown[] = [];
-		backend.on('level-switched', d => levelEvents.push(d));
+		backend.on('level-switched', payload => levelEvents.push(payload));
 
 		_hlsRegistry.lastInstance!.fire('hlsFragChanged', { frag: { level: 3 } });
 		expect(levelEvents).toHaveLength(1);
@@ -1327,7 +1327,7 @@ describe('HLS level-switched handler', () => {
 		await loadPromise;
 
 		const levelEvents: unknown[] = [];
-		backend.on('level-switched', d => levelEvents.push(d));
+		backend.on('level-switched', payload => levelEvents.push(payload));
 
 		_hlsRegistry.lastInstance!.fire('hlsFragChanged', {});
 		expect(levelEvents).toHaveLength(0);
@@ -1351,7 +1351,7 @@ describe('MANIFEST_PARSED event handling', () => {
 		hls.audioTracks = [{ lang: 'en', name: 'English', default: true }];
 
 		const audioTrackEvents: unknown[] = [];
-		backend.on('audioTracks', d => audioTrackEvents.push(d));
+		backend.on('audioTracks', payload => audioTrackEvents.push(payload));
 
 		hls.fire('hlsManifestParsed', {});
 		await flushMicrotasks();

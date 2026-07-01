@@ -148,7 +148,7 @@ export const domMethods = {
 			this.sliderRefs,
 			this.listen.bind(this),
 			() => this._tooltipHoverToken,
-			(v) => { this._tooltipHoverToken = v; },
+			(token) => { this._tooltipHoverToken = token; },
 			(fn, ms) => this.timeout(() => fn(), ms),
 			this.t.bind(this),
 			() => this.safeCurrentIndex(),
@@ -347,15 +347,15 @@ export const domMethods = {
 		});
 		this.on('ended', () => this.setPlayingState(false));
 
-		this.on('seek', (d) => {
-			if (d?.source)
+		this.on('seek', (payload) => {
+			if (payload?.source)
 				this.bumpActivity();
 		});
 
-		this.on('item', d => this.handleCurrentChange(d.item));
+		this.on('item', payload => this.handleCurrentChange(payload.item));
 
-		this.on('listeners-changed', (d) => {
-			if ((d.name === 'back' || d.name === 'close') && this.topBarRefs)
+		this.on('listeners-changed', (payload) => {
+			if ((payload.name === 'back' || payload.name === 'close') && this.topBarRefs)
 				this.applyStateVisibility();
 		});
 
@@ -375,16 +375,16 @@ export const domMethods = {
 			this.refreshCapabilityVisibility();
 		});
 
-		this.on('duration', d => this.applyDuration(d.duration));
-		this.on('time', d => this.applyTime(d.time));
+		this.on('duration', payload => this.applyDuration(payload.duration));
+		this.on('time', payload => this.applyTime(payload.time));
 
-		this.on('volume', (d) => {
-			const level = typeof d?.level === 'number' ? d.level : this.player.volume?.() ?? 100;
+		this.on('volume', (payload) => {
+			const level = typeof payload?.level === 'number' ? payload.level : this.player.volume?.() ?? 100;
 			this.applyVolume(level);
 			this.showMessage(this.t('message.volume', { level: String(Math.round(level)) }), 1200);
 		});
-		this.on('mute', (d) => {
-			const muted = d?.muted ?? this.player.volumeState?.() === 'muted';
+		this.on('mute', (payload) => {
+			const muted = payload?.muted ?? this.player.volumeState?.() === 'muted';
 			this.applyMuted(muted);
 			this.showMessage(this.t(muted ? 'message.muted' : 'message.unmuted'), 1200);
 		});
@@ -394,36 +394,36 @@ export const domMethods = {
 			this.repaintSpeedIfOpen();
 		});
 
-		this.on('subtitle', (d) => {
-			const idx = d.track;
+		this.on('subtitle', (payload) => {
+			const idx = payload.track;
 			this._menuControlState.activeSubtitleIdx = (typeof idx === 'number' && idx >= 0) ? idx : -1;
 			this.applySubsIcon();
 			this.repaintSubsIfOpen();
 		});
 
-		this.on('audioTrack', (d) => {
-			this._menuControlState.activeAudioIdx = typeof d.id === 'number' ? d.id : -1;
+		this.on('audioTrack', (payload) => {
+			this._menuControlState.activeAudioIdx = typeof payload.id === 'number' ? payload.id : -1;
 			this.applyAudioIcon();
 			this.repaintAudioIfOpen();
 		});
 
-		this.on('quality:requested', (d) => {
-			this._menuControlState.activeQualityIdx = d.level;
-			this._menuControlState.userPickedQuality = d.level !== 'auto';
+		this.on('quality:requested', (payload) => {
+			this._menuControlState.activeQualityIdx = payload.level;
+			this._menuControlState.userPickedQuality = payload.level !== 'auto';
 			this.applyQualityIcon();
 			this.repaintQualityIfOpen();
 		});
 
-		this.on('level-switched', (d) => {
-			if (typeof d.level === 'number') {
-				this._menuControlState.playingQualityIdx = d.level;
+		this.on('level-switched', (payload) => {
+			if (typeof payload.level === 'number') {
+				this._menuControlState.playingQualityIdx = payload.level;
 			}
 			if (!this._menuControlState.userPickedQuality) {
 				this._menuControlState.activeQualityIdx = 'auto';
 			}
 			else {
-				this._menuControlState.activeQualityIdx = typeof d.level === 'number'
-					? d.level
+				this._menuControlState.activeQualityIdx = typeof payload.level === 'number'
+					? payload.level
 					: this._menuControlState.activeQualityIdx;
 			}
 			this.applyQualityIcon();

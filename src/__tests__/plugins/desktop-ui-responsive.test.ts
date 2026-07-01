@@ -170,7 +170,7 @@ describe('DesktopUiPlugin — progressive breakpoint system', () => {
 			simulateWidth(200); // tiny
 
 			expect(events.length).toBeGreaterThanOrEqual(1);
-			const tinyTransition = events.find(e => e.to === 'tiny');
+			const tinyTransition = events.find(evt => evt.to === 'tiny');
 			expect(tinyTransition).toBeDefined();
 		});
 

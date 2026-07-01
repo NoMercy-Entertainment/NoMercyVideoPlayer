@@ -215,7 +215,7 @@ describe('video-plugins (extras)', () => {
 
 		it('mirrors receiver IS_PAUSED_CHANGED back as a player pause with {source:cast, silent:true}', async () => {
 			const requestSession = vi.fn().mockResolvedValue(undefined);
-			const handlers: Record<string, (e: { value: unknown }) => void> = {};
+			const handlers: Record<string, (ev: { value: unknown }) => void> = {};
 			class StubRemote {
 				isConnected = true;
 				isPaused = false;
@@ -227,7 +227,7 @@ describe('video-plugins (extras)', () => {
 			}
 			let stubRemoteRef: StubRemote | null = null as StubRemote | null;
 			class StubController {
-				addEventListener = (event: string, handler: (e: { value: unknown }) => void): void => {
+				addEventListener = (event: string, handler: (ev: { value: unknown }) => void): void => {
 					handlers[event] = handler;
 				};
 
@@ -303,7 +303,7 @@ describe('video-plugins (extras)', () => {
 			};
 
 			const meta = await (inst as unknown as {
-				buildMetadata: (i: typeof item, c: typeof ctors) => Promise<Record<string, unknown>>;
+				buildMetadata: (mediaItem: typeof item, mediaCastors: typeof ctors) => Promise<Record<string, unknown>>;
 			}).buildMetadata(item, ctors);
 
 			expect(meta.title).toBe('Show S1 E1');
@@ -327,17 +327,17 @@ describe('video-plugins (extras)', () => {
 			const opens: string[] = [];
 			class FakeChannel {
 				readyState: 'connecting' | 'open' | 'closing' | 'closed' = 'open';
-				private listeners = new Map<string, Set<(d?: unknown) => void>>();
+				private listeners = new Map<string, Set<(data?: unknown) => void>>();
 				constructor(public url: string) { opens.push(url); }
 				send(_data: unknown): void { /* no-op */ }
 				close(): void { this.readyState = 'closed'; }
-				on(event: string, fn: (d?: unknown) => void): void {
+				on(event: string, fn: (data?: unknown) => void): void {
 					if (!this.listeners.has(event))
 						this.listeners.set(event, new Set());
 					this.listeners.get(event)!.add(fn);
 				}
 
-				off(event: string, fn: (d?: unknown) => void): void {
+				off(event: string, fn: (data?: unknown) => void): void {
 					this.listeners.get(event)?.delete(fn);
 				}
 			}

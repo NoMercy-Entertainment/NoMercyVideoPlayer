@@ -7,13 +7,13 @@
 // -----------------------------------------------------------------------------
 
 /**
- * Regression tests for the lifecycle wave sprint (Bug 1 / Bug 2 / Bug 3 / Bug 4 / Bug 5):
+ * Regression tests for the lifecycle wave sprint (scrub, prefetch, autoAdvance, seek-preview):
  *
- * Bug 1 — startFragPrefetch flag is present in HLS.js config.
- * Bug 2 — wireSliderBar wires touchend for scrub-finalization.
- * Bug 3 — touchmove sets sliderPop --visibility to 1 while scrubbing.
- * Bug 4 — Core autoAdvance option calls next() on ended.
- * Bug 5 — Seek-preview reappears after mouseup outside the slider bar.
+ * startFragPrefetch flag must be present in HLS.js config.
+ * wireSliderBar must wire touchend for scrub-finalization.
+ * touchmove must set sliderPop --visibility to 1 while scrubbing.
+ * Core autoAdvance option must call next() on ended.
+ * Seek-preview must reappear after mouseup outside the slider bar.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,7 +36,7 @@ function setup(id: string): NMVideoPlayer<{ id: string; url: string }> {
 	return new NMVideoPlayer(id).setup({}) as NMVideoPlayer<{ id: string; url: string }>;
 }
 
-// ── Bug 4 — core autoAdvance ──────────────────────────────────────────────────
+// ── core autoAdvance ──────────────────────────────────────────────────────────
 
 describe('core autoAdvance option (video)', () => {
 	beforeEach(() => {
@@ -84,7 +84,7 @@ describe('core autoAdvance option (video)', () => {
 	});
 });
 
-// ── Bug 1 — HLS.js startFragPrefetch ─────────────────────────────────────────
+// ── HLS.js startFragPrefetch ─────────────────────────────────────────────────
 
 describe('Html5VideoBackend HLS config', () => {
 	it('Html5VideoBackend is importable', async () => {
@@ -108,7 +108,7 @@ describe('Html5VideoBackend HLS config', () => {
 	});
 });
 
-// ── Bug 2 + Bug 3 — wireSliderBar touch wiring ───────────────────────────────
+// ── wireSliderBar touch wiring ────────────────────────────────────────────────
 
 describe('wireSliderBar touch handling', () => {
 	beforeEach(() => {
@@ -170,7 +170,7 @@ describe('wireSliderBar touch handling', () => {
 		expect(sliderPop.style.getPropertyValue('--visibility')).toBe('1');
 	});
 
-	// Bug 5 — seek-preview reappears after releasing the mouse outside the bar.
+	// Seek-preview must reappear after releasing the mouse outside the bar.
 	it('document mouseup finalizes scrub and hides seek-preview (Bug 5)', async () => {
 		const { DesktopUiPlugin } = await import('../../plugins/desktop-ui/index');
 		const player = setup('scrub-test');
@@ -195,8 +195,8 @@ describe('wireSliderBar touch handling', () => {
 		expect(sliderPop.style.getPropertyValue('--visibility')).toBe('0');
 	});
 
-	// Bug 6 — after click-to-seek the preview must come back on the next
-	// mousemove over the bar, without leaving and re-entering first.
+	// After click-to-seek the preview must come back on the next mousemove over
+	// the bar, without leaving and re-entering first.
 	it('seek-preview reappears on mousemove after click-to-seek (Bug 6)', async () => {
 		const { DesktopUiPlugin } = await import('../../plugins/desktop-ui/index');
 		const player = setup('scrub-test');

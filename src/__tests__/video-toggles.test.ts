@@ -20,7 +20,7 @@ import { FullscreenState, NMVideoPlayer, PipState, TheaterState } from '../index
 interface FakeFsHandles {
 	enter: ReturnType<typeof vi.fn>;
 	exit: ReturnType<typeof vi.fn>;
-	setActive: (a: boolean) => void;
+	setActive: (active: boolean) => void;
 }
 interface FakePipHandles extends FakeFsHandles {}
 
@@ -78,12 +78,12 @@ function buildFakePlatform(opts: { fullscreen?: boolean; pip?: boolean } = { ful
 		fs: {
 			enter: fsEnter,
 			exit: fsExit,
-			setActive: (a) => { fsActive = a; },
+			setActive: (active) => { fsActive = active; },
 		},
 		pip: {
 			enter: pipEnter,
 			exit: pipExit,
-			setActive: (a) => { pipActive = a; },
+			setActive: (active) => { pipActive = active; },
 		},
 	};
 }

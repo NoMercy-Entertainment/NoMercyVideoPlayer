@@ -179,14 +179,14 @@ export const transportStateMethods = {
 		this.setDisabled(this.prevBtn, onFirst);
 		this.setDisabled(this.nextBtn, onLast);
 
-		const t = this.player.time?.() ?? 0;
+		const currentTime = this.player.time?.() ?? 0;
 		const dur = this.resolveDuration();
-		this.setDisabled(this.rewindBtn, t <= 0);
-		this.setDisabled(this.forwardBtn, dur > 0 && t >= dur - 0.25);
+		this.setDisabled(this.rewindBtn, currentTime <= 0);
+		this.setDisabled(this.forwardBtn, dur > 0 && currentTime >= dur - 0.25);
 
 		const chapters = this.player.chapters();
-		const hasPrevChap = chapters.some(chapter => chapter.start < t - 1);
-		const hasNextChap = chapters.some(chapter => chapter.start > t + 1);
+		const hasPrevChap = chapters.some(chapter => chapter.start < currentTime - 1);
+		const hasNextChap = chapters.some(chapter => chapter.start > currentTime + 1);
 		this.setDisabled(this.chapBackBtn, !hasPrevChap);
 		this.setDisabled(this.chapFwdBtn, !hasNextChap);
 	},

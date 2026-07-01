@@ -25,7 +25,7 @@ export function pickStartItem(items: ReadonlyArray<VideoPlaylistItem>): StartSel
 	if (withProgress.length === 0)
 		return { index: 0 };
 
-	const mostRecent = [...withProgress].sort((a, b) => b.progress!.timestamp - a.progress!.timestamp)[0]!;
+	const mostRecent = [...withProgress].sort((itemA, itemB) => itemB.progress!.timestamp - itemA.progress!.timestamp)[0]!;
 	const index = items.indexOf(mostRecent);
 
 	if (mostRecent.progress!.percentage > 90)

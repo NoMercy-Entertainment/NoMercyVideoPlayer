@@ -124,13 +124,13 @@ describe('Plugin conformance: desktop-ui (real player)', () => {
 	});
 
 	it('container gains .active class when activity event fires with active:true', () => {
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('activity', { active: true });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('activity', { active: true });
 		expect(player.container.classList.contains('active')).toBe(true);
 	});
 
 	it('container loses .active class when activity event fires with active:false', () => {
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('activity', { active: true });
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('activity', { active: false });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('activity', { active: true });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('activity', { active: false });
 		expect(player.container.classList.contains('active')).toBe(false);
 	});
 
@@ -219,13 +219,13 @@ describePlugin(LiveTranscodingPlugin, (ctx) => {
 	});
 
 	it('transcodedTo() updates when server "progress" message arrives', () => {
-		const advance = (ctx.plugin as unknown as { onServerMessage: (d: unknown) => void }).onServerMessage?.bind(ctx.plugin);
+		const advance = (ctx.plugin as unknown as { onServerMessage: (msg: unknown) => void }).onServerMessage?.bind(ctx.plugin);
 		advance?.({ type: 'progress', transcodedSeconds: 75, jobId: 'j1', variantsReady: [] });
 		expect(ctx.plugin.transcodedTo()).toBe(75);
 	});
 
 	it('transcodedTo() resets to 0 after dispose()', () => {
-		const advance = (ctx.plugin as unknown as { onServerMessage: (d: unknown) => void }).onServerMessage?.bind(ctx.plugin);
+		const advance = (ctx.plugin as unknown as { onServerMessage: (msg: unknown) => void }).onServerMessage?.bind(ctx.plugin);
 		advance?.({ type: 'progress', transcodedSeconds: 45, jobId: 'j1', variantsReady: [] });
 		expect(ctx.plugin.transcodedTo()).toBe(45);
 
@@ -323,7 +323,7 @@ describe('Plugin conformance: subtitle-overlay (real player)', () => {
 	});
 
 	it('renders cue text into the overlay when subtitleCue event fires', () => {
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('subtitleCue', {
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('subtitleCue', {
 			cues: [{ text: 'Hello world', line: 85, position: 50, size: 80, align: 'center' }],
 			language: 'en',
 		});
@@ -334,12 +334,12 @@ describe('Plugin conformance: subtitle-overlay (real player)', () => {
 	});
 
 	it('clears the overlay when an empty cue list fires', () => {
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('subtitleCue', {
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('subtitleCue', {
 			cues: [{ text: 'Going away', line: 85, position: 50, size: 80, align: 'center' }],
 			language: 'en',
 		});
 
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('subtitleCue', {
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('subtitleCue', {
 			cues: [],
 			language: 'en',
 		});
@@ -458,8 +458,8 @@ describe('Plugin conformance: tv-key-handler (real player)', () => {
 
 	it('MediaRecord emits plugin:tv-key-handler:bookmark with current time', () => {
 		const events: unknown[] = [];
-		(player as unknown as { on: (e: string, fn: (d: unknown) => void) => void })
-			.on('plugin:tv-key-handler:bookmark', d => events.push(d));
+		(player as unknown as { on: (event: string, fn: (payload: unknown) => void) => void })
+			.on('plugin:tv-key-handler:bookmark', payload => events.push(payload));
 
 		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'MediaRecord', bubbles: true, cancelable: true }));
 

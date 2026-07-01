@@ -215,9 +215,9 @@ describe('video-plugins', () => {
 				time: Object.assign(seek, { call: seek }),
 			});
 			// Replace time with an overloaded stub.
-			(videoPlayer as unknown as { time: unknown }).time = ((t?: number): number | void => {
-				if (typeof t === 'number')
-					seek(t);
+			(videoPlayer as unknown as { time: unknown }).time = ((seconds?: number): number | void => {
+				if (typeof seconds === 'number')
+					seek(seconds);
 				return 0;
 			}) as unknown;
 			videoPlayer.addPlugin(KeyHandlerPlugin);

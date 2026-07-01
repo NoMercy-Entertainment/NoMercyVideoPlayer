@@ -353,13 +353,13 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 		super();
 		const resolved = resolvePlayerConstructor(id, _instances, 'NMVideoPlayer');
 		if (resolved.kind === 'existing') {
-			return resolved.instance as unknown as this;
+			return resolved.instance as unknown as this; /* mixin return-override: TS cannot narrow constructor return through the mixin chain */
 		}
 
 		initPlayerCoreState(this, { className: 'NMVideoPlayer' });
 		this.playerId = resolved.id;
 		this.container = resolved.div;
-		_instances.set(resolved.id, this as unknown as NMVideoPlayer<BasePlaylistItem>);
+		_instances.set(resolved.id, this as unknown as NMVideoPlayer<BasePlaylistItem> /* registry stores the base generic; concrete T is narrowed at retrieval */);
 
 		this.registerTitleTokens({
 			S: 'plugin.desktop-ui.token.season',
@@ -1222,13 +1222,13 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 		// preloading so the next item starts instantly. Consumer-supplied
 		// strategies always win — only inject when absent.
 		const leadSeconds = config.preloadLeadSeconds ?? 10;
-		const enrichedConfig = {
+		const enrichedConfig: VideoPlayerConfig<VideoPlaylistItem> = {
 			crossfadeEnabled: false,
 			...config,
 			preloadLeadSeconds: leadSeconds,
 			preloadStrategy: config.preloadStrategy ?? new VideoPreloadStrategy(leadSeconds),
 			transitionStrategy: config.transitionStrategy ?? new GaplessTransitionStrategy(),
-		} as VideoPlayerConfig<VideoPlaylistItem>;
+		};
 
 		const result = kitSetup.call(this, enrichedConfig);
 

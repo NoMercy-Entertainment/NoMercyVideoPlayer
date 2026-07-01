@@ -156,7 +156,7 @@ export function normalizeVideoPlaylistItem(item: BasePlaylistItem): VideoPlaylis
 	const durationSeconds = normalizeDuration(loose.duration);
 	const tracks = normalizeTracks(loose.tracks);
 
-	return {
+	const normalized: VideoPlaylistItem & { tracks?: LegacyTrackEntry[] } = {
 		...loose,
 		url: loose.url ?? loose.file,
 		duration: durationSeconds,
@@ -166,5 +166,7 @@ export function normalizeVideoPlaylistItem(item: BasePlaylistItem): VideoPlaylis
 			?? tracks?.find(track => track.kind === 'thumbnails')?.file,
 		fonts: normalizeFonts(loose.fonts) ?? fontsFromTracks(tracks),
 		progress: normalizeProgress(loose.progress, durationSeconds),
-	} as VideoPlaylistItem;
+	};
+
+	return normalized;
 }

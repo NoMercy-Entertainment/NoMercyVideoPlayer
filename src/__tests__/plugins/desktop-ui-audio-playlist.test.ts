@@ -36,7 +36,7 @@ const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
 	return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() };
 });
 
-function NOOP_LISTEN(_: EventTarget, __: string, ___: (event: Event) => void): void {}
+function NOOP_LISTEN(_target: EventTarget, _event: string, _handler: (event: Event) => void): void {}
 
 const NOOP_ACTIONS = {
 	closeMenu: () => {},
@@ -158,7 +158,7 @@ describe('renderAudioPane (direct call with real player)', () => {
 			language: () => 'en',
 		});
 
-		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 
@@ -294,7 +294,7 @@ describe('renderPlaylistPane — flat queue (no seasons)', () => {
 			index: () => 0,
 		});
 
-		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 
@@ -317,7 +317,7 @@ describe('renderPlaylistPane — flat queue (no seasons)', () => {
 			index: () => 1,
 		});
 
-		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 
@@ -345,7 +345,7 @@ describe('renderPlaylistPane — flat queue (no seasons)', () => {
 			item: (idx: number, opts: unknown) => { calledWith = [idx, opts]; return null; },
 		});
 
-		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 
@@ -477,7 +477,7 @@ describe('renderPlaylistPane — seasonal queue', () => {
 		];
 		Object.assign(player, { queue: () => queue, index: () => 0 });
 
-		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 
@@ -519,7 +519,7 @@ describe('renderPlaylistPane — seasonal queue', () => {
 		// Start at S1
 		Object.assign(player, { queue: () => queue, index: () => 0 });
 
-		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 

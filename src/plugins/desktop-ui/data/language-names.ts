@@ -56,7 +56,7 @@ const TRANSLATED_VARIANTS = new Set(['full', 'sign']);
 export function subtitleTrackLabel(
 	track: SubtitleTrackRef,
 	locale: string,
-	t: (key: string) => string,
+	translate: (key: string) => string,
 	fallback: string,
 ): string {
 	const langName = languageDisplayName(track.language, locale);
@@ -65,8 +65,8 @@ export function subtitleTrackLabel(
 	let variantLabel: string | undefined;
 	if (variant && TRANSLATED_VARIANTS.has(variant)) {
 		const key = `plugin.desktop-ui.menu.subtitleType.${variant}`;
-		const translated = t(key);
-		// t() echoes the key back when no bundle carries it yet.
+		const translated = translate(key);
+		// translate() echoes the key back when no bundle carries it yet.
 		variantLabel = translated === key ? track.type : translated;
 	}
 	else if (track.type) {

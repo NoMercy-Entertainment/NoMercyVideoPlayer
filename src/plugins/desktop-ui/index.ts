@@ -461,8 +461,8 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			fn => this.lifecycle.addCleanup(fn),
 			payload => this.emit('layout:breakpoint', payload),
 		);
-		void Promise.resolve(this.storage.getJSON('showRemaining')).then((v) => {
-			this._showRemaining = (v as boolean | null) ?? true;
+		void Promise.resolve(this.storage.getJSON('showRemaining')).then((stored) => {
+			this._showRemaining = (stored as boolean | null) ?? true;
 		});
 		this.applyInitialState();
 		this.bumpActivity();

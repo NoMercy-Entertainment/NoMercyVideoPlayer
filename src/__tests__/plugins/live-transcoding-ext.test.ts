@@ -36,7 +36,7 @@ function cleanup(): void {
 
 // Direct access to private onServerMessage — consistent with existing test pattern.
 function callOnServerMsg(inst: LiveTranscodingPlugin, msg: unknown): void {
-	(inst as unknown as { onServerMessage: (d: unknown) => void }).onServerMessage?.(msg);
+	(inst as unknown as { onServerMessage: (serverMsg: unknown) => void }).onServerMessage?.(msg);
 }
 
 // ── waitFor timeout ───────────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ describe('LiveTranscodingPlugin — waitFor timeout resolution', () => {
 		const waitFor = (inst as unknown as { waitFor: (target: number) => Promise<void> }).waitFor.bind(inst);
 
 		let resolved = false;
-		const p = waitFor(999).then(() => { resolved = false; resolved = true; });
+		const waitPromise = waitFor(999).then(() => { resolved = false; resolved = true; });
 
 		// Before timeout: not yet resolved.
 		expect(resolved).toBe(false);
@@ -76,7 +76,7 @@ describe('LiveTranscodingPlugin — waitFor timeout resolution', () => {
 		vi.advanceTimersByTime(100);
 		await Promise.resolve();
 
-		await p;
+		await waitPromise;
 		expect(resolved).toBe(true);
 	});
 
@@ -96,8 +96,8 @@ describe('LiveTranscodingPlugin — waitFor timeout resolution', () => {
 		const waitFor = (inst as unknown as { waitFor: (target: number) => Promise<void> }).waitFor.bind(inst);
 
 		let resolved = false;
-		const p = waitFor(50).then(() => { resolved = true; });
-		await p;
+		const waitPromise = waitFor(50).then(() => { resolved = true; });
+		await waitPromise;
 
 		expect(resolved).toBe(true);
 	});
@@ -117,7 +117,7 @@ describe('LiveTranscodingPlugin — waitFor timeout resolution', () => {
 		const waitFor = (inst as unknown as { waitFor: (target: number) => Promise<void> }).waitFor.bind(inst);
 
 		let resolved = false;
-		const p = waitFor(60).then(() => { resolved = true; });
+		const waitPromise = waitFor(60).then(() => { resolved = true; });
 
 		// Tick once — not resolved yet (transcodedTo = 0, target = 60).
 		vi.advanceTimersByTime(100);
@@ -130,7 +130,7 @@ describe('LiveTranscodingPlugin — waitFor timeout resolution', () => {
 		// Next tick sees transcodedTo >= 60 and resolves.
 		vi.advanceTimersByTime(100);
 		await Promise.resolve();
-		await p;
+		await waitPromise;
 
 		expect(resolved).toBe(true);
 	});

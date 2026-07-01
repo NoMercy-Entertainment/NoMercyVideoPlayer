@@ -55,8 +55,8 @@ describe('buildTitleBar — back / close button events', () => {
 		await player.ready();
 
 		const backEvents: unknown[] = [];
-		(player as unknown as { on: (e: string, fn: (d: unknown) => void) => void })
-			.on('back', d => backEvents.push(d));
+		(player as unknown as { on: (event: string, fn: (payload: unknown) => void) => void })
+			.on('back', payload => backEvents.push(payload));
 
 		const parent = document.createElement('div');
 		const refs = buildTitleBar(player as never, parent);
@@ -72,8 +72,8 @@ describe('buildTitleBar — back / close button events', () => {
 		await player.ready();
 
 		const closeEvents: unknown[] = [];
-		(player as unknown as { on: (e: string, fn: (d: unknown) => void) => void })
-			.on('close', d => closeEvents.push(d));
+		(player as unknown as { on: (event: string, fn: (payload: unknown) => void) => void })
+			.on('close', payload => closeEvents.push(payload));
 
 		const parent = document.createElement('div');
 		const refs = buildTitleBar(player as never, parent);

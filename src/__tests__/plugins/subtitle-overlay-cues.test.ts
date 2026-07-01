@@ -55,7 +55,7 @@ async function makePlayer(): Promise<NMVideoPlayer> {
 }
 
 function emitCues(player: NMVideoPlayer, cues: SubtitleCueChange['cues'], language = 'en'): void {
-	(player as unknown as { emit: (e: string, d: unknown) => void }).emit('subtitleCue', {
+	(player as unknown as { emit: (event: string, data: unknown) => void }).emit('subtitleCue', {
 		language,
 		cues,
 	} satisfies SubtitleCueChange);
@@ -130,7 +130,7 @@ describe('SubtitleOverlayPlugin — item event clears cues', () => {
 		emitCues(player, [{ text: 'Hello', plainText: 'Hello', align: 'center', size: 100 }]);
 		expect(player.container.querySelectorAll('.subtitle-area').length).toBe(1);
 
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('item', {});
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('item', {});
 
 		expect(player.container.querySelectorAll('.subtitle-area').length).toBe(0);
 	});
@@ -272,7 +272,7 @@ describe('SubtitleOverlayPlugin — subtitleStyle repaint', () => {
 		};
 
 		// Emit subtitleStyle with a full style object so applyStyleTo runs.
-		(player as unknown as { emit: (e: string, d: unknown) => void })
+		(player as unknown as { emit: (event: string, data: unknown) => void })
 			.emit('subtitleStyle', newStyle);
 
 		// fontFamily should have been written to the text span.
@@ -298,7 +298,7 @@ describe('SubtitleOverlayPlugin — bindOverlayToVideo null rect', () => {
 		expect(plugin).toBeDefined();
 
 		// Trigger the videoRect event with no rect so applyRect runs the null branch.
-		(player as unknown as { emit: (e: string, d: unknown) => void })
+		(player as unknown as { emit: (event: string, data: unknown) => void })
 			.emit('videoRect', { rect: null });
 
 		const overlay = player.container.querySelector<HTMLElement>('.subtitle-overlay');
@@ -315,7 +315,7 @@ describe('SubtitleOverlayPlugin — bindOverlayToVideo null rect', () => {
 
 		await player.addPlugin(subtitleOverlayPlugin).ready();
 
-		(player as unknown as { emit: (e: string, d: unknown) => void })
+		(player as unknown as { emit: (event: string, data: unknown) => void })
 			.emit('videoRect', { rect: fakeRect });
 
 		const overlay = player.container.querySelector<HTMLElement>('.subtitle-overlay');
@@ -333,7 +333,7 @@ describe('SubtitleOverlayPlugin — subtitleCue guard branches', () => {
 	it('null subtitleCue event does not create any areas', async () => {
 		const player = await makePlayer();
 
-		(player as unknown as { emit: (e: string, d: unknown) => void })
+		(player as unknown as { emit: (event: string, data: unknown) => void })
 			.emit('subtitleCue', null);
 
 		expect(player.container.querySelectorAll('.subtitle-area').length).toBe(0);

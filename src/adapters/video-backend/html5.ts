@@ -103,7 +103,7 @@ const CODEC_LABELS: Array<[RegExp, string]> = [
 ];
 
 function humanCodec(raw: string): string {
-	const parts = raw.split(',').map(s => s.trim());
+	const parts = raw.split(',').map(segment => segment.trim());
 	const labels = parts.map((part) => {
 		for (const [re, label] of CODEC_LABELS) {
 			if (re.test(part))
@@ -458,12 +458,12 @@ export class Html5VideoBackend
 		if (nativeTracks && nativeTracks.length > 0) {
 			const out: AudioTrack[] = [];
 			for (let i = 0; i < nativeTracks.length; i++) {
-				const t = nativeTracks[i]!;
+				const track = nativeTracks[i]!;
 				out.push({
-					id: t.id || `audio-${i}`,
-					language: t.language || undefined,
-					label: t.label || `Track ${i + 1}`,
-					default: t.enabled,
+					id: track.id || `audio-${i}`,
+					language: track.language || undefined,
+					label: track.label || `Track ${i + 1}`,
+					default: track.enabled,
 				});
 			}
 			return out;
@@ -476,7 +476,7 @@ export class Html5VideoBackend
 			this.hls.audioTrack = idx;
 			return;
 		}
-		const nativeTracks = (this.element as unknown as { audioTracks?: { length: number; [k: number]: { enabled: boolean } } }).audioTracks;
+		const nativeTracks = (this.element as unknown as { audioTracks?: { length: number; [k: number]: { enabled: boolean } } } /* non-standard HTMLMediaElement.audioTracks, absent from lib.dom */).audioTracks;
 		if (nativeTracks) {
 			for (let i = 0; i < nativeTracks.length; i++) {
 				nativeTracks[i]!.enabled = i === idx;
@@ -687,7 +687,7 @@ export class Html5VideoBackend
 		if (opts?.includeUnsupported)
 			return all;
 
-		return all.filter(l => l.supported);
+		return all.filter(level => level.supported);
 	}
 
 	private async _probeCodecCapabilities(): Promise<void> {
@@ -949,7 +949,7 @@ export class Html5VideoBackend
 		// want the typed PlayerError should listen on `stream:error`.
 		const syntheticError = new ErrorEvent('error', { message });
 		(syntheticError as ErrorEvent & { hlsDetails?: string }).hlsDetails = details;
-		this.emit('error', syntheticError as unknown as Event);
+		this.emit('error', syntheticError as unknown as Event /* BackendEventPayload['error'] requires Event; ErrorEvent extends Event but emitter overloads narrow to Event */);
 	}
 
 	/**
@@ -1341,10 +1341,10 @@ function normaliseVttCue(cue: VTTCue): SubtitleCue {
 	}
 
 	let align: 'start' | 'center' | 'end' = 'center';
-	const a = cue.align;
-	if (a === 'start' || a === 'left')
+	const rawAlign = cue.align;
+	if (rawAlign === 'start' || rawAlign === 'left')
 		align = 'start';
-	else if (a === 'end' || a === 'right')
+	else if (rawAlign === 'end' || rawAlign === 'right')
 		align = 'end';
 
 	const size = typeof cue.size === 'number' ? cue.size : 100;
@@ -1353,9 +1353,9 @@ function normaliseVttCue(cue: VTTCue): SubtitleCue {
 	// only when it's an explicit number so renderers can fall back to
 	// align-derived defaults.
 	let position: number | undefined;
-	const p = cue.position;
-	if (typeof p === 'number' && p >= 0 && p <= 100)
-		position = p;
+	const rawPosition = cue.position;
+	if (typeof rawPosition === 'number' && rawPosition >= 0 && rawPosition <= 100)
+		position = rawPosition;
 
 	return { text: safe, plainText: plain, line, align, size, position };
 }

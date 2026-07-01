@@ -154,35 +154,35 @@ export function wireTooltips(
 	getTooltipToken: () => number | null,
 	setTooltipToken: (token: number | null) => void,
 	scheduleTimeout: (fn: () => void, ms: number) => number,
-	t: (key: string, params?: Record<string, string>) => string,
+	translate: (key: string, params?: Record<string, string>) => string,
 	safeCurrentIndex: () => number,
 ): void {
 	const attach = (btn: HTMLButtonElement, getText: () => string): void =>
 		addTooltip(btn, getText, listen, sliderRefs, player.container, getTooltipToken, setTooltipToken, scheduleTimeout);
 
-	attach(refs.playBtn, () => t('tooltip.play', {}));
-	attach(refs.rewindBtn, () => t('tooltip.seekBack', {}));
-	attach(refs.forwardBtn, () => t('tooltip.seekForward', {}));
-	attach(refs.volBtn, () => t('tooltip.mute', {}));
-	attach(refs.aspectRatioBtn, () => t('tooltip.aspectRatio', {}));
-	attach(refs.theaterBtn, () => t('tooltip.theater', {}));
-	attach(refs.pipBtn, () => t('tooltip.pip', {}));
-	attach(refs.speedBtn, () => t('tooltip.speed', {}));
-	attach(refs.subsBtn, () => t('tooltip.subtitles', {}));
-	attach(refs.audioBtn, () => t('tooltip.audio', {}));
-	attach(refs.qualityBtn, () => t('tooltip.quality', {}));
-	attach(refs.playlistBtn, () => t('tooltip.playlist', {}));
-	attach(refs.settingsBtn, () => t('tooltip.settings', {}));
-	attach(refs.fsBtn, () => t('tooltip.fullscreen', {}));
+	attach(refs.playBtn, () => translate('tooltip.play', {}));
+	attach(refs.rewindBtn, () => translate('tooltip.seekBack', {}));
+	attach(refs.forwardBtn, () => translate('tooltip.seekForward', {}));
+	attach(refs.volBtn, () => translate('tooltip.mute', {}));
+	attach(refs.aspectRatioBtn, () => translate('tooltip.aspectRatio', {}));
+	attach(refs.theaterBtn, () => translate('tooltip.theater', {}));
+	attach(refs.pipBtn, () => translate('tooltip.pip', {}));
+	attach(refs.speedBtn, () => translate('tooltip.speed', {}));
+	attach(refs.subsBtn, () => translate('tooltip.subtitles', {}));
+	attach(refs.audioBtn, () => translate('tooltip.audio', {}));
+	attach(refs.qualityBtn, () => translate('tooltip.quality', {}));
+	attach(refs.playlistBtn, () => translate('tooltip.playlist', {}));
+	attach(refs.settingsBtn, () => translate('tooltip.settings', {}));
+	attach(refs.fsBtn, () => translate('tooltip.fullscreen', {}));
 
 	attach(refs.prevBtn, () => {
 		const idx = safeCurrentIndex();
 		const queue = player.queue() ?? [];
 		const prevItem = idx > 0 ? queue[idx - 1] : undefined;
 		if (prevItem?.title) {
-			return t('tooltip.previousWithTitle', { title: prevItem.title });
+			return translate('tooltip.previousWithTitle', { title: prevItem.title });
 		}
-		return t('tooltip.previous', {});
+		return translate('tooltip.previous', {});
 	});
 
 	attach(refs.nextBtn, () => {
@@ -190,9 +190,9 @@ export function wireTooltips(
 		const queue = player.queue() ?? [];
 		const nextItem = queue[idx + 1];
 		if (nextItem?.title) {
-			return t('tooltip.nextWithTitle', { title: nextItem.title });
+			return translate('tooltip.nextWithTitle', { title: nextItem.title });
 		}
-		return t('tooltip.next', {});
+		return translate('tooltip.next', {});
 	});
 
 	attach(refs.chapBackBtn, () => {
@@ -200,9 +200,9 @@ export function wireTooltips(
 		const time = player.time?.() ?? 0;
 		const prev = [...chapters].reverse().find(ch => ch.start < time - 1);
 		if (prev?.title) {
-			return t('tooltip.previousChapterWithTitle', { title: prev.title });
+			return translate('tooltip.previousChapterWithTitle', { title: prev.title });
 		}
-		return t('tooltip.chapterPrev', {});
+		return translate('tooltip.chapterPrev', {});
 	});
 
 	attach(refs.chapFwdBtn, () => {
@@ -210,8 +210,8 @@ export function wireTooltips(
 		const time = player.time?.() ?? 0;
 		const next = chapters.find(ch => ch.start > time + 1);
 		if (next?.title) {
-			return t('tooltip.nextChapterWithTitle', { title: next.title });
+			return translate('tooltip.nextChapterWithTitle', { title: next.title });
 		}
-		return t('tooltip.chapterNext', {});
+		return translate('tooltip.chapterNext', {});
 	});
 }

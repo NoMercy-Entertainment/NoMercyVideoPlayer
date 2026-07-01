@@ -336,7 +336,7 @@ describe('OctopusPlugin', () => {
 			await player.ready();
 
 			(player as any).emit('subtitle', { track: 0 });
-			await new Promise(r => setTimeout(r, 0));
+			await new Promise(resolve => setTimeout(resolve, 0));
 
 			expect(octopusCalls).toHaveLength(0);
 		});
@@ -354,7 +354,7 @@ describe('OctopusPlugin', () => {
 			expect(octopusCalls).toHaveLength(1);
 
 			(player as any).emit('subtitle', { track: null });
-			await new Promise(r => setTimeout(r, 0));
+			await new Promise(resolve => setTimeout(resolve, 0));
 
 			expect(octopusDisposed).toHaveLength(1);
 			expect(inst.renderer()).toBeNull();

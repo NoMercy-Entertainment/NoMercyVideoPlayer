@@ -108,7 +108,7 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 			if (!style)
 				return;
 			this.currentStyle = { ...style };
-			for (const a of this.areas) this.applyStyleTo(a.text, a.area);
+			for (const area of this.areas) this.applyStyleTo(area.text, area.area);
 		});
 
 		// The sole rendering signal — kit + backend funnel both sidecar
@@ -159,10 +159,10 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 
 	private setLanguage(lang: string | undefined): void {
 		this.currentLanguage = lang;
-		for (const a of this.areas) {
+		for (const area of this.areas) {
 			if (lang)
-				a.text.setAttribute('data-language', lang);
-			else a.text.removeAttribute('data-language');
+				area.text.setAttribute('data-language', lang);
+			else area.text.removeAttribute('data-language');
 		}
 	}
 
@@ -215,10 +215,10 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 		// Snapshot current rendered rects — getBoundingClientRect()
 		// forces a layout flush, so do it once per area up front.
 		const placed: Array<{ area: HTMLDivElement; rect: DOMRect }> = this.areas
-			.map(a => ({ area: a.area, rect: a.area.getBoundingClientRect() }));
+			.map(areaEntry => ({ area: areaEntry.area, rect: areaEntry.area.getBoundingClientRect() }));
 
-		const overlaps = (a: DOMRect, b: DOMRect): boolean =>
-			a.top < b.bottom && a.bottom > b.top;
+		const overlaps = (rectA: DOMRect, rectB: DOMRect): boolean =>
+			rectA.top < rectB.bottom && rectA.bottom > rectB.top;
 
 		for (let i = 1; i < placed.length; i++) {
 			const curr = placed[i]!;
@@ -307,7 +307,7 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 	/**
 	 * Translate a cue's `line` / `align` / `size` into CSS positioning
 	 * on a single `.subtitle-area`, per the WebVTT cue layout rules
-	 * (W3C WebVTT 1.0 §7.2 "Apply WebVTT cue settings"):
+	 * (W3C WebVTT 1.0, "Apply WebVTT cue settings"):
 	 *
 	 *   horizontal:
 	 *     position default = 0% / 50% / 100% based on alignment
@@ -366,7 +366,7 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 		else area.classList.add('aligned-center');
 
 		// Horizontal box geometry — derived from `size` + `align` +
-		// `position` per WebVTT cue layout (W3C WebVTT 1.0 §7.2):
+		// `position` per WebVTT cue layout (W3C WebVTT 1.0):
 		//
 		//   anchor = 0 (start) | 0.5 (center) | 1 (end)
 		//   position default = 0% (start) | 50% (center) | 100% (end)

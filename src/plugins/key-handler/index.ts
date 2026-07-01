@@ -12,7 +12,7 @@ import { KeyHandlerPlugin as BaseKeyHandler } from '@nomercy-entertainment/nomer
 import { formatSeconds as fmtTime } from '../desktop-ui/helpers/progressBar';
 
 function hasDisplayMessage<T extends VideoPlaylistItem>(videoPlayer: NMVideoPlayer<T>): videoPlayer is NMVideoPlayer<T> & { displayMessage: (text: string, ms?: number) => void } {
-	return typeof (videoPlayer as unknown as { displayMessage?: unknown }).displayMessage === 'function';
+	return typeof (videoPlayer as unknown as { displayMessage?: unknown } /* duck-type check: DesktopUiPlugin mixes displayMessage onto the player; not on the public interface */).displayMessage === 'function';
 }
 
 /**

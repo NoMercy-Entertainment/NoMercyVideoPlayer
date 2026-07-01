@@ -66,9 +66,9 @@ function cleanup(): void {
 	vi.unstubAllGlobals();
 }
 
-function NOOP_LISTEN(_: EventTarget, __: string, ___: (event: Event) => void): void {}
+function NOOP_LISTEN(_target: EventTarget, _event: string, _handler: (event: Event) => void): void {}
 
-function realListen(target: EventTarget, event: string, fn: (e: Event) => void): void {
+function realListen(target: EventTarget, event: string, fn: (ev: Event) => void): void {
 	(target as HTMLElement).addEventListener(event, fn);
 }
 

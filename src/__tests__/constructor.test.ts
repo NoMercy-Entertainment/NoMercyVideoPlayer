@@ -54,8 +54,8 @@ describe('NMVideoPlayer constructor', () => {
 		});
 
 		it('numeric form: nmplayer(0) returns first registered instance', () => {
-			const a = document.createElement('div'); a.id = 'vidx-a'; document.body.appendChild(a);
-			const b = document.createElement('div'); b.id = 'vidx-b'; document.body.appendChild(b);
+			const divA = document.createElement('div'); divA.id = 'vidx-a'; document.body.appendChild(divA);
+			const divB = document.createElement('div'); divB.id = 'vidx-b'; document.body.appendChild(divB);
 			const first = nmplayer('vidx-a');
 			nmplayer('vidx-b');
 			expect(nmplayer(0)).toBe(first);
@@ -151,8 +151,8 @@ describe('NMVideoPlayer constructor', () => {
 		});
 
 		it('different ids produce different instances', () => {
-			const a = document.createElement('div'); a.id = 'va'; document.body.appendChild(a);
-			const b = document.createElement('div'); b.id = 'vb'; document.body.appendChild(b);
+			const divA = document.createElement('div'); divA.id = 'va'; document.body.appendChild(divA);
+			const divB = document.createElement('div'); divB.id = 'vb'; document.body.appendChild(divB);
 
 			const first = nmplayer('va');
 			const second = nmplayer('vb');

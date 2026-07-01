@@ -81,7 +81,7 @@ describe('NMVideoPlayer — fullscreen()', () => {
 		(player as unknown as { platform: () => unknown }).platform = () => fakePlatform;
 
 		const events: unknown[] = [];
-		player.on('fullscreen', d => events.push(d));
+		player.on('fullscreen', payload => events.push(payload));
 
 		player.fullscreen(true);
 
@@ -141,7 +141,7 @@ describe('NMVideoPlayer — fullscreen()', () => {
 		await player.ready();
 
 		const events: boolean[] = [];
-		player.on('fullscreen', (d: { active: boolean }) => events.push(d.active));
+		player.on('fullscreen', (payload: { active: boolean }) => events.push(payload.active));
 
 		const fakePlatform = {
 			fullscreen: {
@@ -189,7 +189,7 @@ describe('NMVideoPlayer — pip()', () => {
 		(player as unknown as Record<string, unknown>).platform = () => fakePlatform;
 
 		const events: unknown[] = [];
-		player.on('pip', d => events.push(d));
+		player.on('pip', payload => events.push(payload));
 
 		player.pip(true);
 
@@ -244,7 +244,7 @@ describe('NMVideoPlayer — pip()', () => {
 		await player.ready();
 
 		const events: boolean[] = [];
-		player.on('pip', (d: { active: boolean }) => events.push(d.active));
+		player.on('pip', (payload: { active: boolean }) => events.push(payload.active));
 
 		const fakePlatform = {
 			pip: {
@@ -279,7 +279,7 @@ describe('NMVideoPlayer — theater()', () => {
 		await player.ready();
 
 		const events: unknown[] = [];
-		player.on('theater', d => events.push(d));
+		player.on('theater', payload => events.push(payload));
 
 		player.theater(true);
 
@@ -294,7 +294,7 @@ describe('NMVideoPlayer — theater()', () => {
 		player.theater(true);
 
 		const events: unknown[] = [];
-		player.on('theater', d => events.push(d));
+		player.on('theater', payload => events.push(payload));
 
 		player.theater(false);
 		expect((events[0] as { active: boolean }).active).toBe(false);
@@ -313,7 +313,7 @@ describe('NMVideoPlayer — theater()', () => {
 		await player.ready();
 
 		const events: boolean[] = [];
-		player.on('theater', (d: { active: boolean }) => events.push(d.active));
+		player.on('theater', (payload: { active: boolean }) => events.push(payload.active));
 
 		player.toggleTheater();
 		expect(events[0]).toBe(true);
@@ -342,7 +342,7 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		player.playSegment({ startSec: 0, endSec: 30, onEnd: 'advance' });
 
 		// Simulate time reaching endSec
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 30 });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('time', { time: 30 });
 
 		expect(boundaries.length).toBe(1);
 		expect((boundaries[0] as { startSec: number }).startSec).toBe(0);
@@ -354,9 +354,9 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		await player.ready();
 
 		const seekCalls: number[] = [];
-		(player as unknown as Record<string, unknown>).time = (t?: number) => {
-			if (t !== undefined)
-				seekCalls.push(t);
+		(player as unknown as Record<string, unknown>).time = (seconds?: number) => {
+			if (seconds !== undefined)
+				seekCalls.push(seconds);
 			return Promise.resolve();
 		};
 
@@ -366,7 +366,7 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		expect(seekCalls[0]).toBe(10);
 
 		// Simulate boundary.
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 40 });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('time', { time: 40 });
 
 		// Second seek back to startSec after loop.
 		expect(seekCalls[1]).toBe(10);
@@ -381,7 +381,7 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		(player as unknown as Record<string, unknown>).pause = () => { pauseCalls.push(1); return Promise.resolve(); };
 
 		player.playSegment({ startSec: 0, endSec: 20, onEnd: 'hold' });
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 20 });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('time', { time: 20 });
 
 		expect(pauseCalls.length).toBe(1);
 	});
@@ -392,9 +392,9 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 
 		const seekAfterInit: number[] = [];
 		let initDone = false;
-		(player as unknown as Record<string, unknown>).time = (t?: number) => {
-			if (t !== undefined && initDone)
-				seekAfterInit.push(t);
+		(player as unknown as Record<string, unknown>).time = (seconds?: number) => {
+			if (seconds !== undefined && initDone)
+				seekAfterInit.push(seconds);
 			initDone = true;
 			return Promise.resolve();
 		};
@@ -403,7 +403,7 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		(player as unknown as Record<string, unknown>).pause = () => { pauseCalls.push(1); return Promise.resolve(); };
 
 		player.playSegment({ startSec: 5, endSec: 15, onEnd: 'advance' });
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 15 });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('time', { time: 15 });
 
 		expect(seekAfterInit.length).toBe(0);
 		expect(pauseCalls.length).toBe(0);
@@ -419,8 +419,8 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		player.on('segmentBoundary', segmentBoundaryPayload => boundaries.push(segmentBoundaryPayload));
 
 		player.playSegment({ startSec: 0, endSec: 60, onEnd: 'advance' });
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 30 });
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 59 });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('time', { time: 30 });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('time', { time: 59 });
 
 		expect(boundaries.length).toBe(0);
 	});
@@ -437,7 +437,7 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		player.playSegment({ startSec: 0, endSec: 30, onEnd: 'advance' });
 		player.clearSegment();
 
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 30 });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('time', { time: 30 });
 
 		expect(boundaries.length).toBe(0);
 	});
@@ -447,9 +447,9 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		await player.ready();
 
 		const seekCalls: number[] = [];
-		(player as unknown as Record<string, unknown>).time = (t?: number) => {
-			if (t !== undefined)
-				seekCalls.push(t);
+		(player as unknown as Record<string, unknown>).time = (seconds?: number) => {
+			if (seconds !== undefined)
+				seekCalls.push(seconds);
 			return Promise.resolve();
 		};
 
@@ -463,13 +463,13 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		player.playSegment({ startSec: 5, endSec: 40, onEnd: 'advance' });
 
 		// Trigger at 30 — old boundary should NOT fire (listener was cleared)
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 30 });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('time', { time: 30 });
 		// Old segment: would have fired. If it fires, boundary count is 1 (wrong).
 		// New segment endSec is 40, so nothing at t=30 either way. The count must be 0.
 		expect(boundaries.length).toBe(0);
 
 		// Trigger at 40 — new segment boundary fires
-		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 40 });
+		(player as unknown as { emit: (event: string, data: unknown) => void }).emit('time', { time: 40 });
 		expect(boundaries.length).toBe(1);
 		expect((boundaries[0] as { endSec: number }).endSec).toBe(40);
 	});

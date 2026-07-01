@@ -290,10 +290,10 @@ describe('KeyHandlerPlugin — speed key no-op guards', () => {
 		const setRateSpy = vi.fn();
 		await ready(makePlayer({
 			playbackRates: () => rates,
-			playbackRate: (r?: number) => {
-				if (r !== undefined) {
-					setRateSpy(r);
-					currentRate = r;
+			playbackRate: (rate?: number) => {
+				if (rate !== undefined) {
+					setRateSpy(rate);
+					currentRate = rate;
 				}
 				return currentRate;
 			},
@@ -309,10 +309,10 @@ describe('KeyHandlerPlugin — speed key no-op guards', () => {
 		const setRateSpy = vi.fn();
 		await ready(makePlayer({
 			playbackRates: () => rates,
-			playbackRate: (r?: number) => {
-				if (r !== undefined) {
-					setRateSpy(r);
-					currentRate = r;
+			playbackRate: (rate?: number) => {
+				if (rate !== undefined) {
+					setRateSpy(rate);
+					currentRate = rate;
 				}
 				return currentRate;
 			},
@@ -344,9 +344,9 @@ describe('KeyHandlerPlugin — frame-advance loading guard', () => {
 		let currentTime = 10;
 		Object.assign(player, {
 			playState: () => 'loading',
-			time: (t?: number) => {
-				if (t !== undefined)
-					currentTime = t;
+			time: (seconds?: number) => {
+				if (seconds !== undefined)
+					currentTime = seconds;
 				return currentTime;
 			},
 		});

@@ -192,6 +192,6 @@ export function resolveSpriteUrl(item: unknown): string | undefined {
 	if (!Array.isArray(rec.tracks))
 		return undefined;
 	const tracks = rec.tracks as Array<Record<string, unknown>>;
-	const thumbs = tracks.find(t => t?.kind === 'thumbnails' && typeof t.file === 'string');
+	const thumbs = tracks.find(track => track?.kind === 'thumbnails' && typeof track.file === 'string');
 	return typeof thumbs?.file === 'string' ? thumbs.file : undefined;
 }

@@ -42,9 +42,9 @@ export function findChapterTitle(
  */
 export function previousChapter(player: IVideoPlayer<VideoPlaylistItem>): void {
 	const chapters = player.chapters();
-	const t = player.time?.() ?? 0;
+	const currentTime = player.time?.() ?? 0;
 	for (let i = chapters.length - 1; i >= 0; i--) {
-		if (chapters[i]!.start < t - 1) {
+		if (chapters[i]!.start < currentTime - 1) {
 			void player.time?.(chapters[i]!.start);
 			return;
 		}
@@ -58,9 +58,9 @@ export function previousChapter(player: IVideoPlayer<VideoPlaylistItem>): void {
  */
 export function nextChapter(player: IVideoPlayer<VideoPlaylistItem>): void {
 	const chapters = player.chapters();
-	const t = player.time?.() ?? 0;
+	const currentTime = player.time?.() ?? 0;
 	for (let i = 0; i < chapters.length; i++) {
-		if (chapters[i]!.start > t + 1) {
+		if (chapters[i]!.start > currentTime + 1) {
 			void player.time?.(chapters[i]!.start);
 			return;
 		}

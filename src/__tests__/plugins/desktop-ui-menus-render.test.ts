@@ -67,7 +67,7 @@ async function makePlayer(overrides: Record<string, unknown> = {}): Promise<NMVi
 	return player;
 }
 
-function NOOP_LISTEN(_: EventTarget, __: string, ___: (event: Event) => void): void {}
+function NOOP_LISTEN(_target: EventTarget, _event: string, _handler: (event: Event) => void): void {}
 
 // ── renderSpeedPane via real player ────────��─────────────────────────────────
 
@@ -133,7 +133,7 @@ describe('renderSpeedPane (direct call)', () => {
 			},
 		});
 
-		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 
@@ -333,7 +333,7 @@ describe('renderSubsPane (direct call)', () => {
 			language: () => 'en',
 		});
 
-		const listen = (target: EventTarget, event: string, fn: (e: Event) => void): void => {
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
 			(target as HTMLElement).addEventListener(event, fn);
 		};
 
@@ -401,7 +401,7 @@ describe('DesktopUiPlugin — settings items (consumer toggle rows)', () => {
 					id: 'auto-skip',
 					label: () => 'Auto Skip',
 					get: () => toggleState,
-					set: (v: boolean) => { toggleState = v; },
+					set: (value: boolean) => { toggleState = value; },
 				},
 			],
 		}).ready();
@@ -425,7 +425,7 @@ describe('DesktopUiPlugin — settings items (consumer toggle rows)', () => {
 					id: 'loop',
 					label: () => 'Loop',
 					get: () => toggleState,
-					set: (v: boolean) => { toggleState = v; },
+					set: (value: boolean) => { toggleState = value; },
 				},
 			],
 		}).ready();

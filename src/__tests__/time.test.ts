@@ -46,7 +46,7 @@ describe('NMVideoPlayer — time', () => {
 		const videoPlayer = setup();
 		await videoPlayer.time(5);
 		let preventedReason: string | undefined;
-		videoPlayer.on('beforeSeek' as any, (e: any) => { e.preventDefault(); });
+		videoPlayer.on('beforeSeek' as any, (evt: any) => { evt.preventDefault(); });
 		videoPlayer.on('seekPrevented' as any, (data: any) => { preventedReason = data.reason; });
 		await videoPlayer.time(99);
 		expect(videoPlayer.time()).toBe(5);

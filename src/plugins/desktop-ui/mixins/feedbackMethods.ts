@@ -69,6 +69,7 @@ export const feedbackMethods = {
 			this.messageTimer = null;
 		}
 		if (typeof ms === 'number' && ms > 0) {
+			/* this.timeout wraps the plugin scheduler; field typed as ReturnType<typeof setTimeout> for clearTimeout compatibility */
 			this.messageTimer = this.timeout(() => {
 				this.messageTimer = null;
 				this.hideMessage();

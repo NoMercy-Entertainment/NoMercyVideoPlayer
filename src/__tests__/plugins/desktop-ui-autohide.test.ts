@@ -7,24 +7,14 @@
 // -----------------------------------------------------------------------------
 
 /**
- * Regression tests for desktop-ui auto-hide bugs:
+ * Regression tests for desktop-ui auto-hide behaviour.
  *
- * Bug 1 — Controls must hide after 4 s even when a button has focus.
- *   Root cause: `focusin` was calling `bumpActivity()`, re-arming the
- *   inactivity timer on every focus arrival (including from a click/touch).
- *   Secondary cause: `mouseenter` on the bottom bar set `_isControlsHovered`
- *   via synthesised mouse events from touch, which were never matched by a
- *   real `mouseleave`, locking `_isControlsHovered = true` permanently.
- *   Fix: drop `focusin → bumpActivity`; switch hover guard to
- *   `pointerenter / pointerleave` filtered to `pointerType === 'mouse'`.
+ * Controls must hide after 4 s even when a button has focus. The focusin
+ * event must not re-arm the inactivity timer; the hover guard must filter to
+ * pointerType === 'mouse' so touch-synthesised events cannot lock it open.
  *
- * Bug 2 — Transition gap shows the old video frame, not the next poster.
- *   Root cause: `_applyPoster()` was only called from the `'current'` event,
- *   which fires AFTER `backend.load()` resolves (after metadata + first frame).
- *   The `<video>` element had no poster attribute set during the blank window
- *   when the old source is removed and the new source starts loading.
- *   Fix: listen to `'beforeLoad'` and apply the incoming item's poster to the
- *   element BEFORE `backend.load()` is invoked.
+ * Transition gaps must show the next poster, not the old video frame. The
+ * poster must be applied via 'beforeLoad' before backend.load() is invoked.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -50,7 +40,7 @@ function fakePlayingState(player: NMVideoPlayer): void {
 	Object.assign(player as object, { playState: () => 'playing' });
 }
 
-describe('DesktopUiPlugin — auto-hide (Bug 1)', () => {
+describe('DesktopUiPlugin — auto-hide (controls hide after 4 s)', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		const div = document.createElement('div');
@@ -175,19 +165,12 @@ describe('DesktopUiPlugin — auto-hide (Bug 1)', () => {
 	});
 });
 
-// ── Bug 3 — activity init desync (activityActive vs container class) ──────────
+// ── activity init desync (activityActive vs container class) ─────────────────
 //
-// Root cause: `activityActive` was initialized to `true`, but the container
-// started with neither `.active` nor `.inactive`. `bumpActivity()` at mount
-// called `setActivity(true)`, which early-returned because the flag was
-// already `true` — so the initial `activity` event was never emitted and
-// `.active` was never applied. Consequence: `setActivity(true)` was always a
-// no-op after init, so mouse activity could never re-show the controls.
-//
-// Fix: initialize `activityActive = false` so `bumpActivity()` at mount
-// fires a real false→true transition.
+// `activityActive` must start as `false` so `bumpActivity()` at mount fires a
+// real false→true transition and the container gains `.active` immediately.
 
-describe('DesktopUiPlugin — activity init desync (Bug 3)', () => {
+describe('DesktopUiPlugin — activity init desync', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		const div = document.createElement('div');
@@ -246,19 +229,12 @@ describe('DesktopUiPlugin — activity init desync (Bug 3)', () => {
 	});
 });
 
-// ── Bug 4 — flag/DOM desync: controls stuck hidden forever ────────────────────
+// ── flag/DOM desync: controls stuck hidden forever ────────────────────────────
 //
-// Root cause: anything that calls `player.emit('activity', { active: false })`
-// directly (bypassing setActivity) applies the binary container-class rule —
-// removing `.active` and adding `.inactive` — while leaving `activityActive`
-// untouched at `true`. Every subsequent `bumpActivity()` → `setActivity(true)`
-// hits `activityActive === true` and early-returns, so `.active` is never
-// re-applied. Controls are permanently hidden regardless of mouse movement.
-//
-// Fix: when `setActivity(true)` is called and the flag agrees but the container
+// When `setActivity(true)` is called and the flag agrees but the container
 // lacks `.active`, force-emit anyway so the binary rule re-adds the class.
 
-describe('DesktopUiPlugin — flag/DOM desync recovery (Bug 4)', () => {
+describe('DesktopUiPlugin — flag/DOM desync recovery', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		const div = document.createElement('div');
@@ -331,22 +307,12 @@ describe('DesktopUiPlugin — flag/DOM desync recovery (Bug 4)', () => {
 	});
 });
 
-// ── Bug 5 — phantom seek/seeked events re-show controls (rc.10 regression) ───
+// ── phantom seek/seeked re-show regression ────────────────────────────────────
 //
-// Root cause: rc.10 fixed the flag/DOM desync (Bug 4) by making setActivity(true)
-// force-emit when the container lacks .active, even if the flag agrees. That was
-// safe ONLY because bumpActivity() was supposed to be called from genuine user
-// input. But `this.on('seek', ...)` and `this.on('seeked', ...)` called
-// bumpActivity() unconditionally — including for programmatic/relayed seeks that
-// carry no `source`. During normal playback those phantom bumps fire ~8x/sec.
-// Each one called setActivity(true), which saw .active was absent (maybeHide had
-// just removed it) and force-emitted activity:true — re-showing the controls
-// immediately. Result: controls flicker, never hide.
-//
-// Fix: seek bumps are gated on d?.source being set (user-initiated scrub).
-// seeked is not bumped at all (seeked never carries source; seek fires first).
+// Seek bumps must be gated on `source` being set (user-initiated scrub only).
+// `seeked` must not bump activity at all — `seek` fires first and carries source.
 
-describe('DesktopUiPlugin — phantom seek re-show regression (Bug 5)', () => {
+describe('DesktopUiPlugin — phantom seek re-show regression', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		const div = document.createElement('div');
@@ -432,7 +398,7 @@ describe('DesktopUiPlugin — phantom seek re-show regression (Bug 5)', () => {
 	});
 });
 
-// ── Bug 2 — poster applied before source swap ─────────────────────────────────
+// ── poster applied before source swap ────────────────────────────────────────
 
 interface TestItem {
 	id: string;
@@ -440,7 +406,7 @@ interface TestItem {
 	image?: string;
 }
 
-describe('NMVideoPlayer — poster before source swap (Bug 2)', () => {
+describe('NMVideoPlayer — poster before source swap', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		document.body.innerHTML = '<div id="poster-swap-test"></div>';

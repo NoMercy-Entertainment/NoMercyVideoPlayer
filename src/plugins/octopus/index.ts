@@ -138,7 +138,8 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 		opts: OctopusOptions,
 		lifecycle: Parameters<Plugin<NMVideoPlayer<T>, OctopusOptions>['initialize']>[2],
 	): void {
-		super.initialize(player, opts ?? this._ctorOpts ?? ({} as OctopusOptions), lifecycle);
+		const resolvedOpts: OctopusOptions = opts ?? this._ctorOpts ?? {};
+		super.initialize(player, resolvedOpts, lifecycle);
 	}
 
 	/** Wires `subtitle` and `current` listeners to load ASS/SSA tracks into the libass renderer. */

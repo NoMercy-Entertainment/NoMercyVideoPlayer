@@ -208,9 +208,9 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		const rates = [0.5, 1, 1.5, 2];
 		await ready(makePlayer({
 			playbackRates: () => rates,
-			playbackRate: (r?: number) => {
-				if (r !== undefined)
-					currentRate = r; return currentRate;
+			playbackRate: (rate?: number) => {
+				if (rate !== undefined)
+					currentRate = rate; return currentRate;
 			},
 		}));
 		key(']');
@@ -222,9 +222,9 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		const rates = [0.5, 1, 1.5, 2];
 		await ready(makePlayer({
 			playbackRates: () => rates,
-			playbackRate: (r?: number) => {
-				if (r !== undefined)
-					currentRate = r; return currentRate;
+			playbackRate: (rate?: number) => {
+				if (rate !== undefined)
+					currentRate = rate; return currentRate;
 			},
 		}));
 		key('[');
@@ -235,9 +235,9 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		let currentRate = 2;
 		await ready(makePlayer({
 			playbackRates: () => [0.5, 1, 1.5, 2],
-			playbackRate: (r?: number) => {
-				if (r !== undefined)
-					currentRate = r; return currentRate;
+			playbackRate: (rate?: number) => {
+				if (rate !== undefined)
+					currentRate = rate; return currentRate;
 			},
 		}));
 		key('=');
@@ -250,9 +250,9 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		let currentTime = 10;
 		await ready(makePlayer({
 			playState: () => 'paused',
-			time: (t?: number) => {
-				if (t !== undefined)
-					currentTime = t; return currentTime;
+			time: (seconds?: number) => {
+				if (seconds !== undefined)
+					currentTime = seconds; return currentTime;
 			},
 		}));
 		key('e');
@@ -263,9 +263,9 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		let currentTime = 10;
 		await ready(makePlayer({
 			playState: () => 'playing',
-			time: (t?: number) => {
-				if (t !== undefined)
-					currentTime = t; return currentTime;
+			time: (seconds?: number) => {
+				if (seconds !== undefined)
+					currentTime = seconds; return currentTime;
 			},
 		}));
 		key('e');

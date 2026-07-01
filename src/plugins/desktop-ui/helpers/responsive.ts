@@ -339,7 +339,7 @@ export function wireOrientation(
 		applyAllVisibilityRules(state, opts, state.lastContainerWidth, emitBreakpoint, container);
 	};
 
-	listen(mql as unknown as EventTarget, 'change', onChange);
+	listen(mql as unknown as EventTarget /* MediaQueryList satisfies EventTarget but lib.dom types it narrowly */, 'change', onChange);
 }
 
 /**
@@ -367,7 +367,7 @@ export function wireNoHover(
 		applyAllVisibilityRules(state, opts, state.lastContainerWidth, emitBreakpoint, container);
 	};
 
-	listen(mql as unknown as EventTarget, 'change', onChange);
+	listen(mql as unknown as EventTarget /* MediaQueryList satisfies EventTarget but lib.dom types it narrowly */, 'change', onChange);
 }
 
 /**

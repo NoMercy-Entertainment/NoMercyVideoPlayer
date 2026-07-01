@@ -18,7 +18,7 @@ import type { SubtitleTrackRef } from '../../types';
 import { describe, expect, it } from 'vitest';
 import { languageDisplayName, subtitleTrackLabel } from '../../plugins/desktop-ui/data/language-names';
 
-function t(key: string): string {
+function translate(key: string): string {
 	return ({
 		'plugin.desktop-ui.menu.subtitleType.full': 'Full',
 		'plugin.desktop-ui.menu.subtitleType.sign': 'Sign',
@@ -51,24 +51,24 @@ describe('languageDisplayName()', () => {
 
 describe('subtitleTrackLabel()', () => {
 	it('composes language + translated variant — the regression case', () => {
-		expect(subtitleTrackLabel(track({ language: 'eng', type: 'full', label: 'full' }), 'en', t, 'Track 1')).toBe('English (Full)');
-		expect(subtitleTrackLabel(track({ language: 'eng', type: 'sign', label: 'sign' }), 'en', t, 'Track 2')).toBe('English (Sign)');
+		expect(subtitleTrackLabel(track({ language: 'eng', type: 'full', label: 'full' }), 'en', translate, 'Track 1')).toBe('English (Full)');
+		expect(subtitleTrackLabel(track({ language: 'eng', type: 'sign', label: 'sign' }), 'en', translate, 'Track 2')).toBe('English (Sign)');
 	});
 
 	it('localizes the language name to the UI language', () => {
-		expect(subtitleTrackLabel(track({ language: 'eng', type: 'full' }), 'nl', t, 'Track 1')).toBe('Engels (Full)');
+		expect(subtitleTrackLabel(track({ language: 'eng', type: 'full' }), 'nl', translate, 'Track 1')).toBe('Engels (Full)');
 	});
 
 	it('shows untranslated variants raw', () => {
-		expect(subtitleTrackLabel(track({ language: 'eng', type: 'sdh' }), 'en', t, 'Track 1')).toBe('English (sdh)');
+		expect(subtitleTrackLabel(track({ language: 'eng', type: 'sdh' }), 'en', translate, 'Track 1')).toBe('English (sdh)');
 	});
 
 	it('language without variant renders the name alone', () => {
-		expect(subtitleTrackLabel(track({ language: 'eng', type: undefined, label: 'English' }), 'en', t, 'Track 1')).toBe('English');
+		expect(subtitleTrackLabel(track({ language: 'eng', type: undefined, label: 'English' }), 'en', translate, 'Track 1')).toBe('English');
 	});
 
 	it('falls back to the raw label, then the default', () => {
-		expect(subtitleTrackLabel(track({ language: undefined, type: undefined, label: 'Commentary' }), 'en', t, 'Track 1')).toBe('Commentary');
-		expect(subtitleTrackLabel(track({ language: undefined, type: undefined, label: '' }), 'en', t, 'Track 3')).toBe('Track 3');
+		expect(subtitleTrackLabel(track({ language: undefined, type: undefined, label: 'Commentary' }), 'en', translate, 'Track 1')).toBe('Commentary');
+		expect(subtitleTrackLabel(track({ language: undefined, type: undefined, label: '' }), 'en', translate, 'Track 3')).toBe('Track 3');
 	});
 });
