@@ -112,9 +112,9 @@ export type VideoBackendKind = typeof VIDEO_BACKEND_KIND[keyof typeof VIDEO_BACK
  * sync, DRM) can target either backend uniformly.
  *
  * Method conventions match the player class:
- *  - **Stateful = overloaded function:** `volume()` / `volume(v)`
+ *  - **Stateful = overloaded function:** `volume()` / `volume(level)`
  *  - **Action = verb:** `play()`, `pause()`, `stop()`, `mute()`, `unmute()`
- *  - **Time / position uses `currentTime(t)` for seeking** — no `seek` method
+ *  - **Time / position uses `currentTime(seconds)` for seeking** — no `seek` method
  */
 export interface IVideoBackend {
 	readonly kind: VideoBackendKind;

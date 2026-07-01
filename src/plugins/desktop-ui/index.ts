@@ -539,7 +539,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	declare repaintPlaylistIfOpen: () => void;
 	declare repaintAspectRatioIfOpen: () => void;
 
-	declare applyVolume: (v: number) => void;
+	declare applyVolume: (level: number) => void;
 	declare applyMuted: (muted: boolean) => void;
 	declare applyMutedIcon: () => void;
 	declare applyPopupMuteIcon: (muted: boolean) => void;
@@ -557,7 +557,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 
 	declare setPlayingState: (playing: boolean) => void;
 	declare handleCurrentChange: (item: VideoPlaylistItem | undefined | null) => void;
-	declare applyTime: (t: number) => void;
+	declare applyTime: (seconds: number) => void;
 	declare applyDuration: (dur: number) => void;
 	declare _formatRemaining: (cur: number, dur: number) => string;
 	declare applyStateVisibility: () => void;

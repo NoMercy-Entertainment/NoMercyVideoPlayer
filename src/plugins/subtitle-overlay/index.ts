@@ -136,8 +136,8 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 	 * + `.aligned-center` defaults (overridden per-cue when the
 	 * `align` setting differs). Overflow entries are removed.
 	 */
-	private ensureAreaCount(n: number): void {
-		while (this.areas.length < n) {
+	private ensureAreaCount(count: number): void {
+		while (this.areas.length < count) {
 			const area = this.player.createElement('div', `subtitle-area-${this.areas.length}`)
 				.addClasses(['subtitle-area', 'aligned-center'])
 				.appendTo(this.safezone)
@@ -151,7 +151,7 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 			if (this.currentLanguage)
 				text.setAttribute('data-language', this.currentLanguage);
 		}
-		while (this.areas.length > n) {
+		while (this.areas.length > count) {
 			const last = this.areas.pop();
 			last?.area.remove();
 		}

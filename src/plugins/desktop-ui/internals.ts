@@ -230,10 +230,10 @@ export interface DesktopUiInternals {
 	applyPipIcon(active: boolean): void;
 	applyTheaterIcon(active: boolean): void;
 	applyFullscreen(): void;
-	applyVolume(v: number): void;
+	applyVolume(level: number): void;
 	applyMuted(muted: boolean): void;
 	applyRate(): void;
-	applyTime(t: number): void;
+	applyTime(seconds: number): void;
 	applyDuration(dur: number): void;
 
 	// ── repaint helpers ───────────────────────────────────────────────────────────

@@ -38,14 +38,14 @@ import {
 } from '../helpers/buttonState';
 
 export const iconStateMethods = {
-	applyVolume(this: DesktopUiInternals, v: number): void {
-		applyVolume(this.volSlider, () => this.applyMutedIcon(), v);
+	applyVolume(this: DesktopUiInternals, level: number): void {
+		applyVolume(this.volSlider, () => this.applyMutedIcon(), level);
 
 		// Keep the vertical popup input in sync when volume changes externally.
 		if (this.volSliderVertical) {
 			const vertInput = this.volSliderVertical.querySelector<HTMLInputElement>('.volume-slider-vertical-input');
 			if (vertInput) {
-				const pct = clampVolume(v);
+				const pct = clampVolume(level);
 				vertInput.value = String(pct);
 				vertInput.style.setProperty('--vol-pct', `${pct}%`);
 			}

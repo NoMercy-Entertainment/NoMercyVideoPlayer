@@ -521,10 +521,10 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	/**
 	 * Read or write the volume level.
 	 * `volume()` — current level in [0, 100].
-	 * `volume(v)` — set level, clamped to [0, 100].
+	 * `volume(level)` — set level, clamped to [0, 100].
 	 */
 	volume(): number;
-	volume(v: number): void;
+	volume(level: number): void;
 
 	/** Buffered fraction in [0, 1]. `0` when no backend is active. */
 	buffered(): number;

@@ -67,7 +67,7 @@ export function addTooltip(
 	sliderRefs: SliderBarRefs,
 	container: HTMLElement,
 	getTooltipToken: () => number | null,
-	setTooltipToken: (v: number | null) => void,
+	setTooltipToken: (token: number | null) => void,
 	scheduleTimeout: (fn: () => void, ms: number) => number,
 ): void {
 	const tip = document.createElement('span');
@@ -152,7 +152,7 @@ export function wireTooltips(
 	sliderRefs: SliderBarRefs,
 	listen: (target: EventTarget, event: string, fn: (e: Event) => void) => void,
 	getTooltipToken: () => number | null,
-	setTooltipToken: (v: number | null) => void,
+	setTooltipToken: (token: number | null) => void,
 	scheduleTimeout: (fn: () => void, ms: number) => number,
 	t: (key: string, params?: Record<string, string>) => string,
 	safeCurrentIndex: () => number,

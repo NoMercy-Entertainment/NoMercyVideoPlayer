@@ -54,9 +54,9 @@ export const transportStateMethods = {
 		void this.loadSpritesForItem(item);
 	},
 
-	applyTime(this: DesktopUiInternals, t: number): void {
+	applyTime(this: DesktopUiInternals, seconds: number): void {
 		const dur = this.resolveDuration();
-		const pct = dur > 0 ? (t / dur) * 100 : 0;
+		const pct = dur > 0 ? (seconds / dur) * 100 : 0;
 
 		if (!this.isScrubbing) {
 			this.sliderRefs.sliderProgress.style.width = `${pct}%`;
@@ -77,8 +77,8 @@ export const transportStateMethods = {
 		}
 		catch { /* SourceBuffer detach */ }
 
-		this.currentTimeEl.textContent = formatSeconds(t);
-		this.remainingTimeEl.textContent = this._formatRemaining(t, dur);
+		this.currentTimeEl.textContent = formatSeconds(seconds);
+		this.remainingTimeEl.textContent = this._formatRemaining(seconds, dur);
 		this.refreshTransportEnablement();
 	},
 
