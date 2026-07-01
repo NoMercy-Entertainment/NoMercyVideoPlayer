@@ -42,17 +42,17 @@ describe('NMVideoPlayer — itemEndingSoon (inherited from core)', () => {
 	const item = (id: string): BasePlaylistItem => ({ id, title: `Item ${id}` } as unknown as BasePlaylistItem);
 
 	it('fires itemEndingSoon when remaining <= default threshold (10 s)', async () => {
-		const p = setup();
-		await p.ready();
+		const videoPlayer = setup();
+		await videoPlayer.ready();
 
-		p.queue([item('a')]);
+		videoPlayer.queue([item('a')]);
 
 		const payloads: Array<{ remaining: number; item: BasePlaylistItem }> = [];
-		p.on('itemEndingSoon' as never, (data: unknown) => {
+		videoPlayer.on('itemEndingSoon' as never, (data: unknown) => {
 			payloads.push(data as { remaining: number; item: BasePlaylistItem });
 		});
 
-		const check = asCheckable(p);
+		const check = asCheckable(videoPlayer);
 
 		// duration = 120, currentTime = 111 → remaining = 9 (< 10 threshold)
 		check(111, 120);
@@ -61,19 +61,19 @@ describe('NMVideoPlayer — itemEndingSoon (inherited from core)', () => {
 		expect(payloads[0]!.remaining).toBeCloseTo(9, 5);
 		expect((payloads[0]!.item as { id: string }).id).toBe('a');
 
-		p.dispose();
+		videoPlayer.dispose();
 	});
 
 	it('fires at most once per item (latch prevents double-fire)', async () => {
-		const p = setup();
-		await p.ready();
+		const videoPlayer = setup();
+		await videoPlayer.ready();
 
-		p.queue([item('a')]);
+		videoPlayer.queue([item('a')]);
 
 		const payloads: unknown[] = [];
-		p.on('itemEndingSoon' as never, (data: unknown) => { payloads.push(data); });
+		videoPlayer.on('itemEndingSoon' as never, (data: unknown) => { payloads.push(data); });
 
-		const check = asCheckable(p);
+		const check = asCheckable(videoPlayer);
 
 		check(111, 120);
 		check(112, 120);
@@ -81,56 +81,56 @@ describe('NMVideoPlayer — itemEndingSoon (inherited from core)', () => {
 
 		expect(payloads).toHaveLength(1);
 
-		p.dispose();
+		videoPlayer.dispose();
 	});
 
 	it('does not fire when remaining > threshold', async () => {
-		const p = setup();
-		await p.ready();
+		const videoPlayer = setup();
+		await videoPlayer.ready();
 
-		p.queue([item('a')]);
+		videoPlayer.queue([item('a')]);
 
 		const payloads: unknown[] = [];
-		p.on('itemEndingSoon' as never, (data: unknown) => { payloads.push(data); });
+		videoPlayer.on('itemEndingSoon' as never, (data: unknown) => { payloads.push(data); });
 
-		const check = asCheckable(p);
+		const check = asCheckable(videoPlayer);
 
 		// remaining = 60 s — well above the 10 s default threshold
 		check(60, 120);
 
 		expect(payloads).toHaveLength(0);
 
-		p.dispose();
+		videoPlayer.dispose();
 	});
 
 	it('does not fire when duration is 0 (metadata not yet loaded)', async () => {
-		const p = setup();
-		await p.ready();
+		const videoPlayer = setup();
+		await videoPlayer.ready();
 
-		p.queue([item('a')]);
+		videoPlayer.queue([item('a')]);
 
 		const payloads: unknown[] = [];
-		p.on('itemEndingSoon' as never, (data: unknown) => { payloads.push(data); });
+		videoPlayer.on('itemEndingSoon' as never, (data: unknown) => { payloads.push(data); });
 
-		asCheckable(p)(0, 0);
+		asCheckable(videoPlayer)(0, 0);
 
 		expect(payloads).toHaveLength(0);
 
-		p.dispose();
+		videoPlayer.dispose();
 	});
 
 	it('respects itemEndingSoonThreshold config', async () => {
-		const p = new NMVideoPlayer('test').setup({ itemEndingSoonThreshold: 30 });
-		await p.ready();
+		const videoPlayer = new NMVideoPlayer('test').setup({ itemEndingSoonThreshold: 30 });
+		await videoPlayer.ready();
 
-		p.queue([item('a')]);
+		videoPlayer.queue([item('a')]);
 
 		const payloads: Array<{ remaining: number }> = [];
-		p.on('itemEndingSoon' as never, (data: unknown) => {
+		videoPlayer.on('itemEndingSoon' as never, (data: unknown) => {
 			payloads.push(data as { remaining: number });
 		});
 
-		const check = asCheckable(p);
+		const check = asCheckable(videoPlayer);
 
 		// remaining = 20 s — below 30 s custom threshold
 		check(100, 120);
@@ -138,22 +138,22 @@ describe('NMVideoPlayer — itemEndingSoon (inherited from core)', () => {
 		expect(payloads).toHaveLength(1);
 		expect(payloads[0]!.remaining).toBeCloseTo(20, 5);
 
-		p.dispose();
+		videoPlayer.dispose();
 	});
 
 	it('latch resets on a new load so itemEndingSoon fires again for the next item', async () => {
-		const p = setup();
-		await p.ready();
+		const videoPlayer = setup();
+		await videoPlayer.ready();
 
-		p.queue([item('a'), item('b')]);
+		videoPlayer.queue([item('a'), item('b')]);
 
 		const payloads: Array<{ item: { id: string } }> = [];
-		p.on('itemEndingSoon' as never, (data: unknown) => {
+		videoPlayer.on('itemEndingSoon' as never, (data: unknown) => {
 			payloads.push(data as { item: { id: string } });
 		});
 
-		const check = asCheckable(p);
-		const internals = p as unknown as { _itemEndingSoonEmitted: boolean };
+		const check = asCheckable(videoPlayer);
+		const internals = videoPlayer as unknown as { _itemEndingSoonEmitted: boolean };
 
 		// Fire for item 'a'
 		check(111, 120);
@@ -167,6 +167,6 @@ describe('NMVideoPlayer — itemEndingSoon (inherited from core)', () => {
 		check(111, 120);
 		expect(payloads).toHaveLength(2);
 
-		p.dispose();
+		videoPlayer.dispose();
 	});
 });

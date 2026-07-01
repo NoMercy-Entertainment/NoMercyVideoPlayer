@@ -323,7 +323,7 @@ export function wireOrientation(
 	state: ResponsiveState,
 	container: HTMLElement,
 	opts: DesktopUiOptions | undefined,
-	listen: (target: EventTarget, event: string, fn: (e: Event) => void) => void,
+	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
 	emitBreakpoint: (payload: LayoutBreakpointPayload) => void,
 ): void {
 	if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
@@ -351,7 +351,7 @@ export function wireNoHover(
 	state: ResponsiveState,
 	container: HTMLElement,
 	opts: DesktopUiOptions | undefined,
-	listen: (target: EventTarget, event: string, fn: (e: Event) => void) => void,
+	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
 	emitBreakpoint: (payload: LayoutBreakpointPayload) => void,
 ): void {
 	if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
@@ -418,7 +418,7 @@ export function wireVolumeSlider(
 	vertInput: HTMLInputElement,
 	volBtn: HTMLButtonElement,
 	volPopupMuteBtn: HTMLButtonElement | null,
-	listen: (target: EventTarget, event: string, fn: (e: Event) => void) => void,
+	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
 	getVolume: () => number,
 	setVolume: (level: number) => void,
 	toggleMute: () => void,
@@ -462,8 +462,8 @@ export function wireVolumeSlider(
 	});
 
 	if (volPopupMuteBtn) {
-		listen(volPopupMuteBtn, 'click', (e: Event) => {
-			e.stopPropagation();
+		listen(volPopupMuteBtn, 'click', (event: Event) => {
+			event.stopPropagation();
 			toggleMute();
 		});
 	}
@@ -471,8 +471,8 @@ export function wireVolumeSlider(
 	if (mode === 'vertical') {
 		applyVertical(true);
 		listen(volBtn, 'click', () => openVertPop());
-		listen(document, 'click', (e: Event) => {
-			if (!volContainer.contains(e.target as Node))
+		listen(document, 'click', (event: Event) => {
+			if (!volContainer.contains(event.target as Node))
 				closeVertPop();
 		});
 		return;
@@ -505,8 +505,8 @@ export function wireVolumeSlider(
 				openVertPop();
 			}
 		});
-		listen(document, 'click', (e: Event) => {
-			if (!volContainer.contains(e.target as Node))
+		listen(document, 'click', (event: Event) => {
+			if (!volContainer.contains(event.target as Node))
 				closeVertPop();
 		});
 	}

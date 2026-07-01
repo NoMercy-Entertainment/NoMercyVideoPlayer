@@ -254,13 +254,13 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	}
 
 	private doubleTap(
-		onDouble: (e: Event) => void,
-		onSingle?: (e: Event) => void,
+		onDouble: (event: Event) => void,
+		onSingle?: (event: Event) => void,
 	): EventListener {
 		let lastTap = 0;
 		let singleTimer: ReturnType<typeof setTimeout> | null = null;
 
-		return (e: Event): void => {
+		return (event: Event): void => {
 			const delay = this.opts?.doubleTapThreshold ?? 300;
 			const now = Date.now();
 			const gap = now - lastTap;
@@ -271,13 +271,13 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 					clearTimeout(singleTimer);
 					singleTimer = null;
 				}
-				e.preventDefault();
-				onDouble(e);
+				event.preventDefault();
+				onDouble(event);
 			}
 			else {
 				singleTimer = setTimeout(() => {
 					singleTimer = null;
-					onSingle?.(e);
+					onSingle?.(event);
 				}, delay);
 			}
 		};

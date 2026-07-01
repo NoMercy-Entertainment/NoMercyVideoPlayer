@@ -33,39 +33,39 @@ describe('NMVideoPlayer — time', () => {
 	});
 
 	it('time(t) emits beforeSeek then seek', async () => {
-		const p = setup();
+		const videoPlayer = setup();
 		const order: string[] = [];
-		p.on('beforeSeek' as any, () => order.push('beforeSeek'));
-		p.on('seek' as any, () => order.push('seek'));
-		await p.time(10);
+		videoPlayer.on('beforeSeek' as any, () => order.push('beforeSeek'));
+		videoPlayer.on('seek' as any, () => order.push('seek'));
+		await videoPlayer.time(10);
 		expect(order).toEqual(['beforeSeek', 'seek']);
-		expect(p.time()).toBe(10);
+		expect(videoPlayer.time()).toBe(10);
 	});
 
 	it('preventDefault on beforeSeek leaves the value unchanged + emits seekPrevented', async () => {
-		const p = setup();
-		await p.time(5);
+		const videoPlayer = setup();
+		await videoPlayer.time(5);
 		let preventedReason: string | undefined;
-		p.on('beforeSeek' as any, (e: any) => { e.preventDefault(); });
-		p.on('seekPrevented' as any, (data: any) => { preventedReason = data.reason; });
-		await p.time(99);
-		expect(p.time()).toBe(5);
+		videoPlayer.on('beforeSeek' as any, (e: any) => { e.preventDefault(); });
+		videoPlayer.on('seekPrevented' as any, (data: any) => { preventedReason = data.reason; });
+		await videoPlayer.time(99);
+		expect(videoPlayer.time()).toBe(5);
 		expect(preventedReason).toBe('listener-prevented');
 	});
 
 	it('clamps negative values to 0', () => {
-		const p = setup();
-		p.time(-5);
-		expect(p.time()).toBe(0);
+		const videoPlayer = setup();
+		videoPlayer.time(-5);
+		expect(videoPlayer.time()).toBe(0);
 	});
 
 	it('playbackRate() round-trips and emits backend:ratechange', () => {
-		const p = setup();
-		expect(p.playbackRate()).toBe(1);
+		const videoPlayer = setup();
+		expect(videoPlayer.playbackRate()).toBe(1);
 		let rate: number | undefined;
-		p.on('backend:ratechange' as any, (data: any) => { rate = data.rate; });
-		p.playbackRate(1.5);
-		expect(p.playbackRate()).toBe(1.5);
+		videoPlayer.on('backend:ratechange' as any, (data: any) => { rate = data.rate; });
+		videoPlayer.playbackRate(1.5);
+		expect(videoPlayer.playbackRate()).toBe(1.5);
 		expect(rate).toBe(1.5);
 	});
 
@@ -76,9 +76,9 @@ describe('NMVideoPlayer — time', () => {
 	});
 
 	it('timeData() exposes the aggregated TimeState shape', async () => {
-		const p = setup();
-		await p.time(3);
-		const data = p.timeData();
+		const videoPlayer = setup();
+		await videoPlayer.time(3);
+		const data = videoPlayer.timeData();
 		expect(data.position).toBe(3);
 		expect(data.duration).toBe(0);
 		expect(data.buffered).toBe(0);

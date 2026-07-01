@@ -21,7 +21,7 @@ import { nmplayer, NMVideoPlayer } from '../index';
 
 function catchError(fn: () => unknown): PlayerError {
 	try { fn(); }
-	catch (e) { return e as PlayerError; }
+	catch (error) { return error as PlayerError; }
 	throw new Error('catchError: fn did not throw');
 }
 

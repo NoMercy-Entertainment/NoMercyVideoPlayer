@@ -118,7 +118,7 @@ describe('DesktopUiPlugin — progressive breakpoint system', () => {
 
 			simulateWidth(400); // sm (≤ 480 px)
 
-			const smEvent = events.find(e => e.to === 'sm');
+			const smEvent = events.find(layoutBreakpointPayload => layoutBreakpointPayload.to === 'sm');
 			expect(smEvent).toBeDefined();
 
 			// Fit-based algorithm at 400px:
@@ -202,7 +202,7 @@ describe('DesktopUiPlugin — progressive breakpoint system', () => {
 			// settings(40) = 256 > 252 → hidden.
 			simulateWidth(400);
 
-			const smEvent = events.find(e => e.to === 'sm');
+			const smEvent = events.find(layoutBreakpointPayload => layoutBreakpointPayload.to === 'sm');
 			expect(smEvent).toBeDefined();
 
 			// play and mute survive the fit pass.
@@ -258,7 +258,7 @@ describe('DesktopUiPlugin — progressive breakpoint system', () => {
 			// buttons that fit can still show — unlike the old rank cutoff.
 			simulateWidth(400);
 
-			const smEvent = events.find(e => e.to === 'sm');
+			const smEvent = events.find(layoutBreakpointPayload => layoutBreakpointPayload.to === 'sm');
 			expect(smEvent).toBeDefined();
 
 			// High-priority buttons are visible.

@@ -252,7 +252,7 @@ export interface DesktopUiInternals {
 	findChapterTitle(time: number): string | undefined;
 
 	// ── scrub / sprite helpers ────────────────────────────────────────────────────
-	getScrubTime(e: Event): { scrubTime: number; scrubTimePlayer: number };
+	getScrubTime(event: Event): { scrubTime: number; scrubTimePlayer: number };
 	clampPopOffset(pct: number): number;
 	paintSpriteAt(time: number): void;
 	loadSpritesForItem(item: VideoPlaylistItem | undefined | null): Promise<void>;

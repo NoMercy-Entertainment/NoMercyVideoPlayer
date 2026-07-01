@@ -31,7 +31,7 @@ export function findChapterTitle(
 	time: number,
 ): string | undefined {
 	return player.chapters()
-		.find(c => time >= c.start && time <= c.end)
+		.find(chapter => time >= chapter.start && time <= chapter.end)
 		?.title;
 }
 

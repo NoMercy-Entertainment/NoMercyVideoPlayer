@@ -67,7 +67,7 @@ async function makePlayer(overrides: Record<string, unknown> = {}): Promise<NMVi
 	return player;
 }
 
-function NOOP_LISTEN(_: EventTarget, __: string, ___: (e: Event) => void): void {}
+function NOOP_LISTEN(_: EventTarget, __: string, ___: (event: Event) => void): void {}
 
 // ── renderSpeedPane via real player ────────��─────────────────────────────────
 

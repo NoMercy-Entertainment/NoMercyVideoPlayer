@@ -337,7 +337,7 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		(player as unknown as Record<string, unknown>).time = timeSpy;
 
 		const boundaries: unknown[] = [];
-		player.on('segmentBoundary', d => boundaries.push(d));
+		player.on('segmentBoundary', segmentBoundaryPayload => boundaries.push(segmentBoundaryPayload));
 
 		player.playSegment({ startSec: 0, endSec: 30, onEnd: 'advance' });
 
@@ -416,7 +416,7 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		(player as unknown as Record<string, unknown>).time = () => Promise.resolve();
 
 		const boundaries: unknown[] = [];
-		player.on('segmentBoundary', d => boundaries.push(d));
+		player.on('segmentBoundary', segmentBoundaryPayload => boundaries.push(segmentBoundaryPayload));
 
 		player.playSegment({ startSec: 0, endSec: 60, onEnd: 'advance' });
 		(player as unknown as { emit: (e: string, d: unknown) => void }).emit('time', { time: 30 });
@@ -432,7 +432,7 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		(player as unknown as Record<string, unknown>).time = () => Promise.resolve();
 
 		const boundaries: unknown[] = [];
-		player.on('segmentBoundary', d => boundaries.push(d));
+		player.on('segmentBoundary', segmentBoundaryPayload => boundaries.push(segmentBoundaryPayload));
 
 		player.playSegment({ startSec: 0, endSec: 30, onEnd: 'advance' });
 		player.clearSegment();
@@ -454,7 +454,7 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		};
 
 		const boundaries: unknown[] = [];
-		player.on('segmentBoundary', d => boundaries.push(d));
+		player.on('segmentBoundary', segmentBoundaryPayload => boundaries.push(segmentBoundaryPayload));
 
 		// First segment: 0–30
 		player.playSegment({ startSec: 0, endSec: 30, onEnd: 'advance' });

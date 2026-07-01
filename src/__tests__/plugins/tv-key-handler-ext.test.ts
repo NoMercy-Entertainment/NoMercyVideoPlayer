@@ -56,9 +56,9 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 		return player;
 	}
 
-	async function ready(p: NMVideoPlayer): Promise<NMVideoPlayer> {
-		await p.ready();
-		return p;
+	async function ready(videoPlayer: NMVideoPlayer): Promise<NMVideoPlayer> {
+		await videoPlayer.ready();
+		return videoPlayer;
 	}
 
 	function key(k: string, opts: KeyboardEventInit = {}): void {

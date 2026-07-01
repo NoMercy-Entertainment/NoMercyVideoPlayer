@@ -11,8 +11,8 @@ import type { VideoPlaylistItem } from '../../types';
 import { KeyHandlerPlugin as BaseKeyHandler } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
 import { formatSeconds as fmtTime } from '../desktop-ui/helpers/progressBar';
 
-function hasDisplayMessage<T extends VideoPlaylistItem>(p: NMVideoPlayer<T>): p is NMVideoPlayer<T> & { displayMessage: (text: string, ms?: number) => void } {
-	return typeof (p as unknown as { displayMessage?: unknown }).displayMessage === 'function';
+function hasDisplayMessage<T extends VideoPlaylistItem>(videoPlayer: NMVideoPlayer<T>): videoPlayer is NMVideoPlayer<T> & { displayMessage: (text: string, ms?: number) => void } {
+	return typeof (videoPlayer as unknown as { displayMessage?: unknown }).displayMessage === 'function';
 }
 
 /**

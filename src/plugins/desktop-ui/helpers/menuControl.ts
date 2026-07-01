@@ -73,7 +73,7 @@ export interface MenuControlRefs {
 
 // ── Callback types ─────────────────────────────────────────────────────────────
 
-export type MenuListen = (target: EventTarget, event: string, fn: (e: Event) => void) => void;
+export type MenuListen = (target: EventTarget, event: string, fn: (event: Event) => void) => void;
 
 // ── Aria helpers ───────────────────────────────────────────────────────────────
 
@@ -210,8 +210,8 @@ export function wireMenuKeyboardNav(
 	menus: MenuFrameRefs,
 	listen: MenuListen,
 ): void {
-	listen(menus.frame, 'keydown', (e: Event) => {
-		const key = (e as KeyboardEvent).key;
+	listen(menus.frame, 'keydown', (event: Event) => {
+		const key = (event as KeyboardEvent).key;
 		if (key !== 'ArrowDown' && key !== 'ArrowUp')
 			return;
 
@@ -221,8 +221,8 @@ export function wireMenuKeyboardNav(
 		if (rows.length === 0)
 			return;
 
-		e.preventDefault();
-		e.stopPropagation();
+		event.preventDefault();
+		event.stopPropagation();
 
 		const activeIdx = rows.indexOf(document.activeElement as HTMLButtonElement);
 		const nextIdx = key === 'ArrowDown'
@@ -255,7 +255,7 @@ export function syncActiveIndexes(
 		state.activeAudioIdx = audioSelection.index;
 	}
 	else if (audios.length > 0) {
-		const defIdx = audios.findIndex(t => t.default === true);
+		const defIdx = audios.findIndex(audioTrack => audioTrack.default === true);
 		state.activeAudioIdx = defIdx >= 0 ? defIdx : 0;
 	}
 

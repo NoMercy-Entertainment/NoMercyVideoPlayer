@@ -32,10 +32,10 @@ describe('video-plugins', () => {
 
 	describe('KeyHandlerPlugin (video)', () => {
 		it('registers full v1-parity binding set', async () => {
-			const p = setup();
-			p.addPlugin(KeyHandlerPlugin);
-			await p.ready();
-			const inst = p.getPlugin(KeyHandlerPlugin)!;
+			const videoPlayer = setup();
+			videoPlayer.addPlugin(KeyHandlerPlugin);
+			await videoPlayer.ready();
+			const inst = videoPlayer.getPlugin(KeyHandlerPlugin)!;
 			const bindings = inst.bindings();
 			// Playback
 			expect(bindings.has(' ')).toBe(true);
@@ -102,9 +102,9 @@ describe('video-plugins', () => {
 		});
 
 		it('fires the right method when keys dispatch — covers modifiers, media keys, TV color buttons', async () => {
-			const p = setup();
-			p.addPlugin(KeyHandlerPlugin);
-			await p.ready();
+			const videoPlayer = setup();
+			videoPlayer.addPlugin(KeyHandlerPlugin);
+			await videoPlayer.ready();
 
 			// Stub player methods we want to assert against.
 			const stubs = {
@@ -122,9 +122,9 @@ describe('video-plugins', () => {
 				nextChapter: vi.fn(),
 				previousChapter: vi.fn(),
 			};
-			Object.assign(p as object, stubs);
+			Object.assign(videoPlayer as object, stubs);
 			// Force isTv/isMobile false so plain arrows route through.
-			Object.assign(p as object, { isTv: () => false, isMobile: () => false });
+			Object.assign(videoPlayer as object, { isTv: () => false, isMobile: () => false });
 
 			// Use `unknown` to break the strict NMVideoPlayer typing for stubs.
 			const fire = (init: KeyboardEventInit): void => {
@@ -188,40 +188,40 @@ describe('video-plugins', () => {
 		});
 
 		it('plain arrow keys are gated on isTv() — TV uses arrows for focus nav', async () => {
-			const p = setup();
-			Object.assign(p as object, { isTv: () => true, rewind: vi.fn(), forward: vi.fn() });
-			p.addPlugin(KeyHandlerPlugin);
-			await p.ready();
+			const videoPlayer = setup();
+			Object.assign(videoPlayer as object, { isTv: () => true, rewind: vi.fn(), forward: vi.fn() });
+			videoPlayer.addPlugin(KeyHandlerPlugin);
+			await videoPlayer.ready();
 
 			document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
 			document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-			expect((p as unknown as { rewind: ReturnType<typeof vi.fn> }).rewind).not.toHaveBeenCalled();
-			expect((p as unknown as { forward: ReturnType<typeof vi.fn> }).forward).not.toHaveBeenCalled();
+			expect((videoPlayer as unknown as { rewind: ReturnType<typeof vi.fn> }).rewind).not.toHaveBeenCalled();
+			expect((videoPlayer as unknown as { forward: ReturnType<typeof vi.fn> }).forward).not.toHaveBeenCalled();
 		});
 
 		it('disableControls option skips entire registration', async () => {
-			const p = new NMVideoPlayer('test').setup({ disableControls: true } as unknown as Parameters<NMVideoPlayer['setup']>[0]);
-			p.addPlugin(KeyHandlerPlugin);
-			await p.ready();
-			const inst = p.getPlugin(KeyHandlerPlugin)!;
+			const videoPlayer = new NMVideoPlayer('test').setup({ disableControls: true } as unknown as Parameters<NMVideoPlayer['setup']>[0]);
+			videoPlayer.addPlugin(KeyHandlerPlugin);
+			await videoPlayer.ready();
+			const inst = videoPlayer.getPlugin(KeyHandlerPlugin)!;
 			expect(inst.bindings().size).toBe(0);
 		});
 
 		it('frame-advance does NOT fire while playing', async () => {
-			const p = setup();
+			const videoPlayer = setup();
 			const seek = vi.fn();
-			Object.assign(p as object, {
+			Object.assign(videoPlayer as object, {
 				playState: () => 'playing',
 				time: Object.assign(seek, { call: seek }),
 			});
 			// Replace time with an overloaded stub.
-			(p as unknown as { time: unknown }).time = ((t?: number): number | void => {
+			(videoPlayer as unknown as { time: unknown }).time = ((t?: number): number | void => {
 				if (typeof t === 'number')
 					seek(t);
 				return 0;
 			}) as unknown;
-			p.addPlugin(KeyHandlerPlugin);
-			await p.ready();
+			videoPlayer.addPlugin(KeyHandlerPlugin);
+			await videoPlayer.ready();
 			document.dispatchEvent(new KeyboardEvent('keydown', { key: 'e', bubbles: true }));
 			expect(seek).not.toHaveBeenCalled();
 		});

@@ -42,59 +42,59 @@ describe('NMVideoPlayer — queue', () => {
 		});
 
 		it('item()/index() reflect empty queue', () => {
-			const p = setup();
-			expect(p.item()).toBeUndefined();
-			expect(p.index()).toBe(-1);
+			const videoPlayer = setup();
+			expect(videoPlayer.item()).toBeUndefined();
+			expect(videoPlayer.index()).toBe(-1);
 		});
 	});
 
 	describe('mutations + re-emit', () => {
 		it('queue([items]) replaces and emits queue', () => {
-			const p = setup();
+			const videoPlayer = setup();
 			let emitted: ReadonlyArray<VideoPlaylistItem> | undefined;
-			p.on('queue' as any, (items: any) => { emitted = items; });
-			p.queue([item('a'), item('b')]);
-			expect(p.queue().length).toBe(2);
+			videoPlayer.on('queue' as any, (items: any) => { emitted = items; });
+			videoPlayer.queue([item('a'), item('b')]);
+			expect(videoPlayer.queue().length).toBe(2);
 			expect(emitted?.length).toBe(2);
 		});
 
 		it('queueAppend emits queue:append', () => {
-			const p = setup();
+			const videoPlayer = setup();
 			let payload: { from: number } | undefined;
-			p.on('queue:append' as any, (data: any) => { payload = data; });
-			p.queue([item('a')]);
-			p.queueAppend(item('b'));
+			videoPlayer.on('queue:append' as any, (data: any) => { payload = data; });
+			videoPlayer.queue([item('a')]);
+			videoPlayer.queueAppend(item('b'));
 			expect(payload?.from).toBe(1);
 		});
 
 		it('queueRemove emits queue:remove with id', () => {
-			const p = setup();
+			const videoPlayer = setup();
 			let removedId: string | undefined;
-			p.on('queue:remove' as any, (data: any) => { removedId = data.id; });
-			p.queue([item('a'), item('b')]);
-			p.queueRemove('a');
+			videoPlayer.on('queue:remove' as any, (data: any) => { removedId = data.id; });
+			videoPlayer.queue([item('a'), item('b')]);
+			videoPlayer.queueRemove('a');
 			expect(removedId).toBe('a');
 		});
 
 		it('queueClear emits queue:clear with previousLength', () => {
-			const p = setup();
+			const videoPlayer = setup();
 			let cleared: { previousLength: number } | undefined;
-			p.on('queue:clear' as any, (data: any) => { cleared = data; });
-			p.queue([item('a'), item('b'), item('c')]);
-			p.queueClear();
+			videoPlayer.on('queue:clear' as any, (data: any) => { cleared = data; });
+			videoPlayer.queue([item('a'), item('b'), item('c')]);
+			videoPlayer.queueClear();
 			expect(cleared?.previousLength).toBe(3);
-			expect(p.queue()).toEqual([]);
+			expect(videoPlayer.queue()).toEqual([]);
 		});
 	});
 
 	describe('cursor', () => {
 		it('item() moves the cursor and emits "item"', () => {
-			const p = setup();
-			p.queue([item('a'), item('b'), item('c')]);
+			const videoPlayer = setup();
+			videoPlayer.queue([item('a'), item('b'), item('c')]);
 			let payload: { index: number } | undefined;
-			p.on('item' as any, (data: any) => { payload = data; });
-			p.item('c');
-			expect(p.item()?.id).toBe('c');
+			videoPlayer.on('item' as any, (data: any) => { payload = data; });
+			videoPlayer.item('c');
+			expect(videoPlayer.item()?.id).toBe('c');
 			expect(payload?.index).toBe(2);
 		});
 	});

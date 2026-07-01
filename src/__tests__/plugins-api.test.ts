@@ -52,57 +52,57 @@ describe('NMVideoPlayer — plugin registration', () => {
 	const setup = (): NMVideoPlayer => new NMVideoPlayer('test').setup({});
 
 	it('addPlugin returns this for chaining and instantiates+uses the plugin', async () => {
-		const p = setup();
-		expect(p.addPlugin(HelloPlugin)).toBe(p);
-		await p.ready();
-		expect(p.getPlugin(HelloPlugin)?.used).toBe(true);
+		const videoPlayer = setup();
+		expect(videoPlayer.addPlugin(HelloPlugin)).toBe(videoPlayer);
+		await videoPlayer.ready();
+		expect(videoPlayer.getPlugin(HelloPlugin)?.used).toBe(true);
 	});
 
 	it('emits plugin:installed with id and version', async () => {
-		const p = setup();
+		const videoPlayer = setup();
 		let payload: { id: string; version: string } | undefined;
-		p.on('plugin:installed' as any, (data: any) => { payload = data; });
-		p.addPlugin(HelloPlugin);
-		await p.ready();
+		videoPlayer.on('plugin:installed' as any, (data: any) => { payload = data; });
+		videoPlayer.addPlugin(HelloPlugin);
+		await videoPlayer.ready();
 		expect(payload?.id).toBe('hello');
 	});
 
 	it('static translations are merged on register and stripped on dispose', async () => {
-		const p = setup();
-		p.addPlugin(HelloPlugin);
-		await p.ready();
-		expect(p.t('plugin.hello.greet')).toBe('hi');
-		p.removePlugin(HelloPlugin);
-		expect(p.t('plugin.hello.greet')).toBe('plugin.hello.greet');
+		const videoPlayer = setup();
+		videoPlayer.addPlugin(HelloPlugin);
+		await videoPlayer.ready();
+		expect(videoPlayer.t('plugin.hello.greet')).toBe('hi');
+		videoPlayer.removePlugin(HelloPlugin);
+		expect(videoPlayer.t('plugin.hello.greet')).toBe('plugin.hello.greet');
 	});
 
 	it('throws core:plugin/duplicate-id on second add', () => {
-		const p = setup();
-		p.addPlugin(HelloPlugin);
-		expect(() => p.addPlugin(HelloPlugin)).toThrow(/core:plugin\/duplicate-id/);
+		const videoPlayer = setup();
+		videoPlayer.addPlugin(HelloPlugin);
+		expect(() => videoPlayer.addPlugin(HelloPlugin)).toThrow(/core:plugin\/duplicate-id/);
 	});
 
 	it('throws core:plugin/missing-dep when a required plugin is absent', () => {
-		const p = setup();
-		expect(() => p.addPlugin(NeedsHelloPlugin)).toThrow(/core:plugin\/missing-dep/);
+		const videoPlayer = setup();
+		expect(() => videoPlayer.addPlugin(NeedsHelloPlugin)).toThrow(/core:plugin\/missing-dep/);
 	});
 
 	it('removePlugin disposes the instance and emits plugin:disposed', async () => {
-		const p = setup();
-		p.addPlugin(HelloPlugin);
-		await p.ready();
-		const instance = p.getPlugin(HelloPlugin);
+		const videoPlayer = setup();
+		videoPlayer.addPlugin(HelloPlugin);
+		await videoPlayer.ready();
+		const instance = videoPlayer.getPlugin(HelloPlugin);
 		let disposedId: string | undefined;
-		p.on('plugin:disposed' as any, (data: any) => { disposedId = data.id; });
-		p.removePlugin(HelloPlugin);
+		videoPlayer.on('plugin:disposed' as any, (data: any) => { disposedId = data.id; });
+		videoPlayer.removePlugin(HelloPlugin);
 		expect(instance?.disposed).toBe(true);
 		expect(disposedId).toBe('hello');
 	});
 
 	it('plugins() lists every registered plugin', async () => {
-		const p = setup();
-		p.addPlugin(HelloPlugin);
-		await p.ready();
-		expect(p.plugins().length).toBe(1);
+		const videoPlayer = setup();
+		videoPlayer.addPlugin(HelloPlugin);
+		await videoPlayer.ready();
+		expect(videoPlayer.plugins().length).toBe(1);
 	});
 });

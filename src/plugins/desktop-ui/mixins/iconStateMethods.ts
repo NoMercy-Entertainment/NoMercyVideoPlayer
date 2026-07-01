@@ -106,7 +106,7 @@ export const iconStateMethods = {
 		// `qualityLevels()` filters unsupported codecs — match by the original
 		// HLS index, not array position.
 		const levels = this.player.qualityLevels?.() ?? [];
-		const level = levels.find(q => q.index === idx);
+		const level = levels.find(qualityLevel => qualityLevel.index === idx);
 		if (!level)
 			return undefined;
 		return level.label ?? (level.height ? `${level.height}p` : undefined);

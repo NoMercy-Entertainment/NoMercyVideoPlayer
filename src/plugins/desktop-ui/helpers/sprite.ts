@@ -116,7 +116,7 @@ export async function loadSpriteSet(vttUrl: string, fetchers?: SpriteFetchers): 
 export function lookupCue(set: SpriteSet, time: number): SpriteCue | null {
 	if (set.cues.length === 0)
 		return null;
-	const found = set.cues.find(c => time >= c.start && time < c.end);
+	const found = set.cues.find(spriteCue => time >= spriteCue.start && time < spriteCue.end);
 	return found ?? set.cues.at(-1) ?? null;
 }
 
@@ -127,13 +127,13 @@ export function lookupCue(set: SpriteSet, time: number): SpriteCue | null {
  * Returns both the bar-relative percentage (0–100) and the player time (seconds).
  */
 export function getScrubTime(
-	e: Event,
+	event: Event,
 	sliderBar: HTMLDivElement,
 	duration: number,
 ): { scrubTime: number; scrubTimePlayer: number } {
 	const rect = sliderBar.getBoundingClientRect();
-	const me = e as MouseEvent;
-	const te = e as TouchEvent;
+	const me = event as MouseEvent;
+	const te = event as TouchEvent;
 	const x = me.clientX ?? te.touches?.[0]?.clientX ?? te.changedTouches?.[0]?.clientX ?? 0;
 	let offsetX = x - rect.left;
 	if (offsetX <= 0)

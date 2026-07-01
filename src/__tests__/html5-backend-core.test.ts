@@ -210,28 +210,28 @@ describe('mediaElement()', () => {
 describe('element event bridging', () => {
 	it('bridges play event from element to backend emitter', () => {
 		const received: unknown[] = [];
-		backend.on('play', e => received.push(e));
+		backend.on('play', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('play'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges pause event', () => {
 		const received: unknown[] = [];
-		backend.on('pause', e => received.push(e));
+		backend.on('pause', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('pause'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges timeupdate event', () => {
 		const received: unknown[] = [];
-		backend.on('timeupdate', e => received.push(e));
+		backend.on('timeupdate', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('timeupdate'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges ended event and sets _ended flag so state() returns correct value', () => {
 		const received: unknown[] = [];
-		backend.on('ended', e => received.push(e));
+		backend.on('ended', event => received.push(event));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		videoEl.dispatchEvent(new Event('ended'));
 		expect(received).toHaveLength(1);
@@ -239,70 +239,70 @@ describe('element event bridging', () => {
 
 	it('bridges waiting event', () => {
 		const received: unknown[] = [];
-		backend.on('waiting', e => received.push(e));
+		backend.on('waiting', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('waiting'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges canplay event', () => {
 		const received: unknown[] = [];
-		backend.on('canplay', e => received.push(e));
+		backend.on('canplay', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('canplay'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges stalled event', () => {
 		const received: unknown[] = [];
-		backend.on('stalled', e => received.push(e));
+		backend.on('stalled', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('stalled'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges ratechange event', () => {
 		const received: unknown[] = [];
-		backend.on('ratechange', e => received.push(e));
+		backend.on('ratechange', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('ratechange'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges resize event', () => {
 		const received: unknown[] = [];
-		backend.on('resize', e => received.push(e));
+		backend.on('resize', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('resize'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges loadeddata event', () => {
 		const received: unknown[] = [];
-		backend.on('loadeddata', e => received.push(e));
+		backend.on('loadeddata', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('loadeddata'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges emptied event', () => {
 		const received: unknown[] = [];
-		backend.on('emptied', e => received.push(e));
+		backend.on('emptied', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('emptied'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges playing event', () => {
 		const received: unknown[] = [];
-		backend.on('playing', e => received.push(e));
+		backend.on('playing', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('playing'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges encrypted event', () => {
 		const received: unknown[] = [];
-		backend.on('encrypted', e => received.push(e));
+		backend.on('encrypted', event => received.push(event));
 		container.querySelector('video')!.dispatchEvent(new Event('encrypted'));
 		expect(received).toHaveLength(1);
 	});
 
 	it('bridges error event and sets _hadError flag', () => {
 		const received: unknown[] = [];
-		backend.on('error', e => received.push(e));
+		backend.on('error', event => received.push(event));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		Object.defineProperty(videoEl, 'error', {
 			get: () => ({ code: 2, message: 'network error' }),
@@ -317,7 +317,7 @@ describe('element event bridging', () => {
 
 	it('maps MediaError code 1 → media/aborted', () => {
 		const received: Array<Event & { v2ErrorCode?: string }> = [];
-		backend.on('error', e => received.push(e as Event & { v2ErrorCode?: string }));
+		backend.on('error', event => received.push(event as Event & { v2ErrorCode?: string }));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		Object.defineProperty(videoEl, 'error', {
 			get: () => ({ code: 1 }),
@@ -329,7 +329,7 @@ describe('element event bridging', () => {
 
 	it('maps MediaError code 3 → media/decode-fatal-variant', () => {
 		const received: Array<Event & { v2ErrorCode?: string }> = [];
-		backend.on('error', e => received.push(e as Event & { v2ErrorCode?: string }));
+		backend.on('error', event => received.push(event as Event & { v2ErrorCode?: string }));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		Object.defineProperty(videoEl, 'error', {
 			get: () => ({ code: 3 }),
@@ -341,7 +341,7 @@ describe('element event bridging', () => {
 
 	it('maps MediaError code 4 → media/decode-fatal-all (default branch)', () => {
 		const received: Array<Event & { v2ErrorCode?: string }> = [];
-		backend.on('error', e => received.push(e as Event & { v2ErrorCode?: string }));
+		backend.on('error', event => received.push(event as Event & { v2ErrorCode?: string }));
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		Object.defineProperty(videoEl, 'error', {
 			get: () => ({ code: 4 }),
@@ -360,7 +360,7 @@ describe('element event bridging', () => {
 
 	it('dispose removes element listeners — further element events do not reach backend', () => {
 		const received: unknown[] = [];
-		backend.on('play', e => received.push(e));
+		backend.on('play', event => received.push(event));
 		backend.dispose();
 		container.appendChild(document.createElement('div'));
 		backend = new Html5VideoBackend(container);
@@ -1189,7 +1189,7 @@ describe('HLS error recovery', () => {
 		const hls = await loadHls();
 		vi.useFakeTimers();
 		const errors: unknown[] = [];
-		backend.on('error', e => errors.push(e));
+		backend.on('error', event => errors.push(event));
 
 		for (let attempt = 0; attempt < 4; attempt++) {
 			hls.fire('hlsError', {
@@ -1239,7 +1239,7 @@ describe('HLS error recovery', () => {
 		const hls = await loadHls();
 		vi.useFakeTimers();
 		const errors: unknown[] = [];
-		backend.on('error', e => errors.push(e));
+		backend.on('error', event => errors.push(event));
 
 		const mediaErrPayload = { fatal: true, type: 'mediaError', details: 'bufferAddCodecError' };
 		hls.fire('hlsError', mediaErrPayload);

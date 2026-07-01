@@ -202,7 +202,7 @@ export const domMethods = {
 		this.listen(this.sliderRefs.sliderBar, 'mousedown', startScrub);
 		this.listen(this.sliderRefs.sliderBar, 'touchstart', startScrub);
 
-		const finalizeScrub = (e: Event): void => {
+		const finalizeScrub = (event: Event): void => {
 			if (!this.isMouseDown)
 				return;
 			this.isMouseDown = false;
@@ -210,7 +210,7 @@ export const domMethods = {
 			this._activityState.isScrubbing = false;
 			this.sliderRefs.sliderBar.classList.remove('slider-scrubbing');
 			this.sliderRefs.sliderPop.style.setProperty('--visibility', '0');
-			const scrub = this.getScrubTime(e);
+			const scrub = this.getScrubTime(event);
 			this.sliderRefs.sliderNipple.style.left = `${scrub.scrubTime}%`;
 			void this.player.time?.(scrub.scrubTimePlayer);
 			this.bumpActivity();
@@ -220,8 +220,8 @@ export const domMethods = {
 		this.listen(this.bottomBar, 'click', finalizeScrub);
 		this.listen(this.sliderRefs.sliderBar, 'touchend', finalizeScrub);
 
-		const onMove = (e: Event): void => {
-			const scrub = this.getScrubTime(e);
+		const onMove = (event: Event): void => {
+			const scrub = this.getScrubTime(event);
 			this.sliderRefs.sliderPopText.textContent = formatSeconds(scrub.scrubTimePlayer);
 			this.paintSpriteAt(scrub.scrubTimePlayer);
 
@@ -246,8 +246,8 @@ export const domMethods = {
 		this.listen(this.sliderRefs.sliderBar, 'mousemove', onMove);
 		this.listen(this.sliderRefs.sliderBar, 'touchmove', onMove);
 
-		this.listen(this.sliderRefs.sliderBar, 'mouseover', (e: Event) => {
-			const scrub = this.getScrubTime(e);
+		this.listen(this.sliderRefs.sliderBar, 'mouseover', (event: Event) => {
+			const scrub = this.getScrubTime(event);
 			this.sliderRefs.sliderPopText.textContent = formatSeconds(scrub.scrubTimePlayer);
 			this.paintSpriteAt(scrub.scrubTimePlayer);
 			this.sliderRefs.chapterText.textContent = this.findChapterTitle(scrub.scrubTimePlayer) ?? '';
@@ -269,8 +269,8 @@ export const domMethods = {
 
 		const container = this.player.container;
 		if (container) {
-			this.listen(container, 'mousemove', (e: Event) => {
-				const me = e as MouseEvent;
+			this.listen(container, 'mousemove', (event: Event) => {
+				const me = event as MouseEvent;
 				const dx = me.clientX - this._lastMouseX;
 				const dy = me.clientY - this._lastMouseY;
 				if (Math.abs(dx) < 2 && Math.abs(dy) < 2)
@@ -285,9 +285,9 @@ export const domMethods = {
 				if (!this.player.container.classList.contains('active'))
 					this.bumpActivity();
 			});
-			this.listen(container, 'keydown', (e: Event) => {
+			this.listen(container, 'keydown', (event: Event) => {
 				this.bumpActivity();
-				const ke = e as KeyboardEvent;
+				const ke = event as KeyboardEvent;
 				if (ke.key === '?' && !ke.ctrlKey && !ke.metaKey && !ke.altKey) {
 					ke.preventDefault();
 					this.toggleShortcuts();
@@ -302,29 +302,29 @@ export const domMethods = {
 				}
 			});
 			this.listen(container, 'mouseleave', () => this.maybeHide());
-			this.listen(container, 'click', (e: Event) => {
+			this.listen(container, 'click', (event: Event) => {
 				this.bumpActivity();
-				const target = e.target as HTMLElement;
+				const target = event.target as HTMLElement;
 				if (target.tagName === 'VIDEO' && !this.opts?.disableClickToPause) {
 					void this.player.togglePlayback();
 				}
 			});
 
-			this.listen(this.overlayRoot, 'click', (e: Event) => {
-				if ((e.target as Node) === this.overlayRoot) {
+			this.listen(this.overlayRoot, 'click', (event: Event) => {
+				if ((event.target as Node) === this.overlayRoot) {
 					this.dismissOverlay();
 				}
 			});
 		}
 
 		for (const zone of [this.bottomBar, this.menus.frame]) {
-			this.listen(zone, 'pointerenter', (e: Event) => {
-				if ((e as PointerEvent).pointerType === 'mouse') {
+			this.listen(zone, 'pointerenter', (event: Event) => {
+				if ((event as PointerEvent).pointerType === 'mouse') {
 					this._activityState.isControlsHovered = true;
 				}
 			});
-			this.listen(zone, 'pointerleave', (e: Event) => {
-				if ((e as PointerEvent).pointerType === 'mouse') {
+			this.listen(zone, 'pointerleave', (event: Event) => {
+				if ((event as PointerEvent).pointerType === 'mouse') {
 					this._activityState.isControlsHovered = false;
 				}
 			});
@@ -490,14 +490,14 @@ export const domMethods = {
 
 		this.wireSliderBar();
 
-		this.listen(this.speedBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('speed'); });
-		this.listen(this.qualityBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('quality'); });
-		this.listen(this.subsBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('subtitles'); });
-		this.listen(this.audioBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('language'); });
-		this.listen(this.playlistBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('playlist'); });
-		this.listen(this.settingsBtn, 'click', (e: Event) => { e.stopPropagation(); this.openMainMenu(); });
+		this.listen(this.speedBtn, 'click', (event: Event) => { event.stopPropagation(); this.openSubMenu('speed'); });
+		this.listen(this.qualityBtn, 'click', (event: Event) => { event.stopPropagation(); this.openSubMenu('quality'); });
+		this.listen(this.subsBtn, 'click', (event: Event) => { event.stopPropagation(); this.openSubMenu('subtitles'); });
+		this.listen(this.audioBtn, 'click', (event: Event) => { event.stopPropagation(); this.openSubMenu('language'); });
+		this.listen(this.playlistBtn, 'click', (event: Event) => { event.stopPropagation(); this.openSubMenu('playlist'); });
+		this.listen(this.settingsBtn, 'click', (event: Event) => { event.stopPropagation(); this.openMainMenu(); });
 
-		this.listen(this.aspectRatioBtn, 'click', (e: Event) => { e.stopPropagation(); this.openSubMenu('aspectRatio'); });
+		this.listen(this.aspectRatioBtn, 'click', (event: Event) => { event.stopPropagation(); this.openSubMenu('aspectRatio'); });
 		this.listen(this.theaterBtn, 'click', () => { this.player.toggleTheater(); });
 		this.listen(this.pipBtn, 'click', () => { this.player.togglePip(); });
 		this.listen(this.fsBtn, 'click', () => { this.player.toggleFullscreen(); });
@@ -508,10 +508,10 @@ export const domMethods = {
 			this.listen(videoEl, 'leavepictureinpicture', () => this.applyPipIcon(false));
 		}
 
-		this.listen(document, 'click', (e: Event) => {
+		this.listen(document, 'click', (event: Event) => {
 			if (!this._menuControlState.menuOpen)
 				return;
-			const target = e.target as Node;
+			const target = event.target as Node;
 			if (this.menus.frame.contains(target))
 				return;
 			this.closeAllMenus();

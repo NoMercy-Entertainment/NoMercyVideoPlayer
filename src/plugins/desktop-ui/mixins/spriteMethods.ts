@@ -25,8 +25,8 @@ import type { DesktopUiInternals } from '../internals';
 import { clampPopOffset, getScrubTime, loadSpriteSet, paintSpriteAt, resolveSpriteUrl } from '../helpers/sprite';
 
 export const spriteMethods = {
-	getScrubTime(this: DesktopUiInternals, e: Event): { scrubTime: number; scrubTimePlayer: number } {
-		return getScrubTime(e, this.sliderRefs.sliderBar, this.resolveDuration());
+	getScrubTime(this: DesktopUiInternals, event: Event): { scrubTime: number; scrubTimePlayer: number } {
+		return getScrubTime(event, this.sliderRefs.sliderBar, this.resolveDuration());
 	},
 
 	clampPopOffset(this: DesktopUiInternals, pct: number): number {

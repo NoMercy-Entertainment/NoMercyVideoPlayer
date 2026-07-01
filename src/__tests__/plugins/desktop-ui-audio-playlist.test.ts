@@ -36,7 +36,7 @@ const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
 	return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() };
 });
 
-function NOOP_LISTEN(_: EventTarget, __: string, ___: (e: Event) => void): void {}
+function NOOP_LISTEN(_: EventTarget, __: string, ___: (event: Event) => void): void {}
 
 const NOOP_ACTIONS = {
 	closeMenu: () => {},

@@ -36,23 +36,23 @@ describe('NMVideoPlayer — state enums', () => {
 		});
 
 		it('transitions to PLAYING after play()', async () => {
-			const p = setup();
-			await p.play();
-			expect(p.playState()).toBe(PlayState.PLAYING);
+			const videoPlayer = setup();
+			await videoPlayer.play();
+			expect(videoPlayer.playState()).toBe(PlayState.PLAYING);
 		});
 
 		it('transitions to PAUSED after pause()', async () => {
-			const p = setup();
-			await p.play();
-			await p.pause();
-			expect(p.playState()).toBe(PlayState.PAUSED);
+			const videoPlayer = setup();
+			await videoPlayer.play();
+			await videoPlayer.pause();
+			expect(videoPlayer.playState()).toBe(PlayState.PAUSED);
 		});
 
 		it('transitions to STOPPED after stop()', async () => {
-			const p = setup();
-			await p.play();
-			await p.stop();
-			expect(p.playState()).toBe(PlayState.STOPPED);
+			const videoPlayer = setup();
+			await videoPlayer.play();
+			await videoPlayer.stop();
+			expect(videoPlayer.playState()).toBe(PlayState.STOPPED);
 		});
 	});
 
@@ -62,17 +62,17 @@ describe('NMVideoPlayer — state enums', () => {
 		});
 
 		it('transitions to MUTED after mute()', () => {
-			const p = setup();
-			p.mute();
-			expect(p.volumeState()).toBe(VolumeState.MUTED);
+			const videoPlayer = setup();
+			videoPlayer.mute();
+			expect(videoPlayer.volumeState()).toBe(VolumeState.MUTED);
 		});
 
 		it('toggleMute flips state', () => {
-			const p = setup();
-			p.toggleMute();
-			expect(p.volumeState()).toBe(VolumeState.MUTED);
-			p.toggleMute();
-			expect(p.volumeState()).toBe(VolumeState.UNMUTED);
+			const videoPlayer = setup();
+			videoPlayer.toggleMute();
+			expect(videoPlayer.volumeState()).toBe(VolumeState.MUTED);
+			videoPlayer.toggleMute();
+			expect(videoPlayer.volumeState()).toBe(VolumeState.UNMUTED);
 		});
 	});
 
@@ -82,9 +82,9 @@ describe('NMVideoPlayer — state enums', () => {
 		});
 
 		it('round-trips through the writer', () => {
-			const p = setup();
-			p.repeatState(RepeatState.ALL);
-			expect(p.repeatState()).toBe(RepeatState.ALL);
+			const videoPlayer = setup();
+			videoPlayer.repeatState(RepeatState.ALL);
+			expect(videoPlayer.repeatState()).toBe(RepeatState.ALL);
 		});
 	});
 
@@ -94,9 +94,9 @@ describe('NMVideoPlayer — state enums', () => {
 		});
 
 		it('accepts a boolean shorthand', () => {
-			const p = setup();
-			p.shuffleState(true);
-			expect(p.shuffleState()).toBe(ShuffleState.ON);
+			const videoPlayer = setup();
+			videoPlayer.shuffleState(true);
+			expect(videoPlayer.shuffleState()).toBe(ShuffleState.ON);
 		});
 	});
 });

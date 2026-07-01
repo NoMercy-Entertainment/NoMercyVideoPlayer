@@ -105,40 +105,40 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 
 	describe('theater', () => {
 		it('theater() reads OFF by default', async () => {
-			const p = new NMVideoPlayer('test').setup({});
-			await p.ready();
-			expect(p.theater()).toBe(TheaterState.OFF);
+			const videoPlayer = new NMVideoPlayer('test').setup({});
+			await videoPlayer.ready();
+			expect(videoPlayer.theater()).toBe(TheaterState.OFF);
 		});
 
 		it('theater(true) flips on and emits theater { active }', async () => {
-			const p = new NMVideoPlayer('test').setup({});
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({});
+			await videoPlayer.ready();
 			let payload: { active: boolean } | undefined;
-			p.on('theater' as any, (data: any) => { payload = data; });
+			videoPlayer.on('theater' as any, (data: any) => { payload = data; });
 
-			p.theater(true);
+			videoPlayer.theater(true);
 
-			expect(p.theater()).toBe(TheaterState.ON);
+			expect(videoPlayer.theater()).toBe(TheaterState.ON);
 			expect(payload).toEqual({ active: true });
 		});
 
 		it('theater(TheaterState.ON) accepts the enum form', async () => {
-			const p = new NMVideoPlayer('test').setup({});
-			await p.ready();
-			p.theater(TheaterState.ON);
-			expect(p.theater()).toBe(TheaterState.ON);
+			const videoPlayer = new NMVideoPlayer('test').setup({});
+			await videoPlayer.ready();
+			videoPlayer.theater(TheaterState.ON);
+			expect(videoPlayer.theater()).toBe(TheaterState.ON);
 		});
 
 		it('toggleTheater() flips off → on → off and emits theater per call', async () => {
-			const p = new NMVideoPlayer('test').setup({});
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({});
+			await videoPlayer.ready();
 			const events: boolean[] = [];
-			p.on('theater' as any, (data: any) => { events.push(data.active); });
+			videoPlayer.on('theater' as any, (data: any) => { events.push(data.active); });
 
-			p.toggleTheater();
-			expect(p.theater()).toBe(TheaterState.ON);
-			p.toggleTheater();
-			expect(p.theater()).toBe(TheaterState.OFF);
+			videoPlayer.toggleTheater();
+			expect(videoPlayer.theater()).toBe(TheaterState.ON);
+			videoPlayer.toggleTheater();
+			expect(videoPlayer.theater()).toBe(TheaterState.OFF);
 
 			expect(events).toEqual([true, false]);
 		});
@@ -149,37 +149,37 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 	describe('fullscreen', () => {
 		it('fullscreen() reads via platform.fullscreen.isActive', async () => {
 			const fake = buildFakePlatform();
-			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
-			await p.ready();
-			expect(p.fullscreen()).toBe(FullscreenState.OFF);
+			const videoPlayer = new NMVideoPlayer('test').setup({ platform: fake.platform });
+			await videoPlayer.ready();
+			expect(videoPlayer.fullscreen()).toBe(FullscreenState.OFF);
 			fake.fs.setActive(true);
-			expect(p.fullscreen()).toBe(FullscreenState.ON);
+			expect(videoPlayer.fullscreen()).toBe(FullscreenState.ON);
 		});
 
 		it('without platform.fullscreen → throws BrowserPolicyError when toggled', async () => {
 			const fake = buildFakePlatform({ fullscreen: false, pip: true });
-			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({ platform: fake.platform });
+			await videoPlayer.ready();
 			let err: unknown;
-			try { p.fullscreen(true); }
-			catch (e) { err = e; }
+			try { videoPlayer.fullscreen(true); }
+			catch (error) { err = error; }
 			expect(err).toBeInstanceOf(BrowserPolicyError);
 			expect((err as BrowserPolicyError).code).toBe('core:policy/fullscreenUnsupported');
 		});
 
 		it('toggleFullscreen() calls platform.fullscreen.enter / exit and emits fullscreen', async () => {
 			const fake = buildFakePlatform();
-			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({ platform: fake.platform });
+			await videoPlayer.ready();
 
 			const events: boolean[] = [];
-			p.on('fullscreen' as any, (data: any) => { events.push(data.active); });
+			videoPlayer.on('fullscreen' as any, (data: any) => { events.push(data.active); });
 
-			p.toggleFullscreen(); // OFF → ON
+			videoPlayer.toggleFullscreen(); // OFF → ON
 			expect(fake.fs.enter).toHaveBeenCalledTimes(1);
 			fake.fs.setActive(true);
 
-			p.toggleFullscreen(); // ON → OFF
+			videoPlayer.toggleFullscreen(); // ON → OFF
 			expect(fake.fs.exit).toHaveBeenCalledTimes(1);
 
 			expect(events).toEqual([true, false]);
@@ -191,37 +191,37 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 	describe('pip', () => {
 		it('pip() reads via platform.pip.isActive', async () => {
 			const fake = buildFakePlatform();
-			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
-			await p.ready();
-			expect(p.pip()).toBe(PipState.OFF);
+			const videoPlayer = new NMVideoPlayer('test').setup({ platform: fake.platform });
+			await videoPlayer.ready();
+			expect(videoPlayer.pip()).toBe(PipState.OFF);
 			fake.pip.setActive(true);
-			expect(p.pip()).toBe(PipState.ON);
+			expect(videoPlayer.pip()).toBe(PipState.ON);
 		});
 
 		it('without platform.pip → throws when toggled', async () => {
 			const fake = buildFakePlatform({ fullscreen: true, pip: false });
-			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({ platform: fake.platform });
+			await videoPlayer.ready();
 			let err: unknown;
-			try { p.pip(true); }
-			catch (e) { err = e; }
+			try { videoPlayer.pip(true); }
+			catch (error) { err = error; }
 			expect(err).toBeInstanceOf(BrowserPolicyError);
 			expect((err as BrowserPolicyError).code).toBe('core:policy/pipUnsupported');
 		});
 
 		it('togglePip() calls platform.pip.enter / exit and emits pip', async () => {
 			const fake = buildFakePlatform();
-			const p = new NMVideoPlayer('test').setup({ platform: fake.platform });
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({ platform: fake.platform });
+			await videoPlayer.ready();
 
 			const events: boolean[] = [];
-			p.on('pip' as any, (data: any) => { events.push(data.active); });
+			videoPlayer.on('pip' as any, (data: any) => { events.push(data.active); });
 
-			p.togglePip(); // OFF → ON
+			videoPlayer.togglePip(); // OFF → ON
 			expect(fake.pip.enter).toHaveBeenCalledTimes(1);
 			fake.pip.setActive(true);
 
-			p.togglePip(); // ON → OFF
+			videoPlayer.togglePip(); // ON → OFF
 			expect(fake.pip.exit).toHaveBeenCalledTimes(1);
 
 			expect(events).toEqual([true, false]);
@@ -232,58 +232,58 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 
 	describe('aspectRatio', () => {
 		it('reads uniform by default', async () => {
-			const p = new NMVideoPlayer('test').setup({});
-			await p.ready();
-			expect(p.aspectRatio()).toBe('uniform');
+			const videoPlayer = new NMVideoPlayer('test').setup({});
+			await videoPlayer.ready();
+			expect(videoPlayer.aspectRatio()).toBe('uniform');
 		});
 
 		it('setter updates _aspectRatio and emits aspectRatio event', async () => {
-			const p = new NMVideoPlayer('test').setup({});
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({});
+			await videoPlayer.ready();
 
 			const events: string[] = [];
-			p.on('aspectRatio' as any, (data: any) => { events.push(data.value); });
+			videoPlayer.on('aspectRatio' as any, (data: any) => { events.push(data.value); });
 
-			p.aspectRatio('fill');
-			p.aspectRatio('exactfit');
-			p.aspectRatio('none');
-			p.aspectRatio('uniform');
+			videoPlayer.aspectRatio('fill');
+			videoPlayer.aspectRatio('exactfit');
+			videoPlayer.aspectRatio('none');
+			videoPlayer.aspectRatio('uniform');
 
-			expect(p.aspectRatio()).toBe('uniform');
+			expect(videoPlayer.aspectRatio()).toBe('uniform');
 			expect(events).toEqual(['fill', 'exactfit', 'none', 'uniform']);
 		});
 
 		it('applies object-fit to the video element when backend exists', async () => {
-			const p = new NMVideoPlayer('test').setup({});
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({});
+			await videoPlayer.ready();
 
-			p.backend();
+			videoPlayer.backend();
 			const videoEl = document.querySelector<HTMLVideoElement>('#test video');
 			expect(videoEl).not.toBeNull();
 
-			p.aspectRatio('fill');
+			videoPlayer.aspectRatio('fill');
 			expect(videoEl!.style.objectFit).toBe('fill');
 
-			p.aspectRatio('exactfit');
+			videoPlayer.aspectRatio('exactfit');
 			expect(videoEl!.style.objectFit).toBe('cover');
 
-			p.aspectRatio('none');
+			videoPlayer.aspectRatio('none');
 			expect(videoEl!.style.objectFit).toBe('none');
 
-			p.aspectRatio('uniform');
+			videoPlayer.aspectRatio('uniform');
 			expect(videoEl!.style.objectFit).toBe('contain');
 		});
 
 		it('survives aspectRatio() call before backend exists, then applies on backend init', async () => {
-			const p = new NMVideoPlayer('test').setup({});
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({});
+			await videoPlayer.ready();
 
 			// No backend yet — videoElement is undefined. Call must not throw.
-			p.aspectRatio('exactfit');
-			expect(p.aspectRatio()).toBe('exactfit');
+			videoPlayer.aspectRatio('exactfit');
+			expect(videoPlayer.aspectRatio()).toBe('exactfit');
 
 			// Allocating the backend now must pick up the pre-set value.
-			p.backend();
+			videoPlayer.backend();
 			const videoEl = document.querySelector<HTMLVideoElement>('#test video');
 			expect(videoEl).not.toBeNull();
 			expect(videoEl!.style.objectFit).toBe('cover');
@@ -292,10 +292,10 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 		it('options.stretching seeds the initial value when no user call preceded backend init', async () => {
 			(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 			document.body.innerHTML = '<div id="test2"></div>';
-			const p = new NMVideoPlayer('test2').setup({ stretching: 'none' } as any);
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test2').setup({ stretching: 'none' } as any);
+			await videoPlayer.ready();
 
-			p.backend();
+			videoPlayer.backend();
 			const videoEl = document.querySelector<HTMLVideoElement>('#test2 video');
 			expect(videoEl).not.toBeNull();
 			expect(videoEl!.style.objectFit).toBe('none');
@@ -304,12 +304,12 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 		it('user aspectRatio() call beats options.stretching when set before backend init', async () => {
 			(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 			document.body.innerHTML = '<div id="test3"></div>';
-			const p = new NMVideoPlayer('test3').setup({ stretching: 'none' } as any);
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test3').setup({ stretching: 'none' } as any);
+			await videoPlayer.ready();
 
-			p.aspectRatio('fill');
+			videoPlayer.aspectRatio('fill');
 
-			p.backend();
+			videoPlayer.backend();
 			const videoEl = document.querySelector<HTMLVideoElement>('#test3 video');
 			expect(videoEl).not.toBeNull();
 			// User's choice must win over options.stretching.
@@ -317,12 +317,12 @@ describe('NMVideoPlayer — video toggles (theater / fullscreen / pip)', () => {
 		});
 
 		it('default aspectRatio is uniform and maps to objectFit:contain on backend init', async () => {
-			const p = new NMVideoPlayer('test').setup({});
-			await p.ready();
+			const videoPlayer = new NMVideoPlayer('test').setup({});
+			await videoPlayer.ready();
 
-			expect(p.aspectRatio()).toBe('uniform');
+			expect(videoPlayer.aspectRatio()).toBe('uniform');
 
-			p.backend();
+			videoPlayer.backend();
 			const videoEl = document.querySelector<HTMLVideoElement>('#test video');
 			expect(videoEl).not.toBeNull();
 			// The uniform (default) stretching mode must produce contain, not fill.

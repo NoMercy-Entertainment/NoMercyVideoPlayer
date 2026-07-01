@@ -63,7 +63,7 @@ export interface TooltipButtonRefs {
 export function addTooltip(
 	btn: HTMLButtonElement,
 	getText: () => string,
-	listen: (target: EventTarget, event: string, fn: (e: Event) => void) => void,
+	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
 	sliderRefs: SliderBarRefs,
 	container: HTMLElement,
 	getTooltipToken: () => number | null,
@@ -150,7 +150,7 @@ export function wireTooltips(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	refs: TooltipButtonRefs,
 	sliderRefs: SliderBarRefs,
-	listen: (target: EventTarget, event: string, fn: (e: Event) => void) => void,
+	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
 	getTooltipToken: () => number | null,
 	setTooltipToken: (token: number | null) => void,
 	scheduleTimeout: (fn: () => void, ms: number) => number,

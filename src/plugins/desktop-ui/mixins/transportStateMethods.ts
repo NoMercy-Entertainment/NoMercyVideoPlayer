@@ -185,8 +185,8 @@ export const transportStateMethods = {
 		this.setDisabled(this.forwardBtn, dur > 0 && t >= dur - 0.25);
 
 		const chapters = this.player.chapters();
-		const hasPrevChap = chapters.some(c => c.start < t - 1);
-		const hasNextChap = chapters.some(c => c.start > t + 1);
+		const hasPrevChap = chapters.some(chapter => chapter.start < t - 1);
+		const hasNextChap = chapters.some(chapter => chapter.start > t + 1);
 		this.setDisabled(this.chapBackBtn, !hasPrevChap);
 		this.setDisabled(this.chapFwdBtn, !hasNextChap);
 	},

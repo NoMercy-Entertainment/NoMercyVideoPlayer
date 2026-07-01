@@ -239,7 +239,7 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 			return list[track]?.url ?? null;
 		}
 
-		const match = list.find(t => t.id === track);
+		const match = list.find(subtitleTrack => subtitleTrack.id === track);
 		return match?.url ?? null;
 	}
 

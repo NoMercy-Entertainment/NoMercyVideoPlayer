@@ -208,7 +208,7 @@ export class Html5VideoBackend
 	 * Bound listener for `_hdrMql` change events. Stored so we can call
 	 *  `removeEventListener` with the same reference on dispose.
 	 */
-	private _hdrMqlListener: ((e: MediaQueryListEvent) => void) | undefined;
+	private _hdrMqlListener: ((mediaQueryListEvent: MediaQueryListEvent) => void) | undefined;
 
 	constructor(container: HTMLElement) {
 		const existing = container.querySelector<HTMLVideoElement>('video');
@@ -446,11 +446,11 @@ export class Html5VideoBackend
 	audioTracks(): AudioTrack[] {
 		// HLS-managed sources: hls.audioTracks gives language + name.
 		if (this.hls?.audioTracks?.length) {
-			return this.hls.audioTracks.map((t, index) => ({
+			return this.hls.audioTracks.map((hlsAudioTrack, index) => ({
 				id: `audio-${index}`,
-				language: t.lang ?? undefined,
-				label: t.name ?? `Track ${index + 1}`,
-				default: t.default === true,
+				language: hlsAudioTrack.lang ?? undefined,
+				label: hlsAudioTrack.name ?? `Track ${index + 1}`,
+				default: hlsAudioTrack.default === true,
 			}));
 		}
 		// Native: HTMLMediaElement.audioTracks (Safari/Chrome with multi-audio).
@@ -486,13 +486,13 @@ export class Html5VideoBackend
 
 	subtitleTracks(): SubtitleTrack[] {
 		if (this.hls?.subtitleTracks?.length) {
-			return this.hls.subtitleTracks.map((t, index) => ({
+			return this.hls.subtitleTracks.map((hlsSubtitleTrack, index) => ({
 				id: `subtitle-${index}`,
-				language: t.lang ?? undefined,
-				label: t.name ?? `Subtitles ${index + 1}`,
+				language: hlsSubtitleTrack.lang ?? undefined,
+				label: hlsSubtitleTrack.name ?? `Subtitles ${index + 1}`,
 				kind: 'subtitles' as const,
-				url: t.url ?? '',
-				default: t.default === true,
+				url: hlsSubtitleTrack.url ?? '',
+				default: hlsSubtitleTrack.default === true,
 			}));
 		}
 		const tt = this.element.textTracks;
@@ -865,28 +865,28 @@ export class Html5VideoBackend
 			this.domHandlers.push({ event, handler });
 		};
 
-		track('loadstart', e => this.emit('loadstart', e));
-		track('loadeddata', e => this.emit('loadeddata', e));
-		track('canplay', e => this.emit('canplay', e));
-		track('emptied', e => this.emit('emptied', e));
-		track('play', e => this.emit('play', e));
-		track('playing', e => this.emit('playing', e));
-		track('pause', e => this.emit('pause', e));
-		track('timeupdate', e => this.emit('timeupdate', e));
-		track('waiting', e => this.emit('waiting', e));
-		track('stalled', e => this.emit('stalled', e));
-		track('ratechange', e => this.emit('ratechange', e));
-		track('resize', e => this.emit('resize', e));
-		track('encrypted', (e) => {
+		track('loadstart', event => this.emit('loadstart', event));
+		track('loadeddata', event => this.emit('loadeddata', event));
+		track('canplay', event => this.emit('canplay', event));
+		track('emptied', event => this.emit('emptied', event));
+		track('play', event => this.emit('play', event));
+		track('playing', event => this.emit('playing', event));
+		track('pause', event => this.emit('pause', event));
+		track('timeupdate', event => this.emit('timeupdate', event));
+		track('waiting', event => this.emit('waiting', event));
+		track('stalled', event => this.emit('stalled', event));
+		track('ratechange', event => this.emit('ratechange', event));
+		track('resize', event => this.emit('resize', event));
+		track('encrypted', (event) => {
 			// `MediaKeyMessageEvent` widens to `Event` for the channel —
 			// EME consumers cast at the listener if they need the keys.
-			this.emit('encrypted', e);
+			this.emit('encrypted', event);
 		});
-		track('ended', (e) => {
+		track('ended', (event) => {
 			this._ended = true;
-			this.emit('ended', e);
+			this.emit('ended', event);
 		});
-		track('error', (e) => {
+		track('error', (event) => {
 			this._hadError = true;
 			this._state = 'error';
 			// Attach MediaError metadata to the event object so upstream
@@ -915,10 +915,10 @@ export class Html5VideoBackend
 						v2Code = 'media/decode-fatal-all';
 						break;
 				}
-				(e as Event & { mediaErrorCode?: number; v2ErrorCode?: string }).mediaErrorCode = code;
-				(e as Event & { mediaErrorCode?: number; v2ErrorCode?: string }).v2ErrorCode = v2Code;
+				(event as Event & { mediaErrorCode?: number; v2ErrorCode?: string }).mediaErrorCode = code;
+				(event as Event & { mediaErrorCode?: number; v2ErrorCode?: string }).v2ErrorCode = v2Code;
 			}
-			this.emit('error', e);
+			this.emit('error', event);
 		});
 	}
 

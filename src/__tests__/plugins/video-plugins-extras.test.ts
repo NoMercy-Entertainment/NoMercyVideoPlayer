@@ -41,10 +41,10 @@ describe('video-plugins (extras)', () => {
 
 	describe('MediaSessionPlugin (video)', () => {
 		it('getMetadata reads video-specific text fields (title/show/season)', async () => {
-			const p = setup();
-			p.addPlugin(mediaSessionPlugin);
-			await p.ready();
-			const inst = p.getPlugin(MediaSessionPlugin)!;
+			const videoPlayer = setup();
+			videoPlayer.addPlugin(mediaSessionPlugin);
+			await videoPlayer.ready();
+			const inst = videoPlayer.getPlugin(MediaSessionPlugin)!;
 			expect(inst).toBeInstanceOf(MediaSessionPlugin);
 
 			const item = {
@@ -65,10 +65,10 @@ describe('video-plugins (extras)', () => {
 		});
 
 		it('getMetadata returns empty artist when show is absent (year is not a canonical field)', async () => {
-			const p = setup();
-			p.addPlugin(mediaSessionPlugin);
-			await p.ready();
-			const inst = p.getPlugin(MediaSessionPlugin)!;
+			const videoPlayer = setup();
+			videoPlayer.addPlugin(mediaSessionPlugin);
+			await videoPlayer.ready();
+			const inst = videoPlayer.getPlugin(MediaSessionPlugin)!;
 
 			const item = { id: 'm-001', title: 'Movie' } as any;
 			const meta = (inst as unknown as { getMetadata: (i: any) => any }).getMetadata(item);
@@ -79,11 +79,11 @@ describe('video-plugins (extras)', () => {
 		});
 
 		it('getMetadata reads the pre-resolved title from the item (tokens resolved at ingest)', async () => {
-			const p = setup();
-			p.addPlugin(mediaSessionPlugin);
-			await p.ready();
+			const videoPlayer = setup();
+			videoPlayer.addPlugin(mediaSessionPlugin);
+			await videoPlayer.ready();
 
-			const inst = p.getPlugin(MediaSessionPlugin)!;
+			const inst = videoPlayer.getPlugin(MediaSessionPlugin)!;
 			const item = { id: 'ep-001', title: 'Show S1 E1', show: 'Test Show', season: 1 } as any;
 			const meta = (inst as unknown as { getMetadata: (i: any) => any }).getMetadata(item);
 			expect(meta.title).toBe('Show S1 E1');
@@ -92,22 +92,22 @@ describe('video-plugins (extras)', () => {
 
 	describe('CastSenderPlugin', () => {
 		it('isConnected() returns false in JSDOM (no cast.framework)', async () => {
-			const p = setup();
-			p.addPlugin(castSenderPlugin);
-			await p.ready();
-			const inst = p.getPlugin(CastSenderPlugin)!;
+			const videoPlayer = setup();
+			videoPlayer.addPlugin(castSenderPlugin);
+			await videoPlayer.ready();
+			const inst = videoPlayer.getPlugin(CastSenderPlugin)!;
 			expect(inst).toBeInstanceOf(CastSenderPlugin);
 			expect(inst.isConnected()).toBe(false);
 		});
 
 		it('connect() throws BrowserPolicyError when cast framework is missing', async () => {
-			const p = setup();
-			p.addPlugin(castSenderPlugin);
-			await p.ready();
-			const inst = p.getPlugin(CastSenderPlugin)!;
+			const videoPlayer = setup();
+			videoPlayer.addPlugin(castSenderPlugin);
+			await videoPlayer.ready();
+			const inst = videoPlayer.getPlugin(CastSenderPlugin)!;
 			let caught: unknown;
 			try { await inst.connect(); }
-			catch (e) { caught = e; }
+			catch (error) { caught = error; }
 			expect(caught).toBeDefined();
 			expect((caught as Error).message).toMatch(/cast/i);
 		});
@@ -168,10 +168,10 @@ describe('video-plugins (extras)', () => {
 			};
 
 			try {
-				const p = setup();
-				p.addPlugin(castSenderPlugin);
-				await p.ready();
-				const inst = p.getPlugin(CastSenderPlugin)!;
+				const videoPlayer = setup();
+				videoPlayer.addPlugin(castSenderPlugin);
+				await videoPlayer.ready();
+				const inst = videoPlayer.getPlugin(CastSenderPlugin)!;
 
 				const episode = {
 					id: 'ep-1',
@@ -182,7 +182,7 @@ describe('video-plugins (extras)', () => {
 					url: 'https://cdn/ep1.mp4',
 					poster: 'https://cdn/poster.jpg',
 				};
-				(p as unknown as { item(): typeof episode }).item = () => episode;
+				(videoPlayer as unknown as { item(): typeof episode }).item = () => episode;
 
 				inst.connect();
 				// connect() resolves async; let the promise chain settle.
@@ -190,7 +190,7 @@ describe('video-plugins (extras)', () => {
 				await new Promise(resolve => setTimeout(resolve, 0));
 				expect(inst.isConnected()).toBe(true);
 
-				p.emit('item', { item: episode, index: 0 });
+				videoPlayer.emit('item', { item: episode, index: 0 });
 				await new Promise(resolve => setTimeout(resolve, 0));
 
 				expect(loadMedia).toHaveBeenCalled();
@@ -258,18 +258,18 @@ describe('video-plugins (extras)', () => {
 			(globalThis as any).chrome = { cast: { media: { MediaInfo: class { constructor() {} }, LoadRequest: class { constructor() {} }, GenericMediaMetadata: class {}, TvShowMediaMetadata: class {}, StreamType: { BUFFERED: 'BUFFERED', LIVE: 'LIVE' } } } };
 
 			try {
-				const p = setup();
-				p.addPlugin(castSenderPlugin);
-				await p.ready();
-				const inst = p.getPlugin(CastSenderPlugin)!;
-				(p as unknown as { item(): undefined }).item = () => undefined;
+				const videoPlayer = setup();
+				videoPlayer.addPlugin(castSenderPlugin);
+				await videoPlayer.ready();
+				const inst = videoPlayer.getPlugin(CastSenderPlugin)!;
+				(videoPlayer as unknown as { item(): undefined }).item = () => undefined;
 
 				inst.connect();
 				await new Promise(resolve => setTimeout(resolve, 0));
 				await new Promise(resolve => setTimeout(resolve, 0));
 
 				const seenPause: unknown[] = [];
-				p.on('pause', (data: unknown) => { seenPause.push(data); });
+				videoPlayer.on('pause', (data: unknown) => { seenPause.push(data); });
 
 				if (stubRemoteRef)
 					(stubRemoteRef as StubRemote).isPaused = true;
@@ -285,11 +285,11 @@ describe('video-plugins (extras)', () => {
 		});
 
 		it('buildMetadata reads the pre-resolved title from the item (tokens resolved at ingest)', async () => {
-			const p = setup();
-			p.addPlugin(castSenderPlugin);
-			await p.ready();
+			const videoPlayer = setup();
+			videoPlayer.addPlugin(castSenderPlugin);
+			await videoPlayer.ready();
 
-			const inst = p.getPlugin(CastSenderPlugin)!;
+			const inst = videoPlayer.getPlugin(CastSenderPlugin)!;
 
 			class GenericMetaCtor {}
 			const ctors = {
@@ -312,10 +312,10 @@ describe('video-plugins (extras)', () => {
 
 	describe('DrmPlugin', () => {
 		it('use() does not throw on platforms without requestMediaKeySystemAccess', async () => {
-			const p = setup();
-			expect(() => p.addPlugin(drmPlugin, { keySystem: 'com.widevine.alpha', licenseUrl: 'https://example.com/license' })).not.toThrow();
-			await p.ready();
-			const inst = p.getPlugin(DrmPlugin)!;
+			const videoPlayer = setup();
+			expect(() => videoPlayer.addPlugin(drmPlugin, { keySystem: 'com.widevine.alpha', licenseUrl: 'https://example.com/license' })).not.toThrow();
+			await videoPlayer.ready();
+			const inst = videoPlayer.getPlugin(DrmPlugin)!;
 			expect(inst).toBeInstanceOf(DrmPlugin);
 			// JSDOM has no EME — mediaKeys() should return null.
 			expect(inst.mediaKeys()).toBeNull();
@@ -342,22 +342,22 @@ describe('video-plugins (extras)', () => {
 				}
 			}
 
-			const p = new NMVideoPlayer('test').setup({
+			const videoPlayer = new NMVideoPlayer('test').setup({
 				websocketFactory: ((url: string) => new FakeChannel(url)) as any,
 			});
-			p.addPlugin(liveTranscodingPlugin, { wsUrl: 'ws://example.com/live' });
-			await p.ready();
+			videoPlayer.addPlugin(liveTranscodingPlugin, { wsUrl: 'ws://example.com/live' });
+			await videoPlayer.ready();
 
-			const inst = p.getPlugin(LiveTranscodingPlugin)!;
+			const inst = videoPlayer.getPlugin(LiveTranscodingPlugin)!;
 			expect(inst).toBeInstanceOf(LiveTranscodingPlugin);
 			expect(opens).toEqual(['ws://example.com/live']);
 		});
 
 		it('use() is a no-op when no wsUrl/controlUrl is given', async () => {
-			const p = setup();
-			expect(() => p.addPlugin(liveTranscodingPlugin)).not.toThrow();
-			await p.ready();
-			const inst = p.getPlugin(LiveTranscodingPlugin)!;
+			const videoPlayer = setup();
+			expect(() => videoPlayer.addPlugin(liveTranscodingPlugin)).not.toThrow();
+			await videoPlayer.ready();
+			const inst = videoPlayer.getPlugin(LiveTranscodingPlugin)!;
 			expect(inst.transcodedTo()).toBe(0);
 		});
 	});

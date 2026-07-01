@@ -154,7 +154,7 @@ export function buildBottomBar(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	parent: HTMLElement,
 	opts: DesktopUiOptions | undefined,
-	listen: (target: EventTarget, event: string, fn: (e: Event) => void) => void,
+	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
 	t: (key: string, params?: Record<string, string>) => string,
 ): BottomBarRefs & BottomRowRefs {
 	const bottomBar = player.createElement('div', 'bottom-bar')
@@ -191,7 +191,7 @@ export function buildBottomRow(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	parent: HTMLElement,
 	opts: DesktopUiOptions | undefined,
-	listen: (target: EventTarget, event: string, fn: (e: Event) => void) => void,
+	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
 	t: (key: string, params?: Record<string, string>) => string,
 ): BottomRowRefs {
 	const btns = opts?.buttons;
@@ -232,8 +232,8 @@ export function buildBottomRow(
 	volContainer.hidden = !show('mute') && !show('volume');
 
 	// Scroll over the volume cluster adjusts volume (v1: ±delta * 0.5).
-	listen(volContainer, 'wheel', (e: Event) => {
-		const wheel = e as WheelEvent;
+	listen(volContainer, 'wheel', (event: Event) => {
+		const wheel = event as WheelEvent;
 		wheel.preventDefault();
 		const current = player.volume?.() ?? 100;
 		const next = Math.min(100, Math.max(0, current - wheel.deltaY * 0.5));
@@ -448,7 +448,7 @@ export function applyButtonOrder(
  */
 export function buildShortcutsOverlay(
 	parent: HTMLElement,
-	listen: (target: EventTarget, event: string, fn: (e: Event) => void) => void,
+	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
 	t: (key: string, params?: Record<string, string>) => string,
 	hideShortcuts: () => void,
 ): HTMLDivElement {
@@ -612,8 +612,8 @@ export function buildShortcutsOverlay(
 
 	overlay.appendChild(card);
 
-	listen(overlay, 'click', (e: Event) => {
-		if (e.target === overlay)
+	listen(overlay, 'click', (event: Event) => {
+		if (event.target === overlay)
 			hideShortcuts();
 	});
 

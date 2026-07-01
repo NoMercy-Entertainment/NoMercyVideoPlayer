@@ -42,7 +42,7 @@ import { fluentIcons, svgFromIcon } from '../data/icons';
 import { languageDisplayName, subtitleTrackLabel } from '../data/language-names';
 import { escapeHtml, formatDuration } from '../data/utils';
 
-export type MenuListen = (target: EventTarget, event: string, fn: (e: Event) => void) => void;
+export type MenuListen = (target: EventTarget, event: string, fn: (event: Event) => void) => void;
 
 export const SUB_MENU_ID = {
 	LANGUAGE: 'language',
@@ -187,7 +187,7 @@ function buildMainMenu(
 	closeBtn.classList.add('menu-header-close');
 	closeBtn.innerHTML = svgFromIcon(fluentIcons.close);
 	header.appendChild(closeBtn);
-	listen(closeBtn, 'click', (e: Event) => { e.stopPropagation(); actions.closeMenu(); });
+	listen(closeBtn, 'click', (event: Event) => { event.stopPropagation(); actions.closeMenu(); });
 
 	// Scroll container — same `.scroll-container` styling as the sub-menus.
 	const scroll = player.createElement('div', 'main-scroll-container')
@@ -216,7 +216,7 @@ function buildMainMenu(
             <span class="menu-button-chevron">${svgFromIcon(fluentIcons.chevronR)}</span>
         `;
 		scroll.appendChild(btn);
-		listen(btn, 'click', (e: Event) => { e.stopPropagation(); actions.openSubMenu(c.id); });
+		listen(btn, 'click', (event: Event) => { event.stopPropagation(); actions.openSubMenu(c.id); });
 	}
 
 	// Consumer toggle rows — same row chrome as category buttons, with the
@@ -240,8 +240,8 @@ function buildMainMenu(
 		// load so the row never shows a raw key.
 		player.on?.('language', paint);
 		scroll.appendChild(btn);
-		listen(btn, 'click', (e: Event) => {
-			e.stopPropagation();
+		listen(btn, 'click', (event: Event) => {
+			event.stopPropagation();
 			item.set(!item.get());
 			paint();
 		});
@@ -264,7 +264,7 @@ function buildSubMenuHeader(
 	back.classList.add('menu-header-back');
 	back.innerHTML = svgFromIcon(fluentIcons.chevronL);
 	header.appendChild(back);
-	listen(back, 'click', (e: Event) => { e.stopPropagation(); actions.backToMain(); });
+	listen(back, 'click', (event: Event) => { event.stopPropagation(); actions.backToMain(); });
 
 	const titleSpan = document.createElement('span');
 	titleSpan.className = titleExtraClass ? `menu-button-text ${titleExtraClass}` : 'menu-button-text';
@@ -275,7 +275,7 @@ function buildSubMenuHeader(
 	close.classList.add('menu-header-close');
 	close.innerHTML = svgFromIcon(fluentIcons.close);
 	header.appendChild(close);
-	listen(close, 'click', (e: Event) => { e.stopPropagation(); actions.closeMenu(); });
+	listen(close, 'click', (event: Event) => { event.stopPropagation(); actions.closeMenu(); });
 
 	return titleSpan;
 }
@@ -441,7 +441,7 @@ export function renderQualityPane(
 	const displayHdr = typeof window !== 'undefined'
 		&& typeof window.matchMedia === 'function'
 		&& window.matchMedia('(dynamic-range: high)').matches;
-	const levels = allLevels.filter(q => q.dynamicRange !== 'hdr' || displayHdr);
+	const levels = allLevels.filter(qualityLevel => qualityLevel.dynamicRange !== 'hdr' || displayHdr);
 	const auto = state.qualityIdx === 'auto';
 	// In Auto mode the Auto row gets the primary checkmark. The level the
 	// backend is actually playing right now is shown as a lower-importance
@@ -453,7 +453,7 @@ export function renderQualityPane(
 	// entry — match by the `index` property carried on each QualityLevel.
 	const playingIdx = state.playingQualityIdx ?? null;
 	const playingLevel = playingIdx !== null
-		? levels.find(q => q.index === playingIdx)
+		? levels.find(qualityLevel => qualityLevel.index === playingIdx)
 		: undefined;
 	const playingLabel = playingLevel
 		? (playingLevel.label || (playingLevel.height ? `${playingLevel.height}p` : undefined))
@@ -461,9 +461,9 @@ export function renderQualityPane(
 	appendChoice(scroll, 'quality-auto', player.t('plugin.desktop-ui.menu.auto'), auto, () => { player.quality?.('auto'); onPick(); }, listen, player, {
 		sublabel: auto && playingLabel ? playingLabel : undefined,
 	});
-	levels.forEach((q, i) => {
-		const label = q.label || (q.height ? `${q.height}p` : `Level ${i + 1}`);
-		const id = `quality-${q.height ?? '?'}-${q.bitrate ?? i}`;
+	levels.forEach((qualityLevel, i) => {
+		const label = qualityLevel.label || (qualityLevel.height ? `${qualityLevel.height}p` : `Level ${i + 1}`);
+		const id = `quality-${qualityLevel.height ?? '?'}-${qualityLevel.bitrate ?? i}`;
 		appendChoice(
 			scroll,
 			id,
@@ -497,15 +497,15 @@ export function renderSubsPane(
 	const off = state.subtitleIdx === null || state.subtitleIdx === -1;
 	const uiLanguage = resolveUiLanguage(player);
 	appendChoice(scroll, 'off-button-', player.t('plugin.desktop-ui.menu.off'), off, () => { player.subtitle?.(null); onPick(); }, listen, player);
-	subs.forEach((s, i) => {
-		const langSlug = (s.language ?? s.id).replace(/\W+/g, '-').toLowerCase();
+	subs.forEach((subtitleTrack, i) => {
+		const langSlug = (subtitleTrack.language ?? subtitleTrack.id).replace(/\W+/g, '-').toLowerCase();
 		// The variant lives in `type` ('full' / 'sign' / 'sdh' …); `kind` is the
 		// WebVTT kind ('subtitles' / 'captions') and never distinguishes rows.
-		const variantSlug = (s.type ?? 'full').replace(/\W+/g, '-').toLowerCase();
+		const variantSlug = (subtitleTrack.type ?? 'full').replace(/\W+/g, '-').toLowerCase();
 		appendChoice(
 			scroll,
 			`${variantSlug}-button-${langSlug}`,
-			subtitleTrackLabel(s, uiLanguage, key => player.t(key), `Track ${i + 1}`),
+			subtitleTrackLabel(subtitleTrack, uiLanguage, key => player.t(key), `Track ${i + 1}`),
 			!off && state.subtitleIdx === i,
 			() => { player.subtitle?.(i); onPick(); },
 			listen,
@@ -622,8 +622,8 @@ export function renderSubtitleSettingsPane(
         `;
 		scroll.appendChild(btn);
 
-		listen(btn, 'click', (e: Event) => {
-			e.stopPropagation();
+		listen(btn, 'click', (event: Event) => {
+			event.stopPropagation();
 			if (row.property) {
 				renderSubtitlePropertyPane(pane, player, listen, onPick, rowLabel, row.property);
 			}
@@ -661,8 +661,8 @@ function renderSubtitlePropertyPane(
 		// closure runs even on subsequent clicks.
 		const fresh = back.cloneNode(true) as HTMLButtonElement;
 		back.replaceWith(fresh);
-		listen(fresh, 'click', (e: Event) => {
-			e.stopPropagation();
+		listen(fresh, 'click', (event: Event) => {
+			event.stopPropagation();
 			if (titleEl)
 				titleEl.textContent = player.t('plugin.desktop-ui.menu.subtitleSettings');
 			renderSubtitleSettingsPane(pane, player, listen, onPick);
@@ -677,7 +677,7 @@ function renderSubtitlePropertyPane(
 		return;
 	scroll.replaceChildren();
 
-	const actions = subtitleSettingActions(player).filter(a => a.property === property);
+	const actions = subtitleSettingActions(player).filter(subtitleSettingAction => subtitleSettingAction.property === property);
 	const currentValue = readSubtitleStyle(player)[property];
 
 	for (const action of actions) {
@@ -692,8 +692,8 @@ function renderSubtitlePropertyPane(
             <span class="menu-button-check">${svgFromIcon(fluentIcons.checkmark, 18)}</span>
         `;
 		scroll.appendChild(btn);
-		listen(btn, 'click', (e: Event) => {
-			e.stopPropagation();
+		listen(btn, 'click', (event: Event) => {
+			event.stopPropagation();
 			// Each action calls the player API, updates local fallback state,
 			// and repaints the picker so the checkmark moves.
 			try { action.action?.(); }
@@ -933,12 +933,12 @@ export function renderAudioPane(
 	scroll.replaceChildren();
 	const tracks: AudioTrackRef[] = player.audioTracks?.() ?? [];
 	const uiLanguage = resolveUiLanguage(player);
-	tracks.forEach((t, i) => {
-		const langSlug = (t.language ?? t.id).replace(/\W+/g, '-').toLowerCase();
+	tracks.forEach((audioTrack, i) => {
+		const langSlug = (audioTrack.language ?? audioTrack.id).replace(/\W+/g, '-').toLowerCase();
 		appendChoice(
 			scroll,
 			`audio-button-${langSlug}-${i}`,
-			t.label ?? languageDisplayName(t.language, uiLanguage) ?? t.language ?? `Track ${i + 1}`,
+			audioTrack.label ?? languageDisplayName(audioTrack.language, uiLanguage) ?? audioTrack.language ?? `Track ${i + 1}`,
 			state.audioIdx === i,
 			() => { player.audioTrack?.(i); onPick(); },
 			listen,

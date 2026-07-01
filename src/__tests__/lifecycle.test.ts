@@ -134,7 +134,7 @@ describe('NMVideoPlayer — lifecycle', () => {
 			player.dispose();
 			let err: unknown;
 			try { await promise; }
-			catch (e) { err = e; }
+			catch (error) { err = error; }
 			expect(err).toBeInstanceOf(PlayerError);
 			expect(err).toBeInstanceOf(StateError);
 			expect((err as PlayerError).code).toBe('core:player/disposed');

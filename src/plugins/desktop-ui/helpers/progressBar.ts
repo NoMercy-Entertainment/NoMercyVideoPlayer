@@ -144,7 +144,7 @@ export function buildChapterMarkers(
 	chapters: ReadonlyArray<ChapterLite>,
 	dur: number,
 	onChapterClick: (index: number) => void,
-	listen: (el: EventTarget, event: string, handler: (e: Event) => void) => void,
+	listen: (el: EventTarget, event: string, handler: (event: Event) => void) => void,
 ): ChapterMarkerRef[] {
 	chapterBar.replaceChildren();
 
@@ -176,8 +176,8 @@ export function buildChapterMarkers(
 		marker.append(bg, buffer, hover, progress);
 		chapterBar.appendChild(marker);
 
-		listen(marker, 'click', (e: Event) => {
-			e.stopPropagation();
+		listen(marker, 'click', (event: Event) => {
+			event.stopPropagation();
 			onChapterClick(ch.index);
 		});
 
@@ -202,34 +202,34 @@ const MIN_CHAPTER_SPAN = 0.0001;
 function applyChapterFill(
 	refs: ChapterMarkerRef[],
 	value: number,
-	pick: (m: ChapterMarkerRef) => HTMLDivElement,
+	pick: (chapterMarkerRef: ChapterMarkerRef) => HTMLDivElement,
 ): void {
-	for (const m of refs) {
-		const target = pick(m);
-		if (value <= m.left) {
+	for (const chapterMarkerRef of refs) {
+		const target = pick(chapterMarkerRef);
+		if (value <= chapterMarkerRef.left) {
 			target.style.transform = 'scaleX(0)';
 		}
-		else if (value >= m.right) {
+		else if (value >= chapterMarkerRef.right) {
 			target.style.transform = 'scaleX(1)';
 		}
 		else {
-			const span = Math.max(MIN_CHAPTER_SPAN, m.right - m.left);
-			target.style.transform = `scaleX(${(value - m.left) / span})`;
+			const span = Math.max(MIN_CHAPTER_SPAN, chapterMarkerRef.right - chapterMarkerRef.left);
+			target.style.transform = `scaleX(${(value - chapterMarkerRef.left) / span})`;
 		}
 	}
 }
 
 /** Update chapter-marker progress fills for the given playback percentage. */
 export function updateChapterProgress(refs: ChapterMarkerRef[], percentage: number): void {
-	applyChapterFill(refs, percentage, m => m.progress);
+	applyChapterFill(refs, percentage, chapterMarkerRef => chapterMarkerRef.progress);
 }
 
 /** Update chapter-marker buffer fills for the given buffered percentage. */
 export function updateChapterBuffer(refs: ChapterMarkerRef[], bufferedPct: number): void {
-	applyChapterFill(refs, bufferedPct, m => m.buffer);
+	applyChapterFill(refs, bufferedPct, chapterMarkerRef => chapterMarkerRef.buffer);
 }
 
 /** Update chapter-marker hover fills for the given scrub percentage. */
 export function updateChapterHover(refs: ChapterMarkerRef[], scrubPct: number): void {
-	applyChapterFill(refs, scrubPct, m => m.hover);
+	applyChapterFill(refs, scrubPct, chapterMarkerRef => chapterMarkerRef.hover);
 }

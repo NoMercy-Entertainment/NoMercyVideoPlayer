@@ -578,7 +578,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	declare previousChapter: () => void;
 	declare nextChapter: () => void;
 
-	declare getScrubTime: (e: Event) => { scrubTime: number; scrubTimePlayer: number };
+	declare getScrubTime: (event: Event) => { scrubTime: number; scrubTimePlayer: number };
 	declare clampPopOffset: (pct: number) => number;
 	declare paintSpriteAt: (time: number) => void;
 	declare _resolveSpriteUrl: (item: VideoPlaylistItem | undefined | null) => string | undefined;

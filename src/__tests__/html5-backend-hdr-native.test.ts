@@ -242,15 +242,15 @@ describe('native-HLS vs hls.js routing', () => {
 describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
 	function mockMatchMedia(matchesHdr: boolean): {
 		mql: MediaQueryList;
-		changeListeners: Array<(e: MediaQueryListEvent) => void>;
+		changeListeners: Array<(mediaQueryListEvent: MediaQueryListEvent) => void>;
 	} {
-		const changeListeners: Array<(e: MediaQueryListEvent) => void> = [];
+		const changeListeners: Array<(mediaQueryListEvent: MediaQueryListEvent) => void> = [];
 		const mql = {
 			matches: matchesHdr,
-			addEventListener: (_type: string, fn: (e: MediaQueryListEvent) => void) => {
+			addEventListener: (_type: string, fn: (mediaQueryListEvent: MediaQueryListEvent) => void) => {
 				changeListeners.push(fn);
 			},
-			removeEventListener: (_type: string, fn: (e: MediaQueryListEvent) => void) => {
+			removeEventListener: (_type: string, fn: (mediaQueryListEvent: MediaQueryListEvent) => void) => {
 				const idx = changeListeners.indexOf(fn);
 				if (idx >= 0)
 					changeListeners.splice(idx, 1);
@@ -507,7 +507,7 @@ describe('HLS error recovery state machine', () => {
 		vi.useFakeTimers();
 
 		const errors: unknown[] = [];
-		backend.on('error', e => errors.push(e));
+		backend.on('error', event => errors.push(event));
 		backend.on('stream:error', (d) => {
 			if ((d as { fatal: boolean }).fatal)
 				errors.push(d);
@@ -533,7 +533,7 @@ describe('HLS error recovery state machine', () => {
 		vi.useFakeTimers();
 
 		const fatalErrors: unknown[] = [];
-		backend.on('error', e => fatalErrors.push(e));
+		backend.on('error', event => fatalErrors.push(event));
 
 		const payload = { fatal: true, type: 'mediaError', details: 'bufferAddCodecError' };
 

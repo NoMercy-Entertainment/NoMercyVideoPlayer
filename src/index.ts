@@ -496,7 +496,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 			let tracks: SubtitleTrack[] = [];
 			try { tracks = this.subtitles(); }
 			catch { /* not yet available */ }
-			const matchIdx = _matchLanguage(tracks.map(t => t.language), subtitleLang);
+			const matchIdx = _matchLanguage(tracks.map(subtitleTrack => subtitleTrack.language), subtitleLang);
 			if (matchIdx >= 0) {
 				this.subtitle(matchIdx);
 			}
@@ -507,7 +507,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 			let tracks: AudioTrack[] = [];
 			try { tracks = this.audioTracks(); }
 			catch { /* not yet available */ }
-			const matchIdx = _matchLanguage(tracks.map(t => t.language), audioLang);
+			const matchIdx = _matchLanguage(tracks.map(audioTrack => audioTrack.language), audioLang);
 			if (matchIdx >= 0) {
 				this.audioTrack(matchIdx);
 			}
