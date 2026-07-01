@@ -384,7 +384,7 @@ export class Html5VideoBackend
 		}
 		resetMediaElement(this.element);
 		this.currentUrl = undefined;
-		this.emit('subtitleCue', { cues: [], language: undefined } as SubtitleCueChange);
+		this.emitEmptySubtitleCue();
 		this.emit('waiting');
 	}
 
@@ -529,7 +529,7 @@ export class Html5VideoBackend
 
 		if (idx === null || idx < 0) {
 			this.disableAllSubtitleTextTracks();
-			this.emit('subtitleCue', { cues: [], language: undefined } as SubtitleCueChange);
+			this.emitEmptySubtitleCue();
 			return;
 		}
 
@@ -552,7 +552,7 @@ export class Html5VideoBackend
 			// Track requested but no matching textTrack yet (HLS.js may
 			// still be parsing the WebVTT manifest). Emit empty for now;
 			// the cuechange listener will fire once cues arrive.
-			this.emit('subtitleCue', { cues: [], language: undefined } as SubtitleCueChange);
+			this.emitEmptySubtitleCue();
 			return;
 		}
 
@@ -643,6 +643,11 @@ export class Html5VideoBackend
 	 * the backend-agnostic `SubtitleCue` shape so renderers don't have
 	 * to know whether the source was an HLS-fed VTT or a native track.
 	 */
+	private emitEmptySubtitleCue(): void {
+		const change: SubtitleCueChange = { cues: [], language: undefined };
+		this.emit('subtitleCue', change);
+	}
+
 	private emitActiveCues(tt: TextTrack): void {
 		const active = tt.activeCues;
 		const cues: SubtitleCue[] = [];

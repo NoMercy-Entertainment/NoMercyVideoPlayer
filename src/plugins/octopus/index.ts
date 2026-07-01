@@ -98,9 +98,6 @@ export interface OctopusOptions {
  * Security: all network I/O (subtitle body + font binaries) goes through
  * `this.fetch` (kit auth pipeline). The libass worker receives pre-fetched
  * content as blob URLs / inline strings — it never performs authenticated XHR.
- * TODO(security): strip the auth XHR paths from the worker binaries
- * (`public/subtitles-octopus-worker*.js`) in a follow-up to close the
- * remaining surface in the vendored WASM bundle.
  *
  * Bundled dependency: `@nomercy-entertainment/nomercy-subtitle-octopus` is a
  * regular `dependency` — it ships with the package, not as an optional peer.

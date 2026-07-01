@@ -16,6 +16,7 @@
  * the `transformPlaylistItem` config callback instead.
  */
 
+import type { BasePlaylistItem } from '@nomercy-entertainment/nomercy-player-core';
 import type { ChapterRef, FontTrackRef, VideoPlaylistItem, WatchProgress } from '../types';
 import { parseDurationSeconds } from '@nomercy-entertainment/nomercy-player-core';
 
@@ -117,8 +118,6 @@ function normalizeProgress(
 function normalizeTracks(tracks: LegacyTrackEntry[] | undefined): LegacyTrackEntry[] | undefined {
 	if (!tracks)
 		return undefined;
-	// v1 marked subtitle variants ('full' / 'sign') in `label`; the v2 track
-	// model carries that distinction in `type`.
 	return tracks.map(track => track.kind === 'subtitles' && track.type === undefined
 		? { ...track, type: track.label }
 		: track);
@@ -152,7 +151,7 @@ function fontsFromTracks(tracks: LegacyTrackEntry[] | undefined): Array<{ file: 
  * Normalize one playlist item from the loose v1 / server wire format to the
  * v2 canonical shape. Idempotent — already-canonical fields pass through.
  */
-export function normalizeVideoPlaylistItem(item: VideoPlaylistItem): VideoPlaylistItem {
+export function normalizeVideoPlaylistItem(item: BasePlaylistItem): VideoPlaylistItem {
 	const loose = item as LooseVideoItem;
 	const durationSeconds = normalizeDuration(loose.duration);
 	const tracks = normalizeTracks(loose.tracks);

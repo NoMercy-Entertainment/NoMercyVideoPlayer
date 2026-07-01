@@ -251,7 +251,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	declare time: {
 		(): number;
-		(t: number, opts?: ActionOptions): Promise<void>;
+		(seconds: number, opts?: ActionOptions): Promise<void>;
 	};
 
 	declare duration: () => number;
@@ -273,7 +273,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	declare volume: {
 		(): number;
-		(v: number): void;
+		(level: number): void;
 	};
 
 	declare mute: () => void;
@@ -307,7 +307,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	declare queueMove: (from: number, to: number, opts?: ActionOptions) => void;
 	declare queueClear: (opts?: ActionOptions) => void;
 	declare queueShuffle: (opts?: ActionOptions) => void;
-	declare queueSort: (compare: (a: T, b: T) => number, opts?: ActionOptions) => void;
+	declare queueSort: (compare: (itemA: T, itemB: T) => number, opts?: ActionOptions) => void;
 	declare peekNext: () => T | undefined;
 	declare peekPrevious: () => T | undefined;
 	declare queueLength: () => number;
@@ -1039,7 +1039,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	 * `transformPlaylistItem` config callback instead of overriding this.
 	 */
 	normalizePlaylistItem(item: BasePlaylistItem): BasePlaylistItem {
-		return normalizeVideoPlaylistItem(item as VideoPlaylistItem);
+		return normalizeVideoPlaylistItem(item);
 	}
 
 	// ── Tracks / chapters / quality ── composed in via `mediaTracksMethods` mixin.
@@ -1184,18 +1184,19 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 // which plugin translation bundles have loaded asynchronously.
 {
 	type _SetupFn<T extends VideoPlaylistItem> = (config: VideoPlayerConfig<T>) => NMVideoPlayer<T>;
-	const composedSetup: _SetupFn<VideoPlaylistItem> = NMVideoPlayer.prototype.setup as _SetupFn<VideoPlaylistItem>;
+	const composedSetup: _SetupFn<VideoPlaylistItem> = NMVideoPlayer.prototype.setup;
 	NMVideoPlayer.prototype.setup = function (this: NMVideoPlayer<BasePlaylistItem>, config: VideoPlayerConfig<BasePlaylistItem>): NMVideoPlayer<BasePlaylistItem> {
 		const result = composedSetup.call(this, config);
 		this.addTranslations(titleTokenTranslations);
 		return result;
-	} as _SetupFn<BasePlaylistItem>;
+	};
 }
 
 {
-	type _KitQualityFn = (idx?: number | 'auto') => number | 'auto' | void;
-	const kitQuality: _KitQualityFn = NMVideoPlayer.prototype.quality as _KitQualityFn;
-	const wrapped: _KitQualityFn = function (this: NMVideoPlayer<BasePlaylistItem>, idx?: number | 'auto'): number | 'auto' | void {
+	// `quality` is an overloaded method; flatten it to one call signature to wrap it.
+	type _KitQualityFn = (idx?: number | 'auto') => CurrentQualitySelection | 'auto' | void;
+	const kitQuality = NMVideoPlayer.prototype.quality as _KitQualityFn;
+	const wrapped: _KitQualityFn = function (this: NMVideoPlayer<BasePlaylistItem>, idx?: number | 'auto'): CurrentQualitySelection | 'auto' | void {
 		if (idx === undefined) {
 			return kitQuality.call(this);
 		}
@@ -1215,7 +1216,7 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 // both behave identically.
 {
 	type _KitSetupFn = (config: VideoPlayerConfig<VideoPlaylistItem>) => NMVideoPlayer<VideoPlaylistItem>;
-	const kitSetup: _KitSetupFn = NMVideoPlayer.prototype.setup as _KitSetupFn;
+	const kitSetup: _KitSetupFn = NMVideoPlayer.prototype.setup;
 	const wrappedSetup: _KitSetupFn = function (this: NMVideoPlayer<VideoPlaylistItem>, config: VideoPlayerConfig<VideoPlaylistItem>): NMVideoPlayer<VideoPlaylistItem> {
 		// Video defaults to a hard cut between items (no crossfade) while still
 		// preloading so the next item starts instantly. Consumer-supplied

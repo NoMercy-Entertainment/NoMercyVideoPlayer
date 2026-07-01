@@ -6,7 +6,7 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
-import type { AudioTrack, QualityLevel, SubtitleCueChange, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
+import type { AudioTrack, BackendLoaderState, BackendState, QualityLevel, SubtitleCueChange, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 
 import type { HtmlPreloadMode } from '../../types';
 
@@ -94,25 +94,8 @@ export type BackendEvent = keyof BackendEventPayload;
 // for ergonomic access from backend implementations.
 export type { SubtitleCue, SubtitleCueChange } from '@nomercy-entertainment/nomercy-player-core';
 
-export const BACKEND_STATE = {
-	IDLE: 'idle',
-	LOADING: 'loading',
-	READY: 'ready',
-	PLAYING: 'playing',
-	PAUSED: 'paused',
-	ERROR: 'error',
-} as const;
-
-/** Backend lifecycle state. Returned by `state()`. */
-export type BackendState = typeof BACKEND_STATE[keyof typeof BACKEND_STATE];
-
-export const BACKEND_LOADER_STATE = {
-	RUNNING: 'running',
-	PAUSED: 'paused',
-} as const;
-
-/** Loader state — used for backpressure when an upstream gate needs the buffer to drain. */
-export type BackendLoaderState = typeof BACKEND_LOADER_STATE[keyof typeof BACKEND_LOADER_STATE];
+export { BACKEND_LOADER_STATE, BACKEND_STATE } from '@nomercy-entertainment/nomercy-player-core';
+export type { BackendLoaderState, BackendState };
 
 export const VIDEO_BACKEND_KIND = {
 	HTML5: 'html5',
