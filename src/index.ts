@@ -341,6 +341,8 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	declare timeData: () => KitTimeState;
 	/** Seek to a position expressed as a percentage (0–100) of total duration. */
 	declare seekByPercentage: (pct: number, opts?: ActionOptions) => void;
+	/** @internal */
+	declare private _checkItemEndingSoon: (currentTime: number, duration: number) => void;
 
 	declare playbackRate: {
 		(): number;
@@ -735,7 +737,14 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 		});
 
 		instance.on('timeupdate', () => {
-			this.emit('time', { time: instance.currentTime() });
+			const currentTime = instance.currentTime();
+			const duration = instance.duration();
+
+			this.emit('time', { time: currentTime });
+
+			// Fire `itemEndingSoon` when the threshold is crossed. The helper is
+			// idempotent per item — it latches internally and resets on each load.
+			this._checkItemEndingSoon(currentTime, duration);
 
 			// Poll dropped-frame counter from the media element on every timeupdate.
 			// `getVideoPlaybackQuality()` is only available on HTMLVideoElement and
