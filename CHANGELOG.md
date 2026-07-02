@@ -1,5 +1,11 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-rc.21] — 2026-07-02
+
+### Changed
+
+- Backend now routes through the shared core helpers (`createAuthorizationXhrSetup`, `destroyHlsInstance`, `bridgeBackendPlayState`); the player's existing play-state behavior (pause-unless-ended, reset on loadstart and emptied) is preserved via options. Internal only; no public surface change.
+
 ## [2.0.0-rc.15] — 2026-06-29
 
 ### Added
