@@ -13,8 +13,8 @@ stable version is published under `latest`.
 
 ## Build
 
-The build is tsc-only. `vite.config.ts` and `vite.config.iife.ts` are retained for
-reference but are NOT part of the publish pipeline. Run `npm run build` to produce `dist/`.
+The build is tsc-only. `vite.config.ts` is retained for reference but is NOT part of the
+publish pipeline. Run `npm run build` to produce `dist/`.
 
 ```
 npm run build   # tsc -p tsconfig.build.json

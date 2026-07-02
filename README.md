@@ -38,10 +38,10 @@ HLS support is built in. `hls.js` ships with the player core, so `.m3u8` streams
 ## Quick start
 
 ```ts
-import { nmVideoPlayer } from '@nomercy-entertainment/nomercy-video-player';
+import { nmplayer } from '@nomercy-entertainment/nomercy-video-player';
 import { DesktopUiPlugin } from '@nomercy-entertainment/nomercy-video-player/plugins';
 
-const player = nmVideoPlayer('player')
+const player = nmplayer('player')
   .addPlugin(DesktopUiPlugin)
   .setup({
     baseUrl: 'https://raw.githubusercontent.com/NoMercy-Entertainment/nomercy-media/master/Films',
