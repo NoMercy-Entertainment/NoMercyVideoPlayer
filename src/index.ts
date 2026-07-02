@@ -204,7 +204,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	declare setup: (config: VideoPlayerConfig<T>) => this;
 	declare ready: () => Promise<void>;
-	declare dispose: () => void;
+	declare dispose: () => Promise<void>;
 	declare setupState: () => SetupState;
 	declare phase: () => PlayerPhase;
 	declare dispatching: () => ReadonlyArray<string>;
@@ -268,18 +268,18 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	declare playbackRate: {
 		(): number;
-		(rate: number): void;
+		(rate: number): Promise<void>;
 	};
 
 	declare playbackRates: () => number[];
 
 	declare volume: {
 		(): number;
-		(level: number): void;
+		(level: number): Promise<void>;
 	};
 
-	declare mute: () => void;
-	declare unmute: () => void;
+	declare mute: () => Promise<void>;
+	declare unmute: () => Promise<void>;
 	declare toggleMute: () => void;
 	declare volumeUp: (step?: number) => void;
 	declare volumeDown: (step?: number) => void;
@@ -288,12 +288,12 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	declare volumeState: () => VolumeState;
 	declare repeatState: {
 		(): RepeatState;
-		(state: RepeatState): void;
+		(state: RepeatState): Promise<void>;
 	};
 
 	declare shuffleState: {
 		(): ShuffleState;
-		(state: ShuffleState | boolean): void;
+		(state: ShuffleState | boolean): Promise<void>;
 	};
 
 	declare queue: {
@@ -1036,7 +1036,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	declare subtitles: () => SubtitleTrack[];
 	declare subtitle: {
 		(): CurrentSubtitleSelection | null;
-		(idx: number | null): void;
+		(idx: number | null): Promise<void>;
 	};
 
 	/**
@@ -1054,7 +1054,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	declare audioTracks: () => AudioTrack[];
 	declare audioTrack: {
 		(): CurrentAudioTrackSelection | null;
-		(idx: number): void;
+		(idx: number): Promise<void>;
 	};
 
 	declare qualityLevels: {
@@ -1159,11 +1159,23 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 // an Hls instance that keeps polling fragments against the orphaned
 // MediaSource, surfaced as `segment_0.ts` requested thousands of
 // times after a single playlist switch in HMR-heavy dev sessions.
+//
+// The composed (kit) `dispose()` now dispatches the cancellable
+// `beforeDispose` hook before it does anything else — a plugin may
+// `preventDefault()` and leave the player fully alive. Backend teardown
+// MUST wait until that dispatch has actually resolved AND the kit confirms
+// it proceeded (phase reached 'disposed'); tearing the backend down
+// unconditionally first (as before) would kill playback even when a
+// plugin blocked the disposal.
 {
-	const composedDispose: () => void = NMVideoPlayer.prototype.dispose;
-	NMVideoPlayer.prototype.dispose = function (this: NMVideoPlayer<BasePlaylistItem>): void {
+	const composedDispose: () => Promise<void> = NMVideoPlayer.prototype.dispose;
+	NMVideoPlayer.prototype.dispose = async function (this: NMVideoPlayer<BasePlaylistItem>): Promise<void> {
+		await composedDispose.call(this);
+
+		if (this.phase() !== 'disposed')
+			return; // beforeDispose was prevented — backend + registry stay intact
+
 		this._disposeBackend();
-		composedDispose.call(this);
 	};
 }
 

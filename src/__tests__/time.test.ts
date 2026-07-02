@@ -59,12 +59,12 @@ describe('NMVideoPlayer — time', () => {
 		expect(videoPlayer.time()).toBe(0);
 	});
 
-	it('playbackRate() round-trips and emits backend:ratechange', () => {
+	it('playbackRate() round-trips and emits backend:ratechange', async () => {
 		const videoPlayer = setup();
 		expect(videoPlayer.playbackRate()).toBe(1);
 		let rate: number | undefined;
 		videoPlayer.on('backend:ratechange' as any, (data: any) => { rate = data.rate; });
-		videoPlayer.playbackRate(1.5);
+		await videoPlayer.playbackRate(1.5);
 		expect(videoPlayer.playbackRate()).toBe(1.5);
 		expect(rate).toBe(1.5);
 	});

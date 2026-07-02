@@ -15,6 +15,16 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { NMVideoPlayer } from '../index';
 import { PlayState, RepeatState, ShuffleState, VolumeState } from '../types';
 
+/**
+ * Flush pending microtasks. `toggleMute()` is a fire-and-forget wrapper
+ * around the cancellable `mute()` / `unmute()` setters — it doesn't return
+ * the underlying promise, so tests exercising it wait a macrotask tick
+ * instead of awaiting a return value.
+ */
+async function flush(): Promise<void> {
+	await new Promise(resolve => setTimeout(resolve, 0));
+}
+
 describe('NMVideoPlayer — state enums', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
@@ -61,17 +71,19 @@ describe('NMVideoPlayer — state enums', () => {
 			expect(setup().volumeState()).toBe(VolumeState.UNMUTED);
 		});
 
-		it('transitions to MUTED after mute()', () => {
+		it('transitions to MUTED after mute()', async () => {
 			const videoPlayer = setup();
-			videoPlayer.mute();
+			await videoPlayer.mute();
 			expect(videoPlayer.volumeState()).toBe(VolumeState.MUTED);
 		});
 
-		it('toggleMute flips state', () => {
+		it('toggleMute flips state', async () => {
 			const videoPlayer = setup();
 			videoPlayer.toggleMute();
+			await flush();
 			expect(videoPlayer.volumeState()).toBe(VolumeState.MUTED);
 			videoPlayer.toggleMute();
+			await flush();
 			expect(videoPlayer.volumeState()).toBe(VolumeState.UNMUTED);
 		});
 	});
@@ -81,9 +93,9 @@ describe('NMVideoPlayer — state enums', () => {
 			expect(setup().repeatState()).toBe(RepeatState.OFF);
 		});
 
-		it('round-trips through the writer', () => {
+		it('round-trips through the writer', async () => {
 			const videoPlayer = setup();
-			videoPlayer.repeatState(RepeatState.ALL);
+			await videoPlayer.repeatState(RepeatState.ALL);
 			expect(videoPlayer.repeatState()).toBe(RepeatState.ALL);
 		});
 	});
@@ -93,9 +105,9 @@ describe('NMVideoPlayer — state enums', () => {
 			expect(setup().shuffleState()).toBe(ShuffleState.OFF);
 		});
 
-		it('accepts a boolean shorthand', () => {
+		it('accepts a boolean shorthand', async () => {
 			const videoPlayer = setup();
-			videoPlayer.shuffleState(true);
+			await videoPlayer.shuffleState(true);
 			expect(videoPlayer.shuffleState()).toBe(ShuffleState.ON);
 		});
 	});

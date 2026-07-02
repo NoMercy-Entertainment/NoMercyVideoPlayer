@@ -473,7 +473,7 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	subtitles(): KitSubtitleTrack[];
 
 	subtitle(): CurrentSubtitleSelection | null;
-	subtitle(idx: number | null): void;
+	subtitle(idx: number | null): Promise<void>;
 
 	subtitleStyle(): SubtitleStyle;
 	subtitleStyle(patch: Partial<SubtitleStyle>): void;
@@ -481,7 +481,7 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	audioTracks(): KitAudioTrack[];
 
 	audioTrack(): CurrentAudioTrackSelection | null;
-	audioTrack(idx: number): void;
+	audioTrack(idx: number): Promise<void>;
 
 	audioTrackMode(): AudioTrackState;
 	audioTrackMode(idx: number): void;
@@ -502,7 +502,7 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	duration(): number;
 
 	playbackRate(): number;
-	playbackRate(rate: number): void;
+	playbackRate(rate: number): Promise<void>;
 
 	togglePlayback(opts?: ActionOptions): Promise<void>;
 	toggleMute(): void;
@@ -524,7 +524,7 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	 * `volume(level)` — set level, clamped to [0, 100].
 	 */
 	volume(): number;
-	volume(level: number): void;
+	volume(level: number): Promise<void>;
 
 	/** Buffered fraction in [0, 1]. `0` when no backend is active. */
 	buffered(): number;

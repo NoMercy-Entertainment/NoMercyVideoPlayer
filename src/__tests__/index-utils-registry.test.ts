@@ -96,10 +96,10 @@ describe('player factory + registry isolation', () => {
 		first.dispose();
 	});
 
-	it('dispose() removes the player from the registry', () => {
+	it('dispose() removes the player from the registry', async () => {
 		const div = document.createElement('div'); div.id = 'dispose-reg'; document.body.appendChild(div);
 		const player = nmplayer('dispose-reg');
-		player.dispose();
+		await player.dispose();
 
 		// After dispose the registry no longer holds the instance
 		// (numeric lookup of instance 0 should throw — registry is empty)

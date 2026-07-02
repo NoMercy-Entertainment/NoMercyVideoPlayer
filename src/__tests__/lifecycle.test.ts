@@ -56,9 +56,9 @@ describe('NMVideoPlayer — lifecycle', () => {
 			expect(player.phase()).toBe('ready');
 		});
 
-		it('returns "disposed" after dispose()', () => {
+		it('returns "disposed" after dispose()', async () => {
 			const player = new NMVideoPlayer('test');
-			player.dispose();
+			await player.dispose();
 			expect(player.phase()).toBe('disposed');
 		});
 	});
@@ -144,19 +144,19 @@ describe('NMVideoPlayer — lifecycle', () => {
 	});
 
 	describe('dispose()', () => {
-		it('transitions phase: any → disposing → disposed', () => {
+		it('transitions phase: any → disposing → disposed', async () => {
 			const player = new NMVideoPlayer('test');
 			const transitions: string[] = [];
 			player.on('phase', ({ to }) => transitions.push(to));
-			player.dispose();
+			await player.dispose();
 			expect(transitions).toEqual(['disposing', 'disposed']);
 		});
 
-		it('emits "dispose" event', () => {
+		it('emits "dispose" event', async () => {
 			const player = new NMVideoPlayer('test');
 			let disposed = false;
 			player.on('dispose', () => { disposed = true; });
-			player.dispose();
+			await player.dispose();
 			expect(disposed).toBe(true);
 		});
 
@@ -180,9 +180,9 @@ describe('NMVideoPlayer — lifecycle', () => {
 			expect(player.setupState()).toBe('ready');
 		});
 
-		it('returns DISPOSED after dispose()', () => {
+		it('returns DISPOSED after dispose()', async () => {
 			const player = new NMVideoPlayer('test');
-			player.dispose();
+			await player.dispose();
 			expect(player.setupState()).toBe('disposed');
 		});
 	});
