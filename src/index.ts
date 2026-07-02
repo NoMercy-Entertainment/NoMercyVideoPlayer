@@ -46,9 +46,10 @@ import type {
 	UrlCategory,
 	VisibilityState,
 } from '@nomercy-entertainment/nomercy-player-core';
-import type { IVideoBackend } from './adapters/video-backend/IVideoBackend';
+import type { BackendEventPayload, IVideoBackend } from './adapters/video-backend/IVideoBackend';
 import type { AudioTrackState, IVideoPlayer, PlayState, QualityState, RepeatState, SegmentBoundaryPayload, SegmentOptions, ShuffleState, Stretching, VideoEventMap, VideoPlayerConfig, VideoPlaylistItem, VideoRect, VolumeState } from './types';
 import {
+	bridgeBackendPlayState,
 	BrowserPolicyError,
 	composeMixins,
 	EventEmitter,
@@ -613,37 +614,25 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 		// load()) leaves `_playState='playing'` lying — `togglePlayback`
 		// then sees `playing` and silently calls `pause()` again, so the
 		// next user "play" click is a no-op.
-		instance.on('play', () => {
-			if (this._playState !== 'playing') {
-				this._playState = 'playing';
-				this.emit('play', undefined);
-			}
+		//
+		// `pauseGuard` suppresses the transition when the element already
+		// reached `ended` — browsers fire `pause` immediately before `ended`
+		// at natural completion, and without the guard that produces a
+		// spurious `pause` event right before `ended`. `resetEvents` covers
+		// both a new source starting to load (`loadstart`) and the current
+		// source being cleared (`emptied` — HMR re-mount, manual unload).
+		bridgeBackendPlayState<BackendEventPayload>(instance, {
+			isPlaying: () => this._playState === 'playing',
+			setPlaying: (playing) => {
+				this._playState = playing ? 'playing' : 'paused';
+			},
+			onPlay: () => { this.emit('play', undefined); },
+			onPlaying: () => { this.emit('playing', undefined); },
+			onPause: () => { this.emit('pause', undefined); },
+			onReset: () => { firstFrameEmitted = false; },
+			pauseGuard: () => !instance.mediaElement().ended,
+			resetEvents: ['loadstart', 'emptied'],
 		});
-		instance.on('playing', () => {
-			this.emit('playing', undefined);
-		});
-		instance.on('pause', () => {
-			if (this._playState === 'playing' && !instance.mediaElement().ended) {
-				this._playState = 'paused';
-				this.emit('pause', undefined);
-			}
-		});
-		// Loading a new source / source removal both invalidate the
-		// "we're playing" state. `loadstart` fires when the backend
-		// starts loading new media; `emptied` fires when the element's
-		// src is unset (HMR re-mount, manual unload). Both leave the
-		// element paused at currentTime=0, so sync `_playState` to
-		// match — without this, the next togglePlayback sees 'playing'
-		// and silently calls pause() on the already-paused element.
-		const onResetToPaused = () => {
-			firstFrameEmitted = false;
-			if (this._playState === 'playing') {
-				this._playState = 'paused';
-				this.emit('pause', undefined);
-			}
-		};
-		instance.on('loadstart', onResetToPaused);
-		instance.on('emptied', onResetToPaused);
 
 		// Bridge backend subtitle cue stream to the player's event
 		// surface. Renderers (overlay plugins, debug widgets, a11y

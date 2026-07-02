@@ -6,7 +6,7 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
-import type { AudioTrack, BackendLoaderState, BackendState, QualityLevel, SubtitleCueChange, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
+import type { AudioTrack, BackendLoaderState, BackendState, MinimalBackendEventPayload, QualityLevel, SubtitleCueChange, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 
 import type { HtmlPreloadMode } from '../../types';
 
@@ -18,8 +18,12 @@ import type { HtmlPreloadMode } from '../../types';
  * `Event` is a DOM-element forwarded event; `void` means the listener
  * receives no payload (still callable with the event-target Event arg —
  * we keep the `?` optional in the listener signature for that case).
+ *
+ * Extends the kit's `MinimalBackendEventPayload` so the shared
+ * `bridgeBackendPlayState` helper (and any other core primitive constrained
+ * to the minimal contract) accepts this map directly.
  */
-export interface BackendEventPayload {
+export interface BackendEventPayload extends MinimalBackendEventPayload {
 	'loadstart': Event;
 	'loadedmetadata': { url: string; kind: string; duration: number };
 	'loadeddata': Event;

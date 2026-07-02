@@ -11,6 +11,8 @@ import type { HtmlPreloadMode } from '../../types';
 import type { BackendEventPayload, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
 import {
 	appendAuthTokenParam,
+	createAuthorizationXhrSetup,
+	destroyHlsInstance,
 	isHls,
 	MediaElementBackend,
 	MediaFormatError,
@@ -256,10 +258,7 @@ export class Html5VideoBackend
 		// against the same media element — symptom: thousands of identical
 		// fragment requests after a single playlist switch.
 		if (this.hls) {
-			try { this.hls.detachMedia(); }
-			catch { /* defensive */ }
-			try { this.hls.destroy(); }
-			catch { /* defensive */ }
+			destroyHlsInstance(this.hls);
 			this.hls = undefined;
 			this.hlsInstance = undefined;
 		}
@@ -324,11 +323,7 @@ export class Html5VideoBackend
 				enableCEA708Captions: true,
 				startPosition: typeof opts?.startTime === 'number' && opts.startTime > 0 ? opts.startTime : -1,
 				startFragPrefetch: true,
-				xhrSetup: (xhr: XMLHttpRequest) => {
-					if (headerValue) {
-						xhr.setRequestHeader('Authorization', headerValue);
-					}
-				},
+				xhrSetup: createAuthorizationXhrSetup(headerValue),
 			});
 			this.hls = hlsInstance;
 			this.hlsInstance = hlsInstance;
@@ -375,10 +370,7 @@ export class Html5VideoBackend
 		// again via `setSubtitleTrack`.
 		this.detachActiveTextTrack();
 		if (this.hls) {
-			try { this.hls.detachMedia(); }
-			catch { /* defensive */ }
-			try { this.hls.destroy(); }
-			catch { /* defensive */ }
+			destroyHlsInstance(this.hls);
 			this.hls = undefined;
 			this.hlsInstance = undefined;
 		}
@@ -1031,10 +1023,9 @@ export class Html5VideoBackend
 				// Capture the playback position BEFORE the teardown wipes it so
 				// the reload resumes where the error hit, not at 0.
 				const resumeAt = this.element.currentTime;
-				try { this.hls?.detachMedia(); }
-				catch { /* defensive */ }
-				try { this.hls?.destroy(); }
-				catch { /* defensive */ }
+				if (this.hls) {
+					destroyHlsInstance(this.hls);
+				}
 				this.hls = undefined;
 				this.hlsInstance = undefined;
 				// Re-attach via the existing load path. If load() throws, escalate.
