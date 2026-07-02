@@ -7,9 +7,10 @@
 // -----------------------------------------------------------------------------
 
 import type { ActionOptions, LoadOptions, PluginCtorWithId, Translations } from '@nomercy-entertainment/nomercy-player-core';
-import type { NMVideoPlayer, Stretching, VideoPlayerConfig, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
+import type { NMVideoPlayer } from '../index';
+import type { Stretching, VideoPlayerConfig, VideoPlaylistItem } from '../types';
 import { NotImplementedError, Plugin, SetupState } from '@nomercy-entertainment/nomercy-player-core';
-import { PlayState, VolumeState } from '@nomercy-entertainment/nomercy-video-player';
+import { PlayState, VolumeState } from '../types';
 
 interface V1SkipSegment {
 	type: string;
