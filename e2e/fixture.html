@@ -15,13 +15,15 @@
 	<body>
 		<div id="player"></div>
 		<script type="module">
-			import nmplayer from '/src/index.ts';
+			import nmplayer, { V1VideoCompatPlugin } from '/src/index.ts';
 
 			window.__playerError = null;
 			window.__playerReady = false;
 
 			try {
 				const player = nmplayer('player');
+
+				player.addPlugin(V1VideoCompatPlugin);
 
 				// Register the ready listener BEFORE setup() so it fires when
 				// the async pipeline completes.

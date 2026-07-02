@@ -92,6 +92,7 @@ export { VideoPreloadStrategy } from './player/preload';
 // Plugins re-exported from the main barrel for ergonomic imports.
 export { KeyHandlerPlugin } from './plugins/key-handler';
 export { OctopusPlugin } from './plugins/octopus';
+export { V1VideoCompatPlugin } from './plugins/v1-compat';
 
 export type {
 	AudioTrackRef,

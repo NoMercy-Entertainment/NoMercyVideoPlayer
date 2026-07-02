@@ -66,4 +66,13 @@ export default antfu({
 		'player/no-object-literal-cast': 'off',
 		'player/no-unknown-cast': 'off',
 	},
+}, {
+	// The v1 compat shim's entire purpose is deprecation — its declare-module
+	// overloads carry real `@deprecated` JSDoc so editors surface the warning
+	// at v1 consumers' call sites. The blanket ban exists to keep that marker
+	// out of the clean v2 core; this is the one file it describes on purpose.
+	files: ['src/plugins/v1-compat.ts'],
+	rules: {
+		'player/no-compat-vocab': 'off',
+	},
 });

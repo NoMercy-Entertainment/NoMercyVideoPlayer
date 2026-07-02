@@ -25,7 +25,7 @@
 	<body>
 		<div id="player"></div>
 		<script type="module">
-			import nmplayer from '/src/index.ts';
+			import nmplayer, { V1VideoCompatPlugin } from '/src/index.ts';
 			import { DesktopUiPlugin } from '/src/plugins/desktop-ui/index.ts';
 			import { KeyHandlerPlugin } from '/src/plugins/key-handler/index.ts';
 			import { SubtitleOverlayPlugin } from '/src/plugins/subtitle-overlay/index.ts';
@@ -37,6 +37,7 @@
 			try {
 				const player = nmplayer('player');
 
+				player.addPlugin(V1VideoCompatPlugin);
 				player.addPlugin(DesktopUiPlugin, { inactivityMs: 4000 });
 				player.addPlugin(KeyHandlerPlugin);
 				player.addPlugin(SubtitleOverlayPlugin);
