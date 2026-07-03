@@ -77,8 +77,8 @@ test.describe('Volume getter/setter', () => {
 			await p.volume(75);
 			return p.videoElement.volume;
 		});
-		// The player uses a perceptual gain curve (10^(3*(v-1))), not a linear
-		// 1:100 map. perceptualGain(0.75) ≈ 0.178. Assert the element volume is
+		// The player uses a perceptual gain curve (position²), not a linear
+		// 1:100 map. perceptualGain(0.75) = 0.5625. Assert the element volume is
 		// in the valid 0..1 range and non-zero.
 		expect(elVol).toBeGreaterThan(0);
 		expect(elVol).toBeLessThanOrEqual(1);
