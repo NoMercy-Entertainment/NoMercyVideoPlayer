@@ -263,8 +263,8 @@ export class V1VideoCompatPlugin extends Plugin<NMVideoPlayer> {
 
 			if (config.muted !== undefined) {
 				if (config.muted)
-					player.mute();
-				else player.unmute();
+					void player.mute();
+				else void player.unmute();
 			}
 
 			if (config.autoPlay && player.queueLength() > 0) {
@@ -295,7 +295,7 @@ export class V1VideoCompatPlugin extends Plugin<NMVideoPlayer> {
 			warn('speed');
 			if (rate === undefined)
 				return player.playbackRate();
-			player.playbackRate(rate);
+			void player.playbackRate(rate);
 		}
 		player.speed = speed;
 
@@ -316,8 +316,8 @@ export class V1VideoCompatPlugin extends Plugin<NMVideoPlayer> {
 			if (state === undefined)
 				return player.volumeState() === VolumeState.MUTED;
 			if (state)
-				player.mute();
-			else player.unmute();
+				void player.mute();
+			else void player.unmute();
 		}
 		player.muted = muted;
 
