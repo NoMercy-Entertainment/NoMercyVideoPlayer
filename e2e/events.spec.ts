@@ -146,37 +146,43 @@ test.describe('Event emitter: off', () => {
 
 test.describe('Built-in events', () => {
 	test('volume event fires when player.volume() is called', async ({ page }) => {
-		const emitted = await page.evaluate(() => {
+		const emitted = await page.evaluate(async () => {
 			const p = (window as any).player;
 			let received = false;
 			// The player emits 'volume' via its own volume mixin when volume(v)
 			// is called — NOT by bridging the native element's volumechange event.
 			p.on('volume', () => { received = true; });
-			p.volume(30);
+			await p.volume(30);
 			return received;
 		});
 		expect(emitted).toBe(true);
 	});
 
 	test('mute event fires when player.muted(true) is called', async ({ page }) => {
-		const emitted = await page.evaluate(() => {
+		const emitted = await page.evaluate(async () => {
 			const p = (window as any).player;
 			let received = false;
 			// The player emits 'mute' via its own volume mixin when muted(true)
 			// is called — NOT by bridging the native element's volumechange event.
+			// muted() is the v1-compat shim, a synchronous void wrapper around
+			// the now-async mute()/unmute(); flush a macrotask before asserting.
 			p.on('mute', () => { received = true; });
 			p.muted(true);
+			await new Promise(resolve => setTimeout(resolve, 0));
 			return received;
 		});
 		expect(emitted).toBe(true);
 	});
 
 	test('speed change emits speed event', async ({ page }) => {
-		const emitted = await page.evaluate(() => {
+		const emitted = await page.evaluate(async () => {
 			const p = (window as any).player;
 			let received = false;
+			// speed() is the v1-compat shim around the now-async playbackRate();
+			// flush a macrotask before asserting.
 			p.on('speed', () => { received = true; });
 			p.speed(1.5);
+			await new Promise(resolve => setTimeout(resolve, 0));
 			return received;
 		});
 		expect(emitted).toBe(true);
@@ -194,11 +200,11 @@ test.describe('Built-in events', () => {
 	});
 
 	test('dispose emits dispose event exactly once', async ({ page }) => {
-		const count = await page.evaluate(() => {
+		const count = await page.evaluate(async () => {
 			const p = (window as any).player;
 			let calls = 0;
 			p.on('dispose', () => { calls++; });
-			p.dispose();
+			await p.dispose();
 			return calls;
 		});
 		expect(count).toBe(1);

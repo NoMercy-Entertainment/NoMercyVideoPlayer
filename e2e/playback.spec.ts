@@ -195,9 +195,13 @@ test.describe('Speed controls', () => {
 	});
 
 	test('speed(value) sets playback rate', async ({ page }) => {
-		const speed = await page.evaluate(() => {
+		const speed = await page.evaluate(async () => {
 			const player = (window as any).player;
+			// speed() is the v1-compat shim — a synchronous void wrapper around
+			// the now-async playbackRate(). Flush a macrotask so the underlying
+			// beforePlaybackRate dispatch (no listeners here) settles first.
 			player.speed(2);
+			await new Promise(resolve => setTimeout(resolve, 0));
 			return player.speed();
 		});
 		expect(speed).toBe(2);
@@ -219,9 +223,10 @@ test.describe('Speed controls', () => {
 	});
 
 	test('speed() applies to the video element', async ({ page }) => {
-		const rate = await page.evaluate(() => {
+		const rate = await page.evaluate(async () => {
 			const player = (window as any).player;
 			player.speed(1.5);
+			await new Promise(resolve => setTimeout(resolve, 0));
 			return player.videoElement.playbackRate;
 		});
 		expect(rate).toBe(1.5);
@@ -272,27 +277,27 @@ test.describe('Playlist without items', () => {
 
 test.describe('Dispose', () => {
 	test('emits dispose event', async ({ page }) => {
-		const disposed = await page.evaluate(() => {
+		const disposed = await page.evaluate(async () => {
 			const player = (window as any).player;
 			let fired = false;
 			player.on('dispose', () => { fired = true; });
-			player.dispose();
+			await player.dispose();
 			return fired;
 		});
 		expect(disposed).toBe(true);
 	});
 
 	test('clears container innerHTML', async ({ page }) => {
-		const html = await page.evaluate(() => {
-			(window as any).player.dispose();
+		const html = await page.evaluate(async () => {
+			await (window as any).player.dispose();
 			return document.getElementById('player')?.innerHTML;
 		});
 		expect(html).toBe('');
 	});
 
 	test('container still exists after dispose but is empty', async ({ page }) => {
-		const result = await page.evaluate(() => {
-			(window as any).player.dispose();
+		const result = await page.evaluate(async () => {
+			await (window as any).player.dispose();
 			const el = document.getElementById('player');
 			return { exists: !!el, empty: el?.innerHTML === '' };
 		});
@@ -301,11 +306,11 @@ test.describe('Dispose', () => {
 	});
 
 	test('double dispose does not throw', async ({ page }) => {
-		const threw = await page.evaluate(() => {
+		const threw = await page.evaluate(async () => {
 			try {
 				const player = (window as any).player;
-				player.dispose();
-				player.dispose();
+				await player.dispose();
+				await player.dispose();
 				return false;
 			}
 			catch {

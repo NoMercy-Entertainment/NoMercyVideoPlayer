@@ -168,10 +168,14 @@ test.describe('Time data', () => {
 	});
 
 	test('playbackRate() reflects speed changes', async ({ page }) => {
-		const rate = await page.evaluate(() => {
+		const rate = await page.evaluate(async () => {
 			const p = (window as any).player;
-			// v2: playbackRate() is the getter; speed() is the v1-compat alias.
+			// v2: playbackRate() is the getter; speed() is the v1-compat alias —
+			// a synchronous void wrapper around the now-async playbackRate().
+			// Flush a macrotask so the underlying beforePlaybackRate dispatch
+			// (no listeners here) settles before reading state back.
 			p.speed(2);
+			await new Promise(resolve => setTimeout(resolve, 0));
 			return p.playbackRate();
 		});
 		expect(rate).toBe(2);
