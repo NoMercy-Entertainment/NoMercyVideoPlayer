@@ -1,5 +1,11 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-rc.24] — 2026-07-04
+
+### Fixed
+
+- Inherits `nomercy-player-core` 2.0.0-rc.24's consumer volume taper (`position²`) — the −60 dB fader law made everything below ~70% slider barely audible. No video-player source change; the curve lives in the shared `MediaElementBackend`.
+
 ## [2.0.0-rc.23] — 2026-07-03
 
 ### Changed
