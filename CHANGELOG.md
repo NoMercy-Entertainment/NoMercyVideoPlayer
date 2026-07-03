@@ -1,5 +1,20 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-rc.22] — 2026-07-02
+
+### Breaking
+
+- Realigned with `nomercy-player-core` rc.21's M1 Connect-plugin slice: `volume()`, `mute()`, `unmute()`, `subtitle()`, `audioTrack()`, `playbackRate()`, `repeatState()`, `shuffleState()`, and `dispose()` now return `Promise<void>` on `NMVideoPlayer` and `IVideoPlayer`, matching `IPlayer`. The published rc.21 of this package still declared the old `void` signatures, which no longer structurally satisfied `IPlayer` and broke typecheck for every `Plugin<NMVideoPlayer, ...>` consumer once core rc.21 was installed alongside it — rc.22 is the fix. Code that read state synchronously right after calling one of these must now `await` the call first; fire-and-forget callers are unaffected. Requires `@nomercy-entertainment/nomercy-player-core@^2.0.0-rc.21` or newer.
+
+### Added
+
+- `V1VideoCompatPlugin` (`import { V1VideoCompatPlugin } from '@nomercy-entertainment/nomercy-video-player'`) — opt-in shim attaching the full v1 method surface onto `NMVideoPlayer` via declaration merging. Every shim delegates to the real v2 API and logs one `@deprecated` warning per call. Add via `player.addPlugin(V1VideoCompatPlugin)` before `setup()`; delete the plugin once migrated.
+
+### Fixed
+
+- The wrapped `dispose()` override now awaits the composed cancellable dispose and only tears down the video backend + registry entry once `phase()` actually reaches `'disposed'`, instead of killing the backend (and any live HLS instance) before `beforeDispose` had a chance to run. A plugin calling `preventDefault()` on `beforeDispose` no longer loses its backend.
+- Standalone CI (outside the monorepo checkout) now lints cleanly — the ESLint config imports the player rule pack from `@nomercy-entertainment/nomercy-player-core/eslint-plugin` instead of a monorepo-relative path that doesn't exist in a standalone clone.
+
 ## [2.0.0-rc.21] — 2026-07-02
 
 ### Changed
