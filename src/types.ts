@@ -355,7 +355,6 @@ export type VideoBackendFactory = (
 export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistItem> extends BasePlayerConfig {
 	muted?: boolean;
 	autoPlay?: boolean;
-	controls?: boolean;
 	stretching?: Stretching;
 	playbackRates?: number[];
 	preload?: HtmlPreloadMode;

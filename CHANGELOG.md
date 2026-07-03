@@ -1,5 +1,11 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-rc.23] — 2026-07-03
+
+### Changed
+
+- Dropped the duplicate `controls?: boolean` field from `VideoPlayerConfig`; it now inherits from `@nomercy-entertainment/nomercy-player-core`'s `BasePlayerConfig` (shared with the music player — same native `<video controls>` / `<audio controls>` semantics, no domain twist). No consumer-visible behavior change: the field still exists with the same type and default, and `backend()`'s `if (this.options?.controls)` handling is untouched. Requires `@nomercy-entertainment/nomercy-player-core@^2.0.0-rc.22` or newer.
+
 ## [2.0.0-rc.22] — 2026-07-02
 
 ### Breaking
