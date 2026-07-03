@@ -34,4 +34,5 @@ src/
 - This is a headless library. Never add UI elements or DOM manipulation beyond the video element.
 - All player features are exposed through events. New functionality must emit events.
 - Public API is exported from `src/index.ts`. Don't export internal modules directly.
+- A config field identical to one music needs (no domain twist) belongs on core's `BasePlayerConfig`, not `VideoPlayerConfig` — see `controls`, moved there once music needed the same flag.
 - Run `npx vitest` before committing changes.
