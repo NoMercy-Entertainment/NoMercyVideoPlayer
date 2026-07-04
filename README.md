@@ -17,23 +17,15 @@ You stay in control of the interface.
 - Chromecast, a full keyboard and touch input layer, a typed event bus
 - A built-in `DesktopUiPlugin` for full controls, or bring your own UI
 
-**You stay in charge.**
-
-No UI is bundled. Nothing is forced on you.
-
-The controls, the input handling, every feature beyond playback is a plugin you opt into with `addPlugin`.
-
-You can also swap any built-in behavior. Pass your own storage, URL resolver, logger, or retry policy to `setup()`. No subclassing.
-
 Built on [`nomercy-player-core`](https://www.npmjs.com/package/@nomercy-entertainment/nomercy-player-core), the shared engine for the queue, auth, plugins, i18n, and storage.
+
+## Install
 
 ```
 npm install @nomercy-entertainment/nomercy-video-player
 ```
 
 HLS support is built in. `hls.js` ships with the player core, so `.m3u8` streams work out of the box with nothing extra to install.
-
-> **Upgrading from v1?** See [MIGRATION.md](./MIGRATION.md) for the full breaking-change list, including renamed methods, changed event payloads, and the `item.file` to `item.url` rename that breaks silently if missed.
 
 ## Quick start
 
@@ -60,16 +52,29 @@ player.on('ready', () => {
 });
 ```
 
-That mounts a working player with the full built-in UI. Drop `DesktopUiPlugin` to build your own from player events.
+That mounts a working player with the full built-in UI.
+
+## Bring your own UI
+
+No UI is bundled. Nothing is forced on you.
+
+The controls, the input handling, every feature beyond playback is a plugin you opt into with `addPlugin`. Drop `DesktopUiPlugin` from the quick start above and you build your own interface from the player's events, the path the [Build a Player tutorial](https://docs.nomercy.tv/nomercy-video-player/build/shell) walks one control at a time.
+
+You can also swap any built-in behavior. Pass your own storage, URL resolver, logger, or retry policy to `setup()`. No subclassing.
+
+## Upgrading from v1
+
+See [MIGRATION.md](./MIGRATION.md) for the full breaking-change list, including renamed methods, changed event payloads, and the `item.file` to `item.url` rename that breaks silently if missed.
 
 ## Documentation
 
-The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full reference:
+The [docs site](https://docs.nomercy.tv/nomercy-video-player/) is the full reference, ordered from first player to plugin author:
 
-- [Quick Start](https://docs.nomercy.tv/nomercy-video-player/quickstart), install, and first player
-- [Configuration](https://docs.nomercy.tv/nomercy-video-player/configuration), every option and default
-- [API Methods](https://docs.nomercy.tv/nomercy-video-player/api-methods) and [Events](https://docs.nomercy.tv/nomercy-video-player/events)
-- The step-by-step tutorial for building your own player UI, framework guides for Vue, React, Svelte, Angular, and vanilla JS, and writing your own plugins
+- [Introduction](https://docs.nomercy.tv/nomercy-video-player/introduction) and [Quick Start](https://docs.nomercy.tv/nomercy-video-player/quickstart), install and first player
+- The [Guided Tour](https://docs.nomercy.tv/nomercy-video-player/tour/transport) over transport, volume, queue, subtitles, quality, and chapters, method by method
+- [Build a Player](https://docs.nomercy.tv/nomercy-video-player/build/shell), a ten-step tutorial that builds your own UI plugin from scratch
+- Framework recipes for [Vue](https://docs.nomercy.tv/nomercy-video-player/recipes/vue-integration), [React](https://docs.nomercy.tv/nomercy-video-player/recipes/react-integration), [Svelte](https://docs.nomercy.tv/nomercy-video-player/recipes/svelte-integration), and [vanilla JS](https://docs.nomercy.tv/nomercy-video-player/recipes/vanilla-integration)
+- [Configuration](https://docs.nomercy.tv/nomercy-video-player/reference/config), [API Methods](https://docs.nomercy.tv/nomercy-video-player/reference/player-methods), and [Events](https://docs.nomercy.tv/nomercy-video-player/reference/events)
 
 ## License
 
