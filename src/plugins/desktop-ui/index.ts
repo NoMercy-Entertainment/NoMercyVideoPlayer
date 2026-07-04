@@ -413,6 +413,13 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	// ── Lifecycle overrides — these call super so they CANNOT be mixins ──────
 
 	override use(): void {
+		// This plugin runs its own activity state machine (menu-open and hover
+		// pinning, scrub state) — take over as the sole `activity` emitter so
+		// the player's built-in tracker never fights it, and hand ownership
+		// back at teardown so a UI-less player regains the default behavior.
+		this.player.activityTracking(false);
+		this.lifecycle.addCleanup(() => this.player.activityTracking(true));
+
 		this.initState();
 		this.appendStyles(new URL('./styles.css', import.meta.url).href, 'desktop-ui-styles');
 		this.buildDom();

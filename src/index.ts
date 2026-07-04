@@ -285,6 +285,12 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	declare volumeUp: (step?: number) => void;
 	declare volumeDown: (step?: number) => void;
 
+	declare bumpActivity: () => void;
+	declare activityTracking: {
+		(): boolean;
+		(enabled: boolean): void;
+	};
+
 	declare playState: () => PlayState;
 	declare volumeState: () => VolumeState;
 	declare repeatState: {
