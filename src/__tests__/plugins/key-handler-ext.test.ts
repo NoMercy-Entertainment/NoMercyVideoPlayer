@@ -28,7 +28,7 @@
  *   - 't' emits display-message with current time / remaining
  *   - '+' emits subtitle-size-up, '-' emits subtitle-size-down
  *   - 'a' → cycleAspectRatio()
- *   - 'shift+?' fires plugin:desktop-ui:shortcuts-toggle
+ *   - 'shift+?' toggles the mounted DesktopUiPlugin's shortcuts overlay
  *   - 's' → stop()
  *   - Modifier seeks: shift+ArrowLeft, alt+ArrowRight, ctrl+ArrowLeft
  *   - Color buttons: ColorF0Red → forward(30), ColorF3Blue → forward(120)
@@ -39,6 +39,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
+import { DesktopUiPlugin } from '../../plugins/desktop-ui';
 import { KeyHandlerPlugin } from '../../plugins/key-handler';
 
 // These tests subscribe to UI/plugin event names that fall outside the player's
@@ -48,18 +49,25 @@ interface EventBusLike {
 	on: (event: string, fn: (data: unknown) => void) => void;
 }
 
+type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
+const MockResizeObserver = vi.fn(function (this: unknown, _cb: ResizeCallback) {
+	return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() };
+});
+
 describe('KeyHandlerPlugin (video) — consequence tests', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		const div = document.createElement('div');
 		div.id = 'test';
 		document.body.appendChild(div);
+		vi.stubGlobal('ResizeObserver', MockResizeObserver);
 	});
 
 	afterEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
 		document.body.innerHTML = '';
 		vi.restoreAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	function makePlayer(overrides: Record<string, unknown> = {}): NMVideoPlayer {
@@ -355,12 +363,22 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 
 	// ── Help key ─────────────────────────────────────────────────────────────
 
-	it('shift+? emits plugin:desktop-ui:shortcuts-toggle', async () => {
-		const events: unknown[] = [];
-		const player = await ready(makePlayer({}));
-		(player as unknown as EventBusLike).on('plugin:desktop-ui:shortcuts-toggle', () => events.push(true));
+	it('shift+? toggles the mounted DesktopUiPlugin\'s shortcuts overlay directly (no event forge)', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(DesktopUiPlugin).ready();
+		await player.addPlugin(KeyHandlerPlugin, { cooldownMs: 0 } as any).ready();
+
+		const overlay = document.querySelector<HTMLDivElement>('#nmplayer-keybinds-dialog');
+		expect(overlay).not.toBeNull();
+
 		key('?', { shiftKey: true });
-		expect(events.length).toBeGreaterThan(0);
+
+		expect(overlay!.classList.contains('keybinds-dialog-visible')).toBe(true);
+	});
+
+	it('shift+? is a no-op when DesktopUiPlugin is not mounted', async () => {
+		await ready(makePlayer({}));
+		expect(() => key('?', { shiftKey: true })).not.toThrow();
 	});
 
 	// ── Quick-skip ────────────────────────────────────────────────────────────

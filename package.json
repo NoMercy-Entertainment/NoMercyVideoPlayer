@@ -127,7 +127,7 @@
 		"pretest:e2e": "node scripts/generate-e2e-fixtures.mjs",
 		"test:e2e": "npx playwright test",
 		"test:e2e:report": "npx playwright show-report reports/playwright",
-		"prepublishOnly": "npm run build"
+		"prepublishOnly": "npm run build:all"
 	},
 	"dependencies": {
 		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.24",

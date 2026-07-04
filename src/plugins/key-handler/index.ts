@@ -6,9 +6,15 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
+import type { Translations } from '@nomercy-entertainment/nomercy-player-core';
+
 import type { NMVideoPlayer, VideoPlayerConfig } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
+
+import { translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import { KeyHandlerPlugin as BaseKeyHandler } from '@nomercy-entertainment/nomercy-player-core/plugins/key-handler';
+
+import { DesktopUiPlugin } from '../desktop-ui';
 import { formatSeconds as fmtTime } from '../desktop-ui/helpers/progressBar';
 
 function hasDisplayMessage<T extends VideoPlaylistItem>(videoPlayer: NMVideoPlayer<T>): videoPlayer is NMVideoPlayer<T> & { displayMessage: (text: string, ms?: number) => void } {
@@ -28,6 +34,7 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	static override readonly id: string = 'video-key-handler';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'Video keyboard shortcuts — playback, media keys, modifier-aware seeks, TV color buttons, chapters, subs/audio, fullscreen, speed, frame-advance, time, subtitle-size, aspect-ratio';
+	static override readonly translations: Translations = translationsFromGlob('./i18n/*.ts');
 
 	private get cfg(): VideoPlayerConfig<T> {
 		return this.player.options;
@@ -192,7 +199,7 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	protected addSpeedKeys(): void {
 		const setRate = (rate: number): void => {
 			this.player.playbackRate?.(rate);
-			this.message(`${rate}x`);
+			this.message(this.t('speed', { speed: String(rate) }));
 		};
 		const currentRate = (): number => this.player.playbackRate?.() ?? 1;
 
@@ -255,7 +262,9 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	}
 
 	/**
-	 * `?` — fires `plugin:desktop-ui:shortcuts-toggle` so the desktop UI overlay can open/close.
+	 * `?` — toggles the desktop UI's keyboard-shortcuts overlay via a direct
+	 * call on the mounted `DesktopUiPlugin` instance. No-op when the plugin
+	 * isn't mounted.
 	 *
 	 * Registered as `'shift+?'` because on standard keyboards pressing `?` sends
 	 * `key='?'` with `shiftKey=true`. The kit canonicalizer folds modifier state into
@@ -264,10 +273,7 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	 */
 	protected addHelpKey(): void {
 		this.bind('shift+?', () => {
-			try {
-				this.player.emit('plugin:desktop-ui:shortcuts-toggle', undefined);
-			}
-			catch { /* desktop-ui not mounted — no-op */ }
+			this.player.getPlugin(DesktopUiPlugin)?.toggleShortcuts();
 		});
 	}
 }

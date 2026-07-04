@@ -21,6 +21,9 @@
  *   2. After a second toggle, the class is removed.
  *   3. The help key binding in KeyHandlerPlugin is registered as 'shift+?'
  *      (the canonical form the browser actually sends), not as bare '?'.
+ *      The key handler reaches the overlay via a direct
+ *      `getPlugin(DesktopUiPlugin)?.toggleShortcuts()` call; the event above
+ *      remains supported for external emitters.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -120,7 +123,7 @@ describe('KeyHandlerPlugin — ? keybind uses shift+? canonical form', () => {
 		vi.unstubAllGlobals();
 	});
 
-	it('pressing ? (key="?", shiftKey=true) fires plugin:desktop-ui:shortcuts-toggle', async () => {
+	it('pressing ? (key="?", shiftKey=true) opens the shortcuts overlay', async () => {
 		const player = new NMVideoPlayer('test').setup({});
 		await player.addPlugin(desktopUiPlugin).ready();
 		await player.addPlugin(keyHandlerPlugin).ready();

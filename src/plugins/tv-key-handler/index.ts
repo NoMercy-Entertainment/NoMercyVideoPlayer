@@ -135,7 +135,7 @@ export class TvKeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem>
 			const currentTime = this.player.time?.() ?? 0;
 
 			try {
-				this.player.emit('plugin:tv-key-handler:bookmark', { time: currentTime });
+				this.emit('bookmark', { time: currentTime });
 			}
 			catch { /* consumer may not listen — safe no-op */ }
 		});
@@ -148,7 +148,7 @@ export class TvKeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem>
 	protected override addHelpKey(): void {
 		this.bind('?', () => {
 			try {
-				this.player.emit('plugin:tv-key-handler:shortcuts-toggle', undefined);
+				this.emit('shortcuts-toggle', undefined);
 			}
 			catch { /* tv-key-handler shortcuts overlay not mounted — no-op */ }
 		});
@@ -168,7 +168,7 @@ export class TvKeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem>
 		const displayMs = this.tvOpts.infoDisplayMs ?? 5000;
 
 		try {
-			this.player.emit('plugin:tv-key-handler:info', {
+			this.emit('info', {
 				title,
 				currentTime,
 				duration,
