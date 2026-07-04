@@ -1,5 +1,20 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [Unreleased]
+
+### Added
+
+- Translation bundles for three more plugins: `key-handler` (`plugin.video-key-handler.speed`, the playback-rate OSD), `media-session` (`plugin.media-session.season`, the OS media-controls album line, localized per locale — Staffel/シーズン/Сезон/…), and `touch-zones` (the ±seek indicators). Each ships the full locale set and registers via `translationsFromGlob`, same as the existing bundles.
+- `plugin.desktop-ui.token.extras` — the season-0 title prefix ("Extras E3") is now a translated token in every desktop-ui locale file AND in the static `token-bundle.ts` seed, so it resolves like the season/episode prefixes even before the plugin's lazy bundle loads. Non-Latin locales get real translations (特典, 스페셜, إضافات, …); languages whose media UIs use "Extras" keep it.
+- `backend(kind)` setter overload on `NMVideoPlayer`/`IVideoPlayer`, mirroring the music player's backend surface: disposes the current backend, creates the new one, emits `backend:changed`. Only `'html5'` has a built-in implementation; other kinds route through `backendFactory` or reject with `core:not-implemented/video-backend`.
+- `subtitle-size-up` / `subtitle-size-down` are now declared members of `VideoEventMap` (the shared UI-intent pattern used by `display-message`/`back`/`close`), so key-handler subtitle size changes type-check instead of riding the untyped string escape hatch.
+
+### Fixed
+
+- `KeyHandlerPlugin`'s help-overlay key now calls `DesktopUiPlugin.toggleShortcuts()` directly via `player.getPlugin()` instead of hand-forging an event in the desktop-ui plugin's namespace; `TvKeyHandlerPlugin` emits its own events through the plugin's auto-namespacing `emit` instead of hand-built `plugin:tv-key-handler:*` strings. Wire-level event names are unchanged.
+- The IIFE CDN bundle build works in the monorepo again: the Vite aliases that map core imports onto its live TypeScript source are now derived from core's exports map, so directory-index subpaths (`plugins/key-handler`) and remapped ones (`streams/*`) resolve exactly like the published package.
+- Published tarballs now actually contain `nomercy-video-player.iife.js`: `prepublishOnly` runs `build:all`. Previously the ESM-only rebuild inside `npm publish` wiped `dist/` after CI had built the bundle, so every rc shipped without its CDN artifact.
+
 ## [2.0.0-rc.24] — 2026-07-04
 
 ### Fixed

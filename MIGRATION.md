@@ -2,15 +2,17 @@
 
 ## beta.0 → beta.1 breaking change
 
-`currentSubtitle()`, `currentAudioTrack()`, and `currentQuality()` now return
-selection objects instead of bare indexes.
+The selection getters started returning selection objects instead of bare indexes
+in beta.1. In the betas they were named `currentSubtitle()`, `currentAudioTrack()`,
+and `currentQuality()`; since the rc line they are `subtitle()`, `audioTrack()`, and
+`quality()` (see the renames table below).
 
 ```ts
 // Before (beta.0)
 const idx: number | null = player.currentSubtitle();
 
-// After (beta.1)
-const sel = player.currentSubtitle(); // CurrentSubtitleSelection | null
+// After (rc and later)
+const sel = player.subtitle(); // CurrentSubtitleSelection | null
 sel?.index; // number
 sel?.track; // SubtitleTrack
 ```
