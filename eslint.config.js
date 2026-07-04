@@ -1,5 +1,5 @@
 import antfu from '@antfu/eslint-config';
-import player from '@nomercy-entertainment/nomercy-player-core/eslint-plugin';
+import player from '@nomercy-entertainment/eslint-plugin-player';
 
 export default antfu({
 	ignores: [

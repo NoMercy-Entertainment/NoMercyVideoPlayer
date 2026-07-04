@@ -130,13 +130,14 @@
 		"prepublishOnly": "npm run build:all"
 	},
 	"dependencies": {
-		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.24",
+		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.25",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
 		"@types/webvtt-parser": "^2.2.0",
 		"webvtt-parser": "^2.2.0"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^9.0.0",
+		"@nomercy-entertainment/eslint-plugin-player": "^0.1.1",
 		"@playwright/test": "^1.60.0",
 		"@types/node": "^25.9.0",
 		"@vitest/coverage-v8": "^4.1.6",
