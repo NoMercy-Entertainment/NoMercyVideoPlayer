@@ -266,6 +266,8 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	declare seekByPercentage: (pct: number, opts?: ActionOptions) => void;
 	/** @internal */
 	declare private _checkItemEndingSoon: (currentTime: number, duration: number) => void;
+	/** @internal */
+	declare private _timeStateAt: (position: number) => KitTimeState;
 
 	declare playbackRate: {
 		(): number;
@@ -688,7 +690,9 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 			const currentTime = instance.currentTime();
 			const duration = instance.duration();
 
-			this.emit('time', { time: currentTime });
+			// The payload is core's full TimeState snapshot, built from the
+			// backend's fresh position — the internal slot syncs FROM this event.
+			this.emit('time', this._timeStateAt(currentTime));
 
 			// Fire `itemEndingSoon` when the threshold is crossed. The helper is
 			// idempotent per item — it latches internally and resets on each load.

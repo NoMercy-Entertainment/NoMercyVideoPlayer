@@ -1,5 +1,11 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [2.0.0-rc.26] — 2026-07-05
+
+### Changed
+
+- The `time` event now carries core rc.28's full `TimeState` snapshot (`time`, `position`, `duration`, `buffered`, `remaining`, `percentage`) instead of `{ time }` — built from the backend's fresh position via core's `_timeStateAt`, so progress bars and clocks paint straight from the payload. Existing `({ time }) => …` listeners are unaffected. This closes the asymmetry with the music player, which already shipped a five-field payload. Requires `@nomercy-entertainment/nomercy-player-core@^2.0.0-rc.28`.
+
 ## [2.0.0-rc.25] — 2026-07-04
 
 ### Added
