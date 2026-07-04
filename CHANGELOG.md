@@ -1,6 +1,6 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
-## [Unreleased]
+## [2.0.0-rc.25] — 2026-07-04
 
 ### Added
 
@@ -8,6 +8,7 @@
 - `plugin.desktop-ui.token.extras` — the season-0 title prefix ("Extras E3") is now a translated token in every desktop-ui locale file AND in the static `token-bundle.ts` seed, so it resolves like the season/episode prefixes even before the plugin's lazy bundle loads. Non-Latin locales get real translations (特典, 스페셜, إضافات, …); languages whose media UIs use "Extras" keep it.
 - `backend(kind)` setter overload on `NMVideoPlayer`/`IVideoPlayer`, mirroring the music player's backend surface: disposes the current backend, creates the new one, emits `backend:changed`. Only `'html5'` has a built-in implementation; other kinds route through `backendFactory` or reject with `core:not-implemented/video-backend`.
 - `subtitle-size-up` / `subtitle-size-down` are now declared members of `VideoEventMap` (the shared UI-intent pattern used by `display-message`/`back`/`close`), so key-handler subtitle size changes type-check instead of riding the untyped string escape hatch.
+- `DesktopUiPlugin` claims sole ownership of the `activity` event via player-core rc.26's `activityTracking(false)` (its own state machine handles menu-open/hover pinning and scrub state), and hands the player's built-in tracker back at teardown. `NMVideoPlayer` declares the new `bumpActivity()` / `activityTracking()` surface, and `IVideoPlayer` gains T-typed `peekNext()` / `peekPrevious()` alongside the existing `item()`/`queue()` declarations. Requires `@nomercy-entertainment/nomercy-player-core@^2.0.0-rc.26`.
 
 ### Fixed
 
