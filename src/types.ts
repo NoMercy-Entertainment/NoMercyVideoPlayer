@@ -554,6 +554,12 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	item(): T | undefined;
 	item(target: T | string | number, opts?: LoadOptions): void;
 
+	/** What `next()` would load, without moving the cursor. */
+	peekNext(): T | undefined;
+
+	/** What `previous()` would load, without moving the cursor. */
+	peekPrevious(): T | undefined;
+
 	/** Number of items in the active queue. */
 	queueLength(): number;
 

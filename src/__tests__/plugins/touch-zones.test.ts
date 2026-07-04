@@ -202,9 +202,14 @@ describe('TouchZonesPlugin', () => {
 			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
 
+			// The player's own activity tracker shows controls at setup
+			// (initial bump). Drive them hidden first, and wait past the
+			// plugin's controlsVisible debounce so onSingle reads false.
+			player.emit('activity' as any, { active: false });
+			await new Promise(resolve => setTimeout(resolve, 320));
+
 			const emitSpy = vi.spyOn(player, 'emit');
 
-			// Controls start hidden (default controlsVisible = false).
 			const container = document.getElementById('test')!;
 			const leftBox = findZoneBox(container, '1', '2');
 			expect(leftBox).toBeDefined();
@@ -248,6 +253,11 @@ describe('TouchZonesPlugin', () => {
 			const player = setup();
 			player.addPlugin(touchZonesPlugin, { doubleTapThreshold: 300 });
 			await player.ready();
+
+			// Same as the left-zone case: hide the controls the player's own
+			// tracker surfaced at setup, then wait out the debounce.
+			player.emit('activity' as any, { active: false });
+			await new Promise(resolve => setTimeout(resolve, 320));
 
 			const emitSpy = vi.spyOn(player, 'emit');
 
