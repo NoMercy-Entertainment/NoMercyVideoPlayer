@@ -46,7 +46,7 @@ import type {
 	UrlCategory,
 	VisibilityState,
 } from '@nomercy-entertainment/nomercy-player-core';
-import type { BackendEventPayload, IVideoBackend } from './adapters/video-backend/IVideoBackend';
+import type { BackendEventPayload, IVideoBackend, VideoBackendKind } from './adapters/video-backend/IVideoBackend';
 import type { AudioTrackState, IVideoPlayer, PlayState, QualityState, RepeatState, SegmentBoundaryPayload, SegmentOptions, ShuffleState, Stretching, VideoEventMap, VideoPlayerConfig, VideoPlaylistItem, VideoRect, VolumeState } from './types';
 import {
 	bridgeBackendPlayState,
@@ -55,6 +55,7 @@ import {
 	EventEmitter,
 	GaplessTransitionStrategy,
 	initPlayerCoreState,
+	NotImplementedError,
 	playerCoreMethods,
 	resolvePlayerConstructor,
 } from '@nomercy-entertainment/nomercy-player-core';
@@ -529,12 +530,43 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	// ── Backend ──
 	private _backend: IVideoBackend | undefined;
-	backend(): IVideoBackend {
-		if (this._backend)
-			return this._backend;
+
+	backend(): IVideoBackend;
+	backend(kind: VideoBackendKind): Promise<void>;
+	backend(kind?: VideoBackendKind): IVideoBackend | Promise<void> {
+		if (kind === undefined) {
+			if (this._backend)
+				return this._backend;
+			return this._createBackend('html5');
+		}
+
+		return Promise.resolve().then(() => {
+			if (this._backend) {
+				this._backend.dispose();
+				this._backend = undefined;
+			}
+			this._createBackend(kind);
+			this.emit('backend:changed', { kind });
+		});
+	}
+
+	/**
+	 * Construct + fully wire an `IVideoBackend` instance for `kind`, then store
+	 * it as the active backend. Only `'html5'` has a built-in implementation —
+	 * other kinds require `options.backendFactory` to supply one. Called
+	 * lazily by the `backend()` getter on first access, and again by the
+	 * `backend(kind)` setter after disposing the previous instance.
+	 */
+	private _createBackend(kind: VideoBackendKind): IVideoBackend {
 		const factory = this.options?.backendFactory;
+		if (!factory && kind !== 'html5') {
+			throw new NotImplementedError(
+				`No built-in video backend for kind '${kind}'. Supply options.backendFactory to provide one.`,
+				'video-backend',
+			);
+		}
 		const instance = factory
-			? factory('html5', this.options)
+			? factory(kind, this.options)
 			: new Html5VideoBackend(this.container);
 		this._backend = instance;
 		this.videoElement = instance.mediaElement();

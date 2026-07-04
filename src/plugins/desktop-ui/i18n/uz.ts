@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': '{number}-fasl',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Extras',
 	'plugin.desktop-ui.menu.subtitle.font': 'Shrift',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Matn o\\\\\\\'lchami',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Matn rangi',

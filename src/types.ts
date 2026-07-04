@@ -316,6 +316,12 @@ export interface VideoEventMap<T extends VideoPlaylistItem = VideoPlaylistItem> 
 	// The close button is only visible when at least one listener is registered
 	// (checked via `player.hasListeners('close')` at ready time).
 	'close': void;
+
+	// Subtitle-size step request emitted by KeyHandlerPlugin's `+`/`-` bindings.
+	// The active UI plugin (or an overlay renderer) subscribes and steps
+	// `subtitleStyle().fontSize` — the key handler doesn't own the step size.
+	'subtitle-size-up': void;
+	'subtitle-size-down': void;
 }
 
 /**
@@ -434,6 +440,12 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	/** Returns the active `IVideoBackend` instance, constructing it on first call. */
 	backend(): IVideoBackend;
+	/**
+	 * Swap the active backend. Disposes the current instance, constructs a
+	 * fresh one for `kind`, and emits `backend:changed`. Only `'html5'` has a
+	 * built-in implementation — other kinds require `options.backendFactory`.
+	 */
+	backend(kind: VideoBackendKind): Promise<void>;
 
 	// ── Fullscreen / PiP / Theater ──
 

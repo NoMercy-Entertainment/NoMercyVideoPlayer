@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'ရာသီ {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'အပိုဆက်တွဲ',
 	'plugin.desktop-ui.menu.subtitle.font': 'ဖောင့်',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'စာသား အရွယ်အစား',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'စာသား အရောင်',

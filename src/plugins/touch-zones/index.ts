@@ -52,8 +52,10 @@
  * in/out is handled entirely by CSS (no JS animation frames).
  */
 
+import type { Translations } from '@nomercy-entertainment/nomercy-player-core';
 import type { NMVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
-import { Plugin } from '@nomercy-entertainment/nomercy-player-core';
+
+import { Plugin, translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 
 export interface TouchZonesOptions {
 	/** Milliseconds between taps that still counts as a double-tap. Default 300. */
@@ -146,6 +148,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	static override readonly id: string = 'touch-zones';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'Tap-zone overlay: double-tap to seek, single-tap to toggle playback';
+	static override readonly translations: Translations = translationsFromGlob('./i18n/*.ts');
 
 	private root!: HTMLDivElement;
 	private _isMobile = false;
@@ -303,7 +306,10 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		}
 
 		const textEl = document.createElement('span');
-		textEl.textContent = side === 'left' ? '-10s' : '+10s';
+		const seconds = this.opts?.seekSeconds ?? 10;
+		textEl.textContent = side === 'left'
+			? this.t('seek.back', { seconds: String(seconds) })
+			: this.t('seek.forward', { seconds: String(seconds) });
 
 		el.appendChild(svg);
 		el.appendChild(textEl);
@@ -345,8 +351,8 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		state.accumulated += seconds;
 
 		const label = direction === 'back'
-			? `-${state.accumulated}s`
-			: `+${state.accumulated}s`;
+			? this.t('seek.back', { seconds: String(state.accumulated) })
+			: this.t('seek.forward', { seconds: String(state.accumulated) });
 		state.textEl.textContent = label;
 
 		state.el.classList.add('nm-seek-indicator--visible');

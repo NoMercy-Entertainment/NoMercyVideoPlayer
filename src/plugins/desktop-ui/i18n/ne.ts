@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'सिजन {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'अतिरिक्त',
 	'plugin.desktop-ui.menu.subtitle.font': 'फन्ट',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'पाठ आकार',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'पाठ रंग',

@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'சீசன் {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'கூடுதல்',
 	'plugin.desktop-ui.menu.subtitle.font': 'எழுத்துரு',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'உரை அளவு',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'உரை நிறம்',

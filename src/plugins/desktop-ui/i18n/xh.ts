@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'Isizini {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Extras',
 	'plugin.desktop-ui.menu.subtitle.font': 'Uhlobo lwamagama',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Ubungakanani bamagama',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Umbala wamagama',

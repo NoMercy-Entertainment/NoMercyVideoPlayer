@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': '第 {number} 季',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': '特典',
 	'plugin.desktop-ui.menu.subtitle.font': '字体',
 	'plugin.desktop-ui.menu.subtitle.textSize': '文字大小',
 	'plugin.desktop-ui.menu.subtitle.textColor': '文字颜色',

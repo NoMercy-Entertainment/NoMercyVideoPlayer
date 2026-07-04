@@ -70,6 +70,9 @@ export interface SpriteFetchers {
 	fetchImageUrl?: (url: string) => Promise<string | null>;
 }
 
+// Reachable in production via `VttSpriteThumbnailSource`, which calls
+// `loadSpriteSet` with no `fetchers` — that adapter has no plugin-scoped
+// authenticated fetch to inject, so this bare fallback stays.
 async function defaultFetchText(url: string): Promise<string | null> {
 	const response = await fetch(url);
 	if (!response.ok)

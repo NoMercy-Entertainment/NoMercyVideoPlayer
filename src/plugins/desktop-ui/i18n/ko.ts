@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': '시즌 {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': '스페셜',
 	'plugin.desktop-ui.menu.subtitle.font': '글꼴',
 	'plugin.desktop-ui.menu.subtitle.textSize': '텍스트 크기',
 	'plugin.desktop-ui.menu.subtitle.textColor': '텍스트 색상',

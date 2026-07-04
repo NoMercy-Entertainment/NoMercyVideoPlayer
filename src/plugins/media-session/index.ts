@@ -6,9 +6,13 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
+import type { Translations } from '@nomercy-entertainment/nomercy-player-core';
 import type { MediaSessionMetadata } from '@nomercy-entertainment/nomercy-player-core/plugins/media-session';
+
 import type { NMVideoPlayer } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
+
+import { translationsFromGlob } from '@nomercy-entertainment/nomercy-player-core';
 import { MediaSessionPlugin as BaseMediaSession } from '@nomercy-entertainment/nomercy-player-core/plugins/media-session';
 
 /**
@@ -24,10 +28,11 @@ import { MediaSessionPlugin as BaseMediaSession } from '@nomercy-entertainment/n
  */
 export class MediaSessionPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends BaseMediaSession<T, NMVideoPlayer<T>> {
 	static override readonly id: string = 'media-session';
+	static override readonly translations: Translations = translationsFromGlob('./i18n/*.ts');
 
 	protected override getMetadata(item: T): MediaSessionMetadata {
 		const seasonText = item.season !== undefined && item.season !== null && String(item.season) !== ''
-			? `Season ${item.season}`
+			? this.t('season', { season: String(item.season) })
 			: '';
 		return {
 			title: item.title ?? '',

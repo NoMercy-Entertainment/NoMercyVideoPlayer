@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'Séasúr {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Bónais',
 	'plugin.desktop-ui.menu.subtitle.font': 'Cló',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Méid an téacs',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Dath an téacs',

@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'فصل {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'اضافات',
 	'plugin.desktop-ui.menu.subtitle.font': 'فونت',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'اندازه متن',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'رنگ متن',

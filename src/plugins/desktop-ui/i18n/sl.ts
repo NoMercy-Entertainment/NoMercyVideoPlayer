@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'Sezona {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Extras',
 	'plugin.desktop-ui.menu.subtitle.font': 'Pisava',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Velikost besedila',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Barva besedila',

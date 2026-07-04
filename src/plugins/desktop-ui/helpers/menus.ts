@@ -869,10 +869,12 @@ function buildPlaylistCard(
 	epLabel.className = 'progress-item-text';
 	const isRealEpisode = typeof item.season === 'number' && item.season >= 1 && typeof item.episode === 'number';
 	if (isRealEpisode) {
-		epLabel.textContent = `S${item.season}: E${item.episode}`;
+		const seasonLabel = player.t('plugin.desktop-ui.token.season', { number: String(item.season) });
+		const episodeLabel = player.t('plugin.desktop-ui.token.episode', { number: String(item.episode) });
+		epLabel.textContent = `${seasonLabel}: ${episodeLabel}`;
 	}
 	else if (typeof item.episode === 'number' && typeof item.season !== 'number') {
-		epLabel.textContent = `E${item.episode}`;
+		epLabel.textContent = player.t('plugin.desktop-ui.token.episode', { number: String(item.episode) });
 	}
 	else {
 		epLabel.textContent = String(index + 1);

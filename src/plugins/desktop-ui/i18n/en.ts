@@ -146,6 +146,7 @@ const translations = {
 	// episode letter is localized (Dutch is `A`, from "aflevering").
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Extras',
 
 	// Subtitle settings row labels
 	'plugin.desktop-ui.menu.subtitle.font': 'Font',

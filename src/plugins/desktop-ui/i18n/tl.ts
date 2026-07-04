@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'Season {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Karagdagan',
 	'plugin.desktop-ui.menu.subtitle.font': 'Font',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Laki ng teksto',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Kulay ng teksto',

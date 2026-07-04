@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': '{number}-маусым',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Қосымша',
 	'plugin.desktop-ui.menu.subtitle.font': 'Қаріп',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Мәтін өлшемі',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Мәтін түсі',

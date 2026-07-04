@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'Àkókò {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Ẹkstra',
 	'plugin.desktop-ui.menu.subtitle.font': 'Irú àkọsílẹ̀',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Ìwọ̀n ọ̀rọ̀',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Àwọ̀ ọ̀rọ̀',

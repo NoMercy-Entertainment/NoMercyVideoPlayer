@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'Mùa {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Nội dung bổ sung',
 	'plugin.desktop-ui.menu.subtitle.font': 'Phông chữ',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Cỡ chữ',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Màu chữ',

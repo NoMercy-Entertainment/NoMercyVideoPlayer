@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'Σεζόν {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'Έξτρα',
 	'plugin.desktop-ui.menu.subtitle.font': 'Γραμματοσειρά',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'Μέγεθος κειμένου',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'Χρώμα κειμένου',

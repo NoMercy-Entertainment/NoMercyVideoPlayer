@@ -128,11 +128,15 @@ export function updateTitleBar(
 		const epTitle = rawTitle && rawTitle !== show ? rawTitle : '';
 
 		if (seasonNum !== null && seasonNum > 0) {
-			const label = `S${seasonNum}E${episodeNum}`;
+			const seasonLabel = player.t('plugin.desktop-ui.token.season', { number: String(seasonNum) });
+			const episodeLabel = player.t('plugin.desktop-ui.token.episode', { number: String(episodeNum) });
+			const label = `${seasonLabel}${episodeLabel}`;
 			secondary = epTitle ? `${label} • ${epTitle}` : label;
 		}
 		else if (seasonNum === 0) {
-			const label = `Extras E${episodeNum}`;
+			const extrasLabel = player.t('plugin.desktop-ui.token.extras');
+			const episodeLabel = player.t('plugin.desktop-ui.token.episode', { number: String(episodeNum) });
+			const label = `${extrasLabel} ${episodeLabel}`;
 			secondary = epTitle ? `${label} • ${epTitle}` : label;
 		}
 		else {

@@ -111,6 +111,7 @@ export default {
 	'plugin.desktop-ui.menu.season': 'ซีซัน {number}',
 	'plugin.desktop-ui.token.season': 'S{number}',
 	'plugin.desktop-ui.token.episode': 'E{number}',
+	'plugin.desktop-ui.token.extras': 'เสริม',
 	'plugin.desktop-ui.menu.subtitle.font': 'ฟอนต์',
 	'plugin.desktop-ui.menu.subtitle.textSize': 'ขนาดข้อความ',
 	'plugin.desktop-ui.menu.subtitle.textColor': 'สีข้อความ',
