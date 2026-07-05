@@ -137,7 +137,7 @@
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^9.0.0",
-		"@nomercy-entertainment/eslint-plugin-player": "^0.1.1",
+		"@nomercy-entertainment/eslint-plugin-player": "^0.3.0",
 		"@playwright/test": "^1.60.0",
 		"@types/node": "^25.9.0",
 		"@vitest/coverage-v8": "^4.1.6",

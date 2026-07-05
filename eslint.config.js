@@ -58,13 +58,25 @@ export default antfu({
 		'player/no-history-comments': 'error',
 		'player/no-object-literal-cast': 'error',
 		'player/no-unknown-cast': 'error',
+		'player/no-raw-player-bus': 'error',
+		'player/no-raw-timers-in-plugin': 'error',
+		'player/no-raw-throw-in-plugin': 'error',
+		'player/no-raw-fetch-in-plugin': 'error',
+		'player/plugin-id-required': 'error',
 	},
 }, {
-	// Mock construction in tests legitimately casts.
+	// Mock construction in tests legitimately casts; test-fixture plugins throw
+	// raw errors, use raw timers, and build ad-hoc plugin classes to exercise
+	// the real paths — the boundary rules target authored plugins, not fixtures.
 	files: ['src/**/*.test.ts', 'src/__tests__/**/*.ts'],
 	rules: {
 		'player/no-object-literal-cast': 'off',
 		'player/no-unknown-cast': 'off',
+		'player/no-raw-throw-in-plugin': 'off',
+		'player/no-raw-timers-in-plugin': 'off',
+		'player/no-raw-player-bus': 'off',
+		'player/no-raw-fetch-in-plugin': 'off',
+		'player/plugin-id-required': 'off',
 	},
 }, {
 	// The v1 compat shim's entire purpose is deprecation — its declare-module

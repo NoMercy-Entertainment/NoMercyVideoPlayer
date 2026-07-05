@@ -259,6 +259,7 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 			const mod = await import('@nomercy-entertainment/nomercy-subtitle-octopus');
 			const ctor = (mod.NMSubtitleOctopus) as SubtitleOctopusCtor | undefined;
 			if (typeof ctor !== 'function') {
+				// eslint-disable-next-line player/no-raw-throw-in-plugin -- local control flow: this throw never escapes the plugin, it is caught by the try/catch below which logs and degrades to null (ASS/SSA disabled). Not a consumer-facing error, so this.throw() would be wrong.
 				throw new TypeError('nomercy-subtitle-octopus did not export NMSubtitleOctopus');
 			}
 			this._ctor = ctor;

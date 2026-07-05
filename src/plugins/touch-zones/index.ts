@@ -278,12 +278,26 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 				onDouble(event);
 			}
 			else {
+				// eslint-disable-next-line player/no-raw-timers-in-plugin -- tap-debounce timer with manual clearTimeout above for the double-tap cancel path; this.timeout() has no matching manual-cancel handle, so a raw timer is required here.
 				singleTimer = setTimeout(() => {
 					singleTimer = null;
 					onSingle?.(event);
 				}, delay);
 			}
 		};
+	}
+
+	/**
+	 * Drive the PLAYER's activity state to hidden. `activity` is a player-level
+	 * event (desktop-ui listens to toggle control visibility), not a
+	 * touch-zones-scoped one, so it goes on the player bus directly — the scoped
+	 * `this.emit()` would namespace it to `plugin:touch-zones:activity`, where
+	 * nothing listens. Used by the single-tap paths to re-hide controls that were
+	 * already visible at tap start.
+	 */
+	private dismissControls(): void {
+		// eslint-disable-next-line player/no-raw-player-bus -- deliberate emit of the player-level `activity` event; see doc comment above.
+		this.player.emit('activity', { active: false });
 	}
 
 	private createSeekIndicator(parent: HTMLElement, side: 'left' | 'right'): SeekIndicatorState {
@@ -357,10 +371,12 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 
 		state.el.classList.add('nm-seek-indicator--visible');
 
+		// eslint-disable-next-line player/no-raw-timers-in-plugin -- seek-indicator collapse timer, manually cleared/re-armed on each tap (see clearTimeout at the reset above); this.timeout() offers no manual-cancel handle for the re-arm path.
 		state.collapseTimer = setTimeout(() => {
 			state.accumulated = 0;
 			state.collapseTimer = null;
 
+			// eslint-disable-next-line player/no-raw-timers-in-plugin -- nested hide timer, manually cleared/re-armed alongside collapseTimer; same manual-cancel requirement.
 			state.hideTimer = setTimeout(() => {
 				state.el.classList.remove('nm-seek-indicator--visible');
 				state.hideTimer = null;
@@ -389,7 +405,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 			},
 			() => {
 				if (this.wasControlsVisibleAtTapStart()) {
-					this.player.emit('activity', { active: false });
+					this.dismissControls();
 				}
 			},
 		);
@@ -412,7 +428,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 			},
 			() => {
 				if (this.wasControlsVisibleAtTapStart()) {
-					this.player.emit('activity', { active: false });
+					this.dismissControls();
 				}
 			},
 		);
@@ -455,7 +471,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 			() => { this.player.volumeUp?.(); },
 			() => {
 				if (this.wasControlsVisibleAtTapStart()) {
-					this.player.emit('activity', { active: false });
+					this.dismissControls();
 				}
 			},
 		);
@@ -469,7 +485,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 			() => { this.player.volumeDown?.(); },
 			() => {
 				if (this.wasControlsVisibleAtTapStart()) {
-					this.player.emit('activity', { active: false });
+					this.dismissControls();
 				}
 			},
 		);
