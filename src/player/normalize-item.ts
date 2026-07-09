@@ -20,7 +20,7 @@ import type { BasePlaylistItem } from '@nomercy-entertainment/nomercy-player-cor
 import type { ChapterRef, FontTrackRef, VideoPlaylistItem, WatchProgress } from '../types';
 import { parseDurationSeconds } from '@nomercy-entertainment/nomercy-player-core';
 
-interface LegacyTrackEntry {
+export interface LegacyTrackEntry {
 	id?: string | number;
 	kind?: string;
 	file?: string;

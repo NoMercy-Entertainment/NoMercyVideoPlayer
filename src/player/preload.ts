@@ -8,6 +8,7 @@
 
 import type { BasePlaylistItem, PreloadAsset } from '@nomercy-entertainment/nomercy-player-core';
 import type { VideoPlaylistItem } from '../types';
+import type { LegacyTrackEntry } from './normalize-item';
 import { DefaultPreloadStrategy } from '@nomercy-entertainment/nomercy-player-core';
 
 /**
@@ -16,16 +17,19 @@ import { DefaultPreloadStrategy } from '@nomercy-entertainment/nomercy-player-co
  *
  *  - HLS manifest (or direct video URL) — `'media'` / `metadata` mode
  *  - Poster image — `'poster'` / `auto` mode (small, load fully)
- *  - Subtitle sidecars from `item.subtitles` — `'subtitle'` / `auto`
  *  - Sprite VTT (preview thumbnails) — `'sprite'` / `metadata`
- *  - Generic tracks from `item.tracks` (chapters, fonts, fonts, etc.) — `'subtitle'` / `auto`
+ *  - Subtitle sidecars from `item.subtitles` — `'subtitle'` / `auto`
+ *  - Chapter VTT sidecars from `tracks[].kind === 'chapters'` (the legacy
+ *    field the normalizer preserves) — `'chapter'` / `auto`
+ *  - Font manifests from `item.fonts` (ASS/SSA rendering — same `'font'`
+ *    category `OctopusPlugin` resolves with) — `'font'` / `auto`
  *
  * Video crossfade is disabled by default (`GaplessTransitionStrategy`). Asset
  * preloading still runs so the next item starts instantly on hard-cut.
  */
 export class VideoPreloadStrategy extends DefaultPreloadStrategy {
 	override assetsToPreload(item: BasePlaylistItem): PreloadAsset[] {
-		const videoItem = item as VideoPlaylistItem;
+		const videoItem = item as VideoPlaylistItem & { tracks?: LegacyTrackEntry[] };
 		const assets: PreloadAsset[] = [];
 
 		if (videoItem.url) {
@@ -44,6 +48,18 @@ export class VideoPreloadStrategy extends DefaultPreloadStrategy {
 		for (const subtitle of videoItem.subtitles ?? []) {
 			if (subtitle.url) {
 				assets.push({ url: subtitle.url, category: 'subtitle', mode: 'auto' });
+			}
+		}
+
+		for (const track of videoItem.tracks ?? []) {
+			if (track.kind === 'chapters' && track.file) {
+				assets.push({ url: track.file, category: 'chapter', mode: 'auto' });
+			}
+		}
+
+		for (const font of videoItem.fonts ?? []) {
+			if (font.file) {
+				assets.push({ url: font.file, category: 'font', mode: 'auto' });
 			}
 		}
 
