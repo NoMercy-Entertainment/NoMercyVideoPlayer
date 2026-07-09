@@ -39,6 +39,7 @@ import type {
 	QualityLevel,
 	ResolvedUrl,
 	SetupState,
+	SidecarSubtitleInput,
 	SubtitleCueChange,
 	SubtitleStyle,
 	SubtitleTrack,
@@ -130,7 +131,7 @@ export {
 } from './types';
 
 export type { QualityLevel } from './types';
-export type { AudioTrack, Chapter, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
+export type { AudioTrack, Chapter, SidecarSubtitleInput, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 
 const _instances: Map<string, NMVideoPlayer<BasePlaylistItem>> = new Map();
 
@@ -1092,6 +1093,18 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 		(): SubtitleStyle;
 		(patch: Partial<SubtitleStyle>): void;
 	};
+
+	/**
+	 * Inject a sidecar subtitle track into the currently-playing item at
+	 * runtime — no reload required. Idempotent by `url` + normalised
+	 * `language`; `default: true` selects it immediately through the same
+	 * cancellable `beforeSubtitle` path as `subtitle(idx)`. Composed in via
+	 * `mediaTracksMethods` — see that mixin for the full contract.
+	 */
+	declare addSubtitleTrack: (track: SidecarSubtitleInput, opts?: ActionOptions) => SubtitleTrack;
+
+	/** Remove a sidecar subtitle track added via `addSubtitleTrack()`, by id. */
+	declare removeSubtitleTrack: (id: string, opts?: ActionOptions) => void;
 
 	declare audioTracks: () => AudioTrack[];
 	declare audioTrack: {

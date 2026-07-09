@@ -33,6 +33,7 @@ src/
 
 - This is a headless library. Never add UI elements or DOM manipulation beyond the video element.
 - `subtitle()` / `subtitles()` / `subtitleStyle()` are video-only capability members, declared on `IVideoPlayer` (`src/types.ts`) and `NMVideoPlayer` (`src/index.ts`) — not on core's shared `IPlayer`. Don't move them back onto `IPlayer`; music has no screen to render subtitles onto.
+- `addSubtitleTrack()` / `removeSubtitleTrack()` (runtime sidecar subtitle injection, e.g. for a search-and-download-subtitles feature) follow the same rule — video-only on `IVideoPlayer` / `NMVideoPlayer`, implemented once in core's `media-tracks.ts` mixin alongside `subtitle()`. They emit the core `'subtitles'` event on change; `DesktopUiPlugin` listens for it (`domMethods.ts`) to refresh button visibility and repaint an open subtitles pane live, no reload.
 - Plugins never emit inside another plugin's `plugin:<id>:` namespace by constructing the string on `this.player.emit(...)` by hand — that's forging. A plugin emitting its OWN namespaced event goes through the inherited `this.emit(name, data)`; reaching into a peer plugin's public surface goes through `player.getPlugin(PeerPlugin)?.method()`.
 - All player features are exposed through events. New functionality must emit events.
 - Public API is exported from `src/index.ts`. Don't export internal modules directly.

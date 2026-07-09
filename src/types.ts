@@ -23,6 +23,7 @@ import type {
 	LoadOptions,
 	PlayState,
 	QualityLevel,
+	SidecarSubtitleInput,
 	SubtitleStyle,
 	VolumeState,
 } from '@nomercy-entertainment/nomercy-player-core';
@@ -488,6 +489,24 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 	subtitleStyle(): SubtitleStyle;
 	subtitleStyle(patch: Partial<SubtitleStyle>): void;
+
+	/**
+	 * Inject a sidecar subtitle track into the currently-playing item at
+	 * runtime — no reload. The player-side foundation for a "search and
+	 * download subtitles during playback" feature; the app resolves the
+	 * download and hands the kit a URL. Idempotent by `url` + normalised
+	 * `language` — adding the same track twice returns the existing entry.
+	 * Pass `default: true` to select it immediately via the same cancellable
+	 * `beforeSubtitle` path as `subtitle(idx)`.
+	 */
+	addSubtitleTrack(track: SidecarSubtitleInput, opts?: ActionOptions): KitSubtitleTrack;
+
+	/**
+	 * Remove a sidecar subtitle track previously added via
+	 * `addSubtitleTrack()`, by id. No-op when `id` is not found. Turns
+	 * subtitles off first if the removed track was the active selection.
+	 */
+	removeSubtitleTrack(id: string, opts?: ActionOptions): void;
 
 	audioTracks(): KitAudioTrack[];
 

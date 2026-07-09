@@ -401,6 +401,16 @@ export const domMethods = {
 			this.repaintSubsIfOpen();
 		});
 
+		// Fired by `addSubtitleTrack()` / `removeSubtitleTrack()` — the track
+		// list changed without a reload. Button visibility is content-gated
+		// (hidden when `subtitles()` was empty at mediaReady), so a newly
+		// injected track needs the same visibility recheck `levels` /
+		// `audioTracks` already get, plus a repaint if the pane is open.
+		this.on('subtitles', () => {
+			this.refreshCapabilityVisibility();
+			this.repaintSubsIfOpen();
+		});
+
 		this.on('audioTrack', (payload) => {
 			this._menuControlState.activeAudioIdx = typeof payload.id === 'number' ? payload.id : -1;
 			this.applyAudioIcon();
