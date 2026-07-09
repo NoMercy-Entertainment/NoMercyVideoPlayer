@@ -7,7 +7,8 @@
 // -----------------------------------------------------------------------------
 
 /**
- * Regression: autoPlay start selection vs the queue's default cursor.
+ * Regression: autoPlay start selection vs the queue's default cursor, and
+ * setup priming independent of autoPlay.
  *
  * MediaList parks its cursor on item 0 the moment items exist, so
  * `player.item()` is NEVER undefined once a playlist is set. The autoPlay
@@ -15,6 +16,11 @@
  * `pickStartItem` entirely — every session "resumed" at item 0, position 0.
  * Only an explicit `item(target)` navigation (which bumps `_currentEpoch`)
  * counts as a preselection.
+ *
+ * Separately: setup() must prime (load) the start-selected item even when
+ * `autoPlay: false` — the load was previously gated entirely behind
+ * `autoPlay`, so a consumer opting out of autoplay got a player that never
+ * loaded anything until a manual `item(target)` call.
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -47,21 +53,23 @@ const PLAYLIST = [
 	{ id: 303, url: 'https://server.test/e3.m3u8' },
 ];
 
-function setupPlayer(containerId: string): ReturnType<typeof nmplayer> & { load: ReturnType<typeof vi.fn> } {
+function setupPlayer(containerId: string, autoPlay = true): ReturnType<typeof nmplayer> & { load: ReturnType<typeof vi.fn>; play: ReturnType<typeof vi.fn> } {
 	makeContainer(containerId);
 	const player = nmplayer(containerId).setup({
 		controls: false,
-		autoPlay: true,
+		autoPlay,
 		playlist: PLAYLIST,
 		baseUrl: 'https://server.test',
 		auth: { bearerToken: () => 'token' },
 	} as never);
-	// Shadow load() so no real backend/network is exercised — the assertions
-	// target WHICH item the start selection picks and the startAt it carries.
+	// Shadow load()/play() so no real backend/network is exercised — the
+	// assertions target WHICH item the start selection picks, the startAt it
+	// carries, and whether the setup continuation calls play() at all.
 	const loadSpy = vi.fn(async () => {});
+	const playSpy = vi.fn(async () => {});
 	(player as unknown as { load: typeof loadSpy }).load = loadSpy;
-	(player as unknown as { play: () => Promise<void> }).play = async () => {};
-	return player as ReturnType<typeof nmplayer> & { load: ReturnType<typeof vi.fn> };
+	(player as unknown as { play: typeof playSpy }).play = playSpy;
+	return player as ReturnType<typeof nmplayer> & { load: ReturnType<typeof vi.fn>; play: ReturnType<typeof vi.fn> };
 }
 
 describe('autoPlay start selection', () => {
@@ -92,5 +100,20 @@ describe('autoPlay start selection', () => {
 		const [item, opts] = player.load.mock.calls.at(-1)!;
 		expect(item.id).toBe(101);
 		expect(opts?.startAt).toBeUndefined();
+	});
+
+	it('primes the progress-selected item on setup even with autoPlay: false, and never plays', async () => {
+		const player = setupPlayer('asel-no-autoplay', false);
+		await player.ready();
+		await flush();
+
+		// The load still happens — priming is unconditional — but the setup
+		// continuation must never call play() when autoPlay is off.
+		expect(player.load).toHaveBeenCalled();
+		const [item, opts] = player.load.mock.calls.at(-1)!;
+		expect(item.id).toBe(202);
+		expect(opts.startAt).toBe(95);
+
+		expect(player.play).not.toHaveBeenCalled();
 	});
 });

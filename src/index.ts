@@ -1289,41 +1289,41 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 
 		const result = kitSetup.call(this, enrichedConfig);
 
-		// autoPlay: pick the start item once the setup pipeline settles and
-		// start playback when the load resolves. Progress-aware:
-		// items carrying `progress` resume at the most recent position, >90%
-		// watched rolls to the next item. Nothing else issues the first
-		// load — setup() only arms the queue, and play() does not lazy-load —
-		// so waiting for mediaReady here would deadlock.
-		if (enrichedConfig.autoPlay) {
-			void this.ready()
-				.then(() => {
-					const items = this.queue();
-					if (items.length === 0)
-						return;
+		// Every setup with a non-empty playlist primes the first item — loads
+		// it so the player never mounts blank, regardless of autoPlay.
+		// Progress-aware: items carrying `progress` resume at the most recent
+		// position, >90% watched rolls over to the next item. autoPlay only
+		// decides whether the primed item also plays; setup() only arms the
+		// queue and play() does not lazy-load, so waiting for mediaReady here
+		// would deadlock.
+		const wantsAutoplay = enrichedConfig.autoPlay ?? false;
+		void this.ready()
+			.then(() => {
+				const items = this.queue();
+				if (items.length === 0)
+					return;
 
-					// A consumer that pre-picked an item between setup() and
-					// ready() keeps its choice — no progress override. The
-					// queue cursor DEFAULTS to item 0 the moment items exist,
-					// so `item()` alone can't tell a real choice from the
-					// default; only an explicit `item(target)` navigation
-					// bumps `_currentEpoch`. Without this gate every session
-					// "preselected" item 0 and resume never ran.
-					const preselected = this._currentEpoch ? this.item() : undefined;
-					if (preselected) {
-						this.item(preselected, { autoplay: true, source: 'auto-play' });
-						return;
-					}
+				// A consumer that pre-picked an item between setup() and
+				// ready() keeps its choice — no progress override. The
+				// queue cursor DEFAULTS to item 0 the moment items exist,
+				// so `item()` alone can't tell a real choice from the
+				// default; only an explicit `item(target)` navigation
+				// bumps `_currentEpoch`. Without this gate every session
+				// "preselected" item 0 and resume never ran.
+				const preselected = this._currentEpoch ? this.item() : undefined;
+				if (preselected) {
+					this.item(preselected, { autoplay: wantsAutoplay, source: 'auto-play' });
+					return;
+				}
 
-					// `startAt` rides the load down to the backend (hls.js
-					// `startPosition`), so resume begins AT the offset — the
-					// old firstFrame-then-seek approach downloaded and decoded
-					// the start of the stream just to discard it.
-					const { index, resumeTime } = pickStartItem(items);
-					this.item(index, { autoplay: true, source: 'auto-play', startAt: resumeTime });
-				})
-				.catch(() => { /* setup failed — error surfaced via the 'error' event */ });
-		}
+				// `startAt` rides the load down to the backend (hls.js
+				// `startPosition`), so resume begins AT the offset — the
+				// old firstFrame-then-seek approach downloaded and decoded
+				// the start of the stream just to discard it.
+				const { index, resumeTime } = pickStartItem(items);
+				this.item(index, { autoplay: wantsAutoplay, source: 'auto-play', startAt: resumeTime });
+			})
+			.catch(() => { /* setup failed — error surfaced via the 'error' event */ });
 
 		if (enrichedConfig.theaterDefault) {
 			this.theater(true);
