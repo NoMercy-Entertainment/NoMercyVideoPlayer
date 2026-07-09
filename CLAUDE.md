@@ -40,4 +40,5 @@ src/
 - Public API is exported from `src/index.ts`. Don't export internal modules directly.
 - A config field identical to one music needs (no domain twist) belongs on core's `BasePlayerConfig`, not `VideoPlayerConfig` — see `controls`, moved there once music needed the same flag.
 - `playSegment`/`clearSegment` (bounded time-window playback with loop/hold/advance) stay video-only: they model disc-menu state windows and chapter-range/intro-loop playback, concepts with no music analogue — music's `repeatState('one')` already covers whole-track looping.
+- Auto-advance is default-ON here, default-OFF in music. `NMVideoPlayer` wires `ended → next()` itself, gated by `VideoPlayerConfig.autoAdvance` (default `true`); music only advances when the consumer mounts `AutoAdvancePlugin`. Deliberate asymmetry (owner ruling 2026-07-01): never converge one side silently, and consumer docs must state the difference before any queue/playlist example.
 - Run `npx vitest` before committing changes.
