@@ -52,8 +52,13 @@ export default defineConfig({
 						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/equalizer', replacement: `${coreRoot}/plugins/equalizer/index.ts` },
 						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/spectrum', replacement: `${coreRoot}/plugins/spectrum/index.ts` },
 						{ find: '@nomercy-entertainment/nomercy-player-core/plugins/visualization', replacement: `${coreRoot}/plugins/visualization/index.ts` },
+						// Core's package.json maps ./streams/* to dist/adapters/stream/* —
+						// the source tree has no streams/ directory, so the catch-all
+						// regex below would point these at a nonexistent file.
+						{ find: '@nomercy-entertainment/nomercy-player-core/streams/hls', replacement: `${coreRoot}/adapters/stream/hls.ts` },
+						{ find: '@nomercy-entertainment/nomercy-player-core/streams/native', replacement: `${coreRoot}/adapters/stream/native.ts` },
 						{
-							// Remaining subpath imports that resolve to bare .ts files (streams/*, cues/*).
+							// Remaining subpath imports that resolve to bare .ts files (cues/*).
 							find: /^@nomercy-entertainment\/nomercy-player-core\/(.*)$/,
 							replacement: `${coreRoot}/$1.ts`,
 						},
