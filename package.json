@@ -87,6 +87,10 @@
 			"types": "./dist/plugins/touch-zones/index.d.ts",
 			"import": "./dist/plugins/touch-zones/index.js"
 		},
+		"./plugins/tv-key-handler": {
+			"types": "./dist/plugins/tv-key-handler/index.d.ts",
+			"import": "./dist/plugins/tv-key-handler/index.js"
+		},
 		"./streams/native": {
 			"types": "./dist/streams/native.d.ts",
 			"import": "./dist/streams/native.js"
@@ -131,9 +135,7 @@
 	},
 	"dependencies": {
 		"@nomercy-entertainment/nomercy-player-core": "^2.0.0-rc.28",
-		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0",
-		"@types/webvtt-parser": "^2.2.0",
-		"webvtt-parser": "^2.2.0"
+		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^9.0.0",

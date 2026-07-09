@@ -1,5 +1,20 @@
 # Changelog — @nomercy-entertainment/nomercy-video-player
 
+## [Unreleased]
+
+### Changed
+
+- `KeyHandlerPlugin.id` renamed from `video-key-handler` to `key-handler`, matching the core base and the music player. `getPluginById('video-key-handler')` lookups and the `plugin.video-key-handler.speed` translation key move to the `key-handler` spelling; class-based `getPlugin(KeyHandlerPlugin)` callers are unaffected. `TvKeyHandlerPlugin` keeps its distinct `tv-key-handler` id.
+
+### Added
+
+- `./plugins/tv-key-handler` subpath export — `TvKeyHandlerPlugin` no longer requires the `./plugins` barrel.
+- `VideoPreloadStrategy` now preloads chapter VTT sidecars (`tracks[].kind === 'chapters'`, category `chapter`) and font manifests (`item.fonts`, category `font`), as its docs already claimed.
+
+### Removed
+
+- `webvtt-parser` + `@types/webvtt-parser` dependencies — declared but never imported; the kit cue parser registry has handled VTT since 2.0.0-beta.0.
+
 ## [2.0.0-rc.26] — 2026-07-05
 
 ### Changed

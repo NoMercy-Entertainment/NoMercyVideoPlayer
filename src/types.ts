@@ -522,9 +522,9 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	quality(): CurrentQualitySelection | 'auto';
 	quality(idx: number | 'auto'): void;
 
-	// ── Playback — required overrides of IPlayer optionals ──
-	// IPlayer marks these optional for cross-library compatibility.
-	// NMVideoPlayer always implements them; IVideoPlayer makes them required.
+	// ── Playback ──
+	// Already required on core's IPlayer — redundant re-declarations kept for
+	// doc locality with the video surface.
 
 	time(): number;
 	time(seconds: number, opts?: ActionOptions): Promise<void>;
