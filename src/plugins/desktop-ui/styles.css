@@ -948,6 +948,13 @@
 		margin-left: auto;
 	}
 
+	/* Consumer-supplied action rows (e.g. "Search subtitles online…") append
+	after a pane's own choices — a top divider sets them apart visually. */
+	.language-button.menu-action-row {
+		margin-top: 4px;
+		border-top: 1px solid rgba(255, 255, 255, 0.12);
+	}
+
 	.sub-menu-content {
 		display: none;
 		flex-direction: column;

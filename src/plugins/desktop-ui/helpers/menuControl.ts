@@ -22,7 +22,7 @@
 
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 import type { ActivityState } from './activity';
-import type { MenuFrameRefs, MenuRenderState, SubMenuId } from './menus';
+import type { MenuFrameRefs, MenuRenderState, SubMenuId, SubtitleMenuAction } from './menus';
 import {
 	renderAspectRatioPane,
 	renderAudioPane,
@@ -74,6 +74,16 @@ export interface MenuControlRefs {
 // ── Callback types ─────────────────────────────────────────────────────────────
 
 export type MenuListen = (target: EventTarget, event: string, fn: (event: Event) => void) => void;
+
+/**
+ * Narrow options surface menu-control needs from `DesktopUiOptions` — kept
+ * structural (not the full options type) so this module doesn't couple to
+ * every desktop-ui config field.
+ */
+export interface MenuRenderOpts {
+	imageBaseUrl?: string;
+	subtitleMenuActions?: ReadonlyArray<SubtitleMenuAction>;
+}
 
 // ── Aria helpers ───────────────────────────────────────────────────────────────
 
@@ -155,7 +165,7 @@ export function openSubMenu(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	listen: MenuListen,
 	closeAllMenusFn: () => void,
-	opts: { imageBaseUrl?: string } | undefined,
+	opts: MenuRenderOpts | undefined,
 	bumpActivity: () => void,
 ): void {
 	collapseAllTriggers(refs);
@@ -307,7 +317,7 @@ export function repaintPane(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	listen: MenuListen,
 	closeAllMenusFn: () => void,
-	opts: { imageBaseUrl?: string } | undefined,
+	opts: MenuRenderOpts | undefined,
 ): void {
 	const closeOnPick = closeAllMenusFn;
 	const keepOpenOnPick = (paneId: SubMenuId) => (): void => {
@@ -320,7 +330,7 @@ export function repaintPane(
 	if (id === 'quality')
 		renderQualityPane(menus.panes.quality, player, listen, closeOnPick, st);
 	if (id === 'subtitles')
-		renderSubsPane(menus.panes.subtitles, player, listen, closeOnPick, st);
+		renderSubsPane(menus.panes.subtitles, player, listen, closeOnPick, st, opts?.subtitleMenuActions);
 	if (id === 'language')
 		renderAudioPane(menus.panes.language, player, listen, closeOnPick, st);
 	if (id === 'playlist') {
@@ -343,7 +353,7 @@ export function repaintSubsIfOpen(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	listen: MenuListen,
 	closeAllMenusFn: () => void,
-	opts: { imageBaseUrl?: string } | undefined,
+	opts: MenuRenderOpts | undefined,
 ): void {
 	if (state.currentSubMenu === 'subtitles')
 		repaintPane('subtitles', state, menus, player, listen, closeAllMenusFn, opts);
@@ -356,7 +366,7 @@ export function repaintAudioIfOpen(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	listen: MenuListen,
 	closeAllMenusFn: () => void,
-	opts: { imageBaseUrl?: string } | undefined,
+	opts: MenuRenderOpts | undefined,
 ): void {
 	if (state.currentSubMenu === 'language')
 		repaintPane('language', state, menus, player, listen, closeAllMenusFn, opts);
@@ -369,7 +379,7 @@ export function repaintQualityIfOpen(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	listen: MenuListen,
 	closeAllMenusFn: () => void,
-	opts: { imageBaseUrl?: string } | undefined,
+	opts: MenuRenderOpts | undefined,
 ): void {
 	if (state.currentSubMenu === 'quality')
 		repaintPane('quality', state, menus, player, listen, closeAllMenusFn, opts);
@@ -382,7 +392,7 @@ export function repaintSpeedIfOpen(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	listen: MenuListen,
 	closeAllMenusFn: () => void,
-	opts: { imageBaseUrl?: string } | undefined,
+	opts: MenuRenderOpts | undefined,
 ): void {
 	if (state.currentSubMenu === 'speed')
 		repaintPane('speed', state, menus, player, listen, closeAllMenusFn, opts);
@@ -395,7 +405,7 @@ export function repaintPlaylistIfOpen(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	listen: MenuListen,
 	closeAllMenusFn: () => void,
-	opts: { imageBaseUrl?: string } | undefined,
+	opts: MenuRenderOpts | undefined,
 ): void {
 	if (state.currentSubMenu === 'playlist')
 		repaintPane('playlist', state, menus, player, listen, closeAllMenusFn, opts);
@@ -408,7 +418,7 @@ export function repaintAspectRatioIfOpen(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	listen: MenuListen,
 	closeAllMenusFn: () => void,
-	opts: { imageBaseUrl?: string } | undefined,
+	opts: MenuRenderOpts | undefined,
 ): void {
 	if (state.currentSubMenu === 'aspectRatio')
 		repaintPane('aspectRatio', state, menus, player, listen, closeAllMenusFn, opts);

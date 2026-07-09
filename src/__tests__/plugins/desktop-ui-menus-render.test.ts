@@ -25,7 +25,7 @@ import type { QualityLevel, SubtitleTrackRef } from '../../types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NMVideoPlayer } from '../../index';
-import { desktopUiPlugin } from '../../plugins/desktop-ui';
+import { desktopUiPlugin, DesktopUiPlugin } from '../../plugins/desktop-ui';
 import { renderQualityPane, renderSpeedPane, renderSubsPane, renderSubtitleSettingsPane } from '../../plugins/desktop-ui/helpers/menus';
 
 type ResizeCallback = (entries: Array<{ contentRect: { width: number } }>) => void;
@@ -347,9 +347,55 @@ describe('renderSubsPane (direct call)', () => {
 		offBtn!.click();
 		expect(subArg).toBeNull();
 	});
+
+	it('renders a consumer subtitleMenuAction row after the tracks, even with zero tracks', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const pane = document.createElement('div');
+		const scroll = document.createElement('div');
+		scroll.className = 'subtitles-scroll-container';
+		pane.appendChild(scroll);
+
+		Object.assign(player, { subtitles: () => [], language: () => 'en' });
+
+		let selectedWith: unknown = null;
+		renderSubsPane(pane, player as unknown as NMVideoPlayer, NOOP_LISTEN, () => {}, {
+			subtitleIdx: -1,
+			audioIdx: 0,
+			qualityIdx: 'auto',
+		}, [{
+			id: 'search-online',
+			label: () => 'Search subtitles online…',
+			onSelect: (receivedPlayer) => { selectedWith = receivedPlayer; },
+		}]);
+
+		const actionBtn = scroll.querySelector<HTMLButtonElement>('#subtitle-action-search-online');
+		expect(actionBtn).not.toBeNull();
+		expect(actionBtn!.getAttribute('role')).not.toBe('switch');
+		expect(actionBtn!.textContent).toContain('Search subtitles online');
+
+		const listen = (target: EventTarget, event: string, fn: (ev: Event) => void): void => {
+			(target as HTMLElement).addEventListener(event, fn);
+		};
+		let onPickCalled = false;
+		renderSubsPane(pane, player as unknown as NMVideoPlayer, listen, () => { onPickCalled = true; }, {
+			subtitleIdx: -1,
+			audioIdx: 0,
+			qualityIdx: 'auto',
+		}, [{
+			id: 'search-online',
+			label: () => 'Search subtitles online…',
+			onSelect: (receivedPlayer) => { selectedWith = receivedPlayer; },
+		}]);
+		scroll.querySelector<HTMLButtonElement>('#subtitle-action-search-online')!.click();
+
+		expect(selectedWith).toBe(player);
+		expect(onPickCalled).toBe(true);
+	});
 });
 
-// ── renderSubtitleSettingsPane via real player ────────���───────────────────────
+// ── renderSubtitleSettingsPane via real player ───────────────────────────────
 
 describe('renderSubtitleSettingsPane (direct call)', () => {
 	beforeEach(() => resetAndMount());
@@ -652,6 +698,64 @@ describe('DesktopUiPlugin — capability visibility gates (data-content-hidden)'
 
 		const subsBtn = player.container.querySelector<HTMLButtonElement>('[id="subtitles"]');
 		expect(subsBtn).not.toBeNull();
+		expect(subsBtn!.getAttribute('data-content-hidden')).toBeNull();
+	});
+
+	it('subsBtn is NOT content-hidden with zero tracks when subtitleMenuActions is configured', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { subtitles: true },
+			subtitleMenuActions: [{
+				id: 'search-online',
+				label: () => 'Search subtitles online…',
+				onSelect: () => {},
+			}],
+		}).ready();
+
+		Object.assign(player, {
+			subtitles: () => [],
+			audioTracks: () => [],
+			qualityLevels: () => [],
+			chapters: () => [],
+			playbackRates: () => [1],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const subsBtn = player.container.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		expect(subsBtn).not.toBeNull();
+		expect(subsBtn!.getAttribute('data-content-hidden')).toBeNull();
+
+		player.getPlugin(DesktopUiPlugin)?.openSubMenu('subtitles');
+		const scroll = player.container.querySelector('.subtitles-scroll-container');
+		expect(scroll?.textContent).toContain('Search subtitles online');
+	});
+
+	it('a live subtitleMenuActions update (plugin.options()) unhides subsBtn with zero tracks', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { subtitles: true },
+		}).ready();
+
+		Object.assign(player, {
+			subtitles: () => [],
+			audioTracks: () => [],
+			qualityLevels: () => [],
+			chapters: () => [],
+			playbackRates: () => [1],
+		});
+		player.emit('mediaReady' as never, {} as never);
+
+		const subsBtn = player.container.querySelector<HTMLButtonElement>('[id="subtitles"]');
+		expect(subsBtn!.getAttribute('data-content-hidden')).toBe('true');
+
+		player.getPlugin(DesktopUiPlugin)?.options({
+			subtitleMenuActions: [{
+				id: 'search-online',
+				label: () => 'Search subtitles online…',
+				onSelect: () => {},
+			}],
+		});
+
 		expect(subsBtn!.getAttribute('data-content-hidden')).toBeNull();
 	});
 });

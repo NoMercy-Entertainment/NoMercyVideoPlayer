@@ -95,6 +95,24 @@ export interface SettingsToggleItem {
 	set: (value: boolean) => void;
 }
 
+/**
+ * Consumer-supplied action row appended to the subtitles sub-menu — e.g. a
+ * "Search subtitles online…" entry that opens the app's own dialog. Shown
+ * whenever provided, even with zero subtitle tracks: that's exactly when an
+ * external-search action matters most, so it is never gated behind the
+ * subtitles button's usual content-visibility check. `label` resolves at
+ * render time so i18n applies, matching `SettingsToggleItem`. `onSelect`
+ * receives the player so the consumer can read current state (item,
+ * language) before opening its own dialog.
+ */
+export interface SubtitleMenuAction {
+	id: string;
+	label: () => string;
+	/** Raw SVG markup for the row's icon slot, inserted as-is like the built-in icons. Omit for a text-only row. */
+	icon?: string;
+	onSelect: (player: IVideoPlayer) => void | Promise<void>;
+}
+
 export function buildMenuFrame(
 	player: IVideoPlayer,
 	parent: HTMLElement,
@@ -487,6 +505,7 @@ export function renderSubsPane(
 	listen: MenuListen,
 	onPick: () => void,
 	state: MenuRenderState,
+	actions?: ReadonlyArray<SubtitleMenuAction>,
 ): void {
 	const scroll = pane.querySelector<HTMLDivElement>('.subtitles-scroll-container');
 	if (!scroll)
@@ -512,6 +531,37 @@ export function renderSubsPane(
 			listen,
 			player,
 		);
+	});
+
+	for (const action of actions ?? []) {
+		appendAction(scroll, action, onPick, listen, player);
+	}
+}
+
+/**
+ * Append a consumer-supplied action row — plain button/menuitem semantics
+ * (no checkmark, no `is-active` state), visually separated from the
+ * choice rows above it by `.menu-action-row`'s top divider.
+ */
+function appendAction(
+	scroll: HTMLDivElement,
+	action: SubtitleMenuAction,
+	onPick: () => void,
+	listen: MenuListen,
+	player: IVideoPlayer,
+): void {
+	const label = action.label();
+	const btn = player.createButton(`subtitle-action-${action.id}`, label, () => {});
+	btn.classList.add('language-button', 'menu-action-row');
+	const iconHtml = action.icon ? `<span class="menu-button-icon-left">${action.icon}</span>` : '';
+	btn.innerHTML = `
+        ${iconHtml}
+        <span class="menu-button-text">${escapeHtml(label)}</span>
+    `;
+	scroll.appendChild(btn);
+	listen(btn, 'click', () => {
+		void action.onSelect(player);
+		onPick();
 	});
 }
 

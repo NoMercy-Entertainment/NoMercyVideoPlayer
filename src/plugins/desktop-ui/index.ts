@@ -94,7 +94,7 @@ import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nom
 
 import type { ActivityState } from './helpers/activity';
 import type { MenuControlRefs, MenuControlState } from './helpers/menuControl';
-import type { MenuFrameRefs, SettingsToggleItem, SubMenuId } from './helpers/menus';
+import type { MenuFrameRefs, SettingsToggleItem, SubMenuId, SubtitleMenuAction } from './helpers/menus';
 import type { ChapterMarkerRef, SliderBarRefs } from './helpers/progressBar';
 import type { ResponsiveState } from './helpers/responsive';
 import type { SpriteSet } from './helpers/sprite';
@@ -227,6 +227,15 @@ export interface DesktopUiOptions {
 	 * bind each row to wherever the state lives.
 	 */
 	settingsItems?: ReadonlyArray<SettingsToggleItem>;
+
+	/**
+	 * Consumer action row(s) appended to the subtitles sub-menu (e.g. a
+	 * "Search subtitles online…" entry that opens the app's own dialog).
+	 * Shown whenever provided — including when the current item has zero
+	 * subtitle tracks, since that's exactly when an external-search action
+	 * matters most.
+	 */
+	subtitleMenuActions?: ReadonlyArray<SubtitleMenuAction>;
 
 	/**
 	 * Priority order for responsive removal when the container is narrow.

@@ -130,11 +130,15 @@ export const transportStateMethods = {
 	refreshCapabilityVisibility(this: DesktopUiInternals): void {
 		const subs = this.player.subtitles?.() ?? [];
 		const subsCount = subs.length;
+		// A consumer-supplied subtitle-menu action (e.g. "Search subtitles
+		// online…") is most useful with zero tracks, so it keeps the subtitles
+		// button/category reachable on its own — same standing as a real track.
+		const hasSubtitleMenuActions = (this.opts?.subtitleMenuActions?.length ?? 0) > 0;
 
 		const audios = this.player.audioTracks?.() ?? [];
 		const levels = this.player.qualityLevels?.() ?? [];
 
-		this.setContentHidden(this.subsBtn, subsCount === 0);
+		this.setContentHidden(this.subsBtn, subsCount === 0 && !hasSubtitleMenuActions);
 		this.setContentHidden(this.audioBtn, audios.length <= 1);
 		this.setContentHidden(this.qualityBtn, levels.length < 2);
 
@@ -145,7 +149,7 @@ export const transportStateMethods = {
 		const queueLen = this.safeQueueLength();
 		this.setContentHidden(this.playlistBtn, queueLen < 2);
 
-		this.menus.mainButtons.subtitles.style.display = subsCount === 0 ? 'none' : 'flex';
+		this.menus.mainButtons.subtitles.style.display = (subsCount === 0 && !hasSubtitleMenuActions) ? 'none' : 'flex';
 		this.menus.mainButtons.language.style.display = audios.length <= 1 ? 'none' : 'flex';
 		this.menus.mainButtons.quality.style.display = levels.length < 2 ? 'none' : 'flex';
 		this.menus.mainButtons.playlist.style.display = queueLen < 2 ? 'none' : 'flex';
@@ -154,6 +158,7 @@ export const transportStateMethods = {
 		const settingsEmpty = speeds.length <= 1
 			&& audios.length <= 1
 			&& subsCount === 0
+			&& !hasSubtitleMenuActions
 			&& (this.opts?.settingsItems?.length ?? 0) === 0;
 		this.setContentHidden(this.settingsBtn, settingsEmpty);
 

@@ -10,7 +10,7 @@
 export { castSenderPlugin, CastSenderPlugin } from './cast-sender';
 export type { CastSenderEvents, CastSenderOptions } from './cast-sender';
 
-export type { SettingsToggleItem } from './desktop-ui/helpers/menus';
+export type { SettingsToggleItem, SubtitleMenuAction } from './desktop-ui/helpers/menus';
 export { desktopUiPlugin, DesktopUiPlugin } from './desktop-ui/index';
 export type { DesktopUiOptions } from './desktop-ui/index';
 export { drmPlugin, DrmPlugin } from './drm';

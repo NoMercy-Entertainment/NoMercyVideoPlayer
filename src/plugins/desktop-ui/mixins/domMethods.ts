@@ -532,6 +532,9 @@ export const domMethods = {
 
 		this.on('plugin:desktop-ui:opts:changed', (opts) => {
 			this.topBarRefs.right.hidden = !!(opts as DesktopUiOptions).hideTitle;
+			// A live subtitleMenuActions (or other content-gated field) change
+			// needs the same recheck `levels` / `audioTracks` get off their events.
+			this.refreshCapabilityVisibility();
 		});
 	},
 } as const;
