@@ -9,5 +9,5 @@
 import type { KeyHandlerTranslationKey } from './en';
 
 export default {
-	'plugin.video-key-handler.speed': '{speed}x',
+	'plugin.key-handler.speed': '{speed}x',
 } satisfies Record<KeyHandlerTranslationKey, string>;

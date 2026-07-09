@@ -165,7 +165,7 @@ describePlugin(DrmPlugin, (ctx) => {
 // KeyHandlerPlugin — requires real NMVideoPlayer (reads player.options)
 // ---------------------------------------------------------------------------
 
-describe('Plugin conformance: video-key-handler (real player)', () => {
+describe('Plugin conformance: key-handler (real player)', () => {
 	let player: NMVideoPlayer;
 
 	beforeEach(async () => {
@@ -187,8 +187,8 @@ describe('Plugin conformance: video-key-handler (real player)', () => {
 		vi.restoreAllMocks();
 	});
 
-	it('exposes static id = "video-key-handler"', () => {
-		expect(KeyHandlerPlugin.id).toBe('video-key-handler');
+	it('exposes static id = "key-handler" (matches the core base and music)', () => {
+		expect(KeyHandlerPlugin.id).toBe('key-handler');
 	});
 
 	it('Space key triggers togglePlayback()', () => {

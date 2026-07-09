@@ -10,7 +10,7 @@
  * English strings for the key-handler plugin. Drop a sibling `<tag>.ts` to add a language.
  */
 const translations = {
-	'plugin.video-key-handler.speed': '{speed}x',
+	'plugin.key-handler.speed': '{speed}x',
 };
 
 /** Canonical translation key set for the key-handler plugin, derived from English. */

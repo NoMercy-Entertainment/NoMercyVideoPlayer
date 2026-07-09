@@ -31,7 +31,7 @@ function hasDisplayMessage<T extends VideoPlaylistItem>(videoPlayer: NMVideoPlay
  * whole video set and start fresh.
  */
 export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> extends BaseKeyHandler<NMVideoPlayer<T>> {
-	static override readonly id: string = 'video-key-handler';
+	static override readonly id: string = 'key-handler';
 	static override readonly version: string = '2.0.0';
 	static override readonly description: string = 'Video keyboard shortcuts — playback, media keys, modifier-aware seeks, TV color buttons, chapters, subs/audio, fullscreen, speed, frame-advance, time, subtitle-size, aspect-ratio';
 	static override readonly translations: Translations = translationsFromGlob('./i18n/*.ts');
