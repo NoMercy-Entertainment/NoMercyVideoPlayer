@@ -486,8 +486,8 @@ export function renderQualityPane(
 			scroll,
 			id,
 			label,
-			!auto && state.qualityIdx === i,
-			() => { player.quality?.(i); onPick(); },
+			!auto && state.qualityIdx === qualityLevel.index,
+			() => { player.quality?.(qualityLevel.index); onPick(); },
 			listen,
 			player,
 		);

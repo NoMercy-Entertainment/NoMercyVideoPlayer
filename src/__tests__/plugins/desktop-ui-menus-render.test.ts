@@ -226,6 +226,47 @@ describe('renderQualityPane (direct call)', () => {
 		const autoBtn = scroll.querySelector('#quality-auto');
 		expect(autoBtn?.textContent).toMatch(/1080p/);
 	});
+
+	it('routes a filtered quality row click + checkmark by raw index, not array position', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const pane = document.createElement('div');
+		const scroll = document.createElement('div');
+		scroll.className = 'quality-scroll-container';
+		pane.appendChild(scroll);
+
+		// Raw HLS index 0 filtered out, so array positions [0,1] map to raw indices [1,2].
+		const levels: QualityLevel[] = [
+			{ index: 1, height: 1080, bitrate: 5000, label: '1080p' },
+			{ index: 2, height: 720, bitrate: 3000, label: '720p' },
+		];
+		const qualityCalls: unknown[] = [];
+		Object.assign(player, {
+			qualityLevels: () => levels,
+			quality: (value: unknown) => { qualityCalls.push(value); },
+		});
+
+		const listen = (target: EventTarget, event: string, fn: (event: Event) => void): void => {
+			target.addEventListener(event, fn);
+		};
+
+		renderQualityPane(pane, player as unknown as NMVideoPlayer, listen, () => {}, {
+			subtitleIdx: -1,
+			audioIdx: 0,
+			qualityIdx: 2,
+		});
+
+		const row = scroll.querySelector<HTMLButtonElement>('#quality-720-3000');
+		expect(row).not.toBeNull();
+
+		// Checkmark is matched by raw index (2), not array position (1).
+		const active = row!.classList.contains('is-active') || row!.getAttribute('aria-checked') === 'true';
+		expect(active).toBe(true);
+
+		row!.click();
+		expect(qualityCalls).toEqual([2]);
+	});
 });
 
 // ── renderSubsPane via real player ────────────────────────────────────────────
