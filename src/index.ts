@@ -1041,8 +1041,11 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 			if (onEnd === 'loop') {
 				void this.time(startSec);
 			}
-			else if (onEnd === 'hold') {
-				void this.pause();
+			else {
+				if (onEnd === 'hold') {
+					void this.pause();
+				}
+				this._clearSegmentInternal();
 			}
 		};
 

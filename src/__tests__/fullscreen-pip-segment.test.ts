@@ -349,6 +349,45 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 		expect((boundaries[0] as { endSec: number }).endSec).toBe(30);
 	});
 
+	it('playSegment onEnd=advance emits segmentBoundary only once across ticks past endSec', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		(player as unknown as Record<string, unknown>).time = vi.fn().mockResolvedValue(undefined);
+
+		const boundaries: unknown[] = [];
+		player.on('segmentBoundary', segmentBoundaryPayload => boundaries.push(segmentBoundaryPayload));
+
+		player.playSegment({ startSec: 0, endSec: 30, onEnd: 'advance' });
+
+		const p = player as unknown as { emit: (event: string, data: unknown) => void };
+		p.emit('time', { time: 30 });
+		p.emit('time', { time: 31 });
+		p.emit('time', { time: 45 });
+
+		expect(boundaries.length).toBe(1);
+	});
+
+	it('playSegment onEnd=hold pauses once across ticks past endSec', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const pauseCalls: number[] = [];
+		(player as unknown as Record<string, unknown>).time = () => Promise.resolve();
+		(player as unknown as Record<string, unknown>).pause = () => {
+			pauseCalls.push(1);
+			return Promise.resolve();
+		};
+
+		player.playSegment({ startSec: 0, endSec: 20, onEnd: 'hold' });
+
+		const p = player as unknown as { emit: (event: string, data: unknown) => void };
+		p.emit('time', { time: 20 });
+		p.emit('time', { time: 21 });
+
+		expect(pauseCalls.length).toBe(1);
+	});
+
 	it('playSegment with onEnd=loop re-seeks to startSec at boundary', async () => {
 		const player = new NMVideoPlayer('test').setup({});
 		await player.ready();
