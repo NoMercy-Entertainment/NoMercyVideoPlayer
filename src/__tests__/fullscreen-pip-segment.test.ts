@@ -360,10 +360,10 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 
 		player.playSegment({ startSec: 0, endSec: 30, onEnd: 'advance' });
 
-		const p = player as unknown as { emit: (event: string, data: unknown) => void };
-		p.emit('time', { time: 30 });
-		p.emit('time', { time: 31 });
-		p.emit('time', { time: 45 });
+		const emitter = player as unknown as { emit: (event: string, data: unknown) => void };
+		emitter.emit('time', { time: 30 });
+		emitter.emit('time', { time: 31 });
+		emitter.emit('time', { time: 45 });
 
 		expect(boundaries.length).toBe(1);
 	});
@@ -381,9 +381,9 @@ describe('NMVideoPlayer — playSegment / clearSegment', () => {
 
 		player.playSegment({ startSec: 0, endSec: 20, onEnd: 'hold' });
 
-		const p = player as unknown as { emit: (event: string, data: unknown) => void };
-		p.emit('time', { time: 20 });
-		p.emit('time', { time: 21 });
+		const emitter = player as unknown as { emit: (event: string, data: unknown) => void };
+		emitter.emit('time', { time: 20 });
+		emitter.emit('time', { time: 21 });
 
 		expect(pauseCalls.length).toBe(1);
 	});
