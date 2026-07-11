@@ -422,7 +422,12 @@ export class Html5VideoBackend
 			if (currentTime >= ranges.start(i) && currentTime <= ranges.end(i))
 				return ranges.end(i);
 		}
-		return ranges.length > 0 ? ranges.end(ranges.length - 1) : 0;
+		if (ranges.length === 0)
+			return 0;
+		// Past every range → clamp to the buffered max; in a gap or before the
+		// first range → nothing is buffered ahead of the playhead.
+		const lastEnd = ranges.end(ranges.length - 1);
+		return currentTime > lastEnd ? lastEnd : currentTime;
 	}
 
 	// ── Video-specific ──

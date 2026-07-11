@@ -481,6 +481,13 @@ describe('buffered()', () => {
 		expect(backend.buffered()).toBe(0);
 	});
 
+	it('returns the playhead (not a far range end) when currentTime is in a gap between ranges', () => {
+		const videoEl = container.querySelector('video') as HTMLVideoElement;
+		Object.defineProperty(videoEl, 'currentTime', { value: 50, configurable: true, writable: true });
+		Object.defineProperty(videoEl, 'buffered', { value: makeTimeRanges([[0, 10], [100, 110]]), configurable: true });
+		expect(backend.buffered()).toBe(50);
+	});
+
 	it('bufferedRanges() returns element.buffered', () => {
 		const videoEl = container.querySelector('video') as HTMLVideoElement;
 		const ranges = makeTimeRanges([[0, 60]]);
