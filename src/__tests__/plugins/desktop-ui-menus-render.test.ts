@@ -529,6 +529,126 @@ describe('DesktopUiPlugin — settings items (consumer toggle rows)', () => {
 	});
 });
 
+describe('DesktopUiPlugin — settingsMenuActions (consumer action rows)', () => {
+	beforeEach(() => resetAndMount());
+	afterEach(() => cleanup());
+
+	it('consumer settingsMenuActions render as action rows in the main menu', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { settings: true },
+			settingsMenuActions: [
+				{
+					id: 'cast',
+					label: () => 'Cast to device…',
+					onSelect: () => {},
+				},
+			],
+		}).ready();
+
+		const container = player.container;
+		const mainMenu = container.querySelector('.main-menu');
+		expect(mainMenu).not.toBeNull();
+
+		const actionBtn = mainMenu!.querySelector<HTMLButtonElement>('#subtitle-action-cast');
+		expect(actionBtn).not.toBeNull();
+		expect(actionBtn!.textContent).toContain('Cast to device…');
+	});
+
+	it('clicking a settingsMenuActions row runs onSelect and closes the settings menu', async () => {
+		let selected = false;
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { settings: true },
+			settingsMenuActions: [
+				{
+					id: 'cast',
+					label: () => 'Cast to device…',
+					onSelect: () => { selected = true; },
+				},
+			],
+		}).ready();
+
+		player.getPlugin(DesktopUiPlugin)?.openMainMenu();
+		const container = player.container;
+		expect(container.querySelector('.menu-frame')?.classList.contains('open')).toBe(true);
+
+		const actionBtn = container.querySelector<HTMLButtonElement>('#subtitle-action-cast');
+		expect(actionBtn).not.toBeNull();
+
+		actionBtn!.click();
+		expect(selected).toBe(true);
+		expect(container.querySelector('.menu-frame')?.classList.contains('open')).toBe(false);
+	});
+
+	it('settingsMenuActions and settingsItems coexist — toggle rows then action rows', async () => {
+		let toggleState = false;
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { settings: true },
+			settingsItems: [
+				{
+					id: 'auto-skip',
+					label: () => 'Auto Skip',
+					get: () => toggleState,
+					set: (value: boolean) => { toggleState = value; },
+				},
+			],
+			settingsMenuActions: [
+				{
+					id: 'cast',
+					label: () => 'Cast to device…',
+					onSelect: () => {},
+				},
+			],
+		}).ready();
+
+		const mainMenu = player.container.querySelector('.main-menu');
+		expect(mainMenu!.querySelector('#menu-toggle-auto-skip')).not.toBeNull();
+		expect(mainMenu!.querySelector('#subtitle-action-cast')).not.toBeNull();
+	});
+
+	it('a live settingsMenuActions update (plugin.options()) adds the row after mount', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { settings: true },
+		}).ready();
+
+		const mainMenu = player.container.querySelector('.main-menu');
+		expect(mainMenu!.querySelector('#subtitle-action-cast')).toBeNull();
+
+		player.getPlugin(DesktopUiPlugin)?.options({
+			settingsMenuActions: [{
+				id: 'cast',
+				label: () => 'Cast to device…',
+				onSelect: () => {},
+			}],
+		});
+
+		expect(mainMenu!.querySelector('#subtitle-action-cast')).not.toBeNull();
+	});
+
+	it('a live settingsMenuActions update to an empty array removes the row', async () => {
+		let selected = false;
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin, {
+			buttons: { settings: true },
+			settingsMenuActions: [{
+				id: 'cast',
+				label: () => 'Cast to device…',
+				onSelect: () => { selected = true; },
+			}],
+		}).ready();
+
+		const mainMenu = player.container.querySelector('.main-menu');
+		expect(mainMenu!.querySelector('#subtitle-action-cast')).not.toBeNull();
+
+		player.getPlugin(DesktopUiPlugin)?.options({ settingsMenuActions: [] });
+		expect(mainMenu!.querySelector('#subtitle-action-cast')).toBeNull();
+		expect(selected).toBe(false);
+	});
+});
+
 // ── refreshCapabilityVisibility — content-hidden gates ───────────────────────
 
 describe('DesktopUiPlugin — capability visibility gates (data-content-hidden)', () => {

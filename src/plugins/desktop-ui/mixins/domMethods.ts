@@ -27,7 +27,7 @@ import { TheaterState, VolumeState } from '../../../types';
 import { setActivity } from '../helpers/activity';
 import { buildBottomBar, buildCenter, buildShortcutsOverlay } from '../helpers/dom';
 import { makeMenuControlState } from '../helpers/menuControl';
-import { buildMenuFrame } from '../helpers/menus';
+import { buildMenuFrame, renderMainMenuActions } from '../helpers/menus';
 import { formatSeconds } from '../helpers/progressBar';
 import { wireVolumeSlider } from '../helpers/responsive';
 import { wireTooltips } from '../helpers/tooltips';
@@ -100,7 +100,7 @@ export const domMethods = {
 			closeMenu: () => this.closeAllMenus(),
 			openSubMenu: id => this.openSubMenu(id),
 			backToMain: () => this.openMainMenu(),
-		}, this.opts?.settingsItems);
+		}, this.opts?.settingsItems, this.opts?.settingsMenuActions);
 
 		this._menuControlState = makeMenuControlState();
 		this._menuControlRefs = {
@@ -535,6 +535,17 @@ export const domMethods = {
 			// A live subtitleMenuActions (or other content-gated field) change
 			// needs the same recheck `levels` / `audioTracks` get off their events.
 			this.refreshCapabilityVisibility();
+			// settingsMenuActions rows are the one main-menu row kind built for
+			// repaint (unlike the static category buttons and settingsItems
+			// toggles) — a consumer enabling e.g. "Cast to device…" after mount
+			// (Cast SDK finishing its async probe) must see the row appear live.
+			renderMainMenuActions(
+				this.menus.mainMenuActionsContainer,
+				(opts as DesktopUiOptions).settingsMenuActions,
+				this.listen.bind(this),
+				() => this.closeAllMenus(),
+				this.player,
+			);
 		});
 	},
 } as const;

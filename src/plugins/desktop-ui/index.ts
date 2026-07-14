@@ -238,6 +238,17 @@ export interface DesktopUiOptions {
 	subtitleMenuActions?: ReadonlyArray<SubtitleMenuAction>;
 
 	/**
+	 * Consumer action row(s) appended to the MAIN settings menu, after any
+	 * `settingsItems` toggle rows — e.g. a "Cast to device…" entry that opens
+	 * the app's own device picker. Same row shape as `subtitleMenuActions`;
+	 * only the mount point differs. This is the sanctioned way to add an
+	 * app-owned action to the settings menu without the player taking any
+	 * opinion on what the action does — casting/device-switch is a consumer
+	 * concern (see the player's CLAUDE.md), this only gives it a place to live.
+	 */
+	settingsMenuActions?: ReadonlyArray<SubtitleMenuAction>;
+
+	/**
 	 * Priority order for responsive removal when the container is narrow.
 	 * Buttons at the end are removed first. Override to change the default order.
 	 *

@@ -80,6 +80,8 @@ export interface MenuFrameRefs {
 	 *  no available options.
 	 */
 	mainButtons: Record<SubMenuId, HTMLButtonElement>;
+	/** Container for `settingsMenuActions` rows — pass to `renderMainMenuActions` to repaint on a live options change. */
+	mainMenuActionsContainer: HTMLDivElement;
 }
 
 /**
@@ -96,14 +98,17 @@ export interface SettingsToggleItem {
 }
 
 /**
- * Consumer-supplied action row appended to the subtitles sub-menu — e.g. a
- * "Search subtitles online…" entry that opens the app's own dialog. Shown
- * whenever provided, even with zero subtitle tracks: that's exactly when an
- * external-search action matters most, so it is never gated behind the
- * subtitles button's usual content-visibility check. `label` resolves at
- * render time so i18n applies, matching `SettingsToggleItem`. `onSelect`
- * receives the player so the consumer can read current state (item,
- * language) before opening its own dialog.
+ * Consumer-supplied action row — a generic "plain button" menu entry shared
+ * by two extension points: `subtitleMenuActions` (subtitles sub-menu, e.g.
+ * "Search subtitles online…") and `settingsMenuActions` (main settings menu,
+ * e.g. "Cast to device…", opening the app's own device picker). The shape is
+ * identical for both; only the mount point differs. Shown whenever provided
+ * — for the subtitles sub-menu that means even with zero subtitle tracks,
+ * since that's exactly when an external-search action matters most, so it is
+ * never gated behind the subtitles button's usual content-visibility check.
+ * `label` resolves at render time so i18n applies, matching
+ * `SettingsToggleItem`. `onSelect` receives the player so the consumer can
+ * read current state (item, language) before opening its own UI.
  */
 export interface SubtitleMenuAction {
 	id: string;
@@ -119,6 +124,7 @@ export function buildMenuFrame(
 	listen: MenuListen,
 	actions: MenuActions,
 	settingsItems?: ReadonlyArray<SettingsToggleItem>,
+	settingsMenuActions?: ReadonlyArray<SubtitleMenuAction>,
 ): MenuFrameRefs {
 	const frameDialog = player.createElement('dialog', 'menu-frame-dialog')
 		.addClasses(['menu-frame-dialog'])
@@ -142,7 +148,7 @@ export function buildMenuFrame(
 		.appendTo(frame)
 		.get();
 
-	const main = buildMainMenu(player, content, listen, actions, settingsItems);
+	const main = buildMainMenu(player, content, listen, actions, settingsItems, settingsMenuActions);
 	const sub = player.createElement('div', 'sub-menu')
 		.addClasses(['sub-menu'])
 		.appendTo(content)
@@ -174,6 +180,7 @@ export function buildMenuFrame(
 			subtitleSettings: main.querySelector<HTMLButtonElement>('#menu-button-subtitleSettings')!,
 			aspectRatio: main.querySelector<HTMLButtonElement>('#menu-button-aspectRatio')!,
 		},
+		mainMenuActionsContainer: main.querySelector<HTMLDivElement>('.main-menu-actions')!,
 	};
 }
 
@@ -183,6 +190,7 @@ function buildMainMenu(
 	listen: MenuListen,
 	actions: MenuActions,
 	settingsItems?: ReadonlyArray<SettingsToggleItem>,
+	settingsMenuActions?: ReadonlyArray<SubtitleMenuAction>,
 ): HTMLDivElement {
 	const main = player.createElement('div', 'main-menu')
 		.addClasses(['main-menu'])
@@ -265,7 +273,40 @@ function buildMainMenu(
 		});
 	}
 
+	// Consumer action rows — plain button/menuitem semantics (e.g. "Cast to
+	// device…"), same shape and renderer as `subtitleMenuActions` but mounted
+	// on the main menu instead of the subtitles sub-menu. Rendered into a
+	// dedicated container (unlike the static category buttons above) so a
+	// live `settingsMenuActions` change can repaint just these rows — see
+	// `renderMainMenuActions`.
+	const actionsContainer = player.createElement('div', 'main-menu-actions')
+		.addClasses(['main-menu-actions'])
+		.appendTo(scroll)
+		.get();
+	renderMainMenuActions(actionsContainer, settingsMenuActions, listen, actions.closeMenu, player);
+
 	return main;
+}
+
+/**
+ * (Re)paint the main-menu consumer action rows into `container`. Unlike the
+ * static category buttons and the `settingsItems` toggle rows, this is
+ * designed to be called more than once — a live `settingsMenuActions` change
+ * (e.g. a Cast SDK becoming available after mount) calls this again with the
+ * same container to refresh the rows in place, same pattern as
+ * `renderSubsPane`'s `scroll.replaceChildren()` + re-`listen()` refresh.
+ */
+export function renderMainMenuActions(
+	container: HTMLDivElement,
+	settingsMenuActions: ReadonlyArray<SubtitleMenuAction> | undefined,
+	listen: MenuListen,
+	closeMenu: () => void,
+	player: IVideoPlayer,
+): void {
+	container.replaceChildren();
+	for (const action of settingsMenuActions ?? []) {
+		appendAction(container, action, closeMenu, listen, player);
+	}
 }
 
 function buildSubMenuHeader(
