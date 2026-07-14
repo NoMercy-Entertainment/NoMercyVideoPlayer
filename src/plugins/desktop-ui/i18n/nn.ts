@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Områdeopasitet',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Bakgrunnsfarge',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Bakgrunnsopasitet',
+	'plugin.desktop-ui.button.cast': 'Cast til eining',
 } satisfies Record<DesktopUiTranslationKey, string>;

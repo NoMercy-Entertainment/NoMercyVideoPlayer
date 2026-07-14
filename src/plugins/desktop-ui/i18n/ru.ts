@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Непрозрачность области',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Цвет фона',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Непрозрачность фона',
+	'plugin.desktop-ui.button.cast': 'Транслировать на устройство',
 } satisfies Record<DesktopUiTranslationKey, string>;

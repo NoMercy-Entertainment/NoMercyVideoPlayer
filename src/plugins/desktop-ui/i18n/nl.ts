@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Transparantie achtergrondvak',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Achtergrondkleur',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Achtergrondtransparantie',
+	'plugin.desktop-ui.button.cast': 'Casten naar apparaat',
 } satisfies Record<DesktopUiTranslationKey, string>;

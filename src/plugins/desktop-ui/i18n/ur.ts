@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'علاقے کا دھندلاپن',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'پس منظر کا رنگ',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'پس منظر کا دھندلاپن',
+	'plugin.desktop-ui.button.cast': 'آلے پر کاسٹ کریں',
 } satisfies Record<DesktopUiTranslationKey, string>;

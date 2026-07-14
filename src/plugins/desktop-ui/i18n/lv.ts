@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Apgabala caurspīdīgums',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Fona krāsa',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Fona caurspīdīgums',
+	'plugin.desktop-ui.button.cast': 'Apraidīt uz ierīci',
 } satisfies Record<DesktopUiTranslationKey, string>;

@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Талбайн тунгалаг байдал',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Арын дэвсгэрийн өнгө',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Арын дэвсгэрийн тунгалаг байдал',
+	'plugin.desktop-ui.button.cast': 'Төхөөрөмж рүү дамжуулах',
 } satisfies Record<DesktopUiTranslationKey, string>;

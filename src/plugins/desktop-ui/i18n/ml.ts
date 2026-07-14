@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'ഏരിയ അതാര്യത',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'പശ്ചാത്തല നിറം',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'പശ്ചാത്തല അതാര്യത',
+	'plugin.desktop-ui.button.cast': 'ഉപകരണത്തിലേക്ക് കാസ്റ്റ് ചെയ്യുക',
 } satisfies Record<DesktopUiTranslationKey, string>;

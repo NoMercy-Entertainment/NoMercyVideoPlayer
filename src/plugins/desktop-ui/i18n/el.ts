@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Αδιαφάνεια περιοχής',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Χρώμα φόντου',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Αδιαφάνεια φόντου',
+	'plugin.desktop-ui.button.cast': 'Μετάδοση σε συσκευή',
 } satisfies Record<DesktopUiTranslationKey, string>;

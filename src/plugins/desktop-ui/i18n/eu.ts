@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Eremu-opakutasuna',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Atzeko planoko kolorea',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Atzeko planoko opakutasuna',
+	'plugin.desktop-ui.button.cast': 'Igorri gailu batera',
 } satisfies Record<DesktopUiTranslationKey, string>;

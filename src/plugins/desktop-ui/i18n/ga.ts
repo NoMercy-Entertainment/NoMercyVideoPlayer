@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Trédhearcacht an limistéir',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Dath an chúlra',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Trédhearcacht an chúlra',
+	'plugin.desktop-ui.button.cast': 'Teilg chuig gléas',
 } satisfies Record<DesktopUiTranslationKey, string>;

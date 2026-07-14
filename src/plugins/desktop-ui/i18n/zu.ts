@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Ukungabonakali kwendawo',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Umbala wangemuva',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Ukungabonakali kwangemuva',
+	'plugin.desktop-ui.button.cast': 'Sakaza kudivayisi',
 } satisfies Record<DesktopUiTranslationKey, string>;

@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Tryloywedd ardal',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Lliw cefndir',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Tryloywedd cefndir',
+	'plugin.desktop-ui.button.cast': 'Bwrw i ddyfais',
 } satisfies Record<DesktopUiTranslationKey, string>;

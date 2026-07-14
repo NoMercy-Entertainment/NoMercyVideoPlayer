@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Opacidad del área',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Color de fondo',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Opacidad del fondo',
+	'plugin.desktop-ui.button.cast': 'Transmitir a un dispositivo',
 } satisfies Record<DesktopUiTranslationKey, string>;

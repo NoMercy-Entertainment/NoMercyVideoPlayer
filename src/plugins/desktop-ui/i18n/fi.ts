@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Alueen läpinäkyvyys',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Taustaväri',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Taustan läpinäkyvyys',
+	'plugin.desktop-ui.button.cast': 'Striimaa laitteeseen',
 } satisfies Record<DesktopUiTranslationKey, string>;

@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'பகுதி ஒளிஊடுருவல்',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'பின்னணி நிறம்',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'பின்னணி ஒளிஊடுருவல்',
+	'plugin.desktop-ui.button.cast': 'சாதனத்திற்கு அனுப்பு',
 } satisfies Record<DesktopUiTranslationKey, string>;

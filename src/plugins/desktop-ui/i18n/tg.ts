@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Шаффофии минтақа',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Ранги замина',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Шаффофии замина',
+	'plugin.desktop-ui.button.cast': 'Интиқол ба дастгоҳ',
 } satisfies Record<DesktopUiTranslationKey, string>;

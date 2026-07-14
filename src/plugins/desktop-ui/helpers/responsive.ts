@@ -233,6 +233,10 @@ export function initButtonMap(
 		audio: refs.audioBtn,
 		aspectRatio: refs.aspectRatioBtn,
 		playlist: refs.playlistBtn,
+		// `cast` lives in the top bar, never the bottom-row control bar it
+		// collapses — same reason `volume` is null here (no discrete
+		// responsive-managed element). Gating stays on `applyStateVisibility()`.
+		cast: null,
 	};
 }
 

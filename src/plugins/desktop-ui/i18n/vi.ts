@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Độ mờ vùng',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Màu nền',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Độ mờ nền',
+	'plugin.desktop-ui.button.cast': 'Truyền đến thiết bị',
 } satisfies Record<DesktopUiTranslationKey, string>;

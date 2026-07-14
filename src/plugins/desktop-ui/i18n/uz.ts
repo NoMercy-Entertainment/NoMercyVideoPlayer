@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Maydon shaffoflighi',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Fon rangi',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Fon shaffoflighi',
+	'plugin.desktop-ui.button.cast': 'Qurilmaga uzatish',
 } satisfies Record<DesktopUiTranslationKey, string>;

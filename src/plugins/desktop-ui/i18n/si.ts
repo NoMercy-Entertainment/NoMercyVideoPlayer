@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'ප්‍රදේශ අපාරදර්ශකාව',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'පසුබිම් වර්ණය',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'පසුබිම් අපාරදර්ශකාව',
+	'plugin.desktop-ui.button.cast': 'උපාංගයට විකාශය කරන්න',
 } satisfies Record<DesktopUiTranslationKey, string>;

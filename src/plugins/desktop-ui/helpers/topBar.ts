@@ -19,6 +19,8 @@
 
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
+import type { DesktopUiOptions } from '../index';
+
 import { fluentIcons, svgFromIcon } from '../data/icons';
 
 // ── Refs ───────────────────────────────────────────────────────────────────────
@@ -27,20 +29,30 @@ export interface TopBarRefs {
 	bar: HTMLDivElement;
 	/**
 	 * Right column containing title + show-info. Toggle this for hideTitle,
-	 *  not the whole bar — the left column carries back/close buttons that
+	 *  not the whole bar — the left column carries back/cast/close buttons that
 	 *  must stay reachable even when titles are hidden.
 	 */
 	right: HTMLDivElement;
 	titleText: HTMLSpanElement;
 	showInfoText: HTMLSpanElement;
 	backBtn: HTMLButtonElement;
+	/**
+	 * Opt-in cast affordance (owner ruling 2026-07-14). Click only emits the
+	 * `cast` player event — the consumer opens its own device picker. Never
+	 * wire this to `CastSenderPlugin` / `session.loadMedia()`.
+	 */
+	castBtn: HTMLButtonElement;
 	closeBtn: HTMLButtonElement;
 }
 
 // ── DOM construction ───────────────────────────────────────────────────────────
 
-/** Build the top bar (back/close buttons + show info + title + TV current item) and return named refs. */
-export function buildTitleBar(player: IVideoPlayer<VideoPlaylistItem>, parent: HTMLElement): TopBarRefs {
+/** Build the top bar (back/cast/close buttons + show info + title + TV current item) and return named refs. */
+export function buildTitleBar(
+	player: IVideoPlayer<VideoPlaylistItem>,
+	parent: HTMLElement,
+	opts?: DesktopUiOptions,
+): TopBarRefs {
 	const bar = player.createElement('div', 'top-bar')
 		.addClasses(['top-bar'])
 		.appendTo(parent)
@@ -58,6 +70,18 @@ export function buildTitleBar(player: IVideoPlayer<VideoPlaylistItem>, parent: H
 	backBtn.innerHTML = svgFromIcon(fluentIcons.back);
 	backBtn.hidden = true;
 	left.appendChild(backBtn);
+
+	// Opt-in only — gated by `DesktopUiButtonOptions.cast`, never by listener
+	// presence (unlike back/close). The click is purely a surfaced intent;
+	// the consumer owns the device picker (`aria-haspopup="dialog"` reflects that).
+	const castBtn = player.createButton('cast-btn', player.t('plugin.desktop-ui.button.cast'), () => {
+		player.emit('cast', undefined);
+	});
+	player.addClasses(castBtn, ['cast-btn']);
+	castBtn.innerHTML = svgFromIcon(fluentIcons.cast);
+	castBtn.setAttribute('aria-haspopup', 'dialog');
+	castBtn.hidden = !opts?.buttons?.cast;
+	left.appendChild(castBtn);
 
 	const closeBtn = player.createButton('close-btn', player.t('plugin.desktop-ui.menu.close'), () => {
 		player.emit('close', undefined);
@@ -91,6 +115,7 @@ export function buildTitleBar(player: IVideoPlayer<VideoPlaylistItem>, parent: H
 		titleText,
 		showInfoText,
 		backBtn,
+		castBtn,
 		closeBtn,
 	};
 }

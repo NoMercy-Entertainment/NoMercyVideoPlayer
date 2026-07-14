@@ -85,6 +85,94 @@ describe('buildTitleBar — back / close button events', () => {
 	});
 });
 
+describe('buildTitleBar — cast button (owner ruling 2026-07-14)', () => {
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		const div = document.createElement('div');
+		div.id = 'test';
+		div.className = 'nomercyplayer';
+		document.body.appendChild(div);
+		vi.stubGlobal('ResizeObserver', MockResizeObserver);
+	});
+
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+		vi.unstubAllGlobals();
+	});
+
+	it('is hidden when buttons.cast is unset', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const parent = document.createElement('div');
+		const refs = buildTitleBar(player as never, parent, {});
+
+		expect(refs.castBtn.hidden).toBe(true);
+	});
+
+	it('is hidden when buttons.cast is explicitly false', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const parent = document.createElement('div');
+		const refs = buildTitleBar(player as never, parent, { buttons: { cast: false } });
+
+		expect(refs.castBtn.hidden).toBe(true);
+	});
+
+	it('is visible when buttons.cast is true', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const parent = document.createElement('div');
+		const refs = buildTitleBar(player as never, parent, { buttons: { cast: true } });
+
+		expect(refs.castBtn.hidden).toBe(false);
+	});
+
+	it('click emits "cast" on the player — never touches CastSenderPlugin/loadMedia', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const castEvents: unknown[] = [];
+		(player as unknown as { on: (event: string, fn: (payload: unknown) => void) => void })
+			.on('cast', payload => castEvents.push(payload));
+
+		const parent = document.createElement('div');
+		const refs = buildTitleBar(player as never, parent, { buttons: { cast: true } });
+
+		refs.castBtn.click();
+
+		expect(castEvents.length).toBe(1);
+	});
+
+	it('has aria-haspopup="dialog" and a translated aria-label/title', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		const parent = document.createElement('div');
+		const refs = buildTitleBar(player as never, parent, { buttons: { cast: true } });
+
+		expect(refs.castBtn.getAttribute('aria-haspopup')).toBe('dialog');
+		expect(refs.castBtn.getAttribute('aria-label')).toBe(player.t('plugin.desktop-ui.button.cast'));
+		expect(refs.castBtn.title).toBe(player.t('plugin.desktop-ui.button.cast'));
+	});
+
+	it('visibility is opt-in only — presence of a "cast" listener does not show it', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.ready();
+
+		(player as unknown as { on: (event: string, fn: (payload: unknown) => void) => void })
+			.on('cast', () => {});
+
+		const parent = document.createElement('div');
+		const refs = buildTitleBar(player as never, parent, {});
+
+		expect(refs.castBtn.hidden).toBe(true);
+	});
+});
+
 describe('updateTitleBar — title / secondary-line branches', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();

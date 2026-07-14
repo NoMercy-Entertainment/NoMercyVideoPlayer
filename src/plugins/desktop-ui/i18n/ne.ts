@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'क्षेत्र अपारदर्शिता',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'पृष्ठभूमि रंग',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'पृष्ठभूमि अपारदर्शिता',
+	'plugin.desktop-ui.button.cast': 'यन्त्रमा कास्ट गर्नुहोस्',
 } satisfies Record<DesktopUiTranslationKey, string>;

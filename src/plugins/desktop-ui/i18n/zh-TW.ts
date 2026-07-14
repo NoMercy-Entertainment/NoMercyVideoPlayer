@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': '區域不透明度',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': '背景顏色',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': '背景不透明度',
+	'plugin.desktop-ui.button.cast': '投放到裝置',
 } satisfies Record<DesktopUiTranslationKey, string>;

@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'ភាពថ្លាតំបន់',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'ពណ៌ផ្ទៃខាងក្រោយ',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'ភាពថ្លាផ្ទៃខាងក្រោយ',
+	'plugin.desktop-ui.button.cast': 'បញ្ជូនទៅឧបករណ៍',
 } satisfies Record<DesktopUiTranslationKey, string>;

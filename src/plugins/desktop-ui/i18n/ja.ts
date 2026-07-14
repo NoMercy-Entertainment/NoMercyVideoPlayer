@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'エリアの不透明度',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': '背景色',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': '背景の不透明度',
+	'plugin.desktop-ui.button.cast': 'デバイスにキャスト',
 } satisfies Record<DesktopUiTranslationKey, string>;

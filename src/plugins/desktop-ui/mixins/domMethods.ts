@@ -39,7 +39,7 @@ export const domMethods = {
 		this.overlayRoot = root;
 		this.player.addClasses(root, ['overlay']);
 
-		this.topBarRefs = buildTitleBar(this.player, root);
+		this.topBarRefs = buildTitleBar(this.player, root, this.opts);
 		this.topBarRefs.right.hidden = !!this.opts?.hideTitle;
 
 		const centerRefs: CenterRefs = buildCenter(this.player, root);

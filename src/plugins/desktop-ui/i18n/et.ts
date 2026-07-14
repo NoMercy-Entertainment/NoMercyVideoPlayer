@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Ala läbipaistvus',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Taustavärv',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Tausta läbipaistvus',
+	'plugin.desktop-ui.button.cast': 'Voogesitus seadmesse',
 } satisfies Record<DesktopUiTranslationKey, string>;

@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Տարածքի անթափանցիկությունը',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Ֆոնի գույնը',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Ֆոնի անթափանցիկությունը',
+	'plugin.desktop-ui.button.cast': 'Հեռարձակել սարքին',
 } satisfies Record<DesktopUiTranslationKey, string>;

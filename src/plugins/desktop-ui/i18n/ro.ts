@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Opacitatea zonei',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Culoarea fundalului',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Opacitatea fundalului',
+	'plugin.desktop-ui.button.cast': 'Transmite la un dispozitiv',
 } satisfies Record<DesktopUiTranslationKey, string>;

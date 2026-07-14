@@ -94,6 +94,7 @@
 	}
 
 	.back-btn,
+	.cast-btn,
 	.close-btn {
 		pointer-events: auto;
 		background: rgba(0, 0, 0, 0.35);
@@ -111,11 +112,13 @@
 	}
 
 	.back-btn:hover,
+	.cast-btn:hover,
 	.close-btn:hover {
 		background: color-mix(in srgb, #fff 10%, rgba(0, 0, 0, 0.35));
 	}
 
 	.back-btn[hidden],
+	.cast-btn[hidden],
 	.close-btn[hidden] {
 		display: none !important;
 	}
@@ -1491,6 +1494,7 @@
  * markers (.is-open / .is-active) are explicitly preserved. */
 @media (hover: none) {
 	.nomercyplayer .back-btn:hover,
+	.nomercyplayer .cast-btn:hover,
 	.nomercyplayer .close-btn:hover,
 	.nomercyplayer .center-btn:hover,
 	.nomercyplayer .menu-header-back:hover,

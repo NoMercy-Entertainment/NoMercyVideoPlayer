@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Srities neskaidrumas',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Fono spalva',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Fono neskaidrumas',
+	'plugin.desktop-ui.button.cast': 'Perduoti į įrenginį',
 } satisfies Record<DesktopUiTranslationKey, string>;

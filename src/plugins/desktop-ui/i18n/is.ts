@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Gegnsæi svæðis',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Bakgrunnslitur',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Gegnsæi bakgrunns',
+	'plugin.desktop-ui.button.cast': 'Varpa á tæki',
 } satisfies Record<DesktopUiTranslationKey, string>;

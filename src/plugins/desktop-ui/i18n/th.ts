@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'ความทึบแสงของพื้นที่',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'สีพื้นหลัง',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'ความทึบแสงของพื้นหลัง',
+	'plugin.desktop-ui.button.cast': 'แคสต์ไปยังอุปกรณ์',
 } satisfies Record<DesktopUiTranslationKey, string>;

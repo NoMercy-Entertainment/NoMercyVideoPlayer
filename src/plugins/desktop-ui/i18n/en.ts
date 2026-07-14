@@ -109,6 +109,9 @@ const translations = {
 	'plugin.desktop-ui.menu.back': 'Back',
 	'plugin.desktop-ui.menu.close': 'Close',
 
+	// Top-bar cast button (consumer opens its own device picker on click)
+	'plugin.desktop-ui.button.cast': 'Cast to device',
+
 	// A11y labels for interactive controls
 	'plugin.desktop-ui.a11y.seek': 'Seek',
 	'plugin.desktop-ui.a11y.volume': 'Volume',

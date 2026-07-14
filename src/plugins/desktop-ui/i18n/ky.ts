@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Аймак ачыктыгы',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Фон түсү',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Фон ачыктыгы',
+	'plugin.desktop-ui.button.cast': 'Түзмөккө өткөрүү',
 } satisfies Record<DesktopUiTranslationKey, string>;

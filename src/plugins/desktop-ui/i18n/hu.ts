@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Terület átlátszósága',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Háttérszín',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Háttér átlátszósága',
+	'plugin.desktop-ui.button.cast': 'Átküldés eszközre',
 } satisfies Record<DesktopUiTranslationKey, string>;

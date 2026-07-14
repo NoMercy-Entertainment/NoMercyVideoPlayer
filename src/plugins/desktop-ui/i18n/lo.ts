@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'ຄວາມໂປ່ງໃສຂອງພື້ນທີ່',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'ສີພື້ນຫຼັງ',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'ຄວາມໂປ່ງໃສຂອງພື້ນຫຼັງ',
+	'plugin.desktop-ui.button.cast': 'ສົ່ງໄປອຸປະກອນ',
 } satisfies Record<DesktopUiTranslationKey, string>;

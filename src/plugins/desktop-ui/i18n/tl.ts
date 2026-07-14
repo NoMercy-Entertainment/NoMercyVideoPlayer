@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Opacity ng lugar',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Kulay ng background',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Opacity ng background',
+	'plugin.desktop-ui.button.cast': 'I-cast sa device',
 } satisfies Record<DesktopUiTranslationKey, string>;

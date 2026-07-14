@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Priehľadnosť oblasti',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Farba pozadia',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Priehľadnosť pozadia',
+	'plugin.desktop-ui.button.cast': 'Odoslať do zariadenia',
 } satisfies Record<DesktopUiTranslationKey, string>;

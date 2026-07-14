@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'ಪ್ರದೇಶದ ಪಾರದರ್ಶಕತೆ',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'ಹಿನ್ನೆಲೆ ಬಣ್ಣ',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'ಹಿನ್ನೆಲೆ ಪಾರದರ್ಶಕತೆ',
+	'plugin.desktop-ui.button.cast': 'ಸಾಧನಕ್ಕೆ ಬಿತ್ತರಿಸಿ',
 } satisfies Record<DesktopUiTranslationKey, string>;

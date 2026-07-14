@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'אטימות אזור',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'צבע רקע',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'אטימות רקע',
+	'plugin.desktop-ui.button.cast': 'העברה למכשיר',
 } satisfies Record<DesktopUiTranslationKey, string>;

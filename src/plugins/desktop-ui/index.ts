@@ -31,7 +31,7 @@
  *   responsive.ts          — wireResponsive / wireOrientation / wireNoHover /
  *                            wireVolumeSlider / applyAllVisibilityRules.
  *   tooltips.ts            — addTooltip / clampTooltip / wireTooltips.
- *   topBar.ts              — Top-bar DOM + title/show-info update + back-button.
+ *   topBar.ts              — Top-bar DOM + title/show-info update + back/cast/close buttons.
  *   progressBar.ts         — Slider-bar DOM, chapter-marker rendering, formatSeconds.
  *   buttonState.ts         — apply* pure DOM-mutation free functions.
  *   menus.ts               — Menu-frame DOM + all sub-pane renderers.
@@ -129,6 +129,12 @@ import { transportStateMethods } from './mixins/transportStateMethods';
  * are the unique value in the control bar.
  *
  * Navigation (always-on when queue has multiple items): next, previous.
+ *
+ * `cast` is the one entry here that isn't a control-bar button — it renders in
+ * the TOP bar, next to back/close (owner ruling 2026-07-14). Default-OFF; set
+ * `true` to show it. Clicking it only emits the `cast` player event, the same
+ * pattern the back button uses for `back` — the player never opens a device
+ * picker itself, that's entirely the consumer's job.
  */
 export interface DesktopUiButtonOptions {
 	play?: boolean;
@@ -150,6 +156,8 @@ export interface DesktopUiButtonOptions {
 	seekBack?: boolean;
 	seekForward?: boolean;
 	aspectRatio?: boolean;
+	/** Top-bar cast button, next to back/close. Default off. See interface doc. */
+	cast?: boolean;
 }
 
 /**

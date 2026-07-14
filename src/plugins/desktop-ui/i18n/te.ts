@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'ప్రాంత పారదర్శకత',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'నేపథ్య రంగు',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'నేపథ్య పారదర్శకత',
+	'plugin.desktop-ui.button.cast': 'పరికరానికి కాస్ట్ చేయండి',
 } satisfies Record<DesktopUiTranslationKey, string>;

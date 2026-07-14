@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Alan opaklığı',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Arka plan rengi',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Arka plan opaklığı',
+	'plugin.desktop-ui.button.cast': 'Cihaza yayınla',
 } satisfies Record<DesktopUiTranslationKey, string>;

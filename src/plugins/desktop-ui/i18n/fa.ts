@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'شفافیت ناحیه',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'رنگ پس‌زمینه',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'شفافیت پس‌زمینه',
+	'plugin.desktop-ui.button.cast': 'ارسال به دستگاه',
 } satisfies Record<DesktopUiTranslationKey, string>;

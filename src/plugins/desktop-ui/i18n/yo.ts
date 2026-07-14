@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Òòfin agbègbè',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Àwọ̀ ẹ̀yìn',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Òòfin ẹ̀yìn',
+	'plugin.desktop-ui.button.cast': 'Fi ranṣẹ si ẹrọ',
 } satisfies Record<DesktopUiTranslationKey, string>;

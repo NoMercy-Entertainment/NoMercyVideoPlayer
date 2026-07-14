@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'এলাকার অস্বচ্ছতা',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'পটভূমির রঙ',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'পটভূমির অস্বচ্ছতা',
+	'plugin.desktop-ui.button.cast': 'ডিভাইসে কাস্ট করুন',
 } satisfies Record<DesktopUiTranslationKey, string>;

@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Uwazi wa eneo',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Rangi ya msingi',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Uwazi wa msingi',
+	'plugin.desktop-ui.button.cast': 'Tuma kwa kifaa',
 } satisfies Record<DesktopUiTranslationKey, string>;

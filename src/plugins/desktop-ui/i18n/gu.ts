@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'વિસ્તારની અપારદર્શિતા',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'પૃષ્ઠભૂ રંગ',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'પૃષ્ઠભૂ અપારદર્શિતા',
+	'plugin.desktop-ui.button.cast': 'ડિવાઇસ પર કાસ્ટ કરો',
 } satisfies Record<DesktopUiTranslationKey, string>;

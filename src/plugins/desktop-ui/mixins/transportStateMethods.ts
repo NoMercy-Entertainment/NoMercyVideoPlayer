@@ -108,6 +108,10 @@ export const transportStateMethods = {
 		if (this.topBarRefs) {
 			this.topBarRefs.backBtn.hidden = this.pipActive || !this.player.hasListeners('back');
 			this.topBarRefs.closeBtn.hidden = this.pipActive || !this.player.hasListeners('close');
+			// Opt-in gate (`buttons.cast`), not listener presence — see the
+			// plugin's CLAUDE.md (owner ruling 2026-07-14). PiP still hides it:
+			// same floating-chrome-wrong-surface reasoning as back/close.
+			this.topBarRefs.castBtn.hidden = this.pipActive || !this.opts?.buttons?.cast;
 		}
 	},
 

@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Transparenca e zonës',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Ngjyra e sfondit',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Transparenca e sfondit',
+	'plugin.desktop-ui.button.cast': 'Transmeto te pajisja',
 } satisfies Record<DesktopUiTranslationKey, string>;

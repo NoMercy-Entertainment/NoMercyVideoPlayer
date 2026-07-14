@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Opacitat de la zona',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Color de fons',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Opacitat de fons',
+	'plugin.desktop-ui.button.cast': 'Difusar cap a un aparelh',
 } satisfies Record<DesktopUiTranslationKey, string>;

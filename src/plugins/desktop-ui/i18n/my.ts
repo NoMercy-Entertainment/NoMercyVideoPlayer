@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'နေရာ ပွင်လင်းမှူ',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'နောက်ခံ အရောင်',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'နောက်ခံ ပွင်လင်းမှူ',
+	'plugin.desktop-ui.button.cast': 'စက်ပစ္စည်းသို့ ကာစ်လုပ်ရန်',
 } satisfies Record<DesktopUiTranslationKey, string>;

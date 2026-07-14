@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Аймақ мөлдірлігі',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Фон түсі',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Фон мөлдірлігі',
+	'plugin.desktop-ui.button.cast': 'Құрылғыға тарату',
 } satisfies Record<DesktopUiTranslationKey, string>;

@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Şeffafiya qadê',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Rengê paşxanê',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Şeffafiya paşxanê',
+	'plugin.desktop-ui.button.cast': 'Bişîne amûrê',
 } satisfies Record<DesktopUiTranslationKey, string>;

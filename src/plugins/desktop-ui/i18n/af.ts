@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Gebiedsdeurskynendheid',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Agtergrondkleur',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Agtergrond deurskynendheid',
+	'plugin.desktop-ui.button.cast': 'Saai na toestel',
 } satisfies Record<DesktopUiTranslationKey, string>;

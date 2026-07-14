@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'არეს გამჭვირვალობა',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'ფონის ფერი',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'ფონის გამჭვირვალობა',
+	'plugin.desktop-ui.button.cast': 'გადაცემა მოწყობილობაზე',
 } satisfies Record<DesktopUiTranslationKey, string>;

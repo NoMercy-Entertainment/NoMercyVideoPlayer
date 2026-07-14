@@ -283,6 +283,29 @@ describe('DesktopUiPlugin — applyStateVisibility', () => {
 
 		expect(theaterBtn!.hidden).toBe(false);
 	});
+
+	it('cast button is visible when buttons.cast is true and PiP is inactive', async () => {
+		const player = await makePlayer({ buttons: { cast: true } });
+		const container = player.container;
+
+		const castBtn = container.querySelector<HTMLButtonElement>('[id="cast-btn"]');
+		expect(castBtn).not.toBeNull();
+		expect(castBtn!.hidden).toBe(false);
+	});
+
+	it('cast button is hidden when PiP is active, same as back/close', async () => {
+		const player = await makePlayer({ buttons: { cast: true } });
+		const container = player.container;
+
+		const castBtn = container.querySelector<HTMLButtonElement>('[id="cast-btn"]');
+
+		Object.defineProperty(document, 'pictureInPictureElement', { value: {}, configurable: true });
+		player.emit('pip', {});
+
+		expect(castBtn!.hidden).toBe(true);
+
+		Object.defineProperty(document, 'pictureInPictureElement', { value: null, configurable: true });
+	});
 });
 
 describe('DesktopUiPlugin — plugin event: opts:changed', () => {

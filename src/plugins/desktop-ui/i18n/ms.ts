@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Kelegapan kawasan',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Warna latar belakang',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Kelegapan latar belakang',
+	'plugin.desktop-ui.button.cast': 'Hantar ke peranti',
 } satisfies Record<DesktopUiTranslationKey, string>;

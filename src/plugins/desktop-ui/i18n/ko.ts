@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': '영역 불투명도',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': '배경 색상',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': '배경 불투명도',
+	'plugin.desktop-ui.button.cast': '기기로 전송',
 } satisfies Record<DesktopUiTranslationKey, string>;

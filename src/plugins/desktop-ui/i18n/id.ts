@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Opasitas area',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Warna latar belakang',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Opasitas latar belakang',
+	'plugin.desktop-ui.button.cast': 'Transmisikan ke perangkat',
 } satisfies Record<DesktopUiTranslationKey, string>;

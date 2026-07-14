@@ -121,4 +121,5 @@ export default {
 	'plugin.desktop-ui.menu.subtitle.areaOpacity': 'Prozirnost područja',
 	'plugin.desktop-ui.menu.subtitle.backgroundColor': 'Boja pozadine',
 	'plugin.desktop-ui.menu.subtitle.backgroundOpacity': 'Prozirnost pozadine',
+	'plugin.desktop-ui.button.cast': 'Emitiraj na uređaj',
 } satisfies Record<DesktopUiTranslationKey, string>;
