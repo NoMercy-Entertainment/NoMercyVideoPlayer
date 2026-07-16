@@ -15,6 +15,12 @@
 
 - `webvtt-parser` + `@types/webvtt-parser` dependencies — declared but never imported; the kit cue parser registry has handled VTT since 2.0.0-beta.0.
 
+## [2.0.0-rc.35] — 2026-07-16
+
+### Added
+
+- `IVideoBackend.bandwidthEstimate?(): number` — an optional backend capability reporting the live stream-engine throughput estimate in bits per second. `Html5VideoBackend` implements it as a pass-through to hls.js's own EWMA `bandwidthEstimate`, returning `0` (never `undefined`/`NaN`) when no HLS instance is bound yet. Native/progressive backends simply omit the method. This is the source-side half of the fix for `bandwidth()` permanently returning `0`: paired with `@nomercy-entertainment/nomercy-player-core@^2.0.0-rc.33`, which resolves the estimate through this new capability. Purely additive — no existing method signature changes. Requires `@nomercy-entertainment/nomercy-player-core@^2.0.0-rc.33` or newer.
+
 ## [2.0.0-rc.26] — 2026-07-05
 
 ### Changed
