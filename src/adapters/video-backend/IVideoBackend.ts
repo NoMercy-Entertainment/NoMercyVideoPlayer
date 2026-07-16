@@ -179,6 +179,19 @@ export interface IVideoBackend {
 	 */
 	currentLevel(): number;
 
+	/**
+	 * Live throughput estimate in bits per second, as reported by the
+	 * underlying stream engine (hls.js's EWMA `bandwidthEstimate`). Optional —
+	 * native/progressive playback has no stream-engine estimate to report, so
+	 * backends without one omit this method entirely. The kit's `bandwidth()`
+	 * probes for it structurally and falls back to `0` when absent.
+	 *
+	 * Returns `0` (never `undefined`, never `NaN`) when the backend is
+	 * present but has no live estimate yet — e.g. before an HLS instance has
+	 * been constructed for the current load.
+	 */
+	bandwidthEstimate?(): number;
+
 	// State
 	state(): BackendState;
 

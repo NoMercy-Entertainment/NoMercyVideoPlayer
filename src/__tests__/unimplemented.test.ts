@@ -299,13 +299,17 @@ describe('NMVideoPlayer — still-unimplemented method inventory', () => {
 			await videoPlayer.ready();
 			expect(videoPlayer.bandwidth()).toBe(0);
 		});
-		it('bandwidthEstimator replaces the estimator (kit-level overload)', async () => {
+		it('bandwidthEstimator replaces the estimator (kit-level overload) and bandwidth() reflects it', async () => {
 			const videoPlayer = player();
 			await videoPlayer.ready();
 			// Test the real runtime surface via `any` cast.
 			const anyP = videoPlayer as unknown as { bandwidthEstimator: (fn?: () => number) => (() => number) | void };
 			expect(() => anyP.bandwidthEstimator(() => 12345)).not.toThrow();
 			expect(typeof anyP.bandwidthEstimator()).toBe('function');
+			// The consumer override must actually feed bandwidth(), not sit in
+			// an unread slot — that split is what left bandwidth() hardcoded
+			// at 0 despite bandwidthEstimator() appearing to "work".
+			expect(videoPlayer.bandwidth()).toBe(12345);
 		});
 	});
 

@@ -81,6 +81,15 @@ interface HlsInstance {
 	 */
 	autoLevelCapping: number;
 
+	/**
+	 * hls.js's own EWMA throughput estimate, in bits per second. Recomputed
+	 * on every fragment load (`abr-controller`'s fast/slow EWMA blend).
+	 * Populated from `abrEwmaDefaultEstimate` before the first fragment
+	 * lands, so it is always a number once the instance exists — never
+	 * `undefined` mid-stream.
+	 */
+	bandwidthEstimate?: number;
+
 	on(event: string, fn: (event: string, data: any) => void): void;
 	attachMedia(el: HTMLVideoElement): void;
 	loadSource(url: string): void;
@@ -742,6 +751,17 @@ export class Html5VideoBackend
 			return current;
 		const loading = this.hls.loadLevel;
 		return typeof loading === 'number' ? loading : -1;
+	}
+
+	/**
+	 * Live throughput estimate in bits per second, read straight off the
+	 * active hls.js instance's own EWMA estimator. `0` when no HLS instance
+	 * is bound (native/progressive playback, or before `load()` has attached
+	 * one) — the kit's public `bandwidth()` treats `0` as "no estimate yet",
+	 * so this never reports a stale or fabricated number.
+	 */
+	bandwidthEstimate(): number {
+		return this.hls?.bandwidthEstimate ?? 0;
 	}
 
 	// ── State ──

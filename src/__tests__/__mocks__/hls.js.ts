@@ -30,6 +30,7 @@ class FakeHls {
 	loadLevel = -1;
 	nextLevel = -1;
 	autoLevelCapping = -1;
+	bandwidthEstimate = 0;
 
 	private _listeners = new Map<string, HlsListener[]>();
 

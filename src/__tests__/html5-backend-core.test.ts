@@ -52,6 +52,7 @@ interface FakeHlsInstance {
 	loadLevel: number;
 	nextLevel: number;
 	autoLevelCapping: number;
+	bandwidthEstimate: number;
 	on(event: string, fn: HlsListener): void;
 	fire(event: string, data?: unknown): void;
 	attachMedia(el: HTMLVideoElement): void;
@@ -75,6 +76,7 @@ vi.mock('hls.js', () => {
 		loadLevel = -1;
 		nextLevel = -1;
 		autoLevelCapping = -1;
+		bandwidthEstimate = 0;
 		_listeners = new Map<string, HlsListener[]>();
 
 		static isSupported = (): boolean => true;
@@ -1041,6 +1043,24 @@ describe('currentLevel()', () => {
 		_hlsRegistry.lastInstance!.currentLevel = -1;
 		_hlsRegistry.lastInstance!.loadLevel = 1;
 		expect(backend.currentLevel()).toBe(1);
+	});
+});
+
+describe('bandwidthEstimate()', () => {
+	it('returns 0 when no HLS instance', () => {
+		expect(backend.bandwidthEstimate()).toBe(0);
+	});
+
+	it('returns hls.bandwidthEstimate (bits per second) once HLS is active', async () => {
+		const loadPromise = backend.load('https://example.invalid/test.m3u8');
+		await flushMicrotasks();
+		const videoEl = container.querySelector('video') as HTMLVideoElement;
+		Object.defineProperty(videoEl, 'readyState', { value: 1, configurable: true });
+		videoEl.dispatchEvent(new Event('loadedmetadata'));
+		await loadPromise;
+
+		_hlsRegistry.lastInstance!.bandwidthEstimate = 2_500_000;
+		expect(backend.bandwidthEstimate()).toBe(2_500_000);
 	});
 });
 
