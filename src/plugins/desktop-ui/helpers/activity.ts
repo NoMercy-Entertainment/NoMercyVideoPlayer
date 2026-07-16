@@ -29,6 +29,14 @@ export interface ActivityState {
 	menuOpen: boolean;
 	isScrubbing: boolean;
 	isControlsHovered: boolean;
+	/**
+	 * Number of external holders pinning the chrome visible (an outside plugin
+	 * with an open overlay of its own — a device picker, say). A count, not a
+	 * flag, so independent holders compose: the chrome stays until the last one
+	 * releases. `menuOpen` covers this plugin's own menus; this covers everyone
+	 * else's.
+	 */
+	chromeHolds: number;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -93,6 +101,8 @@ export function maybeHide(
 		return;
 	if (state.menuOpen)
 		return;
+	if (state.chromeHolds > 0)
+		return;
 	if (state.isControlsHovered)
 		return;
 
@@ -108,6 +118,8 @@ export function dismissOverlay(
 	player: IVideoPlayer<VideoPlaylistItem>,
 ): void {
 	if (state.menuOpen)
+		return;
+	if (state.chromeHolds > 0)
 		return;
 	if (state.isScrubbing)
 		return;

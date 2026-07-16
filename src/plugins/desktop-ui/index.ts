@@ -445,6 +445,7 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 			menuOpen: false,
 			isScrubbing: false,
 			isControlsHovered: false,
+			chromeHolds: 0,
 		};
 		this._responsiveState = makeResponsiveState();
 		this.cachedDuration = 0;
@@ -561,6 +562,31 @@ export class DesktopUiPlugin extends Plugin<IVideoPlayer<VideoPlaylistItem>, Des
 	 */
 	overlay(): HTMLElement | null {
 		return this.overlayRoot ?? null;
+	}
+
+	/**
+	 * Pin the chrome visible while an external overlay of your own is open — a
+	 * device picker or cast panel that lives outside this plugin but is anchored
+	 * to its top/bottom bars, and so must not let them auto-hide underneath it.
+	 * Shows the chrome now and holds it until every hold is released. Balance
+	 * each call with exactly one `releaseChrome()`.
+	 *
+	 * This plugin's own menus don't need it — they already pin via `menuOpen`.
+	 */
+	holdChrome(): void {
+		this._activityState.chromeHolds += 1;
+		this.bumpActivity();
+	}
+
+	/**
+	 * Release one `holdChrome()`. The auto-hide countdown resumes only once the
+	 * last hold is gone. Extra releases are floored at zero rather than going
+	 * negative, so a double-release can't wedge the chrome permanently hidden.
+	 */
+	releaseChrome(): void {
+		this._activityState.chromeHolds = Math.max(0, this._activityState.chromeHolds - 1);
+		if (this._activityState.chromeHolds === 0)
+			this.bumpActivity();
 	}
 
 	// ── Declare signatures for mixin methods — bodies live in the mixin objects ──
