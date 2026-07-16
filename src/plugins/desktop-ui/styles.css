@@ -1364,26 +1364,13 @@
 		overflow-y: auto;
 	}
 
-	/* ── Portrait orientation — hide navigation/track buttons ─────────
-     * Buttons in portrait: play, seekBack, seekForward, volume, theater,
-     * fullscreen, back, restart, settings, close.
-     * Buttons NOT in portrait (forced hidden by orientation rule):
-     * chapterBack, chapterForward, previous, next, subtitles, audio,
-     * quality, playlist.
-     * JS also applies the same rule via _isPortrait so this CSS layer
-     * is additive redundancy for the non-JS-resize path.             */
-	&[data-orientation='portrait'] {
-		#chapter-back,
-		#chapter-forward,
-		#previous,
-		#next,
-		#subtitles,
-		#audio,
-		#quality,
-		#playlist {
-			display: none !important;
-		}
-	}
+	/* ── Portrait orientation ─────────────────────────────────────────
+     * Which buttons portrait hides is `DesktopUiOptions.portraitHidden`,
+     * applied in JS by `applyAllVisibilityRules`. This used to be duplicated
+     * here as `display: none !important` per id — "additive redundancy" for
+     * the non-JS-resize path — but an !important rule the option can't reach
+     * silently wins over it, so a consumer overriding the set got nothing.
+     * One source of truth; JS owns it.                                */
 
 	/* ── No-hover touch devices — suppress volume slider ──────────────
      * On (hover: none) devices the slider never expands and must be
@@ -1427,10 +1414,12 @@
 	}
 }
 
-/* sm (≤ 480 px): hide time labels, compress volume. */
+/* sm (≤ 480 px): drop the remaining-time label, compress volume.
+ * `current-time` survives: "where am I" is the one readout a viewer still needs
+ * at this width, and the scrubber alone can't answer it. `remaining-time` goes
+ * because the pair together costs ~100px the row doesn't have. */
 @container (max-width: 480px) {
 	.nomercyplayer {
-		.current-time,
 		.remaining-time {
 			display: none;
 		}

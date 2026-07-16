@@ -267,6 +267,21 @@ export interface DesktopUiOptions {
 	buttonPriority?: ButtonPriorityList;
 
 	/**
+	 * Buttons forced off in portrait regardless of available width, replacing the
+	 * default set entirely (pass `[]` to force nothing off and let width alone
+	 * decide).
+	 *
+	 * Portrait has room for roughly five or six controls, so something has to go;
+	 * which ones depends on the content. An episodic app wants `next` and
+	 * `chapterNext` to survive so a viewer can skip an intro one-handed, while a
+	 * single-video app would rather keep `quality`.
+	 *
+	 * Default: `chapterPrev`, `chapterNext`, `previous`, `next`, `subtitles`,
+	 * `audio`, `quality`, `playlist`.
+	 */
+	portraitHidden?: Array<keyof DesktopUiButtonOptions>;
+
+	/**
 	 * Full breakpoint progression. When provided, takes precedence over
 	 * `collapseStages`. Each entry says "below `maxWidth` px, hide buttons
 	 * whose priority rank exceeds `hideAfterRank`."

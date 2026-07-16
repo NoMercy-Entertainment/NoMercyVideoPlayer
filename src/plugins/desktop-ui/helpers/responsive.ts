@@ -36,6 +36,14 @@ import type { Breakpoint, ButtonPriorityList, DesktopUiButtonOptions, DesktopUiO
 export const BUTTON_WIDTH = 40;
 export const VOL_SLIDER_EXPANDED_WIDTH = 96;
 
+/**
+ * Default set forced off in portrait regardless of width.
+ *
+ * A default, not a rule: override it per consumer with
+ * `DesktopUiOptions.portraitHidden`. A phone viewer who wants to skip an intro
+ * or jump to the next episode shouldn't have to rotate the device, but which
+ * controls earn that scarce row is the app's call, not the library's.
+ */
 export const PORTRAIT_HIDDEN: ReadonlySet<keyof DesktopUiButtonOptions> = new Set([
 	'chapterPrev',
 	'chapterNext',
@@ -199,14 +207,20 @@ export function shouldShowButton(
 	isPortrait: boolean,
 	isNoHover: boolean,
 	buttonOpts: DesktopUiButtonOptions | undefined,
+	portraitHidden: ReadonlySet<keyof DesktopUiButtonOptions> = PORTRAIT_HIDDEN,
 ): boolean {
 	if (!buttonVisible(key, buttonOpts))
 		return false;
 
-	if (isPortrait && PORTRAIT_HIDDEN.has(key))
+	if (isPortrait && portraitHidden.has(key))
 		return false;
 
 	return accumulatedWidth + buttonFootprint(key, isNoHover) <= containerWidth;
+}
+
+/** Resolves the consumer's portrait override, falling back to the default set. */
+export function resolvePortraitHidden(opts: DesktopUiOptions | undefined): ReadonlySet<keyof DesktopUiButtonOptions> {
+	return opts?.portraitHidden ? new Set(opts.portraitHidden) : PORTRAIT_HIDDEN;
 }
 
 /** Build the key→element map once the DOM is ready. */
@@ -256,6 +270,7 @@ export function applyAllVisibilityRules(
 		return;
 
 	const priority = opts?.buttonPriority ?? DEFAULT_PRIORITY;
+	const portraitHidden = resolvePortraitHidden(opts);
 
 	// Reserve space for the time labels and divider (non-button chrome in the
 	// bottom row). current-time ≈ 50px, divider min-width 16px,
@@ -286,6 +301,7 @@ export function applyAllVisibilityRules(
 			state.isPortrait,
 			state.isNoHover,
 			opts?.buttons,
+			portraitHidden,
 		);
 
 		if (fits) {
