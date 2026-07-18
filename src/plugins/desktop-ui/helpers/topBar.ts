@@ -37,9 +37,9 @@ export interface TopBarRefs {
 	showInfoText: HTMLSpanElement;
 	backBtn: HTMLButtonElement;
 	/**
-	 * Opt-in cast affordance (owner ruling 2026-07-14). Click only emits the
-	 * `cast` player event — the consumer opens its own device picker. Never
-	 * wire this to `CastSenderPlugin` / `session.loadMedia()`.
+	 * Opt-in cast affordance. Click only emits the `cast` player event — the
+	 * consumer opens its own device picker. Never wire this to
+	 * `CastSenderPlugin` / `session.loadMedia()`.
 	 */
 	castBtn: HTMLButtonElement;
 	closeBtn: HTMLButtonElement;

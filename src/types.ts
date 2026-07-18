@@ -318,15 +318,12 @@ export interface VideoEventMap<T extends VideoPlaylistItem = VideoPlaylistItem> 
 	// (checked via `player.hasListeners('close')` at ready time).
 	'close': void;
 
-	// Cast intent emitted by the DesktopUiPlugin top-bar cast button (owner
-	// ruling 2026-07-14, supersedes the earlier "no dedicated cast button"
-	// stance — see the plugin's CLAUDE.md). The player has no opinion on how
-	// a device gets picked or how playback gets handed off; it only surfaces
-	// the click. Consumers wire a listener and open their own device picker
-	// (NoMercy casting is server-orchestrated via `VideoHub.ChangeDeviceCommand`,
-	// mirroring `MusicHub` — never `CastSenderPlugin` / `session.loadMedia()`).
-	// Opt-in via `DesktopUiButtonOptions.cast` (default off) — unlike back/close,
-	// visibility does NOT depend on listener presence.
+	// Cast intent emitted by the DesktopUiPlugin top-bar cast button. The player
+	// has no opinion on how a device gets picked or how playback gets handed
+	// off; it only surfaces the click. Consumers wire a listener and open their
+	// own device picker — never route it through `CastSenderPlugin` /
+	// `session.loadMedia()`. Opt-in via `DesktopUiButtonOptions.cast` (default
+	// off) — unlike back/close, visibility does NOT depend on listener presence.
 	'cast': void;
 
 	// Subtitle-size step request emitted by KeyHandlerPlugin's `+`/`-` bindings.
@@ -376,7 +373,20 @@ export interface VideoPlayerConfig<T extends BasePlaylistItem = VideoPlaylistIte
 	stretching?: Stretching;
 	playbackRates?: number[];
 	preload?: HtmlPreloadMode;
+	/**
+	 * Disable only the hardware / OS media-key bindings (the play/pause, next
+	 * and previous media keys) that `KeyHandlerPlugin` installs, while keeping
+	 * every other keyboard shortcut active. Unrelated to the native
+	 * `<video controls>` attribute, which is the `controls` field on
+	 * `BasePlayerConfig`.
+	 */
 	disableMediaControls?: boolean;
+	/**
+	 * Master switch for `KeyHandlerPlugin`'s default keyboard shortcuts: when
+	 * `true`, none are registered at all — playback, seeking, volume, media
+	 * keys, chapters, fullscreen, speed, and the rest. Also unrelated to the
+	 * native `<video controls>` attribute (`controls` on `BasePlayerConfig`).
+	 */
 	disableControls?: boolean;
 	/**
 	 * Custom backend factory. Overrides the kit's default backend resolution

@@ -131,7 +131,7 @@ import { transportStateMethods } from './mixins/transportStateMethods';
  * Navigation (always-on when queue has multiple items): next, previous.
  *
  * `cast` is the one entry here that isn't a control-bar button — it renders in
- * the TOP bar, next to back/close (owner ruling 2026-07-14). Default-OFF; set
+ * the TOP bar, next to back/close. Default-OFF; set
  * `true` to show it. Clicking it only emits the `cast` player event, the same
  * pattern the back button uses for `back` — the player never opens a device
  * picker itself, that's entirely the consumer's job.
@@ -252,7 +252,7 @@ export interface DesktopUiOptions {
 	 * only the mount point differs. This is the sanctioned way to add an
 	 * app-owned action to the settings menu without the player taking any
 	 * opinion on what the action does — casting/device-switch is a consumer
-	 * concern (see the player's CLAUDE.md), this only gives it a place to live.
+	 * concern, this only gives it a place to live.
 	 */
 	settingsMenuActions?: ReadonlyArray<SubtitleMenuAction>;
 

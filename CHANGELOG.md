@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [2.0.1] — 2026-07-18
+
+First published stable of the v2 line (2.0.0 was withdrawn before release), published under the `latest` dist-tag — a plain `npm install @nomercy-entertainment/nomercy-video-player` now resolves `2.0.1` instead of the v1 `1.2.7`. Built against the stable `@nomercy-entertainment/nomercy-player-core@^2.0.1`. The entries below shipped since `2.0.0-rc.35`; everything earlier is captured in the release-candidate history.
+
 ### Changed
 
 - `KeyHandlerPlugin.id` renamed from `video-key-handler` to `key-handler`, matching the core base and the music player. `getPluginById('video-key-handler')` lookups and the `plugin.video-key-handler.speed` translation key move to the `key-handler` spelling; class-based `getPlugin(KeyHandlerPlugin)` callers are unaffected. `TvKeyHandlerPlugin` keeps its distinct `tv-key-handler` id.

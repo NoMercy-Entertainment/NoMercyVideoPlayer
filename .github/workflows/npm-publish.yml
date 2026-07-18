@@ -63,6 +63,16 @@ jobs:
         if: steps.version-check.outputs.skip != 'true'
         run: npm run build:all
 
+      - name: Resolve npm dist-tag
+        id: disttag
+        if: steps.version-check.outputs.skip != 'true'
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          case "$VERSION" in
+            *-*) echo "tag=rc" >> "$GITHUB_OUTPUT" ;;
+            *) echo "tag=latest" >> "$GITHUB_OUTPUT" ;;
+          esac
+
       - name: Publish package
         if: steps.version-check.outputs.skip != 'true'
-        run: npm publish --provenance --access public --tag rc
+        run: npm publish --provenance --access public --tag ${{ steps.disttag.outputs.tag }}
