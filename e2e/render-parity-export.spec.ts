@@ -69,8 +69,15 @@ test('export what the web chrome renders at each breakpoint', async ({ page }) =
 
 	const byWidth: Record<string, ControlRow[]> = {};
 
+	// Landscape at every width, and portrait sampled separately below.
+	//
+	// A fixed viewport height made every width at or under it PORTRAIT, and
+	// PORTRAIT_HIDDEN contains previous and next — so the export showed those
+	// two appearing at 721 and read as a width rule with a step in it. There is
+	// no such step. Orientation was the variable being measured, and width was
+	// along for the ride.
 	for (const width of WIDTHS) {
-		await page.setViewportSize({ width, height: 720 });
+		await page.setViewportSize({ width, height: Math.round((width * 9) / 16) });
 
 		// The player is a fixed-size div in the fixture, so it has to be told to
 		// fill the viewport or every width samples the same 640px layout — which
@@ -88,22 +95,30 @@ test('export what the web chrome renders at each breakpoint', async ({ page }) =
 		// straight after the resize samples the previous width's DOM.
 		await page.waitForTimeout(250);
 
-		byWidth[String(width)] = await page.evaluate(() => {
+		byWidth[String(width)] = await readControls(page);
+	}
+
+	async function readControls(page: import('@playwright/test').Page): Promise<ControlRow[]> {
+		return page.evaluate(() => {
 			// The priority list names an OPTION KEY; the DOM uses a different id
 			// for most of them, and for one there is no element at all. Guessing
 			// that the two agreed made seven of nineteen controls read as absent
 			// and the export still passed, because an empty list compares equal to
 			// every other empty list.
 			//
-			// `mute` is the one with no element: the web folds muting into the
-			// volume button, so a native port that draws a separate mute control
-			// has invented one — and it is ranked SECOND in the shared priority
-			// table, which is how a control the web does not have ends up
-			// surviving the narrowest breakpoint.
+			// The `mute`/`volume` pair is the trap. `initButtonMap` maps `mute`
+			// to the volume ELEMENT and `volume` to nothing at all: the web
+			// folds muting into the volume button, and the `volume` key is a
+			// rank with no control behind it.
+			//
+			// So a native port drawing a separate mute control has invented
+			// one, and `mute` is ranked SECOND — high enough to survive the
+			// narrowest bar. Reading the pair the other way round, which is the
+			// way the names suggest, mislabels both rows in this export.
 			const names: Array<[string, string | null]> = [
 				['play', 'playback'],
-				['mute', null],
-				['volume', 'volume'],
+				['mute', 'volume'],
+				['volume', null],
 				['fullscreen', 'fullscreen'],
 				['settings', 'settings'],
 				['next', 'next'],
@@ -144,6 +159,21 @@ test('export what the web chrome renders at each breakpoint', async ({ page }) =
 			});
 		});
 	}
+
+	// One portrait sample, wide enough that nothing is dropped for want of room,
+	// so the row records the orientation rule on its own rather than tangled
+	// with the fit rule.
+	await page.setViewportSize({ width: 900, height: 1600 });
+	await page.evaluate(() => {
+		const el = document.getElementById('player');
+		if (el) {
+			el.style.width = '900px';
+			el.style.height = '1600px';
+		}
+		window.dispatchEvent(new Event('resize'));
+	});
+	await page.waitForTimeout(250);
+	byWidth['900-portrait'] = await readControls(page);
 
 	// An export that found nothing is not an export. Every list here would be
 	// empty, every comparison against it would pass, and the gate downstream
