@@ -139,7 +139,12 @@ test('export what the web chrome renders at each breakpoint', async ({ page }) =
 
 			return names.flatMap(([name, domId]) => {
 				const el = domId === null ? null : document.getElementById(domId);
-				if (!el) return [{ id: name, visible: false, disabled: false, contentHidden: false, x: -1 }];
+				// A ranked control with no element is recorded as not visible
+				// rather than dropped, so the row count stays the same at every
+				// width and a missing control is distinguishable from a control
+				// this export forgot to look for.
+				if (!el)
+					return [{ id: name, visible: false, disabled: false, contentHidden: false, x: -1 }];
 
 				const box = el.getBoundingClientRect();
 				return [{
