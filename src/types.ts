@@ -577,7 +577,12 @@ export interface IVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	volume(): number;
 	volume(level: number): Promise<void>;
 
-	/** Buffered fraction in [0, 1]. `0` when no backend is active. */
+	/**
+	 * The absolute timeline position, in seconds, that buffered data reaches —
+	 * the same frame of reference as `time()` and `duration()`. A scrubber
+	 * draws its buffered bar as `buffered() / duration()`. `0` when no backend
+	 * is active.
+	 */
 	buffered(): number;
 
 	// ── Transport ──

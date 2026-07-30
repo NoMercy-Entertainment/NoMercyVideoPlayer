@@ -157,6 +157,22 @@ export interface IVideoBackend {
 	currentTime(): number;
 	currentTime(seconds: number): void;
 	duration(): number;
+	/**
+	 * The absolute timeline position, in seconds, that buffered data reaches.
+	 * Not a duration ahead of the playhead, and not a fraction: a scrubber
+	 * draws its buffered bar as `buffered() / duration()`, the same frame of
+	 * reference `currentTime()` and `duration()` use.
+	 *
+	 * Contiguous from the playhead. The frontier is the end of the range the
+	 * playhead is inside, so a range on the far side of a hole does not count
+	 * towards it — a seek back an hour leaves `[0, 90]` and `[3500, 3600]`
+	 * with the playhead at 5, and a bar drawn to 3600 promises an hour of
+	 * buffer over a stretch that holds none.
+	 *
+	 * When nothing is buffered ahead — the playhead sits in a hole, or before
+	 * the first range — the answer is the playhead's own position, which draws
+	 * no bar ahead of it. `0` when no data is buffered at all.
+	 */
 	buffered(): number;
 	bufferedRanges(): TimeRanges;
 	seekable(): TimeRanges;
