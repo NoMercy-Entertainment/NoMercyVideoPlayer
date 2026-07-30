@@ -10,6 +10,7 @@ import type { AudioTrack, HdrOnSdrFallback, QualityLevel, SubtitleTrack } from '
 import type { HtmlPreloadMode } from '../../types';
 import type { BackendEventPayload, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
 import {
+	abrCeiling,
 	appendAuthTokenParam,
 	createAuthorizationXhrSetup,
 	destroyHlsInstance,
@@ -19,7 +20,9 @@ import {
 	MediaElementBackend,
 	MediaFormatError,
 	mediaFormatError,
+	panePixels,
 	resetMediaElement,
+	sizeAbrCeiling,
 	supportsNativeHls,
 } from '@nomercy-entertainment/nomercy-player-core';
 
@@ -79,8 +82,12 @@ interface HlsInstance {
 	 *
 	 * Note: when HDR and SDR levels are interleaved by index (e.g. Cosmos
 	 * Laundromat: 0=SDR-2M, 1=HDR-2M, 2=SDR-4M, …), capping by max index
-	 * alone is insufficient. `_applyHdrConstraint` supplements this with a
+	 * alone is insufficient. `_applyAbrConstraints` supplements this with a
 	 * `nextLevel` force-switch when the current level is an HDR variant.
+	 *
+	 * Written from exactly one place, `_applyAbrConstraints`, which merges the
+	 * dynamic-range ceiling and the pane-size ceiling before it assigns. Two
+	 * writers would race on the first resize.
 	 */
 	autoLevelCapping: number;
 
@@ -229,6 +236,19 @@ export class Html5VideoBackend
 	 * `hdrDecision`'s own default (`'play'`) applies at read time.
 	 */
 	private _hdrOnSdrFallback: HdrOnSdrFallback | undefined;
+	/**
+	 * Observer on the media element, so the ceiling follows a window drag, a
+	 * fullscreen toggle and an orientation change. The facade's own observer
+	 * feeds the `videoRect` event on `NMVideoPlayer` and the backend holds no
+	 * reference to the facade, so the size signal is re-derived here.
+	 */
+	private _paneObserver: ResizeObserver | undefined;
+	/**
+	 * Pending coalesced re-apply. A drag fires the observer on every frame and
+	 * every `autoLevelCapping` write is a decision ABR has to react to, so the
+	 * burst collapses into one apply.
+	 */
+	private _paneReapplyTimer: ReturnType<typeof setTimeout> | undefined;
 
 	constructor(container: HTMLElement) {
 		const existing = container.querySelector<HTMLVideoElement>('video');
@@ -246,6 +266,7 @@ export class Html5VideoBackend
 		super(element, ownsElement, 'html5');
 		this.wireElementEvents();
 		this._wireHdrMatchMedia();
+		this._wirePaneResizeObserver();
 	}
 
 	// ── Lifecycle ──
@@ -404,6 +425,7 @@ export class Html5VideoBackend
 			this._retryTimer = undefined;
 		}
 		this._teardownHdrMatchMedia();
+		this._teardownPaneResizeObserver();
 		this._teardownAudioGraph();
 		this.unload();
 		this.detachDomBridges(this.element);
@@ -1083,14 +1105,14 @@ export class Html5VideoBackend
 	 * overlay plugins can update button visibility without polling.
 	 *
 	 * Also builds the per-level HDR classification table and immediately
-	 * applies the dynamic-range ABR constraint for the current display.
+	 * applies the ABR constraints for the current display and pane size.
 	 */
 	private _emitHlsTrackLists(): void {
 		if (!this.hls)
 			return;
 
 		this._classifyHdrLevels();
-		this._applyHdrConstraint(this._displayHdr);
+		this._applyAbrConstraints(this._displayHdr);
 
 		void this._probeCodecCapabilities().then(() => {
 			const levels = this.qualityLevels();
@@ -1102,7 +1124,7 @@ export class Html5VideoBackend
 			this.emit('audioTracks', { tracks });
 	}
 
-	// ── HDR-aware ABR helpers ──
+	// ── Display- and pane-aware ABR helpers ──
 
 	/**
 	 * Consumer policy for an all-HDR item on an SDR display with no converter.
@@ -1134,6 +1156,44 @@ export class Html5VideoBackend
 		mql.addEventListener('change', listener);
 	}
 
+	/**
+	 * Watch the media element's box so the pane ceiling follows the layout.
+	 *
+	 * The element rather than the container: `object-fit` letterboxing means the
+	 * container can be wider than the picture, and the picture is what a
+	 * rendition has to cover.
+	 */
+	private _wirePaneResizeObserver(): void {
+		if (typeof ResizeObserver === 'undefined')
+			return;
+
+		const observer = new ResizeObserver(() => {
+			this._schedulePaneReapply();
+		});
+		observer.observe(this.element);
+		this._paneObserver = observer;
+	}
+
+	private _schedulePaneReapply(): void {
+		if (this._paneReapplyTimer !== undefined)
+			return;
+
+		this._paneReapplyTimer = setTimeout(() => {
+			this._paneReapplyTimer = undefined;
+			this._applyAbrConstraints(this._displayHdr);
+		}, 0);
+	}
+
+	/** Disconnect the pane observer and drop a pending re-apply. Called from `dispose()`. */
+	private _teardownPaneResizeObserver(): void {
+		if (this._paneReapplyTimer !== undefined) {
+			clearTimeout(this._paneReapplyTimer);
+			this._paneReapplyTimer = undefined;
+		}
+		this._paneObserver?.disconnect();
+		this._paneObserver = undefined;
+	}
+
 	/** Remove the matchMedia listener. Called from `dispose()`. */
 	private _teardownHdrMatchMedia(): void {
 		if (this._hdrMql && this._hdrMqlListener) {
@@ -1159,44 +1219,59 @@ export class Html5VideoBackend
 	}
 
 	/**
-	 * Constrain HLS.js ABR to the display's dynamic-range capability, per
-	 * `hdrDecision` — the oracle both native ports mirror.
+	 * Constrain HLS.js ABR to what this display and this pane can actually show,
+	 * per `hdrDecision` and `sizeAbrCeiling` — the oracles both native ports
+	 * mirror. The only writer of `autoLevelCapping`.
+	 *
+	 * The pane ceiling applies on every branch, including the ones with no
+	 * dynamic-range cap to make: an SDR item in a 740px player is the ordinary
+	 * case, and it is the one that was pulling a 4K rendition.
 	 *
 	 * `as-is` (HDR display, or an ordinary SDR item with no HDR rungs to cap):
-	 *   - Lifts `autoLevelCapping` to `-1`. If the current level is SDR and an
-	 *     HDR peer exists at the same resolution, prefer it via `nextLevel`
-	 *     (soft switch — the next fragment boundary picks it up, no stutter).
-	 *     A no-op on the SDR-only case: there is no HDR peer to find.
+	 *   - `autoLevelCapping` falls back to the pane ceiling, or `-1` when the
+	 *     pane is unmeasured or already as large as the ladder's best rung. If
+	 *     the current level is SDR and an HDR peer exists at the same
+	 *     resolution, prefer it via `nextLevel` (soft switch — the next fragment
+	 *     boundary picks it up, no stutter). The peer shares the current level's
+	 *     resolution, so it cannot violate the pane ceiling. A no-op on the
+	 *     SDR-only case: there is no HDR peer to find.
 	 *
 	 * `cap-to` (SDR display, an SDR rung exists):
-	 *   - Caps `autoLevelCapping` to the decided rung's raw manifest index.
-	 *     For interleaved manifests (HDR index < SDR index at the same
-	 *     resolution) the cap alone is insufficient — `nextLevel` also forces
-	 *     off any currently-playing HDR variant to its SDR peer.
+	 *   - Caps `autoLevelCapping` to the more restrictive of the dynamic-range
+	 *     rung and the pane rung, by raw manifest index. For interleaved
+	 *     manifests (HDR index < SDR index at the same resolution) the cap alone
+	 *     is insufficient — `nextLevel` also forces off any currently-playing
+	 *     HDR variant to its SDR peer.
 	 *
 	 * `tone-map` — never returned here; see `backendCanToneMap` below.
 	 *
-	 * `play-unconverted` — no SDR rung, no converter, consumer opted in:
-	 *   uncapped on purpose, no error.
+	 * `play-unconverted` — no SDR rung, no converter, consumer opted in: the
+	 *   dynamic range goes unconstrained on purpose, the pane ceiling still
+	 *   holds, no error.
 	 *
 	 * `refuse` — no SDR rung, no converter, consumer opted out: escalated
 	 *   through the same fatal-error channel HLS stream errors use.
 	 *
 	 * Always re-emits `levels` so overlay plugins can update their menus.
 	 */
-	private _applyHdrConstraint(displayHdr: boolean): void {
+	private _applyAbrConstraints(displayHdr: boolean): void {
 		this._displayHdr = displayHdr;
 		if (!this.hls || this._levelIsHdr.length === 0)
 			return;
 
+		const levels = this.qualityLevels();
+		const pane = panePixels(this.element);
+		const sizeCeiling = sizeAbrCeiling(levels, pane.widthPx, pane.heightPx);
+		const sizeCapIndex = sizeCeiling === null ? -1 : sizeCeiling.index;
+
 		// Neither hls.js nor any shipping <video> implementation performs an
 		// HDR→SDR tone-map during decode — a platform fact, not unfinished work.
 		const backendCanToneMap = false;
-		const decision = hdrDecision(this.qualityLevels(), displayHdr, backendCanToneMap, this._hdrOnSdrFallback ?? 'play');
+		const decision = hdrDecision(levels, displayHdr, backendCanToneMap, this._hdrOnSdrFallback ?? 'play');
 
 		switch (decision.kind) {
 			case 'as-is': {
-				this.hls.autoLevelCapping = -1;
+				this.hls.autoLevelCapping = sizeCapIndex;
 
 				const playingIdx = this.currentLevel();
 				if (playingIdx >= 0 && !this._levelIsHdr[playingIdx]) {
@@ -1211,7 +1286,8 @@ export class Html5VideoBackend
 			}
 
 			case 'cap-to': {
-				this.hls.autoLevelCapping = decision.level.index;
+				const ceiling = abrCeiling(decision.level, sizeCeiling) ?? decision.level;
+				this.hls.autoLevelCapping = ceiling.index;
 
 				const playingIdx = this.currentLevel();
 				if (playingIdx >= 0 && this._levelIsHdr[playingIdx]) {
@@ -1219,7 +1295,7 @@ export class Html5VideoBackend
 					const sdrPeerIdx = this.hls.levels.findIndex(
 						(level, idx) => !this._levelIsHdr[idx] && level.height === currentHeight,
 					);
-					this.hls.nextLevel = sdrPeerIdx >= 0 ? sdrPeerIdx : decision.level.index;
+					this.hls.nextLevel = sdrPeerIdx >= 0 ? sdrPeerIdx : ceiling.index;
 				}
 				break;
 			}
@@ -1232,7 +1308,7 @@ export class Html5VideoBackend
 			}
 
 			case 'play-unconverted': {
-				this.hls.autoLevelCapping = -1;
+				this.hls.autoLevelCapping = sizeCapIndex;
 				break;
 			}
 
@@ -1256,7 +1332,7 @@ export class Html5VideoBackend
 
 	/** Called by the matchMedia listener when the display's HDR capability changes. */
 	private _onDisplayHdrChange(displayNowHdr: boolean): void {
-		this._applyHdrConstraint(displayNowHdr);
+		this._applyAbrConstraints(displayNowHdr);
 	}
 
 	/**

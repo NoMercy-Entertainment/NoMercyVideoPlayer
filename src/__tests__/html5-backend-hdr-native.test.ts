@@ -11,9 +11,11 @@
  *
  * Covers:
  *   - native-HLS vs hls.js routing decision (canPlayType + MediaSource presence)
- *   - HDR/SDR ABR constraint (_applyHdrConstraint) for SDR and HDR displays
+ *   - HDR/SDR ABR constraint (_applyAbrConstraints) for SDR and HDR displays
+ *   - pane-size ABR ceiling, and which of the two ceilings wins
  *   - interleaved-manifest nextLevel force-switch for SDR display
  *   - matchMedia change listener triggers constraint re-apply
+ *   - ResizeObserver on the media element triggers constraint re-apply
  *   - MANIFEST_PARSED → levels event emitted with dynamicRange classification
  *   - getLevels/setLevel round-trip after MANIFEST_PARSED
  *
@@ -239,35 +241,35 @@ describe('native-HLS vs hls.js routing', () => {
 // HDR/SDR ABR constraint — matchMedia mock
 // ---------------------------------------------------------------------------
 
-describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
-	// `_wireHdrMatchMedia` now re-derives the answer from `detectDisplayHdr()` on
-	// every 'change' rather than trusting the fired event's `.matches` — it has
-	// to, since the real listener watches ONE combined query but the answer is
-	// two queries asked in priority order. So `mql` here is a shared mutable
-	// object: simulating a display change means mutating `mql.matches` (which
-	// `window.matchMedia(...).matches` reads for BOTH queries `detectDisplayHdr`
-	// asks, since the mock returns the same object regardless of query string)
-	// and then invoking a listener — the listener itself takes no argument.
-	function mockMatchMedia(matchesHdr: boolean): {
-		mql: { matches: boolean };
-		changeListeners: Array<() => void>;
-	} {
-		const changeListeners: Array<() => void> = [];
-		const mql = {
-			matches: matchesHdr,
-			addEventListener: (_type: string, fn: () => void) => {
-				changeListeners.push(fn);
-			},
-			removeEventListener: (_type: string, fn: () => void) => {
-				const idx = changeListeners.indexOf(fn);
-				if (idx >= 0)
-					changeListeners.splice(idx, 1);
-			},
-		};
-		vi.spyOn(window, 'matchMedia').mockReturnValue(mql as unknown as MediaQueryList);
-		return { mql, changeListeners };
-	}
+// `_wireHdrMatchMedia` re-derives the answer from `detectDisplayHdr()` on every
+// 'change' rather than trusting the fired event's `.matches` — it has to, since
+// the real listener watches ONE combined query but the answer is two queries
+// asked in priority order. So `mql` here is a shared mutable object: simulating
+// a display change means mutating `mql.matches` (which
+// `window.matchMedia(...).matches` reads for BOTH queries `detectDisplayHdr`
+// asks, since the mock returns the same object regardless of query string) and
+// then invoking a listener — the listener itself takes no argument.
+function mockMatchMedia(matchesHdr: boolean): {
+	mql: { matches: boolean };
+	changeListeners: Array<() => void>;
+} {
+	const changeListeners: Array<() => void> = [];
+	const mql = {
+		matches: matchesHdr,
+		addEventListener: (_type: string, fn: () => void) => {
+			changeListeners.push(fn);
+		},
+		removeEventListener: (_type: string, fn: () => void) => {
+			const idx = changeListeners.indexOf(fn);
+			if (idx >= 0)
+				changeListeners.splice(idx, 1);
+		},
+	};
+	vi.spyOn(window, 'matchMedia').mockReturnValue(mql as unknown as MediaQueryList);
+	return { mql, changeListeners };
+}
 
+describe('HDR/SDR ABR constraint (_applyAbrConstraints)', () => {
 	it('SDR display: autoLevelCapping is set to highest SDR level index', async () => {
 		const { changeListeners: _unusedListeners } = mockMatchMedia(false);
 		backend = new Html5VideoBackend(container);
@@ -492,6 +494,140 @@ describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
 		// The highest-INDEX SDR rung (2, 480p) would win under a "highest index"
 		// rule. Height-first picks index 0 (1080p) instead.
 		expect(hls.autoLevelCapping).toBe(0);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Pane-size ABR ceiling — the size of the box the picture is drawn in
+// ---------------------------------------------------------------------------
+
+describe('pane-size ABR constraint (_applyAbrConstraints)', () => {
+	// The real Sintel ladder, in the bitrate-ascending order hls.js reports:
+	// 1920x818 in both dynamic ranges, then 3840x1635 in both.
+	const SINTEL_LEVELS = [
+		{ bitrate: 743_922, width: 1920, height: 818, attrs: { 'VIDEO-RANGE': 'SDR' } },
+		{ bitrate: 821_147, width: 1920, height: 818, attrs: { 'VIDEO-RANGE': 'PQ' } },
+		{ bitrate: 2_077_179, width: 3840, height: 1635, attrs: { 'VIDEO-RANGE': 'SDR' } },
+		{ bitrate: 2_402_870, width: 3840, height: 1635, attrs: { 'VIDEO-RANGE': 'PQ' } },
+	];
+
+	function stubPane(element: HTMLElement, width: number, height: number): void {
+		Object.defineProperty(element, 'getBoundingClientRect', {
+			value: () => ({ width, height, top: 0, left: 0, right: width, bottom: height, x: 0, y: 0 }),
+			configurable: true,
+		});
+	}
+
+	it('caps a small pane to the 1920-wide rung rather than leaving ABR uncapped', async () => {
+		mockMatchMedia(false);
+		backend = new Html5VideoBackend(container);
+		const hls = await loadHls(backend, container);
+		const videoEl = container.querySelector('video') as HTMLVideoElement;
+
+		// The desktop player in a page column. Bandwidth alone would climb into the
+		// 3840-wide rungs and hand most of those pixels to the scaler.
+		stubPane(videoEl, 800, 341);
+		hls.levels = SINTEL_LEVELS;
+		hls.fire('hlsManifestParsed', {});
+		await flushMicrotasks();
+
+		expect(hls.autoLevelCapping).toBe(0);
+	});
+
+	it('leaves ABR uncapped when the pane is as large as the ladder', async () => {
+		mockMatchMedia(true);
+		backend = new Html5VideoBackend(container);
+		const hls = await loadHls(backend, container);
+		const videoEl = container.querySelector('video') as HTMLVideoElement;
+
+		stubPane(videoEl, 3840, 1635);
+		hls.levels = SINTEL_LEVELS;
+		hls.fire('hlsManifestParsed', {});
+		await flushMicrotasks();
+
+		expect(hls.autoLevelCapping).toBe(-1);
+	});
+
+	it('leaves ABR uncapped when the pane has not been measured yet', async () => {
+		// happy-dom reports a 0x0 box, which is also what a real element reports
+		// before layout. Capping on that answer would pin the session to its
+		// lowest rung.
+		mockMatchMedia(true);
+		backend = new Html5VideoBackend(container);
+		const hls = await loadHls(backend, container);
+
+		hls.levels = SINTEL_LEVELS;
+		hls.fire('hlsManifestParsed', {});
+		await flushMicrotasks();
+
+		expect(hls.autoLevelCapping).toBe(-1);
+	});
+
+	it('the dynamic-range ceiling wins when it is the lower of the two', async () => {
+		mockMatchMedia(false);
+		backend = new Html5VideoBackend(container);
+		const hls = await loadHls(backend, container);
+		const videoEl = container.querySelector('video') as HTMLVideoElement;
+
+		// The only SDR rung is far below the pane, so the size ceiling would be the
+		// 3840-wide HDR rung this display cannot render. The more restrictive
+		// ceiling has to win or the constraint is decorative.
+		stubPane(videoEl, 1920, 1080);
+		hls.levels = [
+			{ bitrate: 1_500_000, width: 1280, height: 720, attrs: { 'VIDEO-RANGE': 'SDR' } },
+			{ bitrate: 16_000_000, width: 3840, height: 2160, attrs: { 'VIDEO-RANGE': 'PQ' } },
+			{ bitrate: 48_000_000, width: 7680, height: 4320, attrs: { 'VIDEO-RANGE': 'PQ' } },
+		];
+		hls.fire('hlsManifestParsed', {});
+		await flushMicrotasks();
+
+		expect(hls.autoLevelCapping).toBe(0);
+	});
+
+	it('re-applies the ceiling when the pane resizes', async () => {
+		mockMatchMedia(false);
+		const observerCallbacks: Array<() => void> = [];
+		vi.stubGlobal('ResizeObserver', class {
+			constructor(callback: () => void) {
+				observerCallbacks.push(callback);
+			}
+
+			observe(): void { /* stub */ }
+			disconnect(): void { /* stub */ }
+			unobserve(): void { /* stub */ }
+		});
+
+		backend = new Html5VideoBackend(container);
+		const hls = await loadHls(backend, container);
+		const videoEl = container.querySelector('video') as HTMLVideoElement;
+
+		hls.levels = SINTEL_LEVELS;
+		hls.fire('hlsManifestParsed', {});
+		await flushMicrotasks();
+
+		// Unmeasured pane, SDR display: the dynamic-range ceiling alone, the best
+		// SDR rung at index 2.
+		expect(hls.autoLevelCapping).toBe(2);
+
+		stubPane(videoEl, 800, 341);
+		for (const callback of observerCallbacks) {
+			callback();
+		}
+		await flushMicrotasks();
+
+		expect(hls.autoLevelCapping).toBe(0);
+
+		vi.unstubAllGlobals();
+	});
+
+	it('does not enable hls.js capLevelToPlayerSize', async () => {
+		// The rule is ours because the native ports mirror it, and two writers to
+		// one `autoLevelCapping` would race on the first resize.
+		mockMatchMedia(false);
+		backend = new Html5VideoBackend(container);
+		await loadHls(backend, container);
+
+		expect(_hlsRegistry.lastConfig?.capLevelToPlayerSize).toBeUndefined();
 	});
 });
 
