@@ -240,23 +240,31 @@ describe('native-HLS vs hls.js routing', () => {
 // ---------------------------------------------------------------------------
 
 describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
+	// `_wireHdrMatchMedia` now re-derives the answer from `detectDisplayHdr()` on
+	// every 'change' rather than trusting the fired event's `.matches` — it has
+	// to, since the real listener watches ONE combined query but the answer is
+	// two queries asked in priority order. So `mql` here is a shared mutable
+	// object: simulating a display change means mutating `mql.matches` (which
+	// `window.matchMedia(...).matches` reads for BOTH queries `detectDisplayHdr`
+	// asks, since the mock returns the same object regardless of query string)
+	// and then invoking a listener — the listener itself takes no argument.
 	function mockMatchMedia(matchesHdr: boolean): {
-		mql: MediaQueryList;
-		changeListeners: Array<(mediaQueryListEvent: MediaQueryListEvent) => void>;
+		mql: { matches: boolean };
+		changeListeners: Array<() => void>;
 	} {
-		const changeListeners: Array<(mediaQueryListEvent: MediaQueryListEvent) => void> = [];
+		const changeListeners: Array<() => void> = [];
 		const mql = {
 			matches: matchesHdr,
-			addEventListener: (_type: string, fn: (mediaQueryListEvent: MediaQueryListEvent) => void) => {
+			addEventListener: (_type: string, fn: () => void) => {
 				changeListeners.push(fn);
 			},
-			removeEventListener: (_type: string, fn: (mediaQueryListEvent: MediaQueryListEvent) => void) => {
+			removeEventListener: (_type: string, fn: () => void) => {
 				const idx = changeListeners.indexOf(fn);
 				if (idx >= 0)
 					changeListeners.splice(idx, 1);
 			},
-		} as unknown as MediaQueryList;
-		vi.spyOn(window, 'matchMedia').mockReturnValue(mql);
+		};
+		vi.spyOn(window, 'matchMedia').mockReturnValue(mql as unknown as MediaQueryList);
 		return { mql, changeListeners };
 	}
 
@@ -332,7 +340,7 @@ describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
 	});
 
 	it('matchMedia change from SDR to HDR triggers constraint re-apply', async () => {
-		const { changeListeners } = mockMatchMedia(false);
+		const { mql, changeListeners } = mockMatchMedia(false);
 		backend = new Html5VideoBackend(container);
 		const hls = await loadHls(backend, container);
 
@@ -346,8 +354,9 @@ describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
 		// Simulate display switching to HDR
 		const sdReading = hls.autoLevelCapping;
 
+		mql.matches = true;
 		for (const fn of changeListeners) {
-			fn({ matches: true } as MediaQueryListEvent);
+			fn();
 		}
 		await flushMicrotasks();
 
@@ -357,7 +366,7 @@ describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
 	});
 
 	it('matchMedia change from HDR to SDR re-caps ABR', async () => {
-		const { changeListeners } = mockMatchMedia(true);
+		const { mql, changeListeners } = mockMatchMedia(true);
 		backend = new Html5VideoBackend(container);
 		const hls = await loadHls(backend, container);
 
@@ -369,12 +378,13 @@ describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
 		await flushMicrotasks();
 
 		// Now display becomes SDR
+		mql.matches = false;
 		for (const fn of changeListeners) {
-			fn({ matches: false } as MediaQueryListEvent);
+			fn();
 		}
 		await flushMicrotasks();
 
-		// Highest SDR index is 0
+		// Only SDR rung is height 720 at index 0
 		expect(hls.autoLevelCapping).toBe(0);
 	});
 
@@ -419,6 +429,69 @@ describe('HDR/SDR ABR constraint (_applyHdrConstraint)', () => {
 
 		// Not playing HDR — no force-switch, nextLevel unchanged
 		expect(hls.nextLevel).toBe(priorNextLevel);
+	});
+
+	it('SDR display, all-HDR ladder, hdrOnSdr "refuse": escalates a fatal error', async () => {
+		mockMatchMedia(false);
+		backend = new Html5VideoBackend(container);
+		backend.setHdrOnSdrFallback('refuse');
+		const hls = await loadHls(backend, container);
+
+		const streamErrors: Array<{ details: string; fatal: boolean }> = [];
+		backend.on('stream:error', payload => streamErrors.push(payload as { details: string; fatal: boolean }));
+
+		hls.levels = [
+			{ height: 1080, attrs: { 'VIDEO-RANGE': 'PQ' } },
+			{ height: 2160, attrs: { 'VIDEO-RANGE': 'PQ' } },
+		];
+		hls.fire('hlsManifestParsed', {});
+		await flushMicrotasks();
+
+		const fatal = streamErrors.find(err => err.fatal);
+		expect(fatal).toBeDefined();
+		expect(fatal!.details).toBe('video:media/hdr-unplayable');
+		expect(backend.state()).toBe('error');
+	});
+
+	it('SDR display, all-HDR ladder, hdrOnSdr "play": plays uncapped with no error', async () => {
+		mockMatchMedia(false);
+		backend = new Html5VideoBackend(container);
+		backend.setHdrOnSdrFallback('play');
+		const hls = await loadHls(backend, container);
+
+		const streamErrors: Array<{ details: string; fatal: boolean }> = [];
+		backend.on('stream:error', payload => streamErrors.push(payload as { details: string; fatal: boolean }));
+
+		hls.levels = [
+			{ height: 1080, attrs: { 'VIDEO-RANGE': 'PQ' } },
+			{ height: 2160, attrs: { 'VIDEO-RANGE': 'PQ' } },
+		];
+		hls.fire('hlsManifestParsed', {});
+		await flushMicrotasks();
+
+		expect(hls.autoLevelCapping).toBe(-1);
+		expect(streamErrors.some(err => err.fatal)).toBe(false);
+		expect(backend.state()).not.toBe('error');
+	});
+
+	it('SDR display: ceiling is chosen by height, not by manifest index order', async () => {
+		mockMatchMedia(false);
+		backend = new Html5VideoBackend(container);
+		const hls = await loadHls(backend, container);
+
+		// Index order disagrees with height order: the tallest SDR rung sits at
+		// index 0, a shorter SDR rung sits at the highest index.
+		hls.levels = [
+			{ height: 1080, attrs: { 'VIDEO-RANGE': 'SDR' } },
+			{ height: 2160, attrs: { 'VIDEO-RANGE': 'PQ' } },
+			{ height: 480, attrs: { 'VIDEO-RANGE': 'SDR' } },
+		];
+		hls.fire('hlsManifestParsed', {});
+		await flushMicrotasks();
+
+		// The highest-INDEX SDR rung (2, 480p) would win under a "highest index"
+		// rule. Height-first picks index 0 (1080p) instead.
+		expect(hls.autoLevelCapping).toBe(0);
 	});
 });
 

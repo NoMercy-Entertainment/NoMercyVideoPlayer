@@ -6,16 +6,19 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
-import type { AudioTrack, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
+import type { AudioTrack, HdrOnSdrFallback, QualityLevel, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 import type { HtmlPreloadMode } from '../../types';
 import type { BackendEventPayload, BackendState, IVideoBackend, SubtitleCue, SubtitleCueChange } from './IVideoBackend';
 import {
 	appendAuthTokenParam,
 	createAuthorizationXhrSetup,
 	destroyHlsInstance,
+	detectDisplayHdr,
+	hdrDecision,
 	isHls,
 	MediaElementBackend,
 	MediaFormatError,
+	mediaFormatError,
 	resetMediaElement,
 	supportsNativeHls,
 } from '@nomercy-entertainment/nomercy-player-core';
@@ -219,7 +222,13 @@ export class Html5VideoBackend
 	 * Bound listener for `_hdrMql` change events. Stored so we can call
 	 *  `removeEventListener` with the same reference on dispose.
 	 */
-	private _hdrMqlListener: ((mediaQueryListEvent: MediaQueryListEvent) => void) | undefined;
+	private _hdrMqlListener: (() => void) | undefined;
+	/**
+	 * Consumer policy for an all-HDR item on an SDR display, pushed in by
+	 * `NMVideoPlayer` via `setHdrOnSdrFallback`. `undefined` until then —
+	 * `hdrDecision`'s own default (`'play'`) applies at read time.
+	 */
+	private _hdrOnSdrFallback: HdrOnSdrFallback | undefined;
 
 	constructor(container: HTMLElement) {
 		const existing = container.querySelector<HTMLVideoElement>('video');
@@ -1095,17 +1104,31 @@ export class Html5VideoBackend
 
 	// ── HDR-aware ABR helpers ──
 
-	/** Wire the `matchMedia('(dynamic-range: high)')` change listener once. */
+	/**
+	 * Consumer policy for an all-HDR item on an SDR display with no converter.
+	 * Pushed once by `NMVideoPlayer` right after construction — see `IVideoBackend`.
+	 */
+	setHdrOnSdrFallback(fallback: HdrOnSdrFallback): void {
+		this._hdrOnSdrFallback = fallback;
+	}
+
+	/**
+	 * Wire a combined-query matchMedia listener once. The comma joins the two
+	 * queries as an OR at the CSS level, so one listener catches a change in
+	 * either signal; the boolean answer itself always comes from
+	 * `detectDisplayHdr`, which asks them in priority order (video plane
+	 * before page) rather than trusting whichever one the event fired for.
+	 */
 	private _wireHdrMatchMedia(): void {
 		if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
 			return;
 
-		const mql = window.matchMedia('(dynamic-range: high)');
-		this._displayHdr = mql.matches;
+		const mql = window.matchMedia('(video-dynamic-range: high), (dynamic-range: high)');
+		this._displayHdr = detectDisplayHdr();
 		this._hdrMql = mql;
 
-		const listener = (event: MediaQueryListEvent): void => {
-			this._onDisplayHdrChange(event.matches);
+		const listener = (): void => {
+			this._onDisplayHdrChange(detectDisplayHdr());
 		};
 		this._hdrMqlListener = listener;
 		mql.addEventListener('change', listener);
@@ -1136,64 +1159,90 @@ export class Html5VideoBackend
 	}
 
 	/**
-	 * Constrain HLS.js ABR to the display's dynamic-range capability.
+	 * Constrain HLS.js ABR to the display's dynamic-range capability, per
+	 * `hdrDecision` — the oracle both native ports mirror.
 	 *
-	 * SDR display (`displayHdr = false`):
-	 *   - Sets `hls.autoLevelCapping` to the highest SDR level index so the
-	 *     ABR algorithm never auto-selects above it. For interleaved manifests
-	 *     where some HDR level indices sit below some SDR level indices,
-	 *     `autoLevelCapping` alone is insufficient — we also force a `nextLevel`
-	 *     switch away from any currently-playing HDR variant to its nearest SDR
-	 *     peer at the same (or next-lower) resolution.
-	 *   - Emits a fresh `levels` event so overlay plugins can hide HDR rows.
+	 * `as-is` (HDR display, or an ordinary SDR item with no HDR rungs to cap):
+	 *   - Lifts `autoLevelCapping` to `-1`. If the current level is SDR and an
+	 *     HDR peer exists at the same resolution, prefer it via `nextLevel`
+	 *     (soft switch — the next fragment boundary picks it up, no stutter).
+	 *     A no-op on the SDR-only case: there is no HDR peer to find.
 	 *
-	 * HDR display (`displayHdr = true`):
-	 *   - Lifts `autoLevelCapping` to `-1` (uncapped). ABR is free to select
-	 *     HDR variants. If the current level is SDR and an HDR peer exists at
-	 *     the same resolution, prefer it by setting `nextLevel` (soft switch —
-	 *     the next fragment boundary picks it up; no stutter).
-	 *   - Emits a fresh `levels` event so overlay plugins can reveal HDR rows.
+	 * `cap-to` (SDR display, an SDR rung exists):
+	 *   - Caps `autoLevelCapping` to the decided rung's raw manifest index.
+	 *     For interleaved manifests (HDR index < SDR index at the same
+	 *     resolution) the cap alone is insufficient — `nextLevel` also forces
+	 *     off any currently-playing HDR variant to its SDR peer.
+	 *
+	 * `tone-map` — never returned here; see `backendCanToneMap` below.
+	 *
+	 * `play-unconverted` — no SDR rung, no converter, consumer opted in:
+	 *   uncapped on purpose, no error.
+	 *
+	 * `refuse` — no SDR rung, no converter, consumer opted out: escalated
+	 *   through the same fatal-error channel HLS stream errors use.
+	 *
+	 * Always re-emits `levels` so overlay plugins can update their menus.
 	 */
 	private _applyHdrConstraint(displayHdr: boolean): void {
 		this._displayHdr = displayHdr;
 		if (!this.hls || this._levelIsHdr.length === 0)
 			return;
 
-		if (displayHdr) {
-			// Lift the cap — ABR can now pick HDR variants.
-			this.hls.autoLevelCapping = -1;
+		// Neither hls.js nor any shipping <video> implementation performs an
+		// HDR→SDR tone-map during decode — a platform fact, not unfinished work.
+		const backendCanToneMap = false;
+		const decision = hdrDecision(this.qualityLevels(), displayHdr, backendCanToneMap, this._hdrOnSdrFallback ?? 'play');
 
-			// Upgrade the playing level to an HDR peer at the same resolution
-			// if we were previously constrained to SDR.
-			const playingIdx = this.currentLevel();
-			if (playingIdx >= 0 && !this._levelIsHdr[playingIdx]) {
-				const currentHeight = this.hls.levels[playingIdx]?.height;
-				const hdrPeerIdx = this.hls.levels.findIndex(
-					(level, idx) => this._levelIsHdr[idx] && level.height === currentHeight,
-				);
-				if (hdrPeerIdx >= 0)
-					this.hls.nextLevel = hdrPeerIdx;
-			}
-		}
-		else {
-			// Find the highest-indexed SDR level — cap ABR there.
-			let maxSdrIdx = -1;
-			for (let idx = 0; idx < this._levelIsHdr.length; idx++) {
-				if (!this._levelIsHdr[idx])
-					maxSdrIdx = idx;
-			}
-			this.hls.autoLevelCapping = maxSdrIdx;
+		switch (decision.kind) {
+			case 'as-is': {
+				this.hls.autoLevelCapping = -1;
 
-			// If currently playing an HDR level, force-switch to the best SDR peer.
-			const playingIdx = this.currentLevel();
-			if (playingIdx >= 0 && this._levelIsHdr[playingIdx]) {
-				const currentHeight = this.hls.levels[playingIdx]?.height;
-				const sdrPeerIdx = this.hls.levels.findIndex(
-					(level, idx) => !this._levelIsHdr[idx] && level.height === currentHeight,
+				const playingIdx = this.currentLevel();
+				if (playingIdx >= 0 && !this._levelIsHdr[playingIdx]) {
+					const currentHeight = this.hls.levels[playingIdx]?.height;
+					const hdrPeerIdx = this.hls.levels.findIndex(
+						(level, idx) => this._levelIsHdr[idx] && level.height === currentHeight,
+					);
+					if (hdrPeerIdx >= 0)
+						this.hls.nextLevel = hdrPeerIdx;
+				}
+				break;
+			}
+
+			case 'cap-to': {
+				this.hls.autoLevelCapping = decision.level.index;
+
+				const playingIdx = this.currentLevel();
+				if (playingIdx >= 0 && this._levelIsHdr[playingIdx]) {
+					const currentHeight = this.hls.levels[playingIdx]?.height;
+					const sdrPeerIdx = this.hls.levels.findIndex(
+						(level, idx) => !this._levelIsHdr[idx] && level.height === currentHeight,
+					);
+					this.hls.nextLevel = sdrPeerIdx >= 0 ? sdrPeerIdx : decision.level.index;
+				}
+				break;
+			}
+
+			case 'tone-map': {
+				// Unreachable while `backendCanToneMap` is false above — handled
+				// explicitly so a backend that DOES gain a converter can't fall
+				// through this switch unnoticed.
+				break;
+			}
+
+			case 'play-unconverted': {
+				this.hls.autoLevelCapping = -1;
+				break;
+			}
+
+			case 'refuse': {
+				const err = mediaFormatError(
+					'video:media/hdr-unplayable',
+					'Every rendition in this manifest is HDR and the active display cannot render HDR.',
 				);
-				const targetIdx = sdrPeerIdx >= 0 ? sdrPeerIdx : maxSdrIdx;
-				if (targetIdx >= 0)
-					this.hls.nextLevel = targetIdx;
+				this._escalateHlsError(err.code, err.message);
+				break;
 			}
 		}
 

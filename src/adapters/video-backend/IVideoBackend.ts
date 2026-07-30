@@ -6,7 +6,7 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
-import type { AudioTrack, BackendLoaderState, BackendState, MinimalBackendEventPayload, QualityLevel, SubtitleCueChange, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
+import type { AudioTrack, BackendLoaderState, BackendState, HdrOnSdrFallback, MinimalBackendEventPayload, QualityLevel, SubtitleCueChange, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 
 import type { HtmlPreloadMode } from '../../types';
 
@@ -139,6 +139,14 @@ export interface IVideoBackend {
 	 * stack omit it.
 	 */
 	setAuthHeaderProvider?(provider: () => string | undefined | Promise<string | undefined>): void;
+
+	/**
+	 * Consumer policy for an all-HDR item on a display that can't show HDR and
+	 * a backend that can't tone-map it. Optional — backends that never face the
+	 * question (no HDR-aware ABR) omit it. `NMVideoPlayer` pushes `options.hdrOnSdr`
+	 * here once, at backend construction; unset means the backend's own default.
+	 */
+	setHdrOnSdrFallback?(fallback: HdrOnSdrFallback): void;
 
 	// Transport
 	play(): Promise<void>;

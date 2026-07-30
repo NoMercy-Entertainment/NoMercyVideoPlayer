@@ -29,6 +29,7 @@
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 import type { AudioTrackRef, QualityLevel, SubtitleTrackRef } from '../../../types';
 import type { SubtitleStyle } from '../data/buttons';
+import { detectDisplayHdr } from '@nomercy-entertainment/nomercy-player-core';
 import { readItemImage } from '../../../player/itemImage';
 import {
 	colors,
@@ -497,9 +498,7 @@ export function renderQualityPane(
 	const allLevels: QualityLevel[] = player.qualityLevels?.() ?? [];
 	// Drop HDR levels when the active display can't render HDR — the browser
 	// would decode them but the colours would map back to SDR and look wrong.
-	const displayHdr = typeof window !== 'undefined'
-		&& typeof window.matchMedia === 'function'
-		&& window.matchMedia('(dynamic-range: high)').matches;
+	const displayHdr = detectDisplayHdr();
 	const levels = allLevels.filter(qualityLevel => qualityLevel.dynamicRange !== 'hdr' || displayHdr);
 	const auto = state.qualityIdx === 'auto';
 	// In Auto mode the Auto row gets the primary checkmark. The level the

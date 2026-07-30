@@ -263,7 +263,11 @@ export const domMethods = {
 
 	wireEvents(this: DesktopUiInternals): void {
 		if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-			const hdrMql = window.matchMedia('(dynamic-range: high)');
+			// Comma-joined so one listener catches a change in either signal —
+			// the CSS media-query-list comma is OR. `renderQualityPane` re-asks
+			// `detectDisplayHdr` for the actual value on repaint; this listener
+			// only needs to know THAT something changed.
+			const hdrMql = window.matchMedia('(video-dynamic-range: high), (dynamic-range: high)');
 			this.listen(hdrMql, 'change', () => this.repaintQualityIfOpen());
 		}
 
