@@ -269,6 +269,8 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	declare private _checkItemEndingSoon: (currentTime: number, duration: number) => void;
 	/** @internal */
 	declare private _timeStateAt: (position: number) => KitTimeState;
+	/** @internal */
+	declare private _mediaIsStale: (() => boolean) | undefined;
 
 	declare playbackRate: {
 		(): number;
@@ -693,6 +695,16 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 		});
 
 		instance.on('timeupdate', () => {
+			// Between a `next()` and the incoming item's mount, this element is
+			// still the OUTGOING item's — the cursor already moved. Publishing
+			// its position here hands every listener the previous item's
+			// position stamped with the new item's identity. Optional call:
+			// the dependency range admits a core that predates the reader, and
+			// an older core must degrade to the old behaviour, not throw on
+			// every tick.
+			if (this._mediaIsStale?.())
+				return;
+
 			const currentTime = instance.currentTime();
 			const duration = instance.duration();
 
