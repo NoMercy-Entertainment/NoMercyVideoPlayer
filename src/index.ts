@@ -1245,10 +1245,25 @@ composeMixins(NMVideoPlayer.prototype, ...playerCoreMethods);
 {
 	const composedDispose: () => Promise<void> = NMVideoPlayer.prototype.dispose;
 	NMVideoPlayer.prototype.dispose = async function (this: NMVideoPlayer<BasePlaylistItem>): Promise<void> {
+		// The container id is released before the first await, not after the
+		// teardown resolves. Consumers re-create on the same container in the
+		// same tick — a responsive view handing `#player1` from its desktop
+		// variant to its mobile one does exactly that — and the registry still
+		// held this player, so they were given back the very instance they had
+		// just asked to dispose. `setup()` then threw `already-setup`, and the
+		// throw left that player attached and playing with nobody holding a
+		// reference to stop it.
+		const claimedId: string = this.playerId;
+		_instances.delete(claimedId);
+
 		await composedDispose.call(this);
 
-		if (this.phase() !== 'disposed')
-			return; // beforeDispose was prevented — backend + registry stay intact
+		if (this.phase() !== 'disposed') {
+			// beforeDispose was prevented — the player is still alive, so it
+			// takes its id back and the backend stays intact.
+			_instances.set(claimedId, this);
+			return;
+		}
 
 		this._disposeBackend();
 	};
