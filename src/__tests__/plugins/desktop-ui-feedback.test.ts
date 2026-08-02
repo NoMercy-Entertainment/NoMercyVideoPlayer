@@ -85,15 +85,19 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		expect(container.classList.contains('buffering')).toBe(false);
 	});
 
-	it('time event removes .buffering from container', async () => {
+	it('time event clears the stall feedback this plugin owns', async () => {
+		// `.buffering` on the container is core's, and which events drop it is
+		// core's test to write — this suite runs against the installed core, so
+		// asserting a rule from an unreleased one only proves which checkout is
+		// on disk. What belongs here is the plugin's own overlay.
 		const player = await makePlayer();
-		const container = player.container;
+		const center = player.container.querySelector('.center')!;
 
 		player.emit('stalled', {});
-		expect(container.classList.contains('buffering')).toBe(true);
+		expect(center.classList.contains('busy')).toBe(true);
 
 		player.emit('time', { time: 5 });
-		expect(container.classList.contains('buffering')).toBe(false);
+		expect(center.classList.contains('busy')).toBe(false);
 	});
 
 	it('display-message event creates .player-message with .visible', async () => {

@@ -17,8 +17,14 @@ const octopusSrc = fileURLToPath(new URL('../nomercy-subtitle-octopus/src', impo
 const hlsMock = fileURLToPath(new URL('./src/__tests__/__mocks__/hls.js.ts', import.meta.url));
 // Monorepo: alias siblings to their live TypeScript source so tests pick up
 // unbuilt changes. Standalone / CI: resolve them from node_modules instead.
-const useCoreSource = existsSync(coreRoot);
-const useOctopusSource = existsSync(octopusSrc);
+//
+// NOMERCY_INSTALLED_DEPS=1 forces the standalone path inside the monorepo,
+// which is the only way to run what CI runs. Without it a test that asserts
+// behaviour from an UNRELEASED core passes here and fails there, and the diff
+// that caused it is invisible — the sibling checkout answers every import.
+const useInstalledDeps = process.env.NOMERCY_INSTALLED_DEPS === '1';
+const useCoreSource = !useInstalledDeps && existsSync(coreRoot);
+const useOctopusSource = !useInstalledDeps && existsSync(octopusSrc);
 
 export default defineConfig({
 	plugins: [nomercyTranslationsPlugin()],

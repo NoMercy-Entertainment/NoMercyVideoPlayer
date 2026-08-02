@@ -201,14 +201,14 @@ describe('DesktopUiPlugin — buffering container class ownership (core-only)', 
 		expect(player.container.classList.contains('buffering')).toBe(false);
 	});
 
-	it('core still owns .buffering on waiting, and a time update clears it', async () => {
+	it('core still raises and drops .buffering with the plugin mounted', async () => {
 		const player = new NMVideoPlayer('test').setup({});
 		await player.addPlugin(desktopUiPlugin).ready();
 
 		player.emit('waiting', {} as never);
 		expect(player.container.classList.contains('buffering')).toBe(true);
 
-		player.emit('time', { time: 5 } as never);
+		player.emit('canplay', undefined as never);
 		expect(player.container.classList.contains('buffering')).toBe(false);
 	});
 });
