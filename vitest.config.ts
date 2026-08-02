@@ -7,6 +7,7 @@
 // -----------------------------------------------------------------------------
 
 import { existsSync } from 'node:fs';
+import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { nomercyTranslationsPlugin } from '@nomercy-entertainment/nomercy-player-core/vite-plugin';
 import { defineConfig } from 'vitest/config';
