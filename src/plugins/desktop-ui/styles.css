@@ -188,9 +188,9 @@
 	}
 
 	/* Two sources, on purpose. `buffering` is core's — its rules table raises it
-	 * on `waiting`/`stalled` and drops it on `canplay`. `busy` is this plugin's
-	 * own load feedback, and it lives on `.center` so the two never overwrite
-	 * each other on the same element. The spinner is the union of both. */
+	on `waiting`/`stalled` and drops it on `canplay`. `busy` is this plugin's own
+	load feedback, and it lives on `.center` so the two never overwrite each
+	other on the same element. The spinner is the union of both. */
 	&.buffering .spinner,
 	.center.busy .spinner {
 		display: block;
