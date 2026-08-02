@@ -157,6 +157,63 @@ describe('DesktopUiPlugin — theater container class ownership (core-only)', ()
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Regression: desktop-ui must NOT write .buffering on the container either.
+//
+// Same rule as theater above, and `buffering` was named in that list from the
+// start — but wireFeedback kept adding it for its own load feedback. Two owners
+// on one class, taking turns: the initial `message.loading` raised the spinner,
+// core's phase→paused swap wiped it ~250ms later, the `item` handler put it
+// back, and core's `canplay` rule took it away again. Measured on the testbed:
+// class went active → buffering → paused → paused buffering → paused, in 700ms.
+//
+// Fix: the plugin's own load feedback rides `busy` on its own .center wrapper.
+// Core stays the only writer of the container's state classes.
+// ──────────────────────────────────────────────────────────────────────────────
+
+describe('DesktopUiPlugin — buffering container class ownership (core-only)', () => {
+	beforeEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		const div = document.createElement('div');
+		div.id = 'test';
+		document.body.appendChild(div);
+		vi.stubGlobal('ResizeObserver', MockResizeObserver);
+	});
+
+	afterEach(() => {
+		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
+		document.body.innerHTML = '';
+		vi.unstubAllGlobals();
+	});
+
+	it('mounting the plugin does not put .buffering on the container', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin).ready();
+
+		expect(player.container.classList.contains('buffering')).toBe(false);
+	});
+
+	it('the plugin shows its own load spinner while the container stays clean', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin).ready();
+
+		const center = player.container.querySelector('.center')!;
+		expect(center.classList.contains('busy')).toBe(true);
+		expect(player.container.classList.contains('buffering')).toBe(false);
+	});
+
+	it('core still owns .buffering on waiting, and a time update clears it', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin).ready();
+
+		player.emit('waiting', {} as never);
+		expect(player.container.classList.contains('buffering')).toBe(true);
+
+		player.emit('time', { time: 5 } as never);
+		expect(player.container.classList.contains('buffering')).toBe(false);
+	});
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Regression: theater button icon must swap to theaterExit (M8.40586) when
 // theater is active, and back to theater (M16.4059) when inactive.
 //

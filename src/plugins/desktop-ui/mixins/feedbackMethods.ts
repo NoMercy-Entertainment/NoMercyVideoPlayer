@@ -19,14 +19,16 @@ import type { DesktopUiInternals } from '../internals';
 
 export const feedbackMethods = {
 	wireFeedback(this: DesktopUiInternals): void {
-		const container = this.player.container;
-
+		// `busy` on the plugin's own center wrapper, never the container's
+		// `buffering`: the container's playback-state classes are core's rules
+		// table, and a phase swap there wipes anything this plugin writes into
+		// the group. styles.css shows the spinner for either.
 		const showBuffer = (textKey: string): void => {
-			container.classList.add('buffering');
+			this.centerWrap.classList.add('busy');
 			this.showMessage(this.t(textKey), undefined, true);
 		};
 		const clearFeedback = (): void => {
-			container.classList.remove('buffering');
+			this.centerWrap.classList.remove('busy');
 			if (this.messageIsFeedback)
 				this.hideMessage();
 		};
@@ -37,11 +39,15 @@ export const feedbackMethods = {
 		this.on('waiting', () => showBuffer('message.buffering'));
 		this.on('stalled', () => showBuffer('message.buffering'));
 		this.on('item', () => showBuffer('message.loading'));
+		// A load ends at `canplay`, which arrives whether or not anybody pressed
+		// play — `playing` and `time` do not. Same signal core drops `buffering`
+		// on, so both layers end the load at the same instant.
+		this.on('canplay', clearFeedback);
 		this.on('playing', clearFeedback);
 		this.on('time', clearFeedback);
 
 		this.on('error', () => {
-			container.classList.remove('buffering');
+			this.centerWrap.classList.remove('busy');
 			this.showMessage(this.t('message.error'), undefined, true);
 		});
 

@@ -166,6 +166,61 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		expect(msgEl!.textContent).toMatch(/75/);
 	});
 
+	it('canplay clears the loading message on a player that never started', async () => {
+		// Reported from the testbed: Big Buck Bunny paused on its poster with
+		// -9:56 already on the scrubber and readyState 4, still showing
+		// "Loading…". `playing` and `time` were the only clear signals, and a
+		// player that becomes ready without being started emits neither.
+		const player = await makePlayer();
+		const container = player.container;
+
+		const msgEl = container.querySelector('.player-message')!;
+		expect(msgEl.classList.contains('visible')).toBe(true);
+
+		player.emit('canplay', undefined as never);
+
+		expect(msgEl.classList.contains('visible')).toBe(false);
+	});
+
+	it('canplay stops the spinner without waiting for playback to start', async () => {
+		const player = await makePlayer();
+		const center = player.container.querySelector('.center')!;
+
+		expect(center.classList.contains('busy')).toBe(true);
+
+		player.emit('canplay', undefined as never);
+
+		expect(center.classList.contains('busy')).toBe(false);
+	});
+
+	it('canplay leaves a consumer message alone', async () => {
+		// The spinner stops either way, but a message somebody else asked for
+		// outlives the load that happened to finish under it.
+		const player = await makePlayer();
+		const container = player.container;
+
+		player.emit('display-message', { text: 'Saved to watchlist' });
+		player.emit('canplay', undefined as never);
+
+		const msgEl = container.querySelector('.player-message')!;
+		expect(msgEl.classList.contains('visible')).toBe(true);
+		expect(msgEl.textContent).toBe('Saved to watchlist');
+	});
+
+	it('a new item raises the spinner again and canplay lowers it', async () => {
+		const player = await makePlayer();
+		const center = player.container.querySelector('.center')!;
+
+		player.emit('canplay', undefined as never);
+		expect(center.classList.contains('busy')).toBe(false);
+
+		player.emit('item', { item: { id: 'ep2' }, index: 1 } as never);
+		expect(center.classList.contains('busy')).toBe(true);
+
+		player.emit('canplay', undefined as never);
+		expect(center.classList.contains('busy')).toBe(false);
+	});
+
 	it('mute event shows toast message', async () => {
 		const player = await makePlayer();
 		const container = player.container;
