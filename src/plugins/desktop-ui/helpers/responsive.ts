@@ -66,8 +66,12 @@ export const DEFAULT_PRIORITY: ButtonPriorityList = [
 	'previous',
 	'chapterPrev',
 	'chapterNext',
-	'seekBack',
+	// Forward above back: the two are a pair, and ranking back higher made the
+	// bar drop forward first and leave a lone rewind button on it — a player that
+	// looks like it can only go backwards. Forward is also the one that earns the
+	// place, because skipping an intro is what it is for.
 	'seekForward',
+	'seekBack',
 	'theater',
 	'pip',
 	'speed',
