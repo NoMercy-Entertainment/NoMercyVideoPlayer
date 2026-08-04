@@ -6,7 +6,7 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
-import type { AudioTrack, BackendLoaderState, BackendState, HdrOnSdrFallback, MinimalBackendEventPayload, QualityLevel, SubtitleCueChange, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
+import type { AuthHeaderProvider, AudioTrack, BackendLoaderState, BackendState, HdrOnSdrFallback, MinimalBackendEventPayload, QualityLevel, SubtitleCueChange, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 
 import type { HtmlPreloadMode } from '../../types';
 
@@ -138,7 +138,7 @@ export interface IVideoBackend {
 	 * manifests/segments). Optional — backends without their own network
 	 * stack omit it.
 	 */
-	setAuthHeaderProvider?(provider: () => string | undefined | Promise<string | undefined>): void;
+	setAuthHeaderProvider?(provider: AuthHeaderProvider): void;
 
 	/**
 	 * Consumer policy for an all-HDR item on a display that can't show HDR and
