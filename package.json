@@ -134,7 +134,7 @@
 		"prepublishOnly": "npm run build:all"
 	},
 	"dependencies": {
-		"@nomercy-entertainment/nomercy-player-core": "2.0.3",
+		"@nomercy-entertainment/nomercy-player-core": "2.0.4",
 		"@nomercy-entertainment/nomercy-subtitle-octopus": "^0.1.0"
 	},
 	"devDependencies": {
