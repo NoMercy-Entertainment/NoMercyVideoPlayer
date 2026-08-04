@@ -340,7 +340,7 @@ export class Html5VideoBackend
 		resetMediaElement(this.element);
 
 		performance.mark('nm:backend:load:start');
-		const headerValue = await this._authHeaderProvider?.();
+		const headerValue = this._authHeaderProvider?.(url);
 
 		if (hlsUrl && !nativeHls) {
 			const { default: Hls } = await import('hls.js');
@@ -362,7 +362,7 @@ export class Html5VideoBackend
 				enableCEA708Captions: true,
 				startPosition: typeof opts?.startTime === 'number' && opts.startTime > 0 ? opts.startTime : -1,
 				startFragPrefetch: true,
-				xhrSetup: createAuthorizationXhrSetup(headerValue),
+				xhrSetup: createAuthorizationXhrSetup(this._authHeaderProvider),
 			});
 			this.hls = hlsInstance;
 			this.hlsInstance = hlsInstance;
