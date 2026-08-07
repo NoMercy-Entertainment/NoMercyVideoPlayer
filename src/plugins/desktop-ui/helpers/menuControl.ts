@@ -168,6 +168,17 @@ export function openSubMenu(
 	opts: MenuRenderOpts | undefined,
 	bumpActivity: () => void,
 ): void {
+	// A trigger toggles. Pressing the button that opened a pane closes it.
+	//
+	// Without this the only way out of a menu is to click elsewhere, because each
+	// trigger stops propagation and so never reaches the outside-click handler
+	// that would have closed it. The trigger is the first place anybody presses,
+	// being the control they just used.
+	if (state.menuOpen && state.currentSubMenu === id) {
+		closeAllMenusFn();
+		return;
+	}
+
 	collapseAllTriggers(refs);
 	setMenuTriggerExpanded(id, true, refs);
 
