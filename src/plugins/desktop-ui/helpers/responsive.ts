@@ -71,13 +71,20 @@ export const DEFAULT_PRIORITY: ButtonPriorityList = [
 	// looks like it can only go backwards. Forward is also the one that earns the
 	// place, because skipping an intro is what it is for.
 	'seekForward',
+	// Subtitles and audio outrank seekBack, theater, pip and speed.
+	//
+	// A narrow bar that keeps a picture-in-picture button and drops the subtitle
+	// menu has kept a convenience and lost the control some viewers cannot watch
+	// without. Subtitles sit above audio because a track nobody can read is worse
+	// than a language nobody can change, and both sit above the four framing and
+	// pacing controls, which every one of them is a preference rather than access.
+	'quality',
+	'subtitles',
+	'audio',
 	'seekBack',
 	'theater',
 	'pip',
 	'speed',
-	'quality',
-	'subtitles',
-	'audio',
 	'aspectRatio',
 	'playlist',
 ];
