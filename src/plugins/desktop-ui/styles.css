@@ -291,6 +291,41 @@
 		transition: height 140ms ease-out;
 	}
 
+	/* The strip a pointer can hit, which is not the strip that is drawn.
+	 *
+	 * The bar draws 8px and used to be targetable in exactly those 8 — measured
+	 * row by row with elementFromPoint on the running player: 4 rows above the
+	 * centre, 3 below, and the rows either side handed to the touch-zone
+	 * overlay behind it. The native chrome gives the same bar a 32dp strip and
+	 * centres the drawn bar inside it, which is the height a pointer is aimed
+	 * with rather than the height a bar is read at.
+	 *
+	 * Insets rather than a centred fixed height, because the space above the bar
+	 * and the space below it are not the same size. 16 up is `.top-row`'s whole
+	 * `margin-top` and stops on `.bottom-bar`'s own top edge; 12 down is the
+	 * 8px gap between the rows and stops on `.bottom-row`'s. Between them the
+	 * strip is 32 rows, the height the native chrome gives the same bar, and it
+	 * takes not one row from anything — the play button measures 40 of 40
+	 * before and after.
+	 *
+	 * A centred 32px box was tried first and came back 28: it reached four rows
+	 * INTO `.bottom-row`, whose box spans the full width, so the controls took
+	 * them back everywhere rather than only over a button. Raising
+	 * `.bottom-row`'s z-index to defend them changed nothing for the same
+	 * reason.
+	 *
+	 * z-index 0 so every layer above it inside the bar — buffer at 1, the
+	 * chapter bar at 5, the nipple and the preview pop — keeps its own clicks. */
+	.slider-bar::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: -16px;
+		bottom: -12px;
+		z-index: 0;
+	}
+
 	/* Pointer devices grow when hovering anywhere in the top-row strip
      * (broader hit area than the bar itself) or while actively scrubbing. */
 	@media (hover: hover) {
