@@ -1029,19 +1029,18 @@
 		gap: 4px;
 		overflow-x: hidden;
 		overflow-y: auto;
-		/* Symmetric, and reserved on BOTH edges so it stays symmetric.
+		/* One inset, declared once, on all four sides.
 		 *
 		 * This was `8px 0 8px 8px` — no right padding at all — with
-		 * `scrollbar-gutter: stable` left to make up the difference on that
-		 * side. The gutter is not a padding: its width is the browser's
-		 * scrollbar width, which differs by engine, platform and whether the
-		 * user has overlay scrollbars, so the right inset never equalled the
-		 * left and never equalled itself across two machines. That is the
-		 * inconsistency, and it is why `.episode-menu` carries an override to
-		 * symmetric padding while every other pane does not.
+		 * `scrollbar-gutter: stable` standing in for it on that side. A gutter
+		 * is not a padding: its width is the browser's scrollbar width, which
+		 * differs by engine, platform and overlay-scrollbar setting, so the
+		 * right inset never equalled the left.
 		 *
-		 * `both-edges` reserves the same gutter on the leading side, so the two
-		 * insets match whether a scrollbar is showing or not. */
+		 * Nor is the answer `both-edges`: a gutter is reserved IN ADDITION to
+		 * the padding, so 8px of padding became an 18px inset on both sides —
+		 * symmetric and twice as deep as anything else in the menu. The inset
+		 * is 8, and the scrollbar overlays it rather than reserving beside it. */
 		padding: 8px;
 		transition: all 0.3s ease;
 		width: 100%;
@@ -1049,7 +1048,6 @@
 		max-height: 50dvh;
 		scrollbar-width: thin;
 		scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-		scrollbar-gutter: stable both-edges;
 	}
 
 	/* ── Playlist sub-menu (two-pane, mirrors v1's createEpisodeMenu) ──────
