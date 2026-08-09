@@ -985,13 +985,13 @@
 
 	.language-button .menu-button-subtext {
 		/* `margin-left` was declared twice — 8px, then auto — and the second
-		 * won, so the separation the first was asking for never existed. It is
-		 * invisible until a label is long enough to fill the row, and then
-		 * `auto` has no space left to give and the value sits against the last
-		 * letter: "Transparantie achtergrondvak0%".
-		 *
-		 * The push and the minimum gap are two different jobs, so they are two
-		 * different properties now. */
+		* won, so the separation the first was asking for never existed. It is
+		* invisible until a label is long enough to fill the row, and then
+		* `auto` has no space left to give and the value sits against the last
+		* letter: "Transparantie achtergrondvak0%".
+		*
+		* The push and the minimum gap are two different jobs, so they are two
+		* different properties now. */
 		margin-left: auto;
 		padding-left: 8px;
 		color: rgba(255, 255, 255, 0.6);
@@ -1030,17 +1030,17 @@
 		overflow-x: hidden;
 		overflow-y: auto;
 		/* One inset, declared once, on all four sides.
-		 *
-		 * This was `8px 0 8px 8px` — no right padding at all — with
-		 * `scrollbar-gutter: stable` standing in for it on that side. A gutter
-		 * is not a padding: its width is the browser's scrollbar width, which
-		 * differs by engine, platform and overlay-scrollbar setting, so the
-		 * right inset never equalled the left.
-		 *
-		 * Nor is the answer `both-edges`: a gutter is reserved IN ADDITION to
-		 * the padding, so 8px of padding became an 18px inset on both sides —
-		 * symmetric and twice as deep as anything else in the menu. The inset
-		 * is 8, and the scrollbar overlays it rather than reserving beside it. */
+		*
+		* This was `8px 0 8px 8px` — no right padding at all — with
+		* `scrollbar-gutter: stable` standing in for it on that side. A gutter
+		* is not a padding: its width is the browser's scrollbar width, which
+		* differs by engine, platform and overlay-scrollbar setting, so the
+		* right inset never equalled the left.
+		*
+		* Nor is the answer `both-edges`: a gutter is reserved IN ADDITION to
+		* the padding, so 8px of padding became an 18px inset on both sides —
+		* symmetric and twice as deep as anything else in the menu. The inset
+		* is 8, and the scrollbar overlays it rather than reserving beside it. */
 		padding: 8px;
 		transition: all 0.3s ease;
 		width: 100%;
@@ -1184,9 +1184,9 @@
 			flex-direction: column;
 			gap: 6px;
 			/* Inherited, not restated. This pane carried its own symmetric
-			 * padding because the base rule had none on the right — so one pane
-			 * looked correct and every other one did not. The base is symmetric
-			 * now and a second number here would be the drift starting again. */
+			* padding because the base rule had none on the right — so one pane
+			* looked correct and every other one did not. The base is symmetric
+			* now and a second number here would be the drift starting again. */
 		}
 
 		.playlist-menu-button {
