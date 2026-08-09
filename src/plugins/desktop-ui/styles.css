@@ -984,14 +984,22 @@
 	}
 
 	.language-button .menu-button-subtext {
-		margin-left: 8px;
+		/* `margin-left` was declared twice — 8px, then auto — and the second
+		 * won, so the separation the first was asking for never existed. It is
+		 * invisible until a label is long enough to fill the row, and then
+		 * `auto` has no space left to give and the value sits against the last
+		 * letter: "Transparantie achtergrondvak0%".
+		 *
+		 * The push and the minimum gap are two different jobs, so they are two
+		 * different properties now. */
+		margin-left: auto;
+		padding-left: 8px;
 		color: rgba(255, 255, 255, 0.6);
 		font-size: 10px;
 		font-weight: 600;
 		padding-right: 8px;
 		white-space: nowrap;
 		line-height: 100%;
-		margin-left: auto;
 	}
 
 	/* Consumer-supplied action rows (e.g. "Search subtitles online…") append
@@ -1021,14 +1029,27 @@
 		gap: 4px;
 		overflow-x: hidden;
 		overflow-y: auto;
-		padding: 8px 0 8px 8px;
+		/* Symmetric, and reserved on BOTH edges so it stays symmetric.
+		 *
+		 * This was `8px 0 8px 8px` — no right padding at all — with
+		 * `scrollbar-gutter: stable` left to make up the difference on that
+		 * side. The gutter is not a padding: its width is the browser's
+		 * scrollbar width, which differs by engine, platform and whether the
+		 * user has overlay scrollbars, so the right inset never equalled the
+		 * left and never equalled itself across two machines. That is the
+		 * inconsistency, and it is why `.episode-menu` carries an override to
+		 * symmetric padding while every other pane does not.
+		 *
+		 * `both-edges` reserves the same gutter on the leading side, so the two
+		 * insets match whether a scrollbar is showing or not. */
+		padding: 8px;
 		transition: all 0.3s ease;
 		width: 100%;
 		max-height: 50vh;
 		max-height: 50dvh;
 		scrollbar-width: thin;
 		scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-		scrollbar-gutter: stable;
+		scrollbar-gutter: stable both-edges;
 	}
 
 	/* ── Playlist sub-menu (two-pane, mirrors v1's createEpisodeMenu) ──────
@@ -1164,7 +1185,10 @@
 			display: flex;
 			flex-direction: column;
 			gap: 6px;
-			padding: 8px 6px;
+			/* Inherited, not restated. This pane carried its own symmetric
+			 * padding because the base rule had none on the right — so one pane
+			 * looked correct and every other one did not. The base is symmetric
+			 * now and a second number here would be the drift starting again. */
 		}
 
 		.playlist-menu-button {
