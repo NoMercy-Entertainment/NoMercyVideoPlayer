@@ -25,6 +25,7 @@ import {
 	sizeAbrCeiling,
 	supportsNativeHls,
 } from '@nomercy-entertainment/nomercy-player-core';
+import { SOURCE_OUTAGE_BACKOFF_MS, sourceOutageRetryLimit } from './source-outage';
 
 interface HlsLevel {
 	attrs?: { 'CODECS'?: string; 'VIDEO-RANGE'?: string };
@@ -180,6 +181,23 @@ export class Html5VideoBackend
 	private _mediaRecoveryStartMs = 0;
 	/** Timer handle for exponential back-off retries. Cleared on unload/dispose. */
 	private _retryTimer: ReturnType<typeof setTimeout> | undefined;
+	/**
+	 * Whether this outage already failed below the HTTP layer, which is what
+	 * tells a restarting server's 404 apart from a video that is genuinely gone.
+	 */
+	private _sawConnectionFailure = false;
+	/**
+	 * True while the ladder is riding out a source the server stopped serving.
+	 *
+	 * The backend is the first thing a consumer has that learns the origin is
+	 * gone: it asks for bytes constantly, while a realtime socket through the
+	 * same tunnel can stay up long after the server behind it died. An app
+	 * watches this to raise its own server-offline screen on the player's
+	 * evidence rather than waiting for a socket that may never drop.
+	 */
+	private _recoveringFromOutage = false;
+	/** Retries the moment the device has a route again, rather than waiting out a rung. */
+	private _onlineHandler: (() => void) | undefined;
 
 	// ── Web Audio graph ──────────────────────────────────────────────────────
 	private _sourceNode?: MediaElementAudioSourceNode;
@@ -980,6 +998,93 @@ export class Html5VideoBackend
 		}
 		this._netRetryCount = 0;
 		this._mediaRecoveryStartMs = 0;
+		this._sawConnectionFailure = false;
+		this._recoveringFromOutage = false;
+		if (this._onlineHandler !== undefined) {
+			globalThis.removeEventListener?.('online', this._onlineHandler);
+			this._onlineHandler = undefined;
+		}
+	}
+
+	/**
+	 * True while the ladder is riding out a source the server stopped serving —
+	 * see `_recoveringFromOutage`. A consumer probes server reachability on this
+	 * so its own offline screen rises from the evidence that arrives first.
+	 */
+	get isRecoveringFromOutage(): boolean {
+		return this._recoveringFromOutage;
+	}
+
+	/**
+	 * A server that went away is an outage to ride out, not a dead file.
+	 *
+	 * Escalating after three tries over seven seconds is what made a host
+	 * restart read to a viewer as a broken film: the ladder was spent before
+	 * the server had finished booting. The budget now matches how long a real
+	 * restart takes, and how many rungs a failure earns depends on what it was
+	 * — an origin-down status or a refused connection gets all of them, a cold
+	 * 4xx gets five, because a URL that is genuinely gone answers the same way
+	 * every time and a viewer should be told so rather than shown a spinner.
+	 */
+	private _rideOutNetworkError(data: { details: string; response?: { code?: number } }): void {
+		const httpStatus = data.response?.code ?? 0;
+		if (httpStatus === 0)
+			this._sawConnectionFailure = true;
+
+		const limit = sourceOutageRetryLimit(httpStatus, this._sawConnectionFailure);
+		if (this._netRetryCount >= limit) {
+			// The ladder is spent, but a device that gets a route back later
+			// still deserves its session rather than a dead error overlay.
+			this._watchForConnectivityReturn();
+			this._recoveringFromOutage = false;
+			this._escalateHlsError(data.details, `HLS network error after ${limit} retries: ${data.details}`);
+			return;
+		}
+
+		// An outage on THIS device's side is not evidence that the server is
+		// gone, so it must not spend the budget — a two-minute Wi-Fi drop would
+		// burn the whole ladder without a single attempt ever having a route to
+		// try. Hold at the current rung and let the `online` event take over.
+		const deviceOffline = globalThis.navigator?.onLine === false;
+		const attempt = this._netRetryCount;
+		if (!deviceOffline)
+			this._netRetryCount = attempt + 1;
+		this._watchForConnectivityReturn();
+
+		this._recoveringFromOutage = true;
+		this.emit('stream:recovering', { details: data.details, attempt: attempt + 1, maxAttempts: limit });
+		this._retryTimer = setTimeout(() => {
+			this._retryTimer = undefined;
+			if (!this.hls)
+				return;
+			try { this.hls.startLoad(); }
+			catch { this._escalateHlsError(data.details, `HLS startLoad failed: ${data.details}`); }
+		}, SOURCE_OUTAGE_BACKOFF_MS[attempt]);
+	}
+
+	/**
+	 * Retries the moment the device has a route again, so an outage longer than
+	 * the ladder still ends in playback. Without it a Wi-Fi drop that outlasts
+	 * the budget leaves the session unrecoverable until the viewer reloads.
+	 */
+	private _watchForConnectivityReturn(): void {
+		if (this._onlineHandler !== undefined)
+			return;
+
+		this._onlineHandler = () => {
+			// A fresh outage deserves the whole ladder: the attempts spent
+			// waiting for the network to come back say nothing about whether
+			// the server answers now.
+			this._netRetryCount = 0;
+			this._sawConnectionFailure = false;
+			if (this._retryTimer !== undefined) {
+				clearTimeout(this._retryTimer);
+				this._retryTimer = undefined;
+			}
+			try { this.hls?.startLoad(); }
+			catch { /* the ladder's next failure reports it; a throw here is not the viewer's problem */ }
+		};
+		globalThis.addEventListener?.('online', this._onlineHandler);
 	}
 
 	/**
@@ -1007,8 +1112,8 @@ export class Html5VideoBackend
 	 *
 	 * Decision tree per hls.js error semantics:
 	 * - Non-fatal → emit `stream:error` with `fatal: false`, no escalation.
-	 * - Fatal NETWORK → retry `hls.startLoad()` up to 3× with exponential
-	 *   back-off (1 s, 2 s, 4 s). If exhausted, escalate.
+	 * - Fatal NETWORK → ride the outage out on `SOURCE_OUTAGE_BACKOFF_MS`,
+	 *   for as many rungs as the failure earns. If exhausted, escalate.
 	 * - Fatal MEDIA → call `hls.recoverMediaError()`. If a second media
 	 *   error fires within 5 s, escalate.
 	 * - Fatal MUX / other → destroy + reload via `load()`. If that fails, escalate.
@@ -1019,13 +1124,12 @@ export class Html5VideoBackend
 	private _attachHlsErrorHandler(Hls: HlsConstructor, url: string): void {
 		if (!this.hls)
 			return;
-		const MAX_NET_RETRIES = 3;
-
 		this.hls.on(Hls.Events.ERROR, (_e: unknown, data: {
 			fatal: boolean;
 			type: string;
 			details: string;
 			error?: Error;
+			response?: { code?: number };
 		}) => {
 			if (!data.fatal) {
 				if (data.details === 'bufferIncompatibleCodecsError') {
@@ -1046,20 +1150,7 @@ export class Html5VideoBackend
 			}
 
 			if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-				if (this._netRetryCount >= MAX_NET_RETRIES) {
-					this._escalateHlsError(data.details, `HLS network error after ${MAX_NET_RETRIES} retries: ${data.details}`);
-					return;
-				}
-				this._netRetryCount++;
-				const delayMs = 1_000 * (2 ** (this._netRetryCount - 1)); // 1s, 2s, 4s
-				this.emit('stream:recovering', { details: data.details, attempt: this._netRetryCount, maxAttempts: MAX_NET_RETRIES });
-				this._retryTimer = setTimeout(() => {
-					this._retryTimer = undefined;
-					if (!this.hls)
-						return;
-					try { this.hls.startLoad(); }
-					catch { this._escalateHlsError(data.details, `HLS startLoad failed: ${data.details}`); }
-				}, delayMs);
+				this._rideOutNetworkError(data);
 			}
 			else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
 				const now = Date.now();

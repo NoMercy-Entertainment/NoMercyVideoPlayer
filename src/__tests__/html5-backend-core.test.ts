@@ -25,6 +25,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Html5VideoBackend } from '../adapters/video-backend/html5';
+import { HTTP_STATUS_RETRY_LIMIT, SOURCE_OUTAGE_BACKOFF_MS } from '../adapters/video-backend/source-outage';
 
 // ---------------------------------------------------------------------------
 // hls.js mock — defined INSIDE vi.mock factory (hoisted to top of file).
@@ -1212,21 +1213,72 @@ describe('HLS error recovery', () => {
 		vi.useRealTimers();
 	});
 
-	it('escalates after MAX_NET_RETRIES exhausted', async () => {
+	it('rides a refused connection out for the whole ladder before escalating', async () => {
 		const hls = await loadHls();
 		vi.useFakeTimers();
 		const errors: unknown[] = [];
 		backend.on('error', event => errors.push(event));
 
-		for (let attempt = 0; attempt < 4; attempt++) {
+		// A failure carrying no response is a refused connection, which is a
+		// server that is not there rather than a file that is not there.
+		for (let attempt = 0; attempt < SOURCE_OUTAGE_BACKOFF_MS.length; attempt++) {
+			hls.fire('hlsError', { fatal: true, type: 'networkError', details: 'manifestLoadError' });
+			await vi.runAllTimersAsync();
+			expect(errors).toHaveLength(0);
+			expect(backend.isRecoveringFromOutage).toBe(true);
+		}
+
+		hls.fire('hlsError', { fatal: true, type: 'networkError', details: 'manifestLoadError' });
+		await vi.runAllTimersAsync();
+
+		expect(errors.length).toBeGreaterThan(0);
+		expect(backend.state()).toBe('error');
+		expect(backend.isRecoveringFromOutage).toBe(false);
+
+		vi.useRealTimers();
+	});
+
+	it('gives cloudflared 530 the full ladder, and a cold 404 only five rungs', async () => {
+		const hls = await loadHls();
+		vi.useFakeTimers();
+		const errors: unknown[] = [];
+		backend.on('error', event => errors.push(event));
+
+		// A tunnel whose origin is restarting never refuses the connection; the
+		// edge answers 530. Five rungs in, that is still an outage to ride out.
+		for (let attempt = 0; attempt < HTTP_STATUS_RETRY_LIMIT + 1; attempt++) {
 			hls.fire('hlsError', {
 				fatal: true,
 				type: 'networkError',
-				details: 'manifestLoadError',
+				details: 'fragLoadError',
+				response: { code: 530 },
+			});
+			await vi.runAllTimersAsync();
+		}
+		expect(errors).toHaveLength(0);
+
+		hls.fire('hlsFragLoaded', {});
+		vi.useRealTimers();
+	});
+
+	it('fails fast on a 404 that no connection failure preceded', async () => {
+		const hls = await loadHls();
+		vi.useFakeTimers();
+		const errors: unknown[] = [];
+		backend.on('error', event => errors.push(event));
+
+		for (let attempt = 0; attempt < HTTP_STATUS_RETRY_LIMIT + 1; attempt++) {
+			hls.fire('hlsError', {
+				fatal: true,
+				type: 'networkError',
+				details: 'fragLoadError',
+				response: { code: 404 },
 			});
 			await vi.runAllTimersAsync();
 		}
 
+		// A URL that is genuinely gone answers the same way every time, and a
+		// viewer should be told so rather than shown a spinner for 105 seconds.
 		expect(errors.length).toBeGreaterThan(0);
 		expect(backend.state()).toBe('error');
 
