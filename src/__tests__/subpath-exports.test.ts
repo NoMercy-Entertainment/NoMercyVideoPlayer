@@ -55,6 +55,7 @@ import * as nativeStreamModule from '../streams/native';
 const EXPECTED_EXPORT_KEYS = [
 	'.',
 	'./plugins',
+	'./adapters',
 	'./plugins/cast-sender',
 	'./plugins/desktop-ui',
 	'./plugins/drm',
@@ -76,7 +77,7 @@ describe('subpath-exports', () => {
 			readFileSync(resolve(process.cwd(), 'package.json'), 'utf8'),
 		) as { exports: Record<string, unknown> };
 
-		it('contains exactly the 15 documented export keys', () => {
+		it('contains exactly the 16 documented export keys', () => {
 			expect(Object.keys(packageJson.exports)).toEqual(EXPECTED_EXPORT_KEYS);
 		});
 

@@ -51,6 +51,10 @@
 			"types": "./dist/plugins/index.d.ts",
 			"import": "./dist/plugins/index.js"
 		},
+		"./adapters": {
+			"types": "./dist/adapters/index.d.ts",
+			"import": "./dist/adapters/index.js"
+		},
 		"./plugins/cast-sender": {
 			"types": "./dist/plugins/cast-sender/index.d.ts",
 			"import": "./dist/plugins/cast-sender/index.js"

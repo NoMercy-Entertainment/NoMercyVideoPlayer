@@ -176,7 +176,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	extends EventEmitter<VideoEventMap<T>>
 	implements IPlayer<VideoEventMap<T>>, IVideoPlayer<T> {
 	playerId: string = '';
-	container: HTMLElement = <HTMLElement>{};
+	container!: HTMLElement;
 	videoElement: HTMLVideoElement | undefined;
 
 	get id(): string {
@@ -908,22 +908,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 		this.subtitle(next === -1 ? null : next);
 	}
 
-	cycleAudioTracks(): void {
-		let list: AudioTrack[] = [];
-		try { list = this.audioTracks(); }
-		catch { /* tracks API not implemented yet — treat as empty */ }
-		if (!list || list.length === 0)
-			return;
-		let current = -1;
-		try {
-			const sel = this.audioTrack();
-			if (sel != null && typeof sel.index === 'number' && sel.index >= 0)
-				current = sel.index;
-		}
-		catch { /* state unavailable — start from 0 */ }
-		const next = current >= list.length - 1 ? 0 : current + 1;
-		this.audioTrack(next);
-	}
+	// cycleAudioTracks — composed in via `mediaTracksMethods` mixin (core, shared with music).
 
 	private _aspectRatio: Stretching = 'uniform';
 
@@ -1128,6 +1113,9 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 		(): CurrentAudioTrackSelection | null;
 		(idx: number): Promise<void>;
 	};
+
+	/** Composed in via `mediaTracksMethods` — see that mixin for the full contract. */
+	declare cycleAudioTracks: () => void;
 
 	declare qualityLevels: {
 		(): QualityLevel[];
