@@ -1,0 +1,114 @@
+name: Retract Release
+
+# npm has no unpublish worth using: after 72 hours it is refused, and before
+# then it breaks every lockfile that already resolved the version. Retraction
+# here means deprecating the bad version and moving the dist-tag back, so
+# `npm install <pkg>` stops resolving to it while pinned consumers keep working.
+#
+# Publishing runs on OIDC trusted publishing, which does NOT cover deprecate or
+# dist-tag. This workflow needs an NPM_TOKEN secret with publish rights.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version being retracted (e.g. 2.0.1)'
+        required: true
+      rollback_to:
+        description: 'Known-good version to point the dist-tag at (e.g. 2.0.0)'
+        required: true
+      dist_tag:
+        description: 'dist-tag to move back'
+        default: latest
+      reason:
+        description: 'Deprecation message shown on every install'
+        required: true
+      dry_run:
+        description: 'Report what would change without touching anything'
+        type: boolean
+        default: true
+
+concurrency:
+  group: retract-release
+  cancel-in-progress: false
+
+jobs:
+  retract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      VERSION: ${{ inputs.version }}
+      ROLLBACK_TO: ${{ inputs.rollback_to }}
+      DIST_TAG: ${{ inputs.dist_tag }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Check token
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::NPM_TOKEN is not set. Publishing uses OIDC, which cannot deprecate or move a dist-tag — add NPM_TOKEN before this workflow can retract anything."
+            exit 1
+          fi
+          if [ "$VERSION" = "$ROLLBACK_TO" ]; then
+            echo "::error::rollback_to must differ from version"
+            exit 1
+          fi
+
+      - name: Resolve package and verify both versions exist
+        id: pkg
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          for v in "$VERSION" "$ROLLBACK_TO"; do
+            if ! npm view "${NAME}@${v}" version >/dev/null 2>&1; then
+              echo "::error::${NAME}@${v} is not published"
+              exit 1
+            fi
+          done
+
+      - name: Move the dist-tag back
+        run: |
+          NAME='${{ steps.pkg.outputs.name }}'
+          echo "${DIST_TAG}: $(npm view "${NAME}" "dist-tags.${DIST_TAG}") -> ${ROLLBACK_TO}"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "dry run: npm dist-tag add ${NAME}@${ROLLBACK_TO} ${DIST_TAG}"
+          else
+            npm dist-tag add "${NAME}@${ROLLBACK_TO}" "${DIST_TAG}"
+          fi
+
+      - name: Deprecate the retracted version
+        run: |
+          NAME='${{ steps.pkg.outputs.name }}'
+          MSG="RETRACTED: ${{ inputs.reason }} Use ${ROLLBACK_TO} instead."
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "dry run: npm deprecate ${NAME}@${VERSION} \"$MSG\""
+          else
+            npm deprecate "${NAME}@${VERSION}" "$MSG"
+          fi
+
+      - name: Mark the GitHub release as retracted
+        run: |
+          tag="v${VERSION}"
+          gh release view "$tag" >/dev/null 2>&1 || tag="${VERSION}"
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            echo "::warning::no GitHub release for ${VERSION} — skipping release notes update"
+            exit 0
+          fi
+          notice=$(printf '> [!CAUTION]\n> **RETRACTED.** %s\n>\n> `%s` now points at %s.\n\n' \
+            "${{ inputs.reason }}" "$DIST_TAG" "$ROLLBACK_TO")
+          body=$(gh release view "$tag" --json body --jq .body)
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "dry run: would prepend"
+            echo "$notice"
+          else
+            printf '%s%s' "$notice" "$body" > /tmp/body.md
+            gh release edit "$tag" --prerelease --notes-file /tmp/body.md
+          fi
