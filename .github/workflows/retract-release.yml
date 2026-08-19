@@ -12,19 +12,19 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version being retracted (e.g. 2.0.1)'
+        description: Version being retracted (e.g. 2.0.1)
         required: true
       rollback_to:
-        description: 'Known-good version to point the dist-tag at (e.g. 2.0.0)'
+        description: Known-good version to point the dist-tag at (e.g. 2.0.0)
         required: true
       dist_tag:
-        description: 'dist-tag to move back'
+        description: dist-tag to move back
         default: latest
       reason:
-        description: 'Deprecation message shown on every install'
+        description: Deprecation message shown on every install
         required: true
       dry_run:
-        description: 'Report what would change without touching anything'
+        description: Report what would change without touching anything
         type: boolean
         default: true
 

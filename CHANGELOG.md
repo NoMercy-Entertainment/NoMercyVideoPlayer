@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [2.1.0] — 2026-08-20
+
+### Added
+
+- Re-exports `volumeMemoryPlugin` / `VolumeMemoryPlugin` from `@nomercy-entertainment/nomercy-player-core@2.1.0`, alongside the rest of the kit's audio-graph plugins.
+- New `./adapters` subpath export.
+
+### Fixed
+
+- A server that went away is now ridden out as an outage rather than treated as a dead file.
+
+### Changed
+
+- Built against `@nomercy-entertainment/nomercy-player-core@2.1.0`.
+
 ## [2.0.3] — 2026-07-31
 
 ### Fixed
