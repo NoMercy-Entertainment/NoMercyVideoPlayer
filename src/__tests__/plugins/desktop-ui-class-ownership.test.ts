@@ -193,7 +193,10 @@ describe('DesktopUiPlugin — buffering container class ownership (core-only)', 
 	});
 
 	it('the plugin shows its own load spinner while the container stays clean', async () => {
-		const player = new NMVideoPlayer('test').setup({});
+		// The spinner only shows for a real load in progress (see
+		// feedbackMethods.ts) — queue media before the plugin mounts so this
+		// test still exercises "loading" state, not the idle-mount case.
+		const player = new NMVideoPlayer('test').setup({ playlist: [{ id: 'big-buck-bunny' } as never] });
 		await player.addPlugin(desktopUiPlugin).ready();
 
 		const center = player.container.querySelector('.center')!;

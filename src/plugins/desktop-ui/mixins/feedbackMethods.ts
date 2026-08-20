@@ -33,8 +33,14 @@ export const feedbackMethods = {
 				this.hideMessage();
 		};
 
-		// Initial load — the player is mounting media right now.
-		showBuffer('message.loading');
+		// Initial load — only true if the player actually has something queued.
+		// A player can now legitimately mount with nothing queued (a disc-menu
+		// idle state, playSegment's menu window) — assuming a load is always
+		// underway at mount left "Loading…" stuck on screen forever for that
+		// case, since no `item`/`canplay`/`waiting` event was ever coming to
+		// clear it.
+		if (this.player.queueLength() > 0)
+			showBuffer('message.loading');
 
 		this.on('waiting', () => showBuffer('message.buffering'));
 		this.on('stalled', () => showBuffer('message.buffering'));

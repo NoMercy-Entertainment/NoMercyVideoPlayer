@@ -42,6 +42,19 @@ async function makePlayer(opts: Record<string, unknown> = {}): Promise<NMVideoPl
 	return player;
 }
 
+/**
+ * `makePlayer` mounts with an empty queue, so the "loading" feedback never
+ * shows at mount (a player can now legitimately be idle — see
+ * feedbackMethods.ts). Tests that specifically need media loaded at mount
+ * (a real "loading in progress" scenario) queue it in `setup()`, before the
+ * plugin mounts and the initial feedback check runs.
+ */
+async function makePlayerWithMedia(opts: Record<string, unknown> = {}): Promise<NMVideoPlayer> {
+	const player = new NMVideoPlayer('test').setup({ playlist: [{ id: 'big-buck-bunny' } as never] });
+	await player.addPlugin(desktopUiPlugin, { inactivityMs: 4000, ...opts }).ready();
+	return player;
+}
+
 describe('DesktopUiPlugin — playback feedback', () => {
 	beforeEach(() => {
 		(NMVideoPlayer as unknown as { _resetRegistry: () => void })._resetRegistry();
@@ -175,7 +188,7 @@ describe('DesktopUiPlugin — playback feedback', () => {
 		// -9:56 already on the scrubber and readyState 4, still showing
 		// "Loading…". `playing` and `time` were the only clear signals, and a
 		// player that becomes ready without being started emits neither.
-		const player = await makePlayer();
+		const player = await makePlayerWithMedia();
 		const container = player.container;
 
 		const msgEl = container.querySelector('.player-message')!;
@@ -187,7 +200,7 @@ describe('DesktopUiPlugin — playback feedback', () => {
 	});
 
 	it('canplay stops the spinner without waiting for playback to start', async () => {
-		const player = await makePlayer();
+		const player = await makePlayerWithMedia();
 		const center = player.container.querySelector('.center')!;
 
 		expect(center.classList.contains('busy')).toBe(true);
