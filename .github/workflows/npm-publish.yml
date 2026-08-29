@@ -7,7 +7,10 @@ on:
 
 jobs:
   publish-npm:
-    runs-on: [self-hosted, Linux, X64, beast-unit]
+    # npm refuses a provenance attestation from a self-hosted runner, so this
+    # job stays GitHub-hosted. Dropping --provenance would publish the same
+    # bytes with no verifiable link back to the commit that built them.
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -53,10 +56,7 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.version-check.outputs.skip != 'true'
-        # No --with-deps: this is a long-lived self-hosted runner, so the
-        # browser's system libraries belong to its image. Running apt on every
-        # release is what let a wedged dpkg state block publishing entirely.
-        run: npx playwright install chromium
+        run: npx playwright install --with-deps chromium
 
       - name: E2E tests
         if: steps.version-check.outputs.skip != 'true'
