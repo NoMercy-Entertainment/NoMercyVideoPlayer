@@ -53,7 +53,10 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.version-check.outputs.skip != 'true'
-        run: npx playwright install --with-deps chromium
+        # No --with-deps: this is a long-lived self-hosted runner, so the
+        # browser's system libraries belong to its image. Running apt on every
+        # release is what let a wedged dpkg state block publishing entirely.
+        run: npx playwright install chromium
 
       - name: E2E tests
         if: steps.version-check.outputs.skip != 'true'
