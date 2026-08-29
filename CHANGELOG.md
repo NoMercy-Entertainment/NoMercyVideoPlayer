@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [2.1.2] — 2026-08-29
+
+### Fixed
+
+- ASS/SSA subtitles rendered in the wrong face. The libass font map was keyed by the attachment's filename, so a release whose attachments are not named after their family resolved nothing and every line fell back to an arbitrary attached font. Keys now come from the font's own name table.
+- The chosen audio and subtitle language is remembered and re-applied on every item, instead of the player trusting a track index and the playlist's `DEFAULT` flag — both of which differ per file, so a picked language was lost on the next episode.
+- A selected track index left over from the previous item no longer ticks in the menu while the stream plays a different track.
+
 ## [2.1.0] — 2026-08-20
 
 ### Added
