@@ -11,6 +11,7 @@ import type { OctopusOptions as NMOctopusOptions } from '@nomercy-entertainment/
 import type { NMVideoPlayer } from '../../index';
 import type { VideoPlaylistItem } from '../../types';
 import { mergeConfig, Plugin } from '@nomercy-entertainment/nomercy-player-core';
+import { readFontFamilyNames } from './font-names';
 
 interface FontManifestEntry {
 	file: string;
@@ -345,8 +346,12 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 
 	/**
 	 * Fetch each font URL as an ArrayBuffer, create a blob URL, and return a
-	 * libass name→blobUrl map. Font name is derived from the file path basename
-	 * minus extension, lowercased — as libass expects.
+	 * libass name→blobUrl map.
+	 *
+	 * The worker looks each ASS `Fontname` up in this map, so the keys must be
+	 * the names the font declares internally — not its filename. Every name the
+	 * font answers to is registered, with the basename kept as an alias for the
+	 * rare release whose attachments are named after the family.
 	 */
 	private async buildFontMap(urls: string[]): Promise<Record<string, string>> {
 		const entries = await Promise.allSettled(
@@ -355,16 +360,20 @@ export class OctopusPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> exte
 				const blob = new Blob([buffer]);
 				const blobUrl = URL.createObjectURL(blob);
 				this.ownedBlobs.push(blobUrl);
-				const name = this.fontNameFromUrl(fontUrl);
-				return [name, blobUrl] as [string, string];
+				const names = [...readFontFamilyNames(buffer), this.fontNameFromUrl(fontUrl)];
+				return [names, blobUrl] as [string[], string];
 			}),
 		);
 
 		const map: Record<string, string> = {};
 		for (const result of entries) {
-			if (result.status === 'fulfilled') {
-				const [name, blobUrl] = result.value;
-				map[name] = blobUrl;
+			if (result.status !== 'fulfilled')
+				continue;
+			const [names, blobUrl] = result.value;
+			for (const name of names) {
+				// First font to claim a name keeps it — attachment order decides,
+				// matching how libass itself resolves a duplicate family.
+				map[name] ??= blobUrl;
 			}
 		}
 		return map;
