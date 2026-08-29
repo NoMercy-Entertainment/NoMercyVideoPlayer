@@ -65,6 +65,7 @@ import { readItemImage } from './player/itemImage';
 import { normalizeVideoPlaylistItem } from './player/normalize-item';
 import { VideoPreloadStrategy } from './player/preload';
 import { pickStartItem } from './player/start-selection';
+import { SUBTITLES_OFF, TrackLanguageMemory } from './player/track-language-memory';
 import { titleTokenTranslations } from './plugins/desktop-ui/i18n/token-bundle';
 import { containedRect, FullscreenState, PipState, SubtitleState, TheaterState } from './types';
 
@@ -413,6 +414,21 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 			this._emitVideoRect();
 		});
 
+		// Record the chosen LANGUAGE, not the index — an index means a different
+		// language on the next file. Fires for the viewer's own pick and for the
+		// selection _applyDefaultTracks restores, which write the same value.
+		this.on('audioTrack', ({ id }) => {
+			if (id === null)
+				return;
+			this.languageMemory.rememberAudio(this.audioTracks()[id]?.language);
+		});
+
+		this.on('subtitle', ({ track }) => {
+			this.languageMemory.rememberSubtitle(
+				track === null ? SUBTITLES_OFF : this.subtitles()[track]?.language,
+			);
+		});
+
 		// Re-emit videoRect on signals that change the displayed content rect.
 		this.on('duration', () => { this._emitVideoRect(); });
 		this.on('fullscreen', () => { this._emitVideoRect(); });
@@ -431,6 +447,17 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 			}
 			catch { /* backend may not be ready yet — ignore */ }
 		});
+	}
+
+	private _languageMemoryInstance: TrackLanguageMemory | undefined;
+
+	/**
+	 * Carries the viewer's chosen audio / subtitle language across items. Built
+	 * on first use — `options` is not assigned yet when fields initialise.
+	 */
+	private get languageMemory(): TrackLanguageMemory {
+		this._languageMemoryInstance ??= new TrackLanguageMemory(this.options?.storage);
+		return this._languageMemoryInstance;
 	}
 
 	private _wantedPoster: string | null = null;
@@ -505,8 +532,12 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	 * `'en-US'`). No match → leave selection at off; no warning emitted.
 	 */
 	private _applyDefaultTracks(): void {
-		const subtitleLang = this.options?.defaultSubtitleLanguage;
-		if (subtitleLang) {
+		const rememberedSubtitle = this.languageMemory.subtitleLanguage();
+		const subtitleLang = rememberedSubtitle ?? this.options?.defaultSubtitleLanguage;
+		if (subtitleLang === SUBTITLES_OFF) {
+			this.subtitle(-1);
+		}
+		else if (subtitleLang) {
 			let tracks: SubtitleTrack[] = [];
 			try { tracks = this.subtitles(); }
 			catch { /* not yet available */ }
@@ -516,15 +547,37 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 			}
 		}
 
-		const audioLang = this.options?.defaultAudioLanguage;
-		if (audioLang) {
-			let tracks: AudioTrack[] = [];
-			try { tracks = this.audioTracks(); }
-			catch { /* not yet available */ }
-			const matchIdx = _matchLanguage(tracks.map(audioTrack => audioTrack.language), audioLang);
-			if (matchIdx >= 0) {
+		const audioLang = this.languageMemory.audioLanguage() ?? this.options?.defaultAudioLanguage;
+		const selectedIdx = this.audioTrack()?.index ?? null;
+
+		// Nothing to honour and no selection that could have gone stale — leave
+		// the backend alone rather than reading its track list for no reason.
+		if (!audioLang && selectedIdx === null)
+			return;
+
+		let audioTracks: AudioTrack[] = [];
+		try { audioTracks = this.audioTracks(); }
+		catch { /* not yet available */ }
+		const matchIdx = audioLang
+			? _matchLanguage(audioTracks.map(audioTrack => audioTrack.language), audioLang)
+			: -1;
+
+		// With no language to honour, fall back to whichever rendition the stream
+		// marks default. The selected index survives an item change, so a stale
+		// one left alone ticks the previous item's track in the menu while the
+		// stream plays its own default.
+		const targetIdx = matchIdx >= 0
+			? matchIdx
+			: audioTracks.findIndex(audioTrack => audioTrack.default === true);
+
+		if (matchIdx >= 0) {
+			if (selectedIdx !== matchIdx)
 				this.audioTrack(matchIdx);
-			}
+		}
+		// Nothing to honour: only correct a selection that actually disagrees.
+		// Re-asserting the track already playing costs a switch for no change.
+		else if (targetIdx >= 0 && selectedIdx !== null && selectedIdx !== targetIdx) {
+			this.audioTrack(targetIdx);
 		}
 	}
 
