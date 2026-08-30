@@ -1105,8 +1105,8 @@
 	}
 
 	/* 29rem, not 36: the two panes' minimums together decided the frame's real
-	 * width, so the playlist pinned itself to the 52rem cap and its cards drew
-	 * a thumbnail wider than the poster art anywhere else in the player. */
+		* width, so the playlist pinned itself to the 52rem cap and its cards drew
+		* a thumbnail wider than the poster art anywhere else in the player. */
 	.episode-menu {
 		flex: 1;
 		width: 100%;
