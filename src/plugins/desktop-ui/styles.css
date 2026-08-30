@@ -1349,7 +1349,11 @@
 		gap: 4px;
 		pointer-events: none;
 		text-align: left;
-		width: 75%;
+		/* The remainder, not a second fixed share. 75% beside the thumbnail's
+		* 37.5% is 112.5% of the card, so the text pane hung over the right edge:/n		* the overview laid out at a width nobody could see, never reached a wrap
+		* point inside the card, and was cut mid-word on one line instead of
+		* filling the four it clamps at. The native chrome gives this pane
+		* `weight(1f)`, which is this and nothing else. */
 		flex: 1;
 		min-width: 0;
 	}

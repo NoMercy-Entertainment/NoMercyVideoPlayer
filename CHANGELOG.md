@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.5] — 2026-08-30
+
+### Fixed
+
+- An episode card's text hung over the right edge of the card. `.playlist-card-right` asked for 75% beside the thumbnail's 37.5%, which is 112.5% of the card, so the overview laid out at a width nobody could see: it never reached a wrap point inside the card and was cut mid-word on a single line instead of filling the four it clamps at. The pane takes the remainder now, which is what the native chrome's `weight(1f)` gives it.
+
 ## [2.1.4] — 2026-08-30
 
 ### Fixed
