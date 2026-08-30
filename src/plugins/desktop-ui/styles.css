@@ -1092,7 +1092,7 @@
 	.seasons-pane {
 		flex: 1;
 		width: 100%;
-		min-width: 16rem;
+		min-width: 13rem;
 		border-right: 2px solid rgba(107, 114, 128, 0.2);
 		display: flex;
 		flex-direction: column;
@@ -1104,10 +1104,13 @@
 		display: none;
 	}
 
+	/* 29rem, not 36: the two panes' minimums together decided the frame's real
+	 * width, so the playlist pinned itself to the 52rem cap and its cards drew
+	 * a thumbnail wider than the poster art anywhere else in the player. */
 	.episode-menu {
 		flex: 1;
 		width: 100%;
-		min-width: 36rem;
+		min-width: 29rem;
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
@@ -1254,8 +1257,9 @@
 		overflow: hidden;
 		border-radius: 6px;
 		align-self: center;
-		width: 37.5%;
-		flex: 0 0 37.5%;
+		width: 32%;
+		flex: 0 0 32%;
+		max-width: 176px;
 		aspect-ratio: 16 / 9;
 		background: rgba(255, 255, 255, 0.05);
 	}
