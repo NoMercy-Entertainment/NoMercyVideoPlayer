@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.3] — 2026-08-30
+
+### Fixed
+
+- The playlist menu opened at the frame's full width on every title. The seasons and episode panes each carried a minimum that together reached the 52rem cap, and a card's thumbnail is a percentage of that pane, so the episode art drew larger than any other image in the player. The content minimum is 42rem now and the thumbnail takes 32% up to 176px.
+
 ## [2.1.2] — 2026-08-29
 
 ### Fixed
