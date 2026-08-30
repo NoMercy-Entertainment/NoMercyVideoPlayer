@@ -1356,6 +1356,13 @@
 		* `weight(1f)`, which is this and nothing else. */
 		flex: 1;
 		min-width: 0;
+		/* Said here because the card is a <button>, and a host page is entitled
+		* to write `button, button > * { white-space: nowrap }` — app-web does.
+		* Inherited into this pane it beat the clamp below: the overview ran on
+		* one line to 1947px inside a 461px card and was cut mid-word. A
+		* component that clamps to four lines has to ask for the wrapping those
+		* four lines need. */
+		white-space: normal;
 	}
 
 	.playlist-menu-button-title {

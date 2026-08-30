@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.6] — 2026-08-30
+
+### Fixed
+
+- An episode card's overview ran on one line and was cut mid-word. The card is a `<button>`, and a host page is entitled to write `button, button > * { white-space: nowrap }`; app-web does, the card inherited it, and the four-line clamp had nothing to clamp. Measured on the live site: the text laid out to 1947px inside a 461px card. The card's text pane asks for `white-space: normal` now.
+
 ## [2.1.5] — 2026-08-30
 
 ### Fixed
