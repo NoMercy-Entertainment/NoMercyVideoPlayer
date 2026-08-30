@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.7] — 2026-08-30
+
+### Fixed
+
+- The playlist menu sat in the bottom 60% of the picture with dead space above it. `.menu-content` pushes a sub-menu down with `margin-top: auto` and the pane caps at 60vh, which is right for the short popovers that belong beside the control they came from and wrong for a full-height list. The playlist runs the height of the frame now, the way the native chrome draws it.
+
 ## [2.1.6] — 2026-08-30
 
 ### Fixed

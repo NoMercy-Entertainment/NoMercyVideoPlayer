@@ -820,6 +820,20 @@
 		max-width: min(52rem, 62%, calc(100% - 2rem));
 	}
 
+	/* A list fills the height it is given. The other sub-menus are short
+	* popovers that belong beside the control they came from, so `.menu-content`
+	* pushes them down with `margin-top: auto` and the pane caps at 60vh — on the
+	* playlist that put a full-height list in the bottom 60% of the picture with
+	* dead space above it. The native chrome runs the panel top to bottom. */
+	.menu-frame:has(.playlist-menu.is-open) .menu-content {
+		margin-top: 0;
+	}
+
+	.menu-frame:has(.playlist-menu.is-open) #playlist-menu.playlist-menu {
+		max-height: 100%;
+		height: 100%;
+	}
+
 	.menu-content {
 		display: flex;
 		flex-direction: row;
