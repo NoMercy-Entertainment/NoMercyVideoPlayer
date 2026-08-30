@@ -834,6 +834,13 @@
 		height: 100%;
 	}
 
+	/* Both rails are `.sub-menu-content`, which caps at 60dvh for the popover
+	* sub-menus. Left on, that cap decided the panel's height from the inside:
+	* the frame ran the full picture and the list still stopped 60% down. */
+	.menu-frame:has(.playlist-menu.is-open) .playlist-cols > .sub-menu-content {
+		max-height: none;
+	}
+
 	.menu-content {
 		display: flex;
 		flex-direction: row;

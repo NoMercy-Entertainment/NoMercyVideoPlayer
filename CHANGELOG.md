@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.8] — 2026-08-30
+
+### Fixed
+
+- The playlist list still stopped 60% down the picture after 2.1.7 opened the frame. Both rails are `.sub-menu-content`, which caps at 60dvh for the popover sub-menus, and that cap decided the panel's height from the inside. Lifted for the playlist only.
+
 ## [2.1.7] — 2026-08-30
 
 ### Fixed
