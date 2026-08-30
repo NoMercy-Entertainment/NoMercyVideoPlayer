@@ -811,6 +811,15 @@
 		display: flex;
 	}
 
+	/* The playlist is the one menu wide enough to swallow the picture. Capped
+	* against the player as well as in rem so it stays a panel beside the video
+	* at any window size, which is what the native chrome draws. The other
+	* sub-menus are `width: min-content` and narrower than this already. */
+	.menu-frame:has(.playlist-menu.is-open) {
+		width: min(52rem, 62%, calc(100% - 2rem));
+		max-width: min(52rem, 62%, calc(100% - 2rem));
+	}
+
 	.menu-content {
 		display: flex;
 		flex-direction: row;
@@ -1090,9 +1099,9 @@
 	}
 
 	.seasons-pane {
-		flex: 1;
+		flex: 1 1 16rem;
 		width: 100%;
-		min-width: 13rem;
+		min-width: 0;
 		border-right: 2px solid rgba(107, 114, 128, 0.2);
 		display: flex;
 		flex-direction: column;
@@ -1104,13 +1113,15 @@
 		display: none;
 	}
 
-	/* 29rem, not 36: the two panes' minimums together decided the frame's real
-		* width, so the playlist pinned itself to the 52rem cap and its cards drew
-		* a thumbnail wider than the poster art anywhere else in the player. */
+	/* A basis, not a floor. A flex child's `min-width` outranks the frame's
+		* `max-width`, so 16rem + 36rem of unshrinkable minimums pushed the menu
+		* PAST its own cap: the card's text pane ran off the right edge and its
+		* overview was cut mid-word instead of wrapping to the four lines it
+		* clamps at. Same two numbers, now the share each rail asks for. */
 	.episode-menu {
-		flex: 1;
+		flex: 1 1 36rem;
 		width: 100%;
-		min-width: 29rem;
+		min-width: 0;
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
@@ -1164,6 +1175,7 @@
 
 		.seasons-pane {
 			min-width: 0;
+			flex-basis: auto;
 			border-right: none;
 			border-bottom: 2px solid rgba(107, 114, 128, 0.2);
 			min-height: 0;
@@ -1257,9 +1269,8 @@
 		overflow: hidden;
 		border-radius: 6px;
 		align-self: center;
-		width: 32%;
-		flex: 0 0 32%;
-		max-width: 176px;
+		width: 37.5%;
+		flex: 0 0 37.5%;
 		aspect-ratio: 16 / 9;
 		background: rgba(255, 255, 255, 0.05);
 	}

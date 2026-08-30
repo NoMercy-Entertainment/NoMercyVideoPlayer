@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [2.1.4] — 2026-08-30
+
+### Fixed
+
+- The playlist menu covered the picture and cut its own text. A flex child's `min-width` outranks the frame's `max-width`, so the two rails' 16rem and 36rem minimums pushed the menu past its cap: at a narrower window it reached 96% of the player and each card's overview ran off the right edge mid-word instead of wrapping. The rails ask for those widths as a basis now, and the playlist caps against the player as well as in rem, so it sits at 62% beside the video the way the native chrome draws it.
+- The card thumbnail is back to the 37.5% share the rest of the trio uses. 2.1.3 narrowed it to 32%, which treated the symptom rather than the frame.
+
 ## [2.1.3] — 2026-08-30
 
 ### Fixed
