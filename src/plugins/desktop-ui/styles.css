@@ -77,7 +77,9 @@
 		gap: 0.5rem;
 		align-items: flex-end;
 		text-align: right;
-		max-width: 60%;
+		/* 75, not 60: a show name reached the ellipsis after four words while a
+		* third of the bar sat empty beside it. The buttons keep the quarter. */
+		max-width: 75%;
 	}
 
 	.show-info {

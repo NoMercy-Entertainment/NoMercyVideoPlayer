@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.9] — 2026-08-31
+
+### Changed
+
+- The top bar's title and episode line take 75% of the width instead of 60%. A show name reached the ellipsis after four words while a third of the bar sat empty beside it; the buttons keep the quarter they need.
+
 ## [2.1.8] — 2026-08-30
 
 ### Fixed
