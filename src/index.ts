@@ -48,6 +48,7 @@ import type {
 	VisibilityState,
 } from '@nomercy-entertainment/nomercy-player-core';
 import type { BackendEventPayload, IVideoBackend, VideoBackendKind } from './adapters/video-backend/IVideoBackend';
+import type { SubtitleChoice } from './player/track-language-memory';
 import type { AudioTrackState, IVideoPlayer, PlayState, QualityState, RepeatState, SegmentBoundaryPayload, SegmentOptions, ShuffleState, Stretching, VideoEventMap, VideoPlayerConfig, VideoPlaylistItem, VideoRect, VolumeState } from './types';
 import {
 	bridgeBackendPlayState,
@@ -65,7 +66,6 @@ import { readItemImage } from './player/itemImage';
 import { normalizeVideoPlaylistItem } from './player/normalize-item';
 import { VideoPreloadStrategy } from './player/preload';
 import { pickStartItem } from './player/start-selection';
-import type { SubtitleChoice, SubtitleDescriptor } from './player/track-language-memory';
 import { matchSubtitleTrack, SUBTITLES_OFF, TrackLanguageMemory } from './player/track-language-memory';
 import { titleTokenTranslations } from './plugins/desktop-ui/i18n/token-bundle';
 import { containedRect, FullscreenState, PipState, SubtitleState, TheaterState } from './types';
@@ -158,7 +158,6 @@ function _matchLanguage(candidates: Array<string | undefined>, target: string): 
 	}
 	return prefixMatch;
 }
-
 
 /**
  * Headless video player. Plugin-driven, event-driven, no UI in core.
