@@ -65,7 +65,8 @@ import { readItemImage } from './player/itemImage';
 import { normalizeVideoPlaylistItem } from './player/normalize-item';
 import { VideoPreloadStrategy } from './player/preload';
 import { pickStartItem } from './player/start-selection';
-import { SUBTITLES_OFF, TrackLanguageMemory } from './player/track-language-memory';
+import type { SubtitleChoice, SubtitleDescriptor } from './player/track-language-memory';
+import { matchSubtitleTrack, SUBTITLES_OFF, TrackLanguageMemory } from './player/track-language-memory';
 import { titleTokenTranslations } from './plugins/desktop-ui/i18n/token-bundle';
 import { containedRect, FullscreenState, PipState, SubtitleState, TheaterState } from './types';
 
@@ -157,6 +158,7 @@ function _matchLanguage(candidates: Array<string | undefined>, target: string): 
 	}
 	return prefixMatch;
 }
+
 
 /**
  * Headless video player. Plugin-driven, event-driven, no UI in core.
@@ -425,7 +427,7 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 
 		this.on('subtitle', ({ track }) => {
 			this.languageMemory.rememberSubtitle(
-				track === null ? SUBTITLES_OFF : this.subtitles()[track]?.language,
+				track === null ? SUBTITLES_OFF : this.subtitles()[track],
 			);
 		});
 
@@ -532,16 +534,19 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	 * `'en-US'`). No match → leave selection at off; no warning emitted.
 	 */
 	private _applyDefaultTracks(): void {
-		const rememberedSubtitle = this.languageMemory.subtitleLanguage();
-		const subtitleLang = rememberedSubtitle ?? this.options?.defaultSubtitleLanguage;
-		if (subtitleLang === SUBTITLES_OFF) {
+		const remembered = this.languageMemory.subtitleChoice();
+		const wanted: SubtitleChoice | undefined = remembered
+			?? (this.options?.defaultSubtitleLanguage
+				? { language: this.options.defaultSubtitleLanguage }
+				: undefined);
+		if (wanted === SUBTITLES_OFF) {
 			this.subtitle(-1);
 		}
-		else if (subtitleLang) {
+		else if (wanted) {
 			let tracks: SubtitleTrack[] = [];
 			try { tracks = this.subtitles(); }
 			catch { /* not yet available */ }
-			const matchIdx = _matchLanguage(tracks.map(subtitleTrack => subtitleTrack.language), subtitleLang);
+			const matchIdx = matchSubtitleTrack(tracks, wanted, _matchLanguage);
 			if (matchIdx >= 0) {
 				this.subtitle(matchIdx);
 			}

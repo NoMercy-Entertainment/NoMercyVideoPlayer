@@ -6,9 +6,9 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
-import type { IStorage } from '@nomercy-entertainment/nomercy-player-core';
+import type { IStorage, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 import { describe, expect, it } from 'vitest';
-import { SUBTITLES_OFF, TrackLanguageMemory } from '../player/track-language-memory';
+import { matchSubtitleTrack, SUBTITLES_OFF, TrackLanguageMemory } from '../player/track-language-memory';
 
 function fakeStorage(seed: Record<string, string> = {}): IStorage {
 	const store = new Map(Object.entries(seed));
@@ -19,6 +19,14 @@ function fakeStorage(seed: Record<string, string> = {}): IStorage {
 		clear: () => { store.clear(); },
 	} as unknown as IStorage;
 }
+
+const sdh: SubtitleTrack = {
+	id: 's1',
+	language: 'eng',
+	label: 'English (SDH)',
+	type: 'sdh',
+	url: 'https://media.example.test/show/s01e01/subtitles/s01e01.eng.sdh.ass',
+};
 
 describe('trackLanguageMemory', () => {
 	it('carries the chosen audio language to the next item', () => {
@@ -43,7 +51,7 @@ describe('trackLanguageMemory', () => {
 		const memory = new TrackLanguageMemory();
 		memory.rememberSubtitle(SUBTITLES_OFF);
 
-		expect(memory.subtitleLanguage()).toBe(SUBTITLES_OFF);
+		expect(memory.subtitleChoice()).toBe(SUBTITLES_OFF);
 	});
 
 	it('ignores a track that reports no language rather than clearing the choice', () => {
@@ -52,6 +60,29 @@ describe('trackLanguageMemory', () => {
 		memory.rememberAudio(undefined);
 
 		expect(memory.audioLanguage()).toBe('jpn');
+	});
+
+	it('remembers the variant and the format, not the language alone', () => {
+		// English SDH and plain English carry the same tag, and an .ass carries
+		// the show's own styling where the .vtt of the same line does not.
+		const memory = new TrackLanguageMemory();
+		memory.rememberSubtitle(sdh);
+
+		expect(memory.subtitleChoice()).toEqual({ language: 'eng', type: 'sdh', format: 'ass' });
+	});
+
+	it('reads a bare language written by an older build as a choice', () => {
+		const storage = fakeStorage({ 'nmplayer-language-subtitle': 'eng' });
+
+		expect(new TrackLanguageMemory(storage).subtitleChoice()).toEqual({ language: 'eng' });
+	});
+
+	it('carries the whole caption choice across sessions', () => {
+		const storage = fakeStorage();
+		new TrackLanguageMemory(storage).rememberSubtitle(sdh);
+
+		expect(new TrackLanguageMemory(storage).subtitleChoice())
+			.toEqual({ language: 'eng', type: 'sdh', format: 'ass' });
 	});
 
 	it('survives a storage backend that throws on every access', () => {
@@ -64,5 +95,49 @@ describe('trackLanguageMemory', () => {
 		memory.rememberAudio('jpn');
 
 		expect(memory.audioLanguage()).toBe('jpn');
+	});
+});
+
+// The player's own language step, mirrored: exact tag, then either prefix.
+function matchLanguage(languages: Array<string | undefined>, wanted: string): number {
+	const exact = languages.indexOf(wanted);
+	if (exact >= 0)
+		return exact;
+	return languages.findIndex(lang => !!lang && (lang.startsWith(`${wanted}-`) || wanted.startsWith(`${lang}-`)));
+}
+
+const englishAss: SubtitleTrack = { id: '1', language: 'eng', label: 'English', type: 'full', url: 'S:/en.ass' };
+const englishVtt: SubtitleTrack = { id: '2', language: 'eng', label: 'English', type: 'full', url: 'S:/en.vtt' };
+const englishSdh: SubtitleTrack = { id: '3', language: 'eng', label: 'English (SDH)', type: 'sdh', url: 'S:/en.sdh.vtt' };
+const dutch: SubtitleTrack = { id: '4', language: 'nld', label: 'Nederlands', type: 'full', url: 'S:/nl.vtt' };
+
+describe('matchSubtitleTrack', () => {
+	it('takes the rendition in the saved format over another of the same language', () => {
+		const tracks = [englishVtt, englishAss];
+
+		expect(matchSubtitleTrack(tracks, { language: 'eng', type: 'full', format: 'ass' }, matchLanguage)).toBe(1);
+	});
+
+	it('does not hand back a different variant while the saved one is present', () => {
+		const tracks = [englishSdh, englishAss];
+
+		expect(matchSubtitleTrack(tracks, { language: 'eng', type: 'full', format: 'ass' }, matchLanguage)).toBe(1);
+	});
+
+	it('falls back to the same language when the exact rendition is gone', () => {
+		const tracks = [dutch, englishSdh];
+
+		expect(matchSubtitleTrack(tracks, { language: 'eng', type: 'full', format: 'ass' }, matchLanguage)).toBe(1);
+	});
+
+	it('ignores the position the choice used to hold', () => {
+		// Saved at index 0 on the previous episode; index 0 is Dutch here.
+		const tracks = [dutch, englishAss];
+
+		expect(matchSubtitleTrack(tracks, { language: 'eng', type: 'full', format: 'ass' }, matchLanguage)).toBe(1);
+	});
+
+	it('reports no match rather than guessing a language the item does not carry', () => {
+		expect(matchSubtitleTrack([dutch], { language: 'eng' }, matchLanguage)).toBe(-1);
 	});
 });

@@ -6,7 +6,7 @@
 //  SPDX-License-Identifier: Apache-2.0
 // -----------------------------------------------------------------------------
 
-import type { IStorage } from '@nomercy-entertainment/nomercy-player-core';
+import type { IStorage, SubtitleTrack } from '@nomercy-entertainment/nomercy-player-core';
 
 const AUDIO_KEY = 'nmplayer-language-audio';
 const SUBTITLE_KEY = 'nmplayer-language-subtitle';
@@ -23,21 +23,28 @@ export const SUBTITLES_OFF = 'off';
  * the source's stream order, so neither survives an episode change. Remembering
  * the language is what makes the next episode open in the language the viewer
  * picked, whatever the encode declared.
+ *
+ * A caption choice is more than a language. A viewer who picked English SDH and
+ * got plain English back was handed a different track under the same name, and
+ * two renditions of the same language and variant can differ only by container
+ * — an `.ass` carries the show's own styling where a `.vtt` does not. So the
+ * variant and the format travel with the language.
  */
 export class TrackLanguageMemory {
 	private audio: string | null = null;
-	private subtitle: string | null = null;
+	private subtitle: SubtitleChoice | null = null;
 
 	constructor(private readonly storage?: IStorage) {
 		this.audio = this.read(AUDIO_KEY);
-		this.subtitle = this.read(SUBTITLE_KEY);
+		this.subtitle = parseSubtitleChoice(this.read(SUBTITLE_KEY));
 	}
 
 	audioLanguage(): string | null {
 		return this.audio;
 	}
 
-	subtitleLanguage(): string | null {
+	/** The caption choice, or `null` when the viewer has never made one. */
+	subtitleChoice(): SubtitleChoice | null {
 		return this.subtitle;
 	}
 
@@ -49,11 +56,16 @@ export class TrackLanguageMemory {
 	}
 
 	/** Pass `SUBTITLES_OFF` for a deliberate off; `undefined` is not a choice. */
-	rememberSubtitle(language: string | null | undefined): void {
-		if (!language)
+	rememberSubtitle(choice: SubtitleTrack | typeof SUBTITLES_OFF | null | undefined): void {
+		if (!choice)
 			return;
-		this.subtitle = language;
-		this.write(SUBTITLE_KEY, language);
+		const next: SubtitleChoice | null = choice === SUBTITLES_OFF
+			? SUBTITLES_OFF
+			: descriptorOf(choice);
+		if (!next)
+			return;
+		this.subtitle = next;
+		this.write(SUBTITLE_KEY, typeof next === 'string' ? next : JSON.stringify(next));
 	}
 
 	private read(key: string): string | null {
@@ -74,4 +86,70 @@ export class TrackLanguageMemory {
 			// A viewer with site data blocked still gets the in-memory carry-over.
 		}
 	}
+}
+
+/** A caption choice: a deliberate off, or the language / variant / format picked. */
+export type SubtitleChoice = typeof SUBTITLES_OFF | SubtitleDescriptor;
+
+export interface SubtitleDescriptor {
+	language: string;
+	type?: string;
+	format?: string;
+}
+
+function descriptorOf(track: SubtitleTrack): SubtitleDescriptor | null {
+	return track.language ? { language: track.language, type: track.type, format: formatOf(track) } : null;
+}
+
+/** The file's format, taken from its URL — the manifest does not carry one. */
+export function formatOf(track: Pick<SubtitleTrack, 'url'>): string | undefined {
+	const path = track.url?.split(/[?#]/)[0] ?? '';
+	const dot = path.lastIndexOf('.');
+	const slash = path.lastIndexOf('/');
+	return dot > slash && dot >= 0 ? path.slice(dot + 1).toLowerCase() : undefined;
+}
+
+// A viewer upgrading from a build that stored a bare language keeps their
+// choice: the plain tag is read as a descriptor with nothing narrowing it.
+function parseSubtitleChoice(raw: string | null): SubtitleChoice | null {
+	if (!raw)
+		return null;
+	if (raw === SUBTITLES_OFF)
+		return SUBTITLES_OFF;
+	if (!raw.startsWith('{'))
+		return { language: raw };
+	try {
+		const parsed = JSON.parse(raw) as SubtitleDescriptor;
+		return typeof parsed?.language === 'string' ? parsed : null;
+	}
+	catch {
+		return null;
+	}
+}
+
+/**
+ * The track that answers a caption choice, narrowest match first.
+ *
+ * A list filtered by device capability can drop the exact variant, and a viewer
+ * is better served by the same language in a different flavour than by no
+ * captions at all. Position is never consulted: it means a different track on
+ * every file. The language step is passed in because the player owns the
+ * prefix rules (`en` answering `en-US`).
+ */
+export function matchSubtitleTrack(
+	tracks: ReadonlyArray<SubtitleTrack>,
+	wanted: SubtitleDescriptor,
+	matchLanguage: (languages: Array<string | undefined>, wantedLanguage: string) => number,
+): number {
+	const exact = tracks.findIndex(track => track.language === wanted.language
+		&& track.type === wanted.type
+		&& formatOf(track) === wanted.format);
+	if (exact >= 0)
+		return exact;
+
+	const sameVariant = tracks.findIndex(track => track.language === wanted.language && track.type === wanted.type);
+	if (sameVariant >= 0)
+		return sameVariant;
+
+	return matchLanguage(tracks.map(track => track.language), wanted.language);
 }
