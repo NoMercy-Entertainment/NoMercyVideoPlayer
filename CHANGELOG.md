@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.10] — 2026-08-31
+
+### Fixed
+
+- A caption choice is a language, a variant and a format. The language memory carried the language alone, so a viewer who picked English SDH got plain English back on the next item, and a viewer who picked the `.ass` rendition got the `.vtt` of the same lines without the show's own styling. The whole descriptor is carried now and matched narrowest-first, falling back to the same language rather than to no captions when a device's list has dropped the exact variant. A bare language written by an older build still reads as a choice.
+
 ## [2.1.9] — 2026-08-31
 
 ### Changed
