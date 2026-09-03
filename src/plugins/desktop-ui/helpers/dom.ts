@@ -23,6 +23,7 @@ import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nom
 import type { DesktopUiButtonOptions, DesktopUiOptions } from '../index';
 import type { SliderBarRefs } from './progressBar';
 
+import { addClasses, createButton, createElement } from '@nomercy-entertainment/nomercy-player-core';
 import { fluentIcons, svgFromIcon } from '../data/icons';
 import { collapseAllTriggers } from './menuControl';
 import { buildSliderBar } from './progressBar';
@@ -62,8 +63,8 @@ export function iconBtn(
 	iconName: keyof typeof fluentIcons,
 ): HTMLButtonElement {
 	const icon = fluentIcons[iconName];
-	const btn = player.createButton(id, icon.title || iconName, () => {});
-	player.addClasses(btn, ['btn']);
+	const btn = createButton(id, icon.title || iconName, () => {});
+	addClasses(btn, ['btn']);
 	btn.style.position = 'relative';
 	const iconHolder = document.createElement('span');
 	iconHolder.className = 'btn-icon';
@@ -125,19 +126,19 @@ export function buildCenter(
 	player: IVideoPlayer<VideoPlaylistItem>,
 	parent: HTMLElement,
 ): CenterRefs {
-	const centerWrap = player.createElement('div', 'center')
+	const centerWrap = createElement('div', 'center')
 		.addClasses(['center'])
 		.appendTo(parent)
 		.get();
 
-	const spinner = player.createElement('div', 'spinner')
+	const spinner = createElement('div', 'spinner')
 		.addClasses(['spinner'])
 		.appendTo(centerWrap)
 		.get();
 	spinner.innerHTML = '<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-dasharray="100 28"/></svg>';
 
-	const centerBtn = player.createButton('center-btn', fluentIcons.bigPlay.title || 'Play', () => {});
-	player.addClasses(centerBtn, ['center-btn']);
+	const centerBtn = createButton('center-btn', fluentIcons.bigPlay.title || 'Play', () => {});
+	addClasses(centerBtn, ['center-btn']);
 	const centerIconHolder = document.createElement('span');
 	centerIconHolder.className = 'btn-icon';
 	centerIconHolder.innerHTML = svgFromIcon(fluentIcons.bigPlay, 32);
@@ -157,16 +158,16 @@ export function buildBottomBar(
 	listen: (target: EventTarget, event: string, fn: (event: Event) => void) => void,
 	translate: (key: string, params?: Record<string, string>) => string,
 ): BottomBarRefs & BottomRowRefs {
-	const bottomBar = player.createElement('div', 'bottom-bar')
+	const bottomBar = createElement('div', 'bottom-bar')
 		.addClasses(['bottom-bar'])
 		.appendTo(parent)
 		.get();
 
-	player.createElement('div', 'bottom-bar-shadow')
+	createElement('div', 'bottom-bar-shadow')
 		.addClasses(['bottom-bar-shadow'])
 		.appendTo(bottomBar);
 
-	const topRow = player.createElement('div', 'top-row')
+	const topRow = createElement('div', 'top-row')
 		.addClasses(['top-row'])
 		.appendTo(bottomBar)
 		.get();
@@ -174,7 +175,7 @@ export function buildBottomBar(
 	const sliderRefs = buildSliderBar(player);
 	topRow.appendChild(sliderRefs.sliderBar);
 
-	const bottomRow = player.createElement('div', 'bottom-row')
+	const bottomRow = createElement('div', 'bottom-row')
 		.addClasses(['bottom-row'])
 		.appendTo(bottomBar)
 		.get();
@@ -225,7 +226,7 @@ export function buildBottomRow(
 	nextBtn.hidden = !show('next');
 	parent.appendChild(nextBtn);
 
-	const volContainer = player.createElement('div', 'volume-container')
+	const volContainer = createElement('div', 'volume-container')
 		.addClasses(['volume-container'])
 		.appendTo(parent)
 		.get();
@@ -244,7 +245,7 @@ export function buildBottomRow(
 	volBtn.hidden = !show('mute');
 	volContainer.appendChild(volBtn);
 
-	const volSlider = player.createElement('input', 'volume-slider')
+	const volSlider = createElement('input', 'volume-slider')
 		.addClasses(['volume-slider'])
 		.appendTo(volContainer)
 		.get();
@@ -256,11 +257,11 @@ export function buildBottomRow(
 	volSlider.hidden = !show('volume');
 
 	// Vertical slider popup (hidden initially; activated by wireVolumeSlider).
-	const vertPop = player.createElement('div', 'volume-slider-vertical')
+	const vertPop = createElement('div', 'volume-slider-vertical')
 		.addClasses(['volume-slider-vertical'])
 		.appendTo(volContainer)
 		.get();
-	const vertInput = player.createElement('input', 'volume-slider-vertical-input')
+	const vertInput = createElement('input', 'volume-slider-vertical-input')
 		.addClasses(['volume-slider-vertical-input'])
 		.appendTo(vertPop)
 		.get();
@@ -275,17 +276,17 @@ export function buildBottomRow(
 	volPopupMuteBtn.classList.add('vol-popup-mute');
 	vertPop.appendChild(volPopupMuteBtn);
 
-	const currentTimeEl = player.createElement('div', 'current-time')
+	const currentTimeEl = createElement('div', 'current-time')
 		.addClasses(['current-time', 'time'])
 		.appendTo(parent)
 		.get();
 	currentTimeEl.textContent = '0:00';
 
-	player.createElement('div', 'divider')
+	createElement('div', 'divider')
 		.addClasses(['divider'])
 		.appendTo(parent);
 
-	const remainingTimeEl = player.createElement('div', 'remaining-time')
+	const remainingTimeEl = createElement('div', 'remaining-time')
 		.addClasses(['remaining-time', 'time'])
 		.appendTo(parent)
 		.get();

@@ -21,6 +21,7 @@ import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nom
 
 import type { DesktopUiOptions } from '../index';
 
+import { addClasses, createButton, createElement } from '@nomercy-entertainment/nomercy-player-core';
 import { fluentIcons, svgFromIcon } from '../data/icons';
 
 // ── Refs ───────────────────────────────────────────────────────────────────────
@@ -53,20 +54,20 @@ export function buildTitleBar(
 	parent: HTMLElement,
 	opts?: DesktopUiOptions,
 ): TopBarRefs {
-	const bar = player.createElement('div', 'top-bar')
+	const bar = createElement('div', 'top-bar')
 		.addClasses(['top-bar'])
 		.appendTo(parent)
 		.get();
 
-	const left = player.createElement('div', 'top-bar-left')
+	const left = createElement('div', 'top-bar-left')
 		.addClasses(['top-bar-left'])
 		.appendTo(bar)
 		.get();
 
-	const backBtn = player.createButton('back-btn', player.t('plugin.desktop-ui.menu.back'), () => {
+	const backBtn = createButton('back-btn', player.t('plugin.desktop-ui.menu.back'), () => {
 		player.emit('back', undefined);
 	});
-	player.addClasses(backBtn, ['back-btn']);
+	addClasses(backBtn, ['back-btn']);
 	backBtn.innerHTML = svgFromIcon(fluentIcons.back);
 	backBtn.hidden = true;
 	left.appendChild(backBtn);
@@ -74,24 +75,24 @@ export function buildTitleBar(
 	// Opt-in only — gated by `DesktopUiButtonOptions.cast`, never by listener
 	// presence (unlike back/close). The click is purely a surfaced intent;
 	// the consumer owns the device picker (`aria-haspopup="dialog"` reflects that).
-	const castBtn = player.createButton('cast-btn', player.t('plugin.desktop-ui.button.cast'), () => {
+	const castBtn = createButton('cast-btn', player.t('plugin.desktop-ui.button.cast'), () => {
 		player.emit('cast', undefined);
 	});
-	player.addClasses(castBtn, ['cast-btn']);
+	addClasses(castBtn, ['cast-btn']);
 	castBtn.innerHTML = svgFromIcon(fluentIcons.cast);
 	castBtn.setAttribute('aria-haspopup', 'dialog');
 	castBtn.hidden = !opts?.buttons?.cast;
 	left.appendChild(castBtn);
 
-	const closeBtn = player.createButton('close-btn', player.t('plugin.desktop-ui.menu.close'), () => {
+	const closeBtn = createButton('close-btn', player.t('plugin.desktop-ui.menu.close'), () => {
 		player.emit('close', undefined);
 	});
-	player.addClasses(closeBtn, ['close-btn']);
+	addClasses(closeBtn, ['close-btn']);
 	closeBtn.innerHTML = svgFromIcon(fluentIcons.close);
 	closeBtn.hidden = true;
 	left.appendChild(closeBtn);
 
-	const right = player.createElement('div', 'top-bar-right')
+	const right = createElement('div', 'top-bar-right')
 		.addClasses(['top-bar-right'])
 		.appendTo(bar)
 		.get();
@@ -99,12 +100,12 @@ export function buildTitleBar(
 	// Mirrors the Android MobileTopBar two-line layout: primary `title`
 	// (show name or movie title) on top, secondary `show-info` (season +
 	// episode + episode title) below — only rendered when non-empty.
-	const titleText = player.createElement('span', 'title')
+	const titleText = createElement('span', 'title')
 		.addClasses(['title'])
 		.appendTo(right)
 		.get();
 
-	const showInfoText = player.createElement('span', 'show-info')
+	const showInfoText = createElement('span', 'show-info')
 		.addClasses(['show-info'])
 		.appendTo(right)
 		.get();

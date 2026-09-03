@@ -19,6 +19,8 @@
 
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 
+import { createElement } from '@nomercy-entertainment/nomercy-player-core';
+
 export { formatSeconds } from '../data/utils';
 
 // ── Slider bar DOM ─────────────────────────────────────────────────────────────
@@ -41,8 +43,7 @@ export interface SliderBarRefs {
  * The caller appends to its parent.
  */
 export function buildSliderBar(player: IVideoPlayer<VideoPlaylistItem>): SliderBarRefs {
-	const sliderBar = player
-		.createElement('div', 'slider-bar')
+	const sliderBar = createElement('div', 'slider-bar')
 		.addClasses(['slider-bar'])
 		.setAttribute('role', 'slider')
 		.setAttribute('aria-label', player.t('plugin.desktop-ui.a11y.seek'))
@@ -51,52 +52,43 @@ export function buildSliderBar(player: IVideoPlayer<VideoPlaylistItem>): SliderB
 		.setAttribute('aria-valuenow', '0')
 		.get();
 
-	const sliderBuffer = player
-		.createElement('div', 'slider-buffer')
+	const sliderBuffer = createElement('div', 'slider-buffer')
 		.addClasses(['slider-buffer'])
 		.appendTo(sliderBar)
 		.get();
-	const sliderHover = player
-		.createElement('div', 'slider-hover')
+	const sliderHover = createElement('div', 'slider-hover')
 		.addClasses(['slider-hover'])
 		.appendTo(sliderBar)
 		.get();
-	const sliderProgress = player
-		.createElement('div', 'slider-progress')
+	const sliderProgress = createElement('div', 'slider-progress')
 		.addClasses(['slider-progress'])
 		.appendTo(sliderBar)
 		.get();
-	const chapterBar = player
-		.createElement('div', 'chapter-progress')
+	const chapterBar = createElement('div', 'chapter-progress')
 		.addClasses(['chapter-bar'])
 		.appendTo(sliderBar)
 		.get();
 
-	const sliderNipple = player
-		.createElement('div', 'slider-nipple')
+	const sliderNipple = createElement('div', 'slider-nipple')
 		.addClasses(['slider-nipple'])
 		.appendTo(sliderBar)
 		.get();
 
-	const sliderPop = player
-		.createElement('div', 'slider-pop')
+	const sliderPop = createElement('div', 'slider-pop')
 		.addClasses(['slider-pop'])
 		.setProperty('--visibility', '0')
 		.appendTo(sliderBar)
 		.get();
 
-	const sliderPopImage = player
-		.createElement('div', 'slider-pop-image')
+	const sliderPopImage = createElement('div', 'slider-pop-image')
 		.addClasses(['slider-pop-image'])
 		.appendTo(sliderPop)
 		.get();
-	const sliderPopText = player
-		.createElement('div', 'slider-text')
+	const sliderPopText = createElement('div', 'slider-text')
 		.addClasses(['slider-pop-text'])
 		.appendTo(sliderPop)
 		.get();
-	const chapterText = player
-		.createElement('div', 'chapter-text')
+	const chapterText = createElement('div', 'chapter-text')
 		.addClasses(['chapter-text'])
 		.appendTo(sliderPop)
 		.get();

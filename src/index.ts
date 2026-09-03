@@ -1247,13 +1247,6 @@ export class NMVideoPlayer<T extends VideoPlaylistItem = VideoPlaylistItem>
 	declare preloadStrategy: () => IPreloadStrategy;
 	declare transitionStrategy: () => ITransitionStrategy;
 
-	// ── DOM construction helpers ── composed via `domMethods` mixin.
-	declare createElement: IPlayer<VideoEventMap>['createElement'];
-	declare createButton: IPlayer<VideoEventMap>['createButton'];
-	declare createSVG: IPlayer<VideoEventMap>['createSVG'];
-	declare addClasses: IPlayer<VideoEventMap>['addClasses'];
-	declare removeClasses: IPlayer<VideoEventMap>['removeClasses'];
-
 	_disposeBackend(): void {
 		this._clearSegmentInternal();
 		this._teardownVideoRectObserver();

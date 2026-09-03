@@ -22,6 +22,7 @@ import type { DesktopUiOptions } from '../index';
 
 import type { DesktopUiInternals } from '../internals';
 
+import { addClasses } from '@nomercy-entertainment/nomercy-player-core';
 import { TheaterState, VolumeState } from '../../../types';
 
 import { setActivity } from '../helpers/activity';
@@ -37,7 +38,7 @@ export const domMethods = {
 	buildDom(this: DesktopUiInternals): void {
 		const root = this.mount('overlay');
 		this.overlayRoot = root;
-		this.player.addClasses(root, ['overlay']);
+		addClasses(root, ['overlay']);
 
 		this.topBarRefs = buildTitleBar(this.player, root, this.opts);
 		this.topBarRefs.right.hidden = !!this.opts?.hideTitle;

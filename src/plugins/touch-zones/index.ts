@@ -175,7 +175,7 @@ export class TouchZonesPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 	override use(): void {
 		ensureStyles();
 		this.root = this.mount('root');
-		this.player.addClasses(this.root, ['nm-touch-zones-root']);
+		this.addClasses(this.root, ['nm-touch-zones-root']);
 
 		this._isMobile = this.detectMobile();
 

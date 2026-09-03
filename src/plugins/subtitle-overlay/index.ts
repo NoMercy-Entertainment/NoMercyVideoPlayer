@@ -88,8 +88,8 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 
 	override use(): void {
 		this.overlay = this.mount('subtitle-overlay');
-		this.player.addClasses(this.overlay, ['subtitle-overlay']);
-		this.safezone = this.player.createElement('div', 'subtitle-safezone')
+		this.addClasses(this.overlay, ['subtitle-overlay']);
+		this.safezone = this.createElement('div', 'subtitle-safezone')
 			.addClasses(['subtitle-safezone'])
 			.appendTo(this.overlay)
 			.get();
@@ -138,11 +138,11 @@ export class SubtitleOverlayPlugin extends Plugin<NMVideoPlayer, SubtitleOverlay
 	 */
 	private ensureAreaCount(count: number): void {
 		while (this.areas.length < count) {
-			const area = this.player.createElement('div', `subtitle-area-${this.areas.length}`)
+			const area = this.createElement('div', `subtitle-area-${this.areas.length}`)
 				.addClasses(['subtitle-area', 'aligned-center'])
 				.appendTo(this.safezone)
 				.get();
-			const text = this.player.createElement('span', `subtitle-text-${this.areas.length}`)
+			const text = this.createElement('span', `subtitle-text-${this.areas.length}`)
 				.addClasses(['subtitle-text'])
 				.appendTo(area)
 				.get();

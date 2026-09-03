@@ -29,7 +29,7 @@
 import type { IVideoPlayer, VideoPlaylistItem } from '@nomercy-entertainment/nomercy-video-player';
 import type { AudioTrackRef, QualityLevel, SubtitleTrackRef } from '../../../types';
 import type { SubtitleStyle } from '../data/buttons';
-import { detectDisplayHdr } from '@nomercy-entertainment/nomercy-player-core';
+import { createButton, createElement, detectDisplayHdr } from '@nomercy-entertainment/nomercy-player-core';
 import { readItemImage } from '../../../player/itemImage';
 import {
 	colors,
@@ -127,30 +127,30 @@ export function buildMenuFrame(
 	settingsItems?: ReadonlyArray<SettingsToggleItem>,
 	settingsMenuActions?: ReadonlyArray<SubtitleMenuAction>,
 ): MenuFrameRefs {
-	const frameDialog = player.createElement('dialog', 'menu-frame-dialog')
+	const frameDialog = createElement('dialog', 'menu-frame-dialog')
 		.addClasses(['menu-frame-dialog'])
 		.appendTo(parent)
 		.get();
 	frameDialog.setAttribute('popover', 'manual');
 	frameDialog.setAttribute('role', 'modal');
 
-	const wrapper = player.createElement('div', 'menu-wrapper')
+	const wrapper = createElement('div', 'menu-wrapper')
 		.addClasses(['menu-wrapper'])
 		.appendTo(frameDialog)
 		.get();
 
-	const frame = player.createElement('div', 'menu-frame')
+	const frame = createElement('div', 'menu-frame')
 		.addClasses(['menu-frame'])
 		.appendTo(wrapper)
 		.get();
 
-	const content = player.createElement('div', 'menu-content')
+	const content = createElement('div', 'menu-content')
 		.addClasses(['menu-content'])
 		.appendTo(frame)
 		.get();
 
 	const main = buildMainMenu(player, content, listen, actions, settingsItems, settingsMenuActions);
-	const sub = player.createElement('div', 'sub-menu')
+	const sub = createElement('div', 'sub-menu')
 		.addClasses(['sub-menu'])
 		.appendTo(content)
 		.get();
@@ -193,14 +193,14 @@ function buildMainMenu(
 	settingsItems?: ReadonlyArray<SettingsToggleItem>,
 	settingsMenuActions?: ReadonlyArray<SubtitleMenuAction>,
 ): HTMLDivElement {
-	const main = player.createElement('div', 'main-menu')
+	const main = createElement('div', 'main-menu')
 		.addClasses(['main-menu'])
 		.appendTo(parent)
 		.get();
 
 	// Header (title + close) — mirrors the sub-menu shell so the main menu
 	// has the same visual rhythm as every category pane.
-	const header = player.createElement('div', 'menu-header-main')
+	const header = createElement('div', 'menu-header-main')
 		.addClasses(['menu-header'])
 		.appendTo(main)
 		.get();
@@ -210,14 +210,14 @@ function buildMainMenu(
 	titleSpan.textContent = player.t('plugin.desktop-ui.menu.settings');
 	header.appendChild(titleSpan);
 
-	const closeBtn = player.createButton('menu-close', player.t('plugin.desktop-ui.menu.close'), () => {});
+	const closeBtn = createButton('menu-close', player.t('plugin.desktop-ui.menu.close'), () => {});
 	closeBtn.classList.add('menu-header-close');
 	closeBtn.innerHTML = svgFromIcon(fluentIcons.close);
 	header.appendChild(closeBtn);
 	listen(closeBtn, 'click', (event: Event) => { event.stopPropagation(); actions.closeMenu(); });
 
 	// Scroll container — same `.scroll-container` styling as the sub-menus.
-	const scroll = player.createElement('div', 'main-scroll-container')
+	const scroll = createElement('div', 'main-scroll-container')
 		.addClasses(['scroll-container', 'main-scroll-container'])
 		.appendTo(main)
 		.get();
@@ -235,7 +235,7 @@ function buildMainMenu(
 	];
 	for (const cat of cats) {
 		const label = player.t(cat.labelKey);
-		const btn = player.createButton(`menu-button-${cat.id}`, label, () => {});
+		const btn = createButton(`menu-button-${cat.id}`, label, () => {});
 		btn.classList.add('language-button');
 		btn.innerHTML = `
             <span class="menu-button-icon-left">${svgFromIcon(fluentIcons[cat.iconKey])}</span>
@@ -249,7 +249,7 @@ function buildMainMenu(
 	// Consumer toggle rows — same row chrome as category buttons, with the
 	// checkmark reflecting the bound state instead of a chevron.
 	for (const item of settingsItems ?? []) {
-		const btn = player.createButton(`menu-toggle-${item.id}`, item.label(), () => {});
+		const btn = createButton(`menu-toggle-${item.id}`, item.label(), () => {});
 		btn.classList.add('language-button');
 		btn.setAttribute('role', 'switch');
 		const paint = (): void => {
@@ -280,7 +280,7 @@ function buildMainMenu(
 	// dedicated container (unlike the static category buttons above) so a
 	// live `settingsMenuActions` change can repaint just these rows — see
 	// `renderMainMenuActions`.
-	const actionsContainer = player.createElement('div', 'main-menu-actions')
+	const actionsContainer = createElement('div', 'main-menu-actions')
 		.addClasses(['main-menu-actions'])
 		.appendTo(scroll)
 		.get();
@@ -320,7 +320,7 @@ function buildSubMenuHeader(
 	listen: MenuListen,
 	actions: MenuActions,
 ): HTMLSpanElement {
-	const back = player.createButton(backId, player.t('plugin.desktop-ui.menu.back'), () => {});
+	const back = createButton(backId, player.t('plugin.desktop-ui.menu.back'), () => {});
 	back.classList.add('menu-header-back');
 	back.innerHTML = svgFromIcon(fluentIcons.chevronL);
 	header.appendChild(back);
@@ -331,7 +331,7 @@ function buildSubMenuHeader(
 	titleSpan.textContent = titleText;
 	header.appendChild(titleSpan);
 
-	const close = player.createButton(closeId, player.t('plugin.desktop-ui.menu.close'), () => {});
+	const close = createButton(closeId, player.t('plugin.desktop-ui.menu.close'), () => {});
 	close.classList.add('menu-header-close');
 	close.innerHTML = svgFromIcon(fluentIcons.close);
 	header.appendChild(close);
@@ -354,13 +354,13 @@ function buildPlaylistPaneShell(
 	listen: MenuListen,
 	actions: MenuActions,
 ): HTMLDivElement {
-	const root = player.createElement('div', 'playlist-menu')
+	const root = createElement('div', 'playlist-menu')
 		.addClasses(['sub-menu-content', 'playlist-menu'])
 		.appendTo(parent)
 		.get();
 
 	// Header — flex column header.
-	const header = player.createElement('div', 'menu-header-playlist')
+	const header = createElement('div', 'menu-header-playlist')
 		.addClasses(['menu-header'])
 		.appendTo(root)
 		.get();
@@ -377,26 +377,26 @@ function buildPlaylistPaneShell(
 	);
 
 	// Row wrapper — flex-row containing the two columns.
-	const cols = player.createElement('div', 'playlist-cols')
+	const cols = createElement('div', 'playlist-cols')
 		.addClasses(['playlist-cols'])
 		.appendTo(root)
 		.get();
 
 	// Seasons column.
-	const seasons = player.createElement('div', 'playlist-seasons-pane')
+	const seasons = createElement('div', 'playlist-seasons-pane')
 		.addClasses(['sub-menu-content', 'seasons-pane'])
 		.appendTo(cols)
 		.get();
-	player.createElement('div', 'playlist-seasons-scroll-container')
+	createElement('div', 'playlist-seasons-scroll-container')
 		.addClasses(['scroll-container', 'playlist-seasons-scroll-container'])
 		.appendTo(seasons);
 
 	// Episode column.
-	const episodes = player.createElement('div', 'episode-menu')
+	const episodes = createElement('div', 'episode-menu')
 		.addClasses(['sub-menu-content', 'episode-menu'])
 		.appendTo(cols)
 		.get();
-	player.createElement('div', 'playlist-scroll-container')
+	createElement('div', 'playlist-scroll-container')
 		.addClasses(['scroll-container', 'playlist-scroll-container'])
 		.appendTo(episodes);
 
@@ -411,12 +411,12 @@ function buildSubMenuPane(
 	listen: MenuListen,
 	actions: MenuActions,
 ): HTMLDivElement {
-	const pane = player.createElement('div', `${id}-menu`)
+	const pane = createElement('div', `${id}-menu`)
 		.addClasses(['sub-menu-content', `${id}-menu`])
 		.appendTo(parent)
 		.get();
 
-	const header = player.createElement('div', `menu-header-${id}`)
+	const header = createElement('div', `menu-header-${id}`)
 		.addClasses(['menu-header'])
 		.appendTo(pane)
 		.get();
@@ -432,7 +432,7 @@ function buildSubMenuPane(
 		actions,
 	);
 
-	player.createElement('div', `${id}-scroll-container`)
+	createElement('div', `${id}-scroll-container`)
 		.addClasses(['scroll-container', `${id}-scroll-container`])
 		.appendTo(pane);
 	return pane;
@@ -591,7 +591,7 @@ function appendAction(
 	player: IVideoPlayer,
 ): void {
 	const label = action.label();
-	const btn = player.createButton(`subtitle-action-${action.id}`, label, () => {});
+	const btn = createButton(`subtitle-action-${action.id}`, label, () => {});
 	btn.classList.add('language-button', 'menu-action-row');
 	const iconHtml = action.icon ? `<span class="menu-button-icon-left">${action.icon}</span>` : '';
 	btn.innerHTML = `
@@ -698,7 +698,7 @@ export function renderSubtitleSettingsPane(
 	for (const row of SETTING_ROWS) {
 		const rowLabel = player.t(row.labelKey);
 		const id = `subtitleSetting-button-${row.labelKey.replace(/\W+/g, '-').toLowerCase()}`;
-		const btn = player.createButton(id, rowLabel, () => {});
+		const btn = createButton(id, rowLabel, () => {});
 		btn.classList.add('language-button');
 		const valueText = row.property
 			? formatSettingValue(row.property, style[row.property as keyof SubtitleStyle])
@@ -773,7 +773,7 @@ function renderSubtitlePropertyPane(
 
 	for (const action of actions) {
 		const id = `subtitleSetting-action-${property}-${String(action.value).replace(/\W+/g, '-').toLowerCase()}`;
-		const btn = player.createButton(id, action.label, () => {});
+		const btn = createButton(id, action.label, () => {});
 		btn.classList.add('language-button');
 		const isActive = action.value === currentValue;
 		if (isActive)
@@ -877,7 +877,7 @@ export function renderPlaylistPane(
 		seasonScroll.replaceChildren();
 		for (const sNum of seasons) {
 			const seasonLabel = player.t('plugin.desktop-ui.menu.season', { number: String(sNum) });
-			const btn = player.createButton(`season-button-${sNum}`, seasonLabel, () => {});
+			const btn = createButton(`season-button-${sNum}`, seasonLabel, () => {});
 			btn.classList.add('language-button');
 			if (sNum === activeSeason)
 				btn.classList.add('is-active');
@@ -925,7 +925,7 @@ function buildPlaylistCard(
 ): HTMLButtonElement {
 	const safe = String(item.id ?? index).replace(/\W+/g, '-').toLowerCase();
 	const resolvedTitle = item.title ?? `Item ${index + 1}`;
-	const btn = player.createButton(`playlist-${safe}`, resolvedTitle, () => {});
+	const btn = createButton(`playlist-${safe}`, resolvedTitle, () => {});
 	btn.classList.add('playlist-menu-button');
 	if (active)
 		btn.classList.add('is-active');
@@ -1058,7 +1058,7 @@ function appendChoice(
 		sublabel?: string;
 	},
 ): void {
-	const btn = player.createButton(id, label, () => {});
+	const btn = createButton(id, label, () => {});
 	btn.classList.add('language-button');
 	if (active)
 		btn.classList.add('is-active');
