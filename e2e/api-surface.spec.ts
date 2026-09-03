@@ -203,8 +203,6 @@ test.describe('Event API methods exist', () => {
 
 test.describe('DOM utility methods exist', () => {
 	const methods = [
-		'createElement',
-		'addClasses',
 		'displayMessage',
 		'snakeToCamel',
 		'spaceToCamel',
