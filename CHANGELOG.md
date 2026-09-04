@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [2.2.2] — 2026-09-04
+
+### Fixed
+
+- A 404 got the full retry ladder: thirty seconds of spinner on an episode that was never encoded, ending in the generic network error. The file is not late, it is absent, and no amount of waiting changes the answer; 410 is the same answer said more firmly. Both now get no retries and their own code, `core:stream/media-absent`, so a consumer can offer the next item instead of the dead-end overlay it shows for a decode failure. The code matches `CoreErrorCodes.MEDIA_ABSENT` in the Kotlin trio.
+- Georgia's subtitle-font fallback was `sans-serif`. Georgia is a serif face, so a client without it installed — Android carries none — fell back to the one font every other choice already draws, collapsing distinct options into each other.
+
+
 ## [2.2.1] — 2026-09-04
 
 ### Changed
