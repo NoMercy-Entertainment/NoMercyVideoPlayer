@@ -322,7 +322,11 @@ export const fontFamilies: readonly { name: string; value: string }[] = Object.f
 	{ name: 'ReithSans', value: 'ReithSans, sans-serif' },
 	{ name: 'Arial', value: 'Arial, sans-serif' },
 	{ name: 'Courier New', value: 'Courier New, monospace' },
-	{ name: 'Georgia', value: 'Georgia, sans-serif' },
+	// serif, not sans-serif. Georgia IS a serif face, so the fallback has to be
+	// one too: a browser with Georgia installed never reaches it and the wrong
+	// generic is invisible here, but a client without the face — Android has no
+	// Georgia — then draws the one font every other choice already draws.
+	{ name: 'Georgia', value: 'Georgia, serif' },
 	{ name: 'Verdana', value: 'Verdana, sans-serif' },
 ]);
 

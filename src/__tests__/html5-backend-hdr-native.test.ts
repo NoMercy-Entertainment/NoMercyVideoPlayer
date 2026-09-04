@@ -27,7 +27,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Html5VideoBackend } from '../adapters/video-backend/html5';
-import { HTTP_STATUS_RETRY_LIMIT } from '../adapters/video-backend/source-outage';
+import { HTTP_STATUS_RETRY_LIMIT, MEDIA_ABSENT } from '../adapters/video-backend/source-outage';
 
 // ---------------------------------------------------------------------------
 // hls.js mock — same registry pattern as html5-backend-core.test.ts
@@ -791,21 +791,22 @@ describe('HLS error recovery state machine', () => {
 		const streamErrors: Array<{ details: string; fatal: boolean }> = [];
 		backend.on('stream:error', payload => streamErrors.push(payload as { details: string; fatal: boolean }));
 
-		// A cold 4xx, so escalation is the fast path rather than the full
-		// 105-second outage budget a refused connection earns.
-		for (let i = 0; i < HTTP_STATUS_RETRY_LIMIT + 1; i++) {
-			hls.fire('hlsError', {
-				fatal: true,
-				type: 'networkError',
-				details: 'manifestLoadError',
-				response: { code: 404 },
-			});
-			await vi.runAllTimersAsync();
-		}
+		// A cold 404 is the server answering that this item has no media, so it
+		// escalates on the FIRST failure rather than after a ladder — and it
+		// escalates under its own code, so a consumer can offer the next item
+		// instead of showing a dead end. It used to spend five rungs here and
+		// then report the raw hls detail, which told a viewer nothing.
+		hls.fire('hlsError', {
+			fatal: true,
+			type: 'networkError',
+			details: 'manifestLoadError',
+			response: { code: 404 },
+		});
+		await vi.runAllTimersAsync();
 
 		const fatal = streamErrors.find(err => err.fatal);
 		expect(fatal).toBeDefined();
-		expect(fatal!.details).toBe('manifestLoadError');
+		expect(fatal!.details).toBe(MEDIA_ABSENT);
 
 		vi.useRealTimers();
 	});

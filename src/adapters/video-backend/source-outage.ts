@@ -68,8 +68,29 @@ export function isOriginDownStatus(httpStatus: number): boolean {
 		|| httpStatus === 504;
 }
 
+/** No rung at all: the answer will not change by asking again. */
+export const NO_RETRIES = 0;
+
+/**
+ * True for a status that means the server answered, and answered that this
+ * media does not exist.
+ *
+ * An episode that has not been encoded yet answers 404, and it will answer 404
+ * to every retry: the file is not late, it is absent. Waiting is not a strategy
+ * for it, and the viewer is the only one who can decide what to do instead.
+ * 410 is the same answer said more firmly.
+ */
+export function isMediaAbsentStatus(httpStatus: number): boolean {
+	return httpStatus === 404 || httpStatus === 410;
+}
+
 /**
  * How many rungs this failure is allowed.
+ *
+ * A 404 gets NONE. It used to get five, which is thirty seconds of spinner on
+ * an episode that was never encoded, and at the end of it the viewer was told
+ * nothing they could act on. A definite answer is worth surfacing the moment it
+ * arrives, so the consumer can offer to move to the next item.
  *
  * @param httpStatus - The status the load gave up on, or 0 when the failure
  *   carried no response at all, which is what a refused connection looks like
@@ -82,12 +103,24 @@ export function sourceOutageRetryLimit(
 	httpStatus: number,
 	sawConnectionFailure: boolean,
 ): number {
+	// A connection failure first means the host went away; the 404 that follows
+	// is a route table still warming up, not a missing file.
 	if (sawConnectionFailure)
 		return SOURCE_OUTAGE_BACKOFF_MS.length;
 	if (isOriginDownStatus(httpStatus))
 		return SOURCE_OUTAGE_BACKOFF_MS.length;
+	if (isMediaAbsentStatus(httpStatus))
+		return NO_RETRIES;
 	if (httpStatus > 0)
 		return HTTP_STATUS_RETRY_LIMIT;
 
 	return SOURCE_OUTAGE_BACKOFF_MS.length;
 }
+
+/**
+ * The code a consumer reads to offer "skip to the next item" rather than a dead
+ * end. Its Kotlin peer is `CoreErrorCodes.MEDIA_ABSENT`; the two trios must
+ * name this the same failure or a client written against one is wrong on the
+ * other.
+ */
+export const MEDIA_ABSENT = 'core:stream/media-absent';

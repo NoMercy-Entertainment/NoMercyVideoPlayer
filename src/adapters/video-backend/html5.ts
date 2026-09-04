@@ -25,7 +25,7 @@ import {
 	sizeAbrCeiling,
 	supportsNativeHls,
 } from '@nomercy-entertainment/nomercy-player-core';
-import { SOURCE_OUTAGE_BACKOFF_MS, sourceOutageRetryLimit } from './source-outage';
+import { isMediaAbsentStatus, MEDIA_ABSENT, SOURCE_OUTAGE_BACKOFF_MS, sourceOutageRetryLimit } from './source-outage';
 
 interface HlsLevel {
 	attrs?: { 'CODECS'?: string; 'VIDEO-RANGE'?: string };
@@ -1032,6 +1032,17 @@ export class Html5VideoBackend
 			this._sawConnectionFailure = true;
 
 		const limit = sourceOutageRetryLimit(httpStatus, this._sawConnectionFailure);
+
+		// The server answered that this item has no media. Waiting cannot change
+		// that, and a consumer can act on it — offer the next item — but only if
+		// it is told which failure this was, so it gets its own code rather than
+		// the generic network one every outage ends with.
+		if (isMediaAbsentStatus(httpStatus) && !this._sawConnectionFailure) {
+			this._recoveringFromOutage = false;
+			this._escalateHlsError(MEDIA_ABSENT, `media absent (HTTP ${httpStatus}): ${data.details}`);
+			return;
+		}
+
 		if (this._netRetryCount >= limit) {
 			// The ladder is spent, but a device that gets a route back later
 			// still deserves its session rather than a dead error overlay.
