@@ -35,8 +35,7 @@ jobs:
 
       - name: Install Playwright browsers
         run: |
-          umask 0022
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
 
       - name: E2E tests
         run: npm run test:e2e
