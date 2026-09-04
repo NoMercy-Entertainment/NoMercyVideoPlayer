@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [2.2.1] — 2026-09-04
+
+### Changed
+
+- Built against `@nomercy-entertainment/nomercy-player-core@2.2.1`. A browser declining autoplay without a user gesture no longer escapes as an uncaught `NotAllowedError`, and `play()` no longer leaves the player reporting `PLAYING` over a stopped video — a UI that renders its play/pause button from state showed Pause over a video that never started.
+
+
 ## [2.1.10] — 2026-08-31
 
 ### Fixed
