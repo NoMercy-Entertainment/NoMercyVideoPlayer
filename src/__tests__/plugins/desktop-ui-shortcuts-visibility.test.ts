@@ -123,6 +123,29 @@ describe('KeyHandlerPlugin — ? keybind uses shift+? canonical form', () => {
 		vi.unstubAllGlobals();
 	});
 
+	// A real keypress starts on the focused element inside the container and
+	// bubbles to document. Dispatching straight at document skips the container,
+	// so it never exercises the case where both plugins see the same event.
+	it('pressing ? from inside the container opens the overlay exactly once', async () => {
+		const player = new NMVideoPlayer('test').setup({});
+		await player.addPlugin(desktopUiPlugin).ready();
+		await player.addPlugin(keyHandlerPlugin).ready();
+
+		const overlay = document.querySelector<HTMLDivElement>('#nmplayer-keybinds-dialog');
+		expect(overlay).not.toBeNull();
+
+		player.container.dispatchEvent(new KeyboardEvent('keydown', {
+			key: '?',
+			shiftKey: true,
+			bubbles: true,
+		}));
+
+		expect(
+			overlay!.classList.contains('keybinds-dialog-visible'),
+			'the container handler and the key-handler binding must not both toggle one press',
+		).toBe(true);
+	});
+
 	it('pressing ? (key="?", shiftKey=true) opens the shortcuts overlay', async () => {
 		const player = new NMVideoPlayer('test').setup({});
 		await player.addPlugin(desktopUiPlugin).ready();

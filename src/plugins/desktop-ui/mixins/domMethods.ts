@@ -293,16 +293,25 @@ export const domMethods = {
 			this.listen(container, 'keydown', (event: Event) => {
 				this.bumpActivity();
 				const ke = event as KeyboardEvent;
+				// This listener sits on the container; KeyHandlerPlugin listens on
+				// document by default. A real press starts inside the container and
+				// bubbles, so both saw it: `?` toggled the overlay open here and
+				// closed it again there, and the overlay never appeared. Stop the
+				// event once this handler has consumed it. Every previous test
+				// dispatched straight at document, which skipped this listener.
 				if (ke.key === '?' && !ke.ctrlKey && !ke.metaKey && !ke.altKey) {
 					ke.preventDefault();
+					ke.stopPropagation();
 					this.toggleShortcuts();
 				}
 				else if (ke.key === 'Escape' && this._menuControlState.menuOpen) {
 					ke.preventDefault();
+					ke.stopPropagation();
 					this.closeAllMenus();
 				}
 				else if (ke.key === 'Escape' && this._shortcutsVisible) {
 					ke.preventDefault();
+					ke.stopPropagation();
 					this.hideShortcuts();
 				}
 			});
