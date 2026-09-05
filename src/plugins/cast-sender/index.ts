@@ -74,8 +74,13 @@ export class CastSenderPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		else if (item.show) {
 			meta.subtitle = item.show;
 		}
-		if (item.poster) {
-			const posterUrl = (await this.resolveUrl(item.poster, 'poster')).href;
+		// Same order the rest of the kit reads cover art in: `image` is the
+		// cross-library canonical field, `poster` and `thumbnail` are the video
+		// aliases. Reading `poster` alone left a consumer who populated only
+		// `image` with lock-screen artwork and a blank cast receiver.
+		const artwork = item.image ?? item.poster ?? item.thumbnail;
+		if (artwork) {
+			const posterUrl = (await this.resolveUrl(artwork, 'poster')).href;
 			meta.images = [{ url: posterUrl }];
 		}
 		return meta;

@@ -86,6 +86,20 @@ describe('KeyHandlerPlugin (video) — consequence tests', () => {
 		document.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, ...opts }));
 	}
 
+	// The base class declares `disableMediaControls` as a plugin option, so it
+	// type-checks on addPlugin. This override read only the VideoPlayerConfig
+	// field, which made passing the option a silent no-op.
+	it('disableMediaControls passed as a plugin option gates the media keys', async () => {
+		const playSpy = vi.fn().mockResolvedValue(undefined);
+		const player = new NMVideoPlayer('test').setup({});
+		player.addPlugin(KeyHandlerPlugin, { cooldownMs: 0, disableMediaControls: true } as any);
+		Object.assign(player, { play: playSpy });
+		await player.ready();
+
+		key('MediaPlay');
+		expect(playSpy).not.toHaveBeenCalled();
+	});
+
 	// ── Playback ──────────────────────────────────────────────────────────────
 
 	it('Space → togglePlayback()', async () => {

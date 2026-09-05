@@ -308,6 +308,34 @@ describe('video-plugins (extras)', () => {
 
 			expect(meta.title).toBe('Show S1 E1');
 		});
+
+		// `image` is the cross-library canonical cover-art field; `poster` and
+		// `thumbnail` are the video aliases. Reading `poster` alone gave a consumer
+		// who populated only `image` lock-screen artwork and a blank cast receiver.
+		it('buildMetadata reads artwork from image, not poster alone', async () => {
+			const videoPlayer = setup();
+			videoPlayer.addPlugin(castSenderPlugin);
+			await videoPlayer.ready();
+
+			const inst = videoPlayer.getPlugin(CastSenderPlugin)!;
+
+			class GenericMetaCtor {}
+			const ctors = { GenericMediaMetadata: GenericMetaCtor };
+
+			const item = {
+				id: 'ep-003',
+				title: 'Only image set',
+				url: 'https://cdn/ep.mp4',
+				image: 'https://cdn/art.jpg',
+			};
+
+			const meta = await (inst as unknown as {
+				buildMetadata: (mediaItem: typeof item, mediaCastors: typeof ctors) => Promise<Record<string, unknown>>;
+			}).buildMetadata(item, ctors);
+
+			expect(meta.images).toBeDefined();
+			expect((meta.images as Array<{ url: string }>)[0]?.url).toContain('art.jpg');
+		});
 	});
 
 	describe('DrmPlugin', () => {

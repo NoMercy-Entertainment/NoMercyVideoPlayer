@@ -40,8 +40,14 @@ export class KeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem> e
 		return this.player.options;
 	}
 
+	/**
+	 * Either source can switch the hardware media keys off: the `VideoPlayerConfig`
+	 * field, or the plugin option the base class declares. This override read only
+	 * the config, so `addPlugin(KeyHandlerPlugin, { disableMediaControls: true })`
+	 * type-checked and then did nothing.
+	 */
 	protected mediaControlsAllowed(): boolean {
-		return !this.cfg.disableMediaControls;
+		return !this.cfg.disableMediaControls && !this.opts?.disableMediaControls;
 	}
 
 	/** Best-effort OSD message — calls `player.displayMessage(...)` if present, also emits `display-message`. */
