@@ -363,12 +363,24 @@ export const colors: { label: string; value: string }[] = [
 		value: 'cyan',
 	},
 	{
+		label: 'Gray',
+		value: 'gray',
+	},
+	{
 		label: 'Green',
 		value: 'green',
 	},
 	{
 		label: 'Magenta',
 		value: 'magenta',
+	},
+	{
+		label: 'Orange',
+		value: 'orange',
+	},
+	{
+		label: 'Purple',
+		value: 'purple',
 	},
 	{
 		label: 'Red',
