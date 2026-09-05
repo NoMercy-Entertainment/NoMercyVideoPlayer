@@ -146,7 +146,11 @@ export class TvKeyHandlerPlugin<T extends VideoPlaylistItem = VideoPlaylistItem>
 	 * overlay can be registered independently from the desktop-ui overlay.
 	 */
 	protected override addHelpKey(): void {
-		this.bind('?', () => {
+		// `shift+?` for the same reason the desktop handler uses it: pressing `?`
+		// sends `key='?'` with `shiftKey=true`, and the canonicalizer folds modifier
+		// state into the combo, so a bare `'?'` binding is a miss on every press.
+		// This override previously used `'?'` and the help key never fired.
+		this.bind('shift+?', () => {
 			try {
 				this.emit('shortcuts-toggle', undefined);
 			}

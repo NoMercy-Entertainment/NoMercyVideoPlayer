@@ -155,7 +155,10 @@ describe('TvKeyHandlerPlugin — extended coverage', () => {
 		const player = await ready(makePlayer({}));
 		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('plugin:tv-key-handler:shortcuts-toggle', () => tvEvents.push(true));
 		(player as unknown as { on: (event: string, fn: (data: unknown) => void) => void }).on('plugin:desktop-ui:shortcuts-toggle', () => desktopEvents.push(true));
-		key('?');
+		// A real `?` press carries shiftKey, because shift is how the character is
+		// typed. Dispatching it without shift describes an event no keyboard sends,
+		// and this assertion passed against a binding that never fired on a remote.
+		key('?', { shiftKey: true });
 		expect(tvEvents.length).toBeGreaterThan(0);
 		expect(desktopEvents.length).toBe(0);
 	});
